@@ -4,23 +4,22 @@ import (
   "fmt"
   "gopkg.in/yaml.v2"
   "log"
+  "io/ioutil"
 )
 
-var data = `
-a: Easy!
-b:
-  c: 2
-  d: [3, 4]
-`
-
 func main() {
-  var m interface{}
+  var raw_data, read_error = ioutil.ReadFile("sample.yaml")
 
-  err := yaml.Unmarshal([]byte(data), &m)
-  if err != nil {
-          log.Fatalf("error: %v", err)
+  if read_error != nil {
+    log.Fatalf("error: %v", read_error)
   }
 
-  fmt.Println("Hello, 世界")
-  fmt.Println(m)
+  var parsed_data interface{}
+
+  err := yaml.Unmarshal([]byte(raw_data), &parsed_data)
+  if err != nil {
+    log.Fatalf("error: %v", err)
+  }
+
+  fmt.Println(parsed_data)
 }
