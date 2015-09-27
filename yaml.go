@@ -8,6 +8,7 @@ import (
   "os"
   "github.com/codegangsta/cli"
   "strings"
+  "strconv"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func read_property(c *cli.Context) {
   var path = c.Args()[1]
   var paths = strings.Split(path, ".")
 
-  fmt.Println(read(parsed_data, paths[0], paths[1:len(paths)]))
+  fmt.Println(read_map(parsed_data, paths[0], paths[1:len(paths)]))
 }
 
 func read_yaml(c *cli.Context, parsed_data *map[interface{}]interface{}) {
@@ -61,11 +62,34 @@ func read_file(filename string) []byte {
   return raw_data
 }
 
-func read(context map[interface{}]interface{}, head string, tail []string) interface{} {
+func read_map(context map[interface{}]interface{}, head string, tail []string) interface{} {
   value := context[head]
   if (len(tail) > 0) {
-    return read(value.(map[interface{}]interface{}), tail[0], tail[1:len(tail)])
+    return recurse(value, tail[0], tail[1:len(tail)])
   } else {
     return value
   }
 }
+
+func recurse(value interface{}, head string, tail []string) interface{} {
+  switch value.(type) {
+      case []interface {}:
+        index, err := strconv.ParseInt(head, 10, 64)
+        if err != nil {
+          log.Fatalf("Error accessing array: %v", err)
+        }
+        return read_array(value.([]interface {}), index, tail)
+      default:
+        return read_map(value.(map[interface{}]interface{}), head, tail)
+    }
+}
+
+func read_array(array []interface {}, head int64, tail[]string) interface{} {
+  value := array[head]
+  if (len(tail) > 0) {
+    return recurse(value, tail[0], tail[1:len(tail)])
+  } else {
+    return value
+  }
+}
+
