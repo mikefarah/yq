@@ -3,6 +3,11 @@ yaml command line tool written in go
 
 Allows you to read (and soon update) yaml files given a yaml path.
 
+Install
+```
+go get github.com/mikefarah/yaml
+```
+
 Usage:
 ```
 yaml <yaml file> <path>
