@@ -3,26 +3,32 @@ yaml command line tool written in go
 
 Allows you to read (and soon update) yaml files given a yaml path.
 
-Install
+## Install
 ```
 go get github.com/mikefarah/yaml
 ```
 
-Usage:
+## Read examples
 ```
 yaml <yaml file> <path>
 ```
 
-E.g.:
+### Basic
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
 ```
+then
+```bash
 yaml sample.yaml b.c
 ```
 will output the value of '2'.
 
-Arrays:
-Just use the index to access a specific element:
-e.g.: given
-```
+### Arrays
+You can give an index to access a specific element:
+e.g.: given a sample file of
+```yaml
 b:
   e:
     - name: fred
@@ -35,3 +41,7 @@ then
 yaml sample.yaml b.e.1.name
 ```
 will output 'sam'
+
+## TODO
+* Updating yaml files
+* Handling '.' in path names
