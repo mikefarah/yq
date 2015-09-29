@@ -22,6 +22,12 @@ func main() {
 			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.json a.b.c\n\t(default) reads a property from a given yaml file",
 			Action:  readProperty,
 		},
+		{
+			Name:    "write",
+			Aliases: []string{"w"},
+			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.json a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout",
+			Action:  writeProperty,
+		},
 	}
 	app.Action = readProperty
 	app.Run(os.Args)
@@ -35,6 +41,18 @@ func readProperty(c *cli.Context) {
 	var paths = strings.Split(path, ".")
 
 	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
+}
+
+func writeProperty(c *cli.Context) {
+	var parsedData map[interface{}]interface{}
+	readYaml(c, &parsedData)
+
+	var path = c.Args()[1]
+	var paths = strings.Split(path, ".")
+
+	write(parsedData, paths[0], paths[1:len(paths)], c.Args()[2])
+
+	printYaml(parsedData)
 }
 
 func printYaml(context interface{}) {
@@ -68,6 +86,14 @@ func readFile(filename string) []byte {
 		log.Fatalf("error: %v", readError)
 	}
 	return rawData
+}
+
+func write(context map[interface{}]interface{}, head string, tail []string, value interface{}) {
+	// e.g. if updating a.b.c, we need to get the 'b' map...
+	toUpdate := readMap(context, head, tail[0:len(tail)-1]).(map[interface{}]interface{})
+	//  and then set the 'c' key.
+	key := (tail[len(tail)-1])
+	toUpdate[key] = value
 }
 
 func readMap(context map[interface{}]interface{}, head string, tail []string) interface{} {

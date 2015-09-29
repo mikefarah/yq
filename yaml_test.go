@@ -39,3 +39,14 @@ func TestReadMap_array(t *testing.T) {
 		t.Error("Excpted 4 but got ", result)
 	}
 }
+
+func TestWrite_simple(t *testing.T) {
+
+	write(parsedData, "b", []string{"c"}, "4")
+
+	b := parsedData["b"].(map[interface{}]interface{})
+	c := b["c"].(string)
+	if c != "4" {
+		t.Error("Excepted 4 but got ", c)
+	}
+}
