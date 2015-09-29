@@ -34,7 +34,15 @@ func readProperty(c *cli.Context) {
 	var path = c.Args()[1]
 	var paths = strings.Split(path, ".")
 
-	fmt.Println(readMap(parsedData, paths[0], paths[1:len(paths)]))
+	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
+}
+
+func printYaml(context interface{}) {
+  out, err := yaml.Marshal(context)
+  if err != nil {
+    log.Fatalf("error printing yaml: %v", err)
+  }
+  fmt.Println(string(out))
 }
 
 func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
