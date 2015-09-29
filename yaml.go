@@ -30,37 +30,59 @@ func main() {
 		},
 	}
 	app.Action = readProperty
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "trim, t",
+			Value: "true",
+			Usage: "trim output",
+		},
+	}
 	app.Run(os.Args)
 }
 
 func readProperty(c *cli.Context) {
+
 	var parsedData map[interface{}]interface{}
+
 	readYaml(c, &parsedData)
+
+	if len(c.Args()) == 1 {
+		printYaml(parsedData, c.Bool("trim"))
+		os.Exit(0)
+	}
 
 	var path = c.Args()[1]
 	var paths = strings.Split(path, ".")
 
-	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
+	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]), c.Bool("trim"))
 }
 
 func writeProperty(c *cli.Context) {
 	var parsedData map[interface{}]interface{}
 	readYaml(c, &parsedData)
 
+	if len(c.Args()) != 3 {
+		log.Fatalf("Must provide <filename> <path_to_update> <value>")
+	}
+
 	var path = c.Args()[1]
 	var paths = strings.Split(path, ".")
 
 	write(parsedData, paths[0], paths[1:len(paths)], c.Args()[2])
 
-	printYaml(parsedData)
+	printYaml(parsedData, c.Bool("trim"))
 }
 
-func printYaml(context interface{}) {
+func printYaml(context interface{}, trim bool) {
 	out, err := yaml.Marshal(context)
 	if err != nil {
 		log.Fatalf("error printing yaml: %v", err)
 	}
-	fmt.Println(string(out))
+	outStr := string(out)
+	if trim {
+		outStr = strings.Trim(outStr, "\n ")
+	}
+	fmt.Println(outStr)
 }
 
 func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
@@ -68,11 +90,6 @@ func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
 		log.Fatalf("Must provide filename")
 	}
 	var rawData = readFile(c.Args()[0])
-
-	if len(c.Args()) == 1 {
-		fmt.Println(string(rawData[:]))
-		os.Exit(0)
-	}
 
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {

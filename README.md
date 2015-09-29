@@ -44,6 +44,22 @@ yaml sample.yaml b.e.1.name
 ```
 will output 'sam'
 
+### Updating yaml
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml w sample.yaml b.c 'cat'
+```
+will output:
+```yaml
+b:
+  c: cat
+```
+
+
 ## TODO
-* Updating yaml files
 * Handling '.' in path names
