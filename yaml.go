@@ -19,13 +19,13 @@ func main() {
 		{
 			Name:    "read",
 			Aliases: []string{"r"},
-			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.json a.b.c\n\t(default) reads a property from a given yaml file",
+			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.json a.b.c\n\t(default) reads a property from a given yaml file\n",
 			Action:  readProperty,
 		},
 		{
 			Name:    "write",
 			Aliases: []string{"w"},
-			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.json a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout",
+			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.json a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout\n",
 			Action:  writeProperty,
 		},
 	}
@@ -56,11 +56,11 @@ func writeProperty(c *cli.Context) {
 }
 
 func printYaml(context interface{}) {
-  out, err := yaml.Marshal(context)
-  if err != nil {
-    log.Fatalf("error printing yaml: %v", err)
-  }
-  fmt.Println(string(out))
+	out, err := yaml.Marshal(context)
+	if err != nil {
+		log.Fatalf("error printing yaml: %v", err)
+	}
+	fmt.Println(string(out))
 }
 
 func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
