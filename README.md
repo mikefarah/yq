@@ -1,9 +1,11 @@
 # yaml
 yaml command line tool written in go
 
-Allows you to read (and soon update) yaml files given a yaml path.
+Allows you to read (and soon update) yaml files given a yaml path. All in a lovely dependency free binary!
 
-## Install
+[Download latest release](https://github.com/mikefarah/yaml/releases/latest)
+
+or alternatively install using go get:
 ```
 go get github.com/mikefarah/yaml
 ```
