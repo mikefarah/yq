@@ -27,17 +27,11 @@ func TestMain(m *testing.M) {
 }
 
 func TestReadMap_simple(t *testing.T) {
-	result := readMap(parsedData, "b", []string{"c"})
-	if result != 2 {
-		t.Error("Excpted 2 but got ", result)
-	}
+	assertResult(t, 2, readMap(parsedData, "b", []string{"c"}))
 }
 
 func TestReadMap_array(t *testing.T) {
-	result := readMap(parsedData, "b", []string{"d", "1"})
-	if result != 4 {
-		t.Error("Excpted 4 but got ", result)
-	}
+	assertResult(t, 4, readMap(parsedData, "b", []string{"d", "1"}))
 }
 
 func TestWrite_simple(t *testing.T) {
@@ -45,8 +39,12 @@ func TestWrite_simple(t *testing.T) {
 	write(parsedData, "b", []string{"c"}, "4")
 
 	b := parsedData["b"].(map[interface{}]interface{})
-	c := b["c"].(string)
-	if c != "4" {
-		t.Error("Excepted 4 but got ", c)
+	assertResult(t, "4", b["c"].(string))
+}
+
+
+func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+	if (expectedValue != actualValue) {
+		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">")
 	}
 }
