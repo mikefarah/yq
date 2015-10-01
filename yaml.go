@@ -61,16 +61,37 @@ func writeProperty(c *cli.Context) {
 	var parsedData map[interface{}]interface{}
 	readYaml(c, &parsedData)
 
-	if len(c.Args()) != 3 {
+	if len(c.Args()) < 3 {
 		log.Fatalf("Must provide <filename> <path_to_update> <value>")
+	}
+
+	var forceString bool
+	if len(c.Args()) == 4 {
+		forceString = true
 	}
 
 	var path = c.Args()[1]
 	var paths = strings.Split(path, ".")
 
-	write(parsedData, paths[0], paths[1:len(paths)], c.Args()[2])
+	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2], forceString))
 
 	printYaml(parsedData, c.Bool("trim"))
+}
+
+func getValue(argument string, forceString bool) interface{} {
+	var value, err interface{}
+
+	if !forceString {
+		value, err = strconv.ParseFloat(argument, 64)
+		if err == nil {
+			return value
+		}
+		value, err = strconv.ParseBool(argument)
+		if err == nil {
+			return value
+		}
+	}
+	return argument
 }
 
 func printYaml(context interface{}, trim bool) {
