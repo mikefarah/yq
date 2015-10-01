@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -42,9 +43,30 @@ func TestWrite_simple(t *testing.T) {
 	assertResult(t, "4", b["c"].(string))
 }
 
+var getValueTests = []struct {
+	argument        string
+	expectedResult  interface{}
+	testDescription string
+}{
+	{"true", true, "boolean"},
+	{"3.4", 3.4, "number"},
+}
+
+func TestGetValue(t *testing.T) {
+	for _, tt := range getValueTests {
+		assertResultWithContext(t, tt.expectedResult, getValue(tt.argument, false), tt.testDescription)
+		assertResultWithContext(t, tt.argument, getValue(tt.argument, true), strings.Join([]string{tt.testDescription, "with forceString"}, " "))
+	}
+}
 
 func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
-	if (expectedValue != actualValue) {
+	if expectedValue != actualValue {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">")
+	}
+}
+
+func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, testDescription string) {
+	if expectedValue != actualValue {
+		t.Error(testDescription, ": expected <", expectedValue, "> but got <", actualValue, ">")
 	}
 }
