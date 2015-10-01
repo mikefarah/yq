@@ -66,7 +66,8 @@ func writeProperty(c *cli.Context) {
 	}
 
 	var forceString bool
-	if len(c.Args()) == 4 {
+	var argumentLength = len(c.Args())
+	if argumentLength >= 4 && c.Args()[argumentLength-1] == "forceString" {
 		forceString = true
 	}
 
