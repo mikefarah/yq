@@ -19,14 +19,20 @@ func main() {
 		{
 			Name:    "read",
 			Aliases: []string{"r"},
-			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.json a.b.c\n\t(default) reads a property from a given yaml file\n",
+			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.yaml a.b.c\n\t(default) reads a property from a given yaml file\n",
 			Action:  readProperty,
 		},
 		{
 			Name:    "write",
 			Aliases: []string{"w"},
-			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.json a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout\n",
+			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.yaml a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout\n",
 			Action:  writeProperty,
+		},
+		{
+			Name:    "write-inplace",
+			Aliases: []string{"wi"},
+			Usage:   "wi <filename> <path> <value>\n\te.g.: yaml wi sample.yaml a.b.c 5\n\tupdates a property from a given yaml file and saves it to the given filename (sample.yaml)\n",
+			Action:  writePropertyInPlace,
 		},
 	}
 	app.Action = readProperty
@@ -50,6 +56,15 @@ func readProperty(c *cli.Context) {
 }
 
 func writeProperty(c *cli.Context) {
+	printYaml(updateProperty(c))
+}
+
+func writePropertyInPlace(c *cli.Context) {
+	updatedYaml := updateProperty(c)
+	ioutil.WriteFile(c.Args()[0], []byte(updatedYaml), 0644)
+}
+
+func updateProperty(c *cli.Context) string {
 	var parsedData map[interface{}]interface{}
 	readYaml(c, &parsedData)
 
@@ -61,7 +76,7 @@ func writeProperty(c *cli.Context) {
 
 	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2]))
 
-	printYaml(parsedData)
+	return yamlToString(parsedData)
 }
 
 func getValue(argument string) interface{} {
@@ -82,6 +97,10 @@ func getValue(argument string) interface{} {
 }
 
 func printYaml(context interface{}) {
+	fmt.Println(yamlToString(context))
+}
+
+func yamlToString(context interface{}) string {
 	out, err := yaml.Marshal(context)
 	if err != nil {
 		log.Fatalf("error printing yaml: %v", err)
@@ -89,7 +108,7 @@ func printYaml(context interface{}) {
 	outStr := string(out)
 	// trim the trailing new line as it's easier for a script to add
 	// it in if required than to remove it
-	fmt.Println(strings.Trim(outStr, "\n "))
+	return strings.Trim(outStr, "\n ")
 }
 
 func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
