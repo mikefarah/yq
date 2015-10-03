@@ -35,6 +35,10 @@ func TestReadMap_array(t *testing.T) {
 	assertResult(t, 4, readMap(parsedData, "b", []string{"d", "1"}))
 }
 
+func TestReadMap_array_out_of_bounds(t *testing.T) {
+	assertResult(t, nil, readMap(parsedData, "b", []string{"d", "3"}))
+}
+
 func TestWrite_simple(t *testing.T) {
 
 	write(parsedData, "b", []string{"c"}, "4")

@@ -36,6 +36,10 @@ func recurse(value interface{}, head string, tail []string) interface{} {
 }
 
 func readArray(array []interface{}, head int64, tail []string) interface{} {
+	if head > int64(len(array)) {
+		return nil
+	}
+
 	value := array[head]
 	if len(tail) > 0 {
 		return recurse(value, tail[0], tail[1:len(tail)])
