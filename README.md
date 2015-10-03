@@ -64,7 +64,7 @@ b:
 ```
 then
 ```bash
-yaml w sample.yaml b.c 'cat'
+yaml w sample.yaml b.c cat
 ```
 will output:
 ```yaml
