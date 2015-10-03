@@ -64,23 +64,17 @@ func writeProperty(c *cli.Context) {
 		log.Fatalf("Must provide <filename> <path_to_update> <value>")
 	}
 
-	var forceString bool
-	var argumentLength = len(c.Args())
-	if argumentLength >= 4 && c.Args()[argumentLength-1] == "forceString" {
-		forceString = true
-	}
-
 	var paths = parsePath(c.Args()[1])
 
-	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2], forceString))
+	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2]))
 
 	printYaml(parsedData, c.Bool("trim"))
 }
 
-func getValue(argument string, forceString bool) interface{} {
+func getValue(argument string) interface{} {
 	var value, err interface{}
-
-	if !forceString {
+	var inQuotes = argument[0] == '"'
+	if !inQuotes {
 		value, err = strconv.ParseFloat(argument, 64)
 		if err == nil {
 			return value
@@ -89,8 +83,9 @@ func getValue(argument string, forceString bool) interface{} {
 		if err == nil {
 			return value
 		}
+		return argument
 	}
-	return argument
+	return argument[1 : len(argument)-1]
 }
 
 func printYaml(context interface{}, trim bool) {
