@@ -30,13 +30,6 @@ func main() {
 		},
 	}
 	app.Action = readProperty
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "trim, t",
-			Value: "true",
-			Usage: "trim output",
-		},
-	}
 	app.Run(os.Args)
 }
 
@@ -47,13 +40,13 @@ func readProperty(c *cli.Context) {
 	readYaml(c, &parsedData)
 
 	if len(c.Args()) == 1 {
-		printYaml(parsedData, c.Bool("trim"))
+		printYaml(parsedData)
 		os.Exit(0)
 	}
 
 	var paths = parsePath(c.Args()[1])
 
-	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]), c.Bool("trim"))
+	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
 }
 
 func writeProperty(c *cli.Context) {
@@ -68,7 +61,7 @@ func writeProperty(c *cli.Context) {
 
 	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2]))
 
-	printYaml(parsedData, c.Bool("trim"))
+	printYaml(parsedData)
 }
 
 func getValue(argument string) interface{} {
@@ -88,16 +81,15 @@ func getValue(argument string) interface{} {
 	return argument[1 : len(argument)-1]
 }
 
-func printYaml(context interface{}, trim bool) {
+func printYaml(context interface{}) {
 	out, err := yaml.Marshal(context)
 	if err != nil {
 		log.Fatalf("error printing yaml: %v", err)
 	}
 	outStr := string(out)
-	if trim {
-		outStr = strings.Trim(outStr, "\n ")
-	}
-	fmt.Println(outStr)
+	// trim the trailing new line as it's easier for a script to add
+	// it in if required than to remove it
+	fmt.Println(strings.Trim(outStr, "\n "))
 }
 
 func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
