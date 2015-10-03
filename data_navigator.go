@@ -30,6 +30,8 @@ func recurse(value interface{}, head string, tail []string) interface{} {
 			log.Fatalf("Error accessing array: %v", err)
 		}
 		return readArray(value.([]interface{}), index, tail)
+	case nil:
+		return nil
 	default:
 		return readMap(value.(map[interface{}]interface{}), head, tail)
 	}

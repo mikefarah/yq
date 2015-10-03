@@ -31,11 +31,15 @@ func TestReadMap_simple(t *testing.T) {
 	assertResult(t, 2, readMap(parsedData, "b", []string{"c"}))
 }
 
-func TestReadMap_array(t *testing.T) {
+func TestReadMap_key_doesnt_exist(t *testing.T) {
+	assertResult(t, nil, readMap(parsedData, "b.x.f", []string{"c"}))
+}
+
+func TestReadMap_with_array(t *testing.T) {
 	assertResult(t, 4, readMap(parsedData, "b", []string{"d", "1"}))
 }
 
-func TestReadMap_array_out_of_bounds(t *testing.T) {
+func TestReadMap_with_array_out_of_bounds(t *testing.T) {
 	assertResult(t, nil, readMap(parsedData, "b", []string{"d", "3"}))
 }
 
