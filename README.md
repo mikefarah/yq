@@ -27,6 +27,18 @@ yaml sample.yaml b.c
 ```
 will output the value of '2'.
 
+### Handling '.' in the yaml key
+Given a sample.yaml file of:
+```yaml
+b.x:
+  c: 2
+```
+then
+```bash
+yaml sample.yaml \"b.x\".c
+```
+will output the value of '2'.
+
 ### Arrays
 You can give an index to access a specific element:
 e.g.: given a sample file of
@@ -40,7 +52,7 @@ b:
 ```
 then
 ```
-yaml sample.yaml b.e.1.name
+yaml sample.yaml b.e[1].name
 ```
 will output 'sam'
 
@@ -59,7 +71,3 @@ will output:
 b:
   c: cat
 ```
-
-
-## TODO
-* Handling '.' in path names

@@ -51,8 +51,7 @@ func readProperty(c *cli.Context) {
 		os.Exit(0)
 	}
 
-	var path = c.Args()[1]
-	var paths = strings.Split(path, ".")
+	var paths = parsePath(c.Args()[1])
 
 	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]), c.Bool("trim"))
 }
@@ -71,8 +70,7 @@ func writeProperty(c *cli.Context) {
 		forceString = true
 	}
 
-	var path = c.Args()[1]
-	var paths = strings.Split(path, ".")
+	var paths = parsePath(c.Args()[1])
 
 	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2], forceString))
 

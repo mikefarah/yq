@@ -65,8 +65,9 @@ func assertResult(t *testing.T, expectedValue interface{}, actualValue interface
 	}
 }
 
-func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, testDescription string) {
+func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
 	if expectedValue != actualValue {
-		t.Error(testDescription, ": expected <", expectedValue, "> but got <", actualValue, ">")
+		t.Error(context)
+		t.Error(": expected <", expectedValue, "> but got <", actualValue, ">")
 	}
 }
