@@ -1,5 +1,5 @@
 # yaml
-yaml command line tool written in go
+yaml is portable command line tool written in go
 
 Allows you to read (and soon update) yaml files given a yaml path. All in a lovely dependency free binary!
 
