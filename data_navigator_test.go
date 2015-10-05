@@ -44,6 +44,10 @@ func TestReadMap_key_doesnt_exist(t *testing.T) {
 	assertResult(t, nil, readMap(parsedData, "b.x.f", []string{"c"}))
 }
 
+func TestReadMap_recurse_against_string(t *testing.T) {
+	assertResult(t, nil, readMap(parsedData, "a", []string{"b"}))
+}
+
 func TestReadMap_with_array(t *testing.T) {
 	assertResult(t, 4, readMap(parsedData, "b", []string{"d", "1"}))
 }
