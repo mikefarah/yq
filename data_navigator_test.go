@@ -68,6 +68,14 @@ func TestWrite_simple(t *testing.T) {
 	assertResult(t, "4", b["c"].(string))
 }
 
+func TestWrite_with_no_tail(t *testing.T) {
+
+	write(parsedData, "b", []string{}, "4")
+
+	b := parsedData["b"]
+	assertResult(t, "4", fmt.Sprintf("%v", b))
+}
+
 func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	if expectedValue != actualValue {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))

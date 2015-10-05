@@ -7,11 +7,15 @@ import (
 )
 
 func write(context map[interface{}]interface{}, head string, tail []string, value interface{}) {
-	// e.g. if updating a.b.c, we need to get the 'b' map...
-	toUpdate := readMap(context, head, tail[0:len(tail)-1]).(map[interface{}]interface{})
-	//  and then set the 'c' key.
-	key := (tail[len(tail)-1])
-	toUpdate[key] = value
+	if len(tail) == 0 {
+		context[head] = value
+	} else {
+		// e.g. if updating a.b.c, we need to get the 'b' map...
+		toUpdate := readMap(context, head, tail[0:len(tail)-1]).(map[interface{}]interface{})
+		//  and then set the 'c' key.
+		key := (tail[len(tail)-1])
+		toUpdate[key] = value
+	}
 }
 
 func readMap(context map[interface{}]interface{}, head string, tail []string) interface{} {
