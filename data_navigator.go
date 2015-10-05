@@ -20,10 +20,7 @@ func write(context map[interface{}]interface{}, head string, tail []string, valu
 
 func readMap(context map[interface{}]interface{}, head string, tail []string) interface{} {
 	value := context[head]
-	if len(tail) > 0 {
-		return recurse(value, tail[0], tail[1:len(tail)])
-	}
-	return value
+	return calculateValue(value, tail)
 }
 
 func recurse(value interface{}, head string, tail []string) interface{} {
@@ -50,10 +47,8 @@ func readArray(array []interface{}, head int64, tail []string) interface{} {
 	}
 
 	value := array[head]
-	if len(tail) > 0 {
-		return recurse(value, tail[0], tail[1:len(tail)])
-	}
-	return value
+
+	return calculateValue(value, tail)
 }
 
 func readArraySplat(array []interface{}, tail []string) interface{} {
