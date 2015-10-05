@@ -1,7 +1,7 @@
 # yaml
 yaml is portable command line tool written in go
 
-Allows you to read (and soon update) yaml files given a yaml path. All in a lovely dependency free binary!
+Allows you to read and update yaml files from bash (or whatever). All in a lovely dependency free binary!
 
 [Download latest release](https://github.com/mikefarah/yaml/releases/latest)
 
