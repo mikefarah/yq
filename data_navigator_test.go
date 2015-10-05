@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"os"
+	"sort"
 	"testing"
 )
 
@@ -24,6 +25,32 @@ b:
   c: 2
 `)
 	assertResult(t, 2, readMap(data, "b", []string{"c"}))
+}
+
+func TestReadMap_splat(t *testing.T) {
+	var data = parseData(`
+---
+mapSplat:
+  item1: things
+  item2: whatever
+`)
+	assertResult(t, "[things whatever]", fmt.Sprintf("%v", readMap(data, "mapSplat", []string{"*"})))
+}
+
+func TestReadMap_deep_splat(t *testing.T) {
+	var data = parseData(`
+---
+mapSplatDeep:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+`)
+
+	var result = readMap(data, "mapSplatDeep", []string{"*", "cats"}).([]interface{})
+	var actual = []string{result[0].(string), result[1].(string)}
+	sort.Strings(actual)
+	assertResult(t, "[apples bananas]", fmt.Sprintf("%v", actual))
 }
 
 func TestReadMap_key_doesnt_exist(t *testing.T) {

@@ -19,8 +19,25 @@ func write(context map[interface{}]interface{}, head string, tail []string, valu
 }
 
 func readMap(context map[interface{}]interface{}, head string, tail []string) interface{} {
+	if head == "*" {
+		return readMapSplat(context, tail)
+	}
 	value := context[head]
 	return calculateValue(value, tail)
+}
+
+func readMapSplat(context map[interface{}]interface{}, tail []string) interface{} {
+	var newArray = make([]interface{}, len(context))
+	var i = 0
+	for _, value := range context {
+		if len(tail) > 0 {
+			newArray[i] = recurse(value, tail[0], tail[1:len(tail)])
+		} else {
+			newArray[i] = value
+		}
+		i++
+	}
+	return newArray
 }
 
 func recurse(value interface{}, head string, tail []string) interface{} {

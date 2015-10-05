@@ -33,6 +33,26 @@ cat sample.yaml | yaml - b.c
 ```
 will output the value of '2'.
 
+### Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+```
+then
+```bash
+yaml sample.yaml bob.*.cats
+```
+will output
+```yaml
+- bananas
+- apples
+```
+
 ### Handling '.' in the yaml key
 Given a sample.yaml file of:
 ```yaml
@@ -81,6 +101,8 @@ will output:
 - fred
 - sam
 ```
+
+
 
 ### Updating yaml
 Given a sample.yaml file of:
