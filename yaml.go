@@ -117,8 +117,7 @@ func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
 	}
 
 	var rawData []byte
-	fmt.Println("c.Args()[0]", c.Args()[0])
-	if( c.Args()[0] == "-") {
+	if c.Args()[0] == "-" {
 		rawData = readStdin()
 	} else {
 		rawData = readFile(c.Args()[0])
