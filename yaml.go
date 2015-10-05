@@ -115,12 +115,27 @@ func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
 	if len(c.Args()) == 0 {
 		log.Fatalf("Must provide filename")
 	}
-	var rawData = readFile(c.Args()[0])
+
+	var rawData []byte
+	fmt.Println("c.Args()[0]", c.Args()[0])
+	if( c.Args()[0] == "-") {
+		rawData = readStdin()
+	} else {
+		rawData = readFile(c.Args()[0])
+	}
 
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
+}
+
+func readStdin() []byte {
+	bytes, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		log.Fatalf("error reading stdin", err)
+	}
+	return bytes
 }
 
 func readFile(filename string) []byte {

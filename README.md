@@ -27,6 +27,12 @@ yaml sample.yaml b.c
 ```
 will output the value of '2'.
 
+### Reading from STDIN
+Given a sample.yaml file of:
+cat sample.yaml | yaml - b.c
+```
+will output the value of '2'.
+
 ### Handling '.' in the yaml key
 Given a sample.yaml file of:
 ```yaml
