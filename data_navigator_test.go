@@ -8,10 +8,20 @@ import (
 )
 
 var rawData = `
+---
 a: Easy!
 b:
   c: 2
-  d: [3, 4]
+  d:
+    - 3
+    - 4
+e:
+  -
+    name: Fred
+    thing: cat
+  -
+    name: Sam
+    thing: dog
 `
 
 var parsedData map[interface{}]interface{}
@@ -42,6 +52,10 @@ func TestReadMap_with_array_out_of_bounds(t *testing.T) {
 	assertResult(t, nil, readMap(parsedData, "b", []string{"d", "3"}))
 }
 
+func TestReadMap_with_array_splat(t *testing.T) {
+	assertResult(t, "[Fred Sam]", fmt.Sprintf("%v", readMap(parsedData, "e", []string{"*", "name"})))
+}
+
 func TestWrite_simple(t *testing.T) {
 
 	write(parsedData, "b", []string{"c"}, "4")
@@ -52,11 +66,12 @@ func TestWrite_simple(t *testing.T) {
 
 func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	if expectedValue != actualValue {
-		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">")
+		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
 	}
 }
 
 func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
+
 	if expectedValue != actualValue {
 		t.Error(context)
 		t.Error(": expected <", expectedValue, "> but got <", actualValue, ">")

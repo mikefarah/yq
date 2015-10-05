@@ -25,6 +25,9 @@ func readMap(context map[interface{}]interface{}, head string, tail []string) in
 func recurse(value interface{}, head string, tail []string) interface{} {
 	switch value.(type) {
 	case []interface{}:
+		if head == "*" {
+			return readArraySplat(value.([]interface{}), tail)
+		}
 		index, err := strconv.ParseInt(head, 10, 64)
 		if err != nil {
 			log.Fatalf("Error accessing array: %v", err)
@@ -43,6 +46,21 @@ func readArray(array []interface{}, head int64, tail []string) interface{} {
 	}
 
 	value := array[head]
+	if len(tail) > 0 {
+		return recurse(value, tail[0], tail[1:len(tail)])
+	}
+	return value
+}
+
+func readArraySplat(array []interface{}, tail []string) interface{} {
+	var newArray = make([]interface{}, len(array))
+	for index, value := range array {
+		newArray[index] = calculateValue(value, tail)
+	}
+	return newArray
+}
+
+func calculateValue(value interface{}, tail []string) interface{} {
 	if len(tail) > 0 {
 		return recurse(value, tail[0], tail[1:len(tail)])
 	}

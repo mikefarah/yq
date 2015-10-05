@@ -56,6 +56,26 @@ yaml sample.yaml b.e[1].name
 ```
 will output 'sam'
 
+#### Array Splat
+e.g.: given a sample file of
+```yaml
+b:
+  e:
+    - name: fred
+      value: 3
+    - name: sam
+      value: 4
+```
+then
+```
+yaml sample.yaml b.e[*].name
+```
+will output:
+```
+- fred
+- sam
+```
+
 ### Updating yaml
 Given a sample.yaml file of:
 ```yaml
