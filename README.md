@@ -83,7 +83,7 @@ yaml sample.yaml b.e[1].name
 ```
 will output 'sam'
 
-#### Array Splat
+### Array Splat
 e.g.: given a sample file of
 ```yaml
 b:
@@ -103,9 +103,9 @@ will output:
 - sam
 ```
 
+## Update examples
 
-
-### Updating yaml
+### Update to stdout
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -120,3 +120,16 @@ will output:
 b:
   c: cat
 ```
+
+
+### Updating yaml in-place
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml wi sample.yaml b.c cat
+```
+will update the sample.yaml file so that the value of 'c' is cat.
