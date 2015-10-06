@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
+	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -11,74 +11,79 @@ import (
 	"strings"
 )
 
+var trimOutput = true
+var writeInplace = false
+
 func main() {
-	app := cli.NewApp()
-	app.Name = "yaml"
-	app.Usage = "command line tool for reading and writing yaml"
-	app.Commands = []cli.Command{
-		{
-			Name:    "read",
-			Aliases: []string{"r"},
-			Usage:   "read <filename> <path>\n\te.g.: yaml read sample.yaml a.b.c\n\t(default) reads a property from a given yaml file\n",
-			Action:  readProperty,
-		},
-		{
-			Name:    "write",
-			Aliases: []string{"w"},
-			Usage:   "write <filename> <path> <value>\n\te.g.: yaml write sample.yaml a.b.c 5\n\tupdates a property from a given yaml file, outputs to stdout\n",
-			Action:  writeProperty,
-		},
-		{
-			Name:    "write-inplace",
-			Aliases: []string{"wi"},
-			Usage:   "wi <filename> <path> <value>\n\te.g.: yaml wi sample.yaml a.b.c 5\n\tupdates a property from a given yaml file and saves it to the given filename (sample.yaml)\n",
-			Action:  writePropertyInPlace,
-		},
+	var cmdRead = &cobra.Command{
+		Use:     "read [yaml_file] [path]",
+		Aliases: []string{"r"},
+		Short:   "yaml r sample.yaml a.b.c",
+		Example: `
+yaml read things.yaml a.b.c
+yaml r - a.b.c (reads from stdin)
+yaml r things.yaml a.*.c
+yaml r things.yaml a.array[0].blah
+yaml r things.yaml a.array[*].blah
+			`,
+		Long: "Outputs the value of the given path in the yaml file to STDOUT",
+		Run:  readProperty,
 	}
-	app.Action = readProperty
-	app.Run(os.Args)
+
+	var cmdWrite = &cobra.Command{
+		Use:     "write [yaml_file] [path] [value]",
+		Aliases: []string{"w"},
+		Short:   "yaml w [--inplace/-i] sample.yaml a.b.c newValueForC",
+		Example: `
+yaml write things.yaml a.b.c cat
+yaml write --inplace things.yaml a.b.c cat
+yaml w -i things.yaml a.b.c cat
+			`,
+		Long: `Updates the yaml file w.r.t the given path and value.
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.`,
+		Run: writeProperty,
+	}
+	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+
+	var rootCmd = &cobra.Command{Use: "yaml"}
+	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
+	rootCmd.AddCommand(cmdRead, cmdWrite)
+	rootCmd.Execute()
 }
 
-func readProperty(c *cli.Context) {
-
+func readProperty(cmd *cobra.Command, args []string) {
 	var parsedData map[interface{}]interface{}
 
-	readYaml(c, &parsedData)
+	readYaml(args, &parsedData)
 
-	if len(c.Args()) == 1 {
+	if len(args) == 1 {
 		printYaml(parsedData)
 		os.Exit(0)
 	}
 
-	var paths = parsePath(c.Args()[1])
+	var paths = parsePath(args[1])
 
 	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
 }
 
-func writeProperty(c *cli.Context) {
-	printYaml(updateProperty(c))
-}
-
-func writePropertyInPlace(c *cli.Context) {
-	updatedYaml := updateProperty(c)
-	ioutil.WriteFile(c.Args()[0], []byte(updatedYaml), 0644)
-}
-
-func updateProperty(c *cli.Context) string {
-	var parsedData map[interface{}]interface{}
-	readYaml(c, &parsedData)
-
-	if len(c.Args()) < 3 {
+func writeProperty(cmd *cobra.Command, args []string) {
+	if len(args) < 3 {
 		log.Fatalf("Must provide <filename> <path_to_update> <value>")
 	}
 
-	var paths = parsePath(c.Args()[1])
+	var parsedData map[interface{}]interface{}
+	readYaml(args, &parsedData)
 
-	write(parsedData, paths[0], paths[1:len(paths)], getValue(c.Args()[2]))
+	var paths = parsePath(args[1])
 
-	return yamlToString(parsedData)
+	write(parsedData, paths[0], paths[1:len(paths)], getValue(args[2]))
+
+	if writeInplace {
+		ioutil.WriteFile(args[0], []byte(yamlToString(parsedData)), 0644)
+	} else {
+		printYaml(parsedData)
+	}
 }
-
 func getValue(argument string) interface{} {
 	var value, err interface{}
 	var inQuotes = argument[0] == '"'
@@ -108,19 +113,22 @@ func yamlToString(context interface{}) string {
 	outStr := string(out)
 	// trim the trailing new line as it's easier for a script to add
 	// it in if required than to remove it
-	return strings.Trim(outStr, "\n ")
+	if trimOutput {
+		return strings.Trim(outStr, "\n ")
+	}
+	return outStr
 }
 
-func readYaml(c *cli.Context, parsedData *map[interface{}]interface{}) {
-	if len(c.Args()) == 0 {
+func readYaml(args []string, parsedData *map[interface{}]interface{}) {
+	if len(args) == 0 {
 		log.Fatalf("Must provide filename")
 	}
 
 	var rawData []byte
-	if c.Args()[0] == "-" {
+	if args[0] == "-" {
 		rawData = readStdin()
 	} else {
-		rawData = readFile(c.Args()[0])
+		rawData = readFile(args[0])
 	}
 
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)

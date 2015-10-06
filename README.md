@@ -12,7 +12,7 @@ go get github.com/mikefarah/yaml
 
 ## Read examples
 ```
-yaml <yaml file> <path>
+yaml r <yaml file> <path>
 ```
 
 ### Basic
@@ -23,14 +23,14 @@ b:
 ```
 then
 ```bash
-yaml sample.yaml b.c
+yaml r sample.yaml b.c
 ```
 will output the value of '2'.
 
 ### Reading from STDIN
 Given a sample.yaml file of:
 ```bash
-cat sample.yaml | yaml - b.c
+cat sample.yaml | yaml r - b.c
 ```
 will output the value of '2'.
 
@@ -46,7 +46,7 @@ bob:
 ```
 then
 ```bash
-yaml sample.yaml bob.*.cats
+yaml r sample.yaml bob.*.cats
 ```
 will output
 ```yaml
@@ -62,7 +62,7 @@ b.x:
 ```
 then
 ```bash
-yaml sample.yaml \"b.x\".c
+yaml r sample.yaml \"b.x\".c
 ```
 will output the value of '2'.
 
@@ -79,7 +79,7 @@ b:
 ```
 then
 ```
-yaml sample.yaml b.e[1].name
+yaml r sample.yaml b.e[1].name
 ```
 will output 'sam'
 
@@ -95,7 +95,7 @@ b:
 ```
 then
 ```
-yaml sample.yaml b.e[*].name
+yaml r sample.yaml b.e[*].name
 ```
 will output:
 ```
@@ -121,7 +121,6 @@ b:
   c: cat
 ```
 
-
 ### Updating yaml in-place
 Given a sample.yaml file of:
 ```yaml
@@ -130,6 +129,6 @@ b:
 ```
 then
 ```bash
-yaml wi sample.yaml b.c cat
+yaml w -i sample.yaml b.c cat
 ```
 will update the sample.yaml file so that the value of 'c' is cat.
