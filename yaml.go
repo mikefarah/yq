@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -68,7 +67,7 @@ func readProperty(cmd *cobra.Command, args []string) {
 
 func writeProperty(cmd *cobra.Command, args []string) {
 	if len(args) < 3 {
-		log.Fatalf("Must provide <filename> <path_to_update> <value>")
+		die("Must provide <filename> <path_to_update> <value>")
 	}
 
 	var parsedData map[interface{}]interface{}
@@ -108,7 +107,7 @@ func printYaml(context interface{}) {
 func yamlToString(context interface{}) string {
 	out, err := yaml.Marshal(context)
 	if err != nil {
-		log.Fatalf("error printing yaml: %v", err)
+		die("error printing yaml: %v", err)
 	}
 	outStr := string(out)
 	// trim the trailing new line as it's easier for a script to add
@@ -121,7 +120,7 @@ func yamlToString(context interface{}) string {
 
 func readYaml(args []string, parsedData *map[interface{}]interface{}) {
 	if len(args) == 0 {
-		log.Fatalf("Must provide filename")
+		die("Must provide filename")
 	}
 
 	var rawData []byte
@@ -133,14 +132,14 @@ func readYaml(args []string, parsedData *map[interface{}]interface{}) {
 
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		die("error: %v", err)
 	}
 }
 
 func readStdin() []byte {
 	bytes, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		log.Fatalf("error reading stdin", err)
+		die("error reading stdin", err)
 	}
 	return bytes
 }
@@ -148,7 +147,12 @@ func readStdin() []byte {
 func readFile(filename string) []byte {
 	var rawData, readError = ioutil.ReadFile(filename)
 	if readError != nil {
-		log.Fatalf("error: %v", readError)
+		die("error: %v", readError)
 	}
 	return rawData
+}
+
+func die(message ...interface{}) {
+	fmt.Println(message)
+	os.Exit(1)
 }

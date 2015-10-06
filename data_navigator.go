@@ -2,7 +2,6 @@ package main
 
 import (
 	// "fmt"
-	"log"
 	"strconv"
 )
 
@@ -48,7 +47,7 @@ func recurse(value interface{}, head string, tail []string) interface{} {
 		}
 		index, err := strconv.ParseInt(head, 10, 64)
 		if err != nil {
-			log.Fatalf("Error accessing array: %v", err)
+			die("Error accessing array: %v", err)
 		}
 		return readArray(value.([]interface{}), index, tail)
 	case map[interface{}]interface{}:
