@@ -29,6 +29,7 @@ will output the value of '2'.
 
 ### Reading from STDIN
 Given a sample.yaml file of:
+```bash
 cat sample.yaml | yaml - b.c
 ```
 will output the value of '2'.
