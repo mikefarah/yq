@@ -132,3 +132,31 @@ then
 yaml w -i sample.yaml b.c cat
 ```
 will update the sample.yaml file so that the value of 'c' is cat.
+
+
+### Updating multiple values with a script
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+  e:
+    - name: Billy Bob
+```
+and a script update_instructions.yaml of:
+```yaml
+b.c: 3
+b.e[0].name: Howdy Partner
+```
+then
+
+```bash
+yaml -w -s update_instructions.yaml sample.yaml
+```
+will output:
+```yaml
+b:
+  c: 3
+  e:
+    - name: Howdy Partner
+```
+

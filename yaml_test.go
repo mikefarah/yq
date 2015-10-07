@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var getValueTests = []struct {
+var parseValueTests = []struct {
 	argument        string
 	expectedResult  interface{}
 	testDescription string
@@ -15,8 +15,8 @@ var getValueTests = []struct {
 	{"\"3.4\"", "3.4", "number as string"},
 }
 
-func TestGetValue(t *testing.T) {
-	for _, tt := range getValueTests {
-		assertResultWithContext(t, tt.expectedResult, getValue(tt.argument), tt.testDescription)
+func TestParseValue(t *testing.T) {
+	for _, tt := range parseValueTests {
+		assertResultWithContext(t, tt.expectedResult, parseValue(tt.argument), tt.testDescription)
 	}
 }

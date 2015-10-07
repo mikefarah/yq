@@ -12,6 +12,7 @@ import (
 
 var trimOutput = true
 var writeInplace = false
+var writeScript = ""
 
 func main() {
 	var cmdRead = &cobra.Command{
@@ -43,6 +44,7 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 		Run: writeProperty,
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
 
 	var rootCmd = &cobra.Command{Use: "yaml"}
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
@@ -53,7 +55,7 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 func readProperty(cmd *cobra.Command, args []string) {
 	var parsedData map[interface{}]interface{}
 
-	readYaml(args, &parsedData)
+	readYaml(args[0], &parsedData)
 
 	if len(args) == 1 {
 		printYaml(parsedData)
@@ -66,16 +68,22 @@ func readProperty(cmd *cobra.Command, args []string) {
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
-	if len(args) < 3 {
+	var writeCommands map[string]interface{}
+	if writeScript != "" {
+		readYaml(writeScript, &writeCommands)
+	} else if len(args) < 3 {
 		die("Must provide <filename> <path_to_update> <value>")
+	} else {
+		writeCommands[args[1]] = parseValue(args[2])
 	}
 
 	var parsedData map[interface{}]interface{}
-	readYaml(args, &parsedData)
+	readYaml(args[0], &parsedData)
 
-	var paths = parsePath(args[1])
-
-	write(parsedData, paths[0], paths[1:len(paths)], getValue(args[2]))
+	for path, value := range writeCommands {
+		var paths = parsePath(path)
+		write(parsedData, paths[0], paths[1:len(paths)], value)
+	}
 
 	if writeInplace {
 		ioutil.WriteFile(args[0], []byte(yamlToString(parsedData)), 0644)
@@ -83,7 +91,7 @@ func writeProperty(cmd *cobra.Command, args []string) {
 		printYaml(parsedData)
 	}
 }
-func getValue(argument string) interface{} {
+func parseValue(argument string) interface{} {
 	var value, err interface{}
 	var inQuotes = argument[0] == '"'
 	if !inQuotes {
@@ -118,19 +126,19 @@ func yamlToString(context interface{}) string {
 	return outStr
 }
 
-func readYaml(args []string, parsedData *map[interface{}]interface{}) {
-	if len(args) == 0 {
+func readYaml(filename string, parsedData interface{}) {
+	if filename == "" {
 		die("Must provide filename")
 	}
 
 	var rawData []byte
-	if args[0] == "-" {
+	if filename == "-" {
 		rawData = readStdin()
 	} else {
-		rawData = readFile(args[0])
+		rawData = readFile(filename)
 	}
 
-	err := yaml.Unmarshal([]byte(rawData), &parsedData)
+	err := yaml.Unmarshal([]byte(rawData), parsedData)
 	if err != nil {
 		die("error: %v", err)
 	}
