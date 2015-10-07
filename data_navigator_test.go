@@ -34,7 +34,10 @@ mapSplat:
   item1: things
   item2: whatever
 `)
-	assertResult(t, "[things whatever]", fmt.Sprintf("%v", readMap(data, "mapSplat", []string{"*"})))
+	var result = readMap(data, "mapSplat", []string{"*"}).([]interface{})
+	var actual = []string{result[0].(string), result[1].(string)}
+	sort.Strings(actual)
+	assertResult(t, "[things whatever]", fmt.Sprintf("%v", actual))
 }
 
 func TestReadMap_deep_splat(t *testing.T) {
