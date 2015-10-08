@@ -150,7 +150,7 @@ b.e[0].name: Howdy Partner
 then
 
 ```bash
-yaml -w -s update_instructions.yaml sample.yaml
+yaml w -s update_instructions.yaml sample.yaml
 ```
 will output:
 ```yaml
