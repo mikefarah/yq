@@ -53,27 +53,40 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 }
 
 func readProperty(cmd *cobra.Command, args []string) {
+	printYaml(read(args))
+}
+
+func read(args []string) interface{} {
 	var parsedData map[interface{}]interface{}
 
 	readYaml(args[0], &parsedData)
 
 	if len(args) == 1 {
-		printYaml(parsedData)
-		os.Exit(0)
+		return parsedData
 	}
 
 	var paths = parsePath(args[1])
 
-	printYaml(readMap(parsedData, paths[0], paths[1:len(paths)]))
+	return readMap(parsedData, paths[0], paths[1:len(paths)])
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
+	updatedData := updateYaml(args)
+	if writeInplace {
+		ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
+	} else {
+		printYaml(updatedData)
+	}
+}
+
+func updateYaml(args []string) interface{} {
 	var writeCommands map[string]interface{}
 	if writeScript != "" {
 		readYaml(writeScript, &writeCommands)
 	} else if len(args) < 3 {
 		die("Must provide <filename> <path_to_update> <value>")
 	} else {
+		writeCommands = make(map[string]interface{})
 		writeCommands[args[1]] = parseValue(args[2])
 	}
 
@@ -84,13 +97,9 @@ func writeProperty(cmd *cobra.Command, args []string) {
 		var paths = parsePath(path)
 		write(parsedData, paths[0], paths[1:len(paths)], value)
 	}
-
-	if writeInplace {
-		ioutil.WriteFile(args[0], []byte(yamlToString(parsedData)), 0644)
-	} else {
-		printYaml(parsedData)
-	}
+	return parsedData
 }
+
 func parseValue(argument string) interface{} {
 	var value, err interface{}
 	var inQuotes = argument[0] == '"'
