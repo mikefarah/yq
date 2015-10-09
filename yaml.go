@@ -33,14 +33,25 @@ yaml r things.yaml a.array[*].blah
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
-		Short:   "yaml w [--inplace/-i] sample.yaml a.b.c newValueForC",
+		Short:   "yaml w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC",
 		Example: `
 yaml write things.yaml a.b.c cat
 yaml write --inplace things.yaml a.b.c cat
 yaml w -i things.yaml a.b.c cat
+yaml w --script update_script.yaml things.yaml
+yaml w -i -s update_script.yaml things.yaml
 			`,
 		Long: `Updates the yaml file w.r.t the given path and value.
-Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.`,
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+
+Update Scripts:
+Note that you can give an update script to perform more sophisticated updated. Update script
+format is a yaml map where the key is the path and the value is..well the value. e.g.:
+---
+a.b.c: true,
+a.b.e:
+  - name: bob
+`,
 		Run: writeProperty,
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
