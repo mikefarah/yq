@@ -160,3 +160,6 @@ b:
     - name: Howdy Partner
 ```
 
+## Convert to json
+To convert output to json, use the --tojson (or -j) flag. This can be used with any command.
+

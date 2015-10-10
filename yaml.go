@@ -13,6 +13,7 @@ import (
 var trimOutput = true
 var writeInplace = false
 var writeScript = ""
+var outputToJSON = false
 
 func main() {
 	var cmdRead = &cobra.Command{
@@ -59,12 +60,13 @@ a.b.e:
 
 	var rootCmd = &cobra.Command{Use: "yaml"}
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.AddCommand(cmdRead, cmdWrite)
 	rootCmd.Execute()
 }
 
 func readProperty(cmd *cobra.Command, args []string) {
-	printYaml(read(args))
+	print(read(args))
 }
 
 func read(args []string) interface{} {
@@ -86,7 +88,7 @@ func writeProperty(cmd *cobra.Command, args []string) {
 	if writeInplace {
 		ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
 	} else {
-		printYaml(updatedData)
+		print(updatedData)
 	}
 }
 
@@ -128,8 +130,14 @@ func parseValue(argument string) interface{} {
 	return argument[1 : len(argument)-1]
 }
 
-func printYaml(context interface{}) {
-	fmt.Println(yamlToString(context))
+func print(context interface{}) {
+	var out string
+	if outputToJSON {
+		out = jsonToString(context)
+	} else {
+		out = yamlToString(context)
+	}
+	fmt.Println(out)
 }
 
 func yamlToString(context interface{}) string {
