@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
+	"github.com/mikefarah/yaml/Godeps/_workspace/src/github.com/spf13/cobra"
+	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"strconv"
