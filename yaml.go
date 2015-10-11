@@ -13,6 +13,7 @@ import (
 var trimOutput = true
 var writeInplace = false
 var writeScript = ""
+var inputJSON = false
 var outputToJSON = false
 
 func main() {
@@ -61,6 +62,8 @@ a.b.e:
 	var rootCmd = &cobra.Command{Use: "yaml"}
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
+	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
+
 	rootCmd.AddCommand(cmdRead, cmdWrite)
 	rootCmd.Execute()
 }
@@ -72,7 +75,7 @@ func readProperty(cmd *cobra.Command, args []string) {
 func read(args []string) interface{} {
 	var parsedData map[interface{}]interface{}
 
-	readYaml(args[0], &parsedData)
+	readData(args[0], &parsedData, inputJSON)
 
 	if len(args) == 1 {
 		return parsedData
@@ -95,7 +98,7 @@ func writeProperty(cmd *cobra.Command, args []string) {
 func updateYaml(args []string) interface{} {
 	var writeCommands map[string]interface{}
 	if writeScript != "" {
-		readYaml(writeScript, &writeCommands)
+		readData(writeScript, &writeCommands, false)
 	} else if len(args) < 3 {
 		die("Must provide <filename> <path_to_update> <value>")
 	} else {
@@ -104,7 +107,7 @@ func updateYaml(args []string) interface{} {
 	}
 
 	var parsedData map[interface{}]interface{}
-	readYaml(args[0], &parsedData)
+	readData(args[0], &parsedData, inputJSON)
 
 	for path, value := range writeCommands {
 		var paths = parsePath(path)
@@ -154,7 +157,7 @@ func yamlToString(context interface{}) string {
 	return outStr
 }
 
-func readYaml(filename string, parsedData interface{}) {
+func readData(filename string, parsedData interface{}, readAsJSON bool) {
 	if filename == "" {
 		die("Must provide filename")
 	}
@@ -166,9 +169,14 @@ func readYaml(filename string, parsedData interface{}) {
 		rawData = readFile(filename)
 	}
 
-	err := yaml.Unmarshal([]byte(rawData), parsedData)
+	var err interface{}
+	if readAsJSON {
+		fromJSONBytes([]byte(rawData), parsedData.(*map[interface{}]interface{}))
+	} else {
+		err = yaml.Unmarshal([]byte(rawData), parsedData)
+	}
 	if err != nil {
-		die("error: %v", err)
+		die("error parsing data: ", err)
 	}
 }
 
