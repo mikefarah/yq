@@ -1,11 +1,17 @@
 # yaml
-yaml is portable command line tool written in go
+yaml is a lightweight and flexible command-line YAML processor
 
-Allows you to read and update yaml files from bash (or whatever). All in a lovely dependency free binary!
+The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
-[Download latest release](https://github.com/mikefarah/yaml/releases/latest)
+## Features
+- Written in portable go, so you can download a lovely dependency free binary
+- Deep read a yaml file with a given path
+- Update a yaml file given a path
+- Update a yaml file given a script file
+- Convert from json to yaml
+- Convert from yaml to json
 
-or alternatively install using go get:
+[Download latest binary](https://github.com/mikefarah/yaml/releases/latest) or alternatively:
 ```
 go get github.com/mikefarah/yaml
 ```
@@ -160,6 +166,10 @@ b:
     - name: Howdy Partner
 ```
 
-## Convert to json
+## Converting to and from json
+
+### Yaml2json
 To convert output to json, use the --tojson (or -j) flag. This can be used with any command.
 
+### json2yaml
+To read in json, use the --fromjson (or -J) flag. This can be used with any command.
