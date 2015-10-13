@@ -17,7 +17,20 @@ var inputJSON = false
 var outputToJSON = false
 
 func main() {
-	var cmdRead = &cobra.Command{
+	var cmdRead = createReadCmd()
+	var cmdWrite = createWriteCmd()
+
+	var rootCmd = &cobra.Command{Use: "yaml"}
+	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
+	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
+
+	rootCmd.AddCommand(cmdRead, cmdWrite)
+	rootCmd.Execute()
+}
+
+func createReadCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:     "read [yaml_file] [path]",
 		Aliases: []string{"r"},
 		Short:   "yaml r sample.yaml a.b.c",
@@ -27,11 +40,13 @@ yaml r - a.b.c (reads from stdin)
 yaml r things.yaml a.*.c
 yaml r things.yaml a.array[0].blah
 yaml r things.yaml a.array[*].blah
-			`,
+      `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		Run:  readProperty,
 	}
+}
 
+func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
@@ -42,7 +57,7 @@ yaml write --inplace things.yaml a.b.c cat
 yaml w -i things.yaml a.b.c cat
 yaml w --script update_script.yaml things.yaml
 yaml w -i -s update_script.yaml things.yaml
-			`,
+      `,
 		Long: `Updates the yaml file w.r.t the given path and value.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
 
@@ -58,14 +73,7 @@ a.b.e:
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
-
-	var rootCmd = &cobra.Command{Use: "yaml"}
-	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
-	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
-	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
-
-	rootCmd.AddCommand(cmdRead, cmdWrite)
-	rootCmd.Execute()
+	return cmdWrite
 }
 
 func readProperty(cmd *cobra.Command, args []string) {
