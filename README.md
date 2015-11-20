@@ -3,6 +3,12 @@ yaml is a lightweight and flexible command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
+## Install
+[Download latest binary](https://github.com/mikefarah/yaml/releases/latest) or alternatively:
+```
+go get github.com/mikefarah/yaml
+```
+
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
 - Deep read a yaml file with a given path
@@ -10,11 +16,6 @@ The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed 
 - Update a yaml file given a script file
 - Convert from json to yaml
 - Convert from yaml to json
-
-[Download latest binary](https://github.com/mikefarah/yaml/releases/latest) or alternatively:
-```
-go get github.com/mikefarah/yaml
-```
 
 ## Read examples
 ```
