@@ -83,6 +83,17 @@ b:
 	assertResult(t, nil, readMap(data, "b", []string{"d", "3"}))
 }
 
+func TestReadMap_with_array_out_of_bounds_by_1(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  d:
+    - 3
+    - 4
+`)
+	assertResult(t, nil, readMap(data, "b", []string{"d", "2"}))
+}
+
 func TestReadMap_with_array_splat(t *testing.T) {
 	var data = parseData(`
 e:
