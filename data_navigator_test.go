@@ -119,6 +119,18 @@ b:
 	assertResult(t, "4", b["c"].(string))
 }
 
+func TestWrite_array(t *testing.T) {
+	var data = parseData(`
+b:
+  - aa
+`)
+
+	write(data, "b", []string{"0"}, "bb")
+
+	b := data["b"].([]interface{})
+	assertResult(t, "bb", b[0].(string))
+}
+
 func TestWrite_with_no_tail(t *testing.T) {
 	var data = parseData(`
 b:

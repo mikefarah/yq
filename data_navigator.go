@@ -9,11 +9,25 @@ func write(context map[interface{}]interface{}, head string, tail []string, valu
 	if len(tail) == 0 {
 		context[head] = value
 	} else {
-		// e.g. if updating a.b.c, we need to get the 'b' map...
-		toUpdate := readMap(context, head, tail[0:len(tail)-1]).(map[interface{}]interface{})
-		//  and then set the 'c' key.
-		key := (tail[len(tail)-1])
-		toUpdate[key] = value
+		// e.g. if updating a.b.c, we need to get the 'b', this could be a map or an array
+		var parent = readMap(context, head, tail[0:len(tail)-1])
+		switch parent.(type) {
+		case map[interface{}]interface{}:
+			toUpdate := parent.(map[interface{}]interface{})
+			// b is a map, update the key 'c' to the supplied value
+			key := (tail[len(tail)-1])
+			toUpdate[key] = value
+		case []interface{}:
+			toUpdate := parent.([]interface{})
+			// b is an array, update it at index 'c' to the supplied value
+			rawIndex := (tail[len(tail)-1])
+			index, err := strconv.ParseInt(rawIndex, 10, 64)
+			if err != nil {
+				die("Error accessing array: %v", err)
+			}
+			toUpdate[index] = value
+		}
+
 	}
 }
 
