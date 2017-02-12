@@ -1,7 +1,9 @@
 #!/bin/bash
 
-gofmt -w .
+set -e
 
+gofmt -w .
+golint
 ./ci.sh
 
 go install

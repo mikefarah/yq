@@ -1,6 +1,7 @@
 #!/bin/bash
 
-golint
+set -e
+
 go test
 go build
 
