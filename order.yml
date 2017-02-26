@@ -1,0 +1,6 @@
+version: '2'
+services:
+  test:
+    image: ubuntu:14.04
+    stdin_open: true
+    tty: true

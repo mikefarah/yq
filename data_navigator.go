@@ -2,21 +2,34 @@ package main
 
 import (
 	// "fmt"
+	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
 	"strconv"
 )
 
-func write(context map[interface{}]interface{}, head string, tail []string, value interface{}) {
+func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
+	for idx := range context {
+		var entry = &context[idx]
+		if entry.Key == key {
+			return entry
+		}
+	}
+	return nil
+}
+
+func write(context yaml.MapSlice, head string, tail []string, value interface{}) {
 	if len(tail) == 0 {
-		context[head] = value
+		var entry = entryInSlice(context, head)
+		entry.Value = value
 	} else {
 		// e.g. if updating a.b.c, we need to get the 'b', this could be a map or an array
 		var parent = readMap(context, head, tail[0:len(tail)-1])
 		switch parent.(type) {
-		case map[interface{}]interface{}:
-			toUpdate := parent.(map[interface{}]interface{})
+		case yaml.MapSlice:
+			toUpdate := parent.(yaml.MapSlice)
 			// b is a map, update the key 'c' to the supplied value
 			key := (tail[len(tail)-1])
-			toUpdate[key] = value
+			toUpdateEntry := entryInSlice(toUpdate, key)
+			toUpdateEntry.Value = value
 		case []interface{}:
 			toUpdate := parent.([]interface{})
 			// b is an array, update it at index 'c' to the supplied value
@@ -31,22 +44,26 @@ func write(context map[interface{}]interface{}, head string, tail []string, valu
 	}
 }
 
-func readMap(context map[interface{}]interface{}, head string, tail []string) interface{} {
+func readMap(context yaml.MapSlice, head string, tail []string) interface{} {
 	if head == "*" {
 		return readMapSplat(context, tail)
 	}
-	value := context[head]
+	entry := entryInSlice(context, head)
+	var value interface{}
+	if entry != nil {
+		value = entry.Value
+	}
 	return calculateValue(value, tail)
 }
 
-func readMapSplat(context map[interface{}]interface{}, tail []string) interface{} {
+func readMapSplat(context yaml.MapSlice, tail []string) interface{} {
 	var newArray = make([]interface{}, len(context))
 	var i = 0
-	for _, value := range context {
+	for _, entry := range context {
 		if len(tail) > 0 {
-			newArray[i] = recurse(value, tail[0], tail[1:len(tail)])
+			newArray[i] = recurse(entry.Value, tail[0], tail[1:len(tail)])
 		} else {
-			newArray[i] = value
+			newArray[i] = entry.Value
 		}
 		i++
 	}
@@ -64,8 +81,8 @@ func recurse(value interface{}, head string, tail []string) interface{} {
 			die("Error accessing array: %v", err)
 		}
 		return readArray(value.([]interface{}), index, tail)
-	case map[interface{}]interface{}:
-		return readMap(value.(map[interface{}]interface{}), head, tail)
+	case yaml.MapSlice:
+		return readMap(value.(yaml.MapSlice), head, tail)
 	default:
 		return nil
 	}

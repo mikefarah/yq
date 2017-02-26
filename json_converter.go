@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
 )
 
 func fromJSONBytes(jsonBytes []byte, parsedData *map[interface{}]interface{}) {
@@ -55,11 +56,11 @@ func toJSON(context interface{}) interface{} {
 			newArray[index] = toJSON(value)
 		}
 		return newArray
-	case map[interface{}]interface{}:
-		oldMap := context.(map[interface{}]interface{})
+	case yaml.MapSlice:
+		oldMap := context.(yaml.MapSlice)
 		newMap := make(map[string]interface{})
-		for key, value := range oldMap {
-			newMap[key.(string)] = toJSON(value)
+		for _, entry := range oldMap {
+			newMap[entry.Key.(string)] = toJSON(entry.Value)
 		}
 		return newMap
 	default:

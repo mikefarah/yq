@@ -7,8 +7,8 @@ import (
 	"testing"
 )
 
-func parseData(rawData string) map[interface{}]interface{} {
-	var parsedData map[interface{}]interface{}
+func parseData(rawData string) yaml.MapSlice {
+	var parsedData yaml.MapSlice
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {
 		fmt.Println("Error parsing yaml: %v", err)

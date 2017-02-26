@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -26,8 +27,21 @@ func TestRead(t *testing.T) {
 	assertResult(t, 2, result)
 }
 
+func TestOrder(t *testing.T) {
+	result := read([]string{"order.yaml"})
+	formattedResult := yamlToString(result)
+	assertResult(t,
+		`version: 3
+application: MyApp`,
+		formattedResult)
+}
+
 func TestUpdateYaml(t *testing.T) {
-	updateYaml([]string{"sample.yaml", "b.c", "3"})
+	result := updateYaml([]string{"sample.yaml", "b.c", "3"})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[{a Easy! as one two three} {b [{c 3} {d [3 4]} {e [[{name fred} {value 3}] [{name sam} {value 4}]]}]}]",
+		formattedResult)
 }
 
 func TestUpdateYaml_WithScript(t *testing.T) {

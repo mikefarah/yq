@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
 	"sort"
 	"testing"
 )
@@ -107,6 +108,16 @@ e:
 	assertResult(t, "[Fred Sam]", fmt.Sprintf("%v", readMap(data, "e", []string{"*", "name"})))
 }
 
+func TestWrite_really_simple(t *testing.T) {
+	var data = parseData(`
+    b: 2
+`)
+
+	write(data, "b", []string{}, "4")
+	b := entryInSlice(data, "b").Value
+	assertResult(t, "4", b)
+}
+
 func TestWrite_simple(t *testing.T) {
 	var data = parseData(`
 b:
@@ -114,9 +125,9 @@ b:
 `)
 
 	write(data, "b", []string{"c"}, "4")
-
-	b := data["b"].(map[interface{}]interface{})
-	assertResult(t, "4", b["c"].(string))
+	b := entryInSlice(data, "b").Value.(yaml.MapSlice)
+	c := entryInSlice(b, "c").Value
+	assertResult(t, "4", c)
 }
 
 func TestWrite_array(t *testing.T) {
@@ -127,7 +138,7 @@ b:
 
 	write(data, "b", []string{"0"}, "bb")
 
-	b := data["b"].([]interface{})
+	b := entryInSlice(data, "b").Value.([]interface{})
 	assertResult(t, "bb", b[0].(string))
 }
 
@@ -138,6 +149,6 @@ b:
 `)
 	write(data, "b", []string{}, "4")
 
-	b := data["b"]
+	b := entryInSlice(data, "b").Value
 	assertResult(t, "4", fmt.Sprintf("%v", b))
 }

@@ -81,7 +81,7 @@ func readProperty(cmd *cobra.Command, args []string) {
 }
 
 func read(args []string) interface{} {
-	var parsedData map[interface{}]interface{}
+	var parsedData yaml.MapSlice
 
 	readData(args[0], &parsedData, inputJSON)
 
@@ -114,13 +114,14 @@ func updateYaml(args []string) interface{} {
 		writeCommands[args[1]] = parseValue(args[2])
 	}
 
-	var parsedData map[interface{}]interface{}
+	var parsedData yaml.MapSlice
 	readData(args[0], &parsedData, inputJSON)
 
 	for path, value := range writeCommands {
 		var paths = parsePath(path)
 		write(parsedData, paths[0], paths[1:len(paths)], value)
 	}
+
 	return parsedData
 }
 
