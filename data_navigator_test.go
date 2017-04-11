@@ -3,9 +3,17 @@ package main
 import (
 	"fmt"
 	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"github.com/op/go-logging"
+	"os"
 	"sort"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	backend.SetLevel(logging.ERROR, "")
+	logging.SetBackend(backend)
+	os.Exit(m.Run())
+}
 
 func TestReadMap_simple(t *testing.T) {
 	var data = parseData(`
@@ -113,8 +121,8 @@ func TestWrite_really_simple(t *testing.T) {
     b: 2
 `)
 
-	write(data, "b", []string{}, "4")
-	b := entryInSlice(data, "b").Value
+	updated := writeMap(data, []string{"b"}, "4")
+	b := entryInSlice(updated, "b").Value
 	assertResult(t, "4", b)
 }
 
@@ -124,10 +132,32 @@ b:
   c: 2
 `)
 
-	write(data, "b", []string{"c"}, "4")
-	b := entryInSlice(data, "b").Value.(yaml.MapSlice)
+	updated := writeMap(data, []string{"b", "c"}, "4")
+	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
 	c := entryInSlice(b, "c").Value
 	assertResult(t, "4", c)
+}
+
+func TestWrite_new(t *testing.T) {
+	var data = parseData(`
+b:
+  c: 2
+`)
+
+	updated := writeMap(data, []string{"b", "d"}, "4")
+	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
+	d := entryInSlice(b, "d").Value
+	assertResult(t, "4", d)
+}
+
+func TestWrite_new_deep(t *testing.T) {
+	var data = parseData(`
+b:
+  c: 2
+`)
+
+	updated := writeMap(data, []string{"b", "d", "f"}, "4")
+	assertResult(t, "4", readMap(updated, "b", []string{"d", "f"}))
 }
 
 func TestWrite_array(t *testing.T) {
@@ -136,10 +166,43 @@ b:
   - aa
 `)
 
-	write(data, "b", []string{"0"}, "bb")
+	updated := writeMap(data, []string{"b", "0"}, "bb")
 
-	b := entryInSlice(data, "b").Value.([]interface{})
+	b := entryInSlice(updated, "b").Value.([]interface{})
 	assertResult(t, "bb", b[0].(string))
+}
+
+func TestWrite_new_array(t *testing.T) {
+	var data = parseData(`
+b:
+  c: 2
+`)
+
+	updated := writeMap(data, []string{"b", "0"}, "4")
+	assertResult(t, "4", readMap(updated, "b", []string{"0"}))
+}
+
+func TestWrite_new_array_deep(t *testing.T) {
+	var data = parseData(`
+b:
+  c: 2
+`)
+
+	var expected = `b:
+- c: "4"`
+
+	updated := writeMap(data, []string{"b", "0", "c"}, "4")
+	assertResult(t, expected, yamlToString(updated))
+}
+
+func TestWrite_new_map_array_deep(t *testing.T) {
+	var data = parseData(`
+b:
+  c: 2
+`)
+
+	updated := writeMap(data, []string{"b", "d", "0"}, "4")
+	assertResult(t, "4", readMap(updated, "b", []string{"d", "0"}))
 }
 
 func TestWrite_with_no_tail(t *testing.T) {
@@ -147,8 +210,8 @@ func TestWrite_with_no_tail(t *testing.T) {
 b:
   c: 2
 `)
-	write(data, "b", []string{}, "4")
+	updated := writeMap(data, []string{"b"}, "4")
 
-	b := entryInSlice(data, "b").Value
+	b := entryInSlice(updated, "b").Value
 	assertResult(t, "4", fmt.Sprintf("%v", b))
 }

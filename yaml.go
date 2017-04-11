@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mikefarah/yaml/Godeps/_workspace/src/github.com/spf13/cobra"
 	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"github.com/op/go-logging"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -15,8 +16,18 @@ var writeInplace = false
 var writeScript = ""
 var inputJSON = false
 var outputToJSON = false
+var verbose = false
+var log = logging.MustGetLogger("yaml")
+var format = logging.MustStringFormatter(
+	`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
+)
+var backend = logging.AddModuleLevel(
+	logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
 
 func main() {
+	backend.SetLevel(logging.ERROR, "")
+	logging.SetBackend(backend)
+
 	var cmdRead = createReadCmd()
 	var cmdWrite = createWriteCmd()
 
@@ -24,7 +35,7 @@ func main() {
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
-
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.AddCommand(cmdRead, cmdWrite)
 	rootCmd.Execute()
 }
@@ -77,6 +88,9 @@ a.b.e:
 }
 
 func readProperty(cmd *cobra.Command, args []string) {
+	if verbose {
+		backend.SetLevel(logging.DEBUG, "")
+	}
 	print(read(args))
 }
 
@@ -95,6 +109,9 @@ func read(args []string) interface{} {
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
+	if verbose {
+		backend.SetLevel(logging.DEBUG, "")
+	}
 	updatedData := updateYaml(args)
 	if writeInplace {
 		ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
@@ -119,7 +136,7 @@ func updateYaml(args []string) interface{} {
 
 	for path, value := range writeCommands {
 		var paths = parsePath(path)
-		write(parsedData, paths[0], paths[1:len(paths)], value)
+		parsedData = writeMap(parsedData, paths, value)
 	}
 
 	return parsedData
