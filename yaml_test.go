@@ -36,6 +36,14 @@ application: MyApp`,
 		formattedResult)
 }
 
+func TestNewYaml(t *testing.T) {
+	result := newYaml([]string{"b.c", "3"})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[{b [{c 3}]}]",
+		formattedResult)
+}
+
 func TestUpdateYaml(t *testing.T) {
 	result := updateYaml([]string{"sample.yaml", "b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
@@ -47,4 +55,13 @@ func TestUpdateYaml(t *testing.T) {
 func TestUpdateYaml_WithScript(t *testing.T) {
 	writeScript = "instruction_sample.yaml"
 	updateYaml([]string{"sample.yaml"})
+}
+
+func TestNewYaml_WithScript(t *testing.T) {
+	writeScript = "instruction_sample.yaml"
+	result := newYaml([]string{""})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[{b [{c cat} {e [[{name Mike Farah}]]}]}]",
+		formattedResult)
 }

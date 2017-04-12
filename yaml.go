@@ -30,13 +30,14 @@ func main() {
 
 	var cmdRead = createReadCmd()
 	var cmdWrite = createWriteCmd()
+	var cmdNew = createNewCmd()
 
 	var rootCmd = &cobra.Command{Use: "yaml"}
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.AddCommand(cmdRead, cmdWrite)
+	rootCmd.AddCommand(cmdRead, cmdWrite, cmdNew)
 	rootCmd.Execute()
 }
 
@@ -87,6 +88,28 @@ a.b.e:
 	return cmdWrite
 }
 
+func createNewCmd() *cobra.Command {
+	var cmdNew = &cobra.Command{
+		Use:     "new [path] [value]",
+		Aliases: []string{"n"},
+		Short:   "yaml n [--script/-s script_file] a.b.c newValueForC",
+		Example: `
+yaml new a.b.c cat
+yaml n a.b.c cat
+yaml n --script create_script.yaml
+      `,
+		Long: `Creates a new yaml w.r.t the given path and value.
+Outputs to STDOUT
+
+Create Scripts:
+Note that you can give a create script to perform more sophisticated yaml. This follows the same format as the update script.
+`,
+		Run: newProperty,
+	}
+	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	return cmdNew
+}
+
 func readProperty(cmd *cobra.Command, args []string) {
 	if verbose {
 		backend.SetLevel(logging.DEBUG, "")
@@ -106,6 +129,35 @@ func read(args []string) interface{} {
 	var paths = parsePath(args[1])
 
 	return readMap(parsedData, paths[0], paths[1:len(paths)])
+}
+
+func newProperty(cmd *cobra.Command, args []string) {
+	if verbose {
+		backend.SetLevel(logging.DEBUG, "")
+	}
+	updatedData := newYaml(args)
+	print(updatedData)
+}
+
+func newYaml(args []string) interface{} {
+	var writeCommands map[string]interface{}
+	if writeScript != "" {
+		readData(writeScript, &writeCommands, false)
+	} else if len(args) < 2 {
+		die("Must provide <path_to_update> <value>")
+	} else {
+		writeCommands = make(map[string]interface{})
+		writeCommands[args[0]] = parseValue(args[1])
+	}
+
+	parsedData := make(yaml.MapSlice, 0)
+
+	for path, value := range writeCommands {
+		var paths = parsePath(path)
+		parsedData = writeMap(parsedData, paths, value)
+	}
+
+	return parsedData
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
