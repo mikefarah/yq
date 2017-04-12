@@ -14,6 +14,9 @@ go get github.com/mikefarah/yaml
 - Deep read a yaml file with a given path
 - Update a yaml file given a path
 - Update a yaml file given a script file
+- Update creates any missing entries in the path on the fly
+- Create a yaml file given a deep path and value
+- Create a yaml file given a script file
 - Convert from json to yaml
 - Convert from yaml to json
 
@@ -111,6 +114,7 @@ will output:
 ```
 
 ## Update examples
+Existing yaml files can be updated via the write command
 
 ### Update to stdout
 Given a sample.yaml file of:
@@ -126,6 +130,26 @@ will output:
 ```yaml
 b:
   c: cat
+```
+
+### Adding new fields
+Any missing fields in the path will be created on the fly.
+
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml w sample.yaml b.d[0] "new thing"
+```
+will output:
+```yaml
+b:
+  c: cat
+  d:
+    - new thing
 ```
 
 ### Updating yaml in-place
@@ -158,6 +182,40 @@ then
 
 ```bash
 yaml w -s update_instructions.yaml sample.yaml
+```
+will output:
+```yaml
+b:
+  c: 3
+  e:
+    - name: Howdy Partner
+```
+
+## New Examples
+Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file.
+
+### Creating a simple yaml file
+```bash
+yaml n b.c cat
+```
+will output:
+```yaml
+b:
+  c: cat
+```
+
+### Creating using a create script
+Create scripts follow the same format as the update scripts.
+
+Given a script create_instructions.yaml of:
+```yaml
+b.c: 3
+b.e[0].name: Howdy Partner
+```
+then
+
+```bash
+yaml n -s create_instructions.yaml
 ```
 will output:
 ```yaml
