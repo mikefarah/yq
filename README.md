@@ -19,6 +19,7 @@ go get github.com/mikefarah/yaml
 - Create a yaml file given a script file
 - Convert from json to yaml
 - Convert from yaml to json
+- Pipe data in by using '-'
 
 ## Read examples
 ```
@@ -132,6 +133,11 @@ b:
   c: cat
 ```
 
+### Update from STDIN
+```bash
+cat sample.yaml | yaml w - b.c blah
+```
+
 ### Adding new fields
 Any missing fields in the path will be created on the fly.
 
@@ -191,6 +197,11 @@ b:
     - name: Howdy Partner
 ```
 
+And, of course, you can pipe the instructions in using '-':
+```bash
+cat update_instructions.yaml | yaml w -s - sample.yaml
+```
+
 ## New Examples
 Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file.
 
@@ -223,6 +234,12 @@ b:
   c: 3
   e:
     - name: Howdy Partner
+```
+
+You can also pipe the instructions in:
+
+```bash
+cat create_instructions.yaml | yaml n -s -
 ```
 
 ## Converting to and from json
