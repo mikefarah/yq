@@ -1,0 +1,88 @@
+```
+yaml w <yaml file> <path> <new value>
+```
+
+### To Stdout
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml w sample.yaml b.c cat
+```
+will output:
+```yaml
+b:
+  c: cat
+```
+
+### From STDIN
+```bash
+cat sample.yaml | yaml w - b.c blah
+```
+
+### Adding new fields
+Any missing fields in the path will be created on the fly.
+
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml w sample.yaml b.d[0] "new thing"
+```
+will output:
+```yaml
+b:
+  c: cat
+  d:
+    - new thing
+```
+
+### Updating files in-place
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+```
+then
+```bash
+yaml w -i sample.yaml b.c cat
+```
+will update the sample.yaml file so that the value of 'c' is cat.
+
+
+### Updating multiple values with a script
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+  e:
+    - name: Billy Bob
+```
+and a script update_instructions.yaml of:
+```yaml
+b.c: 3
+b.e[0].name: Howdy Partner
+```
+then
+
+```bash
+yaml w -s update_instructions.yaml sample.yaml
+```
+will output:
+```yaml
+b:
+  c: 3
+  e:
+    - name: Howdy Partner
+```
+
+And, of course, you can pipe the instructions in using '-':
+```bash
+cat update_instructions.yaml | yaml w -s - sample.yaml
+```

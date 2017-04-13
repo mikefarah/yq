@@ -1,0 +1,19 @@
+docs_dir: mkdocs
+site_dir: docs
+site_name: Yaml
+theme: 'material'
+pages:
+    - Install: index.md
+    - Read: read.md
+    - Write/Update: write.md
+    - Create: create.md
+    - Convert: convert.md
+repo_name: 'mikefarah/yaml'
+repo_url: 'https://github.com/mikefarah/yaml'
+
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/mikefarah'
+    - type: 'linkedin'
+      link: 'https://www.linkedin.com/in/mike-farah-b5a75b2/'
