@@ -59,9 +59,11 @@ func TestUpdateYaml_WithScript(t *testing.T) {
 
 func TestNewYaml_WithScript(t *testing.T) {
 	writeScript = "instruction_sample.yaml"
+	expectedResult := `b:
+  c: cat
+  e:
+  - name: Mike Farah`
 	result := newYaml([]string{""})
-	formattedResult := fmt.Sprintf("%v", result)
-	assertResult(t,
-		"[{b [{c cat} {e [[{name Mike Farah}]]}]}]",
-		formattedResult)
+	actualResult := yamlToString(result)
+	assertResult(t, expectedResult, actualResult)
 }
