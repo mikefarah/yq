@@ -1,5 +1,5 @@
 # yaml
-yaml is a lightweight and flexible command-line YAML processor
+yaml is a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 

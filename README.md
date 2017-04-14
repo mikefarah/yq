@@ -1,5 +1,5 @@
 # yaml [![Build Status](https://travis-ci.org/mikefarah/yaml.svg?branch=master)](https://travis-ci.org/mikefarah/yaml)
-yaml is a lightweight and flexible command-line YAML processor
+yaml is a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
@@ -25,58 +25,21 @@ go get github.com/mikefarah/yaml
 
 Check out the [documentation](http://mikefarah.github.io/yaml/) for more detailed and advanced usage.
 
-### Read
 ```
-yaml r <yaml file> <path>
+Usage:
+  yaml [command]
+
+Available Commands:
+  read        yaml r sample.yaml a.b.c
+  write       yaml w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC
+  new         yaml n [--script/-s script_file] a.b.c newValueForC
+
+Flags:
+  -J, --fromjson[=false]: input as json
+  -h, --help[=false]: help for yaml
+  -j, --tojson[=false]: output as json
+  -t, --trim[=true]: trim yaml output
+  -v, --verbose[=false]: verbose mode
+
+Use "yaml [command] --help" for more information about a command.
 ```
-
-Given a sample.yaml file of:
-```yaml
-b:
-  c: 2
-```
-then
-```bash
-yaml r sample.yaml b.c
-```
-will output the value of '2'.
-
-
-## Update
-Existing yaml files can be updated via the write command
-
-Given a sample.yaml file of:
-```yaml
-b:
-  c: 2
-```
-then
-```bash
-yaml w sample.yaml b.c cat
-```
-will output:
-```yaml
-b:
-  c: cat
-```
-
-## Create
-Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file.
-
-### Creating a simple yaml file
-```bash
-yaml n b.c cat
-```
-will output:
-```yaml
-b:
-  c: cat
-```
-
-## Converting to and from json
-
-### Yaml2json
-To convert output to json, use the --tojson (or -j) flag. This can be used with any command.
-
-### json2yaml
-To read in json, use the --fromjson (or -J) flag. This can be used with any command.
