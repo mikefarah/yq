@@ -20,7 +20,7 @@ _cgo_gotypes.go
 _cgo_export.*
 
 _testmain.go
-
+coverage.out
 *.exe
 *.test
 *.prof

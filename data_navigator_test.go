@@ -215,3 +215,19 @@ b:
 	b := entryInSlice(updated, "b").Value
 	assertResult(t, "4", fmt.Sprintf("%v", b))
 }
+
+func TestWriteMap_no_paths(t *testing.T) {
+	var data = parseData(`
+b: 5
+`)
+
+	result := writeMap(data, []string{}, 4)
+	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
+}
+
+func TestWriteArray_no_paths(t *testing.T) {
+	var data = make([]interface{}, 1)
+	data[0] = "mike"
+	result := writeArray(data, []string{}, 4)
+	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
+}
