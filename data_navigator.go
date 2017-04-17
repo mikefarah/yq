@@ -82,6 +82,9 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	if err != nil {
 		die("Error accessing array: %v", err)
 	}
+	for index >= int64(len(array)) {
+		array = append(array, nil)
+	}
 	currentChild := array[index]
 
 	log.Debugf("\tcurrentChild %v\n", currentChild)

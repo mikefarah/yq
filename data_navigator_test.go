@@ -205,6 +205,21 @@ b:
 	assertResult(t, "4", readMap(updated, "b", []string{"d", "0"}))
 }
 
+func TestWrite_add_to_array(t *testing.T) {
+  var data = parseData(`
+b:
+  - aa
+`)
+
+  var expected = `b:
+- aa
+- bb`
+
+  updated := writeMap(data, []string{"b", "1"}, "bb")
+
+  assertResult(t, expected, yamlToString(updated))
+}
+
 func TestWrite_with_no_tail(t *testing.T) {
 	var data = parseData(`
 b:
