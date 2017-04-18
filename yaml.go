@@ -140,24 +140,19 @@ func newProperty(cmd *cobra.Command, args []string) {
 }
 
 func newYaml(args []string) interface{} {
-	var writeCommands map[string]interface{}
+	var writeCommands yaml.MapSlice
 	if writeScript != "" {
 		readData(writeScript, &writeCommands, false)
 	} else if len(args) < 2 {
 		die("Must provide <path_to_update> <value>")
 	} else {
-		writeCommands = make(map[string]interface{})
-		writeCommands[args[0]] = parseValue(args[1])
+		writeCommands = make(yaml.MapSlice, 1)
+		writeCommands[0] = yaml.MapItem{Key: args[0], Value: parseValue(args[1])}
 	}
 
 	parsedData := make(yaml.MapSlice, 0)
 
-	for path, value := range writeCommands {
-		var paths = parsePath(path)
-		parsedData = writeMap(parsedData, paths, value)
-	}
-
-	return parsedData
+	return updateParsedData(parsedData, writeCommands)
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
@@ -172,26 +167,31 @@ func writeProperty(cmd *cobra.Command, args []string) {
 	}
 }
 
+func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice) yaml.MapSlice {
+	for _, entry := range writeCommands {
+		path := entry.Key
+		value := entry.Value
+		var paths = parsePath(path.(string))
+		parsedData = writeMap(parsedData, paths, value)
+	}
+	return parsedData
+}
+
 func updateYaml(args []string) interface{} {
-	var writeCommands map[string]interface{}
+	var writeCommands yaml.MapSlice
 	if writeScript != "" {
 		readData(writeScript, &writeCommands, false)
 	} else if len(args) < 3 {
 		die("Must provide <filename> <path_to_update> <value>")
 	} else {
-		writeCommands = make(map[string]interface{})
-		writeCommands[args[1]] = parseValue(args[2])
+		writeCommands = make(yaml.MapSlice, 1)
+		writeCommands[0] = yaml.MapItem{Key: args[1], Value: parseValue(args[2])}
 	}
 
 	var parsedData yaml.MapSlice
 	readData(args[0], &parsedData, inputJSON)
 
-	for path, value := range writeCommands {
-		var paths = parsePath(path)
-		parsedData = writeMap(parsedData, paths, value)
-	}
-
-	return parsedData
+	return updateParsedData(parsedData, writeCommands)
 }
 
 func parseValue(argument string) interface{} {
