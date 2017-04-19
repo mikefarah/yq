@@ -1,6 +1,8 @@
 ```
-yaml r <yaml file> <path>
+yaml r <yaml_file|json_file> <path>
 ```
+
+{!snippets/works_with_json.md!}
 
 ### Basic
 Given a sample.yaml file of:

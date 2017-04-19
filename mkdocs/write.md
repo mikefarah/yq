@@ -1,6 +1,7 @@
 ```
-yaml w <yaml file> <path> <new value>
+yaml w <yaml_file|json_file> <path> <new value>
 ```
+{!snippets/works_with_json.md!}
 
 ### To Stdout
 Given a sample.yaml file of:

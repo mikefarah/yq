@@ -252,15 +252,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#yaml2json" title="Yaml2json" class="md-nav__link">
-    Yaml2json
+  <a href="#yaml-to-json" title="Yaml to Json" class="md-nav__link">
+    Yaml to Json
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#json2yaml" title="json2yaml" class="md-nav__link">
-    json2yaml
+  <a href="#json-to-yaml" title="Json to Yaml" class="md-nav__link">
+    Json to Yaml
   </a>
   
 </li>
@@ -293,15 +293,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#yaml2json" title="Yaml2json" class="md-nav__link">
-    Yaml2json
+  <a href="#yaml-to-json" title="Yaml to Json" class="md-nav__link">
+    Yaml to Json
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#json2yaml" title="json2yaml" class="md-nav__link">
-    json2yaml
+  <a href="#json-to-yaml" title="Json to Yaml" class="md-nav__link">
+    Json to Yaml
   </a>
   
 </li>
@@ -323,10 +323,39 @@
                 
                   <h1>Convert</h1>
                 
-                <h3 id="yaml2json">Yaml2json</h3>
+                <h3 id="yaml-to-json">Yaml to Json</h3>
 <p>To convert output to json, use the --tojson (or -j) flag. This can be used with any command.</p>
-<h3 id="json2yaml">json2yaml</h3>
-<p>To read in json, use the --fromjson (or -J) flag. This can be used with any command.</p>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">b:
+  c: 2
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml r -j sample.yaml b.c
+</code></pre>
+
+<p>will output</p>
+<pre><code class="json">{&quot;b&quot;:{&quot;c&quot;:2}}
+</code></pre>
+
+<h3 id="json-to-yaml">Json to Yaml</h3>
+<p>To read in json, just pass in a json file instead of yaml, it will just work :)</p>
+<p>e.g given a json file</p>
+<pre><code class="json">{&quot;a&quot;:&quot;Easy! as one two three&quot;,&quot;b&quot;:{&quot;c&quot;:2,&quot;d&quot;:[3,4]}}
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml r sample.json
+</code></pre>
+
+<p>will output</p>
+<pre><code class="yaml">a: Easy! as one two three
+b:
+  c: 2
+  d:
+  - 3
+  - 4
+</code></pre>
                 
                   
                 

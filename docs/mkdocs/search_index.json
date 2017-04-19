@@ -2,12 +2,12 @@
     "docs": [
         {
             "location": "/", 
-            "text": "yaml\n\n\nyaml is a lightweight and flexible command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\ndownload latest binary\n\n\nget the source\n\n\ngo get github.com/mikefarah/yaml\n\n\n\n\n.zip\n or \ntar.gz\n\n\nView on GitHub", 
+            "text": "yaml\n\n\nyaml is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\ndownload latest binary\n\n\nget the source\n\n\ngo get github.com/mikefarah/yaml\n\n\n\n\n.zip\n or \ntar.gz\n\n\nView on GitHub", 
             "title": "Install"
         }, 
         {
             "location": "/#yaml", 
-            "text": "yaml is a lightweight and flexible command-line YAML processor  The aim of the project is to be the  jq  or sed of yaml files.", 
+            "text": "yaml is a lightweight and portable command-line YAML processor  The aim of the project is to be the  jq  or sed of yaml files.", 
             "title": "yaml"
         }, 
         {
@@ -22,7 +22,7 @@
         }, 
         {
             "location": "/read/", 
-            "text": "yaml r \nyaml file\n \npath\n\n\n\n\n\nBasic\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.c\n\n\n\n\nwill output the value of '2'.\n\n\nFrom Stdin\n\n\nGiven a sample.yaml file of:\n\n\ncat sample.yaml | yaml r - b.c\n\n\n\n\nwill output the value of '2'.\n\n\nSplat\n\n\nGiven a sample.yaml file of:\n\n\n---\nbob:\n  item1:\n    cats: bananas\n  item2:\n    cats: apples\n\n\n\n\nthen\n\n\nyaml r sample.yaml bob.*.cats\n\n\n\n\nwill output\n\n\n- bananas\n- apples\n\n\n\n\nHandling '.' in the yaml key\n\n\nGiven a sample.yaml file of:\n\n\nb.x:\n  c: 2\n\n\n\n\nthen\n\n\nyaml r sample.yaml \\\nb.x\\\n.c\n\n\n\n\nwill output the value of '2'.\n\n\nArrays\n\n\nYou can give an index to access a specific element:\ne.g.: given a sample file of\n\n\nb:\n  e:\n    - name: fred\n      value: 3\n    - name: sam\n      value: 4\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.e[1].name\n\n\n\n\nwill output 'sam'\n\n\nArray Splat\n\n\ne.g.: given a sample file of\n\n\nb:\n  e:\n    - name: fred\n      value: 3\n    - name: sam\n      value: 4\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.e[*].name\n\n\n\n\nwill output:\n\n\n- fred\n- sam", 
+            "text": "yaml r \nyaml_file|json_file\n \npath\n\n\n\n\n\nThis command can take a json file as input too, and will output yaml unless specified to export as json (-j)\n\n\nBasic\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.c\n\n\n\n\nwill output the value of '2'.\n\n\nFrom Stdin\n\n\nGiven a sample.yaml file of:\n\n\ncat sample.yaml | yaml r - b.c\n\n\n\n\nwill output the value of '2'.\n\n\nSplat\n\n\nGiven a sample.yaml file of:\n\n\n---\nbob:\n  item1:\n    cats: bananas\n  item2:\n    cats: apples\n\n\n\n\nthen\n\n\nyaml r sample.yaml bob.*.cats\n\n\n\n\nwill output\n\n\n- bananas\n- apples\n\n\n\n\nHandling '.' in the yaml key\n\n\nGiven a sample.yaml file of:\n\n\nb.x:\n  c: 2\n\n\n\n\nthen\n\n\nyaml r sample.yaml \\\nb.x\\\n.c\n\n\n\n\nwill output the value of '2'.\n\n\nArrays\n\n\nYou can give an index to access a specific element:\ne.g.: given a sample file of\n\n\nb:\n  e:\n    - name: fred\n      value: 3\n    - name: sam\n      value: 4\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.e[1].name\n\n\n\n\nwill output 'sam'\n\n\nArray Splat\n\n\ne.g.: given a sample file of\n\n\nb:\n  e:\n    - name: fred\n      value: 3\n    - name: sam\n      value: 4\n\n\n\n\nthen\n\n\nyaml r sample.yaml b.e[*].name\n\n\n\n\nwill output:\n\n\n- fred\n- sam", 
             "title": "Read"
         }, 
         {
@@ -57,7 +57,7 @@
         }, 
         {
             "location": "/write/", 
-            "text": "yaml w \nyaml file\n \npath\n \nnew value\n\n\n\n\n\nTo Stdout\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w sample.yaml b.c cat\n\n\n\n\nwill output:\n\n\nb:\n  c: cat\n\n\n\n\nFrom STDIN\n\n\ncat sample.yaml | yaml w - b.c blah\n\n\n\n\nAdding new fields\n\n\nAny missing fields in the path will be created on the fly.\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w sample.yaml b.d[0] \nnew thing\n\n\n\n\n\nwill output:\n\n\nb:\n  c: cat\n  d:\n    - new thing\n\n\n\n\nUpdating files in-place\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w -i sample.yaml b.c cat\n\n\n\n\nwill update the sample.yaml file so that the value of 'c' is cat.\n\n\nUpdating multiple values with a script\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n  e:\n    - name: Billy Bob\n\n\n\n\nand a script update_instructions.yaml of:\n\n\nb.c: 3\nb.e[0].name: Howdy Partner\n\n\n\n\nthen\n\n\nyaml w -s update_instructions.yaml sample.yaml\n\n\n\n\nwill output:\n\n\nb:\n  c: 3\n  e:\n    - name: Howdy Partner\n\n\n\n\nAnd, of course, you can pipe the instructions in using '-':\n\n\ncat update_instructions.yaml | yaml w -s - sample.yaml", 
+            "text": "yaml w \nyaml_file|json_file\n \npath\n \nnew value\n\n\n\n\n\nThis command can take a json file as input too, and will output yaml unless specified to export as json (-j)\n\n\nTo Stdout\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w sample.yaml b.c cat\n\n\n\n\nwill output:\n\n\nb:\n  c: cat\n\n\n\n\nFrom STDIN\n\n\ncat sample.yaml | yaml w - b.c blah\n\n\n\n\nAdding new fields\n\n\nAny missing fields in the path will be created on the fly.\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w sample.yaml b.d[0] \nnew thing\n\n\n\n\n\nwill output:\n\n\nb:\n  c: cat\n  d:\n    - new thing\n\n\n\n\nUpdating files in-place\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml w -i sample.yaml b.c cat\n\n\n\n\nwill update the sample.yaml file so that the value of 'c' is cat.\n\n\nUpdating multiple values with a script\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n  e:\n    - name: Billy Bob\n\n\n\n\nand a script update_instructions.yaml of:\n\n\nb.c: 3\nb.e[0].name: Howdy Partner\n\n\n\n\nthen\n\n\nyaml w -s update_instructions.yaml sample.yaml\n\n\n\n\nwill output:\n\n\nb:\n  c: 3\n  e:\n    - name: Howdy Partner\n\n\n\n\nAnd, of course, you can pipe the instructions in using '-':\n\n\ncat update_instructions.yaml | yaml w -s - sample.yaml", 
             "title": "Write/Update"
         }, 
         {
@@ -102,18 +102,18 @@
         }, 
         {
             "location": "/convert/", 
-            "text": "Yaml2json\n\n\nTo convert output to json, use the --tojson (or -j) flag. This can be used with any command.\n\n\njson2yaml\n\n\nTo read in json, use the --fromjson (or -J) flag. This can be used with any command.", 
+            "text": "Yaml to Json\n\n\nTo convert output to json, use the --tojson (or -j) flag. This can be used with any command.\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n\n\n\n\nthen\n\n\nyaml r -j sample.yaml b.c\n\n\n\n\nwill output\n\n\n{\nb\n:{\nc\n:2}}\n\n\n\n\nJson to Yaml\n\n\nTo read in json, just pass in a json file instead of yaml, it will just work :)\n\n\ne.g given a json file\n\n\n{\na\n:\nEasy! as one two three\n,\nb\n:{\nc\n:2,\nd\n:[3,4]}}\n\n\n\n\nthen\n\n\nyaml r sample.json\n\n\n\n\nwill output\n\n\na: Easy! as one two three\nb:\n  c: 2\n  d:\n  - 3\n  - 4", 
             "title": "Convert"
         }, 
         {
-            "location": "/convert/#yaml2json", 
-            "text": "To convert output to json, use the --tojson (or -j) flag. This can be used with any command.", 
-            "title": "Yaml2json"
+            "location": "/convert/#yaml-to-json", 
+            "text": "To convert output to json, use the --tojson (or -j) flag. This can be used with any command.  Given a sample.yaml file of:  b:\n  c: 2  then  yaml r -j sample.yaml b.c  will output  { b :{ c :2}}", 
+            "title": "Yaml to Json"
         }, 
         {
-            "location": "/convert/#json2yaml", 
-            "text": "To read in json, use the --fromjson (or -J) flag. This can be used with any command.", 
-            "title": "json2yaml"
+            "location": "/convert/#json-to-yaml", 
+            "text": "To read in json, just pass in a json file instead of yaml, it will just work :)  e.g given a json file  { a : Easy! as one two three , b :{ c :2, d :[3,4]}}  then  yaml r sample.json  will output  a: Easy! as one two three\nb:\n  c: 2\n  d:\n  - 3\n  - 4", 
+            "title": "Json to Yaml"
         }
     ]
 }

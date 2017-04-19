@@ -17,3 +17,8 @@ extra:
       link: 'https://github.com/mikefarah'
     - type: 'linkedin'
       link: 'https://www.linkedin.com/in/mike-farah-b5a75b2/'
+
+markdown_extensions:
+  - markdown_include.include:
+      base_path: mkdocs
+  - toc(permalink=true)

@@ -35,7 +35,6 @@ func main() {
 	var rootCmd = &cobra.Command{Use: "yaml"}
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
-	rootCmd.PersistentFlags().BoolVarP(&inputJSON, "fromjson", "J", false, "input as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.AddCommand(cmdRead, cmdWrite, cmdNew)
 	rootCmd.Execute()
@@ -247,12 +246,7 @@ func readData(filename string, parsedData interface{}, readAsJSON bool) {
 		rawData = readFile(filename)
 	}
 
-	var err interface{}
-	if readAsJSON {
-		fromJSONBytes([]byte(rawData), parsedData.(*map[interface{}]interface{}))
-	} else {
-		err = yaml.Unmarshal([]byte(rawData), parsedData)
-	}
+	err := yaml.Unmarshal([]byte(rawData), parsedData)
 	if err != nil {
 		die("error parsing data: ", err)
 	}

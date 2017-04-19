@@ -35,7 +35,6 @@ Available Commands:
   new         yaml n [--script/-s script_file] a.b.c newValueForC
 
 Flags:
-  -J, --fromjson[=false]: input as json
   -h, --help[=false]: help for yaml
   -j, --tojson[=false]: output as json
   -t, --trim[=true]: trim yaml output
