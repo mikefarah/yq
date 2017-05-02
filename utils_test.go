@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 	"os"
 	"testing"
 )

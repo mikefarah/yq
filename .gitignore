@@ -25,3 +25,4 @@ coverage.out
 *.test
 *.prof
 yaml
+vendor/*/

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 func jsonToString(context interface{}) string {

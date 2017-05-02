@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 	"strconv"
 )
 

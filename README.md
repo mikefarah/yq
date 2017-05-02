@@ -42,3 +42,10 @@ Flags:
 
 Use "yaml [command] --help" for more information about a command.
 ```
+
+## Contribute
+1. run `govendor sync` [link](https://github.com/kardianos/govendor)
+2. add unit tests
+3. make changes
+4. run ./precheckin.sh
+5. profit

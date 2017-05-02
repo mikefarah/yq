@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/mikefarah/yaml/Godeps/_workspace/src/gopkg.in/yaml.v2"
 	"github.com/op/go-logging"
+	"gopkg.in/yaml.v2"
 	"os"
 	"sort"
 	"testing"
