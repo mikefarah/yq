@@ -383,7 +383,7 @@
 </code></pre>
 
 <p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
-<h3 id="basic">Basic</h3>
+<h3 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
   c: 2
@@ -394,13 +394,13 @@
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="from-stdin">From Stdin</h3>
+<h3 id="from-stdin">From Stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="bash">cat sample.yaml | yaml r - b.c
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="splat">Splat</h3>
+<h3 id="splat">Splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">---
 bob:
@@ -419,7 +419,7 @@ bob:
 - apples
 </code></pre>
 
-<h3 id="handling-in-the-yaml-key">Handling '.' in the yaml key</h3>
+<h3 id="handling-in-the-yaml-key">Handling '.' in the yaml key<a class="headerlink" href="#handling-in-the-yaml-key" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b.x:
   c: 2
@@ -430,7 +430,7 @@ bob:
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="arrays">Arrays</h3>
+<h3 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h3>
 <p>You can give an index to access a specific element:
 e.g.: given a sample file of</p>
 <pre><code class="yaml">b:
@@ -446,7 +446,7 @@ e.g.: given a sample file of</p>
 </code></pre>
 
 <p>will output 'sam'</p>
-<h3 id="array-splat">Array Splat</h3>
+<h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
 <p>e.g.: given a sample file of</p>
 <pre><code class="yaml">b:
   e:

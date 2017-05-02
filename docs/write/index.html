@@ -262,6 +262,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#values-starting-with-a-hyphen-or-dash" title="Values starting with a hyphen (or dash)" class="md-nav__link">
+    Values starting with a hyphen (or dash)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -348,6 +355,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#values-starting-with-a-hyphen-or-dash" title="Values starting with a hyphen (or dash)" class="md-nav__link">
+    Values starting with a hyphen (or dash)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -369,7 +383,7 @@
 </code></pre>
 
 <p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
-<h3 id="to-stdout">To Stdout</h3>
+<h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
   c: 2
@@ -384,11 +398,11 @@
   c: cat
 </code></pre>
 
-<h3 id="from-stdin">From STDIN</h3>
+<h3 id="from-stdin">From STDIN<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
 <pre><code class="bash">cat sample.yaml | yaml w - b.c blah
 </code></pre>
 
-<h3 id="adding-new-fields">Adding new fields</h3>
+<h3 id="adding-new-fields">Adding new fields<a class="headerlink" href="#adding-new-fields" title="Permanent link">&para;</a></h3>
 <p>Any missing fields in the path will be created on the fly.</p>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
@@ -406,7 +420,7 @@
     - new thing
 </code></pre>
 
-<h3 id="updating-files-in-place">Updating files in-place</h3>
+<h3 id="updating-files-in-place">Updating files in-place<a class="headerlink" href="#updating-files-in-place" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
   c: 2
@@ -417,7 +431,7 @@
 </code></pre>
 
 <p>will update the sample.yaml file so that the value of 'c' is cat.</p>
-<h3 id="updating-multiple-values-with-a-script">Updating multiple values with a script</h3>
+<h3 id="updating-multiple-values-with-a-script">Updating multiple values with a script<a class="headerlink" href="#updating-multiple-values-with-a-script" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
   c: 2
@@ -443,6 +457,16 @@ b.e[0].name: Howdy Partner
 
 <p>And, of course, you can pipe the instructions in using '-':</p>
 <pre><code class="bash">cat update_instructions.yaml | yaml w -s - sample.yaml
+</code></pre>
+
+<h3 id="values-starting-with-a-hyphen-or-dash">Values starting with a hyphen (or dash)<a class="headerlink" href="#values-starting-with-a-hyphen-or-dash" title="Permanent link">&para;</a></h3>
+<p>This needs a bit of trickery so that it won't try to parse the value as a CLI option. Specifically you will need to wrap the value with a single and double quotes:</p>
+<pre><code>yaml w my.path '&quot;-Dvalue&quot;'
+</code></pre>
+
+<p>will output</p>
+<pre><code class="yaml">my:
+  path: -Dvalue
 </code></pre>
                 
                   

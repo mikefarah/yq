@@ -87,3 +87,16 @@ And, of course, you can pipe the instructions in using '-':
 ```bash
 cat update_instructions.yaml | yaml w -s - sample.yaml
 ```
+
+### Values starting with a hyphen (or dash)
+This needs a bit of trickery so that it won't try to parse the value as a CLI option. Specifically you will need to wrap the value with a single and double quotes:
+
+```
+yaml w my.path '"-Dvalue"'
+```
+
+will output
+```yaml
+my:
+  path: -Dvalue
+```
