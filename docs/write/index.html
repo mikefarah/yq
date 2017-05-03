@@ -460,13 +460,13 @@ b.e[0].name: Howdy Partner
 </code></pre>
 
 <h3 id="values-starting-with-a-hyphen-or-dash">Values starting with a hyphen (or dash)<a class="headerlink" href="#values-starting-with-a-hyphen-or-dash" title="Permanent link">&para;</a></h3>
-<p>This needs a bit of trickery so that it won't try to parse the value as a CLI option. Specifically you will need to wrap the value with a single and double quotes:</p>
-<pre><code>yaml w my.path '&quot;-Dvalue&quot;'
+<p>The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:</p>
+<pre><code>yaml w -- my.path -3
 </code></pre>
 
 <p>will output</p>
 <pre><code class="yaml">my:
-  path: -Dvalue
+  path: -3
 </code></pre>
                 
                   

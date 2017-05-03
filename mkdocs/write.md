@@ -89,14 +89,14 @@ cat update_instructions.yaml | yaml w -s - sample.yaml
 ```
 
 ### Values starting with a hyphen (or dash)
-This needs a bit of trickery so that it won't try to parse the value as a CLI option. Specifically you will need to wrap the value with a single and double quotes:
+The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:
 
 ```
-yaml w my.path '"-Dvalue"'
+yaml w -- my.path -3
 ```
 
 will output
 ```yaml
 my:
-  path: -Dvalue
+  path: -3
 ```
