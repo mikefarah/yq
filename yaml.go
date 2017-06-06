@@ -195,7 +195,7 @@ func updateYaml(args []string) interface{} {
 
 func parseValue(argument string) interface{} {
 	var value, err interface{}
-	var inQuotes = argument[0] == '"'
+	var inQuotes = len(argument) > 0 && argument[0] == '"'
 	if !inQuotes {
 		value, err = strconv.ParseFloat(argument, 64)
 		if err == nil {
