@@ -28,6 +28,16 @@ func TestRead(t *testing.T) {
 	assertResult(t, 2, result)
 }
 
+func TestReadArray(t *testing.T) {
+	result := read([]string{"sample_array.yaml", "[1]"})
+	assertResult(t, 2, result)
+}
+
+func TestReadString(t *testing.T) {
+	result := read([]string{"sample_text.yaml"})
+	assertResult(t, "hi", result)
+}
+
 func TestOrder(t *testing.T) {
 	result := read([]string{"order.yaml"})
 	formattedResult := yamlToString(result)

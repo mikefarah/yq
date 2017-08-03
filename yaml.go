@@ -117,15 +117,26 @@ func readProperty(cmd *cobra.Command, args []string) {
 }
 
 func read(args []string) interface{} {
+
 	var parsedData yaml.MapSlice
+	var path = ""
+	if len(args) > 1 {
+		path = args[1]
+	}
+	err := readData(args[0], &parsedData, inputJSON)
+	if err != nil {
+		var generalData interface{}
+		readDataOrDie(args[0], &generalData, inputJSON)
+		item := yaml.MapItem{Key: "thing", Value: generalData}
+		parsedData = yaml.MapSlice{item}
+		path = "thing." + path
+	}
 
-	readData(args[0], &parsedData, inputJSON)
-
-	if len(args) == 1 {
+	if path == "" {
 		return parsedData
 	}
 
-	var paths = parsePath(args[1])
+	var paths = parsePath(path)
 
 	return readMap(parsedData, paths[0], paths[1:len(paths)])
 }
@@ -141,7 +152,7 @@ func newProperty(cmd *cobra.Command, args []string) {
 func newYaml(args []string) interface{} {
 	var writeCommands yaml.MapSlice
 	if writeScript != "" {
-		readData(writeScript, &writeCommands, false)
+		readDataOrDie(writeScript, &writeCommands, false)
 	} else if len(args) < 2 {
 		die("Must provide <path_to_update> <value>")
 	} else {
@@ -179,7 +190,7 @@ func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice) yam
 func updateYaml(args []string) interface{} {
 	var writeCommands yaml.MapSlice
 	if writeScript != "" {
-		readData(writeScript, &writeCommands, false)
+		readDataOrDie(writeScript, &writeCommands, false)
 	} else if len(args) < 3 {
 		die("Must provide <filename> <path_to_update> <value>")
 	} else {
@@ -188,7 +199,7 @@ func updateYaml(args []string) interface{} {
 	}
 
 	var parsedData yaml.MapSlice
-	readData(args[0], &parsedData, inputJSON)
+	readDataOrDie(args[0], &parsedData, inputJSON)
 
 	return updateParsedData(parsedData, writeCommands)
 }
@@ -234,7 +245,14 @@ func yamlToString(context interface{}) string {
 	return outStr
 }
 
-func readData(filename string, parsedData interface{}, readAsJSON bool) {
+func readDataOrDie(filename string, parsedData interface{}, readAsJSON bool) {
+	err := readData(filename, parsedData, readAsJSON)
+	if err != nil {
+		die("error parsing data: ", err)
+	}
+}
+
+func readData(filename string, parsedData interface{}, readAsJSON bool) error {
 	if filename == "" {
 		die("Must provide filename")
 	}
@@ -246,10 +264,7 @@ func readData(filename string, parsedData interface{}, readAsJSON bool) {
 		rawData = readFile(filename)
 	}
 
-	err := yaml.Unmarshal([]byte(rawData), parsedData)
-	if err != nil {
-		die("error parsing data: ", err)
-	}
+	return yaml.Unmarshal([]byte(rawData), parsedData)
 }
 
 func readStdin() []byte {
