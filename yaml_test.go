@@ -55,6 +55,14 @@ func TestNewYaml(t *testing.T) {
 		formattedResult)
 }
 
+func TestNewYamlArray(t *testing.T) {
+	result := newYaml([]string{"[0].cat", "meow"})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[[{cat meow}]]",
+		formattedResult)
+}
+
 func TestUpdateYaml(t *testing.T) {
 	result := updateYaml([]string{"sample.yaml", "b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)

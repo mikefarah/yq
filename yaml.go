@@ -160,9 +160,18 @@ func newYaml(args []string) interface{} {
 		writeCommands[0] = yaml.MapItem{Key: args[0], Value: parseValue(args[1])}
 	}
 
-	parsedData := make(yaml.MapSlice, 0)
+	var parsedData yaml.MapSlice
+	var prependCommand = ""
+	var isArray = strings.HasPrefix(writeCommands[0].Key.(string), "[")
+	if isArray {
+		item := yaml.MapItem{Key: "thing", Value: make(yaml.MapSlice, 0)}
+		parsedData = yaml.MapSlice{item}
+		prependCommand = "thing"
+	} else {
+		parsedData = make(yaml.MapSlice, 0)
+	}
 
-	return updateParsedData(parsedData, writeCommands, "")
+	return updateParsedData(parsedData, writeCommands, prependCommand)
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
