@@ -162,7 +162,7 @@ func newYaml(args []string) interface{} {
 
 	parsedData := make(yaml.MapSlice, 0)
 
-	return updateParsedData(parsedData, writeCommands)
+	return updateParsedData(parsedData, writeCommands, "")
 }
 
 func writeProperty(cmd *cobra.Command, args []string) {
@@ -177,18 +177,26 @@ func writeProperty(cmd *cobra.Command, args []string) {
 	}
 }
 
-func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice) yaml.MapSlice {
+func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, prependCommand string) interface{} {
+	var prefix = ""
+	if prependCommand != "" {
+		prefix = prependCommand + "."
+	}
 	for _, entry := range writeCommands {
-		path := entry.Key
+		path := prefix + entry.Key.(string)
 		value := entry.Value
-		var paths = parsePath(path.(string))
+		var paths = parsePath(path)
 		parsedData = writeMap(parsedData, paths, value)
+	}
+	if prependCommand != "" {
+		return readMap(parsedData, prependCommand, make([]string, 0))
 	}
 	return parsedData
 }
 
 func updateYaml(args []string) interface{} {
 	var writeCommands yaml.MapSlice
+	var prependCommand = ""
 	if writeScript != "" {
 		readDataOrDie(writeScript, &writeCommands, false)
 	} else if len(args) < 3 {
@@ -199,9 +207,16 @@ func updateYaml(args []string) interface{} {
 	}
 
 	var parsedData yaml.MapSlice
-	readDataOrDie(args[0], &parsedData, inputJSON)
+	err := readData(args[0], &parsedData, inputJSON)
+	if err != nil {
+		var generalData interface{}
+		readDataOrDie(args[0], &generalData, inputJSON)
+		item := yaml.MapItem{Key: "thing", Value: generalData}
+		parsedData = yaml.MapSlice{item}
+		prependCommand = "thing"
+	}
 
-	return updateParsedData(parsedData, writeCommands)
+	return updateParsedData(parsedData, writeCommands, prependCommand)
 }
 
 func parseValue(argument string) interface{} {

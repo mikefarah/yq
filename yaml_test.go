@@ -63,6 +63,14 @@ func TestUpdateYaml(t *testing.T) {
 		formattedResult)
 }
 
+func TestUpdateYamlArray(t *testing.T) {
+	result := updateYaml([]string{"sample_array.yaml", "[0]", "3"})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[3 2 3]",
+		formattedResult)
+}
+
 func TestUpdateYaml_WithScript(t *testing.T) {
 	writeScript = "instruction_sample.yaml"
 	updateYaml([]string{"sample.yaml"})
