@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"gopkg.in/yaml.v2"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 func jsonToString(context interface{}) string {

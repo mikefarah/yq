@@ -24,22 +24,22 @@ func TestParseValue(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	result := read([]string{"sample.yaml", "b.c"})
+	result := read([]string{"examples/sample.yaml", "b.c"})
 	assertResult(t, 2, result)
 }
 
 func TestReadArray(t *testing.T) {
-	result := read([]string{"sample_array.yaml", "[1]"})
+	result := read([]string{"examples/sample_array.yaml", "[1]"})
 	assertResult(t, 2, result)
 }
 
 func TestReadString(t *testing.T) {
-	result := read([]string{"sample_text.yaml"})
+	result := read([]string{"examples/sample_text.yaml"})
 	assertResult(t, "hi", result)
 }
 
 func TestOrder(t *testing.T) {
-	result := read([]string{"order.yaml"})
+	result := read([]string{"examples/order.yaml"})
 	formattedResult := yamlToString(result)
 	assertResult(t,
 		`version: 3
@@ -64,7 +64,7 @@ func TestNewYamlArray(t *testing.T) {
 }
 
 func TestUpdateYaml(t *testing.T) {
-	result := updateYaml([]string{"sample.yaml", "b.c", "3"})
+	result := updateYaml([]string{"examples/sample.yaml", "b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[{a Easy! as one two three} {b [{c 3} {d [3 4]} {e [[{name fred} {value 3}] [{name sam} {value 4}]]}]}]",
@@ -72,7 +72,7 @@ func TestUpdateYaml(t *testing.T) {
 }
 
 func TestUpdateYamlArray(t *testing.T) {
-	result := updateYaml([]string{"sample_array.yaml", "[0]", "3"})
+	result := updateYaml([]string{"examples/sample_array.yaml", "[0]", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[3 2 3]",
@@ -80,12 +80,12 @@ func TestUpdateYamlArray(t *testing.T) {
 }
 
 func TestUpdateYaml_WithScript(t *testing.T) {
-	writeScript = "instruction_sample.yaml"
-	updateYaml([]string{"sample.yaml"})
+	writeScript = "examples/instruction_sample.yaml"
+	updateYaml([]string{"examples/sample.yaml"})
 }
 
 func TestNewYaml_WithScript(t *testing.T) {
-	writeScript = "instruction_sample.yaml"
+	writeScript = "examples/instruction_sample.yaml"
 	expectedResult := `b:
   c: cat
   e:

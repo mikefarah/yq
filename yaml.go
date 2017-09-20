@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/op/go-logging"
-	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
+
+	logging "github.com/op/go-logging"
+	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var trimOutput = true
@@ -37,7 +38,7 @@ func main() {
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.AddCommand(cmdRead, cmdWrite, cmdNew)
-	rootCmd.Execute()
+	_ = rootCmd.Execute()
 }
 
 func createReadCmd() *cobra.Command {
@@ -138,7 +139,7 @@ func read(args []string) interface{} {
 
 	var paths = parsePath(path)
 
-	return readMap(parsedData, paths[0], paths[1:len(paths)])
+	return readMap(parsedData, paths[0], paths[1:])
 }
 
 func newProperty(cmd *cobra.Command, args []string) {
@@ -180,7 +181,7 @@ func writeProperty(cmd *cobra.Command, args []string) {
 	}
 	updatedData := updateYaml(args)
 	if writeInplace {
-		ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
+		_ = ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
 	} else {
 		print(updatedData)
 	}
@@ -288,7 +289,7 @@ func readData(filename string, parsedData interface{}, readAsJSON bool) error {
 		rawData = readFile(filename)
 	}
 
-	return yaml.Unmarshal([]byte(rawData), parsedData)
+	return yaml.Unmarshal(rawData, parsedData)
 }
 
 func readStdin() []byte {

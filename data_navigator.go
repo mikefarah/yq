@@ -1,8 +1,9 @@
 package main
 
 import (
-	"gopkg.in/yaml.v2"
 	"strconv"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
@@ -40,7 +41,7 @@ func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSl
 
 	log.Debugf("\tchild.Value %v\n", child.Value)
 
-	remainingPaths := paths[1:len(paths)]
+	remainingPaths := paths[1:]
 	child.Value = updatedChildValue(child.Value, remainingPaths, value)
 	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
 	return mapSlice
@@ -89,7 +90,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 
 	log.Debugf("\tcurrentChild %v\n", currentChild)
 
-	remainingPaths := paths[1:len(paths)]
+	remainingPaths := paths[1:]
 	array[index] = updatedChildValue(currentChild, remainingPaths, value)
 	log.Debugf("\tReturning array %v\n", array)
 	return array
@@ -113,7 +114,7 @@ func readMapSplat(context yaml.MapSlice, tail []string) interface{} {
 	var i = 0
 	for _, entry := range context {
 		if len(tail) > 0 {
-			newArray[i] = recurse(entry.Value, tail[0], tail[1:len(tail)])
+			newArray[i] = recurse(entry.Value, tail[0], tail[1:])
 		} else {
 			newArray[i] = entry.Value
 		}
@@ -160,7 +161,7 @@ func readArraySplat(array []interface{}, tail []string) interface{} {
 
 func calculateValue(value interface{}, tail []string) interface{} {
 	if len(tail) > 0 {
-		return recurse(value, tail[0], tail[1:len(tail)])
+		return recurse(value, tail[0], tail[1:])
 	}
 	return value
 }

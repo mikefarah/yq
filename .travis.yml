@@ -1,4 +1,6 @@
 language: go
 go:
     - 1.7.x
-script: ./ci.sh
+script:
+  - scripts/devtools.sh
+  - make local build

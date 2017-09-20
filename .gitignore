@@ -6,6 +6,7 @@
 # Folders
 _obj
 _test
+bin
 build
 .DS_Store
 
@@ -26,3 +27,5 @@ coverage.out
 *.prof
 yaml
 vendor/*/
+tmp/
+cover/
