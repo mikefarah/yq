@@ -12,9 +12,9 @@ var parsePathsTests = []struct {
 	{"a.b[0]", []string{"a", "b", "0"}},
 }
 
-func testParsePath(t *testing.T) {
+func TestParsePath(t *testing.T) {
 	for _, tt := range parsePathsTests {
-		assertResultWithContext(t, tt.expectedPaths, parsePath(tt.path), tt)
+		assertResultComplex(t, tt.expectedPaths, parsePath(tt.path))
 	}
 }
 

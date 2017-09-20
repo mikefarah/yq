@@ -16,13 +16,13 @@ func nextYamlPath(path string) (pathElement string, remaining string) {
 	switch path[0] {
 	case '[':
 		// e.g [0].blah.cat -> we need to return "0" and "blah.cat"
-		return search(path[1:len(path)], []uint8{']'}, true)
+		return search(path[1:], []uint8{']'}, true)
 	case '"':
 		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
-		return search(path[1:len(path)], []uint8{'"'}, true)
+		return search(path[1:], []uint8{'"'}, true)
 	default:
 		// e.g "a.blah.cat" -> return "a" and "blah.cat"
-		return search(path[0:len(path)], []uint8{'.', '['}, false)
+		return search(path[0:], []uint8{'.', '['}, false)
 	}
 }
 
@@ -39,7 +39,7 @@ func search(path string, matchingChars []uint8, skipNext bool) (pathElement stri
 			if remainingStart > len(path) {
 				remainingStart = len(path)
 			}
-			return path[0:i], path[remainingStart:len(path)]
+			return path[0:i], path[remainingStart:]
 		}
 	}
 	return path, ""
