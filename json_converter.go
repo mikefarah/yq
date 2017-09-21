@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"gopkg.in/yaml.v2"
+	"strconv"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 func jsonToString(context interface{}) string {
@@ -26,7 +28,13 @@ func toJSON(context interface{}) interface{} {
 		oldMap := context.(yaml.MapSlice)
 		newMap := make(map[string]interface{})
 		for _, entry := range oldMap {
-			newMap[entry.Key.(string)] = toJSON(entry.Value)
+			if str, ok := entry.Key.(string); ok {
+				newMap[str] = toJSON(entry.Value)
+			} else if i, ok := entry.Key.(int); ok {
+				newMap[strconv.Itoa(i)] = toJSON(entry.Value)
+			} else if b, ok := entry.Key.(bool); ok {
+				newMap[strconv.FormatBool(b)] = toJSON(entry.Value)
+			}
 		}
 		return newMap
 	default:
