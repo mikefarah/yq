@@ -13,6 +13,24 @@ b:
 	assertResult(t, "{\"b\":{\"c\":2}}", jsonToString(data))
 }
 
+func TestJsonToString_withIntKey(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  2: c
+`)
+	assertResult(t, `{"b":{"2":"c"}}`, jsonToString(data))
+}
+
+func TestJsonToString_withBoolKey(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  false: c
+`)
+	assertResult(t, `{"b":{"false":"c"}}`, jsonToString(data))
+}
+
 func TestJsonToString_withArray(t *testing.T) {
 	var data = parseData(`
 ---
