@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"strconv"
-
 	yaml "gopkg.in/yaml.v2"
 )
 

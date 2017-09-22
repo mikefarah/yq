@@ -2,11 +2,8 @@
 
 set -e
 
-go test
-go build
-
 # acceptance test
-X=$(./yaml w sample.yaml b.c 3 | ./yaml r - b.c)
+X=$(./bin/yaml w ./examples/sample.yaml b.c 3 | ./bin/yaml r - b.c)
 
 if [ $X != 3 ]
   then

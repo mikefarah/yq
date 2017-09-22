@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/op/go-logging"
-	"gopkg.in/yaml.v2"
 	"os"
 	"sort"
 	"testing"
+
+	logging "github.com/op/go-logging"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func TestMain(m *testing.M) {

@@ -1,0 +1,9 @@
+FROM golang:1.7
+
+COPY scripts/devtools.sh /opt/devtools.sh
+
+RUN set -e -x \
+    && /opt/devtools.sh
+
+ENV CGO_ENABLED 0
+ENV GOPATH /go:/yaml
