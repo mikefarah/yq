@@ -1,9 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
@@ -79,10 +80,12 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	log.Debugf("\tarray %v\n", array)
 
 	rawIndex := paths[0]
-	index, err := strconv.ParseInt(rawIndex, 10, 64)
-	if err != nil {
-		die("Error accessing array: %v", err)
-	}
+	index, _ := strconv.ParseInt(rawIndex, 10, 64)
+	// writeArray is only called by updatedChildValue which handles parsing the
+	// index, as such this renders this dead code.
+	// if err != nil {
+	// 	return array, fmt.Errorf("Error accessing array: %v", err)
+	// }
 	for index >= int64(len(array)) {
 		array = append(array, nil)
 	}
@@ -96,7 +99,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	return array
 }
 
-func readMap(context yaml.MapSlice, head string, tail []string) interface{} {
+func readMap(context yaml.MapSlice, head string, tail []string) (interface{}, error) {
 	if head == "*" {
 		return readMapSplat(context, tail)
 	}
@@ -109,21 +112,25 @@ func readMap(context yaml.MapSlice, head string, tail []string) interface{} {
 	return calculateValue(value, tail)
 }
 
-func readMapSplat(context yaml.MapSlice, tail []string) interface{} {
+func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
 	var newArray = make([]interface{}, len(context))
 	var i = 0
 	for _, entry := range context {
 		if len(tail) > 0 {
-			newArray[i] = recurse(entry.Value, tail[0], tail[1:])
+			val, err := recurse(entry.Value, tail[0], tail[1:])
+			if err != nil {
+				return nil, err
+			}
+			newArray[i] = val
 		} else {
 			newArray[i] = entry.Value
 		}
 		i++
 	}
-	return newArray
+	return newArray, nil
 }
 
-func recurse(value interface{}, head string, tail []string) interface{} {
+func recurse(value interface{}, head string, tail []string) (interface{}, error) {
 	switch value.(type) {
 	case []interface{}:
 		if head == "*" {
@@ -131,37 +138,40 @@ func recurse(value interface{}, head string, tail []string) interface{} {
 		}
 		index, err := strconv.ParseInt(head, 10, 64)
 		if err != nil {
-			die("Error accessing array: %v", err)
+			return nil, fmt.Errorf("Error accessing array: %v", err)
 		}
 		return readArray(value.([]interface{}), index, tail)
 	case yaml.MapSlice:
 		return readMap(value.(yaml.MapSlice), head, tail)
 	default:
-		return nil
+		return nil, nil
 	}
 }
 
-func readArray(array []interface{}, head int64, tail []string) interface{} {
+func readArray(array []interface{}, head int64, tail []string) (interface{}, error) {
 	if head >= int64(len(array)) {
-		return nil
+		return nil, nil
 	}
 
 	value := array[head]
-
 	return calculateValue(value, tail)
 }
 
-func readArraySplat(array []interface{}, tail []string) interface{} {
+func readArraySplat(array []interface{}, tail []string) (interface{}, error) {
 	var newArray = make([]interface{}, len(array))
 	for index, value := range array {
-		newArray[index] = calculateValue(value, tail)
+		val, err := calculateValue(value, tail)
+		if err != nil {
+			return nil, err
+		}
+		newArray[index] = val
 	}
-	return newArray
+	return newArray, nil
 }
 
-func calculateValue(value interface{}, tail []string) interface{} {
+func calculateValue(value interface{}, tail []string) (interface{}, error) {
 	if len(tail) > 0 {
 		return recurse(value, tail[0], tail[1:])
 	}
-	return value
+	return value, nil
 }

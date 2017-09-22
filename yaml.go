@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -15,30 +16,45 @@ import (
 var trimOutput = true
 var writeInplace = false
 var writeScript = ""
-var inputJSON = false
 var outputToJSON = false
 var verbose = false
 var log = logging.MustGetLogger("yaml")
-var format = logging.MustStringFormatter(
-	`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
-)
-var backend = logging.AddModuleLevel(
-	logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
 
 func main() {
-	backend.SetLevel(logging.ERROR, "")
-	logging.SetBackend(backend)
+	cmd := newCommandCLI()
+	if err := cmd.Execute(); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+}
 
-	var cmdRead = createReadCmd()
-	var cmdWrite = createWriteCmd()
-	var cmdNew = createNewCmd()
+func newCommandCLI() *cobra.Command {
+	var rootCmd = &cobra.Command{
+		Use: "yaml",
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			var format = logging.MustStringFormatter(
+				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
+			)
+			var backend = logging.AddModuleLevel(
+				logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
 
-	var rootCmd = &cobra.Command{Use: "yaml"}
+			if verbose {
+				backend.SetLevel(logging.DEBUG, "")
+			} else {
+				backend.SetLevel(logging.ERROR, "")
+			}
+
+			logging.SetBackend(backend)
+		},
+	}
+
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.AddCommand(cmdRead, cmdWrite, cmdNew)
-	_ = rootCmd.Execute()
+
+	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd())
+
+	return rootCmd
 }
 
 func createReadCmd() *cobra.Command {
@@ -54,7 +70,7 @@ yaml r things.yaml a.array[0].blah
 yaml r things.yaml a.array[*].blah
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
-		Run:  readProperty,
+		RunE: readProperty,
 	}
 }
 
@@ -81,7 +97,7 @@ a.b.c: true,
 a.b.e:
   - name: bob
 `,
-		Run: writeProperty,
+		RunE: writeProperty,
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
@@ -104,37 +120,47 @@ Outputs to STDOUT
 Create Scripts:
 Note that you can give a create script to perform more sophisticated yaml. This follows the same format as the update script.
 `,
-		Run: newProperty,
+		RunE: newProperty,
 	}
 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
 	return cmdNew
 }
 
-func readProperty(cmd *cobra.Command, args []string) {
-	if verbose {
-		backend.SetLevel(logging.DEBUG, "")
+func readProperty(cmd *cobra.Command, args []string) error {
+	data, err := read(args)
+	if err != nil {
+		return err
 	}
-	print(read(args))
+	dataStr, err := toString(data)
+	if err != nil {
+		return err
+	}
+	cmd.Println(dataStr)
+	return nil
 }
 
-func read(args []string) interface{} {
-
+func read(args []string) (interface{}, error) {
 	var parsedData yaml.MapSlice
 	var path = ""
-	if len(args) > 1 {
+
+	if len(args) < 1 {
+		return nil, errors.New("Must provide filename")
+	} else if len(args) > 1 {
 		path = args[1]
 	}
-	err := readData(args[0], &parsedData, inputJSON)
-	if err != nil {
+
+	if err := readData(args[0], &parsedData); err != nil {
 		var generalData interface{}
-		readDataOrDie(args[0], &generalData, inputJSON)
+		if err = readData(args[0], &generalData); err != nil {
+			return nil, err
+		}
 		item := yaml.MapItem{Key: "thing", Value: generalData}
 		parsedData = yaml.MapSlice{item}
 		path = "thing." + path
 	}
 
 	if path == "" {
-		return parsedData
+		return parsedData, nil
 	}
 
 	var paths = parsePath(path)
@@ -142,20 +168,27 @@ func read(args []string) interface{} {
 	return readMap(parsedData, paths[0], paths[1:])
 }
 
-func newProperty(cmd *cobra.Command, args []string) {
-	if verbose {
-		backend.SetLevel(logging.DEBUG, "")
+func newProperty(cmd *cobra.Command, args []string) error {
+	updatedData, err := newYaml(args)
+	if err != nil {
+		return err
 	}
-	updatedData := newYaml(args)
-	print(updatedData)
+	dataStr, err := toString(updatedData)
+	if err != nil {
+		return err
+	}
+	cmd.Println(dataStr)
+	return nil
 }
 
-func newYaml(args []string) interface{} {
+func newYaml(args []string) (interface{}, error) {
 	var writeCommands yaml.MapSlice
 	if writeScript != "" {
-		readDataOrDie(writeScript, &writeCommands, false)
+		if err := readData(writeScript, &writeCommands); err != nil {
+			return nil, err
+		}
 	} else if len(args) < 2 {
-		die("Must provide <path_to_update> <value>")
+		return nil, errors.New("Must provide <path_to_update> <value>")
 	} else {
 		writeCommands = make(yaml.MapSlice, 1)
 		writeCommands[0] = yaml.MapItem{Key: args[0], Value: parseValue(args[1])}
@@ -175,19 +208,31 @@ func newYaml(args []string) interface{} {
 	return updateParsedData(parsedData, writeCommands, prependCommand)
 }
 
-func writeProperty(cmd *cobra.Command, args []string) {
-	if verbose {
-		backend.SetLevel(logging.DEBUG, "")
+func writeProperty(cmd *cobra.Command, args []string) error {
+	updatedData, err := updateYaml(args)
+	if err != nil {
+		return err
 	}
-	updatedData := updateYaml(args)
-	if writeInplace {
-		_ = ioutil.WriteFile(args[0], []byte(yamlToString(updatedData)), 0644)
-	} else {
-		print(updatedData)
-	}
+	return write(cmd, args[0], updatedData)
 }
 
-func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, prependCommand string) interface{} {
+func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
+	if writeInplace {
+		dataStr, err := yamlToString(updatedData)
+		if err != nil {
+			return err
+		}
+		return ioutil.WriteFile(filename, []byte(dataStr), 0644)
+	}
+	dataStr, err := toString(updatedData)
+	if err != nil {
+		return err
+	}
+	cmd.Println(dataStr)
+	return nil
+}
+
+func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, prependCommand string) (interface{}, error) {
 	var prefix = ""
 	if prependCommand != "" {
 		prefix = prependCommand + "."
@@ -201,26 +246,29 @@ func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, pre
 	if prependCommand != "" {
 		return readMap(parsedData, prependCommand, make([]string, 0))
 	}
-	return parsedData
+	return parsedData, nil
 }
 
-func updateYaml(args []string) interface{} {
+func updateYaml(args []string) (interface{}, error) {
 	var writeCommands yaml.MapSlice
 	var prependCommand = ""
 	if writeScript != "" {
-		readDataOrDie(writeScript, &writeCommands, false)
+		if err := readData(writeScript, &writeCommands); err != nil {
+			return nil, err
+		}
 	} else if len(args) < 3 {
-		die("Must provide <filename> <path_to_update> <value>")
+		return nil, errors.New("Must provide <filename> <path_to_update> <value>")
 	} else {
 		writeCommands = make(yaml.MapSlice, 1)
 		writeCommands[0] = yaml.MapItem{Key: args[1], Value: parseValue(args[2])}
 	}
 
 	var parsedData yaml.MapSlice
-	err := readData(args[0], &parsedData, inputJSON)
-	if err != nil {
+	if err := readData(args[0], &parsedData); err != nil {
 		var generalData interface{}
-		readDataOrDie(args[0], &generalData, inputJSON)
+		if err = readData(args[0], &generalData); err != nil {
+			return nil, err
+		}
 		item := yaml.MapItem{Key: "thing", Value: generalData}
 		parsedData = yaml.MapSlice{item}
 		prependCommand = "thing"
@@ -246,69 +294,43 @@ func parseValue(argument string) interface{} {
 	return argument[1 : len(argument)-1]
 }
 
-func print(context interface{}) {
-	var out string
+func toString(context interface{}) (string, error) {
 	if outputToJSON {
-		out = jsonToString(context)
-	} else {
-		out = yamlToString(context)
+		return jsonToString(context)
 	}
-	fmt.Println(out)
+	return yamlToString(context)
 }
 
-func yamlToString(context interface{}) string {
+func yamlToString(context interface{}) (string, error) {
 	out, err := yaml.Marshal(context)
 	if err != nil {
-		die("error printing yaml: %v", err)
+		return "", fmt.Errorf("error printing yaml: %v", err)
 	}
 	outStr := string(out)
 	// trim the trailing new line as it's easier for a script to add
 	// it in if required than to remove it
 	if trimOutput {
-		return strings.Trim(outStr, "\n ")
+		return strings.Trim(outStr, "\n "), nil
 	}
-	return outStr
+	return outStr, nil
 }
 
-func readDataOrDie(filename string, parsedData interface{}, readAsJSON bool) {
-	err := readData(filename, parsedData, readAsJSON)
-	if err != nil {
-		die("error parsing data: ", err)
-	}
-}
-
-func readData(filename string, parsedData interface{}, readAsJSON bool) error {
+func readData(filename string, parsedData interface{}) error {
 	if filename == "" {
-		die("Must provide filename")
+		return errors.New("Must provide filename")
 	}
 
 	var rawData []byte
+	var err error
 	if filename == "-" {
-		rawData = readStdin()
+		rawData, err = ioutil.ReadAll(os.Stdin)
 	} else {
-		rawData = readFile(filename)
+		rawData, err = ioutil.ReadFile(filename)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	return yaml.Unmarshal(rawData, parsedData)
-}
-
-func readStdin() []byte {
-	bytes, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		die("error reading stdin", err)
-	}
-	return bytes
-}
-
-func readFile(filename string) []byte {
-	var rawData, readError = ioutil.ReadFile(filename)
-	if readError != nil {
-		die("error: %v", readError)
-	}
-	return rawData
-}
-
-func die(message ...interface{}) {
-	fmt.Println(message)
-	os.Exit(1)
 }

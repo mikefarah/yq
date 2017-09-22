@@ -2,19 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"testing"
 
-	logging "github.com/op/go-logging"
 	yaml "gopkg.in/yaml.v2"
 )
-
-func TestMain(m *testing.M) {
-	backend.SetLevel(logging.ERROR, "")
-	logging.SetBackend(backend)
-	os.Exit(m.Run())
-}
 
 func TestReadMap_simple(t *testing.T) {
 	var data = parseData(`
@@ -22,7 +14,8 @@ func TestReadMap_simple(t *testing.T) {
 b:
   c: 2
 `)
-	assertResult(t, 2, readMap(data, "b", []string{"c"}))
+	got, _ := readMap(data, "b", []string{"c"})
+	assertResult(t, 2, got)
 }
 
 func TestReadMap_splat(t *testing.T) {
@@ -32,7 +25,8 @@ mapSplat:
   item1: things
   item2: whatever
 `)
-	var result = readMap(data, "mapSplat", []string{"*"}).([]interface{})
+	res, _ := readMap(data, "mapSplat", []string{"*"})
+	result := res.([]interface{})
 	var actual = []string{result[0].(string), result[1].(string)}
 	sort.Strings(actual)
 	assertResult(t, "[things whatever]", fmt.Sprintf("%v", actual))
@@ -48,7 +42,8 @@ mapSplatDeep:
     cats: apples
 `)
 
-	var result = readMap(data, "mapSplatDeep", []string{"*", "cats"}).([]interface{})
+	res, _ := readMap(data, "mapSplatDeep", []string{"*", "cats"})
+	result := res.([]interface{})
 	var actual = []string{result[0].(string), result[1].(string)}
 	sort.Strings(actual)
 	assertResult(t, "[apples bananas]", fmt.Sprintf("%v", actual))
@@ -60,7 +55,8 @@ func TestReadMap_key_doesnt_exist(t *testing.T) {
 b:
   c: 2
 `)
-	assertResult(t, nil, readMap(data, "b.x.f", []string{"c"}))
+	got, _ := readMap(data, "b.x.f", []string{"c"})
+	assertResult(t, nil, got)
 }
 
 func TestReadMap_recurse_against_string(t *testing.T) {
@@ -68,7 +64,8 @@ func TestReadMap_recurse_against_string(t *testing.T) {
 ---
 a: cat
 `)
-	assertResult(t, nil, readMap(data, "a", []string{"b"}))
+	got, _ := readMap(data, "a", []string{"b"})
+	assertResult(t, nil, got)
 }
 
 func TestReadMap_with_array(t *testing.T) {
@@ -79,7 +76,64 @@ b:
     - 3
     - 4
 `)
-	assertResult(t, 4, readMap(data, "b", []string{"d", "1"}))
+	got, _ := readMap(data, "b", []string{"d", "1"})
+	assertResult(t, 4, got)
+}
+
+func TestReadMap_with_array_and_bad_index(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  d:
+    - 3
+    - 4
+`)
+	_, err := readMap(data, "b", []string{"d", "x"})
+	if err == nil {
+		t.Fatal("Expected error due to invalid path")
+	}
+	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	assertResult(t, expectedOutput, err.Error())
+}
+
+func TestReadMap_with_mapsplat_array_and_bad_index(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  d:
+    e:
+      - 3
+      - 4
+    f:
+      - 1
+      - 2
+`)
+	_, err := readMap(data, "b", []string{"d", "*", "x"})
+	if err == nil {
+		t.Fatal("Expected error due to invalid path")
+	}
+	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	assertResult(t, expectedOutput, err.Error())
+}
+
+func TestReadMap_with_arraysplat_map_array_and_bad_index(t *testing.T) {
+	var data = parseData(`
+---
+b:
+  d:
+    - names:
+        - fred
+        - smith
+    - names:
+        - sam
+        - bo
+`)
+	_, err := readMap(data, "b", []string{"d", "*", "names", "x"})
+	if err == nil {
+		t.Fatal("Expected error due to invalid path")
+	}
+	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	assertResult(t, expectedOutput, err.Error())
 }
 
 func TestReadMap_with_array_out_of_bounds(t *testing.T) {
@@ -90,7 +144,8 @@ b:
     - 3
     - 4
 `)
-	assertResult(t, nil, readMap(data, "b", []string{"d", "3"}))
+	got, _ := readMap(data, "b", []string{"d", "3"})
+	assertResult(t, nil, got)
 }
 
 func TestReadMap_with_array_out_of_bounds_by_1(t *testing.T) {
@@ -101,7 +156,8 @@ b:
     - 3
     - 4
 `)
-	assertResult(t, nil, readMap(data, "b", []string{"d", "2"}))
+	got, _ := readMap(data, "b", []string{"d", "2"})
+	assertResult(t, nil, got)
 }
 
 func TestReadMap_with_array_splat(t *testing.T) {
@@ -114,7 +170,8 @@ e:
     name: Sam
     thing: dog
 `)
-	assertResult(t, "[Fred Sam]", fmt.Sprintf("%v", readMap(data, "e", []string{"*", "name"})))
+	got, _ := readMap(data, "e", []string{"*", "name"})
+	assertResult(t, "[Fred Sam]", fmt.Sprintf("%v", got))
 }
 
 func TestWrite_really_simple(t *testing.T) {
@@ -158,7 +215,8 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d", "f"}, "4")
-	assertResult(t, "4", readMap(updated, "b", []string{"d", "f"}))
+	got, _ := readMap(updated, "b", []string{"d", "f"})
+	assertResult(t, "4", got)
 }
 
 func TestWrite_array(t *testing.T) {
@@ -180,7 +238,8 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "0"}, "4")
-	assertResult(t, "4", readMap(updated, "b", []string{"0"}))
+	got, _ := readMap(updated, "b", []string{"0"})
+	assertResult(t, "4", got)
 }
 
 func TestWrite_new_array_deep(t *testing.T) {
@@ -193,7 +252,8 @@ b:
 - c: "4"`
 
 	updated := writeMap(data, []string{"b", "0", "c"}, "4")
-	assertResult(t, expected, yamlToString(updated))
+	got, _ := yamlToString(updated)
+	assertResult(t, expected, got)
 }
 
 func TestWrite_new_map_array_deep(t *testing.T) {
@@ -203,7 +263,8 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d", "0"}, "4")
-	assertResult(t, "4", readMap(updated, "b", []string{"d", "0"}))
+	got, _ := readMap(updated, "b", []string{"d", "0"})
+	assertResult(t, "4", got)
 }
 
 func TestWrite_add_to_array(t *testing.T) {
@@ -217,8 +278,8 @@ b:
 - bb`
 
 	updated := writeMap(data, []string{"b", "1"}, "bb")
-
-	assertResult(t, expected, yamlToString(updated))
+	got, _ := yamlToString(updated)
+	assertResult(t, expected, got)
 }
 
 func TestWrite_with_no_tail(t *testing.T) {

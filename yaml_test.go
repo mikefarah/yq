@@ -24,23 +24,23 @@ func TestParseValue(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	result := read([]string{"examples/sample.yaml", "b.c"})
+	result, _ := read([]string{"examples/sample.yaml", "b.c"})
 	assertResult(t, 2, result)
 }
 
 func TestReadArray(t *testing.T) {
-	result := read([]string{"examples/sample_array.yaml", "[1]"})
+	result, _ := read([]string{"examples/sample_array.yaml", "[1]"})
 	assertResult(t, 2, result)
 }
 
 func TestReadString(t *testing.T) {
-	result := read([]string{"examples/sample_text.yaml"})
+	result, _ := read([]string{"examples/sample_text.yaml"})
 	assertResult(t, "hi", result)
 }
 
 func TestOrder(t *testing.T) {
-	result := read([]string{"examples/order.yaml"})
-	formattedResult := yamlToString(result)
+	result, _ := read([]string{"examples/order.yaml"})
+	formattedResult, _ := yamlToString(result)
 	assertResult(t,
 		`version: 3
 application: MyApp`,
@@ -48,7 +48,7 @@ application: MyApp`,
 }
 
 func TestNewYaml(t *testing.T) {
-	result := newYaml([]string{"b.c", "3"})
+	result, _ := newYaml([]string{"b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[{b [{c 3}]}]",
@@ -56,7 +56,7 @@ func TestNewYaml(t *testing.T) {
 }
 
 func TestNewYamlArray(t *testing.T) {
-	result := newYaml([]string{"[0].cat", "meow"})
+	result, _ := newYaml([]string{"[0].cat", "meow"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[[{cat meow}]]",
@@ -64,7 +64,7 @@ func TestNewYamlArray(t *testing.T) {
 }
 
 func TestUpdateYaml(t *testing.T) {
-	result := updateYaml([]string{"examples/sample.yaml", "b.c", "3"})
+	result, _ := updateYaml([]string{"examples/sample.yaml", "b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[{a Easy! as one two three} {b [{c 3} {d [3 4]} {e [[{name fred} {value 3}] [{name sam} {value 4}]]}]}]",
@@ -72,7 +72,7 @@ func TestUpdateYaml(t *testing.T) {
 }
 
 func TestUpdateYamlArray(t *testing.T) {
-	result := updateYaml([]string{"examples/sample_array.yaml", "[0]", "3"})
+	result, _ := updateYaml([]string{"examples/sample_array.yaml", "[0]", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
 	assertResult(t,
 		"[3 2 3]",
@@ -81,7 +81,17 @@ func TestUpdateYamlArray(t *testing.T) {
 
 func TestUpdateYaml_WithScript(t *testing.T) {
 	writeScript = "examples/instruction_sample.yaml"
-	updateYaml([]string{"examples/sample.yaml"})
+	_, _ = updateYaml([]string{"examples/sample.yaml"})
+}
+
+func TestUpdateYaml_WithUnknownScript(t *testing.T) {
+	writeScript = "fake-unknown"
+	_, err := updateYaml([]string{"examples/sample.yaml"})
+	if err == nil {
+		t.Error("Expected error due to unknown file")
+	}
+	expectedOutput := `open fake-unknown: no such file or directory`
+	assertResult(t, expectedOutput, err.Error())
 }
 
 func TestNewYaml_WithScript(t *testing.T) {
@@ -90,7 +100,17 @@ func TestNewYaml_WithScript(t *testing.T) {
   c: cat
   e:
   - name: Mike Farah`
-	result := newYaml([]string{""})
-	actualResult := yamlToString(result)
+	result, _ := newYaml([]string{""})
+	actualResult, _ := yamlToString(result)
 	assertResult(t, expectedResult, actualResult)
+}
+
+func TestNewYaml_WithUnknownScript(t *testing.T) {
+	writeScript = "fake-unknown"
+	_, err := newYaml([]string{""})
+	if err == nil {
+		t.Error("Expected error due to unknown file")
+	}
+	expectedOutput := `open fake-unknown: no such file or directory`
+	assertResult(t, expectedOutput, err.Error())
 }
