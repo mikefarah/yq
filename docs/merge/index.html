@@ -16,7 +16,7 @@
     
     
       
-        <title>Read - Yaml</title>
+        <title>Merge - Yaml</title>
       
     
     
@@ -76,7 +76,7 @@
             
               
             
-            Read
+            Merge
           
         </span>
       </div>
@@ -195,78 +195,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Read
-      </label>
-    
-    <a href="./" title="Read" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../read/" title="Read" class="md-nav__link">
       Read
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic" title="Basic" class="md-nav__link">
-    Basic
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#from-stdin" title="From Stdin" class="md-nav__link">
-    From Stdin
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#splat" title="Splat" class="md-nav__link">
-    Splat
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#handling-in-the-yaml-key" title="Handling '.' in the yaml key" class="md-nav__link">
-    Handling '.' in the yaml key
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#arrays" title="Arrays" class="md-nav__link">
-    Arrays
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#array-splat" title="Array Splat" class="md-nav__link">
-    Array Splat
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
     
@@ -310,11 +243,64 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../merge/" title="Merge" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Merge
+      </label>
+    
+    <a href="./" title="Merge" class="md-nav__link md-nav__link--active">
       Merge
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#to-stdout" title="To Stdout" class="md-nav__link">
+    To Stdout
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
+    Updating files in-place
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overwrite-values" title="Overwrite values" class="md-nav__link">
+    Overwrite values
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overwrite-values-with-arrays" title="Overwrite values with arrays" class="md-nav__link">
+    Overwrite values with arrays
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -337,43 +323,29 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basic" title="Basic" class="md-nav__link">
-    Basic
+  <a href="#to-stdout" title="To Stdout" class="md-nav__link">
+    To Stdout
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-stdin" title="From Stdin" class="md-nav__link">
-    From Stdin
+  <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
+    Updating files in-place
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#splat" title="Splat" class="md-nav__link">
-    Splat
+  <a href="#overwrite-values" title="Overwrite values" class="md-nav__link">
+    Overwrite values
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#handling-in-the-yaml-key" title="Handling '.' in the yaml key" class="md-nav__link">
-    Handling '.' in the yaml key
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#arrays" title="Arrays" class="md-nav__link">
-    Arrays
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#array-splat" title="Array Splat" class="md-nav__link">
-    Array Splat
+  <a href="#overwrite-values-with-arrays" title="Overwrite values with arrays" class="md-nav__link">
+    Overwrite values with arrays
   </a>
   
 </li>
@@ -393,93 +365,106 @@
               
                 
                 
-                  <h1>Read</h1>
+                  <h1>Merge</h1>
                 
-                <pre><code>yaml r &lt;yaml_file|json_file&gt; &lt;path&gt;
+                <p>Yaml files can be merged using the 'merge' command. Each additional file merged with the first file will
+set values for any key not existing already or where the key has no value.</p>
+<pre><code>yaml m &lt;yaml_file|json_file&gt; &lt;path&gt;...
 </code></pre>
 
 <p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
-<h3 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
+<h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
+</code></pre>
+
+<p>and data2.yaml file of:</p>
+<pre><code class="yaml">a: other
+c:
+  test: 1
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml r sample.yaml b.c
-</code></pre>
-
-<p>will output the value of '2'.</p>
-<h3 id="from-stdin">From Stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="bash">cat sample.yaml | yaml r - b.c
-</code></pre>
-
-<p>will output the value of '2'.</p>
-<h3 id="splat">Splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">---
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yaml r sample.yaml bob.*.cats
-</code></pre>
-
-<p>will output</p>
-<pre><code class="yaml">- bananas
-- apples
-</code></pre>
-
-<h3 id="handling-in-the-yaml-key">Handling '.' in the yaml key<a class="headerlink" href="#handling-in-the-yaml-key" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b.x:
-  c: 2
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yaml r sample.yaml \&quot;b.x\&quot;.c
-</code></pre>
-
-<p>will output the value of '2'.</p>
-<h3 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h3>
-<p>You can give an index to access a specific element:
-e.g.: given a sample file of</p>
-<pre><code class="yaml">b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-</code></pre>
-
-<p>then</p>
-<pre><code>yaml r sample.yaml b.e[1].name
-</code></pre>
-
-<p>will output 'sam'</p>
-<h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
-<p>e.g.: given a sample file of</p>
-<pre><code class="yaml">b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-</code></pre>
-
-<p>then</p>
-<pre><code>yaml r sample.yaml b.e[*].name
+<pre><code class="bash">yaml m data1.yaml data2.yaml
 </code></pre>
 
 <p>will output:</p>
-<pre><code>- fred
-- sam
+<pre><code class="yaml">a: simple
+b: [1, 2]
+c:
+  test: 1
 </code></pre>
+
+<h3 id="updating-files-in-place">Updating files in-place<a class="headerlink" href="#updating-files-in-place" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
+</code></pre>
+
+<p>and data2.yaml file of:</p>
+<pre><code class="yaml">a: other
+c:
+  test: 1
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml m -i data1.yaml data2.yaml
+</code></pre>
+
+<p>will update the data1.yaml file so that the value of 'c' is 'test: 1'.</p>
+<h3 id="overwrite-values">Overwrite values<a class="headerlink" href="#overwrite-values" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
+</code></pre>
+
+<p>and data2.yaml file of:</p>
+<pre><code class="yaml">a: other
+c:
+  test: 1
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml m -x data1.yaml data2.yaml
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">a: other
+b: [1, 2]
+c:
+  test: 1
+</code></pre>
+
+<h3 id="overwrite-values-with-arrays">Overwrite values with arrays<a class="headerlink" href="#overwrite-values-with-arrays" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
+</code></pre>
+
+<p>and data3.yaml file of:</p>
+<pre><code class="yaml">b: [2, 3, 4]
+c:
+  test: 2
+  other: true
+d: false
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml m -x data1.yaml data3.yaml
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">a: simple
+b: [2, 3, 4]
+c:
+  test: 2
+  other: true
+d: false
+</code></pre>
+
+<p>Notice that 'b' does not result in the merging of the values within an array. The underlying library does not
+currently handle merging values within an array.</p>
                 
                   
                 
@@ -498,7 +483,7 @@ e.g.: given a sample file of</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="Install" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../convert/" title="Convert" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -507,25 +492,11 @@ e.g.: given a sample file of</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Install
+                Convert
               </span>
             </div>
           </a>
         
-        
-          <a href="../write/" title="Write/Update" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Write/Update
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
         
       </nav>
     </div>

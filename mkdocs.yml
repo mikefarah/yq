@@ -8,6 +8,7 @@ pages:
     - Write/Update: write.md
     - Create: create.md
     - Convert: convert.md
+    - Merge: merge.md
 repo_name: 'mikefarah/yaml'
 repo_url: 'https://github.com/mikefarah/yaml'
 

@@ -119,6 +119,31 @@
             "location": "/convert/#json-to-yaml", 
             "text": "To read in json, just pass in a json file instead of yaml, it will just work :)  e.g given a json file  { a : Easy! as one two three , b :{ c :2, d :[3,4]}}  then  yaml r sample.json  will output  a: Easy! as one two three\nb:\n  c: 2\n  d:\n  - 3\n  - 4", 
             "title": "Json to Yaml"
+        }, 
+        {
+            "location": "/merge/", 
+            "text": "Yaml files can be merged using the 'merge' command. Each additional file merged with the first file will\nset values for any key not existing already or where the key has no value.\n\n\nyaml m \nyaml_file|json_file\n \npath\n...\n\n\n\n\nThis command can take a json file as input too, and will output yaml unless specified to export as json (-j)\n\n\nTo Stdout\n\n\nGiven a data1.yaml file of:\n\n\na: simple\nb: [1, 2]\n\n\n\n\nand data2.yaml file of:\n\n\na: other\nc:\n  test: 1\n\n\n\n\nthen\n\n\nyaml m data1.yaml data2.yaml\n\n\n\n\nwill output:\n\n\na: simple\nb: [1, 2]\nc:\n  test: 1\n\n\n\n\nUpdating files in-place\n\n\nGiven a data1.yaml file of:\n\n\na: simple\nb: [1, 2]\n\n\n\n\nand data2.yaml file of:\n\n\na: other\nc:\n  test: 1\n\n\n\n\nthen\n\n\nyaml m -i data1.yaml data2.yaml\n\n\n\n\nwill update the data1.yaml file so that the value of 'c' is 'test: 1'.\n\n\nOverwrite values\n\n\nGiven a data1.yaml file of:\n\n\na: simple\nb: [1, 2]\n\n\n\n\nand data2.yaml file of:\n\n\na: other\nc:\n  test: 1\n\n\n\n\nthen\n\n\nyaml m -x data1.yaml data2.yaml\n\n\n\n\nwill output:\n\n\na: other\nb: [1, 2]\nc:\n  test: 1\n\n\n\n\nOverwrite values with arrays\n\n\nGiven a data1.yaml file of:\n\n\na: simple\nb: [1, 2]\n\n\n\n\nand data3.yaml file of:\n\n\nb: [2, 3, 4]\nc:\n  test: 2\n  other: true\nd: false\n\n\n\n\nthen\n\n\nyaml m -x data1.yaml data3.yaml\n\n\n\n\nwill output:\n\n\na: simple\nb: [2, 3, 4]\nc:\n  test: 2\n  other: true\nd: false\n\n\n\n\nNotice that 'b' does not result in the merging of the values within an array. The underlying library does not\ncurrently handle merging values within an array.", 
+            "title": "Merge"
+        }, 
+        {
+            "location": "/merge/#to-stdout", 
+            "text": "Given a data1.yaml file of:  a: simple\nb: [1, 2]  and data2.yaml file of:  a: other\nc:\n  test: 1  then  yaml m data1.yaml data2.yaml  will output:  a: simple\nb: [1, 2]\nc:\n  test: 1", 
+            "title": "To Stdout"
+        }, 
+        {
+            "location": "/merge/#updating-files-in-place", 
+            "text": "Given a data1.yaml file of:  a: simple\nb: [1, 2]  and data2.yaml file of:  a: other\nc:\n  test: 1  then  yaml m -i data1.yaml data2.yaml  will update the data1.yaml file so that the value of 'c' is 'test: 1'.", 
+            "title": "Updating files in-place"
+        }, 
+        {
+            "location": "/merge/#overwrite-values", 
+            "text": "Given a data1.yaml file of:  a: simple\nb: [1, 2]  and data2.yaml file of:  a: other\nc:\n  test: 1  then  yaml m -x data1.yaml data2.yaml  will output:  a: other\nb: [1, 2]\nc:\n  test: 1", 
+            "title": "Overwrite values"
+        }, 
+        {
+            "location": "/merge/#overwrite-values-with-arrays", 
+            "text": "Given a data1.yaml file of:  a: simple\nb: [1, 2]  and data3.yaml file of:  b: [2, 3, 4]\nc:\n  test: 2\n  other: true\nd: false  then  yaml m -x data1.yaml data3.yaml  will output:  a: simple\nb: [2, 3, 4]\nc:\n  test: 2\n  other: true\nd: false  Notice that 'b' does not result in the merging of the values within an array. The underlying library does not\ncurrently handle merging values within an array.", 
+            "title": "Overwrite values with arrays"
         }
     ]
 }
