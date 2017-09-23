@@ -97,6 +97,28 @@ func TestRootCmd_ToJsonShort(t *testing.T) {
 	}
 }
 
+func TestRootCmd_VersionShort(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "-V")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	if !strings.Contains(result.Output, "yaml version") {
+		t.Error("expected version message to be printed out, but the message was not found.")
+	}
+}
+
+func TestRootCmd_VersionLong(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "--version")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	if !strings.Contains(result.Output, "yaml version") {
+		t.Error("expected version message to be printed out, but the message was not found.")
+	}
+}
+
 func TestReadCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read examples/sample.yaml b.c")

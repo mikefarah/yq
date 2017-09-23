@@ -29,6 +29,7 @@ Check out the [documentation](http://mikefarah.github.io/yaml/) for more detaile
 
 ```
 Usage:
+  yaml [flags]
   yaml [command]
 
 Available Commands:
@@ -43,6 +44,7 @@ Flags:
   -j, --tojson    output as json
   -t, --trim      trim yaml output (default true)
   -v, --verbose   verbose mode
+  -V, --version   Print version information and quit
 
 Use "yaml [command] --help" for more information about a command.
 ```
