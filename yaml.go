@@ -53,6 +53,7 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 
 	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd())
+	rootCmd.SetOutput(os.Stdout)
 
 	return rootCmd
 }
