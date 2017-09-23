@@ -20,6 +20,8 @@ go get github.com/mikefarah/yaml
 - Convert from json to yaml
 - Convert from yaml to json
 - Pipe data in by using '-'
+- Merge multiple yaml files where each additional file sets values for missing or null value keys.
+- Merge multiple yaml files with overwrite to support overriding previous values.
 
 ## [Usage](http://mikefarah.github.io/yaml/)
 
@@ -30,15 +32,17 @@ Usage:
   yaml [command]
 
 Available Commands:
+  help        Help about any command
+  merge       yaml m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml
+  new         yaml n [--script/-s script_file] a.b.c newValueForC
   read        yaml r sample.yaml a.b.c
   write       yaml w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC
-  new         yaml n [--script/-s script_file] a.b.c newValueForC
 
 Flags:
-  -h, --help[=false]: help for yaml
-  -j, --tojson[=false]: output as json
-  -t, --trim[=true]: trim yaml output
-  -v, --verbose[=false]: verbose mode
+  -h, --help      help for yaml
+  -j, --tojson    output as json
+  -t, --trim      trim yaml output (default true)
+  -v, --verbose   verbose mode
 
 Use "yaml [command] --help" for more information about a command.
 ```

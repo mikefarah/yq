@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "66lykxpWgSmQodnhkADqn6tnroQ=",
+			"path": "github.com/imdario/mergo",
+			"revision": "e3000cb3d28c72b837601cac94debd91032d19fe",
+			"revisionTime": "2017-06-20T10:47:01Z"
+		},
+		{
 			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
 			"path": "github.com/inconshreveable/mousetrap",
 			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
