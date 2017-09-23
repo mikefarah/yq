@@ -2,17 +2,18 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	yaml "gopkg.in/yaml.v2"
 )
 
-func jsonToString(context interface{}) string {
+func jsonToString(context interface{}) (string, error) {
 	out, err := json.Marshal(toJSON(context))
 	if err != nil {
-		die("error printing yaml as json: ", err)
+		return "", fmt.Errorf("error printing yaml as json: %v", err)
 	}
-	return string(out)
+	return string(out), nil
 }
 
 func toJSON(context interface{}) interface{} {

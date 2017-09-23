@@ -10,7 +10,8 @@ func TestJsonToString(t *testing.T) {
 b:
   c: 2
 `)
-	assertResult(t, "{\"b\":{\"c\":2}}", jsonToString(data))
+	got, _ := jsonToString(data)
+	assertResult(t, "{\"b\":{\"c\":2}}", got)
 }
 
 func TestJsonToString_withIntKey(t *testing.T) {
@@ -19,7 +20,8 @@ func TestJsonToString_withIntKey(t *testing.T) {
 b:
   2: c
 `)
-	assertResult(t, `{"b":{"2":"c"}}`, jsonToString(data))
+	got, _ := jsonToString(data)
+	assertResult(t, `{"b":{"2":"c"}}`, got)
 }
 
 func TestJsonToString_withBoolKey(t *testing.T) {
@@ -28,7 +30,8 @@ func TestJsonToString_withBoolKey(t *testing.T) {
 b:
   false: c
 `)
-	assertResult(t, `{"b":{"false":"c"}}`, jsonToString(data))
+	got, _ := jsonToString(data)
+	assertResult(t, `{"b":{"false":"c"}}`, got)
 }
 
 func TestJsonToString_withArray(t *testing.T) {
@@ -38,5 +41,6 @@ b:
   - item: one
   - item: two
 `)
-	assertResult(t, "{\"b\":[{\"item\":\"one\"},{\"item\":\"two\"}]}", jsonToString(data))
+	got, _ := jsonToString(data)
+	assertResult(t, "{\"b\":[{\"item\":\"one\"},{\"item\":\"two\"}]}", got)
 }

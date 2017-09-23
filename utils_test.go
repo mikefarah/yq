@@ -1,13 +1,34 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v2"
 )
+
+type resulter struct {
+	Error   error
+	Output  string
+	Command *cobra.Command
+}
+
+func runCmd(c *cobra.Command, input string) resulter {
+	buf := new(bytes.Buffer)
+	c.SetOutput(buf)
+	c.SetArgs(strings.Split(input, " "))
+
+	err := c.Execute()
+	output := buf.String()
+
+	return resulter{err, output, c}
+}
 
 func parseData(rawData string) yaml.MapSlice {
 	var parsedData yaml.MapSlice
@@ -37,4 +58,23 @@ func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValu
 		t.Error(context)
 		t.Error(": expected <", expectedValue, "> but got <", actualValue, ">")
 	}
+}
+
+func writeTempYamlFile(content string) string {
+	tmpfile, _ := ioutil.TempFile("", "testyaml")
+	defer func() {
+		_ = tmpfile.Close()
+	}()
+
+	_, _ = tmpfile.Write([]byte(content))
+	return tmpfile.Name()
+}
+
+func readTempYamlFile(name string) string {
+	content, _ := ioutil.ReadFile(name)
+	return string(content)
+}
+
+func removeTempYamlFile(name string) {
+	_ = os.Remove(name)
 }
