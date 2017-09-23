@@ -106,6 +106,99 @@ func TestReadCmd(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
+func TestReadCmd_ArrayYaml(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [0].gather_facts")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t, "false\n", result.Output)
+}
+
+func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- become: true
+  gather_facts: false
+  hosts: lalaland
+  name: Apply smth
+  roles:
+  - lala
+  - land
+  serial: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_OneElement(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [0]")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `become: true
+gather_facts: false
+hosts: lalaland
+name: Apply smth
+roles:
+- lala
+- land
+serial: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_Splat(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [*]")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- become: true
+  gather_facts: false
+  hosts: lalaland
+  name: Apply smth
+  roles:
+  - lala
+  - land
+  serial: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_SplatKey(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [*].gather_facts")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := "- false\n"
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [x].gather_facts")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/array.yaml [*].roles[x]")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
 func TestReadCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read")

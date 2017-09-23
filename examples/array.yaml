@@ -1,0 +1,9 @@
+---
+- become: true
+  gather_facts: false
+  hosts: lalaland
+  name: "Apply smth"
+  roles:
+    - lala
+    - land
+  serial: 1

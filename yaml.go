@@ -185,6 +185,17 @@ func read(args []string) (interface{}, error) {
 		path = "thing." + path
 	}
 
+	if parsedData != nil && parsedData[0].Key == nil {
+		var interfaceData []map[interface{}]interface{}
+		if err := readData(args[0], &interfaceData); err == nil {
+			var listMap []yaml.MapSlice
+			for _, item := range interfaceData {
+				listMap = append(listMap, mapToMapSlice(item))
+			}
+			return readYamlArray(listMap, path)
+		}
+	}
+
 	if path == "" {
 		return parsedData, nil
 	}
@@ -192,6 +203,38 @@ func read(args []string) (interface{}, error) {
 	var paths = parsePath(path)
 
 	return readMap(parsedData, paths[0], paths[1:])
+}
+
+func readYamlArray(listMap []yaml.MapSlice, path string) (interface{}, error) {
+	if path == "" {
+		return listMap, nil
+	}
+
+	var paths = parsePath(path)
+
+	if paths[0] == "*" {
+		if len(paths[1:]) == 0 {
+			return listMap, nil
+		}
+		var results []interface{}
+		for _, m := range listMap {
+			value, err := readMap(m, paths[1], paths[2:])
+			if err != nil {
+				return nil, err
+			}
+			results = append(results, value)
+		}
+		return results, nil
+	}
+
+	index, err := strconv.ParseInt(paths[0], 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("Error accessing array: %v", err)
+	}
+	if len(paths[1:]) == 0 {
+		return listMap[index], nil
+	}
+	return readMap(listMap[index], paths[1], paths[2:])
 }
 
 func newProperty(cmd *cobra.Command, args []string) error {
