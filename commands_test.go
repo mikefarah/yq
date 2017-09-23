@@ -303,3 +303,74 @@ func TestWriteCmd_Inplace(t *testing.T) {
   c: 7`
 	assertResult(t, expectedOutput, gotOutput)
 }
+
+func TestMergeCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+c:
+  test: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeCmd_Error(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge examples/data1.yaml")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Must provide at least 2 yaml files`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge examples/data1.yaml fake-unknown")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to unknown file")
+	}
+	expectedOutput := `open fake-unknown: no such file or directory`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestMergeCmd_Verbose(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "-v merge examples/data1.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+c:
+  test: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeCmd_Inplace(t *testing.T) {
+	filename := writeTempYamlFile(readTempYamlFile("examples/data1.yaml"))
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("merge -i %s examples/data2.yaml", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	gotOutput := readTempYamlFile(filename)
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+c:
+  test: 1`
+	assertResult(t, expectedOutput, gotOutput)
+}

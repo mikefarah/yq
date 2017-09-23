@@ -17,6 +17,7 @@ var trimOutput = true
 var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
+var overwriteFlag = false
 var verbose = false
 var log = logging.MustGetLogger("yaml")
 
@@ -52,7 +53,7 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 
-	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd())
+	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd(), createMergeCmd())
 	rootCmd.SetOutput(os.Stdout)
 
 	return rootCmd
@@ -125,6 +126,30 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 	}
 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
 	return cmdNew
+}
+
+func createMergeCmd() *cobra.Command {
+	var cmdMerge = &cobra.Command{
+		Use:     "merge [initial_yaml_file] [additional_yaml_file]...",
+		Aliases: []string{"m"},
+		Short:   "yaml m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml",
+		Example: `
+yaml merge things.yaml other.yaml
+yaml merge --inplace things.yaml other.yaml
+yaml m -i things.yaml other.yaml
+yaml m --overwrite things.yaml other.yaml
+yaml m -i -x things.yaml other.yaml
+      `,
+		Long: `Updates the yaml file by adding/updating the path(s) and value(s) from additional yaml file(s).
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+
+If overwrite flag is set then existing values will be overwritten using the values from each additional yaml file.
+`,
+		RunE: mergeProperties,
+	}
+	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
+	return cmdMerge
 }
 
 func readProperty(cmd *cobra.Command, args []string) error {
@@ -231,6 +256,34 @@ func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
 	}
 	cmd.Println(dataStr)
 	return nil
+}
+
+func mergeProperties(cmd *cobra.Command, args []string) error {
+	if len(args) < 2 {
+		return errors.New("Must provide at least 2 yaml files")
+	}
+
+	updatedData, err := mergeYaml(args)
+	if err != nil {
+		return err
+	}
+	return write(cmd, args[0], updatedData)
+}
+
+func mergeYaml(args []string) (interface{}, error) {
+	var updatedData map[interface{}]interface{}
+
+	for _, f := range args {
+		var parsedData map[interface{}]interface{}
+		if err := readData(f, &parsedData); err != nil {
+			return nil, err
+		}
+		if err := merge(&updatedData, parsedData, overwriteFlag); err != nil {
+			return nil, err
+		}
+	}
+
+	return mapToMapSlice(updatedData), nil
 }
 
 func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, prependCommand string) (interface{}, error) {
