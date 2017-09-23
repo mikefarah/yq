@@ -19,6 +19,7 @@ var writeScript = ""
 var outputToJSON = false
 var overwriteFlag = false
 var verbose = false
+var version = false
 var log = logging.MustGetLogger("yaml")
 
 func main() {
@@ -32,6 +33,15 @@ func main() {
 func newCommandCLI() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use: "yaml",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if version {
+				cmd.Print(GetVersionDisplay())
+				return nil
+			}
+			cmd.Println(cmd.UsageString())
+
+			return nil
+		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			var format = logging.MustStringFormatter(
 				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
@@ -52,6 +62,7 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
+	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
 	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd(), createMergeCmd())
 	rootCmd.SetOutput(os.Stdout)
