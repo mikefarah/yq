@@ -74,6 +74,7 @@ install: build
 .PHONY: vendor
 vendor: tmp/dev_image_id
 	${DOCKRUN} bash ./scripts/vendor.sh
+	@chmod 664 vendor/vendor.json
 
 # ----------------------------------------------
 # develop and test
