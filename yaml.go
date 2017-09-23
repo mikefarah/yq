@@ -343,6 +343,9 @@ func parseValue(argument string) interface{} {
 		if err == nil {
 			return value
 		}
+		if argument == "[]" {
+			return make([]interface{}, 0)
+		}
 		return argument
 	}
 	return argument[1 : len(argument)-1]

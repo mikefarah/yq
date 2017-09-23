@@ -248,6 +248,22 @@ func TestWriteCmd(t *testing.T) {
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteCmd_EmptyArray(t *testing.T) {
+	content := `b: 3`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s a []", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b: 3
+a: []
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "write")
