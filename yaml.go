@@ -98,9 +98,13 @@ yaml write --inplace things.yaml a.b.c cat
 yaml w -i things.yaml a.b.c cat
 yaml w --script update_script.yaml things.yaml
 yaml w -i -s update_script.yaml things.yaml
+yaml w things.yaml a.b.d[+] foo
+yaml w things.yaml a.b.d[+] foo
       `,
 		Long: `Updates the yaml file w.r.t the given path and value.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+
+Append value to array adds the value to the end of array.
 
 Update Scripts:
 Note that you can give an update script to perform more sophisticated updated. Update script

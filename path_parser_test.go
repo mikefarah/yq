@@ -10,6 +10,7 @@ var parsePathsTests = []struct {
 }{
 	{"a.b", []string{"a", "b"}},
 	{"a.b[0]", []string{"a", "b", "0"}},
+	{"a.b.d[+]", []string{"a", "b", "d", "+"}},
 }
 
 func TestParsePath(t *testing.T) {
