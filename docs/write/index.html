@@ -253,6 +253,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
+    Appending value to an array field
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
     Updating files in-place
   </a>
@@ -358,6 +365,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
+    Appending value to an array field
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
     Updating files in-place
   </a>
@@ -434,6 +448,28 @@
   c: cat
   d:
     - new thing
+</code></pre>
+
+<h3 id="appending-value-to-an-array-field">Appending value to an array field<a class="headerlink" href="#appending-value-to-an-array-field" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">b:
+  c: 2
+  d:
+    - new thing
+    - foo thing
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yaml w sample.yaml b.d[+] &quot;bar thing&quot;
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">b:
+  c: cat
+  d:
+    - new thing
+    - foo thing
+    - bar thing
 </code></pre>
 
 <h3 id="updating-files-in-place">Updating files in-place<a class="headerlink" href="#updating-files-in-place" title="Permanent link">&para;</a></h3>

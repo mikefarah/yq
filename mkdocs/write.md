@@ -44,6 +44,29 @@ b:
     - new thing
 ```
 
+### Appending value to an array field
+Given a sample.yaml file of:
+```yaml
+b:
+  c: 2
+  d:
+    - new thing
+    - foo thing
+```
+then
+```bash
+yaml w sample.yaml b.d[+] "bar thing"
+```
+will output:
+```yaml
+b:
+  c: cat
+  d:
+    - new thing
+    - foo thing
+    - bar thing
+```
+
 ### Updating files in-place
 Given a sample.yaml file of:
 ```yaml

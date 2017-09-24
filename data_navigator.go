@@ -55,7 +55,7 @@ func updatedChildValue(child interface{}, remainingPaths []string, value interfa
 	}
 
 	_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-	if nextIndexErr != nil {
+	if nextIndexErr != nil && remainingPaths[0] != "+" {
 		// must be a map
 		return writeMap(child, remainingPaths, value)
 	}
@@ -81,7 +81,13 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	log.Debugf("\tarray %v\n", array)
 
 	rawIndex := paths[0]
-	index, _ := strconv.ParseInt(rawIndex, 10, 64)
+	var index int64
+	// the append array indicator
+	if rawIndex == "+" {
+		index = int64(len(array))
+	} else {
+		index, _ = strconv.ParseInt(rawIndex, 10, 64)
+	}
 	// writeArray is only called by updatedChildValue which handles parsing the
 	// index, as such this renders this dead code.
 	// if err != nil {
