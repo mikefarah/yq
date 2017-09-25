@@ -8,6 +8,8 @@ LDFLAGS :=
 LDFLAGS += -X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY}
 LDFLAGS += -X main.GitDescribe=${GIT_DESCRIBE}
 
+GITHUB_TOKEN ?=
+
 # Windows environment?
 CYG_CHECK := $(shell hash cygpath 2>/dev/null && echo 1)
 ifeq ($(CYG_CHECK),1)
@@ -29,6 +31,7 @@ DEV_IMAGE := ${PROJECT}_dev
 
 DOCKRUN := docker run --rm \
 	-e LDFLAGS="${LDFLAGS}" \
+	-e GITHUB_TOKEN="${GITHUB_TOKEN}" \
 	-v ${ROOT}/vendor:/go/src \
 	-v ${ROOT}:/${PROJECT}/src/${IMPORT_PATH} \
 	-w /${PROJECT}/src/${IMPORT_PATH} \
