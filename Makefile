@@ -107,6 +107,10 @@ build-docs: prepare mkdocs.yml mkdocs/*
 	@find docs -type d -exec chmod 755 {} \; || :
 	@find docs -type f -exec chmod 644 {} \; || :
 
+.PHONY: release
+release: xcompile
+	${DOCKRUN} bash ./scripts/publish.sh
+
 # ----------------------------------------------
 # utilities
 
