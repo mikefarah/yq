@@ -71,7 +71,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	case []interface{}:
 		array = context.([]interface{})
 	default:
-		array = make([]interface{}, 1)
+		array = make([]interface{}, 0)
 	}
 
 	if len(paths) == 0 {
