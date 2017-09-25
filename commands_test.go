@@ -454,6 +454,24 @@ func TestWriteCmd_Append(t *testing.T) {
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteCmd_AppendEmptyArray(t *testing.T) {
+	content := `a: 2
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s b[+] v", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: 2
+b:
+- v
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")
