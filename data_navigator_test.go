@@ -249,7 +249,7 @@ b:
 `)
 
 	var expected = `b:
-- c: "4"`
+  - c: "4"`
 
 	updated := writeMap(data, []string{"b", "0", "c"}, "4")
 	got, _ := yamlToString(updated)
@@ -274,8 +274,8 @@ b:
 `)
 
 	var expected = `b:
-- aa
-- bb`
+  - aa
+  - bb`
 
 	updated := writeMap(data, []string{"b", "1"}, "bb")
 	got, _ := yamlToString(updated)

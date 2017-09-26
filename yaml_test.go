@@ -99,7 +99,7 @@ func TestNewYaml_WithScript(t *testing.T) {
 	expectedResult := `b:
   c: cat
   e:
-  - name: Mike Farah`
+    - name: Mike Farah`
 	result, _ := newYaml([]string{""})
 	actualResult, _ := yamlToString(result)
 	assertResult(t, expectedResult, actualResult)
