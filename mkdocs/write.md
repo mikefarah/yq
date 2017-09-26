@@ -123,3 +123,5 @@ will output
 my:
   path: -3
 ```
+
+{!snippets/keys_with_dots.md!}

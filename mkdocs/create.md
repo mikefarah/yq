@@ -40,3 +40,5 @@ You can also pipe the instructions in:
 ```bash
 cat create_instructions.yaml | yaml n -s -
 ```
+
+{!snippets/keys_with_dots.md!}

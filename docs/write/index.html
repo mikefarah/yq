@@ -280,6 +280,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
+    Keys with dots
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -388,6 +395,13 @@
         <li class="md-nav__item">
   <a href="#values-starting-with-a-hyphen-or-dash" title="Values starting with a hyphen (or dash)" class="md-nav__link">
     Values starting with a hyphen (or dash)
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
+    Keys with dots
   </a>
   
 </li>
@@ -520,6 +534,20 @@ b.e[0].name: Howdy Partner
 <pre><code class="yaml">my:
   path: -3
 </code></pre>
+
+<h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
+<p>When specifying a key that has a dot use key lookup indicator.</p>
+<pre><code class="yaml">b:
+  foo.bar: 7
+</code></pre>
+
+<pre><code class="bash">yaml r sample.yaml b[foo.bar]
+</code></pre>
+
+<pre><code class="bash">yaml w sample.yaml b[foo.bar] 9
+</code></pre>
+
+<p>Any valid yaml key can be specified as part of a key lookup.</p>
                 
                   
                 
