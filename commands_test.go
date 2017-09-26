@@ -148,8 +148,8 @@ func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
   hosts: lalaland
   name: Apply smth
   roles:
-  - lala
-  - land
+    - lala
+    - land
   serial: 1
 `
 	assertResult(t, expectedOutput, result.Output)
@@ -166,8 +166,8 @@ gather_facts: false
 hosts: lalaland
 name: Apply smth
 roles:
-- lala
-- land
+  - lala
+  - land
 serial: 1
 `
 	assertResult(t, expectedOutput, result.Output)
@@ -184,8 +184,8 @@ func TestReadCmd_ArrayYaml_Splat(t *testing.T) {
   hosts: lalaland
   name: Apply smth
   roles:
-  - lala
-  - land
+    - lala
+    - land
   serial: 1
 `
 	assertResult(t, expectedOutput, result.Output)
@@ -448,8 +448,8 @@ func TestWriteCmd_Append(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-- foo
-- 7
+  - foo
+  - 7
 `
 	assertResult(t, expectedOutput, result.Output)
 }
@@ -467,7 +467,7 @@ func TestWriteCmd_AppendEmptyArray(t *testing.T) {
 	}
 	expectedOutput := `a: 2
 b:
-- v
+  - v
 `
 	assertResult(t, expectedOutput, result.Output)
 }
@@ -480,8 +480,8 @@ func TestMergeCmd(t *testing.T) {
 	}
 	expectedOutput := `a: simple
 b:
-- 1
-- 2
+  - 1
+  - 2
 c:
   test: 1
 `
@@ -516,8 +516,8 @@ func TestMergeCmd_Verbose(t *testing.T) {
 	}
 	expectedOutput := `a: simple
 b:
-- 1
-- 2
+  - 1
+  - 2
 c:
   test: 1
 `
@@ -536,8 +536,8 @@ func TestMergeCmd_Inplace(t *testing.T) {
 	gotOutput := readTempYamlFile(filename)
 	expectedOutput := `a: simple
 b:
-- 1
-- 2
+  - 1
+  - 2
 c:
   test: 1`
 	assertResult(t, expectedOutput, gotOutput)
