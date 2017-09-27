@@ -1,4 +1,4 @@
-FROM golang:1.7
+FROM golang:1.9
 
 COPY scripts/devtools.sh /opt/devtools.sh
 
@@ -14,6 +14,8 @@ RUN set -ex \
     && apt-get update && apt-get install -y --no-install-recommends \
         $buildDeps \
         python2.7 \
+        python-setuptools \
+        python-wheel \
         python-pip \
     && pip install --upgrade \
         pip \
