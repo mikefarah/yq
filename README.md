@@ -50,7 +50,7 @@ Use "yaml [command] --help" for more information about a command.
 ```
 
 ## Contribute
-1. `make vendor` OR run `govendor sync` [link](https://github.com/kardianos/govendor)
+1. `make [local] vendor` OR run `govendor sync` [link](https://github.com/kardianos/govendor)
 2. add unit tests
 3. apply changes
 4. `make`
