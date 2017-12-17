@@ -20,7 +20,7 @@ var outputToJSON = false
 var overwriteFlag = false
 var verbose = false
 var version = false
-var log = logging.MustGetLogger("yaml")
+var log = logging.MustGetLogger("yq")
 
 func main() {
 	cmd := newCommandCLI()
@@ -32,7 +32,7 @@ func main() {
 
 func newCommandCLI() *cobra.Command {
 	var rootCmd = &cobra.Command{
-		Use: "yaml",
+		Use: "yq",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if version {
 				cmd.Print(GetVersionDisplay())
@@ -74,13 +74,13 @@ func createReadCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:     "read [yaml_file] [path]",
 		Aliases: []string{"r"},
-		Short:   "yaml r sample.yaml a.b.c",
+		Short:   "yq r sample.yaml a.b.c",
 		Example: `
-yaml read things.yaml a.b.c
-yaml r - a.b.c (reads from stdin)
-yaml r things.yaml a.*.c
-yaml r things.yaml a.array[0].blah
-yaml r things.yaml a.array[*].blah
+yq read things.yaml a.b.c
+yq r - a.b.c (reads from stdin)
+yq r things.yaml a.*.c
+yq r things.yaml a.array[0].blah
+yq r things.yaml a.array[*].blah
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
@@ -91,15 +91,15 @@ func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
-		Short:   "yaml w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC",
 		Example: `
-yaml write things.yaml a.b.c cat
-yaml write --inplace things.yaml a.b.c cat
-yaml w -i things.yaml a.b.c cat
-yaml w --script update_script.yaml things.yaml
-yaml w -i -s update_script.yaml things.yaml
-yaml w things.yaml a.b.d[+] foo
-yaml w things.yaml a.b.d[+] foo
+yq write things.yaml a.b.c cat
+yq write --inplace things.yaml a.b.c cat
+yq w -i things.yaml a.b.c cat
+yq w --script update_script.yaml things.yaml
+yq w -i -s update_script.yaml things.yaml
+yq w things.yaml a.b.d[+] foo
+yq w things.yaml a.b.d[+] foo
       `,
 		Long: `Updates the yaml file w.r.t the given path and value.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
@@ -125,11 +125,11 @@ func createNewCmd() *cobra.Command {
 	var cmdNew = &cobra.Command{
 		Use:     "new [path] [value]",
 		Aliases: []string{"n"},
-		Short:   "yaml n [--script/-s script_file] a.b.c newValueForC",
+		Short:   "yq n [--script/-s script_file] a.b.c newValueForC",
 		Example: `
-yaml new a.b.c cat
-yaml n a.b.c cat
-yaml n --script create_script.yaml
+yq new a.b.c cat
+yq n a.b.c cat
+yq n --script create_script.yaml
       `,
 		Long: `Creates a new yaml w.r.t the given path and value.
 Outputs to STDOUT
@@ -147,13 +147,13 @@ func createMergeCmd() *cobra.Command {
 	var cmdMerge = &cobra.Command{
 		Use:     "merge [initial_yaml_file] [additional_yaml_file]...",
 		Aliases: []string{"m"},
-		Short:   "yaml m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml",
+		Short:   "yq m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml",
 		Example: `
-yaml merge things.yaml other.yaml
-yaml merge --inplace things.yaml other.yaml
-yaml m -i things.yaml other.yaml
-yaml m --overwrite things.yaml other.yaml
-yaml m -i -x things.yaml other.yaml
+yq merge things.yaml other.yaml
+yq merge --inplace things.yaml other.yaml
+yq m -i things.yaml other.yaml
+yq m --overwrite things.yaml other.yaml
+yq m -i -x things.yaml other.yaml
       `,
 		Long: `Updates the yaml file by adding/updating the path(s) and value(s) from additional yaml file(s).
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.

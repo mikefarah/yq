@@ -1,4 +1,4 @@
-export PROJECT = yaml
+export PROJECT = yq
 IMPORT_PATH := github.com/mikefarah/${PROJECT}
 
 export GIT_COMMIT = $(shell git rev-parse --short HEAD)

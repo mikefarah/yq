@@ -1,5 +1,5 @@
 ```
-yaml r <yaml_file|json_file> <path>
+yq r <yaml_file|json_file> <path>
 ```
 
 {!snippets/works_with_json.md!}
@@ -12,14 +12,14 @@ b:
 ```
 then
 ```bash
-yaml r sample.yaml b.c
+yq r sample.yaml b.c
 ```
 will output the value of '2'.
 
 ### From Stdin
 Given a sample.yaml file of:
 ```bash
-cat sample.yaml | yaml r - b.c
+cat sample.yaml | yq r - b.c
 ```
 will output the value of '2'.
 
@@ -35,7 +35,7 @@ bob:
 ```
 then
 ```bash
-yaml r sample.yaml bob.*.cats
+yq r sample.yaml bob.*.cats
 ```
 will output
 ```yaml
@@ -51,7 +51,7 @@ b.x:
 ```
 then
 ```bash
-yaml r sample.yaml \"b.x\".c
+yq r sample.yaml \"b.x\".c
 ```
 will output the value of '2'.
 
@@ -68,7 +68,7 @@ b:
 ```
 then
 ```
-yaml r sample.yaml b.e[1].name
+yq r sample.yaml b.e[1].name
 ```
 will output 'sam'
 
@@ -84,7 +84,7 @@ b:
 ```
 then
 ```
-yaml r sample.yaml b.e[*].name
+yq r sample.yaml b.e[*].name
 ```
 will output:
 ```

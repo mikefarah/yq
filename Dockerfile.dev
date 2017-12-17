@@ -27,4 +27,4 @@ RUN set -ex \
     && rm -rf /var/lib/apt/lists/*
 
 ENV CGO_ENABLED 0
-ENV GOPATH /go:/yaml
+ENV GOPATH /go:/yq

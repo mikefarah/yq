@@ -39,5 +39,5 @@
 			"revisionTime": "2017-08-12T16:00:11Z"
 		}
 	],
-	"rootPath": "github.com/mikefarah/yaml"
+	"rootPath": "github.com/mikefarah/yq"
 }

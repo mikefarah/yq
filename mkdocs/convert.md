@@ -8,7 +8,7 @@ b:
 ```
 then
 ```bash
-yaml r -j sample.yaml b.c
+yq r -j sample.yaml b.c
 ```
 
 will output
@@ -26,7 +26,7 @@ e.g given a json file
 ```
 then
 ```bash
-yaml r sample.json
+yq r sample.json
 ```
 will output
 ```yaml

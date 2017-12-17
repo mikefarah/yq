@@ -53,7 +53,7 @@ build: build/dev
 .PHONY: build/dev
 build/dev: test *.go
 	@mkdir -p bin/
-	${DOCKRUN} go build -o bin/yaml --ldflags "$(LDFLAGS)"
+	${DOCKRUN} go build --ldflags "$(LDFLAGS)"
 	${DOCKRUN} bash ./scripts/acceptance.sh
 
 ## Compile the project for multiple OS and Architectures.

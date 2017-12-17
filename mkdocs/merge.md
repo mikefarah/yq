@@ -2,7 +2,7 @@ Yaml files can be merged using the 'merge' command. Each additional file merged 
 set values for any key not existing already or where the key has no value.
 
 ```
-yaml m <yaml_file|json_file> <path>...
+yq m <yaml_file|json_file> <path>...
 ```
 {!snippets/works_with_json.md!}
 
@@ -20,7 +20,7 @@ c:
 ```
 then
 ```bash
-yaml m data1.yaml data2.yaml
+yq m data1.yaml data2.yaml
 ```
 will output:
 ```yaml
@@ -44,7 +44,7 @@ c:
 ```
 then
 ```bash
-yaml m -i data1.yaml data2.yaml
+yq m -i data1.yaml data2.yaml
 ```
 will update the data1.yaml file so that the value of 'c' is 'test: 1'.
 
@@ -62,7 +62,7 @@ c:
 ```
 then
 ```bash
-yaml m -x data1.yaml data2.yaml
+yq m -x data1.yaml data2.yaml
 ```
 will output:
 ```yaml
@@ -88,7 +88,7 @@ d: false
 ```
 then
 ```bash
-yaml m -x data1.yaml data3.yaml
+yq m -x data1.yaml data3.yaml
 ```
 will output:
 ```yaml

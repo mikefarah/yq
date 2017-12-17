@@ -1,5 +1,5 @@
 ```
-yaml w <yaml_file|json_file> <path> <new value>
+yq w <yaml_file|json_file> <path> <new value>
 ```
 {!snippets/works_with_json.md!}
 
@@ -11,7 +11,7 @@ b:
 ```
 then
 ```bash
-yaml w sample.yaml b.c cat
+yq w sample.yaml b.c cat
 ```
 will output:
 ```yaml
@@ -21,7 +21,7 @@ b:
 
 ### From STDIN
 ```bash
-cat sample.yaml | yaml w - b.c blah
+cat sample.yaml | yq w - b.c blah
 ```
 
 ### Adding new fields
@@ -34,7 +34,7 @@ b:
 ```
 then
 ```bash
-yaml w sample.yaml b.d[0] "new thing"
+yq w sample.yaml b.d[0] "new thing"
 ```
 will output:
 ```yaml
@@ -55,7 +55,7 @@ b:
 ```
 then
 ```bash
-yaml w sample.yaml b.d[+] "bar thing"
+yq w sample.yaml b.d[+] "bar thing"
 ```
 will output:
 ```yaml
@@ -75,7 +75,7 @@ b:
 ```
 then
 ```bash
-yaml w -i sample.yaml b.c cat
+yq w -i sample.yaml b.c cat
 ```
 will update the sample.yaml file so that the value of 'c' is cat.
 
@@ -96,7 +96,7 @@ b.e[0].name: Howdy Partner
 then
 
 ```bash
-yaml w -s update_instructions.yaml sample.yaml
+yq w -s update_instructions.yaml sample.yaml
 ```
 will output:
 ```yaml
@@ -108,14 +108,14 @@ b:
 
 And, of course, you can pipe the instructions in using '-':
 ```bash
-cat update_instructions.yaml | yaml w -s - sample.yaml
+cat update_instructions.yaml | yq w -s - sample.yaml
 ```
 
 ### Values starting with a hyphen (or dash)
 The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:
 
 ```
-yaml w -- my.path -3
+yq w -- my.path -3
 ```
 
 will output

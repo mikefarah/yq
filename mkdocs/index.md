@@ -1,5 +1,5 @@
-# yaml
-yaml is a lightweight and portable command-line YAML processor
+# yq
+yq is a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
@@ -7,10 +7,10 @@ The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed 
 
 ### get the source
 ```bash
-go get github.com/mikefarah/yaml
+go get github.com/mikefarah/yq
 ```
 
-[.zip](https://github.com/mikefarah/yaml/zipball/master) or [tar.gz](https://github.com/mikefarah/yaml/tarball/master)
+[.zip](https://github.com/mikefarah/yq/zipball/master) or [tar.gz](https://github.com/mikefarah/yq/tarball/master)
 
-[View on GitHub](https://github.com/mikefarah/yaml)
+[View on GitHub](https://github.com/mikefarah/yq)
 
