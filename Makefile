@@ -30,10 +30,6 @@ help:
 clean:
 	@rm -rf bin build cover *.out
 
-veryclean: clean
-	rm -rf tmp
-	find vendor/* -maxdepth 0 -ignore_readdir_race -type d -exec rm -rf {} \;
-
 ## prefix before other make targets to run in your local dev environment
 local: | quiet
 	@$(eval DOCKRUN= )
@@ -75,7 +71,7 @@ install: build
 # Each of the fetch should be an entry within vendor.json; not currently included within project
 .PHONY: vendor
 vendor: tmp/dev_image_id
-	${DOCKRUN} bash ./scripts/vendor.sh
+	${DOCKRUN} govendor sync
 	@chmod 664 vendor/vendor.json
 
 # ----------------------------------------------
