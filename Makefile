@@ -11,9 +11,9 @@ help:
 	@echo
 	@echo 'Usage:'
 	@echo '  ## Develop / Test Commands'
-	@echo '    make build           Build yaml binary.'
-	@echo '    make install         Install yaml.'
-	@echo '    make xcompile        Build cross-compiled binaries of yaml.'
+	@echo '    make build           Build yq binary.'
+	@echo '    make install         Install yq.'
+	@echo '    make xcompile        Build cross-compiled binaries of yq.'
 	@echo '    make vendor          Install dependencies using govendor.'
 	@echo '    make format          Run code formatter.'
 	@echo '    make check           Run static code analysis (lint).'

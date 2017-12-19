@@ -1,6 +1,6 @@
 docs_dir: mkdocs
 site_dir: docs
-site_name: Yaml
+site_name: Yq
 theme: 'material'
 pages:
     - Install: index.md
@@ -9,8 +9,8 @@ pages:
     - Create: create.md
     - Convert: convert.md
     - Merge: merge.md
-repo_name: 'mikefarah/yaml'
-repo_url: 'https://github.com/mikefarah/yaml'
+repo_name: 'mikefarah/yq'
+repo_url: 'https://github.com/mikefarah/yq'
 
 extra:
   social:

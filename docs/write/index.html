@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
@@ -10,27 +13,37 @@
       
       
       
-        <link rel="shortcut icon" href="../assets/images/favicon.png">
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.10.1">
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.2.5">
     
     
       
-        <title>Write/Update - Yaml</title>
+        <title>Write/Update - Yq</title>
       
     
     
-      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
-    
-    
-      <link rel="stylesheet" href="../assets/stylesheets/application-a20f419c8e.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.bcabdff3.css">
       
     
     
+      <script src="../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
       
-        
-        
-        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
@@ -39,9 +52,6 @@
     
     
   </head>
-  
-  
-  
   
     <body>
   
@@ -61,9 +71,9 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        <a href=".." title="Yaml" class="md-header-nav__button md-logo">
+        <a href=".." title="Yq" class="md-header-nav__button md-logo">
           
-            <i class="md-icon md-icon--home"></i>
+            <i class="md-icon"></i>
           
         </a>
       </div>
@@ -71,19 +81,24 @@
         <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
-        <span class="md-flex__ellipsis md-header-nav__title">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             
-              
+              <span class="md-header-nav__topic">
+                Yq
+              </span>
+              <span class="md-header-nav__topic">
+                Write/Update
+              </span>
             
-            Write/Update
           
-        </span>
+        </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
 <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
@@ -94,8 +109,8 @@
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result" data-md-lang-search="" data-md-lang-tokenizer="[\s\-]+">
-          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
             Type to start searching
           </div>
           <ol class="md-search-result__list"></ol>
@@ -104,6 +119,7 @@
     </div>
   </div>
 </div>
+          
         
       </div>
       
@@ -115,7 +131,7 @@
   
 
 
-  <a href="https://github.com/mikefarah/yaml" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -124,7 +140,7 @@
       </div>
     
     <div class="md-source__repository">
-      mikefarah/yaml
+      mikefarah/yq
     </div>
   </a>
 
@@ -137,6 +153,8 @@
     
     <div class="md-container">
       
+        
+      
       
       <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
@@ -147,12 +165,12 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    <div class="md-nav__button md-logo">
+    <span class="md-nav__button md-logo">
       
-        <i class="md-icon md-icon--home"></i>
+        <i class="md-icon"></i>
       
-    </div>
-    Yaml
+    </span>
+    Yq
   </label>
   
     <div class="md-nav__source">
@@ -162,7 +180,7 @@
   
 
 
-  <a href="https://github.com/mikefarah/yaml" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -171,7 +189,7 @@
       </div>
     
     <div class="md-source__repository">
-      mikefarah/yaml
+      mikefarah/yq
     </div>
   </a>
 
@@ -420,10 +438,12 @@
             <article class="md-content__inner md-typeset">
               
                 
+                  <a href="https://github.com/mikefarah/yq/edit/master/docs/write.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
                 
                   <h1>Write/Update</h1>
                 
-                <pre><code>yaml w &lt;yaml_file|json_file&gt; &lt;path&gt; &lt;new value&gt;
+                <pre><code>yq w &lt;yaml_file|json_file&gt; &lt;path&gt; &lt;new value&gt;
 </code></pre>
 
 <p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
@@ -434,7 +454,7 @@
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml w sample.yaml b.c cat
+<pre><code class="bash">yq w sample.yaml b.c cat
 </code></pre>
 
 <p>will output:</p>
@@ -443,7 +463,7 @@
 </code></pre>
 
 <h3 id="from-stdin">From STDIN<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
-<pre><code class="bash">cat sample.yaml | yaml w - b.c blah
+<pre><code class="bash">cat sample.yaml | yq w - b.c blah
 </code></pre>
 
 <h3 id="adding-new-fields">Adding new fields<a class="headerlink" href="#adding-new-fields" title="Permanent link">&para;</a></h3>
@@ -454,7 +474,7 @@
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml w sample.yaml b.d[0] &quot;new thing&quot;
+<pre><code class="bash">yq w sample.yaml b.d[0] &quot;new thing&quot;
 </code></pre>
 
 <p>will output:</p>
@@ -474,7 +494,7 @@
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml w sample.yaml b.d[+] &quot;bar thing&quot;
+<pre><code class="bash">yq w sample.yaml b.d[+] &quot;bar thing&quot;
 </code></pre>
 
 <p>will output:</p>
@@ -493,7 +513,7 @@
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml w -i sample.yaml b.c cat
+<pre><code class="bash">yq w -i sample.yaml b.c cat
 </code></pre>
 
 <p>will update the sample.yaml file so that the value of 'c' is cat.</p>
@@ -511,7 +531,7 @@ b.e[0].name: Howdy Partner
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yaml w -s update_instructions.yaml sample.yaml
+<pre><code class="bash">yq w -s update_instructions.yaml sample.yaml
 </code></pre>
 
 <p>will output:</p>
@@ -522,12 +542,12 @@ b.e[0].name: Howdy Partner
 </code></pre>
 
 <p>And, of course, you can pipe the instructions in using '-':</p>
-<pre><code class="bash">cat update_instructions.yaml | yaml w -s - sample.yaml
+<pre><code class="bash">cat update_instructions.yaml | yq w -s - sample.yaml
 </code></pre>
 
 <h3 id="values-starting-with-a-hyphen-or-dash">Values starting with a hyphen (or dash)<a class="headerlink" href="#values-starting-with-a-hyphen-or-dash" title="Permanent link">&para;</a></h3>
 <p>The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:</p>
-<pre><code>yaml w -- my.path -3
+<pre><code>yq w -- my.path -3
 </code></pre>
 
 <p>will output</p>
@@ -603,9 +623,9 @@ b.e[0].name: Howdy Partner
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        <a href="http://www.mkdocs.org">MkDocs</a>
         and
-        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+        <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
       </div>
       
@@ -627,10 +647,9 @@ b.e[0].name: Howdy Partner
       
     </div>
     
-      <script src="../assets/javascripts/application-f3ab9e5ff8.js"></script>
+      <script src="../assets/javascripts/application.6cdc17f0.js"></script>
       
-      
-      <script>app.initialize({url:{base:".."}})</script>
+      <script>app.initialize({version:"0.17.2",url:{base:".."}})</script>
       
     
     
