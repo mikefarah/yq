@@ -2,13 +2,18 @@
     "docs": [
         {
             "location": "/",
-            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\ndownload latest binary\n\u00b6\n\n\nget the source\n\u00b6\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\n.zip\n or \ntar.gz\n\n\nView on GitHub",
+            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\nbrew install yq\n\u00b6\n\n\ndownload latest binary\n\u00b6\n\n\nget the source\n\u00b6\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\n.zip\n or \ntar.gz\n\n\nView on GitHub",
             "title": "Install"
         },
         {
             "location": "/#yq",
             "text": "yq is a lightweight and portable command-line YAML processor  The aim of the project is to be the  jq  or sed of yaml files.",
             "title": "yq"
+        },
+        {
+            "location": "/#brew-install-yq",
+            "text": "",
+            "title": "brew install yq"
         },
         {
             "location": "/#download-latest-binary",
