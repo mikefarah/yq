@@ -24,3 +24,7 @@ jobs:
       # specify any bash command here prefixed with `run: `
       - run: ./scripts/devtools.sh
       - run: make local test
+
+notify:
+  webhooks:
+    - url: https://daas-staging.firebaseapp.com/api/ci-notifications/circle-ci/-L0q8g52nQEDoPvPyFOJ/-L0q8gMLbSX-Gpc5duRD/cicd?api-key=${DASHTIC_API_KEY}
