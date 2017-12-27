@@ -22,4 +22,5 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
+      - run: ./scripts/devtools.sh
       - run: make local test
