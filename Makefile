@@ -14,6 +14,7 @@ help:
 	@echo '    make build           Build yq binary.'
 	@echo '    make install         Install yq.'
 	@echo '    make xcompile        Build cross-compiled binaries of yq.'
+	@echo '    make snap            Build a snap package of yq.'
 	@echo '    make vendor          Install dependencies using govendor.'
 	@echo '    make format          Run code formatter.'
 	@echo '    make check           Run static code analysis (lint).'
@@ -63,6 +64,10 @@ xcompile: check
 	${DOCKRUN} bash ./scripts/xcompile.sh
 	@find build -type d -exec chmod 755 {} \; || :
 	@find build -type f -exec chmod 755 {} \; || :
+
+.PHONY: snap
+snap:
+	snapcraft
 
 .PHONY: install
 install: build
