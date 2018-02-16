@@ -30,3 +30,9 @@ vendor/*/
 tmp/
 cover/
 yq
+
+# snapcraft
+parts/
+prime/
+.snapcraft/
+yq*.snap

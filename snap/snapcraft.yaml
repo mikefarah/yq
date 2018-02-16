@@ -1,0 +1,24 @@
+name: yq
+version: git
+summary: A lightweight and portable command-line YAML processor
+description: |
+  The aim of the project is to be the jq or sed of yaml files.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+apps:
+  yq:
+    command: yq
+    plugs: [home]
+
+parts:
+  yq:
+    plugin: go
+    source: .
+    go-importpath: github.com/mikefarah/yq
+    #go-packages: [github.com/mikefarah/yq]
+    after: [go]
+  go:
+    source-tag: go1.9.4
+
