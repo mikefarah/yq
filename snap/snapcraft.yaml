@@ -1,10 +1,10 @@
 name: yq
-version: git
+version: 1.14.0-dev
 summary: A lightweight and portable command-line YAML processor
 description: |
   The aim of the project is to be the jq or sed of yaml files.
 
-grade: devel # must be 'stable' to release into candidate/stable channels
+grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
 
 apps:
