@@ -17,8 +17,6 @@ parts:
     plugin: go
     source: .
     go-importpath: github.com/mikefarah/yq
-    #go-packages: [github.com/mikefarah/yq]
     after: [go]
   go:
     source-tag: go1.9.4
-
