@@ -9,7 +9,7 @@ func TestGetVersionDisplay(t *testing.T) {
 	}{
 		{
 			name: "Display Version",
-			want: ProductName + " version " + Version + "-dev\n",
+			want: ProductName + " version " + Version + "\n",
 		},
 	}
 	for _, tt := range tests {
