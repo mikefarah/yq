@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/",
-            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\nbrew install yq\n\u00b6\n\n\ndownload latest binary\n\u00b6\n\n\nget the source\n\u00b6\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\n.zip\n or \ntar.gz\n\n\nView on GitHub",
+            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\nInstall\n\u00b6\n\n\nOn MacOS:\n\n\nbrew install yq\n\n\n\n\nOn Ubuntu and other Linux distros supporting \nsnap\n packages:\n\n\nsnap install yq\n\n\n\n\nor, \nDownload latest binary\n or alternatively:\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\nView on GitHub",
             "title": "Install"
         },
         {
@@ -11,19 +11,9 @@
             "title": "yq"
         },
         {
-            "location": "/#brew-install-yq",
-            "text": "",
-            "title": "brew install yq"
-        },
-        {
-            "location": "/#download-latest-binary",
-            "text": "",
-            "title": "download latest binary"
-        },
-        {
-            "location": "/#get-the-source",
-            "text": "go get github.com/mikefarah/yq  .zip  or  tar.gz  View on GitHub",
-            "title": "get the source"
+            "location": "/#install",
+            "text": "On MacOS:  brew install yq  On Ubuntu and other Linux distros supporting  snap  packages:  snap install yq  or,  Download latest binary  or alternatively:  go get github.com/mikefarah/yq  View on GitHub",
+            "title": "Install"
         },
         {
             "location": "/read/",
