@@ -35,9 +35,6 @@ func getHumanVersion() string {
 	}
 
 	release := VersionPrerelease
-	if GitDescribe == "" && release == "" {
-		release = "dev"
-	}
 	if release != "" {
 		if !strings.Contains(version, release) {
 			version += fmt.Sprintf("-%s", release)
