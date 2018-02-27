@@ -55,7 +55,7 @@ b:
 ```
 then
 ```bash
-yq w sample.yaml b.d[+] "bar thing"
+yq w sample.yaml "b.d[+]" "bar thing"
 ```
 will output:
 ```yaml
@@ -66,6 +66,8 @@ b:
     - foo thing
     - bar thing
 ```
+
+Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
 ### Updating files in-place
 Given a sample.yaml file of:

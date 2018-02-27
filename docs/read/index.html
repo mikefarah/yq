@@ -492,10 +492,11 @@ e.g.: given a sample file of</p>
 </code></pre>
 
 <p>then</p>
-<pre><code>yq r sample.yaml b.e[1].name
+<pre><code>yq r sample.yaml 'b.e[1].name'
 </code></pre>
 
 <p>will output 'sam'</p>
+<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
 <h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
 <p>e.g.: given a sample file of</p>
 <pre><code class="yaml">b:
@@ -507,7 +508,7 @@ e.g.: given a sample file of</p>
 </code></pre>
 
 <p>then</p>
-<pre><code>yq r sample.yaml b.e[*].name
+<pre><code>yq r sample.yaml 'b.e[*].name'
 </code></pre>
 
 <p>will output:</p>
@@ -515,19 +516,21 @@ e.g.: given a sample file of</p>
 - sam
 </code></pre>
 
+<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
 <h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
 <p>When specifying a key that has a dot use key lookup indicator.</p>
 <pre><code class="yaml">b:
   foo.bar: 7
 </code></pre>
 
-<pre><code class="bash">yaml r sample.yaml b[foo.bar]
+<pre><code class="bash">yaml r sample.yaml 'b[foo.bar]'
 </code></pre>
 
-<pre><code class="bash">yaml w sample.yaml b[foo.bar] 9
+<pre><code class="bash">yaml w sample.yaml 'b[foo.bar]' 9
 </code></pre>
 
 <p>Any valid yaml key can be specified as part of a key lookup.</p>
+<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
                 
                   
                 

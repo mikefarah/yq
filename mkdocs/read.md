@@ -68,9 +68,11 @@ b:
 ```
 then
 ```
-yq r sample.yaml b.e[1].name
+yq r sample.yaml 'b.e[1].name'
 ```
 will output 'sam'
+
+Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
 ### Array Splat
 e.g.: given a sample file of
@@ -84,12 +86,13 @@ b:
 ```
 then
 ```
-yq r sample.yaml b.e[*].name
+yq r sample.yaml 'b.e[*].name'
 ```
 will output:
 ```
 - fred
 - sam
 ```
+Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
 {!snippets/keys_with_dots.md!}

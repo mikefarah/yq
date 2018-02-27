@@ -7,11 +7,13 @@ b:
 ```
 
 ```bash
-yaml r sample.yaml b[foo.bar]
+yaml r sample.yaml 'b[foo.bar]'
 ```
 
 ```bash
-yaml w sample.yaml b[foo.bar] 9
+yaml w sample.yaml 'b[foo.bar]' 9
 ```
 
 Any valid yaml key can be specified as part of a key lookup.
+
+Note that the path is in quotes to avoid the square brackets being interpreted by your shell.

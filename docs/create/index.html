@@ -414,13 +414,14 @@ b.e[0].name: Howdy Partner
   foo.bar: 7
 </code></pre>
 
-<pre><code class="bash">yaml r sample.yaml b[foo.bar]
+<pre><code class="bash">yaml r sample.yaml 'b[foo.bar]'
 </code></pre>
 
-<pre><code class="bash">yaml w sample.yaml b[foo.bar] 9
+<pre><code class="bash">yaml w sample.yaml 'b[foo.bar]' 9
 </code></pre>
 
 <p>Any valid yaml key can be specified as part of a key lookup.</p>
+<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
                 
                   
                 
