@@ -47,6 +47,14 @@ application: MyApp`,
 		formattedResult)
 }
 
+func TestMultilineString(t *testing.T) {
+	testString := `
+	abcd
+	efg`
+	formattedResult, _ := yamlToString(testString)
+	assertResult(t, testString, formattedResult)
+}
+
 func TestNewYaml(t *testing.T) {
 	result, _ := newYaml([]string{"b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)

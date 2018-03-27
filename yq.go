@@ -417,10 +417,21 @@ func toString(context interface{}) (string, error) {
 }
 
 func yamlToString(context interface{}) (string, error) {
+	switch context.(type) {
+	case string:
+		return context.(string), nil
+	default:
+		return marshalContext(context)
+	}
+}
+
+func marshalContext(context interface{}) (string, error) {
 	out, err := yaml.Marshal(context)
+
 	if err != nil {
 		return "", fmt.Errorf("error printing yaml: %v", err)
 	}
+
 	outStr := string(out)
 	// trim the trailing new line as it's easier for a script to add
 	// it in if required than to remove it
