@@ -17,6 +17,20 @@ or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or
 go get github.com/mikefarah/yq
 ```
 
+## Run with Docker
+
+Oneshot use:
+
+```bash
+docker run -v ${PWD}:/workdir mikefarah/yq yq [flags] <command> FILE...
+```
+
+Run commands interactively:
+
+```bash
+docker run -it -v ${PWD}:/workdir mikefarah/yq sh
+```
+
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
 - Deep read a yaml file with a given path
