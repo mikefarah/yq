@@ -20,7 +20,7 @@ var (
 )
 
 // ProductName is the name of the product
-const ProductName = "yaml"
+const ProductName = "yq"
 
 // GetVersionDisplay composes the parts of the version in a way that's suitable
 // for displaying to humans.
