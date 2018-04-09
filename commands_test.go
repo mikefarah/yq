@@ -103,7 +103,7 @@ func TestRootCmd_VersionShort(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	if !strings.Contains(result.Output, "yaml version") {
+	if !strings.Contains(result.Output, "yq version") {
 		t.Error("expected version message to be printed out, but the message was not found.")
 	}
 }
@@ -114,7 +114,7 @@ func TestRootCmd_VersionLong(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	if !strings.Contains(result.Output, "yaml version") {
+	if !strings.Contains(result.Output, "yq version") {
 		t.Error("expected version message to be printed out, but the message was not found.")
 	}
 }
