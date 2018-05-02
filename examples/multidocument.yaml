@@ -1,0 +1,9 @@
+---
+a: Document One
+b:
+  c: 1
+---
+a: Document Two
+b:
+  c: 2
+

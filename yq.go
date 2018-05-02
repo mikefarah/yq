@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -180,15 +181,60 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+var regexpSubdocPath = regexp.MustCompile(`^@(\d+)(?:\.)?(.*)?$`)
+
 func read(args []string) (interface{}, error) {
-	var parsedData yaml.MapSlice
-	var path = ""
+	var (
+		parsedData    yaml.MapSlice
+		path          = ""
+		multidoc      bool
+		docNumber     int
+		matches       []string
+		err           error
+		childDocument string
+	)
 
 	if len(args) < 1 {
 		return nil, errors.New("Must provide filename")
 	} else if len(args) > 1 {
 		path = args[1]
+		multidoc = regexpSubdocPath.MatchString(path)
 	}
+
+	if multidoc {
+		matches = regexpSubdocPath.FindStringSubmatch(path)
+		// matches[0] is the original path
+		// matches[1] is the document number
+		// matches[2] is the path within that document
+		if len(matches) == 3 {
+			docNumber, err = strconv.Atoi(matches[1])
+			if err == nil {
+				path = matches[2]
+			}
+		}
+		childDocument, err = readSubDocument(args[0], docNumber)
+		if err != nil {
+			return nil, err
+		}
+		tmp, err := ioutil.TempFile("", "")
+		defer os.Remove(tmp.Name())
+		if err != nil {
+			return nil, err
+		}
+		n, err := tmp.WriteString(childDocument)
+		if err != nil {
+			return nil, err
+		}
+		if n != len(childDocument) {
+			return nil, fmt.Errorf("multidoc tmp file expected to write %v bytes but wrote %v bytes", len(childDocument), n)
+		}
+
+		args[0] = tmp.Name()
+
+	}
+
+	// If we're asking for any document beyond the first,
+	// we need to provide the yaml package with that document
 
 	if err := readData(args[0], &parsedData); err != nil {
 		var generalData interface{}
@@ -459,4 +505,29 @@ func readData(filename string, parsedData interface{}) error {
 	}
 
 	return yaml.Unmarshal(rawData, parsedData)
+}
+
+var regexpDocumentSeparator = regexp.MustCompile(`(?m)^---$`)
+
+// readSubDocument takes a filename and an index.
+// It looks for ^---$ markers that separate yaml documents and splits the file on those.
+// It takes the zero-indexed nth document, writes it to a temporary file, and return a handle to that file.
+// Is trailing whitespace legal yaml?
+func readSubDocument(filename string, n int) (string, error) {
+	allDocs, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+
+	subDocs := regexpDocumentSeparator.Split(string(allDocs), -1)
+	if len(subDocs) == 0 {
+		return "", errors.New("document was split into zero subdocuments")
+	}
+	if subDocs[0] == "" {
+		subDocs = subDocs[1:]
+	}
+	if len(subDocs) <= n {
+		return "", fmt.Errorf("requested document %v out of total %v documents", n, len(subDocs))
+	}
+	return strings.TrimSpace(subDocs[n]), nil
 }

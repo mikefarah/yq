@@ -36,3 +36,4 @@ parts/
 prime/
 .snapcraft/
 yq*.snap
+*.swp
