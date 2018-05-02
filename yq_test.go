@@ -43,7 +43,15 @@ func TestReadMultipleDocuments(t *testing.T) {
 		result, _ := read([]string{"examples/multidocument.yaml", "b.c"})
 		assertResult(t, 1, result)
 	})
-	t.Run("multiple documents with leading @n reads from document n", func(t *testing.T) {
+	t.Run("multiple documents with @n path reads document n", func(t *testing.T) {
+		result, _ := read([]string{"examples/multidocument.yaml", "@0"})
+		actual, err := yamlToString(result)
+		assertNilErr(t, err)
+		assertResult(t, `a: Document One
+b:
+  c: 1`, actual)
+	})
+	t.Run("multiple documents with leading @n path reads path from document n", func(t *testing.T) {
 		result, _ := read([]string{"examples/multidocument.yaml", "@0.b.c"})
 		assertResult(t, 1, result)
 

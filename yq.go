@@ -181,7 +181,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var regexpSubdocPath = regexp.MustCompile(`^@(\d+)\.(.*)$`)
+var regexpSubdocPath = regexp.MustCompile(`^@(\d+)(?:\.)?(.*)?$`)
 
 func read(args []string) (interface{}, error) {
 	var (
