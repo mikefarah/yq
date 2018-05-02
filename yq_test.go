@@ -38,6 +38,23 @@ func TestReadString(t *testing.T) {
 	assertResult(t, "hi", result)
 }
 
+func TestReadMultipleDocuments(t *testing.T) {
+	t.Run("multiple documents assumes first", func(t *testing.T) {
+		result, _ := read([]string{"examples/multidocument.yaml", "b.c"})
+		assertResult(t, 1, result)
+	})
+	t.Run("multiple documents with leading @n reads from document n", func(t *testing.T) {
+		result, _ := read([]string{"examples/multidocument.yaml", "@0.b.c"})
+		assertResult(t, 1, result)
+
+		result, _ = read([]string{"examples/multidocument.yaml", "@1.b.c"})
+		assertResult(t, 2, result)
+
+		_, err := read([]string{"examples/multidocument.yaml", "@2.b.c"})
+		assertAnyErr(t, err)
+	})
+}
+
 func TestOrder(t *testing.T) {
 	result, _ := read([]string{"examples/order.yaml"})
 	formattedResult, _ := yamlToString(result)
