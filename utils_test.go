@@ -66,6 +66,12 @@ func assertAnyErr(t *testing.T, actualValue error) {
 	}
 }
 
+func assertNilErr(t *testing.T, actualValue error) {
+	if actualValue != nil {
+		t.Error("Expected nil error, got ", actualValue)
+	}
+}
+
 func writeTempYamlFile(content string) string {
 	tmpfile, _ := ioutil.TempFile("", "testyaml")
 	defer func() {

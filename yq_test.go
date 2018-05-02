@@ -139,3 +139,30 @@ func TestNewYaml_WithUnknownScript(t *testing.T) {
 	expectedOutput := `open fake-unknown: no such file or directory`
 	assertResult(t, expectedOutput, err.Error())
 }
+
+func TestSplitData(t *testing.T) {
+	t.Run("document index zero", func(t *testing.T) {
+		actual, err := readSubDocument("examples/multidocument.yaml", 0)
+		assertNilErr(t, err)
+		expected := `a: Document One
+b:
+  c: 1`
+		assertResult(t, expected, actual)
+		// assert.Equal(t, expected, actual) // needed this to find whitespace problem
+	})
+
+	t.Run("document index one", func(t *testing.T) {
+		actual, err := readSubDocument("examples/multidocument.yaml", 1)
+		assertNilErr(t, err)
+		expected := `a: Document Two
+b:
+  c: 2`
+		assertResult(t, expected, actual)
+	})
+
+	t.Run("document index beyond available", func(t *testing.T) {
+		actual, err := readSubDocument("examples/multidocument.yaml", 2)
+		assertAnyErr(t, err)
+		assertResult(t, "", actual)
+	})
+}
