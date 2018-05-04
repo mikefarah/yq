@@ -64,7 +64,13 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
-	rootCmd.AddCommand(createReadCmd(), createWriteCmd(), createNewCmd(), createMergeCmd())
+	rootCmd.AddCommand(
+		createReadCmd(),
+		createWriteCmd(),
+		createDeleteCmd(),
+		createNewCmd(),
+		createMergeCmd(),
+	)
 	rootCmd.SetOutput(os.Stdout)
 
 	return rootCmd
@@ -119,6 +125,26 @@ a.b.e:
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
 	return cmdWrite
+}
+
+func createDeleteCmd() *cobra.Command {
+	var cmdDelete = &cobra.Command{
+		Use:     "delete [yaml_file] [path]",
+		Aliases: []string{"d"},
+		Short:   "yq d [--inplace/-i] sample.yaml a.b.c",
+		Example: `
+yq delete things.yaml a.b.c
+yq delete --inplace things.yaml a.b.c
+yq d -i things.yaml a.b.c
+yq d things.yaml a.b.c
+	`,
+		Long: `Deletes the given path from the YAML file.
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+`,
+		RunE: deleteProperty,
+	}
+	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	return cmdDelete
 }
 
 func createNewCmd() *cobra.Command {
@@ -314,6 +340,38 @@ func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
 	}
 	cmd.Println(dataStr)
 	return nil
+}
+
+func deleteProperty(cmd *cobra.Command, args []string) error {
+	updatedData, err := deleteYaml(args)
+	if err != nil {
+		return err
+	}
+	return write(cmd, args[0], updatedData)
+}
+
+func deleteYaml(args []string) (interface{}, error) {
+	var parsedData yaml.MapSlice
+	var deletePath string
+
+	if len(args) < 2 {
+		return nil, errors.New("Must provide <filename> <path_to_delete>")
+	}
+
+	deletePath = args[1]
+
+	if err := readData(args[0], &parsedData); err != nil {
+		var generalData interface{}
+		if err = readData(args[0], &generalData); err != nil {
+			return nil, err
+		}
+		item := yaml.MapItem{Key: "thing", Value: generalData}
+		parsedData = yaml.MapSlice{item}
+		deletePath = "thing." + deletePath
+	}
+
+	path := parsePath(deletePath)
+	return deleteMap(parsedData, path), nil
 }
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
