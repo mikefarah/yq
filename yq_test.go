@@ -122,3 +122,11 @@ func TestNewYaml_WithUnknownScript(t *testing.T) {
 	expectedOutput := `open fake-unknown: no such file or directory`
 	assertResult(t, expectedOutput, err.Error())
 }
+
+func TestDeleteYaml(t *testing.T) {
+	result, _ := deleteYaml([]string{"examples/sample.yaml", "b.c"})
+	formattedResult := fmt.Sprintf("%v", result)
+	assertResult(t,
+		"[{a Easy! as one two three} {b [{d [3 4]} {e [[{name fred} {value 3}] [{name sam} {value 4}]]}]}]",
+		formattedResult)
+}

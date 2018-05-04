@@ -18,9 +18,7 @@ func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
 	return nil
 }
 
-func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSlice {
-	log.Debugf("writeMap for %v for %v with value %v\n", paths, context, value)
-
+func getMapSlice(context interface{}) yaml.MapSlice {
 	var mapSlice yaml.MapSlice
 	switch context.(type) {
 	case yaml.MapSlice:
@@ -28,6 +26,25 @@ func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSl
 	default:
 		mapSlice = make(yaml.MapSlice, 0)
 	}
+	return mapSlice
+}
+
+func getArray(context interface{}) (array []interface{}, ok bool) {
+	switch context.(type) {
+	case []interface{}:
+		array = context.([]interface{})
+		ok = true
+	default:
+		array = make([]interface{}, 0)
+		ok = false
+	}
+	return
+}
+
+func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSlice {
+	log.Debugf("writeMap for %v for %v with value %v\n", paths, context, value)
+
+	mapSlice := getMapSlice(context)
 
 	if len(paths) == 0 {
 		return mapSlice
@@ -66,13 +83,7 @@ func updatedChildValue(child interface{}, remainingPaths []string, value interfa
 
 func writeArray(context interface{}, paths []string, value interface{}) []interface{} {
 	log.Debugf("writeArray for %v for %v with value %v\n", paths, context, value)
-	var array []interface{}
-	switch context.(type) {
-	case []interface{}:
-		array = context.([]interface{})
-	default:
-		array = make([]interface{}, 0)
-	}
+	array, _ := getArray(context)
 
 	if len(paths) == 0 {
 		return array
@@ -198,4 +209,94 @@ func mapToMapSlice(data map[interface{}]interface{}) yaml.MapSlice {
 	// apply order to allow a consistent output
 	sort.SliceStable(mapSlice, func(i, j int) bool { return mapSlice[i].Key.(string) < mapSlice[j].Key.(string) })
 	return mapSlice
+}
+
+func deleteMap(context interface{}, paths []string) yaml.MapSlice {
+	log.Debugf("deleteMap for %v for %v\n", paths, context)
+
+	mapSlice := getMapSlice(context)
+
+	if len(paths) == 0 {
+		return mapSlice
+	}
+
+	var found bool
+	var index int
+	var child yaml.MapItem
+	for index, child = range mapSlice {
+		if child.Key == paths[0] {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return mapSlice
+	}
+
+	remainingPaths := paths[1:]
+
+	var newSlice yaml.MapSlice
+	if len(remainingPaths) > 0 {
+		newChild := yaml.MapItem{Key: child.Key}
+		newChild.Value = deleteChildValue(child.Value, remainingPaths)
+
+		newSlice = make(yaml.MapSlice, len(mapSlice))
+		for i := range mapSlice {
+			item := mapSlice[i]
+			if i == index {
+				item = newChild
+			}
+			newSlice[i] = item
+		}
+	} else {
+		// Delete item from slice at index
+		newSlice = append(mapSlice[:index], mapSlice[index+1:]...)
+		log.Debugf("\tDeleted item index %d from mapSlice", index)
+	}
+
+	log.Debugf("\t\tlen: %d\tcap: %d\tslice: %v", len(mapSlice), cap(mapSlice), mapSlice)
+	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
+	return newSlice
+}
+
+func deleteArray(context interface{}, paths []string, index int64) interface{} {
+	log.Debugf("deleteArray for %v for %v\n", paths, context)
+
+	array, ok := getArray(context)
+	if !ok {
+		// did not get an array
+		return context
+	}
+
+	if index >= int64(len(array)) {
+		return array
+	}
+
+	remainingPaths := paths[1:]
+	if len(remainingPaths) > 0 {
+		// Recurse into the array element at index
+		array[index] = deleteMap(array[index], remainingPaths)
+	} else {
+		// Delete the array element at index
+		array = append(array[:index], array[index+1:]...)
+		log.Debugf("\tDeleted item index %d from array, leaving %v", index, array)
+	}
+
+	log.Debugf("\tReturning array: %v\n", array)
+	return array
+}
+
+func deleteChildValue(child interface{}, remainingPaths []string) interface{} {
+	log.Debugf("deleteChildValue for %v for %v\n", remainingPaths, child)
+
+	idx, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
+	if nextIndexErr != nil {
+		// must be a map
+		log.Debugf("\tdetected a map, invoking deleteMap\n")
+		return deleteMap(child, remainingPaths)
+	}
+
+	log.Debugf("\tdetected an array, so traversing element with index %d\n", idx)
+	return deleteArray(child, remainingPaths, idx)
 }
