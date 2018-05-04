@@ -41,19 +41,21 @@ func parseData(rawData string) yaml.MapSlice {
 }
 
 func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+	t.Helper()
 	if expectedValue != actualValue {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
 	}
 }
 
 func assertResultComplex(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+	t.Helper()
 	if !reflect.DeepEqual(expectedValue, actualValue) {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
 	}
 }
 
 func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
-
+	t.Helper()
 	if expectedValue != actualValue {
 		t.Error(context)
 		t.Error(": expected <", expectedValue, "> but got <", actualValue, ">")
