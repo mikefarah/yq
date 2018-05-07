@@ -55,6 +55,7 @@ Usage:
   yq [command]
 
 Available Commands:
+  delete      yq d [--inplace/-i] sample.yaml a.b.c
   help        Help about any command
   merge       yq m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValueForC

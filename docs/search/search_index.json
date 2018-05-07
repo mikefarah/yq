@@ -96,6 +96,36 @@
             "title": "Keys with dots"
         },
         {
+            "location": "/delete/",
+            "text": "yq d <yaml_file|json_file> <path_to_delete>\n\n\n\n\nThis command can take a json file as input too, and will output yaml unless specified to export as json (-j)\n\n\nTo Stdout\n\u00b6\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n  apples: green\n\n\n\n\nthen\n\n\nyq d sample.yaml b.c\n\n\n\n\nwill output:\n\n\nb:\n  apples: green\n\n\n\n\nFrom STDIN\n\u00b6\n\n\ncat sample.yaml | yq d - b.c\n\n\n\n\nDeleting array elements\n\u00b6\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: \n    - 1\n    - 2\n    - 3\n\n\n\n\nthen\n\n\nyq d sample.yaml 'b.c[1]'\n\n\n\n\nwill output:\n\n\nb:\n  c:\n  - 1\n  - 3\n\n\n\n\nDeleting nodes in-place\n\u00b6\n\n\nGiven a sample.yaml file of:\n\n\nb:\n  c: 2\n  apples: green\n\n\n\n\nthen\n\n\nyq d -i sample.yaml b.c\n\n\n\n\nwill update the sample.yaml file so that the 'c' node is deleted\n\n\nKeys with dots\n\u00b6\n\n\nWhen specifying a key that has a dot use key lookup indicator.\n\n\nb:\n  foo.bar: 7\n\n\n\n\nyaml r sample.yaml 'b[foo.bar]'\n\n\n\n\nyaml w sample.yaml 'b[foo.bar]' 9\n\n\n\n\nAny valid yaml key can be specified as part of a key lookup.\n\n\nNote that the path is in quotes to avoid the square brackets being interpreted by your shell.",
+            "title": "Delete"
+        },
+        {
+            "location": "/delete/#to-stdout",
+            "text": "Given a sample.yaml file of:  b:\n  c: 2\n  apples: green  then  yq d sample.yaml b.c  will output:  b:\n  apples: green",
+            "title": "To Stdout"
+        },
+        {
+            "location": "/delete/#from-stdin",
+            "text": "cat sample.yaml | yq d - b.c",
+            "title": "From STDIN"
+        },
+        {
+            "location": "/delete/#deleting-array-elements",
+            "text": "Given a sample.yaml file of:  b:\n  c: \n    - 1\n    - 2\n    - 3  then  yq d sample.yaml 'b.c[1]'  will output:  b:\n  c:\n  - 1\n  - 3",
+            "title": "Deleting array elements"
+        },
+        {
+            "location": "/delete/#deleting-nodes-in-place",
+            "text": "Given a sample.yaml file of:  b:\n  c: 2\n  apples: green  then  yq d -i sample.yaml b.c  will update the sample.yaml file so that the 'c' node is deleted",
+            "title": "Deleting nodes in-place"
+        },
+        {
+            "location": "/delete/#keys-with-dots",
+            "text": "When specifying a key that has a dot use key lookup indicator.  b:\n  foo.bar: 7  yaml r sample.yaml 'b[foo.bar]'  yaml w sample.yaml 'b[foo.bar]' 9  Any valid yaml key can be specified as part of a key lookup.  Note that the path is in quotes to avoid the square brackets being interpreted by your shell.",
+            "title": "Keys with dots"
+        },
+        {
             "location": "/create/",
             "text": "Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file.\n\n\nyq n <path> <new value>\n\n\n\n\nCreating a simple yaml file\n\u00b6\n\n\nyq n b.c cat\n\n\n\n\nwill output:\n\n\nb:\n  c: cat\n\n\n\n\nCreating using a create script\n\u00b6\n\n\nCreate scripts follow the same format as the update scripts.\n\n\nGiven a script create_instructions.yaml of:\n\n\nb.c: 3\nb.e[0].name: Howdy Partner\n\n\n\n\nthen\n\n\nyq n -s create_instructions.yaml\n\n\n\n\nwill output:\n\n\nb:\n  c: 3\n  e:\n    - name: Howdy Partner\n\n\n\n\nYou can also pipe the instructions in:\n\n\ncat create_instructions.yaml | yq n -s -\n\n\n\n\nKeys with dots\n\u00b6\n\n\nWhen specifying a key that has a dot use key lookup indicator.\n\n\nb:\n  foo.bar: 7\n\n\n\n\nyaml r sample.yaml 'b[foo.bar]'\n\n\n\n\nyaml w sample.yaml 'b[foo.bar]' 9\n\n\n\n\nAny valid yaml key can be specified as part of a key lookup.\n\n\nNote that the path is in quotes to avoid the square brackets being interpreted by your shell.",
             "title": "Create"

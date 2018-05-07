@@ -6,6 +6,7 @@ pages:
     - Install: index.md
     - Read: read.md
     - Write/Update: write.md
+    - Delete: delete.md
     - Create: create.md
     - Convert: convert.md
     - Merge: merge.md
