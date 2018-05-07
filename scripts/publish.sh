@@ -5,7 +5,7 @@ GITHUB_TOKEN="${GITHUB_TOKEN:?missing required input \'GITHUB_TOKEN\'}"
 CURRENT="$(git describe --tags --abbrev=0)"
 PREVIOUS="$(git describe --tags --abbrev=0 --always "${CURRENT}"^)"
 OWNER="mikefarah"
-REPO="yaml"
+REPO="yq"
 
 release() {
     mapfile -t logs < <(git log --pretty=oneline --abbrev-commit "${PREVIOUS}".."${CURRENT}")
