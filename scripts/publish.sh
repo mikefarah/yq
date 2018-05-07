@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -ex
 GITHUB_TOKEN="${GITHUB_TOKEN:?missing required input \'GITHUB_TOKEN\'}"
 
 CURRENT="$(git describe --tags --abbrev=0)"
@@ -8,32 +8,25 @@ OWNER="mikefarah"
 REPO="yq"
 
 release() {
-    mapfile -t logs < <(git log --pretty=oneline --abbrev-commit "${PREVIOUS}".."${CURRENT}")
-    description="$(printf '%s\n' "${logs[@]}")"
     github-release release \
         --user "$OWNER" \
         --repo "$REPO" \
-        --tag "$CURRENT" \
-        --description "$description" ||
-            github-release edit \
-                --user "$OWNER" \
-                --repo "$REPO" \
-                --tag "$CURRENT" \
-                --description "$description"
+        --tag "$CURRENT"
 }
 
 upload() {
-    mapfile -t files < <(find ./build -mindepth 1 -maxdepth 1)
-    for file in "${files[@]}"; do
+    while IFS=  read -r -d $'\0'; do
+        file=$REPLY
         BINARY=$(basename "${file}")
         echo "--> ${BINARY}"
         github-release upload \
+            --replace \
             --user "$OWNER" \
             --repo "$REPO" \
             --tag "$CURRENT" \
             --name "${BINARY}" \
             --file "$file"
-    done
+    done < <(find ./build -mindepth 1 -maxdepth 1 -print0)
 }
 
 release
