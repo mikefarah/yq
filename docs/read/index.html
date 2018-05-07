@@ -259,13 +259,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#handling-in-the-yaml-key" title="Handling '.' in the yaml key" class="md-nav__link">
-    Handling '.' in the yaml key
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#arrays" title="Arrays" class="md-nav__link">
     Arrays
   </a>
@@ -383,13 +376,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#handling-in-the-yaml-key" title="Handling '.' in the yaml key" class="md-nav__link">
-    Handling '.' in the yaml key
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#arrays" title="Arrays" class="md-nav__link">
     Arrays
   </a>
@@ -469,17 +455,6 @@ bob:
 - apples
 </code></pre>
 
-<h3 id="handling-in-the-yaml-key">Handling '.' in the yaml key<a class="headerlink" href="#handling-in-the-yaml-key" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b.x:
-  c: 2
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq r sample.yaml \&quot;b.x\&quot;.c
-</code></pre>
-
-<p>will output the value of '2'.</p>
 <h3 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h3>
 <p>You can give an index to access a specific element:
 e.g.: given a sample file of</p>

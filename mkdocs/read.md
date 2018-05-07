@@ -43,18 +43,6 @@ will output
 - apples
 ```
 
-### Handling '.' in the yaml key
-Given a sample.yaml file of:
-```yaml
-b.x:
-  c: 2
-```
-then
-```bash
-yq r sample.yaml \"b.x\".c
-```
-will output the value of '2'.
-
 ### Arrays
 You can give an index to access a specific element:
 e.g.: given a sample file of
