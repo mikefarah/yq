@@ -1,0 +1,18 @@
+- increment version in version.go
+- increment version in snapcraft.yaml
+- tag git with same version number
+- make sure local build passes
+- push tag to git
+- make local xcompile (builds binaries for all platforms)
+
+- git release
+  ./scripts/publish.sh
+
+- snapcraft
+  - will auto crate a candidate, test it works then promote
+
+- brew
+  - create pull request pointing to latest git release
+
+- docker
+  - build and push latest and new version tag
