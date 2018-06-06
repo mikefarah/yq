@@ -1,0 +1,22 @@
+Source: yq
+Section: devel
+Priority: extra
+Maintainer: Roberto Mier Escandón <rmescandon@gmail.com>
+Build-Depends: debhelper (>= 9),
+               dh-golang,
+               golang-1.10-go,
+               rsync
+Standards-Version: 3.9.6
+Homepage: https://github.com/mikefarah/yq.git
+Vcs-Browser: https://github.com/mikefarah/yq.git
+Vcs-Git: https://github.com/mikefarah/yq.git
+
+Package: yq
+Architecture: all
+Built-Using: ${misc:Built-Using}
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Description:
+ a lightweight and portable command-line YAML processor
+ .
+ The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
