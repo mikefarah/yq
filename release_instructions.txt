@@ -9,10 +9,22 @@
   ./scripts/publish.sh
 
 - snapcraft
-  - will auto crate a candidate, test it works then promote
+  - will auto create a candidate, test it works then promote
 
 - brew
   - create pull request pointing to latest git release
 
 - docker
   - build and push latest and new version tag
+
+- debian package
+  - execute 
+    ```dch -i```
+  - fill debian/changelog with changes from last version
+  - build the package sources 
+    ```debuild -i -I -S -sa```
+    (signing with gpg key is required in order to put it to ppa)
+  - put to PPA
+    ```dput ppa:<REPOSITORY> ../yq_<VERSION>_source.changes```
+    (current distro repository is ppa:rmescandon/yq. In case that a new version
+    is released, please contact rmescandon@gmail.com to bump debian package)

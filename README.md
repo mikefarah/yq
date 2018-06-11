@@ -12,6 +12,12 @@ On Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
 ```
+On Ubuntu 16.04 or higher from Debian package:
+```
+sudo add-apt-repository ppa:rmescandon/yq
+sudo apt update
+sudo apt install yq -y
+```
 or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
 ```
 go get github.com/mikefarah/yq
