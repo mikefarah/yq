@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/",
-            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\nInstall\n\u00b6\n\n\nOn MacOS:\n\n\nbrew install yq\n\n\n\n\nOn Ubuntu and other Linux distros supporting \nsnap\n packages:\n\n\nsnap install yq\n\n\n\n\nor, \nDownload latest binary\n or alternatively:\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\nView on GitHub",
+            "text": "yq\n\u00b6\n\n\nyq is a lightweight and portable command-line YAML processor\n\n\nThe aim of the project is to be the \njq\n or sed of yaml files.\n\n\nInstall\n\u00b6\n\n\nOn MacOS:\n\n\nbrew install yq\n\n\n\n\nOn Ubuntu and other Linux distros supporting \nsnap\n packages:\n\n\nsnap install yq\n\n\n\n\nOn Ubuntu 16.04 or higher from Debian package:\n\n\nsudo add-apt-repository ppa:rmescandon/yq\nsudo apt update\nsudo apt install yq -y\n\n\n\n\nor, \nDownload latest binary\n or alternatively:\n\n\ngo get github.com/mikefarah/yq\n\n\n\n\nView on GitHub",
             "title": "Install"
         },
         {
@@ -12,7 +12,7 @@
         },
         {
             "location": "/#install",
-            "text": "On MacOS:  brew install yq  On Ubuntu and other Linux distros supporting  snap  packages:  snap install yq  or,  Download latest binary  or alternatively:  go get github.com/mikefarah/yq  View on GitHub",
+            "text": "On MacOS:  brew install yq  On Ubuntu and other Linux distros supporting  snap  packages:  snap install yq  On Ubuntu 16.04 or higher from Debian package:  sudo add-apt-repository ppa:rmescandon/yq\nsudo apt update\nsudo apt install yq -y  or,  Download latest binary  or alternatively:  go get github.com/mikefarah/yq  View on GitHub",
             "title": "Install"
         },
         {
