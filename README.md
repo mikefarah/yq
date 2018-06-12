@@ -77,4 +77,6 @@ Use "yq [command] --help" for more information about a command.
 2. add unit tests
 3. apply changes
 4. `make [local] build`
+5. Update user documentation if required (README.md, mkdocs folder )
+6. `make [local] build-docs`
 5. profit
