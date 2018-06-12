@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -20,6 +22,7 @@ var outputToJSON = false
 var overwriteFlag = false
 var verbose = false
 var version = false
+var docIndex = 0
 var log = logging.MustGetLogger("yq")
 
 func main() {
@@ -77,10 +80,10 @@ func newCommandCLI() *cobra.Command {
 }
 
 func createReadCmd() *cobra.Command {
-	return &cobra.Command{
+	var cmdRead = &cobra.Command{
 		Use:     "read [yaml_file] [path]",
 		Aliases: []string{"r"},
-		Short:   "yq r sample.yaml a.b.c",
+		Short:   "yq r [--doc/-d document_index] sample.yaml a.b.c",
 		Example: `
 yq read things.yaml a.b.c
 yq r - a.b.c (reads from stdin)
@@ -91,6 +94,8 @@ yq r things.yaml a.array[*].blah
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
 	}
+	cmdRead.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
+	return cmdRead
 }
 
 func createWriteCmd() *cobra.Command {
@@ -499,22 +504,39 @@ func marshalContext(context interface{}) (string, error) {
 	return outStr, nil
 }
 
+func safelyCloseFile(file *os.File) {
+	err := file.Close()
+	if err != nil {
+		fmt.Println("Error closing file!")
+		fmt.Println(err.Error())
+	}
+}
+
 func readData(filename string, parsedData interface{}) error {
 	if filename == "" {
 		return errors.New("Must provide filename")
 	}
 
-	var rawData []byte
-	var err error
+	var stream io.Reader
 	if filename == "-" {
-		rawData, err = ioutil.ReadAll(os.Stdin)
+		stream = bufio.NewReader(os.Stdin)
 	} else {
-		rawData, err = ioutil.ReadFile(filename)
+		file, err := os.Open(filename)
+		if err != nil {
+			return err
+		}
+		defer safelyCloseFile(file)
+		stream = file
 	}
 
-	if err != nil {
-		return err
+	var decoder = yaml.NewDecoder(stream)
+	// naive implementation of document indexing, decodes all the yaml documents
+	// before the docIndex and throws them away.
+	for currentIndex := 0; currentIndex < docIndex; currentIndex++ {
+		errorSkipping := decoder.Decode(parsedData)
+		if errorSkipping != nil {
+			return fmt.Errorf("Error processing document at index %v, %v", currentIndex, errorSkipping)
+		}
 	}
-
-	return yaml.Unmarshal(rawData, parsedData)
+	return decoder.Decode(parsedData)
 }
