@@ -88,7 +88,7 @@ func createReadCmd() *cobra.Command {
 yq read things.yaml a.b.c
 yq r - a.b.c (reads from stdin)
 yq r things.yaml a.*.c
-yq r things.yaml a.array[0].blah
+yq r -d1 things.yaml a.array[0].blah
 yq r things.yaml a.array[*].blah
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
@@ -297,16 +297,9 @@ func newProperty(cmd *cobra.Command, args []string) error {
 }
 
 func newYaml(args []string) (interface{}, error) {
-	var writeCommands yaml.MapSlice
-	if writeScript != "" {
-		if err := readData(writeScript, 0, &writeCommands); err != nil {
-			return nil, err
-		}
-	} else if len(args) < 2 {
-		return nil, errors.New("Must provide <path_to_update> <value>")
-	} else {
-		writeCommands = make(yaml.MapSlice, 1)
-		writeCommands[0] = yaml.MapItem{Key: args[0], Value: parseValue(args[1])}
+	var writeCommands, writeCommandsError = readWriteCommands(args, 2, "Must provide <path_to_update> <value>")
+	if writeCommandsError != nil {
+		return nil, writeCommandsError
 	}
 
 	var parsedData yaml.MapSlice
@@ -424,20 +417,28 @@ func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, pre
 	return parsedData, nil
 }
 
-func updateYaml(args []string) (interface{}, error) {
+func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) (yaml.MapSlice, error) {
 	var writeCommands yaml.MapSlice
-	var prependCommand = ""
 	if writeScript != "" {
 		if err := readData(writeScript, 0, &writeCommands); err != nil {
 			return nil, err
 		}
-	} else if len(args) < 3 {
-		return nil, errors.New("Must provide <filename> <path_to_update> <value>")
+	} else if len(args) < expectedArgs {
+		return nil, errors.New(badArgsMessage)
 	} else {
 		writeCommands = make(yaml.MapSlice, 1)
-		writeCommands[0] = yaml.MapItem{Key: args[1], Value: parseValue(args[2])}
+		writeCommands[0] = yaml.MapItem{Key: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
+	}
+	return writeCommands, nil
+}
+
+func updateYaml(args []string) (interface{}, error) {
+	var writeCommands, writeCommandsError = readWriteCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
+	if writeCommandsError != nil {
+		return nil, writeCommandsError
 	}
 
+	var prependCommand = ""
 	var parsedData yaml.MapSlice
 	if err := readData(args[0], 0, &parsedData); err != nil {
 		var generalData interface{}
