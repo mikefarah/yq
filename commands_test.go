@@ -372,6 +372,28 @@ func TestWriteCmd(t *testing.T) {
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteMultiCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s -d 1 apples ok", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+---
+apples: ok
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteCmd_EmptyArray(t *testing.T) {
 	content := `b: 3`
 	filename := writeTempYamlFile(content)
@@ -441,7 +463,7 @@ func TestWriteCmd_Inplace(t *testing.T) {
 	gotOutput := readTempYamlFile(filename)
 	expectedOutput := `b:
   c: 7`
-	assertResult(t, expectedOutput, gotOutput)
+	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
 }
 
 func TestWriteCmd_Append(t *testing.T) {

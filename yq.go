@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -34,6 +35,7 @@ func main() {
 }
 
 func newCommandCLI() *cobra.Command {
+	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
 		Use: "yq",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -102,15 +104,15 @@ func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
-		Short:   "yq w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d document_index] sample.yaml a.b.c newValueForC",
 		Example: `
 yq write things.yaml a.b.c cat
 yq write --inplace things.yaml a.b.c cat
 yq w -i things.yaml a.b.c cat
 yq w --script update_script.yaml things.yaml
 yq w -i -s update_script.yaml things.yaml
-yq w things.yaml a.b.d[+] foo
-yq w things.yaml a.b.d[+] foo
+yq w --doc 2 things.yaml a.b.d[+] foo
+yq w -d2 things.yaml a.b.d[+] foo
       `,
 		Long: `Updates the yaml file w.r.t the given path and value.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
@@ -129,6 +131,7 @@ a.b.e:
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	cmdWrite.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
 	return cmdWrite
 }
 
@@ -212,7 +215,6 @@ func readProperty(cmd *cobra.Command, args []string) error {
 }
 
 func read(args []string) (interface{}, error) {
-	var parsedData yaml.MapSlice
 	var path = ""
 
 	if len(args) < 1 {
@@ -220,67 +222,17 @@ func read(args []string) (interface{}, error) {
 	} else if len(args) > 1 {
 		path = args[1]
 	}
-
-	if err := readData(args[0], docIndex, &parsedData); err != nil {
-		var generalData interface{}
-		if err = readData(args[0], docIndex, &generalData); err != nil {
-			return nil, err
-		}
-		item := yaml.MapItem{Key: "thing", Value: generalData}
-		parsedData = yaml.MapSlice{item}
-		path = "thing." + path
+	var generalData interface{}
+	if err := readData(args[0], docIndex, &generalData); err != nil {
+		return nil, err
 	}
-
-	if parsedData != nil && parsedData[0].Key == nil {
-		var interfaceData []map[interface{}]interface{}
-		if err := readData(args[0], docIndex, &interfaceData); err == nil {
-			var listMap []yaml.MapSlice
-			for _, item := range interfaceData {
-				listMap = append(listMap, mapToMapSlice(item))
-			}
-			return readYamlArray(listMap, path)
-		}
-	}
-
 	if path == "" {
-		return parsedData, nil
+		return generalData, nil
 	}
 
 	var paths = parsePath(path)
-
-	return readMap(parsedData, paths[0], paths[1:])
-}
-
-func readYamlArray(listMap []yaml.MapSlice, path string) (interface{}, error) {
-	if path == "" {
-		return listMap, nil
-	}
-
-	var paths = parsePath(path)
-
-	if paths[0] == "*" {
-		if len(paths[1:]) == 0 {
-			return listMap, nil
-		}
-		var results []interface{}
-		for _, m := range listMap {
-			value, err := readMap(m, paths[1], paths[2:])
-			if err != nil {
-				return nil, err
-			}
-			results = append(results, value)
-		}
-		return results, nil
-	}
-
-	index, err := strconv.ParseInt(paths[0], 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("Error accessing array: %v", err)
-	}
-	if len(paths[1:]) == 0 {
-		return listMap[index], nil
-	}
-	return readMap(listMap[index], paths[1], paths[2:])
+	value, err := recurse(generalData, paths[0], paths[1:])
+	return value, err
 }
 
 func newProperty(cmd *cobra.Command, args []string) error {
@@ -316,12 +268,73 @@ func newYaml(args []string) (interface{}, error) {
 	return updateParsedData(parsedData, writeCommands, prependCommand)
 }
 
-func writeProperty(cmd *cobra.Command, args []string) error {
-	updatedData, err := updateYaml(args)
-	if err != nil {
-		return err
+func mapYamlDecoder(writeCommands yaml.MapSlice, encoder *yaml.Encoder) yamlDecoderFn {
+	return func(decoder *yaml.Decoder) error {
+		var dataBucket interface{}
+		var errorReading error
+		var errorWriting error
+		var currentIndex = 0
+
+		for {
+			log.Debugf("Read doc %v", currentIndex)
+			errorReading = decoder.Decode(&dataBucket)
+
+			if errorReading == io.EOF {
+				return nil
+			} else if errorReading != nil {
+				return fmt.Errorf("Error reading document at index %v, %v", currentIndex, errorReading)
+			}
+
+			if currentIndex == docIndex {
+				log.Debugf("Updating doc %v", currentIndex)
+				for _, entry := range writeCommands {
+					path := entry.Key.(string)
+					value := entry.Value
+					log.Debugf("setting %v to %v", path, value)
+					var paths = parsePath(path)
+					dataBucket = updatedChildValue(dataBucket, paths, value)
+				}
+			}
+
+			errorWriting = encoder.Encode(dataBucket)
+
+			if errorWriting != nil {
+				return fmt.Errorf("Error writing document at index %v, %v", currentIndex, errorWriting)
+			}
+			currentIndex = currentIndex + 1
+		}
 	}
-	return write(cmd, args[0], updatedData)
+}
+
+func writeProperty(cmd *cobra.Command, args []string) error {
+	var writeCommands, writeCommandsError = readWriteCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
+	if writeCommandsError != nil {
+		return writeCommandsError
+	}
+	var inputFile = args[0]
+	var destination io.Writer
+	var destinationName string
+	if writeInplace {
+		var tempFile, err = ioutil.TempFile("", "temp")
+		if err != nil {
+			return err
+		}
+		destinationName = tempFile.Name()
+		destination = tempFile
+		defer func() {
+			safelyCloseFile(tempFile)
+			safelyRenameFile(tempFile.Name(), inputFile)
+		}()
+	} else {
+		var writer = bufio.NewWriter(cmd.OutOrStdout())
+		destination = writer
+		destinationName = "Stdout"
+		defer safelyFlush(writer)
+	}
+	var encoder = yaml.NewEncoder(destination)
+	log.Debugf("Writing to %v from %v", destinationName, inputFile)
+	//need to use a temp file if writeInplace is given
+	return readStream(inputFile, mapYamlDecoder(writeCommands, encoder))
 }
 
 func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
@@ -432,27 +445,6 @@ func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) (
 	return writeCommands, nil
 }
 
-func updateYaml(args []string) (interface{}, error) {
-	var writeCommands, writeCommandsError = readWriteCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
-	if writeCommandsError != nil {
-		return nil, writeCommandsError
-	}
-
-	var prependCommand = ""
-	var parsedData yaml.MapSlice
-	if err := readData(args[0], 0, &parsedData); err != nil {
-		var generalData interface{}
-		if err = readData(args[0], 0, &generalData); err != nil {
-			return nil, err
-		}
-		item := yaml.MapItem{Key: "thing", Value: generalData}
-		parsedData = yaml.MapSlice{item}
-		prependCommand = "thing"
-	}
-
-	return updateParsedData(parsedData, writeCommands, prependCommand)
-}
-
 func parseValue(argument string) interface{} {
 	var value, err interface{}
 	var inQuotes = len(argument) > 0 && argument[0] == '"'
@@ -505,11 +497,25 @@ func marshalContext(context interface{}) (string, error) {
 	return outStr, nil
 }
 
+func safelyRenameFile(from string, to string) {
+	if err := os.Rename(from, to); err != nil {
+		log.Errorf("Error renaming from %v to %v", from, to)
+		log.Error(err.Error())
+	}
+}
+
+func safelyFlush(writer *bufio.Writer) {
+	if err := writer.Flush(); err != nil {
+		log.Error("Error flushing writer!")
+		log.Error(err.Error())
+	}
+
+}
 func safelyCloseFile(file *os.File) {
 	err := file.Close()
 	if err != nil {
-		fmt.Println("Error closing file!")
-		fmt.Println(err.Error())
+		log.Error("Error closing file!")
+		log.Error(err.Error())
 	}
 }
 

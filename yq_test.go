@@ -78,37 +78,6 @@ func TestNewYamlArray(t *testing.T) {
 		formattedResult)
 }
 
-func TestUpdateYaml(t *testing.T) {
-	result, _ := updateYaml([]string{"examples/sample.yaml", "b.c", "3"})
-	formattedResult := fmt.Sprintf("%v", result)
-	assertResult(t,
-		"[{a Easy! as one two three} {b [{c 3} {d [3 4]} {e [[{name fred} {value 3}] [{name sam} {value 4}]]}]}]",
-		formattedResult)
-}
-
-func TestUpdateYamlArray(t *testing.T) {
-	result, _ := updateYaml([]string{"examples/sample_array.yaml", "[0]", "3"})
-	formattedResult := fmt.Sprintf("%v", result)
-	assertResult(t,
-		"[3 2 3]",
-		formattedResult)
-}
-
-func TestUpdateYaml_WithScript(t *testing.T) {
-	writeScript = "examples/instruction_sample.yaml"
-	_, _ = updateYaml([]string{"examples/sample.yaml"})
-}
-
-func TestUpdateYaml_WithUnknownScript(t *testing.T) {
-	writeScript = "fake-unknown"
-	_, err := updateYaml([]string{"examples/sample.yaml"})
-	if err == nil {
-		t.Error("Expected error due to unknown file")
-	}
-	expectedOutput := `open fake-unknown: no such file or directory`
-	assertResult(t, expectedOutput, err.Error())
-}
-
 func TestNewYaml_WithScript(t *testing.T) {
 	writeScript = "examples/instruction_sample.yaml"
 	expectedResult := `b:

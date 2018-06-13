@@ -33,10 +33,12 @@
 			"revisionTime": "2017-08-24T17:57:12Z"
 		},
 		{
-			"checksumSHA1": "ZSWoOPUNRr5+3dhkLK3C4cZAQPk=",
+			"checksumSHA1": "DHNYKS5T54/XOqUsFFzdZMLEnVE=",
+			"origin": "github.com/mikefarah/yaml",
 			"path": "gopkg.in/yaml.v2",
-			"revision": "5420a8b6744d3b0345ab293f6fcba19c978f1183",
-			"revisionTime": "2018-03-28T19:50:20Z"
+			"revision": "e175af14aaa1d0eff2ee04b691e4a4827a111416",
+			"revisionTime": "2018-06-13T04:05:11Z",
+			"tree": true
 		}
 	],
 	"rootPath": "github.com/mikefarah/yq"
