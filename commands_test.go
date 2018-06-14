@@ -503,6 +503,72 @@ b:
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestDeleteYaml(t *testing.T) {
+	content := `a: 2
+b:
+  c: things
+  d: something else
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete %s b.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  d: something else
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteYamlArray(t *testing.T) {
+	content := `- 1
+- 2
+- 3	
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete %s [1]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `- 1
+- 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteYamlMulti(t *testing.T) {
+	content := `apples: great
+---
+- 1
+- 2
+- 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -d 1 %s [1]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `apples: great
+---
+- 1
+- 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")

@@ -152,6 +152,7 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 		RunE: deleteProperty,
 	}
 	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	cmdDelete.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
 	return cmdDelete
 }
 
@@ -268,7 +269,9 @@ func newYaml(args []string) (interface{}, error) {
 	return updateParsedData(parsedData, writeCommands, prependCommand)
 }
 
-func mapYamlDecoder(writeCommands yaml.MapSlice, encoder *yaml.Encoder) yamlDecoderFn {
+type updateDataFn func(dataBucket interface{}, currentIndex int) interface{}
+
+func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderFn {
 	return func(decoder *yaml.Decoder) error {
 		var dataBucket interface{}
 		var errorReading error
@@ -284,17 +287,7 @@ func mapYamlDecoder(writeCommands yaml.MapSlice, encoder *yaml.Encoder) yamlDeco
 			} else if errorReading != nil {
 				return fmt.Errorf("Error reading document at index %v, %v", currentIndex, errorReading)
 			}
-
-			if currentIndex == docIndex {
-				log.Debugf("Updating doc %v", currentIndex)
-				for _, entry := range writeCommands {
-					path := entry.Key.(string)
-					value := entry.Value
-					log.Debugf("setting %v to %v", path, value)
-					var paths = parsePath(path)
-					dataBucket = updatedChildValue(dataBucket, paths, value)
-				}
-			}
+			dataBucket = updateData(dataBucket, currentIndex)
 
 			errorWriting = encoder.Encode(dataBucket)
 
@@ -311,7 +304,23 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	if writeCommandsError != nil {
 		return writeCommandsError
 	}
-	var inputFile = args[0]
+	var updateData = func(dataBucket interface{}, currentIndex int) interface{} {
+		if currentIndex == docIndex {
+			log.Debugf("Updating doc %v", currentIndex)
+			for _, entry := range writeCommands {
+				path := entry.Key.(string)
+				value := entry.Value
+				log.Debugf("setting %v to %v", path, value)
+				var paths = parsePath(path)
+				dataBucket = updatedChildValue(dataBucket, paths, value)
+			}
+		}
+		return dataBucket
+	}
+	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
+}
+
+func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
 	var destination io.Writer
 	var destinationName string
 	if writeInplace {
@@ -326,15 +335,14 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 			safelyRenameFile(tempFile.Name(), inputFile)
 		}()
 	} else {
-		var writer = bufio.NewWriter(cmd.OutOrStdout())
+		var writer = bufio.NewWriter(stdOut)
 		destination = writer
 		destinationName = "Stdout"
 		defer safelyFlush(writer)
 	}
 	var encoder = yaml.NewEncoder(destination)
 	log.Debugf("Writing to %v from %v", destinationName, inputFile)
-	//need to use a temp file if writeInplace is given
-	return readStream(inputFile, mapYamlDecoder(writeCommands, encoder))
+	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
 
 func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
@@ -354,29 +362,20 @@ func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
 }
 
 func deleteProperty(cmd *cobra.Command, args []string) error {
-	updatedData, err := deleteYaml(args)
-	if err != nil {
-		return err
-	}
-	return write(cmd, args[0], updatedData)
-}
-
-func deleteYaml(args []string) (interface{}, error) {
-	var parsedData interface{}
-	var deletePath string
-
 	if len(args) < 2 {
-		return nil, errors.New("Must provide <filename> <path_to_delete>")
+		return errors.New("Must provide <filename> <path_to_delete>")
+	}
+	var deletePath = args[1]
+	var paths = parsePath(deletePath)
+	var updateData = func(dataBucket interface{}, currentIndex int) interface{} {
+		if currentIndex == docIndex {
+			log.Debugf("Updating doc %v", currentIndex)
+			return deleteChildValue(dataBucket, paths)
+		}
+		return dataBucket
 	}
 
-	deletePath = args[1]
-
-	if err := readData(args[0], 0, &parsedData); err != nil {
-		return nil, err
-	}
-
-	paths := parsePath(deletePath)
-	return deleteChildValue(parsedData, paths), nil
+	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
 }
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
