@@ -29,7 +29,7 @@ var log = logging.MustGetLogger("yq")
 func main() {
 	cmd := newCommandCLI()
 	if err := cmd.Execute(); err != nil {
-		fmt.Println(err.Error())
+		log.Error(err.Error())
 		os.Exit(1)
 	}
 }
@@ -283,6 +283,9 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 			errorReading = decoder.Decode(&dataBucket)
 
 			if errorReading == io.EOF {
+				if currentIndex < docIndex {
+					return fmt.Errorf("Asked to process document %v but there are only %v document(s)", docIndex, currentIndex)
+				}
 				return nil
 			} else if errorReading != nil {
 				return fmt.Errorf("Error reading document at index %v, %v", currentIndex, errorReading)
