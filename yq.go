@@ -362,7 +362,7 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 }
 
 func deleteYaml(args []string) (interface{}, error) {
-	var parsedData yaml.MapSlice
+	var parsedData interface{}
 	var deletePath string
 
 	if len(args) < 2 {
@@ -372,17 +372,11 @@ func deleteYaml(args []string) (interface{}, error) {
 	deletePath = args[1]
 
 	if err := readData(args[0], 0, &parsedData); err != nil {
-		var generalData interface{}
-		if err = readData(args[0], 0, &generalData); err != nil {
-			return nil, err
-		}
-		item := yaml.MapItem{Key: "thing", Value: generalData}
-		parsedData = yaml.MapSlice{item}
-		deletePath = "thing." + deletePath
+		return nil, err
 	}
 
-	path := parsePath(deletePath)
-	return deleteMap(parsedData, path), nil
+	paths := parsePath(deletePath)
+	return deleteChildValue(parsedData, paths), nil
 }
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
