@@ -128,6 +128,15 @@ func TestReadCmd(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
+func TestReadMultiCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read -d 1 examples/multiple_docs.yaml another.document")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t, "here\n", result.Output)
+}
+
 func TestReadCmd_ArrayYaml(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read examples/array.yaml [0].gather_facts")
