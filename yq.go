@@ -256,18 +256,23 @@ func newYaml(args []string) (interface{}, error) {
 		return nil, writeCommandsError
 	}
 
-	var parsedData yaml.MapSlice
-	var prependCommand = ""
+	var dataBucket interface{}
 	var isArray = strings.HasPrefix(writeCommands[0].Key.(string), "[")
 	if isArray {
-		item := yaml.MapItem{Key: "thing", Value: make(yaml.MapSlice, 0)}
-		parsedData = yaml.MapSlice{item}
-		prependCommand = "thing"
+		dataBucket = make([]interface{}, 0)
 	} else {
-		parsedData = make(yaml.MapSlice, 0)
+		dataBucket = make(yaml.MapSlice, 0)
 	}
 
-	return updateParsedData(parsedData, writeCommands, prependCommand)
+	for _, entry := range writeCommands {
+		path := entry.Key.(string)
+		value := entry.Value
+		log.Debugf("setting %v to %v", path, value)
+		var paths = parsePath(path)
+		dataBucket = updatedChildValue(dataBucket, paths, value)
+	}
+
+	return dataBucket, nil
 }
 
 type updateDataFn func(dataBucket interface{}, currentIndex int) interface{}
@@ -408,23 +413,6 @@ func mergeYaml(args []string) (interface{}, error) {
 	}
 
 	return mapToMapSlice(updatedData), nil
-}
-
-func updateParsedData(parsedData yaml.MapSlice, writeCommands yaml.MapSlice, prependCommand string) (interface{}, error) {
-	var prefix = ""
-	if prependCommand != "" {
-		prefix = prependCommand + "."
-	}
-	for _, entry := range writeCommands {
-		path := prefix + entry.Key.(string)
-		value := entry.Value
-		var paths = parsePath(path)
-		parsedData = writeMap(parsedData, paths, value)
-	}
-	if prependCommand != "" {
-		return readMap(parsedData, prependCommand, make([]string, 0))
-	}
-	return parsedData, nil
 }
 
 func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) (yaml.MapSlice, error) {
