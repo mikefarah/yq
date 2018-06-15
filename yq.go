@@ -140,7 +140,7 @@ func createDeleteCmd() *cobra.Command {
 	var cmdDelete = &cobra.Command{
 		Use:     "delete [yaml_file] [path]",
 		Aliases: []string{"d"},
-		Short:   "yq d [--inplace/-i] sample.yaml a.b.c",
+		Short:   "yq d [--inplace/-i] [--doc/-d document_index] sample.yaml a.b.c",
 		Example: `
 yq delete things.yaml a.b.c
 yq delete --inplace things.yaml a.b.c
@@ -183,7 +183,7 @@ func createMergeCmd() *cobra.Command {
 	var cmdMerge = &cobra.Command{
 		Use:     "merge [initial_yaml_file] [additional_yaml_file]...",
 		Aliases: []string{"m"},
-		Short:   "yq m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml",
+		Short:   "yq m [--inplace/-i] [--doc/-d document_index] [--overwrite/-x] sample.yaml sample2.yaml",
 		Example: `
 yq merge things.yaml other.yaml
 yq merge --inplace things.yaml other.yaml
