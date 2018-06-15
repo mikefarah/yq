@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -10,6 +9,8 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+
+	errors "github.com/pkg/errors"
 
 	logging "github.com/op/go-logging"
 	"github.com/spf13/cobra"
@@ -288,14 +289,14 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 				}
 				return nil
 			} else if errorReading != nil {
-				return fmt.Errorf("Error reading document at index %v, %v", currentIndex, errorReading)
+				return errors.Wrapf(errorReading, "Error reading document at index %v, %v", currentIndex, errorReading)
 			}
 			dataBucket = updateData(dataBucket, currentIndex)
 
 			errorWriting = encoder.Encode(dataBucket)
 
 			if errorWriting != nil {
-				return fmt.Errorf("Error writing document at index %v, %v", currentIndex, errorWriting)
+				return errors.Wrapf(errorWriting, "Error writing document at index %v, %v", currentIndex, errorWriting)
 			}
 			currentIndex = currentIndex + 1
 		}
@@ -481,7 +482,7 @@ func marshalContext(context interface{}) (string, error) {
 	out, err := yaml.Marshal(context)
 
 	if err != nil {
-		return "", fmt.Errorf("error printing yaml: %v", err)
+		return "", errors.Wrap(err, "error printing yaml")
 	}
 
 	outStr := string(out)
@@ -543,7 +544,7 @@ func readData(filename string, indexToRead int, parsedData interface{}) error {
 		for currentIndex := 0; currentIndex < indexToRead; currentIndex++ {
 			errorSkipping := decoder.Decode(parsedData)
 			if errorSkipping != nil {
-				return fmt.Errorf("Error processing document at index %v, %v", currentIndex, errorSkipping)
+				return errors.Wrapf(errorSkipping, "Error processing document at index %v, %v", currentIndex, errorSkipping)
 			}
 		}
 		return decoder.Decode(parsedData)
