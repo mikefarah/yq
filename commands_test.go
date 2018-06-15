@@ -585,6 +585,25 @@ c:
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeCmd_Multi(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge -d1 examples/multiple_docs_small.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: Easy! as one two three
+---
+a: other
+another:
+  document: here
+c:
+  test: 1
+---
+- 1
+- 2`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
 func TestMergeCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "merge examples/data1.yaml")

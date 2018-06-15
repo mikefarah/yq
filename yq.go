@@ -200,6 +200,7 @@ If overwrite flag is set then existing values will be overwritten using the valu
 	}
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
+	cmdMerge.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
 	return cmdMerge
 }
 
