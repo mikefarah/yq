@@ -601,7 +601,7 @@ func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	expectedOutput := `Error updating document at index 0: open fake-unknown: no such file or directory`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -637,5 +637,5 @@ b:
 - 2
 c:
   test: 1`
-	assertResult(t, expectedOutput, gotOutput)
+	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
 }

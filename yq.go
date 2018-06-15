@@ -275,13 +275,14 @@ func newYaml(args []string) (interface{}, error) {
 	return dataBucket, nil
 }
 
-type updateDataFn func(dataBucket interface{}, currentIndex int) interface{}
+type updateDataFn func(dataBucket interface{}, currentIndex int) (interface{}, error)
 
 func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderFn {
 	return func(decoder *yaml.Decoder) error {
 		var dataBucket interface{}
 		var errorReading error
 		var errorWriting error
+		var errorUpdating error
 		var currentIndex = 0
 
 		for {
@@ -296,7 +297,10 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 			} else if errorReading != nil {
 				return errors.Wrapf(errorReading, "Error reading document at index %v, %v", currentIndex, errorReading)
 			}
-			dataBucket = updateData(dataBucket, currentIndex)
+			dataBucket, errorUpdating = updateData(dataBucket, currentIndex)
+			if errorUpdating != nil {
+				return errors.Wrapf(errorUpdating, "Error updating document at index %v", currentIndex)
+			}
 
 			errorWriting = encoder.Encode(dataBucket)
 
@@ -313,7 +317,7 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	if writeCommandsError != nil {
 		return writeCommandsError
 	}
-	var updateData = func(dataBucket interface{}, currentIndex int) interface{} {
+	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if currentIndex == docIndex {
 			log.Debugf("Updating doc %v", currentIndex)
 			for _, entry := range writeCommands {
@@ -324,7 +328,7 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 				dataBucket = updatedChildValue(dataBucket, paths, value)
 			}
 		}
-		return dataBucket
+		return dataBucket, nil
 	}
 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
 }
@@ -354,34 +358,18 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
 
-func write(cmd *cobra.Command, filename string, updatedData interface{}) error {
-	if writeInplace {
-		dataStr, err := yamlToString(updatedData)
-		if err != nil {
-			return err
-		}
-		return ioutil.WriteFile(filename, []byte(dataStr), 0644)
-	}
-	dataStr, err := toString(updatedData)
-	if err != nil {
-		return err
-	}
-	cmd.Println(dataStr)
-	return nil
-}
-
 func deleteProperty(cmd *cobra.Command, args []string) error {
 	if len(args) < 2 {
 		return errors.New("Must provide <filename> <path_to_delete>")
 	}
 	var deletePath = args[1]
 	var paths = parsePath(deletePath)
-	var updateData = func(dataBucket interface{}, currentIndex int) interface{} {
+	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if currentIndex == docIndex {
-			log.Debugf("Updating doc %v", currentIndex)
-			return deleteChildValue(dataBucket, paths)
+			log.Debugf("Deleting path in doc %v", currentIndex)
+			return deleteChildValue(dataBucket, paths), nil
 		}
-		return dataBucket
+		return dataBucket, nil
 	}
 
 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
@@ -391,28 +379,32 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 	if len(args) < 2 {
 		return errors.New("Must provide at least 2 yaml files")
 	}
+	var input = args[0]
+	var filesToMerge = args[1:]
 
-	updatedData, err := mergeYaml(args)
-	if err != nil {
-		return err
-	}
-	return write(cmd, args[0], updatedData)
-}
-
-func mergeYaml(args []string) (interface{}, error) {
-	var updatedData map[interface{}]interface{}
-
-	for _, f := range args {
-		var parsedData map[interface{}]interface{}
-		if err := readData(f, 0, &parsedData); err != nil {
-			return nil, err
+	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
+		if currentIndex == docIndex {
+			log.Debugf("Merging doc %v", currentIndex)
+			var mergedData map[interface{}]interface{}
+			if err := merge(&mergedData, dataBucket, overwriteFlag); err != nil {
+				return nil, err
+			}
+			for _, f := range filesToMerge {
+				var fileToMerge interface{}
+				if err := readData(f, 0, &fileToMerge); err != nil {
+					return nil, err
+				}
+				if err := merge(&mergedData, fileToMerge, overwriteFlag); err != nil {
+					return nil, err
+				}
+			}
+			return mergedData, nil
 		}
-		if err := merge(&updatedData, parsedData, overwriteFlag); err != nil {
-			return nil, err
-		}
+		return dataBucket, nil
 	}
-
-	return mapToMapSlice(updatedData), nil
+	yaml.DefaultMapType = reflect.TypeOf(map[interface{}]interface{}{})
+	defer func() { yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{}) }()
+	return readAndUpdate(cmd.OutOrStdout(), input, updateData)
 }
 
 func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) (yaml.MapSlice, error) {

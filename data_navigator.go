@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 
 	"gopkg.in/yaml.v2"
@@ -192,23 +191,6 @@ func calculateValue(value interface{}, tail []string) (interface{}, error) {
 		return recurse(value, tail[0], tail[1:])
 	}
 	return value, nil
-}
-
-func mapToMapSlice(data map[interface{}]interface{}) yaml.MapSlice {
-	var mapSlice yaml.MapSlice
-
-	for k, v := range data {
-		if mv, ok := v.(map[interface{}]interface{}); ok {
-			v = mapToMapSlice(mv)
-		}
-		item := yaml.MapItem{Key: k, Value: v}
-		mapSlice = append(mapSlice, item)
-	}
-
-	// because the parsing of the yaml was done via a map the order will be inconsistent
-	// apply order to allow a consistent output
-	sort.SliceStable(mapSlice, func(i, j int) bool { return mapSlice[i].Key.(string) < mapSlice[j].Key.(string) })
-	return mapSlice
 }
 
 func deleteMap(context interface{}, paths []string) yaml.MapSlice {
