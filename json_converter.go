@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
 func jsonToString(context interface{}) (string, error) {
