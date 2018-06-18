@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/imdario/mergo"
-)
+import "gopkg.in/imdario/mergo.v0"
 
 func merge(dst, src interface{}, overwrite bool) error {
 	if overwrite {

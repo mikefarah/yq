@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	errors "github.com/pkg/errors"
+	"gopkg.in/spf13/cobra.v0"
 
-	logging "github.com/op/go-logging"
-	"github.com/spf13/cobra"
 	yaml "gopkg.in/mikefarah/yaml.v2"
+	logging "gopkg.in/op/go-logging.v1"
 )
 
 var trimOutput = true
