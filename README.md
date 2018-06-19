@@ -81,7 +81,7 @@ Use "yq [command] --help" for more information about a command.
 ## Contribute
 1. `make [local] vendor`
 2. add unit tests
-3. apply changes (ensure that [gopkg](https://gopkg.in/) and govendor is used for package dependencies)
+3. apply changes (use govendor with a preference to [gopkg](https://gopkg.in/) for package dependencies)
 4. `make [local] build`
 5. If required, update the user documentation 
     - Update README.md and/or documentation under the mkdocs folder
