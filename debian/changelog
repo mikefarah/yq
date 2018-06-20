@@ -1,3 +1,9 @@
+yq (2.0-0) bionic; urgency=medium
+
+  * Release 2.0.0
+
+ -- Roberto Mier Escandón <rmescandon@gmail.com>  Wed, 20 Jun 2018 10:29:53 +0200
+
 yq (1.15-0) bionic; urgency=medium
 
   * Release 1.15
