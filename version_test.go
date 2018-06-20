@@ -3,13 +3,18 @@ package main
 import "testing"
 
 func TestGetVersionDisplay(t *testing.T) {
+	var expectedVersion = ProductName + " version " + Version
+	if VersionPrerelease != "" {
+		expectedVersion = expectedVersion + "-" + VersionPrerelease
+	}
+	expectedVersion = expectedVersion + "\n"
 	tests := []struct {
 		name string
 		want string
 	}{
 		{
 			name: "Display Version",
-			want: ProductName + " version " + Version + "-" + VersionPrerelease + "\n",
+			want: expectedVersion,
 		},
 	}
 	for _, tt := range tests {
