@@ -1,4 +1,4 @@
-Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file.
+Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file. Currently this does not support creating multiple documents in a single yaml file.
 
 ```
 yq n <path> <new value>

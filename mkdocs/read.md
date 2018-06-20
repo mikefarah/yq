@@ -43,6 +43,20 @@ will output
 - apples
 ```
 
+### Multiple Documents
+Given a sample.yaml file of:
+```yaml
+something: else
+---
+b:
+  c: 2
+```
+then
+```bash
+yq r -d1 sample.yaml b.c
+```
+will output the value of '2'.
+
 ### Arrays
 You can give an index to access a specific element:
 e.g.: given a sample file of

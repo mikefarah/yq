@@ -1,7 +1,6 @@
 ```
-yq w <yaml_file|json_file> <path> <new value>
+yq w <yaml_file> <path> <new value>
 ```
-{!snippets/works_with_json.md!}
 
 ### To Stdout
 Given a sample.yaml file of:
@@ -68,6 +67,50 @@ b:
 ```
 
 Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
+
+### Multiple Documents - update a single document
+Given a sample.yaml file of:
+```yaml
+something: else
+---
+b:
+  c: 2
+```
+then
+```bash
+yq w -d1 sample.yaml b.c 5
+```
+will output:
+```yaml
+something: else
+---
+b:
+  c: 5
+```
+
+### Multiple Documents - update all documents
+Given a sample.yaml file of:
+```yaml
+something: else
+---
+b:
+  c: 2
+```
+then
+```bash
+yq w -d'*' sample.yaml b.c 5
+```
+will output:
+```yaml
+something: else
+b:
+  c: 5
+---
+b:
+  c: 5
+```
+
+Note that '*' is in quotes to avoid being interpreted by your shell.
 
 ### Updating files in-place
 Given a sample.yaml file of:

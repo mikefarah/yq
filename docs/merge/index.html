@@ -325,6 +325,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#multiple-documents-merge-into-single-document" title="Multiple Documents - merge into single document" class="md-nav__link">
+    Multiple Documents - merge into single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-merge-into-all-documents" title="Multiple Documents - merge into all documents" class="md-nav__link">
+    Multiple Documents - merge into all documents
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -380,6 +394,20 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#multiple-documents-merge-into-single-document" title="Multiple Documents - merge into single document" class="md-nav__link">
+    Multiple Documents - merge into single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-merge-into-all-documents" title="Multiple Documents - merge into all documents" class="md-nav__link">
+    Multiple Documents - merge into all documents
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -401,10 +429,9 @@
                 
                 <p>Yaml files can be merged using the 'merge' command. Each additional file merged with the first file will
 set values for any key not existing already or where the key has no value.</p>
-<pre><code>yq m &lt;yaml_file|json_file&gt; &lt;path&gt;...
+<pre><code>yq m &lt;yaml_file&gt; &lt;path&gt;...
 </code></pre>
 
-<p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
 <h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
 <p>Given a data1.yaml file of:</p>
 <pre><code class="yaml">a: simple
@@ -497,6 +524,54 @@ d: false
 
 <p>Notice that 'b' does not result in the merging of the values within an array. The underlying library does not
 currently handle merging values within an array.</p>
+<h3 id="multiple-documents-merge-into-single-document">Multiple Documents - merge into single document<a class="headerlink" href="#multiple-documents-merge-into-single-document" title="Permanent link">&para;</a></h3>
+<p>Currently yq only has multi-document support for the <em>first</em> document being merged into. The remaining yaml files will have their first document selected.</p>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+a: simple
+b: cat
+</code></pre>
+
+<p>and data3.yaml file of:</p>
+<pre><code class="yaml">b: dog
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq m -x -d1 data1.yaml data3.yaml
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">something: else
+---
+a: simple
+b: dog
+</code></pre>
+
+<h3 id="multiple-documents-merge-into-all-documents">Multiple Documents - merge into all documents<a class="headerlink" href="#multiple-documents-merge-into-all-documents" title="Permanent link">&para;</a></h3>
+<p>Currently yq only has multi-document support for the <em>first</em> document being merged into. The remaining yaml files will have their first document selected.</p>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+a: simple
+b: cat
+</code></pre>
+
+<p>and data3.yaml file of:</p>
+<pre><code class="yaml">b: dog
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq m -x -d'*' data1.yaml data3.yaml
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">b: dog
+something: else
+---
+a: simple
+b: dog
+</code></pre>
                 
                   
                 

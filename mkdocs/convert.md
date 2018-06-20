@@ -1,5 +1,5 @@
 ### Yaml to Json
-To convert output to json, use the --tojson (or -j) flag. This can be used with any command.
+To convert output to json, use the --tojson (or -j) flag. This can only be used with the read command.
 
 Given a sample.yaml file of:
 ```yaml
