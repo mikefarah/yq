@@ -29,10 +29,10 @@ func TestRead(t *testing.T) {
 }
 
 func TestReadMulti(t *testing.T) {
-	docIndex = 1
+	docIndex = "1"
 	result, _ := read([]string{"examples/multiple_docs.yaml", "another.document"})
 	assertResult(t, "here", result)
-	docIndex = 0
+	docIndex = "0"
 }
 
 func TestReadArray(t *testing.T) {

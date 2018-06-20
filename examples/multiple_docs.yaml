@@ -1,3 +1,4 @@
+commonKey: first document
 a: Easy! as one two three
 b:
   c: 2
@@ -8,8 +9,14 @@ b:
     - name: sam
       value: 4
 ---
+commonKey: second document
 another:
   document: here
 ---
+commonKey: third document
 wow: 
   - here is another
+---
+- 1
+- 2
+- 3 

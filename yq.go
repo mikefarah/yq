@@ -24,7 +24,7 @@ var outputToJSON = false
 var overwriteFlag = false
 var verbose = false
 var version = false
-var docIndex = 0
+var docIndex = "0"
 var log = logging.MustGetLogger("yq")
 
 func main() {
@@ -97,7 +97,7 @@ yq r things.yaml a.array[*].blah
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
 	}
-	cmdRead.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
+	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based")
 	return cmdRead
 }
 
@@ -132,7 +132,7 @@ a.b.e:
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
-	cmdWrite.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
+	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdWrite
 }
 
@@ -153,7 +153,7 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 		RunE: deleteProperty,
 	}
 	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
-	cmdDelete.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
+	cmdDelete.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdDelete
 }
 
@@ -200,7 +200,7 @@ If overwrite flag is set then existing values will be overwritten using the valu
 	}
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
-	cmdMerge.PersistentFlags().IntVarP(&docIndex, "doc", "d", 0, "process document index number (0 based)")
+	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
 
@@ -226,7 +226,11 @@ func read(args []string) (interface{}, error) {
 		path = args[1]
 	}
 	var generalData interface{}
-	if err := readData(args[0], docIndex, &generalData); err != nil {
+	var docIndexInt, errorParsingDocumentIndex = strconv.ParseInt(docIndex, 10, 32)
+	if errorParsingDocumentIndex != nil {
+		return nil, errors.Wrapf(errorParsingDocumentIndex, "Document index %v is not a integer", docIndex)
+	}
+	if err := readData(args[0], int(docIndexInt), &generalData); err != nil {
 		return nil, err
 	}
 	if path == "" {
@@ -234,8 +238,7 @@ func read(args []string) (interface{}, error) {
 	}
 
 	var paths = parsePath(path)
-	value, err := recurse(generalData, paths[0], paths[1:])
-	return value, err
+	return recurse(generalData, paths[0], paths[1:])
 }
 
 func newProperty(cmd *cobra.Command, args []string) error {
@@ -276,6 +279,17 @@ func newYaml(args []string) (interface{}, error) {
 	return dataBucket, nil
 }
 
+func parseDocumentIndex() (bool, int, error) {
+	if docIndex == "*" {
+		return true, -1, nil
+	}
+	docIndexInt64, err := strconv.ParseInt(docIndex, 10, 32)
+	if err != nil {
+		return false, -1, errors.Wrapf(err, "Document index %v is not a integer or *", docIndex)
+	}
+	return false, int(docIndexInt64), nil
+}
+
 type updateDataFn func(dataBucket interface{}, currentIndex int) (interface{}, error)
 
 func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderFn {
@@ -286,12 +300,17 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 		var errorUpdating error
 		var currentIndex = 0
 
+		var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+		if errorParsingDocIndex != nil {
+			return errorParsingDocIndex
+		}
+
 		for {
 			log.Debugf("Read doc %v", currentIndex)
 			errorReading = decoder.Decode(&dataBucket)
 
 			if errorReading == io.EOF {
-				if currentIndex < docIndex {
+				if !updateAll && currentIndex < docIndexInt {
 					return fmt.Errorf("Asked to process document %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
@@ -318,8 +337,13 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	if writeCommandsError != nil {
 		return writeCommandsError
 	}
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
+
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-		if currentIndex == docIndex {
+		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Updating doc %v", currentIndex)
 			for _, entry := range writeCommands {
 				path := entry.Key.(string)
@@ -365,8 +389,13 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 	}
 	var deletePath = args[1]
 	var paths = parsePath(deletePath)
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
+
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-		if currentIndex == docIndex {
+		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Deleting path in doc %v", currentIndex)
 			return deleteChildValue(dataBucket, paths), nil
 		}
@@ -382,9 +411,13 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 	}
 	var input = args[0]
 	var filesToMerge = args[1:]
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
 
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-		if currentIndex == docIndex {
+		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Merging doc %v", currentIndex)
 			var mergedData map[interface{}]interface{}
 			if err := merge(&mergedData, dataBucket, overwriteFlag); err != nil {
@@ -520,8 +553,6 @@ func readStream(filename string, yamlDecoder yamlDecoderFn) error {
 
 func readData(filename string, indexToRead int, parsedData interface{}) error {
 	return readStream(filename, func(decoder *yaml.Decoder) error {
-		// naive implementation of document indexing, decodes all the yaml documents
-		// before the docIndex and throws them away.
 		for currentIndex := 0; currentIndex < indexToRead; currentIndex++ {
 			errorSkipping := decoder.Decode(parsedData)
 			if errorSkipping != nil {

@@ -394,6 +394,28 @@ apples: ok
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteMultiAllCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s -d * apples ok", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+apples: ok
+---
+apples: ok`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
 func TestWriteCmd_EmptyArray(t *testing.T) {
 	content := `b: 3`
 	filename := writeTempYamlFile(content)
@@ -569,6 +591,29 @@ func TestDeleteYamlMulti(t *testing.T) {
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestDeleteYamlMultiAllCmd(t *testing.T) {
+	content := `b:
+  c: 3
+apples: great
+---
+apples: great
+something: else
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete %s -d * apples", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+---
+something: else`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
 func TestMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")
@@ -576,6 +621,22 @@ func TestMergeCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: simple
+b:
+- 1
+- 2
+c:
+  test: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeOverwriteCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge --overwrite examples/data1.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: other
 b:
 - 1
 - 2
@@ -601,6 +662,64 @@ c:
 ---
 - 1
 - 2`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
+func TestMergeYamlMultiAllCmd(t *testing.T) {
+	content := `b:
+  c: 3
+apples: green
+---
+something: else`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	mergeContent := `apples: red
+something: good`
+	mergeFilename := writeTempYamlFile(mergeContent)
+	defer removeTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("merge -d* %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `apples: green
+b:
+  c: 3
+something: good
+---
+apples: red
+something: else`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
+func TestMergeYamlMultiAllOverwriteCmd(t *testing.T) {
+	content := `b:
+  c: 3
+apples: green
+---
+something: else`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	mergeContent := `apples: red
+something: good`
+	mergeFilename := writeTempYamlFile(mergeContent)
+	defer removeTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("merge --overwrite -d* %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `apples: red
+b:
+  c: 3
+something: good
+---
+apples: red
+something: good`
 	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
 }
 
