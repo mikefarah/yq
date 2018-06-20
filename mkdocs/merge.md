@@ -2,9 +2,9 @@ Yaml files can be merged using the 'merge' command. Each additional file merged 
 set values for any key not existing already or where the key has no value.
 
 ```
-yq m <yaml_file|json_file> <path>...
+yq m <yaml_file> <path>...
 ```
-{!snippets/works_with_json.md!}
+
 
 ### To Stdout
 Given a data1.yaml file of:
@@ -102,3 +102,56 @@ d: false
 
 Notice that 'b' does not result in the merging of the values within an array. The underlying library does not
 currently handle merging values within an array.
+
+### Multiple Documents - merge into single document
+Currently yq only has multi-document support for the _first_ document being merged into. The remaining yaml files will have their first document selected.
+
+Given a data1.yaml file of:
+```yaml
+something: else
+---
+a: simple
+b: cat
+```
+and data3.yaml file of:
+```yaml
+b: dog
+```
+then
+```bash
+yq m -x -d1 data1.yaml data3.yaml
+```
+will output:
+```yaml
+something: else
+---
+a: simple
+b: dog
+```
+
+### Multiple Documents - merge into all documents
+Currently yq only has multi-document support for the _first_ document being merged into. The remaining yaml files will have their first document selected.
+
+Given a data1.yaml file of:
+```yaml
+something: else
+---
+a: simple
+b: cat
+```
+and data3.yaml file of:
+```yaml
+b: dog
+```
+then
+```bash
+yq m -x -d'*' data1.yaml data3.yaml
+```
+will output:
+```yaml
+b: dog
+something: else
+---
+a: simple
+b: dog
+```

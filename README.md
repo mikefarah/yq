@@ -20,7 +20,7 @@ sudo apt install yq -y
 ```
 or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
 ```
-go get gopkg.in/mikefarah/yq.v1
+go get gopkg.in/mikefarah/yq.v2
 ```
 
 ## Run with Docker
@@ -50,6 +50,7 @@ docker run -it -v ${PWD}:/workdir mikefarah/yq sh
 - Pipe data in by using '-'
 - Merge multiple yaml files where each additional file sets values for missing or null value keys.
 - Merge multiple yaml files with overwrite to support overriding previous values.
+- Supports multiple documents in a single yaml file
 
 ## [Usage](http://mikefarah.github.io/yq/)
 
@@ -61,12 +62,12 @@ Usage:
   yq [command]
 
 Available Commands:
-  delete      yq d [--inplace/-i] sample.yaml a.b.c
+  delete      yq d [--inplace/-i] [--doc/-d document_index] sample.yaml a.b.c
   help        Help about any command
-  merge       yq m [--inplace/-i] [--overwrite/-x] sample.yaml sample2.yaml
+  merge       yq m [--inplace/-i] [--doc/-d document_index] [--overwrite/-x] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValueForC
-  read        yq r sample.yaml a.b.c
-  write       yq w [--inplace/-i] [--script/-s script_file] sample.yaml a.b.c newValueForC
+  read        yq r [--doc/-d document_index] sample.yaml a.b.c
+  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d document_index] sample.yaml a.b.c newValueForC
 
 Flags:
   -h, --help      help for yq

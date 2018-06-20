@@ -290,6 +290,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multiple-documents-delete-from-single-document" title="Multiple Documents - delete from single document" class="md-nav__link">
+    Multiple Documents - delete from single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-delete-from-all-documents" title="Multiple Documents - delete from all documents" class="md-nav__link">
+    Multiple Documents - delete from all documents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
     Keys with dots
   </a>
@@ -388,6 +402,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multiple-documents-delete-from-single-document" title="Multiple Documents - delete from single document" class="md-nav__link">
+    Multiple Documents - delete from single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-delete-from-all-documents" title="Multiple Documents - delete from all documents" class="md-nav__link">
+    Multiple Documents - delete from all documents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
     Keys with dots
   </a>
@@ -413,10 +441,9 @@
                 
                   <h1>Delete</h1>
                 
-                <pre><code>yq d &lt;yaml_file|json_file&gt; &lt;path_to_delete&gt;
+                <pre><code>yq d &lt;yaml_file&gt; &lt;path_to_delete&gt;
 </code></pre>
 
-<p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
 <h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
@@ -469,6 +496,50 @@
 </code></pre>
 
 <p>will update the sample.yaml file so that the 'c' node is deleted</p>
+<h3 id="multiple-documents-delete-from-single-document">Multiple Documents - delete from single document<a class="headerlink" href="#multiple-documents-delete-from-single-document" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">something: else
+field: leaveMe
+---
+b:
+  c: 2
+field: deleteMe
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w -d1 sample.yaml field
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">something: else
+field: leaveMe
+---
+b:
+  c: 2
+</code></pre>
+
+<h3 id="multiple-documents-delete-from-all-documents">Multiple Documents - delete from all documents<a class="headerlink" href="#multiple-documents-delete-from-all-documents" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">something: else
+field: deleteMe
+---
+b:
+  c: 2
+field: deleteMeToo
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w -d'*' sample.yaml field
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">something: else
+---
+b:
+  c: 2
+</code></pre>
+
+<p>Note that '*' is in quotes to avoid being interpreted by your shell.</p>
 <h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
 <p>When specifying a key that has a dot use key lookup indicator.</p>
 <pre><code class="yaml">b:

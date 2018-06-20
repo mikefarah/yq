@@ -278,6 +278,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multiple-documents-update-a-single-document" title="Multiple Documents - update a single document" class="md-nav__link">
+    Multiple Documents - update a single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-update-all-documents" title="Multiple Documents - update all documents" class="md-nav__link">
+    Multiple Documents - update all documents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
     Updating files in-place
   </a>
@@ -409,6 +423,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#multiple-documents-update-a-single-document" title="Multiple Documents - update a single document" class="md-nav__link">
+    Multiple Documents - update a single document
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-documents-update-all-documents" title="Multiple Documents - update all documents" class="md-nav__link">
+    Multiple Documents - update all documents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#updating-files-in-place" title="Updating files in-place" class="md-nav__link">
     Updating files in-place
   </a>
@@ -455,10 +483,9 @@
                 
                   <h1>Write/Update</h1>
                 
-                <pre><code>yq w &lt;yaml_file|json_file&gt; &lt;path&gt; &lt;new value&gt;
+                <pre><code>yq w &lt;yaml_file&gt; &lt;path&gt; &lt;new value&gt;
 </code></pre>
 
-<p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
 <h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
@@ -519,6 +546,47 @@
 </code></pre>
 
 <p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
+<h3 id="multiple-documents-update-a-single-document">Multiple Documents - update a single document<a class="headerlink" href="#multiple-documents-update-a-single-document" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+b:
+  c: 2
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w -d1 sample.yaml b.c 5
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">something: else
+---
+b:
+  c: 5
+</code></pre>
+
+<h3 id="multiple-documents-update-all-documents">Multiple Documents - update all documents<a class="headerlink" href="#multiple-documents-update-all-documents" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+b:
+  c: 2
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w -d'*' sample.yaml b.c 5
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">something: else
+b:
+  c: 5
+---
+b:
+  c: 5
+</code></pre>
+
+<p>Note that '*' is in quotes to avoid being interpreted by your shell.</p>
 <h3 id="updating-files-in-place">Updating files in-place<a class="headerlink" href="#updating-files-in-place" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
