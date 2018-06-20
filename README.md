@@ -62,12 +62,12 @@ Usage:
   yq [command]
 
 Available Commands:
-  delete      yq d [--inplace/-i] [--doc/-d document_index] sample.yaml a.b.c
+  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
   help        Help about any command
-  merge       yq m [--inplace/-i] [--doc/-d document_index] [--overwrite/-x] sample.yaml sample2.yaml
+  merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValueForC
-  read        yq r [--doc/-d document_index] sample.yaml a.b.c
-  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d document_index] sample.yaml a.b.c newValueForC
+  read        yq r [--doc/-d index] sample.yaml a.b.c
+  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValueForC
 
 Flags:
   -h, --help      help for yq
