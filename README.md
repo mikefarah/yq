@@ -71,7 +71,6 @@ Available Commands:
 
 Flags:
   -h, --help      help for yq
-  -j, --tojson    output as json
   -t, --trim      trim yaml output (default true)
   -v, --verbose   verbose mode
   -V, --version   Print version information and quit

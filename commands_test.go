@@ -73,30 +73,6 @@ func TestRootCmd_TrimShort(t *testing.T) {
 	}
 }
 
-func TestRootCmd_ToJsonLong(t *testing.T) {
-	cmd := getRootCommand()
-	result := runCmd(cmd, "--tojson")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-
-	if !outputToJSON {
-		t.Error("Expected outputToJSON to be true")
-	}
-}
-
-func TestRootCmd_ToJsonShort(t *testing.T) {
-	cmd := getRootCommand()
-	result := runCmd(cmd, "-j")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-
-	if !outputToJSON {
-		t.Error("Expected outputToJSON to be true")
-	}
-}
-
 func TestRootCmd_VersionShort(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "-V")
@@ -302,7 +278,16 @@ func TestReadCmd_NoTrim(t *testing.T) {
 
 func TestReadCmd_ToJson(t *testing.T) {
 	cmd := getRootCommand()
-	result := runCmd(cmd, "-j read examples/sample.yaml b.c")
+	result := runCmd(cmd, "read -j examples/sample.yaml b.c")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t, "2\n", result.Output)
+}
+
+func TestReadCmd_ToJsonLong(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read --tojson examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -339,17 +324,6 @@ func TestNewCmd_Verbose(t *testing.T) {
 	}
 	expectedOutput := `b:
   c: 3
-`
-	assertResult(t, expectedOutput, result.Output)
-}
-
-func TestNewCmd_ToJson(t *testing.T) {
-	cmd := getRootCommand()
-	result := runCmd(cmd, "-j new b.c 3")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	expectedOutput := `{"b":{"c":3}}
 `
 	assertResult(t, expectedOutput, result.Output)
 }

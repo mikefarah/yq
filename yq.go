@@ -66,7 +66,6 @@ func newCommandCLI() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
-	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
@@ -86,7 +85,7 @@ func createReadCmd() *cobra.Command {
 	var cmdRead = &cobra.Command{
 		Use:     "read [yaml_file] [path]",
 		Aliases: []string{"r"},
-		Short:   "yq r [--doc/-d document_index] sample.yaml a.b.c",
+		Short:   "yq r [--doc/-d index] sample.yaml a.b.c",
 		Example: `
 yq read things.yaml a.b.c
 yq r - a.b.c (reads from stdin)
@@ -97,7 +96,8 @@ yq r things.yaml a.array[*].blah
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
 	}
-	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based")
+	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number, 0 based")
+	cmdRead.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	return cmdRead
 }
 
@@ -105,7 +105,7 @@ func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
-		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d document_index] sample.yaml a.b.c newValueForC",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValueForC",
 		Example: `
 yq write things.yaml a.b.c cat
 yq write --inplace things.yaml a.b.c cat
@@ -140,7 +140,7 @@ func createDeleteCmd() *cobra.Command {
 	var cmdDelete = &cobra.Command{
 		Use:     "delete [yaml_file] [path]",
 		Aliases: []string{"d"},
-		Short:   "yq d [--inplace/-i] [--doc/-d document_index] sample.yaml a.b.c",
+		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
 		Example: `
 yq delete things.yaml a.b.c
 yq delete --inplace things.yaml a.b.c
@@ -183,7 +183,7 @@ func createMergeCmd() *cobra.Command {
 	var cmdMerge = &cobra.Command{
 		Use:     "merge [initial_yaml_file] [additional_yaml_file]...",
 		Aliases: []string{"m"},
-		Short:   "yq m [--inplace/-i] [--doc/-d document_index] [--overwrite/-x] sample.yaml sample2.yaml",
+		Short:   "yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] sample.yaml sample2.yaml",
 		Example: `
 yq merge things.yaml other.yaml
 yq merge --inplace things.yaml other.yaml
