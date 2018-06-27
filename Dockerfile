@@ -2,9 +2,16 @@ FROM golang:1.9 as builder
 
 WORKDIR /go/src/mikefarah/yq
 
+# cache devtools
+COPY ./scripts/devtools.sh /go/src/mikefarah/yq/scripts/devtools.sh
+RUN ./scripts/devtools.sh
+
+# cache vendor
+COPY ./vendor/vendor.json /go/src/mikefarah/yq/vendor/vendor.json
+RUN govendor sync
+
 COPY . /go/src/mikefarah/yq
 
-RUN scripts/devtools.sh
 RUN CGO_ENABLED=0 make local build
 
 # Choose alpine as a base image to make this useful for CI, as many
