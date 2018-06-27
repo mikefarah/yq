@@ -105,7 +105,7 @@ func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path] [value]",
 		Aliases: []string{"w"},
-		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValueForC",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
 		Example: `
 yq write things.yaml a.b.c cat
 yq write --inplace things.yaml a.b.c cat
@@ -161,7 +161,7 @@ func createNewCmd() *cobra.Command {
 	var cmdNew = &cobra.Command{
 		Use:     "new [path] [value]",
 		Aliases: []string{"n"},
-		Short:   "yq n [--script/-s script_file] a.b.c newValueForC",
+		Short:   "yq n [--script/-s script_file] a.b.c newValue",
 		Example: `
 yq new a.b.c cat
 yq n a.b.c cat

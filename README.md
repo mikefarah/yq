@@ -65,9 +65,9 @@ Available Commands:
   delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
   help        Help about any command
   merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] sample.yaml sample2.yaml
-  new         yq n [--script/-s script_file] a.b.c newValueForC
+  new         yq n [--script/-s script_file] a.b.c newValue
   read        yq r [--doc/-d index] sample.yaml a.b.c
-  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValueForC
+  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue
 
 Flags:
   -h, --help      help for yq
