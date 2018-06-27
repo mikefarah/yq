@@ -509,10 +509,34 @@ func marshalContext(context interface{}) (string, error) {
 }
 
 func safelyRenameFile(from string, to string) {
-	if err := os.Rename(from, to); err != nil {
-		log.Errorf("Error renaming from %v to %v", from, to)
-		log.Error(err.Error())
+	if renameError := os.Rename(from, to); renameError != nil {
+		log.Warningf("Error renaming from %v to %v, attemting to copy contents", from, to)
+		log.Warning(renameError.Error())
+		// can't do this rename when running in docker to a file targeted in a mounted volume,
+		// so gracefully degrade to copying the entire contents.
+		if copyError := copyFileContents(from, to); copyError != nil {
+			log.Errorf("Failed copying from %v to %v", from, to)
+			log.Errorf(copyError.Error())
+		}
 	}
+}
+
+// thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
+func copyFileContents(src, dst string) (err error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer safelyCloseFile(in)
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer safelyCloseFile(out)
+	if _, err = io.Copy(out, in); err != nil {
+		return err
+	}
+	return out.Sync()
 }
 
 func safelyFlush(writer *bufio.Writer) {
