@@ -1,6 +1,6 @@
 - increment version in version.go
 - increment version in snapcraft.yaml
-- tag git with same version number
+- tag git with same version number, be sure to start with 'v' for gopkg.in
 - make sure local build passes
 - push tag to git
 - make local xcompile (builds binaries for all platforms)
