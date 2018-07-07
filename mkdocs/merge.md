@@ -80,7 +80,7 @@ b: [1, 2]
 ```
 and data3.yaml file of:
 ```yaml
-b: [2, 3, 4]
+b: [3, 4]
 c:
   test: 2
   other: true
@@ -93,15 +93,47 @@ yq m -x data1.yaml data3.yaml
 will output:
 ```yaml
 a: simple
-b: [2, 3, 4]
+b: [3, 4]
 c:
   test: 2
   other: true
 d: false
 ```
 
-Notice that 'b' does not result in the merging of the values within an array. The underlying library does not
-currently handle merging values within an array.
+Notice that 'b' does not result in the merging of the values within an array. 
+
+### Append values with arrays
+Given a data1.yaml file of:
+```yaml
+a: simple
+b: [1, 2]
+d: hi
+```
+and data3.yaml file of:
+```yaml
+a: something
+b: [3, 4]
+c:
+  test: 2
+  other: true
+```
+then
+```bash
+yq m -a data1.yaml data3.yaml
+```
+will output:
+```yaml
+a: simple
+b: [1, 2, 3, 4]
+c:
+  test: 2
+  other: true
+d: hi
+```
+
+Note that the 'b' array has concatenated the values from the second data file. Also note that other map keys are not overridden (field a).
+
+Append cannot be used with overwrite, if both flags are given then append is ignored.
 
 ### Multiple Documents - merge into single document
 Currently yq only has multi-document support for the _first_ document being merged into. The remaining yaml files will have their first document selected.

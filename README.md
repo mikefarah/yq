@@ -49,7 +49,8 @@ docker run -it -v ${PWD}:/workdir mikefarah/yq sh
 - Convert from yaml to json
 - Pipe data in by using '-'
 - Merge multiple yaml files where each additional file sets values for missing or null value keys.
-- Merge multiple yaml files with overwrite to support overriding previous values.
+- Merge multiple yaml files and override previous values.
+- Merge multiple yaml files and append array values.
 - Supports multiple documents in a single yaml file
 
 ## [Usage](http://mikefarah.github.io/yq/)
@@ -64,7 +65,7 @@ Usage:
 Available Commands:
   delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
   help        Help about any command
-  merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] sample.yaml sample2.yaml
+  merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValue
   read        yq r [--doc/-d index] sample.yaml a.b.c
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue

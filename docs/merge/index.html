@@ -326,6 +326,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#append-values-with-arrays" title="Append values with arrays" class="md-nav__link">
+    Append values with arrays
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#multiple-documents-merge-into-single-document" title="Multiple Documents - merge into single document" class="md-nav__link">
     Multiple Documents - merge into single document
   </a>
@@ -390,6 +397,13 @@
         <li class="md-nav__item">
   <a href="#overwrite-values-with-arrays" title="Overwrite values with arrays" class="md-nav__link">
     Overwrite values with arrays
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#append-values-with-arrays" title="Append values with arrays" class="md-nav__link">
+    Append values with arrays
   </a>
   
 </li>
@@ -502,7 +516,7 @@ b: [1, 2]
 </code></pre>
 
 <p>and data3.yaml file of:</p>
-<pre><code class="yaml">b: [2, 3, 4]
+<pre><code class="yaml">b: [3, 4]
 c:
   test: 2
   other: true
@@ -515,15 +529,44 @@ d: false
 
 <p>will output:</p>
 <pre><code class="yaml">a: simple
-b: [2, 3, 4]
+b: [3, 4]
 c:
   test: 2
   other: true
 d: false
 </code></pre>
 
-<p>Notice that 'b' does not result in the merging of the values within an array. The underlying library does not
-currently handle merging values within an array.</p>
+<p>Notice that 'b' does not result in the merging of the values within an array. </p>
+<h3 id="append-values-with-arrays">Append values with arrays<a class="headerlink" href="#append-values-with-arrays" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
+d: hi
+</code></pre>
+
+<p>and data3.yaml file of:</p>
+<pre><code class="yaml">a: something
+b: [3, 4]
+c:
+  test: 2
+  other: true
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq m -a data1.yaml data3.yaml
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2, 3, 4]
+c:
+  test: 2
+  other: true
+d: hi
+</code></pre>
+
+<p>Note that the 'b' array has concatenated the values from the second data file. Also note that other map keys are not overridden (field a).</p>
+<p>Append cannot be used with overwrite, if both flags are given then append is ignored.</p>
 <h3 id="multiple-documents-merge-into-single-document">Multiple Documents - merge into single document<a class="headerlink" href="#multiple-documents-merge-into-single-document" title="Permanent link">&para;</a></h3>
 <p>Currently yq only has multi-document support for the <em>first</em> document being merged into. The remaining yaml files will have their first document selected.</p>
 <p>Given a data1.yaml file of:</p>
