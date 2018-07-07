@@ -22,6 +22,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var overwriteFlag = false
+var appendFlag = false
 var verbose = false
 var version = false
 var docIndex = "0"
@@ -183,23 +184,28 @@ func createMergeCmd() *cobra.Command {
 	var cmdMerge = &cobra.Command{
 		Use:     "merge [initial_yaml_file] [additional_yaml_file]...",
 		Aliases: []string{"m"},
-		Short:   "yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] sample.yaml sample2.yaml",
+		Short:   "yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml",
 		Example: `
 yq merge things.yaml other.yaml
 yq merge --inplace things.yaml other.yaml
 yq m -i things.yaml other.yaml
 yq m --overwrite things.yaml other.yaml
 yq m -i -x things.yaml other.yaml
+yq m -i -a things.yaml other.yaml
       `,
 		Long: `Updates the yaml file by adding/updating the path(s) and value(s) from additional yaml file(s).
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
 
 If overwrite flag is set then existing values will be overwritten using the values from each additional yaml file.
+If append flag is set then existing arrays will be merged with the arrays from each additional yaml file.
+
+Note that if you set both flags only overwrite will take effect.
 `,
 		RunE: mergeProperties,
 	}
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
+	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -420,7 +426,11 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Merging doc %v", currentIndex)
 			var mergedData map[interface{}]interface{}
-			if err := merge(&mergedData, dataBucket, overwriteFlag); err != nil {
+			// merge only works for maps, so put everything in a temporary
+			// map
+			var mapDataBucket = make(map[interface{}]interface{})
+			mapDataBucket["root"] = dataBucket
+			if err := merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
 				return nil, err
 			}
 			for _, f := range filesToMerge {
@@ -428,11 +438,12 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 				if err := readData(f, 0, &fileToMerge); err != nil {
 					return nil, err
 				}
-				if err := merge(&mergedData, fileToMerge, overwriteFlag); err != nil {
+				mapDataBucket["root"] = fileToMerge
+				if err := merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
 					return nil, err
 				}
 			}
-			return mergedData, nil
+			return mergedData["root"], nil
 		}
 		return dataBucket, nil
 	}

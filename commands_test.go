@@ -612,10 +612,42 @@ func TestMergeOverwriteCmd(t *testing.T) {
 	}
 	expectedOutput := `a: other
 b:
-- 1
-- 2
+- 3
+- 4
 c:
   test: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeAppendCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge --append examples/data1.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+- 3
+- 4
+c:
+  test: 1
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+func TestMergeArraysCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge --append examples/sample_array.yaml examples/sample_array_2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- 1
+- 2
+- 3
+- 4
+- 5
 `
 	assertResult(t, expectedOutput, result.Output)
 }
@@ -631,6 +663,9 @@ func TestMergeCmd_Multi(t *testing.T) {
 a: other
 another:
   document: here
+b:
+- 3
+- 4
 c:
   test: 1
 ---

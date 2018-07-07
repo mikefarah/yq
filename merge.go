@@ -2,9 +2,11 @@ package main
 
 import "gopkg.in/imdario/mergo.v0"
 
-func merge(dst, src interface{}, overwrite bool) error {
+func merge(dst interface{}, src interface{}, overwrite bool, append bool) error {
 	if overwrite {
-		return mergo.MergeWithOverwrite(dst, src)
+		return mergo.Merge(dst, src, mergo.WithOverride)
+	} else if append {
+		return mergo.Merge(dst, src, mergo.WithAppendSlice)
 	}
 	return mergo.Merge(dst, src)
 }
