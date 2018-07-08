@@ -23,37 +23,6 @@ func TestParseValue(t *testing.T) {
 	}
 }
 
-func TestRead(t *testing.T) {
-	result, _ := read([]string{"examples/sample.yaml", "b.c"})
-	assertResult(t, 2, result)
-}
-
-func TestReadMulti(t *testing.T) {
-	docIndex = "1"
-	result, _ := read([]string{"examples/multiple_docs.yaml", "another.document"})
-	assertResult(t, "here", result)
-	docIndex = "0"
-}
-
-func TestReadArray(t *testing.T) {
-	result, _ := read([]string{"examples/sample_array.yaml", "[1]"})
-	assertResult(t, 2, result)
-}
-
-func TestReadString(t *testing.T) {
-	result, _ := read([]string{"examples/sample_text.yaml"})
-	assertResult(t, "hi", result)
-}
-
-func TestOrder(t *testing.T) {
-	result, _ := read([]string{"examples/order.yaml"})
-	formattedResult, _ := yamlToString(result)
-	assertResult(t,
-		`version: 3
-application: MyApp`,
-		formattedResult)
-}
-
 func TestMultilineString(t *testing.T) {
 	testString := `
 	abcd

@@ -97,7 +97,7 @@ yq r things.yaml a.array[*].blah
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
 	}
-	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number, 0 based")
+	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	return cmdRead
 }
@@ -211,11 +211,57 @@ Note that if you set both flags only overwrite will take effect.
 }
 
 func readProperty(cmd *cobra.Command, args []string) error {
-	data, err := read(args)
-	if err != nil {
-		return err
+	var path = ""
+
+	if len(args) < 1 {
+		return errors.New("Must provide filename")
+	} else if len(args) > 1 {
+		path = args[1]
 	}
-	dataStr, err := toString(data)
+
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
+	var mappedDocs []interface{}
+	var dataBucket interface{}
+	var currentIndex = 0
+	var errorReadingStream = readStream(args[0], func(decoder *yaml.Decoder) error {
+		for {
+			errorReading := decoder.Decode(&dataBucket)
+			if errorReading == io.EOF {
+				log.Debugf("done %v / %v", currentIndex, docIndexInt)
+				if !updateAll && currentIndex <= docIndexInt {
+					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+				}
+				return nil
+			}
+			log.Debugf("processing %v / %v", currentIndex, docIndexInt)
+			if updateAll || currentIndex == docIndexInt {
+				log.Debugf("reading %v in %v", path, currentIndex)
+				mappedDoc, errorParsing := readPath(dataBucket, path)
+				log.Debugf("%v", mappedDoc)
+				if errorParsing != nil {
+					return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
+				}
+				mappedDocs = append(mappedDocs, mappedDoc)
+				log.Debugf("%v", mappedDocs)
+			}
+			currentIndex = currentIndex + 1
+		}
+	})
+
+	if errorReadingStream != nil {
+		return errorReadingStream
+	}
+
+	if !updateAll {
+		dataBucket = mappedDocs[0]
+	} else {
+		dataBucket = mappedDocs
+	}
+
+	dataStr, err := toString(dataBucket)
 	if err != nil {
 		return err
 	}
@@ -223,28 +269,13 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func read(args []string) (interface{}, error) {
-	var path = ""
-
-	if len(args) < 1 {
-		return nil, errors.New("Must provide filename")
-	} else if len(args) > 1 {
-		path = args[1]
-	}
-	var generalData interface{}
-	var docIndexInt, errorParsingDocumentIndex = strconv.ParseInt(docIndex, 10, 32)
-	if errorParsingDocumentIndex != nil {
-		return nil, errors.Wrapf(errorParsingDocumentIndex, "Document index %v is not a integer", docIndex)
-	}
-	if err := readData(args[0], int(docIndexInt), &generalData); err != nil {
-		return nil, err
-	}
+func readPath(dataBucket interface{}, path string) (interface{}, error) {
 	if path == "" {
-		return generalData, nil
+		log.Debug("no path")
+		return dataBucket, nil
 	}
-
 	var paths = parsePath(path)
-	return recurse(generalData, paths[0], paths[1:])
+	return recurse(dataBucket, paths[0], paths[1:])
 }
 
 func newProperty(cmd *cobra.Command, args []string) error {
@@ -316,8 +347,8 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 			errorReading = decoder.Decode(&dataBucket)
 
 			if errorReading == io.EOF {
-				if !updateAll && currentIndex < docIndexInt {
-					return fmt.Errorf("Asked to process document %v but there are only %v document(s)", docIndex, currentIndex)
+				if !updateAll && currentIndex <= docIndexInt {
+					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
 			} else if errorReading != nil {

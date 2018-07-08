@@ -104,6 +104,19 @@ func TestReadCmd(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
+func TestReadOrderCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read examples/order.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t,
+		`version: 3
+application: MyApp
+`,
+		result.Output)
+}
+
 func TestReadMultiCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read -d 1 examples/multiple_docs.yaml another.document")
@@ -111,6 +124,19 @@ func TestReadMultiCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	assertResult(t, "here\n", result.Output)
+}
+
+func TestReadMultiAllCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read -d* examples/multiple_docs.yaml commonKey")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t,
+		`- first document
+- second document
+- third document
+`, result.Output)
 }
 
 func TestReadCmd_ArrayYaml(t *testing.T) {
@@ -192,7 +218,7 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -202,7 +228,7 @@ func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -254,7 +280,7 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Fatal("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
