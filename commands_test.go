@@ -104,13 +104,23 @@ func TestReadCmd(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
-func TestReadBadDocumentIndexCmd(t *testing.T) {
+func TestReadInvalidDocumentIndexCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read -df examples/sample.yaml b.c")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
 	expectedOutput := `Document index f is not a integer or *: strconv.ParseInt: parsing "f": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestReadBadDocumentIndexCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read -d1 examples/sample.yaml b.c")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -403,7 +413,37 @@ apples: ok
 `
 	assertResult(t, expectedOutput, result.Output)
 }
+func TestWriteInvalidDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
 
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s -df apples ok", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Document index f is not a integer or *: strconv.ParseInt: parsing "f": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestWriteBadDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write %s -d 1 apples ok", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
 func TestWriteMultiAllCmd(t *testing.T) {
 	content := `b:
   c: 3
