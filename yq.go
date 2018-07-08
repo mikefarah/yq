@@ -236,16 +236,15 @@ func readProperty(cmd *cobra.Command, args []string) error {
 				}
 				return nil
 			}
-			log.Debugf("processing %v / %v", currentIndex, docIndexInt)
+			log.Debugf("processing %v - requested index %v", currentIndex, docIndexInt)
 			if updateAll || currentIndex == docIndexInt {
-				log.Debugf("reading %v in %v", path, currentIndex)
+				log.Debugf("reading %v in index %v", path, currentIndex)
 				mappedDoc, errorParsing := readPath(dataBucket, path)
 				log.Debugf("%v", mappedDoc)
 				if errorParsing != nil {
 					return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
 				}
 				mappedDocs = append(mappedDocs, mappedDoc)
-				log.Debugf("%v", mappedDocs)
 			}
 			currentIndex = currentIndex + 1
 		}

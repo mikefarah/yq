@@ -104,6 +104,16 @@ func TestReadCmd(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
+func TestReadBadDocumentIndexCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "read -df examples/sample.yaml b.c")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Document index f is not a integer or *: strconv.ParseInt: parsing "f": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
 func TestReadOrderCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "read examples/order.yaml")
