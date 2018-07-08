@@ -43,7 +43,7 @@ will output
 - apples
 ```
 
-### Multiple Documents
+### Multiple Documents - specify a single document
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -56,6 +56,31 @@ then
 yq r -d1 sample.yaml b.c
 ```
 will output the value of '2'.
+
+### Multiple Documents - read all documents
+Reading all documents will return the result as an array. This can be converted to json using the '-j' flag if desired.
+
+Given a sample.yaml file of:
+```yaml
+name: Fred
+age: 22
+---
+name: Stella
+age: 23
+---
+name: Android
+age: 232
+```
+then
+```bash
+yq r -d'*' sample.yaml name
+```
+will output:
+```
+- Fred
+- Stella
+- Android
+```
 
 ### Arrays
 You can give an index to access a specific element:
