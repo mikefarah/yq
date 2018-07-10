@@ -1,4 +1,4 @@
-yq (2.0-1) bionic; urgency=medium
+yq (2.1-0) bionic; urgency=medium
 
   * Ability to read multiple documents in a single file
   * Ability to append list items instead of overwriting
