@@ -1,4 +1,7 @@
-# yq [![Build Status](https://travis-ci.org/mikefarah/yq.svg?branch=master)](https://travis-ci.org/mikefarah/yq)
+# yq [![Build Status](https://travis-ci.org/mikefarah/yq.svg?branch=master)](https://travis-ci.org/mikefarah/yq) 
+[![Docker Automated build](https://img.shields.io/docker/automated/mikefarah/yq.svg)](https://hub.docker.com/r/mikefarah/yq/)
+
+
 a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
