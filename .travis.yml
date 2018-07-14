@@ -1,4 +1,7 @@
 language: go
+os:
+- linux-ppc64le
+- linux
 go:
     - 1.9.x
 script:
