@@ -564,7 +564,7 @@ func safelyRenameFile(from string, to string) {
 
 // thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
 func copyFileContents(src, dst string) (err error) {
-	in, err := os.Open(src)
+	in, err := os.Open(src) // nolint gosec
 	if err != nil {
 		return err
 	}
@@ -606,7 +606,7 @@ func readStream(filename string, yamlDecoder yamlDecoderFn) error {
 	if filename == "-" {
 		stream = bufio.NewReader(os.Stdin)
 	} else {
-		file, err := os.Open(filename)
+		file, err := os.Open(filename) // nolint gosec
 		if err != nil {
 			return err
 		}

@@ -84,12 +84,13 @@ Use "yq [command] --help" for more information about a command.
 ```
 
 ## Contribute
-1. `make [local] vendor`
-2. add unit tests
-3. apply changes (use govendor with a preference to [gopkg](https://gopkg.in/) for package dependencies)
-4. `make [local] build`
-5. If required, update the user documentation 
+1. `scripts/devtools.sh`
+2. `make [local] vendor`
+3. add unit tests
+4. apply changes (use govendor with a preference to [gopkg](https://gopkg.in/) for package dependencies)
+5. `make [local] build`
+6. If required, update the user documentation 
     - Update README.md and/or documentation under the mkdocs folder
     - `make [local] build-docs`
     - browse to docs/index.html and check your changes 
-6. profit
+7. profit

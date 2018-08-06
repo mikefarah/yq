@@ -96,13 +96,11 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	if rawIndex == "+" {
 		index = int64(len(array))
 	} else {
-		index, _ = strconv.ParseInt(rawIndex, 10, 64)
+		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
+		// writeArray is only called by updatedChildValue which handles parsing the
+		// index, as such this renders this dead code.
 	}
-	// writeArray is only called by updatedChildValue which handles parsing the
-	// index, as such this renders this dead code.
-	// if err != nil {
-	// 	return array, fmt.Errorf("Error accessing array: %v", err)
-	// }
+
 	for index >= int64(len(array)) {
 		array = append(array, nil)
 	}
