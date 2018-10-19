@@ -25,6 +25,7 @@ var overwriteFlag = false
 var appendFlag = false
 var verbose = false
 var version = false
+var commentEnable = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
 
@@ -99,6 +100,7 @@ yq r things.yaml a.array[*].blah
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
+	cmdRead.Flags().BoolVarP(&commentEnable, "comment", "C", false, "Load comment enable.")
 	return cmdRead
 }
 
@@ -134,6 +136,7 @@ a.b.e:
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
 	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	cmdWrite.Flags().BoolVarP(&commentEnable, "comment", "C", false, "Load comment enable.")
 	return cmdWrite
 }
 
@@ -155,6 +158,7 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 	}
 	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdDelete.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	cmdDelete.Flags().BoolVarP(&commentEnable, "comment", "C", false, "Load comment enable.")
 	return cmdDelete
 }
 
@@ -223,6 +227,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	if errorParsingDocIndex != nil {
 		return errorParsingDocIndex
 	}
+	yaml.DefaultCommentsEnable = commentEnable
 	var mappedDocs []interface{}
 	var dataBucket interface{}
 	var currentIndex = 0
@@ -377,6 +382,7 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	if errorParsingDocIndex != nil {
 		return errorParsingDocIndex
 	}
+	yaml.DefaultCommentsEnable = commentEnable
 
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if updateAll || currentIndex == docIndexInt {
@@ -429,7 +435,7 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 	if errorParsingDocIndex != nil {
 		return errorParsingDocIndex
 	}
-
+	yaml.DefaultCommentsEnable = commentEnable
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Deleting path in doc %v", currentIndex)

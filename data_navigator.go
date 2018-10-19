@@ -7,6 +7,19 @@ import (
 	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
+func getRealIndex(array []interface{}, index int64) int64 {
+	for i, value := range array {
+		switch value.(type) {
+		case yaml.Comment:
+			index++
+		}
+		if int64(i) == index {
+			break
+		}
+	}
+	return index
+}
+
 func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
 	for idx := range context {
 		var entry = &context[idx]
@@ -99,6 +112,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
 		// writeArray is only called by updatedChildValue which handles parsing the
 		// index, as such this renders this dead code.
+		index = getRealIndex(array, index)
 	}
 
 	for index >= int64(len(array)) {
@@ -164,6 +178,7 @@ func recurse(value interface{}, head string, tail []string) (interface{}, error)
 }
 
 func readArray(array []interface{}, head int64, tail []string) (interface{}, error) {
+	head = getRealIndex(array, head)
 	if head >= int64(len(array)) {
 		return nil, nil
 	}
@@ -249,6 +264,7 @@ func deleteArray(context interface{}, paths []string, index int64) interface{} {
 		return context
 	}
 
+	index = getRealIndex(array, index)
 	if index >= int64(len(array)) {
 		return array
 	}
