@@ -847,7 +847,10 @@ c:
 
 func TestMergeCmd_Inplace(t *testing.T) {
 	filename := writeTempYamlFile(readTempYamlFile("examples/data1.yaml"))
-	os.Chmod(filename, os.FileMode(int(0666)))
+	err := os.Chmod(filename, os.FileMode(int(0666)))
+	if err != nil {
+		t.Error(err)
+	}
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
