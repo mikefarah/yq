@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
@@ -600,7 +601,7 @@ b:
 func TestDeleteYamlArray(t *testing.T) {
 	content := `- 1
 - 2
-- 3	
+- 3
 `
 	filename := writeTempYamlFile(content)
 	defer removeTempYamlFile(filename)
@@ -846,6 +847,7 @@ c:
 
 func TestMergeCmd_Inplace(t *testing.T) {
 	filename := writeTempYamlFile(readTempYamlFile("examples/data1.yaml"))
+	os.Chmod(filename, os.FileMode(int(0666)))
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
@@ -853,6 +855,7 @@ func TestMergeCmd_Inplace(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
+	info, _ := os.Stat(filename)
 	gotOutput := readTempYamlFile(filename)
 	expectedOutput := `a: simple
 b:
@@ -861,4 +864,5 @@ b:
 c:
   test: 1`
 	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
+	assertResult(t, os.FileMode(int(0666)), info.Mode())
 }

@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	errors "github.com/pkg/errors"
-	"gopkg.in/spf13/cobra.v0"
 
 	yaml "gopkg.in/mikefarah/yaml.v2"
 	logging "gopkg.in/op/go-logging.v1"
+	cobra "gopkg.in/spf13/cobra.v0"
 )
 
 var trimOutput = true
@@ -398,7 +398,15 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 	var destination io.Writer
 	var destinationName string
 	if writeInplace {
-		var tempFile, err = ioutil.TempFile("", "temp")
+		info, err := os.Stat(inputFile)
+		if err != nil {
+			return err
+		}
+		tempFile, err := ioutil.TempFile("", "temp")
+		if err != nil {
+			return err
+		}
+		err = tempFile.Chmod(info.Mode())
 		if err != nil {
 			return err
 		}
