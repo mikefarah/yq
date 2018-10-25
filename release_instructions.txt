@@ -25,6 +25,7 @@
 
 - docker
   - build and push latest and new version tag
+  - docker build .  --arg -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
 
 - debian package
   - execute 
