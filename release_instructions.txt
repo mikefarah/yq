@@ -17,11 +17,11 @@
   sudo snap remove yq
   sudo snap install --edge yq
   
-  then on the mac snapcraft release yq <snap_build_number> stable
+  then use the UI (https://snapcraft.io/yq/release)
 
 
 - brew
-  - create pull request pointing to latest git release
+  - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.1.2.tar.gz yq
 
 - docker
   - build and push latest and new version tag
