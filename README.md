@@ -49,6 +49,7 @@ docker run -it -v ${PWD}:/workdir mikefarah/yq sh
 - Update creates any missing entries in the path on the fly
 - Create a yaml file given a deep path and value
 - Create a yaml file given a script file
+- Prefix a path to a yaml file
 - Convert from json to yaml
 - Convert from yaml to json
 - Pipe data in by using '-'
@@ -73,6 +74,7 @@ Available Commands:
   new         yq n [--script/-s script_file] a.b.c newValue
   read        yq r [--doc/-d index] sample.yaml a.b.c
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue
+  prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
 
 Flags:
   -h, --help      help for yq
