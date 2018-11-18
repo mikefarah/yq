@@ -36,7 +36,7 @@
     
     
       
-        <title>Write/Update - Yq</title>
+        <title>Prefix - Yq</title>
       
     
     
@@ -117,7 +117,7 @@
                 Yq
               </span>
               <span class="md-header-nav__topic">
-                Write/Update
+                Prefix
               </span>
             
           
@@ -256,6 +256,18 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../write/" title="Write/Update" class="md-nav__link">
+      Write/Update
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -265,11 +277,11 @@
     
     
       <label class="md-nav__link md-nav__link--active" for="__toc">
-        Write/Update
+        Prefix
       </label>
     
-    <a href="./" title="Write/Update" class="md-nav__link md-nav__link--active">
-      Write/Update
+    <a href="./" title="Prefix" class="md-nav__link md-nav__link--active">
+      Prefix
     </a>
     
       
@@ -288,36 +300,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-stdin" title="From STDIN" class="md-nav__link">
-    From STDIN
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-new-fields" title="Adding new fields" class="md-nav__link">
-    Adding new fields
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
-    Appending value to an array field
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-update-a-single-document" title="Multiple Documents - update a single document" class="md-nav__link">
-    Multiple Documents - update a single document
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-update-all-documents" title="Multiple Documents - update all documents" class="md-nav__link">
-    Multiple Documents - update all documents
+  <a href="#arbitrary-depth" title="Arbitrary depth" class="md-nav__link">
+    Arbitrary depth
   </a>
   
 </li>
@@ -330,22 +314,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#updating-multiple-values-with-a-script" title="Updating multiple values with a script" class="md-nav__link">
-    Updating multiple values with a script
+  <a href="#multiple-documents-prefix-a-single-document" title="Multiple Documents - prefix a single document" class="md-nav__link">
+    Multiple Documents - prefix a single document
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#values-starting-with-a-hyphen-or-dash" title="Values starting with a hyphen (or dash)" class="md-nav__link">
-    Values starting with a hyphen (or dash)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
+  <a href="#multiple-documents-prefix-all-documents" title="Multiple Documents - prefix all documents" class="md-nav__link">
+    Multiple Documents - prefix all documents
   </a>
   
 </li>
@@ -358,18 +335,6 @@
   
 </nav>
     
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../prefix/" title="Prefix" class="md-nav__link">
-      Prefix
-    </a>
   </li>
 
     
@@ -447,36 +412,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-stdin" title="From STDIN" class="md-nav__link">
-    From STDIN
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-new-fields" title="Adding new fields" class="md-nav__link">
-    Adding new fields
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
-    Appending value to an array field
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-update-a-single-document" title="Multiple Documents - update a single document" class="md-nav__link">
-    Multiple Documents - update a single document
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-update-all-documents" title="Multiple Documents - update all documents" class="md-nav__link">
-    Multiple Documents - update all documents
+  <a href="#arbitrary-depth" title="Arbitrary depth" class="md-nav__link">
+    Arbitrary depth
   </a>
   
 </li>
@@ -489,22 +426,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#updating-multiple-values-with-a-script" title="Updating multiple values with a script" class="md-nav__link">
-    Updating multiple values with a script
+  <a href="#multiple-documents-prefix-a-single-document" title="Multiple Documents - prefix a single document" class="md-nav__link">
+    Multiple Documents - prefix a single document
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#values-starting-with-a-hyphen-or-dash" title="Values starting with a hyphen (or dash)" class="md-nav__link">
-    Values starting with a hyphen (or dash)
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
+  <a href="#multiple-documents-prefix-all-documents" title="Multiple Documents - prefix all documents" class="md-nav__link">
+    Multiple Documents - prefix all documents
   </a>
   
 </li>
@@ -525,178 +455,100 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/mikefarah/yq/edit/master/docs/write.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/mikefarah/yq/edit/master/docs/prefix.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>Write/Update</h1>
+                  <h1>Prefix</h1>
                 
-                <pre><code>yq w &lt;yaml_file&gt; &lt;path&gt; &lt;new value&gt;
+                <p>Paths can be prefixed using the 'prefix' command.
+The complete yaml content will be nested inside the new prefix path.</p>
+<pre><code>yq p &lt;yaml_file&gt; &lt;path&gt;
 </code></pre>
 
 <h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yq w sample.yaml b.c cat
+<pre><code class="bash">yq p data1.yaml c
 </code></pre>
 
 <p>will output:</p>
-<pre><code class="yaml">b:
-  c: cat
+<pre><code class="yaml">c:
+  a: simple
+  b: [1, 2]
 </code></pre>
 
-<h3 id="from-stdin">From STDIN<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
-<pre><code class="bash">cat sample.yaml | yq w - b.c blah
-</code></pre>
-
-<h3 id="adding-new-fields">Adding new fields<a class="headerlink" href="#adding-new-fields" title="Permanent link">&para;</a></h3>
-<p>Any missing fields in the path will be created on the fly.</p>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
+<h3 id="arbitrary-depth">Arbitrary depth<a class="headerlink" href="#arbitrary-depth" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a:
+  b: [1, 2]
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yq w sample.yaml b.d[0] &quot;new thing&quot;
+<pre><code class="bash">yq p data1.yaml c.d
 </code></pre>
 
 <p>will output:</p>
-<pre><code class="yaml">b:
-  c: cat
+<pre><code class="yaml">c:
   d:
-    - new thing
+    a:
+      b: [1, 2]
 </code></pre>
 
-<h3 id="appending-value-to-an-array-field">Appending value to an array field<a class="headerlink" href="#appending-value-to-an-array-field" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
-  d:
-    - new thing
-    - foo thing
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq w sample.yaml &quot;b.d[+]&quot; &quot;bar thing&quot;
-</code></pre>
-
-<p>will output:</p>
-<pre><code class="yaml">b:
-  c: cat
-  d:
-    - new thing
-    - foo thing
-    - bar thing
-</code></pre>
-
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
-<h3 id="multiple-documents-update-a-single-document">Multiple Documents - update a single document<a class="headerlink" href="#multiple-documents-update-a-single-document" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">something: else
----
-b:
-  c: 2
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq w -d1 sample.yaml b.c 5
-</code></pre>
-
-<p>will output:</p>
-<pre><code class="yaml">something: else
----
-b:
-  c: 5
-</code></pre>
-
-<h3 id="multiple-documents-update-all-documents">Multiple Documents - update all documents<a class="headerlink" href="#multiple-documents-update-all-documents" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">something: else
----
-b:
-  c: 2
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq w -d'*' sample.yaml b.c 5
-</code></pre>
-
-<p>will output:</p>
-<pre><code class="yaml">something: else
-b:
-  c: 5
----
-b:
-  c: 5
-</code></pre>
-
-<p>Note that '*' is in quotes to avoid being interpreted by your shell.</p>
 <h3 id="updating-files-in-place">Updating files in-place<a class="headerlink" href="#updating-files-in-place" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">a: simple
+b: [1, 2]
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yq w -i sample.yaml b.c cat
+<pre><code class="bash">yq p -i data1.yaml c
 </code></pre>
 
-<p>will update the sample.yaml file so that the value of 'c' is cat.</p>
-<h3 id="updating-multiple-values-with-a-script">Updating multiple values with a script<a class="headerlink" href="#updating-multiple-values-with-a-script" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
-  e:
-    - name: Billy Bob
-</code></pre>
-
-<p>and a script update_instructions.yaml of:</p>
-<pre><code class="yaml">b.c: 3
-b.e[0].name: Howdy Partner
+<p>will update the data1.yaml file so that the path 'c' is prefixed to all other paths.</p>
+<h3 id="multiple-documents-prefix-a-single-document">Multiple Documents - prefix a single document<a class="headerlink" href="#multiple-documents-prefix-a-single-document" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+a: simple
+b: cat
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yq w -s update_instructions.yaml sample.yaml
+<pre><code class="bash">yq p -d1 data1.yaml c
 </code></pre>
 
 <p>will output:</p>
-<pre><code class="yaml">b:
-  c: 3
-  e:
-    - name: Howdy Partner
+<pre><code class="yaml">something: else
+---
+c:
+  a: simple
+  b: cat
 </code></pre>
 
-<p>And, of course, you can pipe the instructions in using '-':</p>
-<pre><code class="bash">cat update_instructions.yaml | yq w -s - sample.yaml
+<h3 id="multiple-documents-prefix-all-documents">Multiple Documents - prefix all documents<a class="headerlink" href="#multiple-documents-prefix-all-documents" title="Permanent link">&para;</a></h3>
+<p>Given a data1.yaml file of:</p>
+<pre><code class="yaml">something: else
+---
+a: simple
+b: cat
 </code></pre>
 
-<h3 id="values-starting-with-a-hyphen-or-dash">Values starting with a hyphen (or dash)<a class="headerlink" href="#values-starting-with-a-hyphen-or-dash" title="Permanent link">&para;</a></h3>
-<p>The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:</p>
-<pre><code>yq w -- my.path -3
+<p>then</p>
+<pre><code class="bash">yq p -d'*' data1.yaml c
 </code></pre>
 
-<p>will output</p>
-<pre><code class="yaml">my:
-  path: -3
+<p>will output:</p>
+<pre><code class="yaml">c:
+  something: else
+---
+c:
+  a: simple
+  b: cat
 </code></pre>
-
-<h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
-<p>When specifying a key that has a dot use key lookup indicator.</p>
-<pre><code class="yaml">b:
-  foo.bar: 7
-</code></pre>
-
-<pre><code class="bash">yaml r sample.yaml 'b[foo.bar]'
-</code></pre>
-
-<pre><code class="bash">yaml w sample.yaml 'b[foo.bar]' 9
-</code></pre>
-
-<p>Any valid yaml key can be specified as part of a key lookup.</p>
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
                 
                   
                 
@@ -717,7 +569,7 @@ b.e[0].name: Howdy Partner
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../read/" title="Read" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../write/" title="Write/Update" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -726,19 +578,19 @@ b.e[0].name: Howdy Partner
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Read
+                Write/Update
               </span>
             </div>
           </a>
         
         
-          <a href="../prefix/" title="Prefix" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../delete/" title="Delete" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Prefix
+                Delete
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

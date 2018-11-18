@@ -52,7 +52,7 @@ yq p -i data1.yaml c
 ```
 will update the data1.yaml file so that the path 'c' is prefixed to all other paths.
 
-### Multiple Documents - update a single document
+### Multiple Documents - prefix a single document
 Given a data1.yaml file of:
 ```yaml
 something: else
@@ -73,7 +73,7 @@ c:
   b: cat
 ```
 
-### Multiple Documents - update a single document
+### Multiple Documents - prefix all documents
 Given a data1.yaml file of:
 ```yaml
 something: else
