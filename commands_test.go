@@ -341,6 +341,180 @@ func TestReadCmd_ToJsonLong(t *testing.T) {
 	assertResult(t, "2\n", result.Output)
 }
 
+func TestPrefixCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  b:
+    c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixCmd_MultiLayer(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s d.e.f", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  e:
+    f:
+      b:
+        c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixMultiCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d 1 d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+---
+d:
+  apples: great
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+func TestPrefixInvalidDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -df d", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Document index f is not a integer or *: strconv.ParseInt: parsing "f": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixBadDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d 1 d", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+func TestPrefixMultiAllCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d * d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  b:
+    c: 3
+---
+d:
+  apples: great`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
+func TestPrefixCmd_Error(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "prefix")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Must provide <filename> <prefixed_path>`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixCmd_ErrorUnreadableFile(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "prefix fake-unknown a.b")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to unknown file")
+	}
+	expectedOutput := `open fake-unknown: no such file or directory`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixCmd_Verbose(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("-v prefix %s x", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `x:
+  b:
+    c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixCmd_Inplace(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix -i %s d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	gotOutput := readTempYamlFile(filename)
+	expectedOutput := `d:
+  b:
+    c: 3`
+	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
+}
+
 func TestNewCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := runCmd(cmd, "new b.c 3")
