@@ -73,6 +73,7 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.AddCommand(
 		createReadCmd(),
 		createWriteCmd(),
+		createPrefixCmd(),
 		createDeleteCmd(),
 		createNewCmd(),
 		createMergeCmd(),
@@ -133,6 +134,28 @@ a.b.e:
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	return cmdWrite
+}
+
+func createPrefixCmd() *cobra.Command {
+	var cmdWrite = &cobra.Command{
+		Use:     "prefix [yaml_file] [path]",
+		Aliases: []string{"p"},
+		Short:   "yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
+		Example: `
+yq prefix things.yaml a.b.c
+yq prefix --inplace things.yaml a.b.c
+yq p -i things.yaml a.b.c
+yq p --doc 2 things.yaml a.b.d
+yq p -d2 things.yaml a.b.d
+      `,
+		Long: `Prefixes w.r.t to the yaml file at the given path.
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+`,
+		RunE: prefixProperty,
+	}
+	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdWrite
 }
@@ -388,6 +411,40 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 				var paths = parsePath(path)
 				dataBucket = updatedChildValue(dataBucket, paths, value)
 			}
+		}
+		return dataBucket, nil
+	}
+	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
+}
+
+func prefixProperty(cmd *cobra.Command, args []string) error {
+	if len(args) != 2 {
+		return errors.New("Must provide <filename> <prefixed_path>")
+	}
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
+
+	var paths = parsePath(args[1])
+
+	// Inverse order
+	for i := len(paths)/2 - 1; i >= 0; i-- {
+		opp := len(paths) - 1 - i
+		paths[i], paths[opp] = paths[opp], paths[i]
+	}
+
+	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
+
+		if updateAll || currentIndex == docIndexInt {
+			log.Debugf("Prefixing %v to doc %v", paths, currentIndex)
+			var mapDataBucket = dataBucket
+			for _, key := range paths {
+				nestedBucket := make(map[string]interface{})
+				nestedBucket[key] = mapDataBucket
+				mapDataBucket = nestedBucket
+			}
+			return mapDataBucket, nil
 		}
 		return dataBucket, nil
 	}
