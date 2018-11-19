@@ -1,10 +1,10 @@
 - increment version in version.go
 - increment version in snapcraft.yaml
 - tag git with same version number
-  - dont tag with 'v' for release this can break peoples things?
   - be sure to also tag with 'v' for gopkg.in
 - make sure local build passes
 - push tag to git
+  - git push --tags
 - make local xcompile (builds binaries for all platforms)
 
 - git release
