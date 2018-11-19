@@ -360,6 +360,26 @@ func TestPrefixCmd(t *testing.T) {
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestPrefixCmdArray(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s [0].d.[1]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- d:
+  - null
+  - b:
+      c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestPrefixCmd_MultiLayer(t *testing.T) {
 	content := `b:
   c: 3

@@ -440,9 +440,8 @@ func prefixProperty(cmd *cobra.Command, args []string) error {
 			log.Debugf("Prefixing %v to doc %v", paths, currentIndex)
 			var mapDataBucket = dataBucket
 			for _, key := range paths {
-				nestedBucket := make(map[string]interface{})
-				nestedBucket[key] = mapDataBucket
-				mapDataBucket = nestedBucket
+				singlePath := []string{key}
+				mapDataBucket = updatedChildValue(nil, singlePath, mapDataBucket)
 			}
 			return mapDataBucket, nil
 		}
