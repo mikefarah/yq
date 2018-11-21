@@ -21,11 +21,11 @@
 
 
 - brew
-  - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.1.2.tar.gz yq
+  - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.2.0.tar.gz yq
 
 - docker
   - build and push latest and new version tag
-  - docker build .  --arg -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
+  - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
 
 - debian package
   - execute 
