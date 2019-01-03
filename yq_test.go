@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 )
 
@@ -64,6 +65,11 @@ func TestNewYaml_WithUnknownScript(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, err.Error())
 }
