@@ -462,11 +462,11 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 		if err != nil {
 			return err
 		}
-		err = tempFile.Chmod(info.Mode())
+		destinationName = tempFile.Name()
+		err = os.Chmod(destinationName, info.Mode())
 		if err != nil {
 			return err
 		}
-		destinationName = tempFile.Name()
 		destination = tempFile
 		defer func() {
 			safelyCloseFile(tempFile)

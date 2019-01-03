@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -279,7 +280,12 @@ func TestReadCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -493,7 +499,12 @@ func TestPrefixCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -693,7 +704,12 @@ func TestWriteCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -1019,7 +1035,12 @@ func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `Error updating document at index 0: open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `Error updating document at index 0: open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `Error updating document at index 0: open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
