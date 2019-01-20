@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"gopkg.in/spf13/cobra.v0"
+	cobra "gopkg.in/spf13/cobra.v0"
 )
 
 func getRootCommand() *cobra.Command {
@@ -122,7 +122,7 @@ func TestReadBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -240,7 +240,7 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -250,7 +250,7 @@ func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -307,7 +307,7 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Fatal("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -457,7 +457,7 @@ func TestPrefixBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 func TestPrefixMultiAllCmd(t *testing.T) {
@@ -647,7 +647,7 @@ func TestWriteBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 func TestWriteMultiAllCmd(t *testing.T) {

@@ -92,7 +92,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 
@@ -112,7 +112,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 
@@ -132,7 +132,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 

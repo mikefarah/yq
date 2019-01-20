@@ -17,16 +17,16 @@ func jsonToString(context interface{}) (string, error) {
 }
 
 func toJSON(context interface{}) interface{} {
-	switch context.(type) {
+	switch context := context.(type) {
 	case []interface{}:
-		oldArray := context.([]interface{})
+		oldArray := context
 		newArray := make([]interface{}, len(oldArray))
 		for index, value := range oldArray {
 			newArray[index] = toJSON(value)
 		}
 		return newArray
 	case yaml.MapSlice:
-		oldMap := context.(yaml.MapSlice)
+		oldMap := context
 		newMap := make(map[string]interface{})
 		for _, entry := range oldMap {
 			if str, ok := entry.Key.(string); ok {

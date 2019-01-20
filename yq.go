@@ -255,7 +255,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 			if errorReading == io.EOF {
 				log.Debugf("done %v / %v", currentIndex, docIndexInt)
 				if !updateAll && currentIndex <= docIndexInt {
-					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
 			}
@@ -370,7 +370,7 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 
 			if errorReading == io.EOF {
 				if !updateAll && currentIndex <= docIndexInt {
-					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
 			} else if errorReading != nil {
@@ -589,9 +589,9 @@ func toString(context interface{}) (string, error) {
 }
 
 func yamlToString(context interface{}) (string, error) {
-	switch context.(type) {
+	switch context := context.(type) {
 	case string:
-		return context.(string), nil
+		return context, nil
 	default:
 		return marshalContext(context)
 	}

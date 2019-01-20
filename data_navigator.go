@@ -19,9 +19,9 @@ func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
 
 func getMapSlice(context interface{}) yaml.MapSlice {
 	var mapSlice yaml.MapSlice
-	switch context.(type) {
+	switch context := context.(type) {
 	case yaml.MapSlice:
-		mapSlice = context.(yaml.MapSlice)
+		mapSlice = context
 	default:
 		mapSlice = make(yaml.MapSlice, 0)
 	}
@@ -29,9 +29,9 @@ func getMapSlice(context interface{}) yaml.MapSlice {
 }
 
 func getArray(context interface{}) (array []interface{}, ok bool) {
-	switch context.(type) {
+	switch context := context.(type) {
 	case []interface{}:
-		array = context.([]interface{})
+		array = context
 		ok = true
 	default:
 		array = make([]interface{}, 0)
@@ -146,18 +146,18 @@ func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
 }
 
 func recurse(value interface{}, head string, tail []string) (interface{}, error) {
-	switch value.(type) {
+	switch value := value.(type) {
 	case []interface{}:
 		if head == "*" {
-			return readArraySplat(value.([]interface{}), tail)
+			return readArraySplat(value, tail)
 		}
 		index, err := strconv.ParseInt(head, 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Error accessing array: %v", err)
+			return nil, fmt.Errorf("error accessing array: %v", err)
 		}
-		return readArray(value.([]interface{}), index, tail)
+		return readArray(value, index, tail)
 	case yaml.MapSlice:
-		return readMap(value.(yaml.MapSlice), head, tail)
+		return readMap(value, head, tail)
 	default:
 		return nil, nil
 	}
