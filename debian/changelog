@@ -1,3 +1,15 @@
+yq (2.2-1) bionic; urgency=medium
+
+  * Added Windows support for the "--inplace" command flag
+  * Prefix now supports arrays
+  * Add prefix command
+  * Bump Alpine version to 3.8
+  * Improved docker build process
+  * Lint fixes
+  * Build support for all linux architectures supported by gox
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Sat, 19 Jan 2019 15:50:47 +0100
+
 yq (2.1-0) bionic; urgency=medium
 
   * Ability to read multiple documents in a single file
