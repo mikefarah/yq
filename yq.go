@@ -22,6 +22,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var overwriteFlag = false
+var allowEmptyFlag = false
 var appendFlag = false
 var verbose = false
 var version = false
@@ -229,6 +230,7 @@ Note that if you set both flags only overwrite will take effect.
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
+	cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -530,6 +532,9 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			for _, f := range filesToMerge {
 				var fileToMerge interface{}
 				if err := readData(f, 0, &fileToMerge); err != nil {
+					if allowEmptyFlag && err == io.EOF {
+						continue
+					}
 					return nil, err
 				}
 				mapDataBucket["root"] = fileToMerge
