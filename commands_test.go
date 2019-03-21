@@ -1084,3 +1084,17 @@ c:
 	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
 	assertResult(t, os.FileMode(int(0666)), info.Mode())
 }
+
+func TestMergeAllowEmptyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge --allow-empty examples/data1.yaml examples/empty.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+`
+	assertResult(t, expectedOutput, result.Output)
+}
