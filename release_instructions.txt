@@ -23,6 +23,9 @@
 
 - brew
   - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.2.0.tar.gz yq
+  - if that fails with random ruby errors try:
+    - clearing out the gems rm -rf .gem/ruby/2.3.0
+    - export HOMEBREW_FORCE_VENDOR_RUBY=1
 
 - docker
   - build and push latest and new version tag

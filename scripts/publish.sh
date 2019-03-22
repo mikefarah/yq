@@ -10,6 +10,7 @@ REPO="yq"
 release() {
     github-release release \
         --user "$OWNER" \
+        --draft \
         --repo "$REPO" \
         --tag "$CURRENT"
 }
