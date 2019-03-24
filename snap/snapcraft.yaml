@@ -5,7 +5,7 @@ description: |
   The aim of the project is to be the jq or sed of yaml files.
 
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
-confinement: strict
+confinement: classic
 
 apps:
   yq:
