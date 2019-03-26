@@ -56,5 +56,5 @@ install -p -m 755 gopath/src/github.com/%{git_org}/%{name}/%{name} %{buildroot}%
 %{_bindir}/%{name}
 
 %changelog
-* Mon Mar 25 2019 Bradford Dabbs <brad@perched.io>
+* Mon Mar 25 2019 Bradford Dabbs <brad@perched.io> 2.3.0-1
  - Initial creation of spec file
