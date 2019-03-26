@@ -8,21 +8,40 @@ a lightweight and portable command-line YAML processor
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
 ## Install
-On MacOS:
+### On MacOS:
 ```
 brew install yq
 ```
-On Ubuntu and other Linux distros supporting `snap` packages:
+### On Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
 ```
-On Ubuntu 16.04 or higher from Debian package:
+
+#### Snap notes
+`yq` installs with with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
+
+```
+sudo cat /etc/myfile | yq -r - somecommand
+```
+
+And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
+```
+sudo cat /etc/myfile | yq -r - somecommand | sudo sponge /etc/myfile
+```
+or write to a temporary file:
+```
+sudo cat /etc/myfile | yq -r - somecommand | sudo tee /etc/myfile.tmp
+sudo mv /etc/myfile.tmp /etc/myfile
+rm /etc/myfile.tmp
+```
+
+### On Ubuntu 16.04 or higher from Debian package:
 ```
 sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 ```
-or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
+### or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
 ```
 go get gopkg.in/mikefarah/yq.v2
 ```
