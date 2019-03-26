@@ -12,7 +12,8 @@ License:        MIT
 URL:            https://github.com/%{git_org}/%{name}
 Source0:        https://github.com/%{git_org}/%{name}/archive/%{version}.tar.gz
 
-BuildRequires:  golang rsync
+BuildRequires:  golang
+BuildRequires:  rsync
 
 %description
 yq is a lightweight and portable command-line YAML processor.
@@ -49,6 +50,8 @@ install -p -m 755 gopath/src/github.com/%{git_org}/%{name}/%{name} %{buildroot}%
 
 %files
 %doc README.md LICENSE
+
+%license LICENSE
 
 %{_bindir}/%{name}
 
