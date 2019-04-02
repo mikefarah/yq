@@ -7,6 +7,12 @@ a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
+## Build from source using Go Modules
+
+    git clone https://github.com/mikefarah/yq
+    cd yq
+    go install
+
 ## Install
 ### On MacOS:
 ```
