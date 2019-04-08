@@ -1,8 +1,10 @@
+github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/pkg/errors v0.0.0-20180311214515-816c9085562c h1:F5RoIh7F9wB47PvXvpP1+Ihq1TkyC8iRdvwfKkESEZQ=
 github.com/pkg/errors v0.0.0-20180311214515-816c9085562c/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2 h1:OAuq3yHhRwcm/kwCSAqf07pUm/EcLZYNz1ket+Bm0SI=
 github.com/spf13/pflag v0.0.0-20180601132542-3ebe029320b2/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/imdario/mergo.v0 v0.3.5 h1:6zCW0jXZVCCwo8R3Eluvn0KrFnr9xHtIAzuY6liXhnQ=
 gopkg.in/imdario/mergo.v0 v0.3.5/go.mod h1:9qPP6AGrlC1G2PTNXko614FwGZvorN7MiBU0Eppok+U=
@@ -10,4 +12,5 @@ gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473 h1:6D+BvnJ/j6e222UW
 gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473/go.mod h1:N1eN2tsCx0Ydtgjl4cqmbRCsY4/+z4cYDeqwZTk6zog=
 gopkg.in/spf13/cobra.v0 v0.0.3 h1:4c7bx2ptqKWgvtpMlxQ3+Sz2TGQJRFta6NPbsBoPWiI=
 gopkg.in/spf13/cobra.v0 v0.0.3/go.mod h1:0uH3dBExZsLMtmAYkOADzQjN8NgzRpuVELthkMsoEKs=
+gopkg.in/yaml.v2 v2.2.2 h1:ZCJp+EgiOT7lHqUV2J862kp8Qj64Jo6az82+3Td9dZw=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=

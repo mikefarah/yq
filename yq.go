@@ -12,7 +12,7 @@ import (
 
 	errors "github.com/pkg/errors"
 
-	yaml "gopkg.in/mikefarah/yaml.v2"
+	yaml "github.com/mikefarah/yaml"
 	logging "gopkg.in/op/go-logging.v1"
 	cobra "gopkg.in/spf13/cobra.v0"
 )
