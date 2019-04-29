@@ -41,4 +41,4 @@ You can also pipe the instructions in:
 cat create_instructions.yaml | yq n -s -
 ```
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

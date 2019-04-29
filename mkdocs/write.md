@@ -169,4 +169,4 @@ my:
   path: -3
 ```
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

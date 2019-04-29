@@ -122,4 +122,4 @@ will output:
 ```
 Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

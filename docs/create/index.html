@@ -2,7 +2,7 @@
 
 
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="no-js">
   <head>
     
@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.1.0">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.2.0">
     
     
       
@@ -40,12 +40,12 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.11e41852.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.750b69bd.css">
       
       
     
     
-      <script src="../assets/javascripts/modernizr.20ef595d.js"></script>
+      <script src="../assets/javascripts/modernizr.74668098.js"></script>
     
     
       
@@ -56,6 +56,9 @@
     
     <link rel="stylesheet" href="../assets/fonts/material-icons.css">
     
+    
+    
+      
     
     
   </head>
@@ -112,22 +115,19 @@
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
-            
-              <span class="md-header-nav__topic">
-                Yq
-              </span>
-              <span class="md-header-nav__topic">
-                Create
-              </span>
-            
+            <span class="md-header-nav__topic">
+              Yq
+            </span>
+            <span class="md-header-nav__topic">
+              Create
+            </span>
           
         </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
           
-            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
-            
 <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
@@ -150,7 +150,6 @@
     </div>
   </div>
 </div>
-          
         
       </div>
       
@@ -161,20 +160,18 @@
 
   
 
-
-  <a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
-    
-      <div class="md-source__icon">
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#__github" width="24" height="24"></use>
-        </svg>
-      </div>
-    
-    <div class="md-source__repository">
-      mikefarah/yq
+<a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
     </div>
-  </a>
-
+  
+  <div class="md-source__repository">
+    mikefarah/yq
+  </div>
+</a>
           </div>
         </div>
       
@@ -210,20 +207,18 @@
 
   
 
-
-  <a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
-    
-      <div class="md-source__icon">
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#__github" width="24" height="24"></use>
-        </svg>
-      </div>
-    
-    <div class="md-source__repository">
-      mikefarah/yq
+<a href="https://github.com/mikefarah/yq/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
     </div>
-  </a>
-
+  
+  <div class="md-source__repository">
+    mikefarah/yq
+  </div>
+</a>
     </div>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -337,6 +332,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
+    Keys (and values) with leading dashes
+  </a>
+  
+</li>
+      
       
       
       
@@ -411,6 +413,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
+    Keys (and values) with leading dashes
+  </a>
+  
+</li>
+      
       
       
       
@@ -481,6 +490,15 @@ b.e[0].name: Howdy Partner
 
 <p>Any valid yaml key can be specified as part of a key lookup.</p>
 <p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
+<h3 id="keys-and-values-with-leading-dashes">Keys (and values) with leading dashes<a class="headerlink" href="#keys-and-values-with-leading-dashes" title="Permanent link">&para;</a></h3>
+<p>If a key or value has leading dashes, yq won't know that you are passing a value as opposed to a flag (and you will get a 'bad flag syntax' error).</p>
+<p>To fix that, you will need to tell it to stop processing flags by adding '--' after the last flag like so:</p>
+<pre><code class="bash">yq n -t -- --key --value
+</code></pre>
+
+<p>Will result in</p>
+<p><code>`
+--key: --value</code></p>
                 
                   
                 
@@ -544,7 +562,6 @@ b.e[0].name: Howdy Partner
           Material for MkDocs</a>
       </div>
       
-        
   <div class="md-footer-social">
     <link rel="stylesheet" href="../assets/fonts/font-awesome.css">
     
@@ -554,19 +571,15 @@ b.e[0].name: Howdy Partner
     
   </div>
 
-      
     </div>
   </div>
 </footer>
       
     </div>
     
-      <script src="../assets/javascripts/application.9e1f3b71.js"></script>
+      <script src="../assets/javascripts/application.39abc4af.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:".."}})</script>
-      
-    
-    
       
     
   </body>

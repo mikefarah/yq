@@ -107,4 +107,4 @@ b:
 
 Note that '*' is in quotes to avoid being interpreted by your shell.
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

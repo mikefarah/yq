@@ -95,6 +95,7 @@ yq r - a.b.c (reads from stdin)
 yq r things.yaml a.*.c
 yq r -d1 things.yaml a.array[0].blah
 yq r things.yaml a.array[*].blah
+yq r -- things.yaml --key-starting-with-dashes
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
@@ -111,7 +112,7 @@ func createWriteCmd() *cobra.Command {
 		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
 		Example: `
 yq write things.yaml a.b.c cat
-yq write --inplace things.yaml a.b.c cat
+yq write --inplace -- things.yaml a.b.c --cat
 yq w -i things.yaml a.b.c cat
 yq w --script update_script.yaml things.yaml
 yq w -i -s update_script.yaml things.yaml
@@ -147,6 +148,7 @@ func createPrefixCmd() *cobra.Command {
 		Example: `
 yq prefix things.yaml a.b.c
 yq prefix --inplace things.yaml a.b.c
+yq prefix --inplace -- things.yaml --key-starting-with-dash
 yq p -i things.yaml a.b.c
 yq p --doc 2 things.yaml a.b.d
 yq p -d2 things.yaml a.b.d
@@ -169,6 +171,7 @@ func createDeleteCmd() *cobra.Command {
 		Example: `
 yq delete things.yaml a.b.c
 yq delete --inplace things.yaml a.b.c
+yq delete --inplace -- things.yaml --key-starting-with-dash
 yq d -i things.yaml a.b.c
 yq d things.yaml a.b.c
 	`,
@@ -190,6 +193,7 @@ func createNewCmd() *cobra.Command {
 		Example: `
 yq new a.b.c cat
 yq n a.b.c cat
+yq n -- --key-starting-with-dash cat
 yq n --script create_script.yaml
       `,
 		Long: `Creates a new yaml w.r.t the given path and value.
