@@ -18,6 +18,15 @@ b:
 	assertResult(t, 2, got)
 }
 
+func TestReadMap_numberKey(t *testing.T) {
+	var data = parseData(`
+---
+200: things
+`)
+	got, _ := readMap(data, "200", []string{})
+	assertResult(t, "things", got)
+}
+
 func TestReadMap_splat(t *testing.T) {
 	var data = parseData(`
 ---

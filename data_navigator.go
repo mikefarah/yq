@@ -10,7 +10,7 @@ import (
 func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
 	for idx := range context {
 		var entry = &context[idx]
-		if entry.Key == key {
+		if fmt.Sprintf("%v", entry.Key) == key {
 			return entry
 		}
 	}
@@ -115,6 +115,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 }
 
 func readMap(context yaml.MapSlice, head string, tail []string) (interface{}, error) {
+	log.Debugf("readingMap %v with key %v\n", context, head)
 	if head == "*" {
 		return readMapSplat(context, tail)
 	}
