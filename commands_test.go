@@ -786,6 +786,26 @@ b:
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteCmd_SplatArray(t *testing.T) {
+	content := `b:
+- c: thing
+- c: another thing
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b[*].c new", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+- c: new
+- c: new
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteYaml(t *testing.T) {
 	content := `a: 2
 b:

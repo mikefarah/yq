@@ -73,14 +73,14 @@ func updatedChildValue(child interface{}, remainingPaths []string, value interfa
 	log.Debugf("updatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
 	log.Debugf("type of child is %v", reflect.TypeOf(child))
 	_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-
+	arrayCommand := nextIndexErr == nil || remainingPaths[0] == "+" || remainingPaths[0] == "*"
 	switch child := child.(type) {
 	case nil:
-		if nextIndexErr == nil || remainingPaths[0] == "+" { // || remainingPaths[0] == "*"
+		if arrayCommand {
 			return writeArray(child, remainingPaths, value)
 		}
 	case []interface{}:
-		if nextIndexErr == nil || remainingPaths[0] == "+" { // || remainingPaths[0] == "*"
+		if arrayCommand {
 			return writeArray(child, remainingPaths, value)
 		}
 	}
@@ -98,10 +98,16 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 	log.Debugf("\tarray %v\n", array)
 
 	rawIndex := paths[0]
+	remainingPaths := paths[1:]
 	var index int64
 	// the append array indicator
 	if rawIndex == "+" {
 		index = int64(len(array))
+	} else if rawIndex == "*" {
+		for index, oldChild := range array {
+			array[index] = updatedChildValue(oldChild, remainingPaths, value)
+		}
+		return array
 	} else {
 		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
 		// writeArray is only called by updatedChildValue which handles parsing the
@@ -115,7 +121,6 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 
 	log.Debugf("\tcurrentChild %v\n", currentChild)
 
-	remainingPaths := paths[1:]
 	array[index] = updatedChildValue(currentChild, remainingPaths, value)
 	log.Debugf("\tReturning array %v\n", array)
 	return array
