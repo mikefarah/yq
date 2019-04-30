@@ -775,7 +775,7 @@ func TestWriteCmd_AppendEmptyArray(t *testing.T) {
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := runCmd(cmd, fmt.Sprintf("write %s b[+] v", filename))
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b[+] v", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}

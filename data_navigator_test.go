@@ -253,11 +253,11 @@ b:
 
 func TestWrite_new_array_deep(t *testing.T) {
 	var data = parseData(`
-b:
-  c: 2
+a: apple
 `)
 
-	var expected = `b:
+	var expected = `a: apple
+b:
 - c: "4"`
 
 	updated := writeMap(data, []string{"b", "0", "c"}, "4")

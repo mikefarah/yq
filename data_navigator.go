@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 
 	yaml "gopkg.in/mikefarah/yaml.v2"
@@ -41,7 +42,7 @@ func getArray(context interface{}) (array []interface{}, ok bool) {
 }
 
 func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSlice {
-	log.Debugf("writeMap for %v for %v with value %v\n", paths, context, value)
+	log.Debugf("writeMap with path %v for %v to set value %v\n", paths, context, value)
 
 	mapSlice := getMapSlice(context)
 
@@ -69,19 +70,25 @@ func updatedChildValue(child interface{}, remainingPaths []string, value interfa
 	if len(remainingPaths) == 0 {
 		return value
 	}
-
+	log.Debugf("updatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
+	log.Debugf("type of child is %v", reflect.TypeOf(child))
 	_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-	if nextIndexErr != nil && remainingPaths[0] != "+" {
-		// must be a map
-		return writeMap(child, remainingPaths, value)
-	}
 
-	// must be an array
-	return writeArray(child, remainingPaths, value)
+	switch child := child.(type) {
+	case nil:
+		if nextIndexErr == nil || remainingPaths[0] == "+" { // || remainingPaths[0] == "*"
+			return writeArray(child, remainingPaths, value)
+		}
+	case []interface{}:
+		if nextIndexErr == nil || remainingPaths[0] == "+" { // || remainingPaths[0] == "*"
+			return writeArray(child, remainingPaths, value)
+		}
+	}
+	return writeMap(child, remainingPaths, value)
 }
 
 func writeArray(context interface{}, paths []string, value interface{}) []interface{} {
-	log.Debugf("writeArray for %v for %v with value %v\n", paths, context, value)
+	log.Debugf("writeArray with path %v for %v to set value %v\n", paths, context, value)
 	array, _ := getArray(context)
 
 	if len(paths) == 0 {
