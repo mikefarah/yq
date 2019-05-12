@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"testing"
-
-	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
 func TestReadMap_simple(t *testing.T) {
@@ -189,8 +187,7 @@ func TestWrite_really_simple(t *testing.T) {
 `)
 
 	updated := writeMap(data, []string{"b"}, "4")
-	b := entryInSlice(updated, "b").Value
-	assertResult(t, "4", b)
+	assertResult(t, "[{b 4}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_simple(t *testing.T) {
@@ -200,9 +197,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "c"}, "4")
-	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
-	c := entryInSlice(b, "c").Value
-	assertResult(t, "4", c)
+	assertResult(t, "[{b [{c 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new(t *testing.T) {
@@ -212,9 +207,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d"}, "4")
-	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
-	d := entryInSlice(b, "d").Value
-	assertResult(t, "4", d)
+	assertResult(t, "[{b [{c 2} {d 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_deep(t *testing.T) {
@@ -224,8 +217,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d", "f"}, "4")
-	got, _ := readMap(updated, "b", []string{"d", "f"})
-	assertResult(t, "4", got)
+	assertResult(t, "[{b [{c 2} {d [{f 4}]}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_array(t *testing.T) {
@@ -236,8 +228,7 @@ b:
 
 	updated := writeMap(data, []string{"b", "0"}, "bb")
 
-	b := entryInSlice(updated, "b").Value.([]interface{})
-	assertResult(t, "bb", b[0].(string))
+	assertResult(t, "[{b [bb]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_array(t *testing.T) {
@@ -247,8 +238,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "0"}, "4")
-	got, _ := readMap(updated, "b", []string{"0"})
-	assertResult(t, "4", got)
+	assertResult(t, "[{b [{c 2} {0 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_array_deep(t *testing.T) {
@@ -270,10 +260,14 @@ func TestWrite_new_map_array_deep(t *testing.T) {
 b:
   c: 2
 `)
+	var expected = `b:
+  c: 2
+  d:
+  - "4"`
 
 	updated := writeMap(data, []string{"b", "d", "0"}, "4")
-	got, _ := readMap(updated, "b", []string{"d", "0"})
-	assertResult(t, "4", got)
+	got, _ := yamlToString(updated)
+	assertResult(t, expected, got)
 }
 
 func TestWrite_add_to_array(t *testing.T) {
@@ -298,8 +292,7 @@ b:
 `)
 	updated := writeMap(data, []string{"b"}, "4")
 
-	b := entryInSlice(updated, "b").Value
-	assertResult(t, "4", fmt.Sprintf("%v", b))
+	assertResult(t, "[{b 4}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWriteMap_no_paths(t *testing.T) {

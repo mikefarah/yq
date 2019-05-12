@@ -8,14 +8,15 @@ import (
 	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
-func entryInSlice(context yaml.MapSlice, key interface{}) *yaml.MapItem {
+func entriesInSlice(context yaml.MapSlice, key interface{}) []*yaml.MapItem {
+	var matches = make([]*yaml.MapItem, 0)
 	for idx := range context {
 		var entry = &context[idx]
-		if fmt.Sprintf("%v", entry.Key) == key {
-			return entry
+		if key == "*" || fmt.Sprintf("%v", entry.Key) == key {
+			matches = append(matches, entry)
 		}
 	}
-	return nil
+	return matches
 }
 
 func getMapSlice(context interface{}) yaml.MapSlice {
@@ -41,27 +42,33 @@ func getArray(context interface{}) (array []interface{}, ok bool) {
 	return
 }
 
-func writeMap(context interface{}, paths []string, value interface{}) yaml.MapSlice {
+func writeMap(context interface{}, paths []string, value interface{}) interface{} {
 	log.Debugf("writeMap with path %v for %v to set value %v\n", paths, context, value)
 
 	mapSlice := getMapSlice(context)
 
 	if len(paths) == 0 {
-		return mapSlice
+		return context
 	}
 
-	child := entryInSlice(mapSlice, paths[0])
-	if child == nil {
+	children := entriesInSlice(mapSlice, paths[0])
+
+	if len(children) == 0 && paths[0] == "*" {
+		log.Debugf("\tNo matches, return map as is")
+		return context
+	}
+
+	if len(children) == 0 {
 		newChild := yaml.MapItem{Key: paths[0]}
 		mapSlice = append(mapSlice, newChild)
-		child = entryInSlice(mapSlice, paths[0])
+		children = entriesInSlice(mapSlice, paths[0])
 		log.Debugf("\tAppended child at %v for mapSlice %v\n", paths[0], mapSlice)
 	}
 
-	log.Debugf("\tchild.Value %v\n", child.Value)
-
 	remainingPaths := paths[1:]
-	child.Value = updatedChildValue(child.Value, remainingPaths, value)
+	for _, child := range children {
+		child.Value = updatedChildValue(child.Value, remainingPaths, value)
+	}
 	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
 	return mapSlice
 }
@@ -131,13 +138,24 @@ func readMap(context yaml.MapSlice, head string, tail []string) (interface{}, er
 	if head == "*" {
 		return readMapSplat(context, tail)
 	}
-	var value interface{}
 
-	entry := entryInSlice(context, head)
-	if entry != nil {
-		value = entry.Value
+	entries := entriesInSlice(context, head)
+	if len(entries) == 1 {
+		return calculateValue(entries[0].Value, tail)
+	} else if len(entries) == 0 {
+		return nil, nil
 	}
-	return calculateValue(value, tail)
+	var errInIdx error
+	values := make([]interface{}, len(entries))
+	for idx, entry := range entries {
+		values[idx], errInIdx = calculateValue(entry.Value, tail)
+		if errInIdx != nil {
+			log.Errorf("Error updating index %v in %v", idx, context)
+			return nil, errInIdx
+		}
+
+	}
+	return values, nil
 }
 
 func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
