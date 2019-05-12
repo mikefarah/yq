@@ -4,15 +4,25 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
-func entriesInSlice(context yaml.MapSlice, key interface{}) []*yaml.MapItem {
+func matchesKey(key string, actual interface{}) bool {
+	var actualString = fmt.Sprintf("%v", actual)
+	var prefixMatch = strings.TrimSuffix(key, "*")
+	if prefixMatch != key {
+		return strings.HasPrefix(actualString, prefixMatch)
+	}
+	return actualString == key
+}
+
+func entriesInSlice(context yaml.MapSlice, key string) []*yaml.MapItem {
 	var matches = make([]*yaml.MapItem, 0)
 	for idx := range context {
 		var entry = &context[idx]
-		if key == "*" || fmt.Sprintf("%v", entry.Key) == key {
+		if matchesKey(key, entry.Key) {
 			matches = append(matches, entry)
 		}
 	}

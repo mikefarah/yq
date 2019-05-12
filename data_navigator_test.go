@@ -31,12 +31,22 @@ func TestReadMap_splat(t *testing.T) {
 mapSplat:
   item1: things
   item2: whatever
+  otherThing: cat
 `)
 	res, _ := readMap(data, "mapSplat", []string{"*"})
-	result := res.([]interface{})
-	var actual = []string{result[0].(string), result[1].(string)}
-	sort.Strings(actual)
-	assertResult(t, "[things whatever]", fmt.Sprintf("%v", actual))
+	assertResult(t, "[things whatever cat]", fmt.Sprintf("%v", res))
+}
+
+func TestReadMap_prefixSplat(t *testing.T) {
+	var data = parseData(`
+---
+mapSplat:
+  item1: things
+  item2: whatever
+  otherThing: cat
+`)
+	res, _ := readMap(data, "mapSplat", []string{"item*"})
+	assertResult(t, "[things whatever]", fmt.Sprintf("%v", res))
 }
 
 func TestReadMap_deep_splat(t *testing.T) {

@@ -1,1 +1,14 @@
-b: dog
+deep1:
+   hostA:
+      value: 1234
+   notRelevant:
+      value: bananas
+   hostB:
+      value: 5678
+deep2:
+   hostC:
+      value: 1234
+   notRelevant:
+      value: bananas
+   hostD:
+      value: 5678
