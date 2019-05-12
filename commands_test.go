@@ -868,6 +868,70 @@ b:
 	assertResult(t, expectedOutput, result.Output)
 }
 
+func TestDeleteSplatYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+    d: something else
+  there:
+    d: more something else
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteSplatPrefixYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.there*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+    c: things
+    d: something else
+  there:
+    d: more something else
+  there2:
+    d: more something else also
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteYamlArray(t *testing.T) {
 	content := `- 1
 - 2

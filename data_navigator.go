@@ -241,20 +241,20 @@ func deleteMap(context interface{}, paths []string) yaml.MapSlice {
 		return mapSlice
 	}
 
-	var found bool
 	var index int
 	var child yaml.MapItem
 	for index, child = range mapSlice {
-		if child.Key == paths[0] {
-			found = true
-			break
+		if matchesKey(paths[0], child.Key) {
+			log.Debugf("\tMatched [%v] with [%v] at index %v", paths[0], child.Key, index)
+			mapSlice = deleteEntryInMap(mapSlice, child, index, paths)
 		}
 	}
 
-	if !found {
-		return mapSlice
-	}
+	return mapSlice
 
+}
+
+func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, paths []string) yaml.MapSlice {
 	remainingPaths := paths[1:]
 
 	var newSlice yaml.MapSlice
@@ -262,9 +262,9 @@ func deleteMap(context interface{}, paths []string) yaml.MapSlice {
 		newChild := yaml.MapItem{Key: child.Key}
 		newChild.Value = deleteChildValue(child.Value, remainingPaths)
 
-		newSlice = make(yaml.MapSlice, len(mapSlice))
-		for i := range mapSlice {
-			item := mapSlice[i]
+		newSlice = make(yaml.MapSlice, len(original))
+		for i := range original {
+			item := original[i]
 			if i == index {
 				item = newChild
 			}
@@ -272,12 +272,11 @@ func deleteMap(context interface{}, paths []string) yaml.MapSlice {
 		}
 	} else {
 		// Delete item from slice at index
-		newSlice = append(mapSlice[:index], mapSlice[index+1:]...)
-		log.Debugf("\tDeleted item index %d from mapSlice", index)
+		newSlice = append(original[:index], original[index+1:]...)
+		log.Debugf("\tDeleted item index %d from original", index)
 	}
 
-	log.Debugf("\t\tlen: %d\tcap: %d\tslice: %v", len(mapSlice), cap(mapSlice), mapSlice)
-	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
+	log.Debugf("\tReturning original %v\n", original)
 	return newSlice
 }
 
