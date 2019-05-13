@@ -43,6 +43,62 @@ b:
     - new thing
 ```
 
+### Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob.*.cats meow
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: meow
+```
+
+### Prefix Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob.item*.cats meow
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: oranges
+```
+
 ### Appending value to an array field
 Given a sample.yaml file of:
 ```yaml
