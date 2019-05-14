@@ -1,4 +1,4 @@
-# yq 
+# yq
 
 [![Build Status](https://travis-ci.org/mikefarah/yq.svg?branch=master)](https://travis-ci.org/mikefarah/yq)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg)
 
@@ -82,6 +82,8 @@ docker run -it -v ${PWD}:/workdir mikefarah/yq sh
 Check out the [documentation](http://mikefarah.github.io/yq/) for more detailed and advanced usage.
 
 ```
+yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.
+
 Usage:
   yq [flags]
   yq [command]
@@ -91,9 +93,9 @@ Available Commands:
   help        Help about any command
   merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValue
+  prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
   read        yq r [--doc/-d index] sample.yaml a.b.c
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue
-  prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
 
 Flags:
   -h, --help      help for yq
@@ -110,8 +112,8 @@ Use "yq [command] --help" for more information about a command.
 3. add unit tests
 4. apply changes (use govendor with a preference to [gopkg](https://gopkg.in/) for package dependencies)
 5. `make [local] build`
-6. If required, update the user documentation 
+6. If required, update the user documentation
     - Update README.md and/or documentation under the mkdocs folder
     - `make [local] build-docs`
-    - browse to docs/index.html and check your changes 
+    - browse to docs/index.html and check your changes
 7. profit

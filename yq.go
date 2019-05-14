@@ -40,7 +40,9 @@ func main() {
 func newCommandCLI() *cobra.Command {
 	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
-		Use: "yq",
+		Use:   "yq",
+		Short: "yq is a lightweight and portable command-line YAML processor.",
+		Long:  `yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if version {
 				cmd.Print(GetVersionDisplay())
