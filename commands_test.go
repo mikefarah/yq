@@ -24,7 +24,18 @@ func TestRootCmd(t *testing.T) {
 	if !strings.Contains(result.Output, "Usage:") {
 		t.Error("Expected usage message to be printed out, but the usage message was not found.")
 	}
+}
 
+func TestRootCmd_Help(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "--help")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	if !strings.Contains(result.Output, "yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.") {
+		t.Error("Expected usage message to be printed out, but the usage message was not found.")
+	}
 }
 
 func TestRootCmd_VerboseLong(t *testing.T) {
@@ -906,9 +917,9 @@ func TestDeleteSplatArrayYaml(t *testing.T) {
 	content := `a: 2
 b:
  hi:
-  - thing: item1 
+  - thing: item1
     name: fred
-  - thing: item2 
+  - thing: item2
     name: sam
 `
 	filename := writeTempYamlFile(content)
