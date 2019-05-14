@@ -232,13 +232,13 @@ func calculateValue(value interface{}, tail []string) (interface{}, error) {
 	return value, nil
 }
 
-func deleteMap(context interface{}, paths []string) yaml.MapSlice {
+func deleteMap(context interface{}, paths []string) (yaml.MapSlice, error) {
 	log.Debugf("deleteMap for %v for %v\n", paths, context)
 
 	mapSlice := getMapSlice(context)
 
 	if len(paths) == 0 {
-		return mapSlice
+		return mapSlice, nil
 	}
 
 	var index int
@@ -246,21 +246,29 @@ func deleteMap(context interface{}, paths []string) yaml.MapSlice {
 	for index, child = range mapSlice {
 		if matchesKey(paths[0], child.Key) {
 			log.Debugf("\tMatched [%v] with [%v] at index %v", paths[0], child.Key, index)
-			mapSlice = deleteEntryInMap(mapSlice, child, index, paths)
+			var badDelete error
+			mapSlice, badDelete = deleteEntryInMap(mapSlice, child, index, paths)
+			if badDelete != nil {
+				return nil, badDelete
+			}
 		}
 	}
 
-	return mapSlice
+	return mapSlice, nil
 
 }
 
-func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, paths []string) yaml.MapSlice {
+func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, paths []string) (yaml.MapSlice, error) {
 	remainingPaths := paths[1:]
 
 	var newSlice yaml.MapSlice
 	if len(remainingPaths) > 0 {
 		newChild := yaml.MapItem{Key: child.Key}
-		newChild.Value = deleteChildValue(child.Value, remainingPaths)
+		var errorDeleting error
+		newChild.Value, errorDeleting = deleteChildValue(child.Value, remainingPaths)
+		if errorDeleting != nil {
+			return nil, errorDeleting
+		}
 
 		newSlice = make(yaml.MapSlice, len(original))
 		for i := range original {
@@ -277,26 +285,38 @@ func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, pat
 	}
 
 	log.Debugf("\tReturning original %v\n", original)
-	return newSlice
+	return newSlice, nil
 }
 
-func deleteArray(context interface{}, paths []string, index int64) interface{} {
-	log.Debugf("deleteArray for %v for %v\n", paths, context)
-
-	array, ok := getArray(context)
-	if !ok {
-		// did not get an array
-		return context
+func deleteArraySplat(array []interface{}, tail []string) (interface{}, error) {
+	log.Debugf("deleteArraySplat for %v for %v\n", tail, array)
+	var newArray = make([]interface{}, len(array))
+	for index, value := range array {
+		val, err := deleteChildValue(value, tail)
+		if err != nil {
+			return nil, err
+		}
+		newArray[index] = val
 	}
+	return newArray, nil
+}
+
+func deleteArray(array []interface{}, paths []string, index int64) (interface{}, error) {
+	log.Debugf("deleteArray for %v for %v\n", paths, array)
 
 	if index >= int64(len(array)) {
-		return array
+		return array, nil
 	}
 
 	remainingPaths := paths[1:]
 	if len(remainingPaths) > 0 {
 		// Recurse into the array element at index
-		array[index] = deleteMap(array[index], remainingPaths)
+		var errorDeleting error
+		array[index], errorDeleting = deleteMap(array[index], remainingPaths)
+		if errorDeleting != nil {
+			return nil, errorDeleting
+		}
+
 	} else {
 		// Delete the array element at index
 		array = append(array[:index], array[index+1:]...)
@@ -304,19 +324,25 @@ func deleteArray(context interface{}, paths []string, index int64) interface{} {
 	}
 
 	log.Debugf("\tReturning array: %v\n", array)
-	return array
+	return array, nil
 }
 
-func deleteChildValue(child interface{}, remainingPaths []string) interface{} {
+func deleteChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
 	log.Debugf("deleteChildValue for %v for %v\n", remainingPaths, child)
-
-	idx, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-	if nextIndexErr != nil {
-		// must be a map
-		log.Debugf("\tdetected a map, invoking deleteMap\n")
+	var head = remainingPaths[0]
+	var tail = remainingPaths[1:]
+	switch child := child.(type) {
+	case yaml.MapSlice:
 		return deleteMap(child, remainingPaths)
+	case []interface{}:
+		if head == "*" {
+			return deleteArraySplat(child, tail)
+		}
+		index, err := strconv.ParseInt(head, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("error accessing array: %v", err)
+		}
+		return deleteArray(child, remainingPaths, index)
 	}
-
-	log.Debugf("\tdetected an array, so traversing element with index %d\n", idx)
-	return deleteArray(child, remainingPaths, idx)
+	return child, nil
 }

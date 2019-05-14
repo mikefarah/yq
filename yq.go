@@ -503,7 +503,7 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Deleting path in doc %v", currentIndex)
-			return deleteChildValue(dataBucket, paths), nil
+			return deleteChildValue(dataBucket, paths)
 		}
 		return dataBucket, nil
 	}

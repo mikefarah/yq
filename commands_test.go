@@ -874,6 +874,9 @@ b:
  hi:
    c: things
    d: something else
+ hello:
+   c: things2
+   d: something else2
  there:
    c: more things
    d: more something else
@@ -891,8 +894,37 @@ b:
 b:
   hi:
     d: something else
+  hello:
+    d: something else2
   there:
     d: more something else
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteSplatArrayYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+  - thing: item1 
+    name: fred
+  - thing: item2 
+    name: sam
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.hi[*].thing", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+  - name: fred
+  - name: sam
 `
 	assertResult(t, expectedOutput, result.Output)
 }

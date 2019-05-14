@@ -330,7 +330,7 @@ b: 456
 b: 456
 `)
 
-	result := deleteMap(data, []string{"a"})
+	result, _ := deleteMap(data, []string{"a"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }
 
@@ -339,7 +339,7 @@ func TestDelete_index_to_string(t *testing.T) {
 	var data = parseData(`
 a: mystring
 `)
-	result := deleteMap(data, []string{"a", "0"})
+	result, _ := deleteMap(data, []string{"a", "0"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -350,7 +350,7 @@ a: [3, 4]
 	var expected = parseData(`
 a: [3]
 `)
-	result := deleteMap(data, []string{"a", "1"})
+	result, _ := deleteMap(data, []string{"a", "1"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }
 
@@ -358,7 +358,7 @@ func TestDelete_list_index_beyond_bounds(t *testing.T) {
 	var data = parseData(`
 a: [3, 4]
 `)
-	result := deleteMap(data, []string{"a", "5"})
+	result, _ := deleteMap(data, []string{"a", "5"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -366,7 +366,7 @@ func TestDelete_list_index_out_of_bounds_by_1(t *testing.T) {
 	var data = parseData(`
 a: [3, 4]
 `)
-	result := deleteMap(data, []string{"a", "2"})
+	result, _ := deleteMap(data, []string{"a", "2"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -376,7 +376,7 @@ a: [3, 4]
 b:
   - name: test
 `)
-	result := deleteMap(data, []string{})
+	result, _ := deleteMap(data, []string{})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -394,6 +394,6 @@ b:
 - name: john
   value: test
 `)
-	result := deleteMap(data, []string{"b", "0", "name"})
+	result, _ := deleteMap(data, []string{"b", "0", "name"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }
