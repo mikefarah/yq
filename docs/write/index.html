@@ -297,6 +297,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#splat" title="Splat" class="md-nav__link">
+    Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#array-splat" title="Array Splat" class="md-nav__link">
+    Array Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
     Appending value to an array field
   </a>
@@ -463,6 +484,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#splat" title="Splat" class="md-nav__link">
+    Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#array-splat" title="Array Splat" class="md-nav__link">
+    Array Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#appending-value-to-an-array-field" title="Appending value to an array field" class="md-nav__link">
     Appending value to an array field
   </a>
@@ -577,6 +619,81 @@
   c: cat
   d:
     - new thing
+</code></pre>
+
+<h3 id="splat">Splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w sample.yaml bob.*.cats meow
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: meow
+</code></pre>
+
+<h3 id="prefix-splat">Prefix Splat<a class="headerlink" href="#prefix-splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w sample.yaml bob.item*.cats meow
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: oranges
+</code></pre>
+
+<h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+- cats: bananas
+- cats: apples
+- cats: oranges
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq w sample.yaml bob[*].cats meow
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+- cats: meow
+- cats: meow
+- cats: meow
 </code></pre>
 
 <h3 id="appending-value-to-an-array-field">Appending value to an array field<a class="headerlink" href="#appending-value-to-an-array-field" title="Permanent link">&para;</a></h3>

@@ -99,6 +99,28 @@ bob:
     cats: oranges
 ```
 
+### Array Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+- cats: bananas
+- cats: apples
+- cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob[*].cats meow
+```
+will output:
+```yaml
+---
+bob:
+- cats: meow
+- cats: meow
+- cats: meow
+```
+
 ### Appending value to an array field
 Given a sample.yaml file of:
 ```yaml

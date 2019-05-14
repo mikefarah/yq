@@ -285,6 +285,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#multiple-documents-specify-a-single-document" title="Multiple Documents - specify a single document" class="md-nav__link">
     Multiple Documents - specify a single document
   </a>
@@ -449,6 +456,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#multiple-documents-specify-a-single-document" title="Multiple Documents - specify a single document" class="md-nav__link">
     Multiple Documents - specify a single document
   </a>
@@ -540,10 +554,34 @@ bob:
     cats: bananas
   item2:
     cats: apples
+  thing:
+    cats: oranges
 </code></pre>
 
 <p>then</p>
 <pre><code class="bash">yq r sample.yaml bob.*.cats
+</code></pre>
+
+<p>will output</p>
+<pre><code class="yaml">- bananas
+- apples
+- oranges
+</code></pre>
+
+<h3 id="prefix-splat">Prefix Splat<a class="headerlink" href="#prefix-splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq r sample.yaml bob.item*.cats
 </code></pre>
 
 <p>will output</p>

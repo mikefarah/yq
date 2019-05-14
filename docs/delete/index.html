@@ -328,6 +328,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#splat" title="Splat" class="md-nav__link">
+    Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#array-splat" title="Array Splat" class="md-nav__link">
+    Array Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#multiple-documents-delete-from-single-document" title="Multiple Documents - delete from single document" class="md-nav__link">
     Multiple Documents - delete from single document
   </a>
@@ -449,6 +470,27 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#splat" title="Splat" class="md-nav__link">
+    Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
+    Prefix Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#array-splat" title="Array Splat" class="md-nav__link">
+    Array Splat
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#multiple-documents-delete-from-single-document" title="Multiple Documents - delete from single document" class="md-nav__link">
     Multiple Documents - delete from single document
   </a>
@@ -552,6 +594,91 @@
 </code></pre>
 
 <p>will update the sample.yaml file so that the 'c' node is deleted</p>
+<h3 id="splat">Splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: bananas
+    dogs: woof
+  item2:
+    cats: apples
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq d sample.yaml bob.*.cats
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    dogs: woof
+  item2:
+    dogs: woof2
+  thing:
+    dogs: woof3
+</code></pre>
+
+<h3 id="prefix-splat">Prefix Splat<a class="headerlink" href="#prefix-splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    cats: bananas
+    dogs: woof
+  item2:
+    cats: apples
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq d sample.yaml bob.item*.cats
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+  item1:
+    dogs: woof
+  item2:
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+</code></pre>
+
+<h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
+<p>Given a sample.yaml file of:</p>
+<pre><code class="yaml">---
+bob:
+- cats: bananas
+  dogs: woof
+- cats: apples
+  dogs: woof2
+- cats: oranges
+  dogs: woof3
+</code></pre>
+
+<p>then</p>
+<pre><code class="bash">yq d sample.yaml bob.[*].cats
+</code></pre>
+
+<p>will output:</p>
+<pre><code class="yaml">---
+bob:
+- dogs: woof
+- dogs: woof2
+- dogs: woof3
+</code></pre>
+
 <h3 id="multiple-documents-delete-from-single-document">Multiple Documents - delete from single document<a class="headerlink" href="#multiple-documents-delete-from-single-document" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">something: else
