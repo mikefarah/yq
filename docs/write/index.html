@@ -611,7 +611,7 @@
 </code></pre>
 
 <p>then</p>
-<pre><code class="bash">yq w sample.yaml b.d[0] &quot;new thing&quot;
+<pre><code class="bash">yq w sample.yaml b.d[+] &quot;new thing&quot;
 </code></pre>
 
 <p>will output:</p>
@@ -781,7 +781,7 @@ b:
 
 <p>and a script update_instructions.yaml of:</p>
 <pre><code class="yaml">b.c: 3
-b.e[0].name: Howdy Partner
+b.e[+].name: Howdy Partner
 </code></pre>
 
 <p>then</p>

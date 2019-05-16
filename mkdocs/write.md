@@ -33,7 +33,7 @@ b:
 ```
 then
 ```bash
-yq w sample.yaml b.d[0] "new thing"
+yq w sample.yaml b.d[+] "new thing"
 ```
 will output:
 ```yaml
@@ -214,7 +214,7 @@ b:
 and a script update_instructions.yaml of:
 ```yaml
 b.c: 3
-b.e[0].name: Howdy Partner
+b.e[+].name: Howdy Partner
 ```
 then
 

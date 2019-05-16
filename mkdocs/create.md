@@ -20,7 +20,7 @@ Create scripts follow the same format as the update scripts.
 Given a script create_instructions.yaml of:
 ```yaml
 b.c: 3
-b.e[0].name: Howdy Partner
+b.e[+].name: Howdy Partner
 ```
 then
 
