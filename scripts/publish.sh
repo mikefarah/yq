@@ -16,6 +16,7 @@ release() {
 }
 
 upload() {
+    mkdir -p ./build-done
     while IFS=  read -r -d $'\0'; do
         file=$REPLY
         BINARY=$(basename "${file}")
@@ -27,8 +28,9 @@ upload() {
             --tag "$CURRENT" \
             --name "${BINARY}" \
             --file "$file"
+        mv "$file" "./build-done/${BINARY}"
     done < <(find ./build -mindepth 1 -maxdepth 1 -print0)
 }
 
-release
+# release
 upload
