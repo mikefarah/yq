@@ -89,14 +89,15 @@ func updatedChildValue(child interface{}, remainingPaths []string, value interfa
 	}
 	log.Debugf("updatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
 	log.Debugf("type of child is %v", reflect.TypeOf(child))
-	_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-	arrayCommand := nextIndexErr == nil || remainingPaths[0] == "+" || remainingPaths[0] == "*"
+
 	switch child := child.(type) {
 	case nil:
-		if arrayCommand {
+		if remainingPaths[0] == "+" || remainingPaths[0] == "*" {
 			return writeArray(child, remainingPaths, value)
 		}
 	case []interface{}:
+		_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
+		arrayCommand := nextIndexErr == nil || remainingPaths[0] == "+" || remainingPaths[0] == "*"
 		if arrayCommand {
 			return writeArray(child, remainingPaths, value)
 		}

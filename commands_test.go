@@ -385,12 +385,11 @@ func TestPrefixCmdArray(t *testing.T) {
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := runCmd(cmd, fmt.Sprintf("prefix %s [0].d.[1]", filename))
+	result := runCmd(cmd, fmt.Sprintf("prefix %s [+].d.[+]", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `- d:
-  - null
   - b:
       c: 3
 `

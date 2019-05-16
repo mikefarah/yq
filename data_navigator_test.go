@@ -260,7 +260,7 @@ a: apple
 b:
 - c: "4"`
 
-	updated := writeMap(data, []string{"b", "0", "c"}, "4")
+	updated := writeMap(data, []string{"b", "+", "c"}, "4")
 	got, _ := yamlToString(updated)
 	assertResult(t, expected, got)
 }
@@ -275,7 +275,7 @@ b:
   d:
   - "4"`
 
-	updated := writeMap(data, []string{"b", "d", "0"}, "4")
+	updated := writeMap(data, []string{"b", "d", "+"}, "4")
 	got, _ := yamlToString(updated)
 	assertResult(t, expected, got)
 }
