@@ -51,19 +51,19 @@ go get gopkg.in/mikefarah/yq.v2
 Oneshot use:
 
 ```bash
-docker run -rm -v ${PWD}:/workdir mikefarah/yq yq [flags] <command> FILE...
+docker run --rm -v ${PWD}:/workdir mikefarah/yq yq [flags] <command> FILE...
 ```
 
 Run commands interactively:
 
 ```bash
-docker run -rm -it -v ${PWD}:/workdir mikefarah/yq sh
+docker run --rm -it -v ${PWD}:/workdir mikefarah/yq sh
 ```
 
 It can be useful to have a bash alias to avoid typing the whole docker command:
 
 ```bash
-alias yq="docker run -rm -v ${PWD}:/workdir mikefarah/yq yq"
+alias yq="docker run --rm -v ${PWD}:/workdir mikefarah/yq yq"
 ```
 
 ## Features
