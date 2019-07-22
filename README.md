@@ -60,10 +60,12 @@ Run commands interactively:
 docker run --rm -it -v ${PWD}:/workdir mikefarah/yq sh
 ```
 
-It can be useful to have a bash alias to avoid typing the whole docker command:
+It can be useful to have a bash function to avoid typing the whole docker command:
 
 ```bash
-alias yq="docker run --rm -v ${PWD}:/workdir mikefarah/yq yq"
+yq() {
+  docker run --rm -i -v ${PWD}:/workdir mikefarah/yq yq $@
+}
 ```
 
 ## Features
