@@ -40,7 +40,7 @@ func main() {
 //MoveFile - os.Rename() give error "invalid cross-device link" for Docker container with Volumes.
 //MoveFile(source, destination) will work moving file between folders
 func MoveFile(sourcePath, destPath string) error {
-    inputFile, err := os.Open(sourcePath)
+    inputFile, err := os.Open(sourcePath) // nolint gosec
     if err != nil {
         return fmt.Errorf("couldn't open source file: %s", err)
     }
