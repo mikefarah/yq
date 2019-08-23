@@ -48,7 +48,7 @@ func MoveFile(sourcePath, destPath string) error {
     if err != nil {
         err = inputFile.Close()
         if err != nil {
-                return fmt.Errorf("Failed close original file: %s", err)
+                return fmt.Errorf("failed close original file: %s", err)
                        }
         return fmt.Errorf("couldn't open dest file: %s", err)
     }
@@ -56,7 +56,7 @@ func MoveFile(sourcePath, destPath string) error {
     _, err = io.Copy(outputFile, inputFile)
     err = inputFile.Close()
     if err != nil {
-                    return fmt.Errorf("Failed close original file: %s", err)
+                    return fmt.Errorf("failed close original file: %s", err)
                     }
     if err != nil {
         return fmt.Errorf("writing to output file failed: %s", err)
