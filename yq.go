@@ -37,6 +37,35 @@ func main() {
 	}
 }
 
+/*
+   GoLang: os.Rename() give error "invalid cross-device link" for Docker container with Volumes.
+   MoveFile(source, destination) will work moving file between folders
+*/
+
+func MoveFile(sourcePath, destPath string) error {
+    inputFile, err := os.Open(sourcePath)
+    if err != nil {
+        return fmt.Errorf("Couldn't open source file: %s", err)
+    }
+    outputFile, err := os.Create(destPath)
+    if err != nil {
+        inputFile.Close()
+        return fmt.Errorf("Couldn't open dest file: %s", err)
+    }
+    defer outputFile.Close()
+    _, err = io.Copy(outputFile, inputFile)
+    inputFile.Close()
+    if err != nil {
+        return fmt.Errorf("Writing to output file failed: %s", err)
+    }
+    // The copy was successful, so now delete the original file
+    err = os.Remove(sourcePath)
+    if err != nil {
+        return fmt.Errorf("Failed removing original file: %s", err)
+    }
+    return nil
+}
+
 func newCommandCLI() *cobra.Command {
 	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
@@ -625,7 +654,7 @@ func marshalContext(context interface{}) (string, error) {
 }
 
 func safelyRenameFile(from string, to string) {
-	if renameError := os.Rename(from, to); renameError != nil {
+	if renameError := MoveFile(from, to); renameError != nil {
 		log.Warningf("Error renaming from %v to %v, attemting to copy contents", from, to)
 		log.Warning(renameError.Error())
 		// can't do this rename when running in docker to a file targeted in a mounted volume,
