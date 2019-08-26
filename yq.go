@@ -633,11 +633,11 @@ func safelyRenameFile(from string, to string) {
 		if copyError := copyFileContents(from, to); copyError != nil {
 			log.Errorf("Failed copying from %v to %v", from, to)
 			log.Error(copyError.Error())
-			removeErr := os.Remove(from)
-			if removeErr != nil {
-			        log.Errorf("failed removing original file: %s", from)
-			        }
 		}
+		removeErr := os.Remove(from)
+		    if removeErr != nil {
+			log.Errorf("failed removing original file: %s", from)
+		    }
 	}
 }
 
