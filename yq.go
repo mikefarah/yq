@@ -37,32 +37,6 @@ func main() {
 	}
 }
 
-//MoveFile - os.Rename() give error "invalid cross-device link" for Docker container with Volumes.
-//MoveFile(source, destination) will work moving file between folders
-func MoveFile(sourcePath, destPath string) error {
-    inputFile, err := os.Open(sourcePath) // nolint gosec
-    if err != nil {
-        return fmt.Errorf("couldn't open source file: %s", err)
-    }
-    outputFile, err := os.Create(destPath)
-    if err != nil {
-        defer safelyCloseFile(inputFile)
-        return fmt.Errorf("couldn't open dest file: %s", err)
-    }
-    defer safelyCloseFile(outputFile)
-    _, err = io.Copy(outputFile, inputFile)
-    defer safelyCloseFile(inputFile)
-    if err != nil {
-        return fmt.Errorf("writing to output file failed: %s", err)
-    }
-    // The copy was successful, so now delete the original file
-    err = os.Remove(sourcePath)
-    if err != nil {
-        return fmt.Errorf("failed removing original file: %s", err)
-    }
-    return nil
-}
-
 func newCommandCLI() *cobra.Command {
 	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
@@ -651,14 +625,18 @@ func marshalContext(context interface{}) (string, error) {
 }
 
 func safelyRenameFile(from string, to string) {
-	if renameError := MoveFile(from, to); renameError != nil {
-		log.Warningf("Error renaming from %v to %v, attemting to copy contents", from, to)
-		log.Warning(renameError.Error())
+	if renameError := os.Rename(from, to); renameError != nil {
+		log.Debugf("Error renaming from %v to %v, attemting to copy contents", from, to)
+		log.Debug(renameError.Error())
 		// can't do this rename when running in docker to a file targeted in a mounted volume,
 		// so gracefully degrade to copying the entire contents.
 		if copyError := copyFileContents(from, to); copyError != nil {
 			log.Errorf("Failed copying from %v to %v", from, to)
-			log.Errorf(copyError.Error())
+			log.Error(copyError.Error())
+			removeErr := os.Remove(from)
+			if removeErr != nil {
+			        log.Errorf("failed removing original file: %s", from)
+			        }
 		}
 	}
 }
