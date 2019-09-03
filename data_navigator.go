@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	yaml "gopkg.in/mikefarah/yaml.v2"
+	yaml "github.com/mikefarah/yaml/v2"
 )
 
 func matchesKey(key string, actual interface{}) bool {
