@@ -76,6 +76,7 @@ func newCommandCLI() *cobra.Command {
 		createDeleteCmd(),
 		createNewCmd(),
 		createMergeCmd(),
+		createLintCmd(),
 	)
 	rootCmd.SetOutput(os.Stdout)
 
@@ -208,6 +209,41 @@ Note that if you set both flags only overwrite will take effect.
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
+}
+
+func createLintCmd() *cobra.Command {
+	var cmdLint = &cobra.Command{
+		Use:     "lint [yaml_file]",
+		Aliases: []string{"l"},
+		Short:   "yq l sample.yaml",
+		Example: `
+yq lint sample.yaml
+yq l sample.yaml
+      `,
+		Long: "Does a basic lint on the file to see if it can be parsed",
+		RunE: lint,
+	}
+	return cmdLint
+}
+
+func lint(cmd *cobra.Command, args []string) error {
+	var path = ""
+	if len(args) < 1 {
+		return errors.New("Must provide filename")
+	} else if len(args) >= 1 {
+		path = args[0]
+	}
+	obj := make(map[string]interface{})
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	err = yaml.Unmarshal(bytes, &obj)
+	if err != nil {
+		return errors.New("Failed lint")
+	}
+	fmt.Println("ok")
+	return nil
 }
 
 func readProperty(cmd *cobra.Command, args []string) error {

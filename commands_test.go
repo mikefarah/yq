@@ -600,7 +600,7 @@ b:
 func TestDeleteYamlArray(t *testing.T) {
 	content := `- 1
 - 2
-- 3	
+- 3
 `
 	filename := writeTempYamlFile(content)
 	defer removeTempYamlFile(filename)
@@ -861,4 +861,40 @@ b:
 c:
   test: 1`
 	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
+}
+
+func TestLintCmd_OK(t *testing.T) {
+	filename := writeTempYamlFile(readTempYamlFile("examples/data1.yaml"))
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("lint %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	assertResult(t, nil, result.Error)
+}
+
+func TestLintCmd_Failed(t *testing.T) {
+	filename := writeTempYamlFile(readTempYamlFile("examples/invalid.yaml"))
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("lint %s", filename))
+	assertResult(t, "Failed lint", result.Error.Error())
+}
+
+func TestLintCmd_NoPath(t *testing.T) {
+	filename := writeTempYamlFile(readTempYamlFile("examples/invalid.yaml"))
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprint("lint"))
+	assertResult(t, "Must provide filename", result.Error.Error())
+}
+
+func TestLintCmd_FileNotFound(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprint("lint not_found.yaml"))
+	assertResult(t, "open not_found.yaml: no such file or directory", result.Error.Error())
 }
