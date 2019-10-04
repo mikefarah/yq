@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	errors "github.com/pkg/errors"
-	"gopkg.in/spf13/cobra.v0"
 
 	yaml "gopkg.in/mikefarah/yaml.v2"
 	logging "gopkg.in/op/go-logging.v1"
+	cobra "gopkg.in/spf13/cobra.v0"
 )
 
 var trimOutput = true
@@ -22,6 +22,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var overwriteFlag = false
+var allowEmptyFlag = false
 var appendFlag = false
 var verbose = false
 var version = false
@@ -39,7 +40,9 @@ func main() {
 func newCommandCLI() *cobra.Command {
 	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
-		Use: "yq",
+		Use:   "yq",
+		Short: "yq is a lightweight and portable command-line YAML processor.",
+		Long:  `yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if version {
 				cmd.Print(GetVersionDisplay())
@@ -73,6 +76,7 @@ func newCommandCLI() *cobra.Command {
 	rootCmd.AddCommand(
 		createReadCmd(),
 		createWriteCmd(),
+		createPrefixCmd(),
 		createDeleteCmd(),
 		createNewCmd(),
 		createMergeCmd(),
@@ -94,6 +98,7 @@ yq r - a.b.c (reads from stdin)
 yq r things.yaml a.*.c
 yq r -d1 things.yaml a.array[0].blah
 yq r things.yaml a.array[*].blah
+yq r -- things.yaml --key-starting-with-dashes
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
@@ -110,7 +115,7 @@ func createWriteCmd() *cobra.Command {
 		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
 		Example: `
 yq write things.yaml a.b.c cat
-yq write --inplace things.yaml a.b.c cat
+yq write --inplace -- things.yaml a.b.c --cat
 yq w -i things.yaml a.b.c cat
 yq w --script update_script.yaml things.yaml
 yq w -i -s update_script.yaml things.yaml
@@ -138,6 +143,29 @@ a.b.e:
 	return cmdWrite
 }
 
+func createPrefixCmd() *cobra.Command {
+	var cmdWrite = &cobra.Command{
+		Use:     "prefix [yaml_file] [path]",
+		Aliases: []string{"p"},
+		Short:   "yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
+		Example: `
+yq prefix things.yaml a.b.c
+yq prefix --inplace things.yaml a.b.c
+yq prefix --inplace -- things.yaml --key-starting-with-dash
+yq p -i things.yaml a.b.c
+yq p --doc 2 things.yaml a.b.d
+yq p -d2 things.yaml a.b.d
+      `,
+		Long: `Prefixes w.r.t to the yaml file at the given path.
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+`,
+		RunE: prefixProperty,
+	}
+	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	return cmdWrite
+}
+
 func createDeleteCmd() *cobra.Command {
 	var cmdDelete = &cobra.Command{
 		Use:     "delete [yaml_file] [path]",
@@ -146,6 +174,7 @@ func createDeleteCmd() *cobra.Command {
 		Example: `
 yq delete things.yaml a.b.c
 yq delete --inplace things.yaml a.b.c
+yq delete --inplace -- things.yaml --key-starting-with-dash
 yq d -i things.yaml a.b.c
 yq d things.yaml a.b.c
 	`,
@@ -167,6 +196,7 @@ func createNewCmd() *cobra.Command {
 		Example: `
 yq new a.b.c cat
 yq n a.b.c cat
+yq n -- --key-starting-with-dash cat
 yq n --script create_script.yaml
       `,
 		Long: `Creates a new yaml w.r.t the given path and value.
@@ -207,6 +237,7 @@ Note that if you set both flags only overwrite will take effect.
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
+	cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -268,7 +299,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 			if errorReading == io.EOF {
 				log.Debugf("done %v / %v", currentIndex, docIndexInt)
 				if !updateAll && currentIndex <= docIndexInt {
-					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
 			}
@@ -383,7 +414,7 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 
 			if errorReading == io.EOF {
 				if !updateAll && currentIndex <= docIndexInt {
-					return fmt.Errorf("Asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
 				return nil
 			} else if errorReading != nil {
@@ -430,15 +461,56 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
 }
 
+func prefixProperty(cmd *cobra.Command, args []string) error {
+	if len(args) != 2 {
+		return errors.New("Must provide <filename> <prefixed_path>")
+	}
+	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+	if errorParsingDocIndex != nil {
+		return errorParsingDocIndex
+	}
+
+	var paths = parsePath(args[1])
+
+	// Inverse order
+	for i := len(paths)/2 - 1; i >= 0; i-- {
+		opp := len(paths) - 1 - i
+		paths[i], paths[opp] = paths[opp], paths[i]
+	}
+
+	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
+
+		if updateAll || currentIndex == docIndexInt {
+			log.Debugf("Prefixing %v to doc %v", paths, currentIndex)
+			var mapDataBucket = dataBucket
+			for _, key := range paths {
+				singlePath := []string{key}
+				mapDataBucket = updatedChildValue(nil, singlePath, mapDataBucket)
+			}
+			return mapDataBucket, nil
+		}
+		return dataBucket, nil
+	}
+	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
+}
+
 func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
 	var destination io.Writer
 	var destinationName string
 	if writeInplace {
-		var tempFile, err = ioutil.TempFile("", "temp")
+		info, err := os.Stat(inputFile)
+		if err != nil {
+			return err
+		}
+		tempFile, err := ioutil.TempFile("", "temp")
 		if err != nil {
 			return err
 		}
 		destinationName = tempFile.Name()
+		err = os.Chmod(destinationName, info.Mode())
+		if err != nil {
+			return err
+		}
 		destination = tempFile
 		defer func() {
 			safelyCloseFile(tempFile)
@@ -469,7 +541,7 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Deleting path in doc %v", currentIndex)
-			return deleteChildValue(dataBucket, paths), nil
+			return deleteChildValue(dataBucket, paths)
 		}
 		return dataBucket, nil
 	}
@@ -502,6 +574,9 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			for _, f := range filesToMerge {
 				var fileToMerge interface{}
 				if err := readData(f, 0, &fileToMerge); err != nil {
+					if allowEmptyFlag && err == io.EOF {
+						continue
+					}
 					return nil, err
 				}
 				mapDataBucket["root"] = fileToMerge
@@ -561,9 +636,9 @@ func toString(context interface{}) (string, error) {
 }
 
 func yamlToString(context interface{}) (string, error) {
-	switch context.(type) {
+	switch context := context.(type) {
 	case string:
-		return context.(string), nil
+		return context, nil
 	default:
 		return marshalContext(context)
 	}
@@ -587,13 +662,18 @@ func marshalContext(context interface{}) (string, error) {
 
 func safelyRenameFile(from string, to string) {
 	if renameError := os.Rename(from, to); renameError != nil {
-		log.Warningf("Error renaming from %v to %v, attemting to copy contents", from, to)
-		log.Warning(renameError.Error())
+		log.Debugf("Error renaming from %v to %v, attemting to copy contents", from, to)
+		log.Debug(renameError.Error())
 		// can't do this rename when running in docker to a file targeted in a mounted volume,
 		// so gracefully degrade to copying the entire contents.
 		if copyError := copyFileContents(from, to); copyError != nil {
 			log.Errorf("Failed copying from %v to %v", from, to)
-			log.Errorf(copyError.Error())
+			log.Error(copyError.Error())
+		} else {
+			removeErr := os.Remove(from)
+			if removeErr != nil {
+				log.Errorf("failed removing original file: %s", from)
+			}
 		}
 	}
 }

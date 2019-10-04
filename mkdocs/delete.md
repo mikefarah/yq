@@ -59,6 +59,93 @@ yq d -i sample.yaml b.c
 will update the sample.yaml file so that the 'c' node is deleted
 
 
+### Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+    dogs: woof
+  item2:
+    cats: apples
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+```
+then
+```bash
+yq d sample.yaml bob.*.cats
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    dogs: woof
+  item2:
+    dogs: woof2
+  thing:
+    dogs: woof3
+```
+
+### Prefix Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+    dogs: woof
+  item2:
+    cats: apples
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+```
+then
+```bash
+yq d sample.yaml bob.item*.cats
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    dogs: woof
+  item2:
+    dogs: woof2
+  thing:
+    cats: oranges
+    dogs: woof3
+```
+
+### Array Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+- cats: bananas
+  dogs: woof
+- cats: apples
+  dogs: woof2
+- cats: oranges
+  dogs: woof3
+```
+then
+```bash
+yq d sample.yaml bob.[*].cats
+```
+will output:
+```yaml
+---
+bob:
+- dogs: woof
+- dogs: woof2
+- dogs: woof3
+```
 
 ### Multiple Documents - delete from single document
 Given a sample.yaml file of:
@@ -107,4 +194,4 @@ b:
 
 Note that '*' is in quotes to avoid being interpreted by your shell.
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

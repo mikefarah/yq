@@ -20,7 +20,7 @@ Create scripts follow the same format as the update scripts.
 Given a script create_instructions.yaml of:
 ```yaml
 b.c: 3
-b.e[0].name: Howdy Partner
+b.e[+].name: Howdy Partner
 ```
 then
 
@@ -41,4 +41,4 @@ You can also pipe the instructions in:
 cat create_instructions.yaml | yq n -s -
 ```
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

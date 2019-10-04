@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc>/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/read/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/write/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/delete/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/create/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/convert/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>/merge/</loc>
-     <lastmod>2018-07-10</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    <url>
+     <loc>None</loc>
+     <lastmod>2019-05-16</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>

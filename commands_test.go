@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"runtime"
 	"strings"
 	"testing"
 
-	"gopkg.in/spf13/cobra.v0"
+	cobra "gopkg.in/spf13/cobra.v0"
 )
 
 func getRootCommand() *cobra.Command {
@@ -22,7 +24,18 @@ func TestRootCmd(t *testing.T) {
 	if !strings.Contains(result.Output, "Usage:") {
 		t.Error("Expected usage message to be printed out, but the usage message was not found.")
 	}
+}
 
+func TestRootCmd_Help(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "--help")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	if !strings.Contains(result.Output, "yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.") {
+		t.Error("Expected usage message to be printed out, but the usage message was not found.")
+	}
 }
 
 func TestRootCmd_VerboseLong(t *testing.T) {
@@ -120,7 +133,7 @@ func TestReadBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -238,7 +251,7 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -248,7 +261,7 @@ func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -278,7 +291,12 @@ func TestReadCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -300,7 +318,7 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Fatal("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Error reading path in document index 0: Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -338,6 +356,204 @@ func TestReadCmd_ToJsonLong(t *testing.T) {
 		t.Error(result.Error)
 	}
 	assertResult(t, "2\n", result.Output)
+}
+
+func TestPrefixCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  b:
+    c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixCmdArray(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s [+].d.[+]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- d:
+  - b:
+      c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixCmd_MultiLayer(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s d.e.f", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  e:
+    f:
+      b:
+        c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixMultiCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d 1 d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+---
+d:
+  apples: great
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+func TestPrefixInvalidDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -df d", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `Document index f is not a integer or *: strconv.ParseInt: parsing "f": invalid syntax`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixBadDocumentIndexCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d 1 d", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+func TestPrefixMultiAllCmd(t *testing.T) {
+	content := `b:
+  c: 3
+---
+apples: great
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix %s -d * d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `d:
+  b:
+    c: 3
+---
+d:
+  apples: great`
+	assertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+}
+
+func TestPrefixCmd_Error(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "prefix")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Must provide <filename> <prefixed_path>`
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixCmd_ErrorUnreadableFile(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "prefix fake-unknown a.b")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to unknown file")
+	}
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
+	assertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestPrefixCmd_Verbose(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("-v prefix %s x", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `x:
+  b:
+    c: 3
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestPrefixCmd_Inplace(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("prefix -i %s d", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	gotOutput := readTempYamlFile(filename)
+	expectedOutput := `d:
+  b:
+    c: 3`
+	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
 }
 
 func TestNewCmd(t *testing.T) {
@@ -441,7 +657,7 @@ func TestWriteBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `Asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 func TestWriteMultiAllCmd(t *testing.T) {
@@ -498,7 +714,12 @@ func TestWriteCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -564,13 +785,73 @@ func TestWriteCmd_AppendEmptyArray(t *testing.T) {
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := runCmd(cmd, fmt.Sprintf("write %s b[+] v", filename))
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b[+] v", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: 2
 b:
 - v
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestWriteCmd_SplatArray(t *testing.T) {
+	content := `b:
+- c: thing
+- c: another thing
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b[*].c new", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+- c: new
+- c: new
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestWriteCmd_SplatMap(t *testing.T) {
+	content := `b:
+  c: thing
+  d: another thing
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b.* new", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: new
+  d: new
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestWriteCmd_SplatMapEmpty(t *testing.T) {
+	content := `b:
+  c: thing
+  d: another thing
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("write -v %s b.c.* new", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: thing
+  d: another thing
 `
 	assertResult(t, expectedOutput, result.Output)
 }
@@ -593,6 +874,102 @@ b:
 	expectedOutput := `a: 2
 b:
   d: something else
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteSplatYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ hello:
+   c: things2
+   d: something else2
+ there:
+   c: more things
+   d: more something else
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+    d: something else
+  hello:
+    d: something else2
+  there:
+    d: more something else
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteSplatArrayYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+  - thing: item1
+    name: fred
+  - thing: item2
+    name: sam
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.hi[*].thing", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+  - name: fred
+  - name: sam
+`
+	assertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteSplatPrefixYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also
+`
+	filename := writeTempYamlFile(content)
+	defer removeTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := runCmd(cmd, fmt.Sprintf("delete -v %s b.there*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+b:
+  hi:
+    c: things
+    d: something else
+  there:
+    d: more something else
+  there2:
+    d: more something else also
 `
 	assertResult(t, expectedOutput, result.Output)
 }
@@ -824,7 +1201,12 @@ func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
-	expectedOutput := `Error updating document at index 0: open fake-unknown: no such file or directory`
+	var expectedOutput string
+	if runtime.GOOS == "windows" {
+		expectedOutput = `Error updating document at index 0: open fake-unknown: The system cannot find the file specified.`
+	} else {
+		expectedOutput = `Error updating document at index 0: open fake-unknown: no such file or directory`
+	}
 	assertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -846,6 +1228,10 @@ c:
 
 func TestMergeCmd_Inplace(t *testing.T) {
 	filename := writeTempYamlFile(readTempYamlFile("examples/data1.yaml"))
+	err := os.Chmod(filename, os.FileMode(int(0666)))
+	if err != nil {
+		t.Error(err)
+	}
 	defer removeTempYamlFile(filename)
 
 	cmd := getRootCommand()
@@ -853,6 +1239,7 @@ func TestMergeCmd_Inplace(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
+	info, _ := os.Stat(filename)
 	gotOutput := readTempYamlFile(filename)
 	expectedOutput := `a: simple
 b:
@@ -861,6 +1248,21 @@ b:
 c:
   test: 1`
 	assertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
+	assertResult(t, os.FileMode(int(0666)), info.Mode())
+}
+
+func TestMergeAllowEmptyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := runCmd(cmd, "merge --allow-empty examples/data1.yaml examples/empty.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b:
+- 1
+- 2
+`
+	assertResult(t, expectedOutput, result.Output)
 }
 
 func TestLintCmd_OK(t *testing.T) {

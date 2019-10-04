@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"testing"
-
-	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
 func TestReadMap_simple(t *testing.T) {
@@ -18,18 +16,37 @@ b:
 	assertResult(t, 2, got)
 }
 
+func TestReadMap_numberKey(t *testing.T) {
+	var data = parseData(`
+---
+200: things
+`)
+	got, _ := readMap(data, "200", []string{})
+	assertResult(t, "things", got)
+}
+
 func TestReadMap_splat(t *testing.T) {
 	var data = parseData(`
 ---
 mapSplat:
   item1: things
   item2: whatever
+  otherThing: cat
 `)
 	res, _ := readMap(data, "mapSplat", []string{"*"})
-	result := res.([]interface{})
-	var actual = []string{result[0].(string), result[1].(string)}
-	sort.Strings(actual)
-	assertResult(t, "[things whatever]", fmt.Sprintf("%v", actual))
+	assertResult(t, "[things whatever cat]", fmt.Sprintf("%v", res))
+}
+
+func TestReadMap_prefixSplat(t *testing.T) {
+	var data = parseData(`
+---
+mapSplat:
+  item1: things
+  item2: whatever
+  otherThing: cat
+`)
+	res, _ := readMap(data, "mapSplat", []string{"item*"})
+	assertResult(t, "[things whatever]", fmt.Sprintf("%v", res))
 }
 
 func TestReadMap_deep_splat(t *testing.T) {
@@ -92,7 +109,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 
@@ -112,7 +129,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 
@@ -132,7 +149,7 @@ b:
 	if err == nil {
 		t.Fatal("Expected error due to invalid path")
 	}
-	expectedOutput := `Error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
 	assertResult(t, expectedOutput, err.Error())
 }
 
@@ -180,8 +197,7 @@ func TestWrite_really_simple(t *testing.T) {
 `)
 
 	updated := writeMap(data, []string{"b"}, "4")
-	b := entryInSlice(updated, "b").Value
-	assertResult(t, "4", b)
+	assertResult(t, "[{b 4}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_simple(t *testing.T) {
@@ -191,9 +207,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "c"}, "4")
-	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
-	c := entryInSlice(b, "c").Value
-	assertResult(t, "4", c)
+	assertResult(t, "[{b [{c 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new(t *testing.T) {
@@ -203,9 +217,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d"}, "4")
-	b := entryInSlice(updated, "b").Value.(yaml.MapSlice)
-	d := entryInSlice(b, "d").Value
-	assertResult(t, "4", d)
+	assertResult(t, "[{b [{c 2} {d 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_deep(t *testing.T) {
@@ -215,8 +227,7 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "d", "f"}, "4")
-	got, _ := readMap(updated, "b", []string{"d", "f"})
-	assertResult(t, "4", got)
+	assertResult(t, "[{b [{c 2} {d [{f 4}]}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_array(t *testing.T) {
@@ -227,8 +238,7 @@ b:
 
 	updated := writeMap(data, []string{"b", "0"}, "bb")
 
-	b := entryInSlice(updated, "b").Value.([]interface{})
-	assertResult(t, "bb", b[0].(string))
+	assertResult(t, "[{b [bb]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_array(t *testing.T) {
@@ -238,20 +248,19 @@ b:
 `)
 
 	updated := writeMap(data, []string{"b", "0"}, "4")
-	got, _ := readMap(updated, "b", []string{"0"})
-	assertResult(t, "4", got)
+	assertResult(t, "[{b [{c 2} {0 4}]}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWrite_new_array_deep(t *testing.T) {
 	var data = parseData(`
-b:
-  c: 2
+a: apple
 `)
 
-	var expected = `b:
+	var expected = `a: apple
+b:
 - c: "4"`
 
-	updated := writeMap(data, []string{"b", "0", "c"}, "4")
+	updated := writeMap(data, []string{"b", "+", "c"}, "4")
 	got, _ := yamlToString(updated)
 	assertResult(t, expected, got)
 }
@@ -261,10 +270,14 @@ func TestWrite_new_map_array_deep(t *testing.T) {
 b:
   c: 2
 `)
+	var expected = `b:
+  c: 2
+  d:
+  - "4"`
 
-	updated := writeMap(data, []string{"b", "d", "0"}, "4")
-	got, _ := readMap(updated, "b", []string{"d", "0"})
-	assertResult(t, "4", got)
+	updated := writeMap(data, []string{"b", "d", "+"}, "4")
+	got, _ := yamlToString(updated)
+	assertResult(t, expected, got)
 }
 
 func TestWrite_add_to_array(t *testing.T) {
@@ -289,8 +302,7 @@ b:
 `)
 	updated := writeMap(data, []string{"b"}, "4")
 
-	b := entryInSlice(updated, "b").Value
-	assertResult(t, "4", fmt.Sprintf("%v", b))
+	assertResult(t, "[{b 4}]", fmt.Sprintf("%v", updated))
 }
 
 func TestWriteMap_no_paths(t *testing.T) {
@@ -318,7 +330,7 @@ b: 456
 b: 456
 `)
 
-	result := deleteMap(data, []string{"a"})
+	result, _ := deleteMap(data, []string{"a"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }
 
@@ -327,7 +339,7 @@ func TestDelete_index_to_string(t *testing.T) {
 	var data = parseData(`
 a: mystring
 `)
-	result := deleteMap(data, []string{"a", "0"})
+	result, _ := deleteMap(data, []string{"a", "0"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -338,7 +350,7 @@ a: [3, 4]
 	var expected = parseData(`
 a: [3]
 `)
-	result := deleteMap(data, []string{"a", "1"})
+	result, _ := deleteMap(data, []string{"a", "1"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }
 
@@ -346,7 +358,7 @@ func TestDelete_list_index_beyond_bounds(t *testing.T) {
 	var data = parseData(`
 a: [3, 4]
 `)
-	result := deleteMap(data, []string{"a", "5"})
+	result, _ := deleteMap(data, []string{"a", "5"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -354,7 +366,7 @@ func TestDelete_list_index_out_of_bounds_by_1(t *testing.T) {
 	var data = parseData(`
 a: [3, 4]
 `)
-	result := deleteMap(data, []string{"a", "2"})
+	result, _ := deleteMap(data, []string{"a", "2"})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -364,7 +376,7 @@ a: [3, 4]
 b:
   - name: test
 `)
-	result := deleteMap(data, []string{})
+	result, _ := deleteMap(data, []string{})
 	assertResult(t, fmt.Sprintf("%v", data), fmt.Sprintf("%v", result))
 }
 
@@ -382,6 +394,6 @@ b:
 - name: john
   value: test
 `)
-	result := deleteMap(data, []string{"b", "0", "name"})
+	result, _ := deleteMap(data, []string{"b", "0", "name"})
 	assertResult(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", result))
 }

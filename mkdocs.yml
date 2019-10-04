@@ -6,6 +6,7 @@ pages:
     - Install: index.md
     - Read: read.md
     - Write/Update: write.md
+    - Prefix: prefix.md
     - Delete: delete.md
     - Create: create.md
     - Convert: convert.md
@@ -23,4 +24,5 @@ extra:
 markdown_extensions:
   - markdown_include.include:
       base_path: mkdocs
-  - toc(permalink=true)
+  - toc:
+      permalink: True

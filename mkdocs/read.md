@@ -32,10 +32,35 @@ bob:
     cats: bananas
   item2:
     cats: apples
+  thing:
+    cats: oranges
 ```
 then
 ```bash
 yq r sample.yaml bob.*.cats
+```
+will output
+```yaml
+- bananas
+- apples
+- oranges
+```
+
+### Prefix Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+```
+then
+```bash
+yq r sample.yaml bob.item*.cats
 ```
 will output
 ```yaml
@@ -122,4 +147,4 @@ will output:
 ```
 Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}

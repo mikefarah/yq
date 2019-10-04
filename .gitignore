@@ -8,6 +8,7 @@ _obj
 _test
 bin
 build
+build-done
 .DS_Store
 
 # Architecture specific extensions/prefixes

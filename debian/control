@@ -12,7 +12,7 @@ Vcs-Browser: https://github.com/mikefarah/yq.git
 Vcs-Git: https://github.com/mikefarah/yq.git
 
 Package: yq
-Architecture: all
+Architecture: any
 Built-Using: ${misc:Built-Using}
 Depends: ${shlibs:Depends},
          ${misc:Depends}

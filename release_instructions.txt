@@ -1,10 +1,11 @@
 - increment version in version.go
 - increment version in snapcraft.yaml
+- commit
 - tag git with same version number
-  - dont tag with 'v' for release this can break peoples things?
   - be sure to also tag with 'v' for gopkg.in
 - make sure local build passes
 - push tag to git
+  - git push --tags
 - make local xcompile (builds binaries for all platforms)
 
 - git release
@@ -17,14 +18,18 @@
   sudo snap remove yq
   sudo snap install --edge yq
   
-  then on the mac snapcraft release yq <snap_build_number> stable
+  then use the UI (https://snapcraft.io/yq/release)
 
 
 - brew
-  - create pull request pointing to latest git release
+  - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.2.0.tar.gz yq
+  - if that fails with random ruby errors try:
+    - clearing out the gems rm -rf .gem/ruby/2.3.0
+    - export HOMEBREW_FORCE_VENDOR_RUBY=1
 
 - docker
   - build and push latest and new version tag
+  - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
 
 - debian package
   - execute 

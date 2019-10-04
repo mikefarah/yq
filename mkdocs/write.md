@@ -33,7 +33,7 @@ b:
 ```
 then
 ```bash
-yq w sample.yaml b.d[0] "new thing"
+yq w sample.yaml b.d[+] "new thing"
 ```
 will output:
 ```yaml
@@ -41,6 +41,84 @@ b:
   c: cat
   d:
     - new thing
+```
+
+### Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob.*.cats meow
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: meow
+```
+
+### Prefix Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+  item1:
+    cats: bananas
+  item2:
+    cats: apples
+  thing:
+    cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob.item*.cats meow
+```
+will output:
+```yaml
+---
+bob:
+  item1:
+    cats: meow
+  item2:
+    cats: meow
+  thing:
+    cats: oranges
+```
+
+### Array Splat
+Given a sample.yaml file of:
+```yaml
+---
+bob:
+- cats: bananas
+- cats: apples
+- cats: oranges
+```
+then
+```bash
+yq w sample.yaml bob[*].cats meow
+```
+will output:
+```yaml
+---
+bob:
+- cats: meow
+- cats: meow
+- cats: meow
 ```
 
 ### Appending value to an array field
@@ -136,7 +214,7 @@ b:
 and a script update_instructions.yaml of:
 ```yaml
 b.c: 3
-b.e[0].name: Howdy Partner
+b.e[+].name: Howdy Partner
 ```
 then
 
@@ -169,4 +247,4 @@ my:
   path: -3
 ```
 
-{!snippets/keys_with_dots.md!}
+{!snippets/niche.md!}
