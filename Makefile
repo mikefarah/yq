@@ -14,7 +14,7 @@ help:
 	@echo '    make build           Build yq binary.'
 	@echo '    make install         Install yq.'
 	@echo '    make xcompile        Build cross-compiled binaries of yq.'
-	@echo '    make vendor          Install dependencies using govendor.'
+	@echo '    make vendor          Install dependencies to vendor directory.'
 	@echo '    make format          Run code formatter.'
 	@echo '    make check           Run static code analysis (lint).'
 	@echo '    make test            Run tests on project.'
@@ -71,8 +71,7 @@ install: build
 # Each of the fetch should be an entry within vendor.json; not currently included within project
 .PHONY: vendor
 vendor: tmp/dev_image_id
-	${DOCKRUN} govendor sync
-	@chmod 664 vendor/vendor.json
+	${DOCKRUN} go mod vendor
 
 # ----------------------------------------------
 # develop and test
