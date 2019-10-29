@@ -1,14 +1,10 @@
-FROM golang:1.11 as builder
+FROM golang:1.13 as builder
 
 WORKDIR /go/src/mikefarah/yq
 
 # cache devtools
 COPY ./scripts/devtools.sh /go/src/mikefarah/yq/scripts/devtools.sh
 RUN ./scripts/devtools.sh
-
-# cache vendor
-COPY ./vendor/vendor.json /go/src/mikefarah/yq/vendor/vendor.json
-RUN govendor sync
 
 COPY . /go/src/mikefarah/yq
 
