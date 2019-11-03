@@ -600,12 +600,7 @@ func toString(context interface{}) (string, error) {
 }
 
 func yamlToString(context interface{}) (string, error) {
-	switch context := context.(type) {
-	case string:
-		return context, nil
-	default:
-		return marshalContext(context)
-	}
+	return marshalContext(context)
 }
 
 func marshalContext(context interface{}) (string, error) {
