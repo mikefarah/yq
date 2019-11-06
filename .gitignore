@@ -27,7 +27,7 @@ coverage.out
 *.test
 *.prof
 yaml
-vendor/*/
+vendor/
 tmp/
 cover/
 yq
