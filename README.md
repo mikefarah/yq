@@ -43,7 +43,7 @@ sudo apt install yq -y
 ```
 ### or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq
+GO111MODULE=on go get github.com/mikefarah/yq@2.4.1
 ```
 
 ## Run with Docker
