@@ -20,6 +20,8 @@
   
   then use the UI (https://snapcraft.io/yq/release)
 
+- go get
+  - update the readme instructions
 
 - brew
   - brew bump-formula-pr --url=https://github.com/mikefarah/yq/archive/2.2.0.tar.gz yq
