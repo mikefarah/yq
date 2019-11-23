@@ -1,4 +1,4 @@
-package main
+package test
 
 import (
 	"bytes"
@@ -19,7 +19,7 @@ type resulter struct {
 	Command *cobra.Command
 }
 
-func runCmd(c *cobra.Command, input string) resulter {
+func RunCmd(c *cobra.Command, input string) resulter {
 	buf := new(bytes.Buffer)
 	c.SetOutput(buf)
 	c.SetArgs(strings.Split(input, " "))
@@ -30,7 +30,7 @@ func runCmd(c *cobra.Command, input string) resulter {
 	return resulter{err, output, c}
 }
 
-func parseData(rawData string) yaml.MapSlice {
+func ParseData(rawData string) yaml.MapSlice {
 	var parsedData yaml.MapSlice
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {
@@ -40,21 +40,21 @@ func parseData(rawData string) yaml.MapSlice {
 	return parsedData
 }
 
-func assertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+func AssertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	t.Helper()
 	if expectedValue != actualValue {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
 	}
 }
 
-func assertResultComplex(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+func AssertResultComplex(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	t.Helper()
 	if !reflect.DeepEqual(expectedValue, actualValue) {
 		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
 	}
 }
 
-func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
+func AssertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
 	t.Helper()
 	if expectedValue != actualValue {
 		t.Error(context)
@@ -62,7 +62,7 @@ func assertResultWithContext(t *testing.T, expectedValue interface{}, actualValu
 	}
 }
 
-func writeTempYamlFile(content string) string {
+func WriteTempYamlFile(content string) string {
 	tmpfile, _ := ioutil.TempFile("", "testyaml")
 	defer func() {
 		_ = tmpfile.Close()
@@ -72,11 +72,11 @@ func writeTempYamlFile(content string) string {
 	return tmpfile.Name()
 }
 
-func readTempYamlFile(name string) string {
+func ReadTempYamlFile(name string) string {
 	content, _ := ioutil.ReadFile(name)
 	return string(content)
 }
 
-func removeTempYamlFile(name string) {
+func RemoveTempYamlFile(name string) {
 	_ = os.Remove(name)
 }

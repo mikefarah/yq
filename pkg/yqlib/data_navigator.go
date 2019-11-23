@@ -1,4 +1,4 @@
-package main
+package yqlib
 
 import (
 	"fmt"
@@ -77,17 +77,17 @@ func writeMap(context interface{}, paths []string, value interface{}) interface{
 
 	remainingPaths := paths[1:]
 	for _, child := range children {
-		child.Value = updatedChildValue(child.Value, remainingPaths, value)
+		child.Value = UpdatedChildValue(child.Value, remainingPaths, value)
 	}
 	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
 	return mapSlice
 }
 
-func updatedChildValue(child interface{}, remainingPaths []string, value interface{}) interface{} {
+func UpdatedChildValue(child interface{}, remainingPaths []string, value interface{}) interface{} {
 	if len(remainingPaths) == 0 {
 		return value
 	}
-	log.Debugf("updatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
+	log.Debugf("UpdatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
 	log.Debugf("type of child is %v", reflect.TypeOf(child))
 
 	switch child := child.(type) {
@@ -123,12 +123,12 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 		index = int64(len(array))
 	} else if rawIndex == "*" {
 		for index, oldChild := range array {
-			array[index] = updatedChildValue(oldChild, remainingPaths, value)
+			array[index] = UpdatedChildValue(oldChild, remainingPaths, value)
 		}
 		return array
 	} else {
 		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
-		// writeArray is only called by updatedChildValue which handles parsing the
+		// writeArray is only called by UpdatedChildValue which handles parsing the
 		// index, as such this renders this dead code.
 	}
 
@@ -139,7 +139,7 @@ func writeArray(context interface{}, paths []string, value interface{}) []interf
 
 	log.Debugf("\tcurrentChild %v\n", currentChild)
 
-	array[index] = updatedChildValue(currentChild, remainingPaths, value)
+	array[index] = UpdatedChildValue(currentChild, remainingPaths, value)
 	log.Debugf("\tReturning array %v\n", array)
 	return array
 }
@@ -174,7 +174,7 @@ func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
 	var i = 0
 	for _, entry := range context {
 		if len(tail) > 0 {
-			val, err := recurse(entry.Value, tail[0], tail[1:])
+			val, err := Recurse(entry.Value, tail[0], tail[1:])
 			if err != nil {
 				return nil, err
 			}
@@ -187,7 +187,7 @@ func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
 	return newArray, nil
 }
 
-func recurse(value interface{}, head string, tail []string) (interface{}, error) {
+func Recurse(value interface{}, head string, tail []string) (interface{}, error) {
 	switch value := value.(type) {
 	case []interface{}:
 		if head == "*" {
@@ -228,7 +228,7 @@ func readArraySplat(array []interface{}, tail []string) (interface{}, error) {
 
 func calculateValue(value interface{}, tail []string) (interface{}, error) {
 	if len(tail) > 0 {
-		return recurse(value, tail[0], tail[1:])
+		return Recurse(value, tail[0], tail[1:])
 	}
 	return value, nil
 }
@@ -266,7 +266,7 @@ func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, pat
 	if len(remainingPaths) > 0 {
 		newChild := yaml.MapItem{Key: child.Key}
 		var errorDeleting error
-		newChild.Value, errorDeleting = deleteChildValue(child.Value, remainingPaths)
+		newChild.Value, errorDeleting = DeleteChildValue(child.Value, remainingPaths)
 		if errorDeleting != nil {
 			return nil, errorDeleting
 		}
@@ -293,7 +293,7 @@ func deleteArraySplat(array []interface{}, tail []string) (interface{}, error) {
 	log.Debugf("deleteArraySplat for %v for %v\n", tail, array)
 	var newArray = make([]interface{}, len(array))
 	for index, value := range array {
-		val, err := deleteChildValue(value, tail)
+		val, err := DeleteChildValue(value, tail)
 		if err != nil {
 			return nil, err
 		}
@@ -328,8 +328,8 @@ func deleteArray(array []interface{}, paths []string, index int64) (interface{},
 	return array, nil
 }
 
-func deleteChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
-	log.Debugf("deleteChildValue for %v for %v\n", remainingPaths, child)
+func DeleteChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
+	log.Debugf("DeleteChildValue for %v for %v\n", remainingPaths, child)
 	var head = remainingPaths[0]
 	var tail = remainingPaths[1:]
 	switch child := child.(type) {

@@ -1,7 +1,8 @@
-package main
+package yqlib
 
 import (
 	"testing"
+	"github.com/mikefarah/yq/test"
 )
 
 var parsePathsTests = []struct {
@@ -15,7 +16,7 @@ var parsePathsTests = []struct {
 
 func TestParsePath(t *testing.T) {
 	for _, tt := range parsePathsTests {
-		assertResultComplex(t, tt.expectedPaths, parsePath(tt.path))
+		test.AssertResultComplex(t, tt.expectedPaths, ParsePath(tt.path))
 	}
 }
 
@@ -37,7 +38,7 @@ var nextYamlPathTests = []struct {
 func TestNextYamlPath(t *testing.T) {
 	for _, tt := range nextYamlPathTests {
 		var element, remaining = nextYamlPath(tt.path)
-		assertResultWithContext(t, tt.expectedElement, element, tt)
-		assertResultWithContext(t, tt.expectedRemaining, remaining, tt)
+		test.AssertResultWithContext(t, tt.expectedElement, element, tt)
+		test.AssertResultWithContext(t, tt.expectedRemaining, remaining, tt)
 	}
 }
