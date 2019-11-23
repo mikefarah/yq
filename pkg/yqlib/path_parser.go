@@ -1,6 +1,6 @@
-package main
+package yqlib
 
-func parsePath(path string) []string {
+func ParsePath(path string) []string {
 	return parsePathAccum([]string{}, path)
 }
 

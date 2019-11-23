@@ -1,4 +1,4 @@
-package main
+package yqlib
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 	yaml "github.com/mikefarah/yaml/v2"
 )
 
-func jsonToString(context interface{}) (string, error) {
+func JsonToString(context interface{}) (string, error) {
 	out, err := json.Marshal(toJSON(context))
 	if err != nil {
 		return "", fmt.Errorf("error printing yaml as json: %v", err)

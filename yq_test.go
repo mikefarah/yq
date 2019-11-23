@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
+	"github.com/mikefarah/yq/test"
+	"github.com/mikefarah/yq/pkg/yqlib"
 )
 
 var parseValueTests = []struct {
@@ -20,7 +22,7 @@ var parseValueTests = []struct {
 
 func TestParseValue(t *testing.T) {
 	for _, tt := range parseValueTests {
-		assertResultWithContext(t, tt.expectedResult, parseValue(tt.argument), tt.testDescription)
+		test.AssertResultWithContext(t, tt.expectedResult, parseValue(tt.argument), tt.testDescription)
 	}
 }
 
@@ -28,14 +30,14 @@ func TestMultilineString(t *testing.T) {
 	testString := `
 	abcd
 	efg`
-	formattedResult, _ := yamlToString(testString)
-	assertResult(t, testString, formattedResult)
+	formattedResult, _ := yqlib.YamlToString(testString, false)
+	test.AssertResult(t, testString, formattedResult)
 }
 
 func TestNewYaml(t *testing.T) {
 	result, _ := newYaml([]string{"b.c", "3"})
 	formattedResult := fmt.Sprintf("%v", result)
-	assertResult(t,
+	test.AssertResult(t,
 		"[{b [{c 3}]}]",
 		formattedResult)
 }
@@ -43,7 +45,7 @@ func TestNewYaml(t *testing.T) {
 func TestNewYamlArray(t *testing.T) {
 	result, _ := newYaml([]string{"[0].cat", "meow"})
 	formattedResult := fmt.Sprintf("%v", result)
-	assertResult(t,
+	test.AssertResult(t,
 		"[[{cat meow}]]",
 		formattedResult)
 }
@@ -55,8 +57,8 @@ func TestNewYaml_WithScript(t *testing.T) {
   e:
   - name: Mike Farah`
 	result, _ := newYaml([]string{""})
-	actualResult, _ := yamlToString(result)
-	assertResult(t, expectedResult, actualResult)
+	actualResult, _ := yqlib.YamlToString(result, true)
+	test.AssertResult(t, expectedResult, actualResult)
 }
 
 func TestNewYaml_WithUnknownScript(t *testing.T) {
@@ -71,5 +73,5 @@ func TestNewYaml_WithUnknownScript(t *testing.T) {
 	} else {
 		expectedOutput = `open fake-unknown: no such file or directory`
 	}
-	assertResult(t, expectedOutput, err.Error())
+	test.AssertResult(t, expectedOutput, err.Error())
 }
