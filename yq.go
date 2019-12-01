@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/mikefarah/yq/pkg/yqlib"
+	"github.com/mikefarah/yq/pkg/marshal"
 
 	errors "github.com/pkg/errors"
 
@@ -29,6 +30,9 @@ var verbose = false
 var version = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
+var lib = yqlib.NewYqLib(log)
+var jsonConverter = marshal.NewJsonConverter()
+var yamlConverter = marshal.NewYamlConverter()
 
 func main() {
 	cmd := newCommandCLI()
@@ -39,7 +43,6 @@ func main() {
 }
 
 func newCommandCLI() *cobra.Command {
-	yqlib.SetLogger(log)
 	yaml.DefaultMapType = reflect.TypeOf(yaml.MapSlice{})
 	var rootCmd = &cobra.Command{
 		Use:   "yq",
@@ -277,7 +280,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 					log.Debugf("%v", dataBucket)
 					mappedDocs = append(mappedDocs, dataBucket)
 				} else {
-					mappedDoc, errorParsing := yqlib.ReadPath(dataBucket, path)
+					mappedDoc, errorParsing := lib.ReadPath(dataBucket, path)
 					log.Debugf("%v", mappedDoc)
 					if errorParsing != nil {
 						return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
@@ -338,7 +341,7 @@ func newYaml(args []string) (interface{}, error) {
 		path := entry.Key.(string)
 		value := entry.Value
 		log.Debugf("setting %v to %v", path, value)
-		dataBucket = yqlib.WritePath(dataBucket, path, value)
+		dataBucket = lib.WritePath(dataBucket, path, value)
 	}
 
 	return dataBucket, nil
@@ -414,7 +417,7 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 				path := entry.Key.(string)
 				value := entry.Value
 				log.Debugf("setting %v to %v", path, value)
-				dataBucket = yqlib.WritePath(dataBucket, path, value)
+				dataBucket = lib.WritePath(dataBucket, path, value)
 			}
 		}
 		return dataBucket, nil
@@ -437,7 +440,7 @@ func prefixProperty(cmd *cobra.Command, args []string) error {
 
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Prefixing %v to doc %v", prefixPath, currentIndex)
-			var mapDataBucket = yqlib.PrefixPath(dataBucket, prefixPath)
+			var mapDataBucket = lib.PrefixPath(dataBucket, prefixPath)
 			return mapDataBucket, nil
 		}
 		return dataBucket, nil
@@ -491,7 +494,7 @@ func deleteProperty(cmd *cobra.Command, args []string) error {
 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Deleting path in doc %v", currentIndex)
-			return yqlib.DeletePath(dataBucket, deletePath)
+			return lib.DeletePath(dataBucket, deletePath)
 		}
 		return dataBucket, nil
 	}
@@ -518,7 +521,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			// map
 			var mapDataBucket = make(map[interface{}]interface{})
 			mapDataBucket["root"] = dataBucket
-			if err := yqlib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
+			if err := lib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
 				return nil, err
 			}
 			for _, f := range filesToMerge {
@@ -530,7 +533,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 					return nil, err
 				}
 				mapDataBucket["root"] = fileToMerge
-				if err := yqlib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
+				if err := lib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
 					return nil, err
 				}
 			}
@@ -580,9 +583,9 @@ func parseValue(argument string) interface{} {
 
 func toString(context interface{}) (string, error) {
 	if outputToJSON {
-		return yqlib.JsonToString(context)
+		return jsonConverter.JsonToString(context)
 	}
-	return yqlib.YamlToString(context, trimOutput)
+	return yamlConverter.YamlToString(context, trimOutput)
 }
 
 func safelyRenameFile(from string, to string) {
