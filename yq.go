@@ -9,8 +9,9 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"github.com/mikefarah/yq/pkg/yqlib"
+
 	"github.com/mikefarah/yq/pkg/marshal"
+	"github.com/mikefarah/yq/pkg/yqlib"
 
 	errors "github.com/pkg/errors"
 

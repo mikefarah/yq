@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"runtime"
 	"testing"
-	"github.com/mikefarah/yq/test"
+
 	"github.com/mikefarah/yq/pkg/marshal"
+	"github.com/mikefarah/yq/test"
 )
 
 var parseValueTests = []struct {
