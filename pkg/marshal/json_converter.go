@@ -12,7 +12,7 @@ type JsonConverter interface {
 	JsonToString(context interface{}) (string, error)
 }
 
-type jsonConverter struct {}
+type jsonConverter struct{}
 
 func NewJsonConverter() JsonConverter {
 	return &jsonConverter{}

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/cobra"
 	"github.com/mikefarah/yq/test"
+	"github.com/spf13/cobra"
 )
 
 func getRootCommand() *cobra.Command {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"testing"
+
 	"github.com/mikefarah/yq/test"
 	logging "gopkg.in/op/go-logging.v1"
 )

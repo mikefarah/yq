@@ -4,7 +4,7 @@ type PathParser interface {
 	ParsePath(path string) []string
 }
 
-type parser struct {}
+type parser struct{}
 
 func NewPathParser() PathParser {
 	return &parser{}

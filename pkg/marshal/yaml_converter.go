@@ -1,16 +1,17 @@
 package marshal
 
 import (
+	"strings"
+
 	yaml "github.com/mikefarah/yaml/v2"
 	errors "github.com/pkg/errors"
-	"strings"
 )
 
 type YamlConverter interface {
 	YamlToString(context interface{}, trimOutput bool) (string, error)
 }
 
-type yamlConverter struct {}
+type yamlConverter struct{}
 
 func NewYamlConverter() YamlConverter {
 	return &yamlConverter{}

@@ -21,7 +21,7 @@ type navigator struct {
 }
 
 func NewDataNavigator(l *logging.Logger) DataNavigator {
-	return &navigator {
+	return &navigator{
 		log: l,
 	}
 }

@@ -2,6 +2,7 @@ package marshal
 
 import (
 	"testing"
+
 	"github.com/mikefarah/yq/test"
 )
 
