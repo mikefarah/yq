@@ -1,4 +1,4 @@
-module github.com/mikefarah/yq
+module github.com/mikefarah/yq/v2
 
 require (
 	github.com/mikefarah/yaml/v2 v2.4.0
