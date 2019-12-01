@@ -1,4 +1,4 @@
-package yqlib
+package marshal
 
 import (
 	yaml "github.com/mikefarah/yaml/v2"
@@ -6,16 +6,26 @@ import (
 	"strings"
 )
 
-func YamlToString(context interface{}, trimOutput bool) (string, error) {
+type YamlConverter interface {
+	YamlToString(context interface{}, trimOutput bool) (string, error)
+}
+
+type yamlConverter struct {}
+
+func NewYamlConverter() YamlConverter {
+	return &yamlConverter{}
+}
+
+func (y *yamlConverter) YamlToString(context interface{}, trimOutput bool) (string, error) {
 	switch context := context.(type) {
 	case string:
 		return context, nil
 	default:
-		return marshalContext(context, trimOutput)
+		return y.marshalContext(context, trimOutput)
 	}
 }
 
-func marshalContext(context interface{}, trimOutput bool) (string, error) {
+func (y *yamlConverter) marshalContext(context interface{}, trimOutput bool) (string, error) {
 	out, err := yaml.Marshal(context)
 
 	if err != nil {

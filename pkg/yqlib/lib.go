@@ -5,24 +5,38 @@ import (
 	logging "gopkg.in/op/go-logging.v1"
 )
 
-var log = logging.MustGetLogger("yq")
-
-func SetLogger(l *logging.Logger) {
-	log = l
+type YqLib interface {
+	ReadPath(dataBucket interface{}, path string) (interface{}, error)
+	WritePath(dataBucket interface{}, path string, value interface{}) (interface{})
+	PrefixPath(dataBucket interface{}, prefix string) (interface{})
+	DeletePath(dataBucket interface{}, path string) (interface{}, error)
+	Merge(dst interface{}, src interface{}, overwrite bool, append bool) error
 }
 
-func ReadPath(dataBucket interface{}, path string) (interface{}, error) {
-	var paths = ParsePath(path)
-	return Recurse(dataBucket, paths[0], paths[1:])
+type lib struct {
+	navigator DataNavigator
+	parser PathParser
 }
 
-func WritePath(dataBucket interface{}, path string, value interface{}) (interface{}) {
-	var paths = ParsePath(path)
-	return UpdatedChildValue(dataBucket, paths, value)
+func NewYqLib(l *logging.Logger) YqLib {
+	return &lib {
+		navigator: NewDataNavigator(l),
+		parser: NewPathParser(),
+	}
 }
 
-func PrefixPath(dataBucket interface{}, prefix string) (interface{}) {
-	var paths = ParsePath(prefix)
+func (l *lib) ReadPath(dataBucket interface{}, path string) (interface{}, error) {
+	var paths = l.parser.ParsePath(path)
+	return l.navigator.ReadChildValue(dataBucket, paths)
+}
+
+func (l *lib) WritePath(dataBucket interface{}, path string, value interface{}) (interface{}) {
+	var paths = l.parser.ParsePath(path)
+	return l.navigator.UpdatedChildValue(dataBucket, paths, value)
+}
+
+func (l *lib) PrefixPath(dataBucket interface{}, prefix string) (interface{}) {
+	var paths = l.parser.ParsePath(prefix)
 
 	// Inverse order
 	for i := len(paths)/2 - 1; i >= 0; i-- {
@@ -33,18 +47,18 @@ func PrefixPath(dataBucket interface{}, prefix string) (interface{}) {
 	var mapDataBucket = dataBucket
 	for _, key := range paths {
 		singlePath := []string{key}
-		mapDataBucket = UpdatedChildValue(nil, singlePath, mapDataBucket)
+		mapDataBucket = l.navigator.UpdatedChildValue(nil, singlePath, mapDataBucket)
 	}
 
 	return mapDataBucket
 }
 
-func DeletePath(dataBucket interface{}, path string) (interface{}, error) {
-	var paths = ParsePath(path)
-	return DeleteChildValue(dataBucket, paths)
+func (l *lib) DeletePath(dataBucket interface{}, path string) (interface{}, error) {
+	var paths = l.parser.ParsePath(path)
+	return l.navigator.DeleteChildValue(dataBucket, paths)
 }
 
-func Merge(dst interface{}, src interface{}, overwrite bool, append bool) error {
+func (l *lib) Merge(dst interface{}, src interface{}, overwrite bool, append bool) error {
 	if overwrite {
 		return mergo.Merge(dst, src, mergo.WithOverride)
 	} else if append {

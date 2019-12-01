@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 	"github.com/mikefarah/yq/test"
-	"github.com/mikefarah/yq/pkg/yqlib"
+	"github.com/mikefarah/yq/pkg/marshal"
 )
 
 var parseValueTests = []struct {
@@ -30,7 +30,7 @@ func TestMultilineString(t *testing.T) {
 	testString := `
 	abcd
 	efg`
-	formattedResult, _ := yqlib.YamlToString(testString, false)
+	formattedResult, _ := marshal.NewYamlConverter().YamlToString(testString, false)
 	test.AssertResult(t, testString, formattedResult)
 }
 
@@ -57,7 +57,7 @@ func TestNewYaml_WithScript(t *testing.T) {
   e:
   - name: Mike Farah`
 	result, _ := newYaml([]string{""})
-	actualResult, _ := yqlib.YamlToString(result, true)
+	actualResult, _ := marshal.NewYamlConverter().YamlToString(result, true)
 	test.AssertResult(t, expectedResult, actualResult)
 }
 
