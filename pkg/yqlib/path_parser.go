@@ -4,17 +4,17 @@ type PathParser interface {
 	ParsePath(path string) []string
 }
 
-type parser struct{}
+type pathParser struct{}
 
 func NewPathParser() PathParser {
-	return &parser{}
+	return &pathParser{}
 }
 
-func (p *parser) ParsePath(path string) []string {
+func (p *pathParser) ParsePath(path string) []string {
 	return p.parsePathAccum([]string{}, path)
 }
 
-func (p *parser) parsePathAccum(paths []string, remaining string) []string {
+func (p *pathParser) parsePathAccum(paths []string, remaining string) []string {
 	head, tail := p.nextYamlPath(remaining)
 	if tail == "" {
 		return append(paths, head)
@@ -22,7 +22,7 @@ func (p *parser) parsePathAccum(paths []string, remaining string) []string {
 	return p.parsePathAccum(append(paths, head), tail)
 }
 
-func (p *parser) nextYamlPath(path string) (pathElement string, remaining string) {
+func (p *pathParser) nextYamlPath(path string) (pathElement string, remaining string) {
 	switch path[0] {
 	case '[':
 		// e.g [0].blah.cat -> we need to return "0" and "blah.cat"
@@ -36,7 +36,7 @@ func (p *parser) nextYamlPath(path string) (pathElement string, remaining string
 	}
 }
 
-func (p *parser) search(path string, matchingChars []uint8, skipNext bool) (pathElement string, remaining string) {
+func (p *pathParser) search(path string, matchingChars []uint8, skipNext bool) (pathElement string, remaining string) {
 	for i := 0; i < len(path); i++ {
 		var char = path[i]
 		if p.contains(matchingChars, char) {
@@ -55,7 +55,7 @@ func (p *parser) search(path string, matchingChars []uint8, skipNext bool) (path
 	return path, ""
 }
 
-func (p *parser) contains(matchingChars []uint8, candidate uint8) bool {
+func (p *pathParser) contains(matchingChars []uint8, candidate uint8) bool {
 	for _, a := range matchingChars {
 		if a == candidate {
 			return true

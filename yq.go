@@ -34,6 +34,7 @@ var log = logging.MustGetLogger("yq")
 var lib = yqlib.NewYqLib(log)
 var jsonConverter = marshal.NewJsonConverter()
 var yamlConverter = marshal.NewYamlConverter()
+var valueParser = yqlib.NewValueParser()
 
 func main() {
 	cmd := newCommandCLI()
@@ -557,29 +558,9 @@ func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) (
 		return nil, errors.New(badArgsMessage)
 	} else {
 		writeCommands = make(yaml.MapSlice, 1)
-		writeCommands[0] = yaml.MapItem{Key: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
+		writeCommands[0] = yaml.MapItem{Key: args[expectedArgs-2], Value: valueParser.ParseValue(args[expectedArgs-1])}
 	}
 	return writeCommands, nil
-}
-
-func parseValue(argument string) interface{} {
-	var value, err interface{}
-	var inQuotes = len(argument) > 0 && argument[0] == '"'
-	if !inQuotes {
-		value, err = strconv.ParseFloat(argument, 64)
-		if err == nil {
-			return value
-		}
-		value, err = strconv.ParseBool(argument)
-		if err == nil {
-			return value
-		}
-		if argument == "[]" {
-			return make([]interface{}, 0)
-		}
-		return argument
-	}
-	return argument[1 : len(argument)-1]
 }
 
 func toString(context interface{}) (string, error) {
