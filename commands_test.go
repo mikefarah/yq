@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mikefarah/yq/test"
+	"github.com/mikefarah/yq/v2/test"
 	"github.com/spf13/cobra"
 )
 

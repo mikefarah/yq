@@ -3,7 +3,7 @@ package marshal
 import (
 	"testing"
 
-	"github.com/mikefarah/yq/test"
+	"github.com/mikefarah/yq/v2/test"
 )
 
 func TestYamlToString(t *testing.T) {
