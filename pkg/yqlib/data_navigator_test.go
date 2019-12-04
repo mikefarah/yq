@@ -5,7 +5,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/mikefarah/yq/test"
+	"github.com/mikefarah/yq/v2/test"
 	logging "gopkg.in/op/go-logging.v1"
 )
 

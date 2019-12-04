@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/mikefarah/yq/pkg/marshal"
-	"github.com/mikefarah/yq/test"
+	"github.com/mikefarah/yq/v2/pkg/marshal"
+	"github.com/mikefarah/yq/v2/test"
 )
 
 func TestMultilineString(t *testing.T) {
