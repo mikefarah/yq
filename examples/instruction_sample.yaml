@@ -1,7 +1,10 @@
-- command: update
+- command: update 
   path: b.c
   value:
     #great 
     things: frog # wow!
-
-b.e[+].name: Mike Farah
+- command: update
+  path: b.e[+].name
+  value: Mike Farah
+- command: delete 
+  path: a

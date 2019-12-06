@@ -7,14 +7,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type WriteCommand struct {
-	// Command string TODO
-	Value yaml.Node
-}
-
 type DataNavigator interface {
 	Get(rootNode *yaml.Node, remainingPath []string) (*yaml.Node, error)
-	Update(rootNode *yaml.Node, remainingPath []string, writeCommand WriteCommand) error
+	Update(rootNode *yaml.Node, remainingPath []string, changesToApply yaml.Node) error
 }
 
 type navigator struct {
@@ -33,7 +28,7 @@ func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
 		realValue = value.Content[0]
 	}
 	if len(path) > 0 {
-		n.log.Debug("diving into %v", path[0])
+		n.log.Debugf("diving into %v", path[0])
 		return n.recurse(realValue, path[0], path[1:])
 	}
 	return realValue, nil
@@ -117,15 +112,11 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml
 	}
 }
 
-func (n *navigator) Update(dataBucket *yaml.Node, remainingPath []string, writeCommand WriteCommand) error {
+func (n *navigator) Update(dataBucket *yaml.Node, remainingPath []string, changesToApply yaml.Node) error {
 	nodeToUpdate, errorRecursing := n.Get(dataBucket, remainingPath)
 	if errorRecursing != nil {
 		return errorRecursing
 	}
-	// later, support ability to execute other commands
-
-	changesToApply := writeCommand.Value
-
 	nodeToUpdate.Value = changesToApply.Value
 	nodeToUpdate.Tag = changesToApply.Tag
 	nodeToUpdate.Kind = changesToApply.Kind

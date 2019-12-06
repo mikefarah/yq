@@ -19,7 +19,7 @@ import (
 )
 
 var rawOutput = false
-var trimOutput = true
+var customTag = ""
 var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
@@ -74,7 +74,6 @@ func newCommandCLI() *cobra.Command {
 		},
 	}
 
-	rootCmd.PersistentFlags().BoolVarP(&trimOutput, "trim", "t", true, "trim yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
@@ -144,6 +143,7 @@ a.b.e:
 	}
 	cmdWrite.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdWrite.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	cmdWrite.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
 	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdWrite
 }
@@ -327,7 +327,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 // }
 
 // func newYaml(args []string) (interface{}, error) {
-// 	var writeCommands, writeCommandsError = readWriteCommands(args, 2, "Must provide <path_to_update> <value>")
+// 	var writeCommands, writeCommandsError = readUpdateCommands(args, 2, "Must provide <path_to_update> <value>")
 // 	if writeCommandsError != nil {
 // 		return nil, writeCommandsError
 // 	}
@@ -404,9 +404,9 @@ func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderF
 }
 
 func writeProperty(cmd *cobra.Command, args []string) error {
-	var writeCommands, writeCommandsError = readWriteCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
-	if writeCommandsError != nil {
-		return writeCommandsError
+	var updateCommands, updateCommandsError = readUpdateCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
+	if updateCommandsError != nil {
+		return updateCommandsError
 	}
 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
 	if errorParsingDocIndex != nil {
@@ -416,12 +416,8 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	var updateData = func(dataBucket *yaml.Node, currentIndex int) error {
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Updating doc %v", currentIndex)
-			for _, entry := range writeCommands {
-				path := entry.Key
-				changesToApply := entry.Value
-				var paths = parsePath(path)
-
-				errorUpdating := updateChild(dataBucket, paths, changesToApply)
+			for _, updateCommand := range updateCommands {
+				errorUpdating := lib.Update(dataBucket, updateCommand)
 				if errorUpdating != nil {
 					return errorUpdating
 				}
@@ -552,36 +548,20 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 // 	return readAndUpdate(cmd.OutOrStdout(), input, updateData)
 // }
 
-type rawWriteCommand struct {
-	// Command string TODO
-	Key   string
-	Value yaml.Node
-}
-
-func readWriteCommands(args []string, expectedArgs int, badArgsMessage string) ([]rawWriteCommand, error) {
-	var writeCommands []rawWriteCommand
+func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) ([]yqlib.UpdateCommand, error) {
+	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 1)
 	if writeScript != "" {
-		var rawCommands yaml.Node
-		if err := readData(writeScript, 0, &rawCommands); err != nil {
+		if err := readData(writeScript, 0, &updateCommands); err != nil {
 			return nil, err
 		}
-		log.Debugf("Read write commands file '%v'", rawCommands)
-		var key string
-		for index, content := range rawCommands.Content[0].Content {
-			if index%2 == 0 { // must be the key
-				key = content.Value
-			} else { // its the value
-				writeCommands = append(writeCommands, rawWriteCommand{Key: key, Value: *content})
-			}
-		}
-		log.Debugf("Read write commands '%v'", writeCommands)
+		log.Debugf("Read write commands file '%v'", updateCommands)
 	} else if len(args) < expectedArgs {
 		return nil, errors.New(badArgsMessage)
 	} else {
-		writeCommands = make([]rawWriteCommand, 1)
-		writeCommands[0] = rawWriteCommand{Key: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
+		updateCommands = make([]yqlib.UpdateCommand, 1)
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
 	}
-	return writeCommands, nil
+	return updateCommands, nil
 }
 
 func parseValue(argument string) yaml.Node {
@@ -619,7 +599,7 @@ func toString(context interface{}) (string, error) {
 	if outputToJSON {
 		return jsonConverter.JsonToString(context)
 	}
-	return yamlConverter.YamlToString(context, trimOutput)
+	return yamlConverter.YamlToString(context, true)
 }
 
 func safelyRenameFile(from string, to string) {
