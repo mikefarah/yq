@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mikefarah/yq/v3/pkg/marshal"
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 
 	errors "github.com/pkg/errors"
@@ -31,8 +30,6 @@ var version = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
 var lib = yqlib.NewYqLib(log)
-var jsonConverter = marshal.NewJsonConverter()
-var yamlConverter = marshal.NewYamlConverter()
 var valueParser = yqlib.NewValueParser()
 
 func main() {
@@ -593,13 +590,6 @@ func parseValue(argument string) yaml.Node {
 	}
 	log.Debugf("Updating node to value '%v', tag: '%v'", argument, tag)
 	return yaml.Node{Value: argument, Tag: tag, Kind: yaml.ScalarNode}
-}
-
-func toString(context interface{}) (string, error) {
-	if outputToJSON {
-		return jsonConverter.JsonToString(context)
-	}
-	return yamlConverter.YamlToString(context, true)
 }
 
 func safelyRenameFile(from string, to string) {
