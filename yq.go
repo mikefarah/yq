@@ -21,7 +21,6 @@ var rawOutput = false
 var customTag = ""
 var writeInplace = false
 var writeScript = ""
-var outputToJSON = false
 var overwriteFlag = false
 var allowEmptyFlag = false
 var appendFlag = false
@@ -105,7 +104,6 @@ yq r -- things.yaml --key-starting-with-dashes
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().BoolVarP(&rawOutput, "raw", "r", false, "raw yaml output - prints out values instead of yaml")
-	cmdRead.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	return cmdRead
 }
 
