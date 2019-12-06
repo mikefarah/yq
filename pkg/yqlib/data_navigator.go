@@ -1,19 +1,20 @@
 package yqlib
 
 import (
-	"fmt"
-	"reflect"
 	"strconv"
-	"strings"
 
-	yaml "github.com/mikefarah/yaml/v2"
 	logging "gopkg.in/op/go-logging.v1"
+	yaml "gopkg.in/yaml.v3"
 )
 
+type WriteCommand struct {
+	// Command string TODO
+	Value yaml.Node
+}
+
 type DataNavigator interface {
-	ReadChildValue(child interface{}, remainingPaths []string) (interface{}, error)
-	UpdatedChildValue(child interface{}, remainingPaths []string, value interface{}) interface{}
-	DeleteChildValue(child interface{}, remainingPaths []string) (interface{}, error)
+	Get(rootNode *yaml.Node, remainingPath []string) (*yaml.Node, error)
+	Update(rootNode *yaml.Node, remainingPath []string, writeCommand WriteCommand) error
 }
 
 type navigator struct {
@@ -26,351 +27,451 @@ func NewDataNavigator(l *logging.Logger) DataNavigator {
 	}
 }
 
-func (n *navigator) ReadChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
-	if len(remainingPaths) == 0 {
-		return child, nil
+func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
+	realValue := value
+	if realValue.Kind == yaml.DocumentNode {
+		realValue = value.Content[0]
 	}
-	return n.recurse(child, remainingPaths[0], remainingPaths[1:])
+	if len(path) > 0 {
+		n.log.Debug("diving into %v", path[0])
+		return n.recurse(realValue, path[0], path[1:])
+	}
+	return realValue, nil
 }
 
-func (n *navigator) UpdatedChildValue(child interface{}, remainingPaths []string, value interface{}) interface{} {
-	if len(remainingPaths) == 0 {
-		return value
+func (n *navigator) guessKind(tail []string) yaml.Kind {
+	n.log.Debug("tail %v", tail)
+	if len(tail) == 0 {
+		n.log.Debug("scalar")
+		return yaml.ScalarNode
 	}
-	n.log.Debugf("UpdatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
-	n.log.Debugf("type of child is %v", reflect.TypeOf(child))
-
-	switch child := child.(type) {
-	case nil:
-		if remainingPaths[0] == "+" || remainingPaths[0] == "*" {
-			return n.writeArray(child, remainingPaths, value)
-		}
-	case []interface{}:
-		_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
-		arrayCommand := nextIndexErr == nil || remainingPaths[0] == "+" || remainingPaths[0] == "*"
-		if arrayCommand {
-			return n.writeArray(child, remainingPaths, value)
-		}
+	var _, errorParsingInt = strconv.ParseInt(tail[0], 10, 64)
+	if tail[0] == "*" || tail[0] == "+" || errorParsingInt == nil {
+		return yaml.SequenceNode
 	}
-	return n.writeMap(child, remainingPaths, value)
+	return yaml.MappingNode
 }
 
-func (n *navigator) DeleteChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
-	n.log.Debugf("DeleteChildValue for %v for %v\n", remainingPaths, child)
-	if len(remainingPaths) == 0 {
-		return child, nil
+func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
+	// expected is a scalar when we reach the end of the path
+	// no need to clobber the original because:
+	// when reading, it should deal with the original kind
+	// when writing, it will clobber the kind anyway
+	if original.Kind != expectedKind && (expectedKind != yaml.ScalarNode) {
+		return &yaml.Node{Kind: expectedKind}
 	}
-	var head = remainingPaths[0]
-	var tail = remainingPaths[1:]
-	switch child := child.(type) {
-	case yaml.MapSlice:
-		return n.deleteMap(child, remainingPaths)
-	case []interface{}:
-		if head == "*" {
-			return n.deleteArraySplat(child, tail)
-		}
-		index, err := strconv.ParseInt(head, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("error accessing array: %v", err)
-		}
-		return n.deleteArray(child, remainingPaths, index)
-	}
-	return child, nil
+	return original
 }
 
-func (n *navigator) recurse(value interface{}, head string, tail []string) (interface{}, error) {
-	switch value := value.(type) {
-	case []interface{}:
-		if head == "*" {
-			return n.readArraySplat(value, tail)
-		}
-		index, err := strconv.ParseInt(head, 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("error accessing array: %v", err)
-		}
-		return n.readArray(value, index, tail)
-	case yaml.MapSlice:
-		return n.readMap(value, head, tail)
-	default:
-		return nil, nil
-	}
-}
-
-func (n *navigator) matchesKey(key string, actual interface{}) bool {
-	var actualString = fmt.Sprintf("%v", actual)
-	var prefixMatch = strings.TrimSuffix(key, "*")
-	if prefixMatch != key {
-		return strings.HasPrefix(actualString, prefixMatch)
-	}
-	return actualString == key
-}
-
-func (n *navigator) entriesInSlice(context yaml.MapSlice, key string) []*yaml.MapItem {
-	var matches = make([]*yaml.MapItem, 0)
-	for idx := range context {
-		var entry = &context[idx]
-		if n.matchesKey(key, entry.Key) {
-			matches = append(matches, entry)
-		}
-	}
-	return matches
-}
-
-func (n *navigator) getMapSlice(context interface{}) yaml.MapSlice {
-	var mapSlice yaml.MapSlice
-	switch context := context.(type) {
-	case yaml.MapSlice:
-		mapSlice = context
-	default:
-		mapSlice = make(yaml.MapSlice, 0)
-	}
-	return mapSlice
-}
-
-func (n *navigator) getArray(context interface{}) (array []interface{}, ok bool) {
-	switch context := context.(type) {
-	case []interface{}:
-		array = context
-		ok = true
-	default:
-		array = make([]interface{}, 0)
-		ok = false
-	}
-	return
-}
-
-func (n *navigator) writeMap(context interface{}, paths []string, value interface{}) interface{} {
-	n.log.Debugf("writeMap with path %v for %v to set value %v\n", paths, context, value)
-
-	mapSlice := n.getMapSlice(context)
-
-	if len(paths) == 0 {
-		return context
-	}
-
-	children := n.entriesInSlice(mapSlice, paths[0])
-
-	if len(children) == 0 && paths[0] == "*" {
-		n.log.Debugf("\tNo matches, return map as is")
-		return context
-	}
-
-	if len(children) == 0 {
-		newChild := yaml.MapItem{Key: paths[0]}
-		mapSlice = append(mapSlice, newChild)
-		children = n.entriesInSlice(mapSlice, paths[0])
-		n.log.Debugf("\tAppended child at %v for mapSlice %v\n", paths[0], mapSlice)
-	}
-
-	remainingPaths := paths[1:]
-	for _, child := range children {
-		child.Value = n.UpdatedChildValue(child.Value, remainingPaths, value)
-	}
-	n.log.Debugf("\tReturning mapSlice %v\n", mapSlice)
-	return mapSlice
-}
-
-func (n *navigator) writeArray(context interface{}, paths []string, value interface{}) []interface{} {
-	n.log.Debugf("writeArray with path %v for %v to set value %v\n", paths, context, value)
-	array, _ := n.getArray(context)
-
-	if len(paths) == 0 {
-		return array
-	}
-
-	n.log.Debugf("\tarray %v\n", array)
-
-	rawIndex := paths[0]
-	remainingPaths := paths[1:]
-	var index int64
-	// the append array indicator
-	if rawIndex == "+" {
-		index = int64(len(array))
-	} else if rawIndex == "*" {
-		for index, oldChild := range array {
-			array[index] = n.UpdatedChildValue(oldChild, remainingPaths, value)
-		}
-		return array
-	} else {
-		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
-		// writeArray is only called by UpdatedChildValue which handles parsing the
-		// index, as such this renders this dead code.
-	}
-
-	for index >= int64(len(array)) {
-		array = append(array, nil)
-	}
-	currentChild := array[index]
-
-	n.log.Debugf("\tcurrentChild %v\n", currentChild)
-
-	array[index] = n.UpdatedChildValue(currentChild, remainingPaths, value)
-	n.log.Debugf("\tReturning array %v\n", array)
-	return array
-}
-
-func (n *navigator) readMap(context yaml.MapSlice, head string, tail []string) (interface{}, error) {
-	n.log.Debugf("readingMap %v with key %v\n", context, head)
-	if head == "*" {
-		return n.readMapSplat(context, tail)
-	}
-
-	entries := n.entriesInSlice(context, head)
-	if len(entries) == 1 {
-		return n.calculateValue(entries[0].Value, tail)
-	} else if len(entries) == 0 {
-		return nil, nil
-	}
-	var errInIdx error
-	values := make([]interface{}, len(entries))
-	for idx, entry := range entries {
-		values[idx], errInIdx = n.calculateValue(entry.Value, tail)
-		if errInIdx != nil {
-			n.log.Errorf("Error updating index %v in %v", idx, context)
-			return nil, errInIdx
-		}
-
-	}
-	return values, nil
-}
-
-func (n *navigator) readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
-	var newArray = make([]interface{}, len(context))
-	var i = 0
-	for _, entry := range context {
-		if len(tail) > 0 {
-			val, err := n.recurse(entry.Value, tail[0], tail[1:])
-			if err != nil {
-				return nil, err
+func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml.Node, error) {
+	switch value.Kind {
+	case yaml.MappingNode:
+		n.log.Debug("its a map with %v entries", len(value.Content)/2)
+		for index, content := range value.Content {
+			// value.Content is a concatenated array of key, value,
+			// so keys are in the even indexes, values in odd.
+			if index%2 == 1 || content.Value != head {
+				continue
 			}
-			newArray[i] = val
-		} else {
-			newArray[i] = entry.Value
+			value.Content[index+1] = n.getOrReplace(value.Content[index+1], n.guessKind(tail))
+			return n.Get(value.Content[index+1], tail)
 		}
-		i++
-	}
-	return newArray, nil
-}
+		value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
+		mapEntryValue := yaml.Node{Kind: n.guessKind(tail)}
+		value.Content = append(value.Content, &mapEntryValue)
+		n.log.Debug("adding new node %v", value.Content)
+		return n.Get(&mapEntryValue, tail)
+	case yaml.SequenceNode:
+		n.log.Debug("its a sequence of %v things!", len(value.Content))
+		if head == "*" {
+			var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
+			newNode.Content = make([]*yaml.Node, len(value.Content))
 
-func (n *navigator) readArray(array []interface{}, head int64, tail []string) (interface{}, error) {
-	if head >= int64(len(array)) {
-		return nil, nil
-	}
+			for index, value := range value.Content {
+				value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail))
+				var nestedValue, err = n.Get(value.Content[index], tail)
+				if err != nil {
+					return nil, err
+				}
+				newNode.Content[index] = nestedValue
+			}
+			return &newNode, nil
+		} else if head == "+" {
 
-	value := array[head]
-	return n.calculateValue(value, tail)
-}
-
-func (n *navigator) readArraySplat(array []interface{}, tail []string) (interface{}, error) {
-	var newArray = make([]interface{}, len(array))
-	for index, value := range array {
-		val, err := n.calculateValue(value, tail)
+			var newNode = yaml.Node{Kind: n.guessKind(tail)}
+			value.Content = append(value.Content, &newNode)
+			n.log.Debug("appending a new node, %v", value.Content)
+			return n.Get(&newNode, tail)
+		}
+		var index, err = strconv.ParseInt(head, 10, 64) // nolint
 		if err != nil {
 			return nil, err
 		}
-		newArray[index] = val
-	}
-	return newArray, nil
-}
-
-func (n *navigator) calculateValue(value interface{}, tail []string) (interface{}, error) {
-	if len(tail) > 0 {
-		return n.recurse(value, tail[0], tail[1:])
-	}
-	return value, nil
-}
-
-func (n *navigator) deleteMap(context interface{}, paths []string) (yaml.MapSlice, error) {
-	n.log.Debugf("deleteMap for %v for %v\n", paths, context)
-
-	mapSlice := n.getMapSlice(context)
-
-	if len(paths) == 0 {
-		return mapSlice, nil
-	}
-
-	var index int
-	var child yaml.MapItem
-	for index, child = range mapSlice {
-		if n.matchesKey(paths[0], child.Key) {
-			n.log.Debugf("\tMatched [%v] with [%v] at index %v", paths[0], child.Key, index)
-			var badDelete error
-			mapSlice, badDelete = n.deleteEntryInMap(mapSlice, child, index, paths)
-			if badDelete != nil {
-				return nil, badDelete
-			}
+		if index >= int64(len(value.Content)) {
+			return nil, nil
 		}
+		value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail))
+		return n.Get(value.Content[index], tail)
+	default:
+		return nil, nil
 	}
-
-	return mapSlice, nil
-
 }
 
-func (n *navigator) deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, paths []string) (yaml.MapSlice, error) {
-	remainingPaths := paths[1:]
-
-	var newSlice yaml.MapSlice
-	if len(remainingPaths) > 0 {
-		newChild := yaml.MapItem{Key: child.Key}
-		var errorDeleting error
-		newChild.Value, errorDeleting = n.DeleteChildValue(child.Value, remainingPaths)
-		if errorDeleting != nil {
-			return nil, errorDeleting
-		}
-
-		newSlice = make(yaml.MapSlice, len(original))
-		for i := range original {
-			item := original[i]
-			if i == index {
-				item = newChild
-			}
-			newSlice[i] = item
-		}
-	} else {
-		// Delete item from slice at index
-		newSlice = append(original[:index], original[index+1:]...)
-		n.log.Debugf("\tDeleted item index %d from original", index)
+func (n *navigator) Update(dataBucket *yaml.Node, remainingPath []string, writeCommand WriteCommand) error {
+	nodeToUpdate, errorRecursing := n.Get(dataBucket, remainingPath)
+	if errorRecursing != nil {
+		return errorRecursing
 	}
+	// later, support ability to execute other commands
 
-	n.log.Debugf("\tReturning original %v\n", original)
-	return newSlice, nil
+	changesToApply := writeCommand.Value
+
+	nodeToUpdate.Value = changesToApply.Value
+	nodeToUpdate.Tag = changesToApply.Tag
+	nodeToUpdate.Kind = changesToApply.Kind
+	nodeToUpdate.Style = changesToApply.Style
+	nodeToUpdate.Content = changesToApply.Content
+	nodeToUpdate.HeadComment = changesToApply.HeadComment
+	nodeToUpdate.LineComment = changesToApply.LineComment
+	nodeToUpdate.FootComment = changesToApply.FootComment
+	return nil
 }
 
-func (n *navigator) deleteArraySplat(array []interface{}, tail []string) (interface{}, error) {
-	n.log.Debugf("deleteArraySplat for %v for %v\n", tail, array)
-	var newArray = make([]interface{}, len(array))
-	for index, value := range array {
-		val, err := n.DeleteChildValue(value, tail)
-		if err != nil {
-			return nil, err
-		}
-		newArray[index] = val
-	}
-	return newArray, nil
-}
+// func matchesKey(key string, actual interface{}) bool {
+// 	var actualString = fmt.Sprintf("%v", actual)
+// 	var prefixMatch = strings.TrimSuffix(key, "*")
+// 	if prefixMatch != key {
+// 		return strings.HasPrefix(actualString, prefixMatch)
+// 	}
+// 	return actualString == key
+// }
 
-func (n *navigator) deleteArray(array []interface{}, paths []string, index int64) (interface{}, error) {
-	n.log.Debugf("deleteArray for %v for %v\n", paths, array)
+// func entriesInSlice(context yaml.MapSlice, key string) []*yaml.MapItem {
+// 	var matches = make([]*yaml.MapItem, 0)
+// 	for idx := range context {
+// 		var entry = &context[idx]
+// 		if matchesKey(key, entry.Key) {
+// 			matches = append(matches, entry)
+// 		}
+// 	}
+// 	return matches
+// }
 
-	if index >= int64(len(array)) {
-		return array, nil
-	}
+// func getMapSlice(context interface{}) yaml.MapSlice {
+// 	var mapSlice yaml.MapSlice
+// 	switch context := context.(type) {
+// 	case yaml.MapSlice:
+// 		mapSlice = context
+// 	default:
+// 		mapSlice = make(yaml.MapSlice, 0)
+// 	}
+// 	return mapSlice
+// }
 
-	remainingPaths := paths[1:]
-	if len(remainingPaths) > 0 {
-		// recurse into the array element at index
-		var errorDeleting error
-		array[index], errorDeleting = n.deleteMap(array[index], remainingPaths)
-		if errorDeleting != nil {
-			return nil, errorDeleting
-		}
+// func getArray(context interface{}) (array []interface{}, ok bool) {
+// 	switch context := context.(type) {
+// 	case []interface{}:
+// 		array = context
+// 		ok = true
+// 	default:
+// 		array = make([]interface{}, 0)
+// 		ok = false
+// 	}
+// 	return
+// }
 
-	} else {
-		// Delete the array element at index
-		array = append(array[:index], array[index+1:]...)
-		n.log.Debugf("\tDeleted item index %d from array, leaving %v", index, array)
-	}
+// func writeMap(context interface{}, paths []string, value interface{}) interface{} {
+// 	log.Debugf("writeMap with path %v for %v to set value %v\n", paths, context, value)
 
-	n.log.Debugf("\tReturning array: %v\n", array)
-	return array, nil
-}
+// 	mapSlice := getMapSlice(context)
+
+// 	if len(paths) == 0 {
+// 		return context
+// 	}
+
+// 	children := entriesInSlice(mapSlice, paths[0])
+
+// 	if len(children) == 0 && paths[0] == "*" {
+// 		log.Debugf("\tNo matches, return map as is")
+// 		return context
+// 	}
+
+// 	if len(children) == 0 {
+// 		newChild := yaml.MapItem{Key: paths[0]}
+// 		mapSlice = append(mapSlice, newChild)
+// 		children = entriesInSlice(mapSlice, paths[0])
+// 		log.Debugf("\tAppended child at %v for mapSlice %v\n", paths[0], mapSlice)
+// 	}
+
+// 	remainingPaths := paths[1:]
+// 	for _, child := range children {
+// 		child.Value = updatedChildValue(child.Value, remainingPaths, value)
+// 	}
+// 	log.Debugf("\tReturning mapSlice %v\n", mapSlice)
+// 	return mapSlice
+// }
+
+// func updatedChildValue(child interface{}, remainingPaths []string, value interface{}) interface{} {
+// 	if len(remainingPaths) == 0 {
+// 		return value
+// 	}
+// 	log.Debugf("updatedChildValue for child %v with path %v to set value %v", child, remainingPaths, value)
+// 	log.Debugf("type of child is %v", reflect.TypeOf(child))
+
+// 	switch child := child.(type) {
+// 	case nil:
+// 		if remainingPaths[0] == "+" || remainingPaths[0] == "*" {
+// 			return writeArray(child, remainingPaths, value)
+// 		}
+// 	case []interface{}:
+// 		_, nextIndexErr := strconv.ParseInt(remainingPaths[0], 10, 64)
+// 		arrayCommand := nextIndexErr == nil || remainingPaths[0] == "+" || remainingPaths[0] == "*"
+// 		if arrayCommand {
+// 			return writeArray(child, remainingPaths, value)
+// 		}
+// 	}
+// 	return writeMap(child, remainingPaths, value)
+// }
+
+// func writeArray(context interface{}, paths []string, value interface{}) []interface{} {
+// 	log.Debugf("writeArray with path %v for %v to set value %v\n", paths, context, value)
+// 	array, _ := getArray(context)
+
+// 	if len(paths) == 0 {
+// 		return array
+// 	}
+
+// 	log.Debugf("\tarray %v\n", array)
+
+// 	rawIndex := paths[0]
+// 	remainingPaths := paths[1:]
+// 	var index int64
+// 	// the append array indicator
+// 	if rawIndex == "+" {
+// 		index = int64(len(array))
+// 	} else if rawIndex == "*" {
+// 		for index, oldChild := range array {
+// 			array[index] = updatedChildValue(oldChild, remainingPaths, value)
+// 		}
+// 		return array
+// 	} else {
+// 		index, _ = strconv.ParseInt(rawIndex, 10, 64) // nolint
+// 		// writeArray is only called by updatedChildValue which handles parsing the
+// 		// index, as such this renders this dead code.
+// 	}
+
+// 	for index >= int64(len(array)) {
+// 		array = append(array, nil)
+// 	}
+// 	currentChild := array[index]
+
+// 	log.Debugf("\tcurrentChild %v\n", currentChild)
+
+// 	array[index] = updatedChildValue(currentChild, remainingPaths, value)
+// 	log.Debugf("\tReturning array %v\n", array)
+// 	return array
+// }
+
+// func readMap(context yaml.MapSlice, head string, tail []string) (interface{}, error) {
+// 	log.Debugf("readingMap %v with key %v\n", context, head)
+// 	if head == "*" {
+// 		return readMapSplat(context, tail)
+// 	}
+
+// 	entries := entriesInSlice(context, head)
+// 	if len(entries) == 1 {
+// 		return calculateValue(entries[0].Value, tail)
+// 	} else if len(entries) == 0 {
+// 		return nil, nil
+// 	}
+// 	var errInIdx error
+// 	values := make([]interface{}, len(entries))
+// 	for idx, entry := range entries {
+// 		values[idx], errInIdx = calculateValue(entry.Value, tail)
+// 		if errInIdx != nil {
+// 			log.Errorf("Error updating index %v in %v", idx, context)
+// 			return nil, errInIdx
+// 		}
+
+// 	}
+// 	return values, nil
+// }
+
+// func readMapSplat(context yaml.MapSlice, tail []string) (interface{}, error) {
+// 	var newArray = make([]interface{}, len(context))
+// 	var i = 0
+// 	for _, entry := range context {
+// 		if len(tail) > 0 {
+// 			val, err := recurse(entry.Value, tail[0], tail[1:])
+// 			if err != nil {
+// 				return nil, err
+// 			}
+// 			newArray[i] = val
+// 		} else {
+// 			newArray[i] = entry.Value
+// 		}
+// 		i++
+// 	}
+// 	return newArray, nil
+// }
+
+// func recurse(value interface{}, head string, tail []string) (interface{}, error) {
+// 	switch value := value.(type) {
+// 	case []interface{}:
+// 		if head == "*" {
+// 			return readArraySplat(value, tail)
+// 		}
+// 		index, err := strconv.ParseInt(head, 10, 64)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("error accessing array: %v", err)
+// 		}
+// 		return readArray(value, index, tail)
+// 	case yaml.MapSlice:
+// 		return readMap(value, head, tail)
+// 	default:
+// 		return nil, nil
+// 	}
+// }
+
+// func readArray(array []interface{}, head int64, tail []string) (interface{}, error) {
+// 	if head >= int64(len(array)) {
+// 		return nil, nil
+// 	}
+
+// 	value := array[head]
+// 	return calculateValue(value, tail)
+// }
+
+// func readArraySplat(array []interface{}, tail []string) (interface{}, error) {
+// 	var newArray = make([]interface{}, len(array))
+// 	for index, value := range array {
+// 		val, err := calculateValue(value, tail)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		newArray[index] = val
+// 	}
+// 	return newArray, nil
+// }
+
+// func calculateValue(value interface{}, tail []string) (interface{}, error) {
+// 	if len(tail) > 0 {
+// 		return recurse(value, tail[0], tail[1:])
+// 	}
+// 	return value, nil
+// }
+
+// func deleteMap(context interface{}, paths []string) (yaml.MapSlice, error) {
+// 	log.Debugf("deleteMap for %v for %v\n", paths, context)
+
+// 	mapSlice := getMapSlice(context)
+
+// 	if len(paths) == 0 {
+// 		return mapSlice, nil
+// 	}
+
+// 	var index int
+// 	var child yaml.MapItem
+// 	for index, child = range mapSlice {
+// 		if matchesKey(paths[0], child.Key) {
+// 			log.Debugf("\tMatched [%v] with [%v] at index %v", paths[0], child.Key, index)
+// 			var badDelete error
+// 			mapSlice, badDelete = deleteEntryInMap(mapSlice, child, index, paths)
+// 			if badDelete != nil {
+// 				return nil, badDelete
+// 			}
+// 		}
+// 	}
+
+// 	return mapSlice, nil
+
+// }
+
+// func deleteEntryInMap(original yaml.MapSlice, child yaml.MapItem, index int, paths []string) (yaml.MapSlice, error) {
+// 	remainingPaths := paths[1:]
+
+// 	var newSlice yaml.MapSlice
+// 	if len(remainingPaths) > 0 {
+// 		newChild := yaml.MapItem{Key: child.Key}
+// 		var errorDeleting error
+// 		newChild.Value, errorDeleting = deleteChildValue(child.Value, remainingPaths)
+// 		if errorDeleting != nil {
+// 			return nil, errorDeleting
+// 		}
+
+// 		newSlice = make(yaml.MapSlice, len(original))
+// 		for i := range original {
+// 			item := original[i]
+// 			if i == index {
+// 				item = newChild
+// 			}
+// 			newSlice[i] = item
+// 		}
+// 	} else {
+// 		// Delete item from slice at index
+// 		newSlice = append(original[:index], original[index+1:]...)
+// 		log.Debugf("\tDeleted item index %d from original", index)
+// 	}
+
+// 	log.Debugf("\tReturning original %v\n", original)
+// 	return newSlice, nil
+// }
+
+// func deleteArraySplat(array []interface{}, tail []string) (interface{}, error) {
+// 	log.Debugf("deleteArraySplat for %v for %v\n", tail, array)
+// 	var newArray = make([]interface{}, len(array))
+// 	for index, value := range array {
+// 		val, err := deleteChildValue(value, tail)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		newArray[index] = val
+// 	}
+// 	return newArray, nil
+// }
+
+// func deleteArray(array []interface{}, paths []string, index int64) (interface{}, error) {
+// 	log.Debugf("deleteArray for %v for %v\n", paths, array)
+
+// 	if index >= int64(len(array)) {
+// 		return array, nil
+// 	}
+
+// 	remainingPaths := paths[1:]
+// 	if len(remainingPaths) > 0 {
+// 		// Recurse into the array element at index
+// 		var errorDeleting error
+// 		array[index], errorDeleting = deleteMap(array[index], remainingPaths)
+// 		if errorDeleting != nil {
+// 			return nil, errorDeleting
+// 		}
+
+// 	} else {
+// 		// Delete the array element at index
+// 		array = append(array[:index], array[index+1:]...)
+// 		log.Debugf("\tDeleted item index %d from array, leaving %v", index, array)
+// 	}
+
+// 	log.Debugf("\tReturning array: %v\n", array)
+// 	return array, nil
+// }
+
+// func deleteChildValue(child interface{}, remainingPaths []string) (interface{}, error) {
+// 	log.Debugf("deleteChildValue for %v for %v\n", remainingPaths, child)
+// 	var head = remainingPaths[0]
+// 	var tail = remainingPaths[1:]
+// 	switch child := child.(type) {
+// 	case yaml.MapSlice:
+// 		return deleteMap(child, remainingPaths)
+// 	case []interface{}:
+// 		if head == "*" {
+// 			return deleteArraySplat(child, tail)
+// 		}
+// 		index, err := strconv.ParseInt(head, 10, 64)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("error accessing array: %v", err)
+// 		}
+// 		return deleteArray(child, remainingPaths, index)
+// 	}
+// 	return child, nil
+// }

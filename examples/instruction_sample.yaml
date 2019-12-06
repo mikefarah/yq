@@ -1,2 +1,7 @@
-b.c: cat
+- command: update
+  path: b.c
+  value:
+    #great 
+    things: frog # wow!
+
 b.e[+].name: Mike Farah
