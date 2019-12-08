@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"bytes"
 	"strconv"
 
 	logging "gopkg.in/op/go-logging.v1"
@@ -29,6 +30,7 @@ func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
 	}
 	if len(path) > 0 {
 		n.log.Debugf("diving into %v", path[0])
+		n.debugNode(value)
 		return n.recurse(realValue, path[0], path[1:])
 	}
 	return realValue, nil
@@ -37,7 +39,7 @@ func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
 func (n *navigator) guessKind(tail []string) yaml.Kind {
 	n.log.Debug("tail %v", tail)
 	if len(tail) == 0 {
-		n.log.Debug("scalar")
+		n.log.Debug("end of path, must be a scalar")
 		return yaml.ScalarNode
 	}
 	var _, errorParsingInt = strconv.ParseInt(tail[0], 10, 64)
@@ -53,9 +55,21 @@ func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *y
 	// when reading, it should deal with the original kind
 	// when writing, it will clobber the kind anyway
 	if original.Kind != expectedKind && (expectedKind != yaml.ScalarNode) {
+		n.log.Debug("wanted %v but it was %v, overriding", expectedKind, original.Kind)
 		return &yaml.Node{Kind: expectedKind}
 	}
 	return original
+}
+
+func (n *navigator) debugNode(value *yaml.Node) {
+	if n.log.IsEnabledFor(logging.DEBUG) {
+		buf := new(bytes.Buffer)
+		encoder := yaml.NewEncoder(buf)
+		encoder.Encode(value)
+		encoder.Close()
+		n.log.Debug("Tag: %v", value.Tag)
+		n.log.Debug("%v", buf.String())
+	}
 }
 
 func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml.Node, error) {
@@ -77,20 +91,24 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml
 		n.log.Debug("adding new node %v", value.Content)
 		return n.Get(&mapEntryValue, tail)
 	case yaml.SequenceNode:
-		n.log.Debug("its a sequence of %v things!", len(value.Content))
+		n.log.Debug("its a sequence of %v things!, %v", len(value.Content))
 		if head == "*" {
-			var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
-			newNode.Content = make([]*yaml.Node, len(value.Content))
+			originalContent := value.Content
+			value.Content = make([]*yaml.Node, len(value.Content))
 
-			for index, value := range value.Content {
-				value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail))
-				var nestedValue, err = n.Get(value.Content[index], tail)
+			for index, childValue := range originalContent {
+				n.log.Debug("processing")
+				n.debugNode(childValue)
+				childValue = n.getOrReplace(childValue, n.guessKind(tail))
+				var nestedValue, err = n.Get(childValue, tail)
+				n.log.Debug("nestedValue")
+				n.debugNode(nestedValue)
 				if err != nil {
 					return nil, err
 				}
-				newNode.Content[index] = nestedValue
+				value.Content[index] = nestedValue
 			}
-			return &newNode, nil
+			return value, nil
 		} else if head == "+" {
 
 			var newNode = yaml.Node{Kind: n.guessKind(tail)}
