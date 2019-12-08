@@ -17,6 +17,12 @@ type navigator struct {
 	log *logging.Logger
 }
 
+type VisitorFn func(*yaml.Node) (*yaml.Node, error)
+
+func identityVisitor(value *yaml.Node) (*yaml.Node, error) {
+	return value, nil
+}
+
 func NewDataNavigator(l *logging.Logger) DataNavigator {
 	return &navigator{
 		log: l,
@@ -24,6 +30,29 @@ func NewDataNavigator(l *logging.Logger) DataNavigator {
 }
 
 func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
+	return n.Visit(value, path, identityVisitor)
+}
+
+func (n *navigator) Update(value *yaml.Node, path []string, changesToApply yaml.Node) error {
+	_, errorVisiting := n.Visit(value, path, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
+		n.log.Debug("going to update")
+		n.debugNode(nodeToUpdate)
+		n.log.Debug("with")
+		n.debugNode(&changesToApply)
+		nodeToUpdate.Value = changesToApply.Value
+		nodeToUpdate.Tag = changesToApply.Tag
+		nodeToUpdate.Kind = changesToApply.Kind
+		nodeToUpdate.Style = changesToApply.Style
+		nodeToUpdate.Content = changesToApply.Content
+		nodeToUpdate.HeadComment = changesToApply.HeadComment
+		nodeToUpdate.LineComment = changesToApply.LineComment
+		nodeToUpdate.FootComment = changesToApply.FootComment
+		return nodeToUpdate, nil
+	})
+	return errorVisiting
+}
+
+func (n *navigator) Visit(value *yaml.Node, path []string, visitor VisitorFn) (*yaml.Node, error) {
 	realValue := value
 	if realValue.Kind == yaml.DocumentNode {
 		realValue = value.Content[0]
@@ -31,9 +60,9 @@ func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
 	if len(path) > 0 {
 		n.log.Debugf("diving into %v", path[0])
 		n.debugNode(value)
-		return n.recurse(realValue, path[0], path[1:])
+		return n.recurse(realValue, path[0], path[1:], visitor)
 	}
-	return realValue, nil
+	return visitor(realValue)
 }
 
 func (n *navigator) guessKind(tail []string) yaml.Kind {
@@ -72,7 +101,7 @@ func (n *navigator) debugNode(value *yaml.Node) {
 	}
 }
 
-func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml.Node, error) {
+func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
 	switch value.Kind {
 	case yaml.MappingNode:
 		n.log.Debug("its a map with %v entries", len(value.Content)/2)
@@ -83,38 +112,38 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml
 				continue
 			}
 			value.Content[index+1] = n.getOrReplace(value.Content[index+1], n.guessKind(tail))
-			return n.Get(value.Content[index+1], tail)
+			return n.Visit(value.Content[index+1], tail, visitor)
 		}
 		value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
 		mapEntryValue := yaml.Node{Kind: n.guessKind(tail)}
 		value.Content = append(value.Content, &mapEntryValue)
 		n.log.Debug("adding new node %v", value.Content)
-		return n.Get(&mapEntryValue, tail)
+		return n.Visit(&mapEntryValue, tail, visitor)
 	case yaml.SequenceNode:
 		n.log.Debug("its a sequence of %v things!, %v", len(value.Content))
 		if head == "*" {
-			originalContent := value.Content
-			value.Content = make([]*yaml.Node, len(value.Content))
+			var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
+			newNode.Content = make([]*yaml.Node, len(value.Content))
 
-			for index, childValue := range originalContent {
+			for index, childValue := range value.Content {
 				n.log.Debug("processing")
 				n.debugNode(childValue)
 				childValue = n.getOrReplace(childValue, n.guessKind(tail))
-				var nestedValue, err = n.Get(childValue, tail)
+				var nestedValue, err = n.Visit(childValue, tail, visitor)
 				n.log.Debug("nestedValue")
 				n.debugNode(nestedValue)
 				if err != nil {
 					return nil, err
 				}
-				value.Content[index] = nestedValue
+				newNode.Content[index] = nestedValue
 			}
-			return value, nil
+			return &newNode, nil
 		} else if head == "+" {
 
 			var newNode = yaml.Node{Kind: n.guessKind(tail)}
 			value.Content = append(value.Content, &newNode)
 			n.log.Debug("appending a new node, %v", value.Content)
-			return n.Get(&newNode, tail)
+			return n.Visit(&newNode, tail, visitor)
 		}
 		var index, err = strconv.ParseInt(head, 10, 64) // nolint
 		if err != nil {
@@ -124,26 +153,10 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string) (*yaml
 			return nil, nil
 		}
 		value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail))
-		return n.Get(value.Content[index], tail)
+		return n.Visit(value.Content[index], tail, visitor)
 	default:
 		return nil, nil
 	}
-}
-
-func (n *navigator) Update(dataBucket *yaml.Node, remainingPath []string, changesToApply yaml.Node) error {
-	nodeToUpdate, errorRecursing := n.Get(dataBucket, remainingPath)
-	if errorRecursing != nil {
-		return errorRecursing
-	}
-	nodeToUpdate.Value = changesToApply.Value
-	nodeToUpdate.Tag = changesToApply.Tag
-	nodeToUpdate.Kind = changesToApply.Kind
-	nodeToUpdate.Style = changesToApply.Style
-	nodeToUpdate.Content = changesToApply.Content
-	nodeToUpdate.HeadComment = changesToApply.HeadComment
-	nodeToUpdate.LineComment = changesToApply.LineComment
-	nodeToUpdate.FootComment = changesToApply.FootComment
-	return nil
 }
 
 // func matchesKey(key string, actual interface{}) bool {
