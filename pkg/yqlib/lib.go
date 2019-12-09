@@ -14,6 +14,7 @@ type UpdateCommand struct {
 }
 
 type YqLib interface {
+	DebugNode(node *yaml.Node)
 	Get(rootNode *yaml.Node, path string) (*yaml.Node, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
 }
@@ -32,10 +33,11 @@ func NewYqLib(l *logging.Logger) YqLib {
 	}
 }
 
+func (l *lib) DebugNode(node *yaml.Node) {
+	l.navigator.DebugNode(node)
+}
+
 func (l *lib) Get(rootNode *yaml.Node, path string) (*yaml.Node, error) {
-	if path == "" {
-		return rootNode, nil
-	}
 	var paths = l.parser.ParsePath(path)
 	return l.navigator.Get(rootNode, paths)
 }

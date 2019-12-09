@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	yaml "github.com/mikefarah/yaml/v2"
 	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type resulter struct {
@@ -30,8 +30,8 @@ func RunCmd(c *cobra.Command, input string) resulter {
 	return resulter{err, output, c}
 }
 
-func ParseData(rawData string) yaml.MapSlice {
-	var parsedData yaml.MapSlice
+func ParseData(rawData string) yaml.Node {
+	var parsedData yaml.Node
 	err := yaml.Unmarshal([]byte(rawData), &parsedData)
 	if err != nil {
 		fmt.Printf("Error parsing yaml: %v\n", err)

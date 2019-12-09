@@ -3,7 +3,7 @@ package yqlib
 import (
 	"testing"
 
-	"github.com/mikefarah/yq/v2/test"
+	"github.com/mikefarah/yq/v3/test"
 )
 
 var parseValueTests = []struct {

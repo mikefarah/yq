@@ -11,6 +11,9 @@ func NewPathParser() PathParser {
 }
 
 func (p *pathParser) ParsePath(path string) []string {
+	if path == "" {
+		return []string{}
+	}
 	return p.parsePathAccum([]string{}, path)
 }
 

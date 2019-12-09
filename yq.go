@@ -257,11 +257,14 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	}
 
 	var mappedDocs []*yaml.Node
-	var dataBucket yaml.Node
+
 	var currentIndex = 0
 	var errorReadingStream = readStream(args[0], func(decoder *yaml.Decoder) error {
 		for {
+			var dataBucket yaml.Node
 			errorReading := decoder.Decode(&dataBucket)
+			log.Debugf("decoded node for doc %v", currentIndex)
+			lib.DebugNode(&dataBucket)
 			if errorReading == io.EOF {
 				log.Debugf("done %v / %v", currentIndex, docIndexInt)
 				if !updateAll && currentIndex <= docIndexInt {
@@ -273,6 +276,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 			if updateAll || currentIndex == docIndexInt {
 				log.Debugf("reading %v in document %v", path, currentIndex)
 				mappedDoc, errorParsing := lib.Get(&dataBucket, path)
+				lib.DebugNode(mappedDoc)
 				if errorParsing != nil {
 					return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
 				}

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mikefarah/yq/v2/test"
+	"github.com/mikefarah/yq/v3/test"
 	logging "gopkg.in/op/go-logging.v1"
 )
 
