@@ -87,11 +87,7 @@ func (n *navigator) guessKind(tail []string, guess yaml.Kind) yaml.Kind {
 }
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
-	// expected is a scalar when we reach the end of the path
-	// no need to clobber the original because:
-	// when reading, it should deal with the original kind
-	// when writing, it will clobber the kind anyway
-	if original.Kind != expectedKind && (expectedKind != yaml.ScalarNode) {
+	if original.Kind != expectedKind {
 		n.log.Debug("wanted %v but it was %v, overriding", expectedKind, original.Kind)
 		return &yaml.Node{Kind: expectedKind}
 	}
@@ -114,73 +110,91 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 	case yaml.MappingNode:
 		n.log.Debug("its a map with %v entries", len(value.Content)/2)
 		if head == "*" {
-			var newNode = yaml.Node{Kind: yaml.SequenceNode}
-			for index, content := range value.Content {
-				if index%2 == 0 {
-					continue
-				}
-				content = n.getOrReplace(content, n.guessKind(tail, content.Kind))
-				var nestedValue, err = n.Visit(content, tail, visitor)
-				if err != nil {
-					return nil, err
-				}
-				newNode.Content = append(newNode.Content, nestedValue)
-			}
-			return &newNode, nil
+			return n.splatMap(value, tail, visitor)
 		}
-
-		for index, content := range value.Content {
-			// value.Content is a concatenated array of key, value,
-			// so keys are in the even indexes, values in odd.
-			if index%2 == 1 || (content.Value != head) {
-				continue
-			}
-			value.Content[index+1] = n.getOrReplace(value.Content[index+1], n.guessKind(tail, value.Content[index+1].Kind))
-			return n.Visit(value.Content[index+1], tail, visitor)
-		}
-		value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
-		mapEntryValue := yaml.Node{Kind: n.guessKind(tail, 0)}
-		value.Content = append(value.Content, &mapEntryValue)
-		n.log.Debug("adding new node %v", value.Content)
-		return n.Visit(&mapEntryValue, tail, visitor)
+		return n.recurseMap(value, head, tail, visitor)
 	case yaml.SequenceNode:
 		n.log.Debug("its a sequence of %v things!, %v", len(value.Content))
 		if head == "*" {
-			var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
-			newNode.Content = make([]*yaml.Node, len(value.Content))
-
-			for index, childValue := range value.Content {
-				n.log.Debug("processing")
-				n.DebugNode(childValue)
-				childValue = n.getOrReplace(childValue, n.guessKind(tail, childValue.Kind))
-				var nestedValue, err = n.Visit(childValue, tail, visitor)
-				n.log.Debug("nestedValue")
-				n.DebugNode(nestedValue)
-				if err != nil {
-					return nil, err
-				}
-				newNode.Content[index] = nestedValue
-			}
-			return &newNode, nil
+			return n.splatArray(value, tail, visitor)
 		} else if head == "+" {
-
-			var newNode = yaml.Node{Kind: n.guessKind(tail, 0)}
-			value.Content = append(value.Content, &newNode)
-			n.log.Debug("appending a new node, %v", value.Content)
-			return n.Visit(&newNode, tail, visitor)
+			return n.appendArray(value, tail, visitor)
 		}
-		var index, err = strconv.ParseInt(head, 10, 64) // nolint
-		if err != nil {
-			return nil, err
-		}
-		if index >= int64(len(value.Content)) {
-			return nil, nil
-		}
-		value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail, value.Content[index].Kind))
-		return n.Visit(value.Content[index], tail, visitor)
+		return n.recurseArray(value, head, tail, visitor)
 	default:
 		return nil, nil
 	}
+}
+
+func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+	var newNode = yaml.Node{Kind: yaml.SequenceNode}
+	for index, content := range value.Content {
+		if index%2 == 0 {
+			continue
+		}
+		content = n.getOrReplace(content, n.guessKind(tail, content.Kind))
+		var nestedValue, err = n.Visit(content, tail, visitor)
+		if err != nil {
+			return nil, err
+		}
+		newNode.Content = append(newNode.Content, nestedValue)
+	}
+	return &newNode, nil
+}
+
+func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+	for index, content := range value.Content {
+		// value.Content is a concatenated array of key, value,
+		// so keys are in the even indexes, values in odd.
+		if index%2 == 1 || (content.Value != head) {
+			continue
+		}
+		value.Content[index+1] = n.getOrReplace(value.Content[index+1], n.guessKind(tail, value.Content[index+1].Kind))
+		return n.Visit(value.Content[index+1], tail, visitor)
+	}
+	value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
+	mapEntryValue := yaml.Node{Kind: n.guessKind(tail, 0)}
+	value.Content = append(value.Content, &mapEntryValue)
+	n.log.Debug("adding new node %v", value.Content)
+	return n.Visit(&mapEntryValue, tail, visitor)
+}
+
+func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+	var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
+	newNode.Content = make([]*yaml.Node, len(value.Content))
+
+	for index, childValue := range value.Content {
+		n.log.Debug("processing")
+		n.DebugNode(childValue)
+		childValue = n.getOrReplace(childValue, n.guessKind(tail, childValue.Kind))
+		var nestedValue, err = n.Visit(childValue, tail, visitor)
+		n.log.Debug("nestedValue")
+		n.DebugNode(nestedValue)
+		if err != nil {
+			return nil, err
+		}
+		newNode.Content[index] = nestedValue
+	}
+	return &newNode, nil
+}
+
+func (n *navigator) appendArray(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+	var newNode = yaml.Node{Kind: n.guessKind(tail, 0)}
+	value.Content = append(value.Content, &newNode)
+	n.log.Debug("appending a new node, %v", value.Content)
+	return n.Visit(&newNode, tail, visitor)
+}
+
+func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+	var index, err = strconv.ParseInt(head, 10, 64) // nolint
+	if err != nil {
+		return nil, err
+	}
+	if index >= int64(len(value.Content)) {
+		return nil, nil
+	}
+	value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail, value.Content[index].Kind))
+	return n.Visit(value.Content[index], tail, visitor)
 }
 
 // func matchesKey(key string, actual interface{}) bool {

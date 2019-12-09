@@ -1,8 +1,9 @@
 a: Easy! as one two three
 b:
-  c:
-    name: c1
-    f: things
-  d: 
-    name: d1
-    f: other
+  c: 2
+  d: [3, 4]
+  e:
+    - name: fred
+      value: 3
+    - name: sam
+      value: 4
