@@ -80,7 +80,7 @@ func (n *navigator) guessKind(tail []string, guess yaml.Kind) yaml.Kind {
 	if tail[0] == "+" || errorParsingInt == nil {
 		return yaml.SequenceNode
 	}
-	if tail[0] == "*" && guess == yaml.SequenceNode || guess == yaml.MappingNode {
+	if tail[0] == "*" && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
 		return guess
 	}
 	return yaml.MappingNode
