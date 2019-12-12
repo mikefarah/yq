@@ -50,8 +50,8 @@ func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {
 		var paths = l.parser.ParsePath(updateCommand.Path)
 		return l.navigator.Update(rootNode, paths, updateCommand.Value)
 	case "delete":
-		l.log.Debugf("need to implement delete")
-		return nil
+		var paths = l.parser.ParsePath(updateCommand.Path)
+		return l.navigator.Delete(rootNode, paths)
 	default:
 		return fmt.Errorf("Unknown command %v", updateCommand.Command)
 	}

@@ -77,7 +77,7 @@ func newCommandCLI() *cobra.Command {
 		createReadCmd(),
 		createWriteCmd(),
 		// createPrefixCmd(),
-		// createDeleteCmd(),
+		createDeleteCmd(),
 		// createNewCmd(),
 		// createMergeCmd(),
 	)
@@ -166,27 +166,27 @@ a.b.e:
 // 	return cmdWrite
 // }
 
-// func createDeleteCmd() *cobra.Command {
-// 	var cmdDelete = &cobra.Command{
-// 		Use:     "delete [yaml_file] [path]",
-// 		Aliases: []string{"d"},
-// 		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
-// 		Example: `
-// yq delete things.yaml a.b.c
-// yq delete --inplace things.yaml a.b.c
-// yq delete --inplace -- things.yaml --key-starting-with-dash
-// yq d -i things.yaml a.b.c
-// yq d things.yaml a.b.c
-// 	`,
-// 		Long: `Deletes the given path from the YAML file.
-// Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
-// `,
-// 		RunE: deleteProperty,
-// 	}
-// 	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
-// 	cmdDelete.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
-// 	return cmdDelete
-// }
+func createDeleteCmd() *cobra.Command {
+	var cmdDelete = &cobra.Command{
+		Use:     "delete [yaml_file] [path]",
+		Aliases: []string{"d"},
+		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
+		Example: `
+yq delete things.yaml a.b.c
+yq delete --inplace things.yaml a.b.c
+yq delete --inplace -- things.yaml --key-starting-with-dash
+yq d -i things.yaml a.b.c
+yq d things.yaml a.b.c
+	`,
+		Long: `Deletes the given path from the YAML file.
+Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
+`,
+		RunE: deleteProperty,
+	}
+	cmdDelete.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
+	cmdDelete.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	return cmdDelete
+}
 
 // func createNewCmd() *cobra.Command {
 // 	var cmdNew = &cobra.Command{
@@ -407,6 +407,20 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	if updateCommandsError != nil {
 		return updateCommandsError
 	}
+	return updateDoc(args[0], updateCommands, cmd.OutOrStdout())
+}
+
+func deleteProperty(cmd *cobra.Command, args []string) error {
+	if len(args) < 2 {
+		return errors.New("Must provide <filename> <path_to_delete>")
+	}
+	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 1)
+	updateCommands[0] = yqlib.UpdateCommand{Command: "delete", Path: args[1]}
+
+	return updateDoc(args[0], updateCommands, cmd.OutOrStdout())
+}
+
+func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io.Writer) error {
 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
 	if errorParsingDocIndex != nil {
 		return errorParsingDocIndex
@@ -424,7 +438,7 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 		}
 		return nil
 	}
-	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
+	return readAndUpdate(writer, inputFile, updateData)
 }
 
 // func prefixProperty(cmd *cobra.Command, args []string) error {
@@ -483,27 +497,6 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 	log.Debugf("Writing to %v from %v", destinationName, inputFile)
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
-
-// func deleteProperty(cmd *cobra.Command, args []string) error {
-// 	if len(args) < 2 {
-// 		return errors.New("Must provide <filename> <path_to_delete>")
-// 	}
-// 	var deletePath = args[1]
-// 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
-// 	if errorParsingDocIndex != nil {
-// 		return errorParsingDocIndex
-// 	}
-
-// 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-// 		if updateAll || currentIndex == docIndexInt {
-// 			log.Debugf("Deleting path in doc %v", currentIndex)
-// 			return lib.DeletePath(dataBucket, deletePath)
-// 		}
-// 		return dataBucket, nil
-// 	}
-
-// 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
-// }
 
 // func mergeProperties(cmd *cobra.Command, args []string) error {
 // 	if len(args) < 2 {

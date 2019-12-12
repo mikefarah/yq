@@ -10,8 +10,9 @@ import (
 
 type DataNavigator interface {
 	DebugNode(node *yaml.Node)
-	Get(rootNode *yaml.Node, remainingPath []string) (*yaml.Node, error)
-	Update(rootNode *yaml.Node, remainingPath []string, changesToApply yaml.Node) error
+	Get(rootNode *yaml.Node, path []string) (*yaml.Node, error)
+	Update(rootNode *yaml.Node, path []string, changesToApply yaml.Node) error
+	Delete(rootNode *yaml.Node, path []string) error
 }
 
 type navigator struct {
@@ -34,8 +35,8 @@ func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
 	return n.Visit(value, path, identityVisitor)
 }
 
-func (n *navigator) Update(value *yaml.Node, path []string, changesToApply yaml.Node) error {
-	_, errorVisiting := n.Visit(value, path, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
+func (n *navigator) Update(rootNode *yaml.Node, path []string, changesToApply yaml.Node) error {
+	_, errorVisiting := n.Visit(rootNode, path, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
 		n.log.Debug("going to update")
 		n.DebugNode(nodeToUpdate)
 		n.log.Debug("with")
@@ -48,6 +49,36 @@ func (n *navigator) Update(value *yaml.Node, path []string, changesToApply yaml.
 		nodeToUpdate.HeadComment = changesToApply.HeadComment
 		nodeToUpdate.LineComment = changesToApply.LineComment
 		nodeToUpdate.FootComment = changesToApply.FootComment
+		return nodeToUpdate, nil
+	})
+	return errorVisiting
+}
+
+func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
+
+	lastBit, newTail := path[len(path)-1], path[:len(path)-1]
+	n.log.Debug("splitting path, %v", lastBit)
+	n.log.Debug("new tail, %v", newTail)
+	_, errorVisiting := n.Visit(rootNode, newTail, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
+		n.log.Debug("need to find %v in here", lastBit)
+		n.DebugNode(nodeToUpdate)
+
+		if nodeToUpdate.Kind == yaml.SequenceNode {
+			var index, err = strconv.ParseInt(lastBit, 10, 64) // nolint
+			if err != nil {
+				return nil, err
+			}
+			if index >= int64(len(nodeToUpdate.Content)) {
+				n.log.Debug("index %v is greater than content lenth %v", index, len(nodeToUpdate.Content))
+				return nodeToUpdate, nil
+			}
+			original := nodeToUpdate.Content
+			nodeToUpdate.Content = append(original[:index], original[index+1:]...)
+
+		} else if nodeToUpdate.Kind == yaml.MappingNode {
+
+		}
+
 		return nodeToUpdate, nil
 	})
 	return errorVisiting
