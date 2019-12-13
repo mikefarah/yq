@@ -37,3 +37,6 @@ parts/
 prime/
 .snapcraft/
 yq*.snap
+
+# choco
+*.nupkg

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>yq</id>
+    <version>2.4.1</version>
+    <packageSourceUrl>https://github.com/mikefarah/yq/tree/master/choco</packageSourceUrl>
+    <owners>Mike Farah</owners>
+    <title>yq</title>
+    <authors>Mike Farah</authors>
+    <projectUrl>http://mikefarah.github.io/yq/</projectUrl>
+    <copyright>2017 Mike Farah</copyright>
+    <licenseUrl>https://github.com/mikefarah/yq/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/mikefarah/yq</projectSourceUrl>
+    <docsUrl>http://mikefarah.github.io/yq/</docsUrl>
+    <bugTrackerUrl>https://github.com/mikefarah/yq/issues</bugTrackerUrl>
+    <tags>yq yaml</tags>
+    <summary>yq is a portable command-line YAML processor</summary>
+    <description>The aim of the project is to be the jq or sed of yaml files.</description>
+    <releaseNotes>https://github.com/mikefarah/yq/releases</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+    <!-- When building on Linux you may need instead -->
+    <!-- <file src="tools/**" target="tools" /> -->
+  </files>
+</package>
