@@ -62,7 +62,7 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 	_, errorVisiting := n.Visit(rootNode, newTail, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
 		n.log.Debug("need to find %v in here", lastBit)
 		n.DebugNode(nodeToUpdate)
-
+		original := nodeToUpdate.Content
 		if nodeToUpdate.Kind == yaml.SequenceNode {
 			var index, err = strconv.ParseInt(lastBit, 10, 64) // nolint
 			if err != nil {
@@ -72,11 +72,15 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 				n.log.Debug("index %v is greater than content lenth %v", index, len(nodeToUpdate.Content))
 				return nodeToUpdate, nil
 			}
-			original := nodeToUpdate.Content
 			nodeToUpdate.Content = append(original[:index], original[index+1:]...)
 
 		} else if nodeToUpdate.Kind == yaml.MappingNode {
-
+			//need to delete both the key and value children from Content
+			indexInMap := n.findIndexForKeyInMap(nodeToUpdate.Content, lastBit)
+			if indexInMap != -1 {
+				//skip two because its a key, value pair
+				nodeToUpdate.Content = append(original[:indexInMap], original[indexInMap+2:]...)
+			}
 		}
 
 		return nodeToUpdate, nil
@@ -174,20 +178,31 @@ func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn)
 }
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
-	for index, content := range value.Content {
-		// value.Content is a concatenated array of key, value,
-		// so keys are in the even indexes, values in odd.
-		if index%2 == 1 || (content.Value != head) {
-			continue
-		}
-		value.Content[index+1] = n.getOrReplace(value.Content[index+1], n.guessKind(tail, value.Content[index+1].Kind))
-		return n.Visit(value.Content[index+1], tail, visitor)
+	indexInMap := n.findIndexForKeyInMap(value.Content, head)
+
+	if indexInMap != -1 {
+		value.Content[indexInMap+1] = n.getOrReplace(value.Content[indexInMap+1], n.guessKind(tail, value.Content[indexInMap+1].Kind))
+		return n.Visit(value.Content[indexInMap+1], tail, visitor)
 	}
+
+	//didn't find it, lets add it.
 	value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
 	mapEntryValue := yaml.Node{Kind: n.guessKind(tail, 0)}
 	value.Content = append(value.Content, &mapEntryValue)
 	n.log.Debug("adding new node %v", value.Content)
 	return n.Visit(&mapEntryValue, tail, visitor)
+}
+
+func (n *navigator) findIndexForKeyInMap(contents []*yaml.Node, key string) int {
+	for index, content := range contents {
+		// value.Content is a concatenated array of key, value,
+		// so keys are in the even indexes, values in odd.
+		if index%2 == 1 || (content.Value != key) {
+			continue
+		}
+		return index
+	}
+	return -1
 }
 
 func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
