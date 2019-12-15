@@ -172,6 +172,8 @@ func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
   - lala
   - land
   serial: 1
+- become: false
+  gather_facts: true
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -194,9 +196,9 @@ serial: 1
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestReadCmd_ArrayYaml_Splat(t *testing.T) {
+func TestReadCmd_ArrayYaml_SplatA(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [*]")
+	result := test.RunCmd(cmd, "read -v examples/array.yaml [*]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -208,6 +210,8 @@ func TestReadCmd_ArrayYaml_Splat(t *testing.T) {
   - lala
   - land
   serial: 1
+- become: false
+  gather_facts: true
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -218,18 +222,17 @@ func TestReadCmd_ArrayYaml_SplatKey(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := "- false\n"
+	expectedOutput := `- false
+- true
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [x].gather_facts")
-	if result.Error == nil {
-		t.Error("Expected command to fail due to invalid path")
-	}
-	expectedOutput := `Error reading path in document index 0: strconv.ParseInt: parsing "x": invalid syntax`
-	test.AssertResult(t, expectedOutput, result.Error.Error())
+	result := test.RunCmd(cmd, "read -v examples/array.yaml [x].gather_facts")
+	expectedOutput := ``
+	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 // func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
@@ -325,6 +328,34 @@ func TestReadCmd_Verbose(t *testing.T) {
 // 	}
 // 	test.AssertResult(t, "2\n", result.Output)
 // }
+
+func TestReadSplatPrefixYaml(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -v %s b.there*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `- more things
+- more things also
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
 
 func TestPrefixCmd(t *testing.T) {
 	content := `b:

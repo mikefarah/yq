@@ -277,10 +277,14 @@ func readProperty(cmd *cobra.Command, args []string) error {
 				log.Debugf("reading %v in document %v", path, currentIndex)
 				mappedDoc, errorParsing := lib.Get(&dataBucket, path)
 				lib.DebugNode(mappedDoc)
+				log.Debugf("carry on")
 				if errorParsing != nil {
 					return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
+				} else if mappedDoc != nil {
+
+					mappedDocs = append(mappedDocs, mappedDoc)
 				}
-				mappedDocs = append(mappedDocs, mappedDoc)
+
 			}
 			currentIndex = currentIndex + 1
 		}
@@ -288,6 +292,9 @@ func readProperty(cmd *cobra.Command, args []string) error {
 
 	if errorReadingStream != nil {
 		return errorReadingStream
+	} else if len(mappedDocs) == 0 {
+		log.Debug("no matching results, nothing to print")
+		return nil
 	}
 
 	var encoder = yaml.NewEncoder(cmd.OutOrStdout())

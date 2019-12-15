@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bytes"
 	"strconv"
+	"strings"
 
 	logging "gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
@@ -19,11 +20,7 @@ type navigator struct {
 	log *logging.Logger
 }
 
-type VisitorFn func(*yaml.Node) (*yaml.Node, error)
-
-func identityVisitor(value *yaml.Node) (*yaml.Node, error) {
-	return value, nil
-}
+type VisitorFn func(*yaml.Node) error
 
 func NewDataNavigator(l *logging.Logger) DataNavigator {
 	return &navigator{
@@ -32,11 +29,28 @@ func NewDataNavigator(l *logging.Logger) DataNavigator {
 }
 
 func (n *navigator) Get(value *yaml.Node, path []string) (*yaml.Node, error) {
-	return n.Visit(value, path, identityVisitor)
+	matchingNodes := make([]*yaml.Node, 0)
+
+	n.Visit(value, path, func(matchedNode *yaml.Node) error {
+		matchingNodes = append(matchingNodes, matchedNode)
+		n.log.Debug("Matched")
+		n.DebugNode(matchedNode)
+		return nil
+	})
+	n.log.Debug("finished iterating, found %v matches", len(matchingNodes))
+	if len(matchingNodes) == 0 {
+		return nil, nil
+	} else if len(matchingNodes) == 1 {
+		return matchingNodes[0], nil
+	}
+	// make a new node
+	var newNode = yaml.Node{Kind: yaml.SequenceNode}
+	newNode.Content = matchingNodes
+	return &newNode, nil
 }
 
 func (n *navigator) Update(rootNode *yaml.Node, path []string, changesToApply yaml.Node) error {
-	_, errorVisiting := n.Visit(rootNode, path, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
+	errorVisiting := n.Visit(rootNode, path, func(nodeToUpdate *yaml.Node) error {
 		n.log.Debug("going to update")
 		n.DebugNode(nodeToUpdate)
 		n.log.Debug("with")
@@ -49,7 +63,7 @@ func (n *navigator) Update(rootNode *yaml.Node, path []string, changesToApply ya
 		nodeToUpdate.HeadComment = changesToApply.HeadComment
 		nodeToUpdate.LineComment = changesToApply.LineComment
 		nodeToUpdate.FootComment = changesToApply.FootComment
-		return nodeToUpdate, nil
+		return nil
 	})
 	return errorVisiting
 }
@@ -59,36 +73,39 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 	lastBit, newTail := path[len(path)-1], path[:len(path)-1]
 	n.log.Debug("splitting path, %v", lastBit)
 	n.log.Debug("new tail, %v", newTail)
-	_, errorVisiting := n.Visit(rootNode, newTail, func(nodeToUpdate *yaml.Node) (*yaml.Node, error) {
+	errorVisiting := n.Visit(rootNode, newTail, func(nodeToUpdate *yaml.Node) error {
 		n.log.Debug("need to find %v in here", lastBit)
 		n.DebugNode(nodeToUpdate)
 		original := nodeToUpdate.Content
 		if nodeToUpdate.Kind == yaml.SequenceNode {
 			var index, err = strconv.ParseInt(lastBit, 10, 64) // nolint
 			if err != nil {
-				return nil, err
+				return err
 			}
 			if index >= int64(len(nodeToUpdate.Content)) {
-				n.log.Debug("index %v is greater than content lenth %v", index, len(nodeToUpdate.Content))
-				return nodeToUpdate, nil
+				n.log.Debug("index %v is greater than content length %v", index, len(nodeToUpdate.Content))
+				return nil
 			}
 			nodeToUpdate.Content = append(original[:index], original[index+1:]...)
 
 		} else if nodeToUpdate.Kind == yaml.MappingNode {
-			//need to delete both the key and value children from Content
-			indexInMap := n.findIndexForKeyInMap(nodeToUpdate.Content, lastBit)
-			if indexInMap != -1 {
-				//skip two because its a key, value pair
+
+			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(indexInMap int) error {
 				nodeToUpdate.Content = append(original[:indexInMap], original[indexInMap+2:]...)
+				return nil
+			})
+			if errorVisiting != nil {
+				return errorVisiting
 			}
+
 		}
 
-		return nodeToUpdate, nil
+		return nil
 	})
 	return errorVisiting
 }
 
-func (n *navigator) Visit(value *yaml.Node, path []string, visitor VisitorFn) (*yaml.Node, error) {
+func (n *navigator) Visit(value *yaml.Node, path []string, visitor VisitorFn) error {
 	realValue := value
 	if realValue.Kind == yaml.DocumentNode {
 		n.log.Debugf("its a document! returning the first child")
@@ -130,7 +147,9 @@ func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *y
 }
 
 func (n *navigator) DebugNode(value *yaml.Node) {
-	if n.log.IsEnabledFor(logging.DEBUG) {
+	if value == nil {
+		n.log.Debug("-- node is nil --")
+	} else if n.log.IsEnabledFor(logging.DEBUG) {
 		buf := new(bytes.Buffer)
 		encoder := yaml.NewEncoder(buf)
 		encoder.Encode(value)
@@ -140,7 +159,7 @@ func (n *navigator) DebugNode(value *yaml.Node) {
 	}
 }
 
-func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
 	switch value.Kind {
 	case yaml.MappingNode:
 		n.log.Debug("its a map with %v entries", len(value.Content)/2)
@@ -157,32 +176,36 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 		}
 		return n.recurseArray(value, head, tail, visitor)
 	default:
-		return nil, nil
+		return nil
 	}
 }
 
-func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
-	var newNode = yaml.Node{Kind: yaml.SequenceNode}
+func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn) error {
 	for index, content := range value.Content {
 		if index%2 == 0 {
 			continue
 		}
 		content = n.getOrReplace(content, n.guessKind(tail, content.Kind))
-		var nestedValue, err = n.Visit(content, tail, visitor)
+		var err = n.Visit(content, tail, visitor)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		newNode.Content = append(newNode.Content, nestedValue)
 	}
-	return &newNode, nil
+	return nil
 }
 
-func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
-	indexInMap := n.findIndexForKeyInMap(value.Content, head)
-
-	if indexInMap != -1 {
+func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
+	visited, errorVisiting := n.visitMatchingEntries(value.Content, head, func(indexInMap int) error {
 		value.Content[indexInMap+1] = n.getOrReplace(value.Content[indexInMap+1], n.guessKind(tail, value.Content[indexInMap+1].Kind))
 		return n.Visit(value.Content[indexInMap+1], tail, visitor)
+	})
+
+	if errorVisiting != nil {
+		return errorVisiting
+	}
+
+	if visited {
+		return nil
 	}
 
 	//didn't find it, lets add it.
@@ -193,64 +216,63 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 	return n.Visit(&mapEntryValue, tail, visitor)
 }
 
-func (n *navigator) findIndexForKeyInMap(contents []*yaml.Node, key string) int {
+type mapVisitorFn func(int) error
+
+func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+	visited := false
 	for index, content := range contents {
 		// value.Content is a concatenated array of key, value,
 		// so keys are in the even indexes, values in odd.
-		if index%2 == 1 || (content.Value != key) {
-			continue
+		if index%2 == 0 && (n.matchesKey(key, content.Value)) {
+			errorVisiting := visit(index)
+			if errorVisiting != nil {
+				return visited, errorVisiting
+			}
+			visited = true
 		}
-		return index
 	}
-	return -1
+	return visited, nil
 }
 
-func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
-	var newNode = yaml.Node{Kind: yaml.SequenceNode, Style: value.Style}
-	newNode.Content = make([]*yaml.Node, len(value.Content))
+func (n *navigator) matchesKey(key string, actual string) bool {
+	var prefixMatch = strings.TrimSuffix(key, "*")
+	if prefixMatch != key {
+		return strings.HasPrefix(actual, prefixMatch)
+	}
+	return actual == key
+}
 
-	for index, childValue := range value.Content {
+func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorFn) error {
+	for _, childValue := range value.Content {
 		n.log.Debug("processing")
 		n.DebugNode(childValue)
 		childValue = n.getOrReplace(childValue, n.guessKind(tail, childValue.Kind))
-		var nestedValue, err = n.Visit(childValue, tail, visitor)
-		n.log.Debug("nestedValue")
-		n.DebugNode(nestedValue)
+		var err = n.Visit(childValue, tail, visitor)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		newNode.Content[index] = nestedValue
 	}
-	return &newNode, nil
+	return nil
 }
 
-func (n *navigator) appendArray(value *yaml.Node, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+func (n *navigator) appendArray(value *yaml.Node, tail []string, visitor VisitorFn) error {
 	var newNode = yaml.Node{Kind: n.guessKind(tail, 0)}
 	value.Content = append(value.Content, &newNode)
 	n.log.Debug("appending a new node, %v", value.Content)
 	return n.Visit(&newNode, tail, visitor)
 }
 
-func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, visitor VisitorFn) (*yaml.Node, error) {
+func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
 	var index, err = strconv.ParseInt(head, 10, 64) // nolint
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if index >= int64(len(value.Content)) {
-		return nil, nil
+		return nil
 	}
 	value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail, value.Content[index].Kind))
 	return n.Visit(value.Content[index], tail, visitor)
 }
-
-// func matchesKey(key string, actual interface{}) bool {
-// 	var actualString = fmt.Sprintf("%v", actual)
-// 	var prefixMatch = strings.TrimSuffix(key, "*")
-// 	if prefixMatch != key {
-// 		return strings.HasPrefix(actualString, prefixMatch)
-// 	}
-// 	return actualString == key
-// }
 
 // func entriesInSlice(context yaml.MapSlice, key string) []*yaml.MapItem {
 // 	var matches = make([]*yaml.MapItem, 0)
