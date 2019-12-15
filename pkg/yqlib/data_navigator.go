@@ -89,13 +89,22 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 			nodeToUpdate.Content = append(original[:index], original[index+1:]...)
 
 		} else if nodeToUpdate.Kind == yaml.MappingNode {
-
+			// need to delete in reverse...
+			matchingIndices := make([]int, 0)
 			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(indexInMap int) error {
-				nodeToUpdate.Content = append(original[:indexInMap], original[indexInMap+2:]...)
+				matchingIndices = append(matchingIndices, indexInMap)
+				n.log.Debug("matchingIndices %v", indexInMap)
 				return nil
 			})
+			n.log.Debug("delete matching indices now")
+			n.log.Debug("%v", matchingIndices)
 			if errorVisiting != nil {
 				return errorVisiting
+			}
+			for i := len(matchingIndices) - 1; i >= 0; i-- {
+				indexToDelete := matchingIndices[i]
+				n.log.Debug("deleting index %v, %v", indexToDelete, nodeToUpdate.Content[indexToDelete].Value)
+				nodeToUpdate.Content = append(nodeToUpdate.Content[:indexToDelete], nodeToUpdate.Content[indexToDelete+2:]...)
 			}
 
 		}
@@ -225,6 +234,7 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 	// so keys are in the even indexes, values in odd.
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
+		n.log.Debug("index %v, checking %v", index, content.Value)
 		if n.matchesKey(key, content.Value) {
 			errorVisiting := visit(index)
 			if errorVisiting != nil {
