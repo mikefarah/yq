@@ -17,6 +17,7 @@ type YqLib interface {
 	DebugNode(node *yaml.Node)
 	Get(rootNode *yaml.Node, path string) (*yaml.Node, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
+	New(updateCommand UpdateCommand) (yaml.Node, error)
 }
 
 type lib struct {
@@ -40,6 +41,16 @@ func (l *lib) DebugNode(node *yaml.Node) {
 func (l *lib) Get(rootNode *yaml.Node, path string) (*yaml.Node, error) {
 	var paths = l.parser.ParsePath(path)
 	return l.navigator.Get(rootNode, paths)
+}
+
+func (l *lib) New(updateCommand UpdateCommand) (yaml.Node, error) {
+	var paths = l.parser.ParsePath(updateCommand.Path)
+	newNode := yaml.Node{Kind: l.navigator.GuessKind(paths, 0)}
+	errorUpdating := l.navigator.Update(&newNode, paths, updateCommand.Value)
+	if errorUpdating != nil {
+		return newNode, errorUpdating
+	}
+	return newNode, nil
 }
 
 func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {

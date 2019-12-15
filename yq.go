@@ -78,7 +78,7 @@ func newCommandCLI() *cobra.Command {
 		createWriteCmd(),
 		// createPrefixCmd(),
 		createDeleteCmd(),
-		// createNewCmd(),
+		createNewCmd(),
 		// createMergeCmd(),
 	)
 	rootCmd.SetOutput(os.Stdout)
@@ -188,28 +188,28 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 	return cmdDelete
 }
 
-// func createNewCmd() *cobra.Command {
-// 	var cmdNew = &cobra.Command{
-// 		Use:     "new [path] [value]",
-// 		Aliases: []string{"n"},
-// 		Short:   "yq n [--script/-s script_file] a.b.c newValue",
-// 		Example: `
-// yq new a.b.c cat
-// yq n a.b.c cat
-// yq n -- --key-starting-with-dash cat
-// yq n --script create_script.yaml
-//       `,
-// 		Long: `Creates a new yaml w.r.t the given path and value.
-// Outputs to STDOUT
+func createNewCmd() *cobra.Command {
+	var cmdNew = &cobra.Command{
+		Use:     "new [path] [value]",
+		Aliases: []string{"n"},
+		Short:   "yq n [--script/-s script_file] a.b.c newValue",
+		Example: `
+yq new a.b.c cat
+yq n a.b.c cat
+yq n -- --key-starting-with-dash cat
+yq n --script create_script.yaml
+      `,
+		Long: `Creates a new yaml w.r.t the given path and value.
+Outputs to STDOUT
 
-// Create Scripts:
-// Note that you can give a create script to perform more sophisticated yaml. This follows the same format as the update script.
-// `,
-// 		RunE: newProperty,
-// 	}
-// 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
-// 	return cmdNew
-// }
+Create Scripts:
+Note that you can give a create script to perform more sophisticated yaml. This follows the same format as the update script.
+`,
+		RunE: newProperty,
+	}
+	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	return cmdNew
+}
 
 // func createMergeCmd() *cobra.Command {
 // 	var cmdMerge = &cobra.Command{
@@ -417,6 +417,34 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 	return updateDoc(args[0], updateCommands, cmd.OutOrStdout())
 }
 
+func newProperty(cmd *cobra.Command, args []string) error {
+	var updateCommands, updateCommandsError = readUpdateCommands(args, 2, "Must provide <filename> <path_to_update> <value>")
+	if updateCommandsError != nil {
+		return updateCommandsError
+	}
+	firstCommand, restOfCommands := updateCommands[0], updateCommands[1:]
+	newNode, errorCreating := lib.New(firstCommand)
+	if errorCreating != nil {
+		return errorCreating
+	}
+
+	for _, updateCommand := range restOfCommands {
+
+		errorUpdating := lib.Update(&newNode, updateCommand)
+
+		if errorUpdating != nil {
+			return errorUpdating
+		}
+	}
+
+	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
+	encoder.SetIndent(2)
+	encoder.Encode(&newNode)
+	encoder.Close()
+	return nil
+
+}
+
 func deleteProperty(cmd *cobra.Command, args []string) error {
 	if len(args) < 2 {
 		return errors.New("Must provide <filename> <path_to_delete>")
@@ -558,6 +586,9 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		return nil, errors.New(badArgsMessage)
 	} else {
 		updateCommands = make([]yqlib.UpdateCommand, 1)
+		log.Debug("args %v", args)
+		log.Debug("path %v", args[expectedArgs-2])
+		log.Debug("Value %v", args[expectedArgs-1])
 		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
 	}
 	return updateCommands, nil

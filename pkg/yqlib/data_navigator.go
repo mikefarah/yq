@@ -14,6 +14,7 @@ type DataNavigator interface {
 	Get(rootNode *yaml.Node, path []string) (*yaml.Node, error)
 	Update(rootNode *yaml.Node, path []string, changesToApply yaml.Node) error
 	Delete(rootNode *yaml.Node, path []string) error
+	GuessKind(tail []string, guess yaml.Kind) yaml.Kind
 }
 
 type navigator struct {
@@ -68,6 +69,7 @@ func (n *navigator) Update(rootNode *yaml.Node, path []string, changesToApply ya
 	return errorVisiting
 }
 
+// TODO: refactor delete..
 func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 
 	lastBit, newTail := path[len(path)-1], path[:len(path)-1]
@@ -129,7 +131,7 @@ func (n *navigator) Visit(value *yaml.Node, path []string, visitor VisitorFn) er
 	return visitor(realValue)
 }
 
-func (n *navigator) guessKind(tail []string, guess yaml.Kind) yaml.Kind {
+func (n *navigator) GuessKind(tail []string, guess yaml.Kind) yaml.Kind {
 	n.log.Debug("tail %v", tail)
 	if len(tail) == 0 && guess == 0 {
 		n.log.Debug("end of path, must be a scalar")
@@ -195,7 +197,7 @@ func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn)
 		if index%2 == 0 {
 			continue
 		}
-		content = n.getOrReplace(content, n.guessKind(tail, content.Kind))
+		content = n.getOrReplace(content, n.GuessKind(tail, content.Kind))
 		var err = n.Visit(content, tail, visitor)
 		if err != nil {
 			return err
@@ -206,7 +208,7 @@ func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn)
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
 	visited, errorVisiting := n.visitMatchingEntries(value.Content, head, func(indexInMap int) error {
-		value.Content[indexInMap+1] = n.getOrReplace(value.Content[indexInMap+1], n.guessKind(tail, value.Content[indexInMap+1].Kind))
+		value.Content[indexInMap+1] = n.getOrReplace(value.Content[indexInMap+1], n.GuessKind(tail, value.Content[indexInMap+1].Kind))
 		return n.Visit(value.Content[indexInMap+1], tail, visitor)
 	})
 
@@ -220,7 +222,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 
 	//didn't find it, lets add it.
 	value.Content = append(value.Content, &yaml.Node{Value: head, Kind: yaml.ScalarNode})
-	mapEntryValue := yaml.Node{Kind: n.guessKind(tail, 0)}
+	mapEntryValue := yaml.Node{Kind: n.GuessKind(tail, 0)}
 	value.Content = append(value.Content, &mapEntryValue)
 	n.log.Debug("adding new node %v", value.Content)
 	return n.Visit(&mapEntryValue, tail, visitor)
@@ -259,7 +261,7 @@ func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorF
 	for _, childValue := range value.Content {
 		n.log.Debug("processing")
 		n.DebugNode(childValue)
-		childValue = n.getOrReplace(childValue, n.guessKind(tail, childValue.Kind))
+		childValue = n.getOrReplace(childValue, n.GuessKind(tail, childValue.Kind))
 		var err = n.Visit(childValue, tail, visitor)
 		if err != nil {
 			return err
@@ -269,7 +271,7 @@ func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorF
 }
 
 func (n *navigator) appendArray(value *yaml.Node, tail []string, visitor VisitorFn) error {
-	var newNode = yaml.Node{Kind: n.guessKind(tail, 0)}
+	var newNode = yaml.Node{Kind: n.GuessKind(tail, 0)}
 	value.Content = append(value.Content, &newNode)
 	n.log.Debug("appending a new node, %v", value.Content)
 	return n.Visit(&newNode, tail, visitor)
@@ -283,7 +285,7 @@ func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, v
 	if index >= int64(len(value.Content)) {
 		return nil
 	}
-	value.Content[index] = n.getOrReplace(value.Content[index], n.guessKind(tail, value.Content[index].Kind))
+	value.Content[index] = n.getOrReplace(value.Content[index], n.GuessKind(tail, value.Content[index].Kind))
 	return n.Visit(value.Content[index], tail, visitor)
 }
 
