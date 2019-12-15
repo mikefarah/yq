@@ -89,7 +89,8 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 			nodeToUpdate.Content = append(original[:index], original[index+1:]...)
 
 		} else if nodeToUpdate.Kind == yaml.MappingNode {
-			// need to delete in reverse...
+			// need to delete in reverse - otherwise the matching indexes
+			// become incorrect.
 			matchingIndices := make([]int, 0)
 			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(indexInMap int) error {
 				matchingIndices = append(matchingIndices, indexInMap)
