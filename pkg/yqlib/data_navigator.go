@@ -220,10 +220,12 @@ type mapVisitorFn func(int) error
 
 func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
 	visited := false
-	for index, content := range contents {
-		// value.Content is a concatenated array of key, value,
-		// so keys are in the even indexes, values in odd.
-		if index%2 == 0 && (n.matchesKey(key, content.Value)) {
+
+	// value.Content is a concatenated array of key, value,
+	// so keys are in the even indexes, values in odd.
+	for index := 0; index < len(contents); index = index + 2 {
+		content := contents[index]
+		if n.matchesKey(key, content.Value) {
 			errorVisiting := visit(index)
 			if errorVisiting != nil {
 				return visited, errorVisiting

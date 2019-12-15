@@ -235,15 +235,14 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-// func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
-// 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, "read examples/array.yaml [*].roles[x]")
-// 	if result.Error == nil {
-// 		t.Error("Expected command to fail due to invalid path")
-// 	}
-// 	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
-// 	test.AssertResult(t, expectedOutput, result.Error.Error())
-// }
+func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/array.yaml [*].roles[x]")
+	expectedOutput := `-
+-
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
 
 func TestReadCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
@@ -280,27 +279,26 @@ func TestReadCmd_ErrorUnreadableFile(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
-// func TestReadCmd_ErrorBadPath(t *testing.T) {
-// 	content := `b:
-//   d:
-//     e:
-//       - 3
-//       - 4
-//     f:
-//       - 1
-//       - 2
-// `
-// 	filename := test.WriteTempYamlFile(content)
-// 	defer test.RemoveTempYamlFile(filename)
+func TestReadCmd_ErrorBadPath(t *testing.T) {
+	content := `b:
+  d:
+    e:
+      - 3
+      - 4
+    f:
+      - 1
+      - 2
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
 
-// 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, fmt.Sprintf("read %s b.d.*.[x]", filename))
-// 	if result.Error == nil {
-// 		t.Fatal("Expected command to fail due to invalid path")
-// 	}
-// 	expectedOutput := `Error reading path in document index 0: error accessing array: strconv.ParseInt: parsing "x": invalid syntax`
-// 	test.AssertResult(t, expectedOutput, result.Error.Error())
-// }
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s b.d.*.[x]", filename))
+	expectedOutput := `-
+-
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
 
 func TestReadCmd_Verbose(t *testing.T) {
 	cmd := getRootCommand()
@@ -878,35 +876,28 @@ b:
 }
 
 func TestDeleteSplatYaml(t *testing.T) {
-	content := `a: 2
-b:
- hi:
-   c: things
-   d: something else
- hello:
-   c: things2
-   d: something else2
- there:
-   c: more things
-   d: more something else
+	content := `a: other
+b: [3, 4]
+c:
+  toast: leave
+  test: 1
+  tell: 1
+  taco: cool
 `
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("delete -v %s b.*.c", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("delete -v %s c.te*", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 
-	expectedOutput := `a: 2
-b:
-  hi:
-    d: something else
-  hello:
-    d: something else2
-  there:
-    d: more something else
+	expectedOutput := `a: other
+b: [3, 4]
+c:
+  toast: leave
+  taco: cool
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
