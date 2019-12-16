@@ -2,34 +2,50 @@ package yqlib
 
 import (
 	"strconv"
+
+	logging "gopkg.in/op/go-logging.v1"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type ValueParser interface {
-	ParseValue(argument string) interface{}
+	Parse(argument string, customTag string) *yaml.Node
 }
 
-type valueParser struct{}
-
-func NewValueParser() ValueParser {
-	return &valueParser{}
+type valueParser struct {
+	log *logging.Logger
 }
 
-func (v *valueParser) ParseValue(argument string) interface{} {
-	var value, err interface{}
+func NewValueParser(l *logging.Logger) ValueParser {
+	return &valueParser{log: l}
+}
+
+func (v *valueParser) Parse(argument string, customTag string) *yaml.Node {
+	var err interface{}
+	var tag = customTag
+
 	var inQuotes = len(argument) > 0 && argument[0] == '"'
-	if !inQuotes {
-		value, err = strconv.ParseFloat(argument, 64)
+	if tag == "" && !inQuotes {
+
+		_, err = strconv.ParseBool(argument)
 		if err == nil {
-			return value
+			tag = "!!bool"
 		}
-		value, err = strconv.ParseBool(argument)
+		_, err = strconv.ParseFloat(argument, 64)
 		if err == nil {
-			return value
+			tag = "!!float"
+		}
+		_, err = strconv.ParseInt(argument, 10, 64)
+		if err == nil {
+			tag = "!!int"
+		}
+
+		if argument == "null" {
+			tag = "!!null"
 		}
 		if argument == "[]" {
-			return make([]interface{}, 0)
+			return &yaml.Node{Tag: "!!seq", Kind: yaml.SequenceNode}
 		}
-		return argument
 	}
-	return argument[1 : len(argument)-1]
+	v.log.Debugf("parsed value '%v', tag: '%v'", argument, tag)
+	return &yaml.Node{Value: argument, Tag: tag, Kind: yaml.ScalarNode}
 }

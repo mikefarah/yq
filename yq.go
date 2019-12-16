@@ -29,7 +29,7 @@ var version = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
 var lib = yqlib.NewYqLib(log)
-var valueParser = yqlib.NewValueParser()
+var valueParser = yqlib.NewValueParser(log)
 
 func main() {
 	cmd := newCommandCLI()
@@ -263,28 +263,14 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		for {
 			var dataBucket yaml.Node
 			errorReading := decoder.Decode(&dataBucket)
-			log.Debugf("decoded node for doc %v", currentIndex)
-			lib.DebugNode(&dataBucket)
+
 			if errorReading == io.EOF {
-				log.Debugf("done %v / %v", currentIndex, docIndexInt)
-				if !updateAll && currentIndex <= docIndexInt {
-					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
-				}
-				return nil
+				return handleEOF(updateAll, docIndexInt, currentIndex)
 			}
-			log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
-			if updateAll || currentIndex == docIndexInt {
-				log.Debugf("reading %v in document %v", path, currentIndex)
-				mappedDoc, errorParsing := lib.Get(&dataBucket, path)
-				lib.DebugNode(mappedDoc)
-				log.Debugf("carry on")
-				if errorParsing != nil {
-					return errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
-				} else if mappedDoc != nil {
-
-					mappedDocs = append(mappedDocs, mappedDoc)
-				}
-
+			var errorParsing error
+			mappedDocs, errorParsing = appendDocument(mappedDocs, dataBucket, path, updateAll, docIndexInt, currentIndex)
+			if errorParsing != nil {
+				return errorParsing
 			}
 			currentIndex = currentIndex + 1
 		}
@@ -292,7 +278,38 @@ func readProperty(cmd *cobra.Command, args []string) error {
 
 	if errorReadingStream != nil {
 		return errorReadingStream
-	} else if len(mappedDocs) == 0 {
+	}
+
+	return printResults(mappedDocs, cmd)
+}
+
+func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
+	log.Debugf("done %v / %v", currentIndex, docIndexInt)
+	if !updateAll && currentIndex <= docIndexInt {
+		return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+	}
+	return nil
+}
+
+func appendDocument(mappedDocs []*yaml.Node, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]*yaml.Node, error) {
+	log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
+	lib.DebugNode(&dataBucket)
+	if !updateAll && currentIndex != docIndexInt {
+		return mappedDocs, nil
+	}
+	log.Debugf("reading %v in document %v", path, currentIndex)
+	mappedDoc, errorParsing := lib.Get(&dataBucket, path)
+	lib.DebugNode(mappedDoc)
+	if errorParsing != nil {
+		return nil, errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
+	} else if mappedDoc != nil {
+		return append(mappedDocs, mappedDoc), nil
+	}
+	return mappedDocs, nil
+}
+
+func printResults(mappedDocs []*yaml.Node, cmd *cobra.Command) error {
+	if len(mappedDocs) == 0 {
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
@@ -307,7 +324,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 				cmd.Println(mappedDoc.Value)
 			}
 		}
-	} else if !updateAll {
+	} else if len(mappedDocs) == 1 {
 		err = encoder.Encode(mappedDocs[0])
 	} else {
 		err = encoder.Encode(&yaml.Node{Kind: yaml.SequenceNode, Content: mappedDocs})
@@ -318,43 +335,6 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	encoder.Close()
 	return nil
 }
-
-// func newProperty(cmd *cobra.Command, args []string) error {
-// 	updatedData, err := newYaml(args)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	dataStr, err := toString(updatedData)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	cmd.Println(dataStr)
-// 	return nil
-// }
-
-// func newYaml(args []string) (interface{}, error) {
-// 	var writeCommands, writeCommandsError = readUpdateCommands(args, 2, "Must provide <path_to_update> <value>")
-// 	if writeCommandsError != nil {
-// 		return nil, writeCommandsError
-// 	}
-
-// 	var dataBucket interface{}
-// 	var isArray = strings.HasPrefix(writeCommands[0].Key.(string), "[")
-// 	if isArray {
-// 		dataBucket = make([]interface{}, 0)
-// 	} else {
-// 		dataBucket = make(yaml.MapSlice, 0)
-// 	}
-
-// 	for _, entry := range writeCommands {
-// 		path := entry.Key.(string)
-// 		value := entry.Value
-// 		log.Debugf("setting %v to %v", path, value)
-// 		dataBucket = lib.WritePath(dataBucket, path, value)
-// 	}
-
-// 	return dataBucket, nil
-// }
 
 func parseDocumentIndex() (bool, int, error) {
 	if docIndex == "*" {
@@ -454,25 +434,27 @@ func prefixProperty(cmd *cobra.Command, args []string) error {
 	}
 
 	var updateData = func(dataBucket *yaml.Node, currentIndex int) error {
-		if updateAll || currentIndex == docIndexInt {
-			log.Debugf("Prefixing document %v", currentIndex)
-			lib.DebugNode(dataBucket)
-			updateCommand.Value = dataBucket.Content[0]
-			dataBucket.Content = make([]*yaml.Node, 1)
-
-			newNode := lib.New(updateCommand.Path)
-			dataBucket.Content[0] = &newNode
-
-			errorUpdating := lib.Update(dataBucket, updateCommand)
-			if errorUpdating != nil {
-				return errorUpdating
-			}
-
-		}
-		return nil
+		return prefixDocument(updateAll, docIndexInt, currentIndex, dataBucket, updateCommand)
 	}
 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
+}
 
+func prefixDocument(updateAll bool, docIndexInt int, currentIndex int, dataBucket *yaml.Node, updateCommand yqlib.UpdateCommand) error {
+	if updateAll || currentIndex == docIndexInt {
+		log.Debugf("Prefixing document %v", currentIndex)
+		lib.DebugNode(dataBucket)
+		updateCommand.Value = dataBucket.Content[0]
+		dataBucket.Content = make([]*yaml.Node, 1)
+
+		newNode := lib.New(updateCommand.Path)
+		dataBucket.Content[0] = &newNode
+
+		errorUpdating := lib.Update(dataBucket, updateCommand)
+		if errorUpdating != nil {
+			return errorUpdating
+		}
+	}
+	return nil
 }
 
 func deleteProperty(cmd *cobra.Command, args []string) error {
@@ -505,29 +487,6 @@ func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io
 	}
 	return readAndUpdate(writer, inputFile, updateData)
 }
-
-// func prefixProperty(cmd *cobra.Command, args []string) error {
-// 	if len(args) != 2 {
-// 		return errors.New("Must provide <filename> <prefixed_path>")
-// 	}
-// 	prefixPath := args[1]
-
-// 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
-// 	if errorParsingDocIndex != nil {
-// 		return errorParsingDocIndex
-// 	}
-
-// 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-
-// 		if updateAll || currentIndex == docIndexInt {
-// 			log.Debugf("Prefixing %v to doc %v", prefixPath, currentIndex)
-// 			var mapDataBucket = lib.PrefixPath(dataBucket, prefixPath)
-// 			return mapDataBucket, nil
-// 		}
-// 		return dataBucket, nil
-// 	}
-// 	return readAndUpdate(cmd.OutOrStdout(), args[0], updateData)
-// }
 
 func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
 	var destination io.Writer
@@ -633,40 +592,9 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		log.Debug("args %v", args)
 		log.Debug("path %v", args[expectedArgs-2])
 		log.Debug("Value %v", args[expectedArgs-1])
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: parseValue(args[expectedArgs-1])}
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse(args[expectedArgs-1], customTag)}
 	}
 	return updateCommands, nil
-}
-
-func parseValue(argument string) *yaml.Node {
-	var err interface{}
-	var tag = customTag
-
-	var inQuotes = len(argument) > 0 && argument[0] == '"'
-	if tag == "" && !inQuotes {
-
-		_, err = strconv.ParseBool(argument)
-		if err == nil {
-			tag = "!!bool"
-		}
-		_, err = strconv.ParseFloat(argument, 64)
-		if err == nil {
-			tag = "!!float"
-		}
-		_, err = strconv.ParseInt(argument, 10, 64)
-		if err == nil {
-			tag = "!!int"
-		}
-
-		if argument == "null" {
-			tag = "!!null"
-		}
-		if argument == "[]" {
-			return &yaml.Node{Tag: "!!seq", Kind: yaml.SequenceNode}
-		}
-	}
-	log.Debugf("Updating node to value '%v', tag: '%v'", argument, tag)
-	return &yaml.Node{Value: argument, Tag: tag, Kind: yaml.ScalarNode}
 }
 
 func safelyRenameFile(from string, to string) {
