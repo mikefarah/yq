@@ -18,14 +18,16 @@ type DataNavigator interface {
 }
 
 type navigator struct {
-	log *logging.Logger
+	log           *logging.Logger
+	followAliases bool
 }
 
 type VisitorFn func(*yaml.Node) error
 
-func NewDataNavigator(l *logging.Logger) DataNavigator {
+func NewDataNavigator(l *logging.Logger, followAliases bool) DataNavigator {
 	return &navigator{
-		log: l,
+		log:           l,
+		followAliases: followAliases,
 	}
 }
 
@@ -147,6 +149,10 @@ func (n *navigator) GuessKind(tail []string, guess yaml.Kind) yaml.Kind {
 	if tail[0] == "*" && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
 		return guess
 	}
+	if guess == yaml.AliasNode {
+		n.log.Debug("guess was an alias, okey doke.")
+		return guess
+	}
 	return yaml.MappingNode
 }
 
@@ -172,6 +178,7 @@ func (n *navigator) DebugNode(value *yaml.Node) {
 }
 
 func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
+	n.log.Debug("recursing, processing %v", head)
 	switch value.Kind {
 	case yaml.MappingNode:
 		n.log.Debug("its a map with %v entries", len(value.Content)/2)
@@ -187,6 +194,13 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 			return n.appendArray(value, tail, visitor)
 		}
 		return n.recurseArray(value, head, tail, visitor)
+	case yaml.AliasNode:
+		n.log.Debug("its an alias, followAliases: %v", n.followAliases)
+		n.DebugNode(value.Alias)
+		if n.followAliases == true {
+			return n.recurse(value.Alias, head, tail, visitor)
+		}
+		return nil
 	default:
 		return nil
 	}
@@ -237,7 +251,7 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 	// so keys are in the even indexes, values in odd.
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
-		n.log.Debug("index %v, checking %v", index, content.Value)
+		n.log.Debug("index %v, checking %v", index, content.Value))
 		if n.matchesKey(key, content.Value) {
 			errorVisiting := visit(index)
 			if errorVisiting != nil {

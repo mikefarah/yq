@@ -112,6 +112,15 @@ func TestReadCmd(t *testing.T) {
 // 	test.AssertResult(t, "21\n", result.Output)
 // }
 
+func TestReadAnchorsCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/simple-anchor.yaml foobar.a")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "1\n", result.Output)
+}
+
 func TestReadInvalidDocumentIndexCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -df examples/sample.yaml b.c")
