@@ -96,7 +96,7 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 			// need to delete in reverse - otherwise the matching indexes
 			// become incorrect.
 			matchingIndices := make([]int, 0)
-			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(indexInMap int) error {
+			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(matchingNode []*yaml.Node, indexInMap int) error {
 				matchingIndices = append(matchingIndices, indexInMap)
 				n.log.Debug("matchingIndices %v", indexInMap)
 				return nil
@@ -153,6 +153,9 @@ func (n *navigator) GuessKind(tail []string, guess yaml.Kind) yaml.Kind {
 		n.log.Debug("guess was an alias, okey doke.")
 		return guess
 	}
+	n.log.Debug("forcing a mapping node")
+	n.log.Debug("yaml.SequenceNode ?", guess == yaml.SequenceNode)
+	n.log.Debug("yaml.ScalarNode ?", guess == yaml.ScalarNode)
 	return yaml.MappingNode
 }
 
@@ -221,9 +224,9 @@ func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn)
 }
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn) error {
-	visited, errorVisiting := n.visitMatchingEntries(value.Content, head, func(indexInMap int) error {
-		value.Content[indexInMap+1] = n.getOrReplace(value.Content[indexInMap+1], n.GuessKind(tail, value.Content[indexInMap+1].Kind))
-		return n.Visit(value.Content[indexInMap+1], tail, visitor)
+	visited, errorVisiting := n.visitMatchingEntries(value.Content, head, func(contents []*yaml.Node, indexInMap int) error {
+		contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], n.GuessKind(tail, contents[indexInMap+1].Kind))
+		return n.Visit(contents[indexInMap+1], tail, visitor)
 	})
 
 	if errorVisiting != nil {
@@ -242,18 +245,36 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 	return n.Visit(&mapEntryValue, tail, visitor)
 }
 
-type mapVisitorFn func(int) error
+// need to pass the node in, as it may be aliased
+type mapVisitorFn func([]*yaml.Node, int) error
 
 func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
 	visited := false
-
+	n.log.Debug("visitMatchingEntries %v in %v", key, contents)
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
-	for index := 0; index < len(contents); index = index + 2 {
+	// merge aliases are defined first, but we only want to traverse them
+	// if we dont find a match on this node first.
+	for index := len(contents) - 2; index >= 0; index = index - 2 {
 		content := contents[index]
-		n.log.Debug("index %v, checking %v", index, content.Value))
+		n.log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
+
+		// only visit aliases if we didn't find a match in this object.
+		if n.followAliases && !visited && contents[index+1].Kind == yaml.AliasNode {
+			valueNode := contents[index+1]
+
+			n.log.Debug("need to visit the alias too")
+			n.DebugNode(valueNode)
+			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias.Content, key, visit)
+			if errorInAlias != nil {
+				return false, errorInAlias
+			}
+			visited = visited || visitedAlias
+		}
+
 		if n.matchesKey(key, content.Value) {
-			errorVisiting := visit(index)
+			n.log.Debug("found a match! %v", content.Value)
+			errorVisiting := visit(contents, index)
 			if errorVisiting != nil {
 				return visited, errorVisiting
 			}

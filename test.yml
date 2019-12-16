@@ -1,2 +1,4 @@
-a: apple
-c: cat
+foo: &foo
+  a: 1
+
+foobar: *foo

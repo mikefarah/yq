@@ -1,0 +1,17 @@
+foo: &foo
+  a: original
+  thing: coolasdf
+
+bar: &bar
+  b: 2
+
+
+overrideA:
+  <<: [*foo,*bar]
+  a: vanilla
+  c: 3
+
+foobar:
+  <<: *foo
+  thing: ice
+  c: 3
