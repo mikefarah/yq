@@ -6,5 +6,6 @@
 - command: update
   path: b.e[+].name
   value: Mike Farah
-- command: delete 
-  path: a
+- command: update
+  path: d.a
+  value: Cow

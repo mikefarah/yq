@@ -10,14 +10,14 @@ import (
 type UpdateCommand struct {
 	Command string
 	Path    string
-	Value   yaml.Node
+	Value   *yaml.Node
 }
 
 type YqLib interface {
 	DebugNode(node *yaml.Node)
 	Get(rootNode *yaml.Node, path string) (*yaml.Node, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
-	New(updateCommand UpdateCommand) (yaml.Node, error)
+	New(path string) yaml.Node
 }
 
 type lib struct {
@@ -43,14 +43,10 @@ func (l *lib) Get(rootNode *yaml.Node, path string) (*yaml.Node, error) {
 	return l.navigator.Get(rootNode, paths)
 }
 
-func (l *lib) New(updateCommand UpdateCommand) (yaml.Node, error) {
-	var paths = l.parser.ParsePath(updateCommand.Path)
+func (l *lib) New(path string) yaml.Node {
+	var paths = l.parser.ParsePath(path)
 	newNode := yaml.Node{Kind: l.navigator.GuessKind(paths, 0)}
-	errorUpdating := l.navigator.Update(&newNode, paths, updateCommand.Value)
-	if errorUpdating != nil {
-		return newNode, errorUpdating
-	}
-	return newNode, nil
+	return newNode
 }
 
 func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {
