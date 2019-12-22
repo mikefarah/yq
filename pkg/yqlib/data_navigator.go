@@ -303,7 +303,7 @@ func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVis
 				return visitedAlias, errorInAlias
 			}
 		} else if contents[index+1].Kind == yaml.SequenceNode {
-			// could be an array of aliases...need to search this backwards too!
+			// could be an array of aliases...
 			visitedAliasSeq, errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, key, visit)
 			if visitedAliasSeq == true || errorVisitingAliasSeq != nil {
 				return visitedAliasSeq, errorVisitingAliasSeq
@@ -315,6 +315,7 @@ func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVis
 }
 
 func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+	// need to search this backwards too, so that aliases defined last override the preceding.
 	for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
 		child := possibleAliasArray[aliasIndex]
 		if child.Kind == yaml.AliasNode {
