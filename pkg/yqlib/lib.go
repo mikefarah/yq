@@ -15,7 +15,7 @@ type UpdateCommand struct {
 
 type YqLib interface {
 	DebugNode(node *yaml.Node)
-	Get(rootNode *yaml.Node, path string) (*yaml.Node, error)
+	Get(rootNode *yaml.Node, path string) ([]MatchingNode, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
 	New(path string) yaml.Node
 }
@@ -38,7 +38,7 @@ func (l *lib) DebugNode(node *yaml.Node) {
 	navigator.DebugNode(node)
 }
 
-func (l *lib) Get(rootNode *yaml.Node, path string) (*yaml.Node, error) {
+func (l *lib) Get(rootNode *yaml.Node, path string) ([]MatchingNode, error) {
 	var paths = l.parser.ParsePath(path)
 	navigator := NewDataNavigator(l.log, true)
 	return navigator.Get(rootNode, paths)

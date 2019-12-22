@@ -17,7 +17,6 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var rawOutput = false
 var customTag = ""
 var writeInplace = false
 var writeScript = ""
@@ -103,7 +102,6 @@ yq r -- things.yaml --key-starting-with-dashes
 		RunE: readProperty,
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
-	cmdRead.PersistentFlags().BoolVarP(&rawOutput, "raw", "r", false, "raw yaml output - prints out values instead of yaml")
 	return cmdRead
 }
 
@@ -256,7 +254,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		return errorParsingDocIndex
 	}
 
-	var mappedDocs []*yaml.Node
+	var matchingNodes []yqlib.MatchingNode
 
 	var currentIndex = 0
 	var errorReadingStream = readStream(args[0], func(decoder *yaml.Decoder) error {
@@ -268,7 +266,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 				return handleEOF(updateAll, docIndexInt, currentIndex)
 			}
 			var errorParsing error
-			mappedDocs, errorParsing = appendDocument(mappedDocs, dataBucket, path, updateAll, docIndexInt, currentIndex)
+			matchingNodes, errorParsing = appendDocument(matchingNodes, dataBucket, path, updateAll, docIndexInt, currentIndex)
 			if errorParsing != nil {
 				return errorParsing
 			}
@@ -280,7 +278,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		return errorReadingStream
 	}
 
-	return printResults(mappedDocs, cmd)
+	return printResults(matchingNodes, cmd)
 }
 
 func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
@@ -291,48 +289,41 @@ func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	return nil
 }
 
-func appendDocument(mappedDocs []*yaml.Node, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]*yaml.Node, error) {
+func appendDocument(originalMatchingNodes []yqlib.MatchingNode, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]yqlib.MatchingNode, error) {
 	log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
 	lib.DebugNode(&dataBucket)
 	if !updateAll && currentIndex != docIndexInt {
-		return mappedDocs, nil
+		return originalMatchingNodes, nil
 	}
 	log.Debugf("reading %v in document %v", path, currentIndex)
-	mappedDoc, errorParsing := lib.Get(&dataBucket, path)
-	lib.DebugNode(mappedDoc)
+	matchingNodes, errorParsing := lib.Get(&dataBucket, path)
 	if errorParsing != nil {
 		return nil, errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
-	} else if mappedDoc != nil {
-		return append(mappedDocs, mappedDoc), nil
 	}
-	return mappedDocs, nil
+	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
-func printResults(mappedDocs []*yaml.Node, cmd *cobra.Command) error {
-	if len(mappedDocs) == 0 {
+func printResults(matchingNodes []yqlib.MatchingNode, cmd *cobra.Command) error {
+	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
 
-	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
-	encoder.SetIndent(2)
 	var err error
 
-	if rawOutput {
-		for _, mappedDoc := range mappedDocs {
-			if mappedDoc != nil {
-				cmd.Println(mappedDoc.Value)
+	for _, mappedDoc := range matchingNodes {
+		if mappedDoc.Node.Kind == yaml.ScalarNode {
+			cmd.Println(mappedDoc.Node.Value)
+		} else {
+			var encoder = yaml.NewEncoder(cmd.OutOrStdout())
+			encoder.SetIndent(2)
+			if err = encoder.Encode(mappedDoc.Node); err != nil {
+				return err
 			}
+			encoder.Close()
 		}
-	} else if len(mappedDocs) == 1 {
-		err = encoder.Encode(mappedDocs[0])
-	} else {
-		err = encoder.Encode(&yaml.Node{Kind: yaml.SequenceNode, Content: mappedDocs})
 	}
-	if err != nil {
-		return err
-	}
-	encoder.Close()
+
 	return nil
 }
 
