@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 
@@ -18,6 +19,7 @@ import (
 )
 
 var customTag = ""
+var printMode = "v"
 var writeInplace = false
 var writeScript = ""
 var overwriteFlag = false
@@ -102,6 +104,7 @@ yq r -- things.yaml --key-starting-with-dashes
 		RunE: readProperty,
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), k (keys), kv (key and value pairs)")
 	return cmdRead
 }
 
@@ -303,24 +306,62 @@ func appendDocument(originalMatchingNodes []yqlib.MatchingNode, dataBucket yaml.
 	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
+func pathToString(pathStack []interface{}) string {
+	var sb strings.Builder
+	for index, path := range pathStack {
+		sb.WriteString(fmt.Sprintf("%v", path))
+		if index < len(pathStack)-1 {
+			sb.WriteString(".")
+		}
+	}
+	return sb.String()
+}
+
+func printValue(node *yaml.Node, cmd *cobra.Command) error {
+	if node.Kind == yaml.ScalarNode {
+		cmd.Print(node.Value)
+		return nil
+	}
+	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
+	encoder.SetIndent(2)
+	if err := encoder.Encode(node); err != nil {
+		return err
+	}
+	encoder.Close()
+	return nil
+}
+
 func printResults(matchingNodes []yqlib.MatchingNode, cmd *cobra.Command) error {
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
 
-	var err error
-
-	for _, mappedDoc := range matchingNodes {
-		if mappedDoc.Node.Kind == yaml.ScalarNode {
-			cmd.Print(mappedDoc.Node.Value)
-		} else {
-			var encoder = yaml.NewEncoder(cmd.OutOrStdout())
-			encoder.SetIndent(2)
-			if err = encoder.Encode(mappedDoc.Node); err != nil {
+	for index, mappedDoc := range matchingNodes {
+		switch printMode {
+		case "k":
+			cmd.Print(pathToString(mappedDoc.PathStack))
+			if index < len(matchingNodes)-1 {
+				cmd.Print("\n")
+			}
+		case "kv", "vk":
+			// put it into a node and print that.
+			var parentNode = yaml.Node{Kind: yaml.MappingNode}
+			parentNode.Content = make([]*yaml.Node, 2)
+			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: pathToString(mappedDoc.PathStack)}
+			parentNode.Content[1] = mappedDoc.Node
+			if err := printValue(&parentNode, cmd); err != nil {
 				return err
 			}
-			encoder.Close()
+		default:
+			if err := printValue(mappedDoc.Node, cmd); err != nil {
+				return err
+			}
+			// Printing our Scalars does not print a new line at the end
+			// we only want to do that if there are more values (so users can easily script extraction of values in the yaml)
+			if index < len(matchingNodes)-1 && mappedDoc.Node.Kind == yaml.ScalarNode {
+				cmd.Print("\n")
+			}
 		}
 	}
 

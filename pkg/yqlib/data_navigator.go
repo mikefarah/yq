@@ -241,7 +241,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 		return nil
 	}
 
-	//didn't find it, lets add it.
+	//TODO: have option to NOT do this... didn't find it, lets add it.
 	mapEntryKey := yaml.Node{Value: head, Kind: yaml.ScalarNode}
 	value.Content = append(value.Content, &mapEntryKey)
 	mapEntryValue := yaml.Node{Kind: n.GuessKind(tail, 0)}
