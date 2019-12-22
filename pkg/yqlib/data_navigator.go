@@ -189,9 +189,6 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 	switch value.Kind {
 	case yaml.MappingNode:
 		n.log.Debug("its a map with %v entries", len(value.Content)/2)
-		if head == "*" {
-			return n.splatMap(value, tail, visitor, pathStack)
-		}
 		return n.recurseMap(value, head, tail, visitor, pathStack)
 	case yaml.SequenceNode:
 		n.log.Debug("its a sequence of %v things!, %v", len(value.Content))
@@ -211,20 +208,6 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 	default:
 		return nil
 	}
-}
-
-func (n *navigator) splatMap(value *yaml.Node, tail []string, visitor VisitorFn, pathStack []interface{}) error {
-	for index, content := range value.Content {
-		if index%2 == 0 {
-			continue
-		}
-		content = n.getOrReplace(content, n.GuessKind(tail, content.Kind))
-		var err = n.doVisit(content, tail, visitor, append(pathStack, value.Content[index-1].Value))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn, pathStack []interface{}) error {
@@ -279,7 +262,11 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match directly on this node first.
 	visited, errorVisitedDirectEntries := n.visitDirectMatchingEntries(contents, key, visit)
-	if errorVisitedDirectEntries != nil || visited == true || n.followAliases == false {
+
+	//TODO: crap we have to remember what we visited so we dont print the same key in the alias
+	// eff
+
+	if errorVisitedDirectEntries != nil || n.followAliases == false {
 		return visited, errorVisitedDirectEntries
 	}
 	// didnt find a match, lets check the aliases.
@@ -336,6 +323,11 @@ func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, key stri
 }
 
 func (n *navigator) matchesKey(key string, actual string) bool {
+	n.log.Debug("key: (%v), actual: (%v)", key, actual)
+	if n.followAliases == true && actual == "<<" {
+		// dont match alias keys, as we'll follow them instead
+		return false
+	}
 	var prefixMatch = strings.TrimSuffix(key, "*")
 	if prefixMatch != key {
 		return strings.HasPrefix(actual, prefixMatch)

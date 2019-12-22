@@ -309,7 +309,13 @@ func appendDocument(originalMatchingNodes []yqlib.MatchingNode, dataBucket yaml.
 func pathToString(pathStack []interface{}) string {
 	var sb strings.Builder
 	for index, path := range pathStack {
-		sb.WriteString(fmt.Sprintf("%v", path))
+		switch path.(type) {
+		case int:
+			sb.WriteString(fmt.Sprintf("[%v]", path))
+		default:
+			sb.WriteString(fmt.Sprintf("%v", path))
+		}
+
 		if index < len(pathStack)-1 {
 			sb.WriteString(".")
 		}
