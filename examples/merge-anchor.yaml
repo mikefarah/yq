@@ -4,12 +4,12 @@ foo: &foo
 
 bar: &bar
   b: 2
+  thing: coconut
+  c: oldbar
 
-
-overrideA:
+foobarList:
   <<: [*foo,*bar]
-  a: vanilla
-  c: 3
+  c: newbar
 
 foobar:
   <<: *foo

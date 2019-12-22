@@ -121,6 +121,51 @@ func TestReadAnchorsCmd(t *testing.T) {
 	test.AssertResult(t, "1\n", result.Output)
 }
 
+func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobar.a")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "original\n", result.Output)
+}
+
+func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobar.thing")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "ice\n", result.Output)
+}
+
+func TestReadMergeAnchorsListOriginalCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.a")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "original\n", result.Output)
+}
+
+func TestReadMergeAnchorsListOverrideInListCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.thing")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "coconut\n", result.Output)
+}
+
+func TestReadMergeAnchorsListOverrideCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.c")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "newbar\n", result.Output)
+}
+
 func TestReadInvalidDocumentIndexCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -df examples/sample.yaml b.c")

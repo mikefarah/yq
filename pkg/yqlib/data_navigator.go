@@ -254,23 +254,10 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
-	// if we dont find a match on this node first.
-	for index := len(contents) - 2; index >= 0; index = index - 2 {
+	// if we don't find a match on this node first.
+	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
 		n.log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
-
-		// only visit aliases if we didn't find a match in this object.
-		if n.followAliases && !visited && contents[index+1].Kind == yaml.AliasNode {
-			valueNode := contents[index+1]
-
-			n.log.Debug("need to visit the alias too")
-			n.DebugNode(valueNode)
-			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias.Content, key, visit)
-			if errorInAlias != nil {
-				return false, errorInAlias
-			}
-			visited = visited || visitedAlias
-		}
 
 		if n.matchesKey(key, content.Value) {
 			n.log.Debug("found a match! %v", content.Value)
@@ -281,7 +268,65 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 			visited = true
 		}
 	}
-	return visited, nil
+
+	if visited == true || n.followAliases == false {
+		return visited, nil
+	}
+
+	// didnt find a match, lets check the aliases.
+	// merge aliases are defined first, but we only want to traverse them
+	// if we don't find a match on this node first.
+	// traverse them backwards so that the last alias overrides the preceding.
+
+	n.log.Debug("no entry in the map, checking for aliases")
+
+	for index := len(contents) - 2; index >= 0; index = index - 2 {
+		// content := contents[index]
+		n.log.Debug("looking for %v", yaml.AliasNode)
+
+		n.log.Debug("searching for aliases key %v kind %v", contents[index].Value, contents[index].Kind)
+		n.log.Debug("searching for aliases value %v kind %v", contents[index+1].Value, contents[index+1].Kind)
+
+		// only visit aliases if we didn't find a match in this object.
+
+		// NEED TO HANDLE A SEQUENCE OF ALIASES, and search each one.
+		// probably stop searching after we find a match, because overrides.
+
+		if contents[index+1].Kind == yaml.AliasNode {
+			valueNode := contents[index+1]
+
+			n.log.Debug("found an alias")
+			n.DebugNode(contents[index])
+			n.DebugNode(valueNode)
+			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias.Content, key, visit)
+			if errorInAlias != nil {
+				return false, errorInAlias
+			}
+			if visitedAlias == true {
+				return true, nil
+			}
+		} else if contents[index+1].Kind == yaml.SequenceNode {
+			// could be an array of aliases...need to search this backwards too!
+			possibleAliasArray := contents[index+1].Content
+			for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
+				child := possibleAliasArray[aliasIndex]
+				if child.Kind == yaml.AliasNode {
+					n.log.Debug("found an alias")
+					n.DebugNode(child)
+					visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias.Content, key, visit)
+					if errorInAlias != nil {
+						return false, errorInAlias
+					}
+					if visitedAlias == true {
+						return true, nil
+					}
+				}
+			}
+		}
+
+	}
+	n.log.Debug("no aliases")
+	return false, nil
 }
 
 func (n *navigator) matchesKey(key string, actual string) bool {
