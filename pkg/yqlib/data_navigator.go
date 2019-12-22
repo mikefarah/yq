@@ -248,13 +248,8 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 // need to pass the node in, as it may be aliased
 type mapVisitorFn func([]*yaml.Node, int) error
 
-func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitDirectMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
 	visited := false
-	n.log.Debug("visitMatchingEntries %v in %v", key, contents)
-	// value.Content is a concatenated array of key, value,
-	// so keys are in the even indexes, values in odd.
-	// merge aliases are defined first, but we only want to traverse them
-	// if we don't find a match on this node first.
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
 		n.log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
@@ -268,64 +263,69 @@ func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visi
 			visited = true
 		}
 	}
+	return visited, nil
+}
 
-	if visited == true || n.followAliases == false {
-		return visited, nil
+func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+
+	n.log.Debug("visitMatchingEntries %v in %v", key, contents)
+	// value.Content is a concatenated array of key, value,
+	// so keys are in the even indexes, values in odd.
+	// merge aliases are defined first, but we only want to traverse them
+	// if we don't find a match directly on this node first.
+	visited, errorVisitedDirectEntries := n.visitDirectMatchingEntries(contents, key, visit)
+	if errorVisitedDirectEntries != nil || visited == true || n.followAliases == false {
+		return visited, errorVisitedDirectEntries
 	}
-
 	// didnt find a match, lets check the aliases.
+
+	return n.visitAliases(contents, key, visit)
+}
+
+func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match on this node first.
 	// traverse them backwards so that the last alias overrides the preceding.
-
-	n.log.Debug("no entry in the map, checking for aliases")
-
+	// a node can either be
+	// an alias to one other node (e.g. <<: *blah)
+	// or a sequence of aliases   (e.g. <<: [*blah, *foo])
+	n.log.Debug("checking for aliases")
 	for index := len(contents) - 2; index >= 0; index = index - 2 {
-		// content := contents[index]
-		n.log.Debug("looking for %v", yaml.AliasNode)
-
-		n.log.Debug("searching for aliases key %v kind %v", contents[index].Value, contents[index].Kind)
-		n.log.Debug("searching for aliases value %v kind %v", contents[index+1].Value, contents[index+1].Kind)
-
-		// only visit aliases if we didn't find a match in this object.
-
-		// NEED TO HANDLE A SEQUENCE OF ALIASES, and search each one.
-		// probably stop searching after we find a match, because overrides.
 
 		if contents[index+1].Kind == yaml.AliasNode {
 			valueNode := contents[index+1]
-
 			n.log.Debug("found an alias")
 			n.DebugNode(contents[index])
 			n.DebugNode(valueNode)
+
 			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias.Content, key, visit)
-			if errorInAlias != nil {
-				return false, errorInAlias
-			}
-			if visitedAlias == true {
-				return true, nil
+			if visitedAlias == true || errorInAlias != nil {
+				return visitedAlias, errorInAlias
 			}
 		} else if contents[index+1].Kind == yaml.SequenceNode {
 			// could be an array of aliases...need to search this backwards too!
-			possibleAliasArray := contents[index+1].Content
-			for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
-				child := possibleAliasArray[aliasIndex]
-				if child.Kind == yaml.AliasNode {
-					n.log.Debug("found an alias")
-					n.DebugNode(child)
-					visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias.Content, key, visit)
-					if errorInAlias != nil {
-						return false, errorInAlias
-					}
-					if visitedAlias == true {
-						return true, nil
-					}
-				}
+			visitedAliasSeq, errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, key, visit)
+			if visitedAliasSeq == true || errorVisitingAliasSeq != nil {
+				return visitedAliasSeq, errorVisitingAliasSeq
 			}
 		}
-
 	}
-	n.log.Debug("no aliases")
+	n.log.Debug("nope no matching aliases found")
+	return false, nil
+}
+
+func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+	for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
+		child := possibleAliasArray[aliasIndex]
+		if child.Kind == yaml.AliasNode {
+			n.log.Debug("found an alias")
+			n.DebugNode(child)
+			visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias.Content, key, visit)
+			if visitedAlias == true || errorInAlias != nil {
+				return visitedAlias, errorInAlias
+			}
+		}
+	}
 	return false, nil
 }
 
