@@ -313,7 +313,7 @@ func printResults(matchingNodes []yqlib.MatchingNode, cmd *cobra.Command) error 
 
 	for _, mappedDoc := range matchingNodes {
 		if mappedDoc.Node.Kind == yaml.ScalarNode {
-			cmd.Println(mappedDoc.Node.Value)
+			cmd.Print(mappedDoc.Node.Value)
 		} else {
 			var encoder = yaml.NewEncoder(cmd.OutOrStdout())
 			encoder.SetIndent(2)
