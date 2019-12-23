@@ -583,6 +583,7 @@ func safelyRenameFile(from string, to string) {
 			removeErr := os.Remove(from)
 			if removeErr != nil {
 				log.Errorf("failed removing original file: %s", from)
+				log.Error(removeErr.Error())
 			}
 		}
 	}
