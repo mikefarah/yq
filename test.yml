@@ -1,4 +1,11 @@
-foo: &foo
-  a: 1
-
-foobar: *foo
+a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also

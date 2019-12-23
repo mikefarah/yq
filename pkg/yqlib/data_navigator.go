@@ -3,7 +3,6 @@ package yqlib
 import (
 	"bytes"
 	"strconv"
-	"strings"
 
 	logging "gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
@@ -18,16 +17,16 @@ type DataNavigator interface {
 }
 
 type navigator struct {
-	log           *logging.Logger
-	followAliases bool
+	log                *logging.Logger
+	navigationSettings NavigationSettings
 }
 
 type VisitorFn func(matchingNode *yaml.Node, pathStack []interface{}) error
 
-func NewDataNavigator(l *logging.Logger, followAliases bool) DataNavigator {
+func NewDataNavigator(l *logging.Logger, navigationSettings NavigationSettings) DataNavigator {
 	return &navigator{
-		log:           l,
-		followAliases: followAliases,
+		log:                l,
+		navigationSettings: navigationSettings,
 	}
 }
 
@@ -95,7 +94,7 @@ func (n *navigator) Delete(rootNode *yaml.Node, path []string) error {
 			// need to delete in reverse - otherwise the matching indexes
 			// become incorrect.
 			matchingIndices := make([]int, 0)
-			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate.Content, lastBit, func(matchingNode []*yaml.Node, indexInMap int) error {
+			_, errorVisiting := n.visitMatchingEntries(nodeToUpdate, lastBit, []string{}, pathStack, func(matchingNode []*yaml.Node, indexInMap int) error {
 				matchingIndices = append(matchingIndices, indexInMap)
 				n.log.Debug("matchingIndices %v", indexInMap)
 				return nil
@@ -199,9 +198,10 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 		}
 		return n.recurseArray(value, head, tail, visitor, pathStack)
 	case yaml.AliasNode:
-		n.log.Debug("its an alias, followAliases: %v", n.followAliases)
+		n.log.Debug("its an alias!")
 		n.DebugNode(value.Alias)
-		if n.followAliases == true {
+		if n.navigationSettings.FollowAlias(value, head, tail, pathStack) == true {
+			n.log.Debug("following the alias")
 			return n.recurse(value.Alias, head, tail, visitor, pathStack)
 		}
 		return nil
@@ -211,7 +211,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, visito
 }
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, visitor VisitorFn, pathStack []interface{}) error {
-	visited, errorVisiting := n.visitMatchingEntries(value.Content, head, func(contents []*yaml.Node, indexInMap int) error {
+	visited, errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
 		contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], n.GuessKind(tail, contents[indexInMap+1].Kind))
 		return n.doVisit(contents[indexInMap+1], tail, visitor, append(pathStack, contents[indexInMap].Value))
 	})
@@ -220,11 +220,10 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 		return errorVisiting
 	}
 
-	if visited {
+	if visited || head == "*" || n.navigationSettings.AutoCreateMap(value, head, tail, pathStack) == false {
 		return nil
 	}
 
-	//TODO: have option to NOT do this... didn't find it, lets add it.
 	mapEntryKey := yaml.Node{Value: head, Kind: yaml.ScalarNode}
 	value.Content = append(value.Content, &mapEntryKey)
 	mapEntryValue := yaml.Node{Kind: n.GuessKind(tail, 0)}
@@ -236,13 +235,14 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, vis
 // need to pass the node in, as it may be aliased
 type mapVisitorFn func(contents []*yaml.Node, index int) error
 
-func (n *navigator) visitDirectMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+	var contents = node.Content
 	visited := false
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
 		n.log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
 
-		if n.matchesKey(key, content.Value) {
+		if n.navigationSettings.ShouldVisit(content, head, tail, pathStack) == true {
 			n.log.Debug("found a match! %v", content.Value)
 			errorVisiting := visit(contents, index)
 			if errorVisiting != nil {
@@ -254,27 +254,28 @@ func (n *navigator) visitDirectMatchingEntries(contents []*yaml.Node, key string
 	return visited, nil
 }
 
-func (n *navigator) visitMatchingEntries(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
-
-	n.log.Debug("visitMatchingEntries %v in %v", key, contents)
+func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+	var contents = node.Content
+	n.log.Debug("visitMatchingEntries %v", head)
+	n.DebugNode(node)
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match directly on this node first.
-	visited, errorVisitedDirectEntries := n.visitDirectMatchingEntries(contents, key, visit)
+	visited, errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
 
 	//TODO: crap we have to remember what we visited so we dont print the same key in the alias
 	// eff
 
-	if errorVisitedDirectEntries != nil || n.followAliases == false {
+	if errorVisitedDirectEntries != nil || visited == true || n.navigationSettings.FollowAlias(node, head, tail, pathStack) == false {
 		return visited, errorVisitedDirectEntries
 	}
 	// didnt find a match, lets check the aliases.
 
-	return n.visitAliases(contents, key, visit)
+	return n.visitAliases(contents, head, tail, pathStack, visit)
 }
 
-func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match on this node first.
 	// traverse them backwards so that the last alias overrides the preceding.
@@ -290,13 +291,13 @@ func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVis
 			n.DebugNode(contents[index])
 			n.DebugNode(valueNode)
 
-			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias.Content, key, visit)
+			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias, head, tail, pathStack, visit)
 			if visitedAlias == true || errorInAlias != nil {
 				return visitedAlias, errorInAlias
 			}
 		} else if contents[index+1].Kind == yaml.SequenceNode {
 			// could be an array of aliases...
-			visitedAliasSeq, errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, key, visit)
+			visitedAliasSeq, errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, head, tail, pathStack, visit)
 			if visitedAliasSeq == true || errorVisitingAliasSeq != nil {
 				return visitedAliasSeq, errorVisitingAliasSeq
 			}
@@ -306,33 +307,20 @@ func (n *navigator) visitAliases(contents []*yaml.Node, key string, visit mapVis
 	return false, nil
 }
 
-func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, key string, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
 	// need to search this backwards too, so that aliases defined last override the preceding.
 	for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
 		child := possibleAliasArray[aliasIndex]
 		if child.Kind == yaml.AliasNode {
 			n.log.Debug("found an alias")
 			n.DebugNode(child)
-			visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias.Content, key, visit)
+			visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias, head, tail, pathStack, visit)
 			if visitedAlias == true || errorInAlias != nil {
 				return visitedAlias, errorInAlias
 			}
 		}
 	}
 	return false, nil
-}
-
-func (n *navigator) matchesKey(key string, actual string) bool {
-	n.log.Debug("key: (%v), actual: (%v)", key, actual)
-	if n.followAliases == true && actual == "<<" {
-		// dont match alias keys, as we'll follow them instead
-		return false
-	}
-	var prefixMatch = strings.TrimSuffix(key, "*")
-	if prefixMatch != key {
-		return strings.HasPrefix(actual, prefixMatch)
-	}
-	return actual == key
 }
 
 func (n *navigator) splatArray(value *yaml.Node, tail []string, visitor VisitorFn, pathStack []interface{}) error {

@@ -34,25 +34,25 @@ func NewYqLib(l *logging.Logger) YqLib {
 }
 
 func (l *lib) DebugNode(node *yaml.Node) {
-	navigator := NewDataNavigator(l.log, false)
+	navigator := NewDataNavigator(l.log, ReadNavigationSettings(l.log))
 	navigator.DebugNode(node)
 }
 
 func (l *lib) Get(rootNode *yaml.Node, path string) ([]MatchingNode, error) {
 	var paths = l.parser.ParsePath(path)
-	navigator := NewDataNavigator(l.log, true)
+	navigator := NewDataNavigator(l.log, ReadNavigationSettings(l.log))
 	return navigator.Get(rootNode, paths)
 }
 
 func (l *lib) New(path string) yaml.Node {
 	var paths = l.parser.ParsePath(path)
-	navigator := NewDataNavigator(l.log, false)
+	navigator := NewDataNavigator(l.log, UpdateNavigationSettings(l.log))
 	newNode := yaml.Node{Kind: navigator.GuessKind(paths, 0)}
 	return newNode
 }
 
 func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {
-	navigator := NewDataNavigator(l.log, false)
+	navigator := NewDataNavigator(l.log, UpdateNavigationSettings(l.log))
 	l.log.Debugf("%v to %v", updateCommand.Command, updateCommand.Path)
 	switch updateCommand.Command {
 	case "update":
