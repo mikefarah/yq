@@ -94,6 +94,24 @@ func TestReadCmd(t *testing.T) {
 	test.AssertResult(t, "2", result.Output)
 }
 
+func TestReadWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/sample.yaml b.c")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "b.c: 2\n", result.Output)
+}
+
+func TestReadWithKeyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p k examples/sample.yaml b.c")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "b.c", result.Output)
+}
+
 func TestReadAnchorsCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read examples/simple-anchor.yaml foobar.a")
@@ -101,6 +119,15 @@ func TestReadAnchorsCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	test.AssertResult(t, "1", result.Output)
+}
+
+func TestReadAnchorsWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/simple-anchor.yaml foobar.a")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "foobar.a: 1\n", result.Output)
 }
 
 func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
@@ -190,6 +217,15 @@ func TestReadMultiCmd(t *testing.T) {
 	test.AssertResult(t, "here", result.Output)
 }
 
+func TestReadMultiWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p vk -d 1 examples/multiple_docs.yaml another.document")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "another.document: here\n", result.Output)
+}
+
 func TestReadMultiAllCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -d* examples/multiple_docs.yaml commonKey")
@@ -200,6 +236,19 @@ func TestReadMultiAllCmd(t *testing.T) {
 		`first document
 second document
 third document`, result.Output)
+}
+
+func TestReadMultiAllWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv -d* examples/multiple_docs.yaml commonKey")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t,
+		`commonKey: first document
+commonKey: second document
+commonKey: third document
+`, result.Output)
 }
 
 func TestReadCmd_ArrayYaml(t *testing.T) {
@@ -249,7 +298,7 @@ serial: 1
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestReadCmd_ArrayYaml_SplatA(t *testing.T) {
+func TestReadCmd_ArrayYaml_SplatCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read examples/array.yaml [*]")
 	if result.Error != nil {
@@ -266,6 +315,39 @@ serial: 1
 become: false
 gather_facts: true
 `
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_SplatWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/array.yaml [*]")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `'[0]':
+  become: true
+  gather_facts: false
+  hosts: lalaland
+  name: "Apply smth"
+  roles:
+  - lala
+  - land
+  serial: 1
+'[1]':
+  become: false
+  gather_facts: true
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCmd_ArrayYaml_SplatWithKeyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p k examples/array.yaml [*]")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `[0]
+[1]`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -350,7 +432,7 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 
 func TestReadCmd_Verbose(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -v examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -375,7 +457,7 @@ func TestReadCmd_Verbose(t *testing.T) {
 // 	test.AssertResult(t, "2\n", result.Output)
 // }
 
-func TestReadSplatPrefixYaml(t *testing.T) {
+func TestReadSplatPrefixCmd(t *testing.T) {
 	content := `a: 2
 b:
  hi:
@@ -399,6 +481,61 @@ b:
 
 	expectedOutput := `more things
 more things also`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadSplatPrefixWithKeyAndValueCmd(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -p kv %s b.there*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `b.there.c: more things
+b.there2.c: more things also
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadSplatPrefixWithKeyCmd(t *testing.T) {
+	content := `a: 2
+b:
+ hi:
+   c: things
+   d: something else
+ there:
+   c: more things
+   d: more something else
+ there2:
+   c: more things also
+   d: more something else also
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -p k %s b.there*.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `b.there.c
+b.there2.c`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
