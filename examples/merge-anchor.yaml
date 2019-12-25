@@ -1,6 +1,7 @@
 foo: &foo
   a: original
   thing: coolasdf
+  thirsty: yep
 
 bar: &bar
   b: 2
@@ -14,4 +15,5 @@ foobarList:
 foobar:
   <<: *foo
   thing: ice
+  thirty: well beyond
   c: 3

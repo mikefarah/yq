@@ -148,6 +148,18 @@ func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
 	test.AssertResult(t, "ice", result.Output)
 }
 
+func TestReadMergeAnchorsPrefixMatchCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "r -p kv examples/merge-anchor.yaml foobar.th*")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `foobar.thing: ice
+foobar.thirty: well beyond
+foobar.thirsty: yep`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadMergeAnchorsListOriginalCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.a")
@@ -365,8 +377,11 @@ true`
 func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read examples/array.yaml [x].gather_facts")
-	expectedOutput := ``
-	test.AssertResult(t, expectedOutput, result.Output)
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Error reading path in document index 0: strconv.ParseInt: parsing "x": invalid syntax`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
 func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
