@@ -82,11 +82,13 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 
 		log.Debug("should I traverse? %v", head)
 		DebugNode(value)
-		if n.navigationSettings.ShouldTraverse(contents[indexInMap+1], head, tail, append(pathStack, contents[indexInMap].Value)) == true {
+		newPath := append(pathStack, contents[indexInMap].Value)
+
+		if n.navigationSettings.ShouldTraverse(contents[indexInMap+1], head, tail, newPath) == true {
 			log.Debug("yep!")
 			traversedEntry = true
 			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
-			return n.doTraverse(contents[indexInMap+1], head, tail, append(pathStack, contents[indexInMap].Value))
+			return n.doTraverse(contents[indexInMap+1], head, tail, newPath)
 		} else {
 			log.Debug("nope not traversing")
 		}
