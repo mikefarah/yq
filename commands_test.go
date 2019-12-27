@@ -154,9 +154,10 @@ func TestReadMergeAnchorsPrefixMatchCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `foobar.thing: ice
-foobar.thirty: well beyond
-foobar.thirsty: yep`
+	expectedOutput := `foobar.thirty: well beyond
+foobar.thing: ice
+foobar.thirsty: yep
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 

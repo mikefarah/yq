@@ -14,6 +14,6 @@ foobarList:
 
 foobar:
   <<: *foo
-  thing: ice
   thirty: well beyond
+  thing: ice
   c: 3

@@ -37,6 +37,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, path []string, pat
 		DebugNode(value)
 		return n.recurse(value, path[0], path[1:], pathStack)
 	}
+	log.Debug("should I visit?")
 	return n.navigationSettings.Visit(value, head, path, pathStack)
 }
 
@@ -76,16 +77,27 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 }
 
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
-	visited, errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
-		contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
-		return n.doTraverse(contents[indexInMap+1], head, tail, append(pathStack, contents[indexInMap].Value))
+	traversedEntry := false
+	errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
+
+		log.Debug("should I traverse? %v", head)
+		DebugNode(value)
+		if n.navigationSettings.ShouldTraverse(contents[indexInMap+1], head, tail, append(pathStack, contents[indexInMap].Value)) == true {
+			log.Debug("yep!")
+			traversedEntry = true
+			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
+			return n.doTraverse(contents[indexInMap+1], head, tail, append(pathStack, contents[indexInMap].Value))
+		} else {
+			log.Debug("nope not traversing")
+		}
+		return nil
 	})
 
 	if errorVisiting != nil {
 		return errorVisiting
 	}
 
-	if visited || head == "*" || n.navigationSettings.AutoCreateMap(value, head, tail, pathStack) == false {
+	if traversedEntry == true || head == "*" || n.navigationSettings.AutoCreateMap(value, head, tail, pathStack) == false {
 		return nil
 	}
 
@@ -93,33 +105,27 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 	value.Content = append(value.Content, &mapEntryKey)
 	mapEntryValue := yaml.Node{Kind: guessKind(tail, 0)}
 	value.Content = append(value.Content, &mapEntryValue)
-	log.Debug("adding new node %v", value.Content)
+	log.Debug("adding new node %v", head)
 	return n.doTraverse(&mapEntryValue, head, tail, append(pathStack, head))
 }
 
 // need to pass the node in, as it may be aliased
 type mapVisitorFn func(contents []*yaml.Node, index int) error
 
-func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
 	var contents = node.Content
-	visited := false
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
 		log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
-
-		if n.navigationSettings.ShouldVisit(content, head, tail, pathStack) == true {
-			log.Debug("found a match! %v", content.Value)
-			errorVisiting := visit(contents, index)
-			if errorVisiting != nil {
-				return visited, errorVisiting
-			}
-			visited = true
+		errorVisiting := visit(contents, index)
+		if errorVisiting != nil {
+			return errorVisiting
 		}
 	}
-	return visited, nil
+	return nil
 }
 
-func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
 	var contents = node.Content
 	log.Debug("visitMatchingEntries %v", head)
 	DebugNode(node)
@@ -127,20 +133,15 @@ func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []st
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match directly on this node first.
-	visited, errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
+	errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
 
-	//TODO: crap we have to remember what we visited so we dont print the same key in the alias
-	// eff
-
-	if errorVisitedDirectEntries != nil || visited == true || n.navigationSettings.FollowAlias(node, head, tail, pathStack) == false {
-		return visited, errorVisitedDirectEntries
+	if errorVisitedDirectEntries != nil || n.navigationSettings.FollowAlias(node, head, tail, pathStack) == false {
+		return errorVisitedDirectEntries
 	}
-	// didnt find a match, lets check the aliases.
-
 	return n.visitAliases(contents, head, tail, pathStack, visit)
 }
 
-func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match on this node first.
 	// traverse them backwards so that the last alias overrides the preceding.
@@ -156,36 +157,35 @@ func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []stri
 			DebugNode(contents[index])
 			DebugNode(valueNode)
 
-			visitedAlias, errorInAlias := n.visitMatchingEntries(valueNode.Alias, head, tail, pathStack, visit)
-			if visitedAlias == true || errorInAlias != nil {
-				return visitedAlias, errorInAlias
+			errorInAlias := n.visitMatchingEntries(valueNode.Alias, head, tail, pathStack, visit)
+			if errorInAlias != nil {
+				return errorInAlias
 			}
 		} else if contents[index+1].Kind == yaml.SequenceNode {
 			// could be an array of aliases...
-			visitedAliasSeq, errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, head, tail, pathStack, visit)
-			if visitedAliasSeq == true || errorVisitingAliasSeq != nil {
-				return visitedAliasSeq, errorVisitingAliasSeq
+			errorVisitingAliasSeq := n.visitAliasSequence(contents[index+1].Content, head, tail, pathStack, visit)
+			if errorVisitingAliasSeq != nil {
+				return errorVisitingAliasSeq
 			}
 		}
 	}
-	log.Debug("nope no matching aliases found")
-	return false, nil
+	return nil
 }
 
-func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) (bool, error) {
+func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
 	// need to search this backwards too, so that aliases defined last override the preceding.
 	for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
 		child := possibleAliasArray[aliasIndex]
 		if child.Kind == yaml.AliasNode {
 			log.Debug("found an alias")
 			DebugNode(child)
-			visitedAlias, errorInAlias := n.visitMatchingEntries(child.Alias, head, tail, pathStack, visit)
-			if visitedAlias == true || errorInAlias != nil {
-				return visitedAlias, errorInAlias
+			errorInAlias := n.visitMatchingEntries(child.Alias, head, tail, pathStack, visit)
+			if errorInAlias != nil {
+				return errorInAlias
 			}
 		}
 	}
-	return false, nil
+	return nil
 }
 
 func (n *navigator) splatArray(value *yaml.Node, tail []string, pathStack []interface{}) error {

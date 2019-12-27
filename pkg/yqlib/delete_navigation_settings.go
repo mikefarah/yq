@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"strconv"
-	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -15,15 +14,6 @@ func DeleteNavigationSettings(lastBit string) NavigationSettings {
 		},
 		autoCreateMap: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
 			return true
-		},
-		shouldVisit: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
-			var prefixMatch = strings.TrimSuffix(head, "*")
-			if prefixMatch != head {
-				log.Debug("prefix match, %v", strings.HasPrefix(node.Value, prefixMatch))
-				return strings.HasPrefix(node.Value, prefixMatch)
-			}
-			log.Debug("equals match, %v", node.Value == head)
-			return node.Value == head
 		},
 		visit: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 			log.Debug("need to find %v in here", lastBit)
