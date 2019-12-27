@@ -1077,7 +1077,7 @@ func TestWriteCmd_SplatMapEmpty(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestDeleteYaml(t *testing.T) {
+func TestDeleteYamlCmd(t *testing.T) {
 	content := `a: 2
 b:
   c: things

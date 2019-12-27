@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"fmt"
-	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -18,7 +17,7 @@ type NavigationSettings interface {
 	FollowAlias(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool
 	AutoCreateMap(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool
 	Visit(node *yaml.Node, head string, tail []string, pathStack []interface{}) error
-	ShouldTraverse(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool
+	ShouldTraverse(node *yaml.Node, head string, tail []string, pathStack []interface{}, lastBit string) bool
 	GetVisitedNodes() []*VisitedNode
 }
 
@@ -27,16 +26,6 @@ type NavigationSettingsImpl struct {
 	autoCreateMap func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool
 	visit         func(node *yaml.Node, head string, tail []string, pathStack []interface{}) error
 	visitedNodes  []*VisitedNode
-}
-
-func matches(node *yaml.Node, head string) bool {
-	var prefixMatch = strings.TrimSuffix(head, "*")
-	if prefixMatch != head {
-		log.Debug("prefix match, %v", strings.HasPrefix(node.Value, prefixMatch))
-		return strings.HasPrefix(node.Value, prefixMatch)
-	}
-	log.Debug("equals match, %v", node.Value == head)
-	return node.Value == head
 }
 
 func (ns *NavigationSettingsImpl) GetVisitedNodes() []*VisitedNode {
@@ -51,16 +40,7 @@ func (ns *NavigationSettingsImpl) AutoCreateMap(node *yaml.Node, head string, ta
 	return ns.autoCreateMap(node, head, tail, pathStack)
 }
 
-func (ns *NavigationSettingsImpl) matchesNextPath(path string, candidate string) bool {
-	var prefixMatch = strings.TrimSuffix(path, "*")
-	if prefixMatch != path {
-		log.Debug("prefix match, %v", strings.HasPrefix(candidate, prefixMatch))
-		return strings.HasPrefix(candidate, prefixMatch)
-	}
-	return candidate == path
-}
-
-func (ns *NavigationSettingsImpl) ShouldTraverse(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
+func (ns *NavigationSettingsImpl) ShouldTraverse(node *yaml.Node, head string, tail []string, pathStack []interface{}, lastBit string) bool {
 	// we should traverse aliases (if enabled), but not visit them :/
 	if len(pathStack) == 0 {
 		return true
@@ -70,9 +50,10 @@ func (ns *NavigationSettingsImpl) ShouldTraverse(node *yaml.Node, head string, t
 		return false
 	}
 
-	lastBit := fmt.Sprintf("%v", pathStack[len(pathStack)-1])
+	parser := NewPathParser()
 
-	return (lastBit == "<<" && ns.FollowAlias(node, head, tail, pathStack)) || (lastBit != "<<" && ns.matchesNextPath(head, lastBit))
+	return (lastBit == "<<" && ns.FollowAlias(node, head, tail, pathStack)) || (lastBit != "<<" &&
+		parser.MatchesNextPathElement(node, head, tail, pathStack, lastBit))
 }
 
 func (ns *NavigationSettingsImpl) shouldVisit(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
@@ -86,8 +67,11 @@ func (ns *NavigationSettingsImpl) shouldVisit(node *yaml.Node, head string, tail
 	}
 
 	lastBit := fmt.Sprintf("%v", pathStack[len(pathStack)-1])
+	parser := NewPathParser()
+
 	// only visit aliases if its an exact match
-	return (lastBit == "<<" && head == "<<") || (lastBit != "<<" && ns.matchesNextPath(head, lastBit))
+	return (lastBit == "<<" && head == "<<") || (lastBit != "<<" &&
+		parser.MatchesNextPathElement(node, head, tail, pathStack, lastBit))
 
 }
 
