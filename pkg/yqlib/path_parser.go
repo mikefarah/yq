@@ -2,13 +2,11 @@ package yqlib
 
 import (
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type PathParser interface {
 	ParsePath(path string) []string
-	MatchesNextPathElement(node *yaml.Node, head string, tail []string, pathStack []interface{}, lastBit string) bool
+	MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool
 }
 
 type pathParser struct{}
@@ -22,15 +20,16 @@ func NewPathParser() PathParser {
  * head: path element expression to match against
  * tail: remaining path element expressions
  * pathStack: stack of actual paths we've matched to get to node
- * lastBit: actual value of this nodes 'key' or index.
+ * nodeKey: actual value of this nodes 'key' or index.
  */
-func (p *pathParser) MatchesNextPathElement(node *yaml.Node, head string, tail []string, pathStack []interface{}, lastBit string) bool {
+func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool {
+	head := nodeContext.Head
 	var prefixMatch = strings.TrimSuffix(head, "*")
 	if prefixMatch != head {
-		log.Debug("prefix match, %v", strings.HasPrefix(lastBit, prefixMatch))
-		return strings.HasPrefix(lastBit, prefixMatch)
+		log.Debug("prefix match, %v", strings.HasPrefix(nodeKey, prefixMatch))
+		return strings.HasPrefix(nodeKey, prefixMatch)
 	}
-	return lastBit == head
+	return nodeKey == head
 }
 
 func (p *pathParser) ParsePath(path string) []string {

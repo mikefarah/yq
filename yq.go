@@ -257,7 +257,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		return errorParsingDocIndex
 	}
 
-	var matchingNodes []*yqlib.VisitedNode
+	var matchingNodes []*yqlib.NodeContext
 
 	var currentIndex = 0
 	var errorReadingStream = readStream(args[0], func(decoder *yaml.Decoder) error {
@@ -292,7 +292,7 @@ func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	return nil
 }
 
-func appendDocument(originalMatchingNodes []*yqlib.VisitedNode, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]*yqlib.VisitedNode, error) {
+func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]*yqlib.NodeContext, error) {
 	log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
 	yqlib.DebugNode(&dataBucket)
 	if !updateAll && currentIndex != docIndexInt {
@@ -337,7 +337,7 @@ func printValue(node *yaml.Node, cmd *cobra.Command) error {
 	return nil
 }
 
-func printResults(matchingNodes []*yqlib.VisitedNode, cmd *cobra.Command) error {
+func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error {
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
 		return nil

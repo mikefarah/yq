@@ -1,19 +1,15 @@
 package yqlib
 
-import (
-	yaml "gopkg.in/yaml.v3"
-)
-
-func ReadNavigationSettings() NavigationSettings {
-	return &NavigationSettingsImpl{
-		visitedNodes: []*VisitedNode{},
-		followAlias: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
+func ReadNavigationStrategy() NavigationStrategy {
+	return &NavigationStrategyImpl{
+		visitedNodes: []*NodeContext{},
+		followAlias: func(nodeContext NodeContext) bool {
 			return true
 		},
-		autoCreateMap: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
+		autoCreateMap: func(nodeContext NodeContext) bool {
 			return false
 		},
-		visit: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+		visit: func(nodeContext NodeContext) error {
 			return nil
 		},
 	}

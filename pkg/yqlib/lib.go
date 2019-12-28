@@ -57,7 +57,7 @@ func guessKind(tail []string, guess yaml.Kind) yaml.Kind {
 }
 
 type YqLib interface {
-	Get(rootNode *yaml.Node, path string) ([]*VisitedNode, error)
+	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
 	New(path string) yaml.Node
 }
@@ -73,12 +73,12 @@ func NewYqLib(l *logging.Logger) YqLib {
 	}
 }
 
-func (l *lib) Get(rootNode *yaml.Node, path string) ([]*VisitedNode, error) {
+func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	navigationSettings := ReadNavigationSettings()
-	navigator := NewDataNavigator(navigationSettings)
+	NavigationStrategy := ReadNavigationStrategy()
+	navigator := NewDataNavigator(NavigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
-	return navigationSettings.GetVisitedNodes(), error
+	return NavigationStrategy.GetVisitedNodes(), error
 
 }
 
@@ -93,12 +93,12 @@ func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {
 	switch updateCommand.Command {
 	case "update":
 		var paths = l.parser.ParsePath(updateCommand.Path)
-		navigator := NewDataNavigator(UpdateNavigationSettings(updateCommand.Value))
+		navigator := NewDataNavigator(UpdateNavigationStrategy(updateCommand.Value))
 		return navigator.Traverse(rootNode, paths)
 	case "delete":
 		var paths = l.parser.ParsePath(updateCommand.Path)
 		lastBit, newTail := paths[len(paths)-1], paths[:len(paths)-1]
-		navigator := NewDataNavigator(DeleteNavigationSettings(lastBit))
+		navigator := NewDataNavigator(DeleteNavigationStrategy(lastBit))
 		return navigator.Traverse(rootNode, newTail)
 	default:
 		return fmt.Errorf("Unknown command %v", updateCommand.Command)

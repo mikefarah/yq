@@ -4,16 +4,17 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func UpdateNavigationSettings(changesToApply *yaml.Node) NavigationSettings {
-	return &NavigationSettingsImpl{
-		visitedNodes: []*VisitedNode{},
-		followAlias: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
+func UpdateNavigationStrategy(changesToApply *yaml.Node) NavigationStrategy {
+	return &NavigationStrategyImpl{
+		visitedNodes: []*NodeContext{},
+		followAlias: func(nodeContext NodeContext) bool {
 			return false
 		},
-		autoCreateMap: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) bool {
+		autoCreateMap: func(nodeContext NodeContext) bool {
 			return true
 		},
-		visit: func(node *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+		visit: func(nodeContext NodeContext) error {
+			node := nodeContext.Node
 			log.Debug("going to update")
 			DebugNode(node)
 			log.Debug("with")

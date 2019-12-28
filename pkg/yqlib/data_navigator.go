@@ -12,12 +12,12 @@ type DataNavigator interface {
 }
 
 type navigator struct {
-	navigationSettings NavigationSettings
+	navigationStrategy NavigationStrategy
 }
 
-func NewDataNavigator(navigationSettings NavigationSettings) DataNavigator {
+func NewDataNavigator(NavigationStrategy NavigationStrategy) DataNavigator {
 	return &navigator{
-		navigationSettings: navigationSettings,
+		navigationStrategy: NavigationStrategy,
 	}
 }
 
@@ -38,7 +38,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, path []string, pat
 		return n.recurse(value, path[0], path[1:], pathStack)
 	}
 	log.Debug("should I visit?")
-	return n.navigationSettings.Visit(value, head, path, pathStack)
+	return n.navigationStrategy.Visit(NodeContext{value, head, path, pathStack})
 }
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
@@ -66,7 +66,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
-		if n.navigationSettings.FollowAlias(value, head, tail, pathStack) == true {
+		if n.navigationStrategy.FollowAlias(NodeContext{value, head, tail, pathStack}) == true {
 			log.Debug("following the alias")
 			return n.recurse(value.Alias, head, tail, pathStack)
 		}
@@ -83,7 +83,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		log.Debug("should I traverse? %v", head)
 		DebugNode(value)
 		newPathStack := append(pathStack, contents[indexInMap].Value)
-		if n.navigationSettings.ShouldTraverse(contents[indexInMap+1], head, tail, newPathStack, contents[indexInMap].Value) == true {
+		if n.navigationStrategy.ShouldTraverse(NodeContext{contents[indexInMap+1], head, tail, newPathStack}, contents[indexInMap].Value) == true {
 			log.Debug("yep!")
 			traversedEntry = true
 			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
@@ -98,7 +98,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return errorVisiting
 	}
 
-	if traversedEntry == true || head == "*" || n.navigationSettings.AutoCreateMap(value, head, tail, pathStack) == false {
+	if traversedEntry == true || head == "*" || n.navigationStrategy.AutoCreateMap(NodeContext{value, head, tail, pathStack}) == false {
 		return nil
 	}
 
@@ -136,7 +136,7 @@ func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []st
 	// if we don't find a match directly on this node first.
 	errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
 
-	if errorVisitedDirectEntries != nil || n.navigationSettings.FollowAlias(node, head, tail, pathStack) == false {
+	if errorVisitedDirectEntries != nil || n.navigationStrategy.FollowAlias(NodeContext{node, head, tail, pathStack}) == false {
 		return errorVisitedDirectEntries
 	}
 	return n.visitAliases(contents, head, tail, pathStack, visit)
