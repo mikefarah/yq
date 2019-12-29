@@ -37,8 +37,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, path []string, pat
 		DebugNode(value)
 		return n.recurse(value, path[0], path[1:], pathStack)
 	}
-	log.Debug("should I visit?")
-	return n.navigationStrategy.Visit(NodeContext{value, head, path, pathStack})
+	return n.navigationStrategy.Visit(NewNodeContext(value, head, path, pathStack))
 }
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
@@ -66,7 +65,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
-		if n.navigationStrategy.FollowAlias(NodeContext{value, head, tail, pathStack}) == true {
+		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) == true {
 			log.Debug("following the alias")
 			return n.recurse(value.Alias, head, tail, pathStack)
 		}
@@ -79,15 +78,21 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	traversedEntry := false
 	errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
-
-		log.Debug("should I traverse? %v", head)
-		DebugNode(value)
+		log.Debug("recurseMap: visitMatchingEntries")
+		n.navigationStrategy.DebugVisitedNodes()
 		newPathStack := append(pathStack, contents[indexInMap].Value)
-		if n.navigationStrategy.ShouldTraverse(NodeContext{contents[indexInMap+1], head, tail, newPathStack}, contents[indexInMap].Value) == true {
-			log.Debug("yep!")
+		log.Debug("appended %v", contents[indexInMap].Value)
+		n.navigationStrategy.DebugVisitedNodes()
+		log.Debug("should I traverse? %v, %v", head, PathStackToString(newPathStack))
+		DebugNode(value)
+		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) == true {
+			log.Debug("recurseMap: Going to traverse")
 			traversedEntry = true
 			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
-			return n.doTraverse(contents[indexInMap+1], head, tail, newPathStack)
+			errorTraversing := n.doTraverse(contents[indexInMap+1], head, tail, newPathStack)
+			log.Debug("recurseMap: Finished traversing")
+			n.navigationStrategy.DebugVisitedNodes()
+			return errorTraversing
 		} else {
 			log.Debug("nope not traversing")
 		}
@@ -98,7 +103,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return errorVisiting
 	}
 
-	if traversedEntry == true || head == "*" || n.navigationStrategy.AutoCreateMap(NodeContext{value, head, tail, pathStack}) == false {
+	if traversedEntry == true || head == "*" || n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) == false {
 		return nil
 	}
 
@@ -117,7 +122,9 @@ func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tai
 	var contents = node.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
+
 		log.Debug("index %v, checking %v, %v", index, content.Value, content.Tag)
+		n.navigationStrategy.DebugVisitedNodes()
 		errorVisiting := visit(contents, index)
 		if errorVisiting != nil {
 			return errorVisiting
@@ -136,7 +143,7 @@ func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []st
 	// if we don't find a match directly on this node first.
 	errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
 
-	if errorVisitedDirectEntries != nil || n.navigationStrategy.FollowAlias(NodeContext{node, head, tail, pathStack}) == false {
+	if errorVisitedDirectEntries != nil || n.navigationStrategy.FollowAlias(NewNodeContext(node, head, tail, pathStack)) == false {
 		return errorVisitedDirectEntries
 	}
 	return n.visitAliases(contents, head, tail, pathStack, visit)
@@ -220,5 +227,8 @@ func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, p
 		return nil
 	}
 	value.Content[index] = n.getOrReplace(value.Content[index], guessKind(tail, value.Content[index].Kind))
+
+	// THERES SOMETHING WRONG HERE, ./yq read -p kv examples/sample.yaml b.e.1.*
+	// THERES SOMETHING WRONG HERE, ./yq read -p kv examples/sample.yaml b.e.1.name
 	return n.doTraverse(value.Content[index], head, tail, append(pathStack, index))
 }

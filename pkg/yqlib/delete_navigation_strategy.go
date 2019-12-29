@@ -38,7 +38,7 @@ func deleteFromMap(pathParser PathParser, contents []*yaml.Node, pathStack []int
 	for index := 0; index < len(contents); index = index + 2 {
 		keyNode := contents[index]
 		valueNode := contents[index+1]
-		if pathParser.MatchesNextPathElement(NodeContext{keyNode, pathElementToDelete, []string{}, pathStack}, keyNode.Value) == false {
+		if pathParser.MatchesNextPathElement(NewNodeContext(keyNode, pathElementToDelete, []string{}, pathStack), keyNode.Value) == false {
 			log.Debug("adding node %v", keyNode.Value)
 			newContents = append(newContents, keyNode, valueNode)
 		} else {

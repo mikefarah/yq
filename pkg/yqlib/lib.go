@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
+	"strings"
 
 	logging "gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
@@ -28,6 +29,23 @@ func DebugNode(value *yaml.Node) {
 		log.Debug("Tag: %v", value.Tag)
 		log.Debug("%v", buf.String())
 	}
+}
+
+func PathStackToString(pathStack []interface{}) string {
+	var sb strings.Builder
+	for index, path := range pathStack {
+		switch path.(type) {
+		case int:
+			sb.WriteString(fmt.Sprintf("[%v]", path))
+		default:
+			sb.WriteString(fmt.Sprintf("%v", path))
+		}
+
+		if index < len(pathStack)-1 {
+			sb.WriteString(".")
+		}
+	}
+	return sb.String()
 }
 
 func guessKind(tail []string, guess yaml.Kind) yaml.Kind {

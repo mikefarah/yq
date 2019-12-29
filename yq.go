@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 
@@ -306,23 +305,6 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
-func pathToString(pathStack []interface{}) string {
-	var sb strings.Builder
-	for index, path := range pathStack {
-		switch path.(type) {
-		case int:
-			sb.WriteString(fmt.Sprintf("[%v]", path))
-		default:
-			sb.WriteString(fmt.Sprintf("%v", path))
-		}
-
-		if index < len(pathStack)-1 {
-			sb.WriteString(".")
-		}
-	}
-	return sb.String()
-}
-
 func printValue(node *yaml.Node, cmd *cobra.Command) error {
 	if node.Kind == yaml.ScalarNode {
 		cmd.Print(node.Value)
@@ -346,7 +328,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 	for index, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "k":
-			cmd.Print(pathToString(mappedDoc.PathStack))
+			cmd.Print(yqlib.PathStackToString(mappedDoc.PathStack))
 			if index < len(matchingNodes)-1 {
 				cmd.Print("\n")
 			}
@@ -354,7 +336,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 			// put it into a node and print that.
 			var parentNode = yaml.Node{Kind: yaml.MappingNode}
 			parentNode.Content = make([]*yaml.Node, 2)
-			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: pathToString(mappedDoc.PathStack)}
+			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: yqlib.PathStackToString(mappedDoc.PathStack)}
 			parentNode.Content[1] = mappedDoc.Node
 			if err := printValue(&parentNode, cmd); err != nil {
 				return err

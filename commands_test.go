@@ -103,6 +103,15 @@ func TestReadWithKeyAndValueCmd(t *testing.T) {
 	test.AssertResult(t, "b.c: 2\n", result.Output)
 }
 
+func TestReadArrayCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/sample.yaml b.e.1.name")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "b.e.1.name: sam\n", result.Output)
+}
+
 func TestReadWithKeyCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p k examples/sample.yaml b.c")
