@@ -24,6 +24,9 @@ func NewPathParser() PathParser {
  */
 func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool {
 	head := nodeContext.Head
+	if head == "**" || head == "*" {
+		return true
+	}
 	var prefixMatch = strings.TrimSuffix(head, "*")
 	if prefixMatch != head {
 		log.Debug("prefix match, %v", strings.HasPrefix(nodeKey, prefixMatch))

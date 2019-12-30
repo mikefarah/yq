@@ -112,6 +112,24 @@ func TestReadArrayCmd(t *testing.T) {
 	test.AssertResult(t, "b.e.1.name: sam\n", result.Output)
 }
 
+func TestReadDeepSplatCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/sample.yaml b.**")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b.c: 2
+b.d.[0]: 3
+b.d.[1]: 4
+b.d.[2]: 5
+b.e.[0].name: fred
+b.e.[0].value: 3
+b.e.[1].name: sam
+b.e.[1].value: 4
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadWithKeyCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p k examples/sample.yaml b.c")

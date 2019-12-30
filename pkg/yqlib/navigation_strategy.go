@@ -74,13 +74,12 @@ func (ns *NavigationStrategyImpl) ShouldTraverse(nodeContext NodeContext, nodeKe
 }
 
 func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
-	// we should traverse aliases (if enabled), but not visit them :/
 	pathStack := nodeContext.PathStack
 	if len(pathStack) == 0 {
 		return true
 	}
 
-	if ns.alreadyVisited(pathStack) {
+	if ns.alreadyVisited(pathStack) || len(nodeContext.Tail) != 0 {
 		return false
 	}
 
@@ -108,7 +107,7 @@ func (ns *NavigationStrategyImpl) Visit(nodeContext NodeContext) error {
 }
 
 func (ns *NavigationStrategyImpl) DebugVisitedNodes() {
-	log.Debug("%v", ns.visitedNodes)
+	log.Debug("Visited Nodes:")
 	for _, candidate := range ns.visitedNodes {
 		log.Debug(" - %v", PathStackToString(candidate.PathStack))
 	}

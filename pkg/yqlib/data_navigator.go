@@ -31,13 +31,19 @@ func (n *navigator) Traverse(value *yaml.Node, path []string) error {
 	return n.doTraverse(value, "", path, emptyArray)
 }
 
-func (n *navigator) doTraverse(value *yaml.Node, head string, path []string, pathStack []interface{}) error {
-	if len(path) > 0 {
-		log.Debugf("diving into %v", path[0])
-		DebugNode(value)
-		return n.recurse(value, path[0], path[1:], pathStack)
+func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+	log.Debug("head %v", head)
+	DebugNode(value)
+	if head == "**" && value.Kind != yaml.ScalarNode {
+		return n.recurse(value, head, tail, pathStack)
 	}
-	return n.navigationStrategy.Visit(NewNodeContext(value, head, path, pathStack))
+
+	if len(tail) > 0 {
+		log.Debugf("diving into %v", tail[0])
+		DebugNode(value)
+		return n.recurse(value, tail[0], tail[1:], pathStack)
+	}
+	return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
 }
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
@@ -56,8 +62,8 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		return n.recurseMap(value, head, tail, pathStack)
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!, %v", len(value.Content))
-		if head == "*" {
-			return n.splatArray(value, tail, pathStack)
+		if head == "*" || head == "**" {
+			return n.splatArray(value, head, tail, pathStack)
 		} else if head == "+" {
 			return n.appendArray(value, tail, pathStack)
 		}
@@ -196,11 +202,11 @@ func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head str
 	return nil
 }
 
-func (n *navigator) splatArray(value *yaml.Node, tail []string, pathStack []interface{}) error {
+func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	for index, childValue := range value.Content {
 		log.Debug("processing")
 		DebugNode(childValue)
-		head := fmt.Sprintf("%v", index)
+		// head = fmt.Sprintf("%v", index)
 		childValue = n.getOrReplace(childValue, guessKind(tail, childValue.Kind))
 		var err = n.doTraverse(childValue, head, tail, append(pathStack, index))
 		if err != nil {
