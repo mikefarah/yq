@@ -1,9 +1,9 @@
 package yqlib
 
 import (
-	"fmt"
 	"strconv"
 
+	errors "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -34,8 +34,15 @@ func (n *navigator) Traverse(value *yaml.Node, path []string) error {
 func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	log.Debug("head %v", head)
 	DebugNode(value)
+	var errorDeepSplatting error
 	if head == "**" && value.Kind != yaml.ScalarNode {
-		return n.recurse(value, head, tail, pathStack)
+		errorDeepSplatting = n.recurse(value, head, tail, pathStack)
+		// ignore errors here, we are deep splatting so we may accidently give a string key
+		// to an array sequence
+		if len(tail) > 0 {
+			n.recurse(value, tail[0], tail[1:], pathStack)
+		}
+		return errorDeepSplatting
 	}
 
 	if len(tail) > 0 {
@@ -61,11 +68,11 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		log.Debug("its a map with %v entries", len(value.Content)/2)
 		return n.recurseMap(value, head, tail, pathStack)
 	case yaml.SequenceNode:
-		log.Debug("its a sequence of %v things!, %v", len(value.Content))
+		log.Debug("its a sequence of %v things!", len(value.Content))
 		if head == "*" || head == "**" {
 			return n.splatArray(value, head, tail, pathStack)
 		} else if head == "+" {
-			return n.appendArray(value, tail, pathStack)
+			return n.appendArray(value, head, tail, pathStack)
 		}
 		return n.recurseArray(value, head, tail, pathStack)
 	case yaml.AliasNode:
@@ -94,7 +101,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) == true {
 			log.Debug("recurseMap: Going to traverse")
 			traversedEntry = true
-			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(tail, contents[indexInMap+1].Kind))
+			// contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(head, tail, contents[indexInMap+1].Kind))
 			errorTraversing := n.doTraverse(contents[indexInMap+1], head, tail, newPathStack)
 			log.Debug("recurseMap: Finished traversing")
 			n.navigationStrategy.DebugVisitedNodes()
@@ -109,13 +116,13 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return errorVisiting
 	}
 
-	if traversedEntry == true || head == "*" || n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) == false {
+	if traversedEntry == true || head == "*" || head == "**" || n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) == false {
 		return nil
 	}
 
 	mapEntryKey := yaml.Node{Value: head, Kind: yaml.ScalarNode}
 	value.Content = append(value.Content, &mapEntryKey)
-	mapEntryValue := yaml.Node{Kind: guessKind(tail, 0)}
+	mapEntryValue := yaml.Node{Kind: guessKind(head, tail, 0)}
 	value.Content = append(value.Content, &mapEntryValue)
 	log.Debug("adding new node %v", head)
 	return n.doTraverse(&mapEntryValue, head, tail, append(pathStack, head))
@@ -206,8 +213,7 @@ func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pat
 	for index, childValue := range value.Content {
 		log.Debug("processing")
 		DebugNode(childValue)
-		// head = fmt.Sprintf("%v", index)
-		childValue = n.getOrReplace(childValue, guessKind(tail, childValue.Kind))
+		childValue = n.getOrReplace(childValue, guessKind(head, tail, childValue.Kind))
 		var err = n.doTraverse(childValue, head, tail, append(pathStack, index))
 		if err != nil {
 			return err
@@ -216,25 +222,22 @@ func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pat
 	return nil
 }
 
-func (n *navigator) appendArray(value *yaml.Node, tail []string, pathStack []interface{}) error {
-	var newNode = yaml.Node{Kind: guessKind(tail, 0)}
+func (n *navigator) appendArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+	var newNode = yaml.Node{Kind: guessKind(head, tail, 0)}
 	value.Content = append(value.Content, &newNode)
 	log.Debug("appending a new node, %v", value.Content)
-	head := fmt.Sprintf("%v", len(value.Content)-1)
 	return n.doTraverse(&newNode, head, tail, append(pathStack, len(value.Content)-1))
 }
 
 func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	var index, err = strconv.ParseInt(head, 10, 64) // nolint
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "Error parsing array index '%v' for '%v'", head, PathStackToString(pathStack))
 	}
 	if index >= int64(len(value.Content)) {
 		return nil
 	}
-	value.Content[index] = n.getOrReplace(value.Content[index], guessKind(tail, value.Content[index].Kind))
+	value.Content[index] = n.getOrReplace(value.Content[index], guessKind(head, tail, value.Content[index].Kind))
 
-	// THERES SOMETHING WRONG HERE, ./yq read -p kv examples/sample.yaml b.e.1.*
-	// THERES SOMETHING WRONG HERE, ./yq read -p kv examples/sample.yaml b.e.1.name
 	return n.doTraverse(value.Content[index], head, tail, append(pathStack, index))
 }

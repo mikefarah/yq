@@ -78,12 +78,15 @@ func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
 	if len(pathStack) == 0 {
 		return true
 	}
+	log.Debug("tail len %v", len(nodeContext.Tail))
+	// SOMETHING HERE!
 
 	if ns.alreadyVisited(pathStack) || len(nodeContext.Tail) != 0 {
 		return false
 	}
 
 	nodeKey := fmt.Sprintf("%v", pathStack[len(pathStack)-1])
+	log.Debug("nodeKey: %v, nodeContext.Head: %v", nodeKey, nodeContext.Head)
 	parser := NewPathParser()
 
 	// only visit aliases if its an exact match

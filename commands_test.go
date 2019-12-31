@@ -130,6 +130,18 @@ b.e.[1].value: 4
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadDeepSplatWithSuffixCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p kv examples/sample.yaml b.**.name")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b.e.[0].name: fred
+b.e.[1].name: sam
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadWithKeyCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p k examples/sample.yaml b.c")
@@ -408,15 +420,18 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to missing arg")
 	}
-	expectedOutput := `Error reading path in document index 0: strconv.ParseInt: parsing "x": invalid syntax`
+	expectedOutput := `Error reading path in document index 0: Error parsing array index 'x' for '': strconv.ParseInt: parsing "x": invalid syntax`
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
 func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read examples/array.yaml [*].roles[x]")
-	expectedOutput := ``
-	test.AssertResult(t, expectedOutput, result.Output)
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Error reading path in document index 0: Error parsing array index 'x' for '[0].roles': strconv.ParseInt: parsing "x": invalid syntax`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
 func TestReadCmd_Error(t *testing.T) {
@@ -469,8 +484,8 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, fmt.Sprintf("read %s b.d.*.[x]", filename))
-	expectedOutput := ``
-	test.AssertResult(t, expectedOutput, result.Output)
+	expectedOutput := `Error reading path in document index 0: Error parsing array index 'x' for 'b.d.e': strconv.ParseInt: parsing "x": invalid syntax`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
 func TestReadCmd_Verbose(t *testing.T) {

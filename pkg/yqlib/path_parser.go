@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"strconv"
 	"strings"
 )
 
@@ -26,6 +27,13 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 	head := nodeContext.Head
 	if head == "**" || head == "*" {
 		return true
+	}
+	if head == "+" {
+		log.Debug("head is +, nodeKey is %v", nodeKey)
+		var _, err = strconv.ParseInt(nodeKey, 10, 64) // nolint
+		if err == nil {
+			return true
+		}
 	}
 	var prefixMatch = strings.TrimSuffix(head, "*")
 	if prefixMatch != head {

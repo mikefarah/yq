@@ -48,7 +48,7 @@ func PathStackToString(pathStack []interface{}) string {
 	return sb.String()
 }
 
-func guessKind(tail []string, guess yaml.Kind) yaml.Kind {
+func guessKind(head string, tail []string, guess yaml.Kind) yaml.Kind {
 	log.Debug("tail %v", tail)
 	if len(tail) == 0 && guess == 0 {
 		log.Debug("end of path, must be a scalar")
@@ -61,7 +61,7 @@ func guessKind(tail []string, guess yaml.Kind) yaml.Kind {
 	if tail[0] == "+" || errorParsingInt == nil {
 		return yaml.SequenceNode
 	}
-	if (tail[0] == "*" || tail[0] == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
+	if (tail[0] == "*" || tail[0] == "**" || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
 		return guess
 	}
 	if guess == yaml.AliasNode {
@@ -69,8 +69,8 @@ func guessKind(tail []string, guess yaml.Kind) yaml.Kind {
 		return guess
 	}
 	log.Debug("forcing a mapping node")
-	log.Debug("yaml.SequenceNode ?", guess == yaml.SequenceNode)
-	log.Debug("yaml.ScalarNode ?", guess == yaml.ScalarNode)
+	log.Debug("yaml.SequenceNode %v", guess == yaml.SequenceNode)
+	log.Debug("yaml.ScalarNode %v", guess == yaml.ScalarNode)
 	return yaml.MappingNode
 }
 
@@ -102,7 +102,7 @@ func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 
 func (l *lib) New(path string) yaml.Node {
 	var paths = l.parser.ParsePath(path)
-	newNode := yaml.Node{Kind: guessKind(paths, 0)}
+	newNode := yaml.Node{Kind: guessKind("", paths, 0)}
 	return newNode
 }
 
