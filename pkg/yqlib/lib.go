@@ -58,11 +58,13 @@ func (l *lib) DeletePath(dataBucket interface{}, path string) (interface{}, erro
 	return l.navigator.DeleteChildValue(dataBucket, paths)
 }
 
-func (l *lib) Merge(dst interface{}, src interface{}, overwrite bool, append bool) error {
-	if overwrite {
-		return mergo.Merge(dst, src, mergo.WithOverride)
-	} else if append {
-		return mergo.Merge(dst, src, mergo.WithAppendSlice)
+func (l *lib) Merge(dst interface{}, src interface{}, overwriteFlag bool, appendFlag bool) error {
+	opts := []func(*mergo.Config){}
+	if overwriteFlag {
+		opts = append(opts, mergo.WithOverride)
 	}
-	return mergo.Merge(dst, src)
+	if appendFlag {
+		opts = append(opts, mergo.WithAppendSlice)
+	}
+	return mergo.Merge(dst, src, opts...)
 }

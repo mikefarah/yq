@@ -156,6 +156,23 @@ b: 2
 		test.AssertResult(t, `[{a b} {c d} {a 1} {b 2}]`, fmt.Sprintf("%v", mergedData["root"]))
 	})
 
+	t.Run("TestMerge_WithAppendAndOverwrite", func(t *testing.T) {
+		var dst = map[interface{}]interface{}{
+			"a": "initial",
+			"b": []string{"old"},
+		}
+		var src = map[interface{}]interface{}{
+			"a": "replaced",
+			"b": []string{"new"},
+		}
+
+		err := subject.Merge(&dst, src, true, true)
+		if err != nil {
+			t.Fatal("Unexpected error")
+		}
+		test.AssertResult(t, `map[a:replaced b:[old new]]`, fmt.Sprintf("%v", dst))
+	})
+
 	t.Run("TestMerge_WithError", func(t *testing.T) {
 		err := subject.Merge(nil, nil, false, false)
 		if err == nil {
