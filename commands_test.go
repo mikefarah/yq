@@ -1113,7 +1113,7 @@ func TestWriteCmd_SplatMapEmpty(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-  c: {}
+  c: thing
   d: another thing
 `
 	test.AssertResult(t, expectedOutput, result.Output)
