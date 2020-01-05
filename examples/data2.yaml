@@ -1,4 +1,4 @@
-a: other
+a: other # better than the original
 b: [3, 4]
 c:
   toast: leave

@@ -807,6 +807,18 @@ func TestNewCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestNewArrayCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b[0] 3")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+- 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestNewCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "new b.c")
@@ -1334,7 +1346,7 @@ func TestMergeOverwriteCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: other
+	expectedOutput := `a: other # better than the original
 b: [3, 4]
 c:
   test: 1
@@ -1348,7 +1360,7 @@ func TestMergeAppendCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: simple
+	expectedOutput := `a: simple # just the best
 b: [1, 2, 3, 4]
 c:
   test: 1
@@ -1366,26 +1378,27 @@ func TestMergeArraysCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeCmd_Multi(t *testing.T) {
+func TestMergeCmd_Multi(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge -d1 examples/multiple_docs_small.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge -d1 examples/multiple_docs_small.yaml examples/data1.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: Easy! as one two three
 ---
-a: other
 another:
   document: here
+a: simple # just the best
 b:
-- 3
-- 4
+- 1
+- 2
 c:
   test: 1
 ---
 - 1
-- 2`
-	test.AssertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+- 2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 func xTestMergeYamlMultiAllCmd(t *testing.T) {
