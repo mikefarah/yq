@@ -12,10 +12,12 @@ import (
 
 var log = logging.MustGetLogger("yq")
 
+// TODO: enumerate
 type UpdateCommand struct {
-	Command string
-	Path    string
-	Value   *yaml.Node
+	Command   string
+	Path      string
+	Value     *yaml.Node
+	Overwrite bool
 }
 
 func DebugNode(value *yaml.Node) {
@@ -76,7 +78,7 @@ func guessKind(head string, tail []string, guess yaml.Kind) yaml.Kind {
 
 type YqLib interface {
 	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
-	Update(rootNode *yaml.Node, updateCommand UpdateCommand) error
+	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
 }
 
@@ -106,12 +108,12 @@ func (l *lib) New(path string) yaml.Node {
 	return newNode
 }
 
-func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand) error {
+func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error {
 	log.Debugf("%v to %v", updateCommand.Command, updateCommand.Path)
 	switch updateCommand.Command {
 	case "update":
 		var paths = l.parser.ParsePath(updateCommand.Path)
-		navigator := NewDataNavigator(UpdateNavigationStrategy(updateCommand.Value))
+		navigator := NewDataNavigator(UpdateNavigationStrategy(updateCommand, autoCreate))
 		return navigator.Traverse(rootNode, paths)
 	case "delete":
 		var paths = l.parser.ParsePath(updateCommand.Path)

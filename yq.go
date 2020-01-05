@@ -22,6 +22,7 @@ var printMode = "v"
 var writeInplace = false
 var writeScript = ""
 var overwriteFlag = false
+var autoCreateFlag = true
 var allowEmptyFlag = false
 var appendFlag = false
 var verbose = false
@@ -235,7 +236,8 @@ Note that if you set both flags only overwrite will take effect.
 		RunE: mergeProperties,
 	}
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
-	// cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
+	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
+	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
 	// cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
 	// cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
@@ -256,10 +258,20 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		return errorParsingDocIndex
 	}
 
+	matchingNodes, errorReadingStream := readYamlFile(args[0], path, updateAll, docIndexInt)
+
+	if errorReadingStream != nil {
+		return errorReadingStream
+	}
+
+	return printResults(matchingNodes, cmd)
+}
+
+func readYamlFile(filename string, path string, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {
 	var matchingNodes []*yqlib.NodeContext
 
 	var currentIndex = 0
-	var errorReadingStream = readStream(args[0], func(decoder *yaml.Decoder) error {
+	var errorReadingStream = readStream(filename, func(decoder *yaml.Decoder) error {
 		for {
 			var dataBucket yaml.Node
 			errorReading := decoder.Decode(&dataBucket)
@@ -275,12 +287,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 			currentIndex = currentIndex + 1
 		}
 	})
-
-	if errorReadingStream != nil {
-		return errorReadingStream
-	}
-
-	return printResults(matchingNodes, cmd)
+	return matchingNodes, errorReadingStream
 }
 
 func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
@@ -419,7 +426,21 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
 	// first generate update commands from the file
-	return nil
+	var filesToMerge = args[1:]
+	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
+
+	for _, fileToMerge := range filesToMerge {
+		matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
+		if errorProcessingFile != nil {
+			return errorProcessingFile
+		}
+		for _, matchingNode := range matchingNodes {
+			mergePath := yqlib.PathStackToString(matchingNode.PathStack)
+			updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
+		}
+	}
+
+	return updateDoc(args[0], updateCommands, cmd.OutOrStdout())
 }
 
 func newProperty(cmd *cobra.Command, args []string) error {
@@ -431,7 +452,7 @@ func newProperty(cmd *cobra.Command, args []string) error {
 
 	for _, updateCommand := range updateCommands {
 
-		errorUpdating := lib.Update(&newNode, updateCommand)
+		errorUpdating := lib.Update(&newNode, updateCommand, true)
 
 		if errorUpdating != nil {
 			return errorUpdating
@@ -474,7 +495,7 @@ func prefixDocument(updateAll bool, docIndexInt int, currentIndex int, dataBucke
 		newNode := lib.New(updateCommand.Path)
 		dataBucket.Content[0] = &newNode
 
-		errorUpdating := lib.Update(dataBucket, updateCommand)
+		errorUpdating := lib.Update(dataBucket, updateCommand, true)
 		if errorUpdating != nil {
 			return errorUpdating
 		}
@@ -502,7 +523,8 @@ func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io
 		if updateAll || currentIndex == docIndexInt {
 			log.Debugf("Updating doc %v", currentIndex)
 			for _, updateCommand := range updateCommands {
-				errorUpdating := lib.Update(dataBucket, updateCommand)
+				log.Debugf("Processing update to Path %v", updateCommand.Path)
+				errorUpdating := lib.Update(dataBucket, updateCommand, autoCreateFlag)
 				if errorUpdating != nil {
 					return errorUpdating
 				}
@@ -605,7 +627,7 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		log.Debugf("Read write commands file '%v'", parsedCommands)
 		for index := range parsedCommands {
 			parsedCommand := parsedCommands[index]
-			updateCommand := yqlib.UpdateCommand{Command: parsedCommand.Command, Path: parsedCommand.Path, Value: &parsedCommand.Value}
+			updateCommand := yqlib.UpdateCommand{Command: parsedCommand.Command, Path: parsedCommand.Path, Value: &parsedCommand.Value, Overwrite: true}
 			updateCommands = append(updateCommands, updateCommand)
 		}
 
@@ -617,7 +639,7 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		log.Debug("args %v", args)
 		log.Debug("path %v", args[expectedArgs-2])
 		log.Debug("Value %v", args[expectedArgs-1])
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse(args[expectedArgs-1], customTag)}
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse(args[expectedArgs-1], customTag), Overwrite: true}
 	}
 	return updateCommands, nil
 }

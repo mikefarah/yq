@@ -1297,32 +1297,45 @@ something: else`
 	test.AssertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
 }
 
-func xTestMergeCmd(t *testing.T) {
+func TestMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: simple
-b:
-- 1
-- 2
+b: [1, 2]
+c:
+  test: 1
+  toast: leave
+  tell: 1
+  taco: cool
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeNoAutoCreateCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "merge -c=false examples/data1.yaml examples/data2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple
+b: [1, 2]
 c:
   test: 1
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeOverwriteCmd(t *testing.T) {
+func TestMergeOverwriteCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --overwrite examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge -c=false --overwrite examples/data1.yaml examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: other
-b:
-- 3
-- 4
+b: [3, 4]
 c:
   test: 1
 `

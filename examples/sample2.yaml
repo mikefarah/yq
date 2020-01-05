@@ -1,10 +1,2 @@
-a: Easy! as one two three
 b:
   c: things
-  d: whatever
-things:
- borg: snorg
- thing1:
-  cat: 'fred'
- thing2:
-  cat: 'sam'
