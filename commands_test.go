@@ -1342,34 +1342,26 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeAppendCmd(t *testing.T) {
+func TestMergeAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --append examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge --autocreate=false --append examples/data1.yaml examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: simple
-b:
-- 1
-- 2
-- 3
-- 4
+b: [1, 2, 3, 4]
 c:
   test: 1
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
-func xTestMergeArraysCmd(t *testing.T) {
+func TestMergeArraysCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --append examples/sample_array.yaml examples/sample_array_2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `- 1
-- 2
-- 3
-- 4
-- 5
+	expectedOutput := `[1, 2, 3, 4, 5]
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }

@@ -34,11 +34,20 @@ func DebugNode(value *yaml.Node) {
 }
 
 func PathStackToString(pathStack []interface{}) string {
+	return MergePathStackToString(pathStack, false)
+}
+
+func MergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 	var sb strings.Builder
 	for index, path := range pathStack {
 		switch path.(type) {
 		case int:
-			sb.WriteString(fmt.Sprintf("[%v]", path))
+			if appendArrays {
+				sb.WriteString("[+]")
+			} else {
+				sb.WriteString(fmt.Sprintf("[%v]", path))
+			}
+
 		default:
 			sb.WriteString(fmt.Sprintf("%v", path))
 		}

@@ -238,7 +238,7 @@ Note that if you set both flags only overwrite will take effect.
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
-	// cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
+	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
 	// cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
@@ -435,7 +435,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			return errorProcessingFile
 		}
 		for _, matchingNode := range matchingNodes {
-			mergePath := yqlib.PathStackToString(matchingNode.PathStack)
+			mergePath := yqlib.MergePathStackToString(matchingNode.PathStack, appendFlag)
 			updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
 		}
 	}
