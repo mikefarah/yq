@@ -239,10 +239,6 @@ func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, p
 		value.Content = append(value.Content, &yaml.Node{Kind: guessKind(head, tail, 0)})
 	}
 
-	if index >= int64(len(value.Content)) {
-		log.Debug("index longer than array length, aborting!")
-		return nil
-	}
 	value.Content[index] = n.getOrReplace(value.Content[index], guessKind(head, tail, value.Content[index].Kind))
 
 	return n.doTraverse(value.Content[index], head, tail, append(pathStack, index))
