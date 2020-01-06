@@ -243,7 +243,7 @@ func TestReadBadDocumentIndexCmd(t *testing.T) {
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
-	expectedOutput := `asked to process document index 1 but there are only 1 document(s)`
+	expectedOutput := `Could not process document index 1 as there are only 1 document(s)`
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
@@ -829,18 +829,6 @@ func TestNewCmd_Error(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
-func TestNewCmd_Verbose(t *testing.T) {
-	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "-v new b.c 3")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	expectedOutput := `b:
-  c: 3
-`
-	test.AssertResult(t, expectedOutput, result.Output)
-}
-
 func TestWriteCmd(t *testing.T) {
 	content := `b:
   c: 3
@@ -996,24 +984,6 @@ func TestWriteCmd_ErrorUnreadableFile(t *testing.T) {
 		expectedOutput = `open fake-unknown: no such file or directory`
 	}
 	test.AssertResult(t, expectedOutput, result.Error.Error())
-}
-
-func TestWriteCmd_Verbose(t *testing.T) {
-	content := `b:
-  c: 3
-`
-	filename := test.WriteTempYamlFile(content)
-	defer test.RemoveTempYamlFile(filename)
-
-	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("-v write %s b.c 7", filename))
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	expectedOutput := `b:
-  c: 7
-`
-	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 func TestWriteCmd_Inplace(t *testing.T) {
@@ -1193,7 +1163,7 @@ b:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("delete -v %s b.hi[*].thing", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("delete %s b.hi[*].thing", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1224,7 +1194,7 @@ b:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("delete -v %s b.there*.c", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("delete %s b.there*.c", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1315,7 +1285,7 @@ func TestMergeCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: simple
+	expectedOutput := `a: simple # just the best
 b: [1, 2]
 c:
   test: 1
@@ -1332,7 +1302,7 @@ func TestMergeNoAutoCreateCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: simple
+	expectedOutput := `a: simple # just the best
 b: [1, 2]
 c:
   test: 1
@@ -1401,7 +1371,7 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeYamlMultiAllCmd(t *testing.T) {
+func TestMergeYamlMultiAllCmd(t *testing.T) {
 	content := `b:
   c: 3
 apples: green
@@ -1420,17 +1390,18 @@ something: good`
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `apples: green
-b:
+	expectedOutput := `b:
   c: 3
+apples: green
 something: good
 ---
+something: else
 apples: red
-something: else`
-	test.AssertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+`
+	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeYamlMultiAllOverwriteCmd(t *testing.T) {
+func TestMergeYamlMultiAllOverwriteCmd(t *testing.T) {
 	content := `b:
   c: 3
 apples: green
@@ -1449,17 +1420,18 @@ something: good`
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `apples: red
-b:
+	expectedOutput := `b:
   c: 3
+apples: red
 something: good
 ---
+something: good
 apples: red
-something: good`
-	test.AssertResult(t, expectedOutput, strings.Trim(result.Output, "\n "))
+`
+	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func xTestMergeCmd_Error(t *testing.T) {
+func TestMergeCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge examples/data1.yaml")
 	if result.Error == nil {
@@ -1469,7 +1441,7 @@ func xTestMergeCmd_Error(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
-func xTestMergeCmd_ErrorUnreadableFile(t *testing.T) {
+func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge examples/data1.yaml fake-unknown")
 	if result.Error == nil {
@@ -1477,30 +1449,14 @@ func xTestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	}
 	var expectedOutput string
 	if runtime.GOOS == "windows" {
-		expectedOutput = `Error updating document at index 0: open fake-unknown: The system cannot find the file specified.`
+		expectedOutput = `open fake-unknown: The system cannot find the file specified.`
 	} else {
-		expectedOutput = `Error updating document at index 0: open fake-unknown: no such file or directory`
+		expectedOutput = `open fake-unknown: no such file or directory`
 	}
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
-func xTestMergeCmd_Verbose(t *testing.T) {
-	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "-v merge examples/data1.yaml examples/data2.yaml")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	expectedOutput := `a: simple
-b:
-- 1
-- 2
-c:
-  test: 1
-`
-	test.AssertResult(t, expectedOutput, result.Output)
-}
-
-func xTestMergeCmd_Inplace(t *testing.T) {
+func TestMergeCmd_Inplace(t *testing.T) {
 	filename := test.WriteTempYamlFile(test.ReadTempYamlFile("examples/data1.yaml"))
 	err := os.Chmod(filename, os.FileMode(int(0666)))
 	if err != nil {
@@ -1515,26 +1471,35 @@ func xTestMergeCmd_Inplace(t *testing.T) {
 	}
 	info, _ := os.Stat(filename)
 	gotOutput := test.ReadTempYamlFile(filename)
-	expectedOutput := `a: simple
-b:
-- 1
-- 2
+	expectedOutput := `a: simple # just the best
+b: [1, 2]
 c:
-  test: 1`
-	test.AssertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
+  test: 1
+  toast: leave
+  tell: 1
+  taco: cool
+`
+	test.AssertResult(t, expectedOutput, gotOutput)
 	test.AssertResult(t, os.FileMode(int(0666)), info.Mode())
 }
 
-func xTestMergeAllowEmptyCmd(t *testing.T) {
+func TestMergeAllowEmptyCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --allow-empty examples/data1.yaml examples/empty.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: simple
-b:
-- 1
-- 2
+	expectedOutput := `a: simple # just the best
+b: [1, 2]
+c:
+  test: 1
 `
 	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeDontAllowEmptyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "merge examples/data1.yaml examples/empty.yaml")
+	expectedOutput := `Could not process document index 0 as there are only 0 document(s)`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
 }

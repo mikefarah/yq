@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 
@@ -239,7 +240,7 @@ Note that if you set both flags only overwrite will take effect.
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
-	// cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
+	cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -293,7 +294,7 @@ func readYamlFile(filename string, path string, updateAll bool, docIndexInt int)
 func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	log.Debugf("done %v / %v", currentIndex, docIndexInt)
 	if !updateAll && currentIndex <= docIndexInt {
-		return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
+		return fmt.Errorf("Could not process document index %v as there are only %v document(s)", docIndex, currentIndex)
 	}
 	return nil
 }
@@ -425,13 +426,16 @@ func writeProperty(cmd *cobra.Command, args []string) error {
 }
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
+	if len(args) < 2 {
+		return errors.New("Must provide at least 2 yaml files")
+	}
 	// first generate update commands from the file
 	var filesToMerge = args[1:]
 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
 
 	for _, fileToMerge := range filesToMerge {
 		matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
-		if errorProcessingFile != nil {
+		if errorProcessingFile != nil && (allowEmptyFlag == false || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
 			return errorProcessingFile
 		}
 		for _, matchingNode := range matchingNodes {
@@ -568,48 +572,6 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 	log.Debugf("Writing to %v from %v", destinationName, inputFile)
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
-
-// func mergeProperties(cmd *cobra.Command, args []string) error {
-// 	if len(args) < 2 {
-// 		return errors.New("Must provide at least 2 yaml files")
-// 	}
-// 	var input = args[0]
-// 	var filesToMerge = args[1:]
-// 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
-// 	if errorParsingDocIndex != nil {
-// 		return errorParsingDocIndex
-// 	}
-
-// 	var updateData = func(dataBucket interface{}, currentIndex int) (interface{}, error) {
-// 		if updateAll || currentIndex == docIndexInt {
-// 			log.Debugf("Merging doc %v", currentIndex)
-// 			var mergedData map[interface{}]interface{}
-// 			// merge only works for maps, so put everything in a temporary
-// 			// map
-// 			var mapDataBucket = make(map[interface{}]interface{})
-// 			mapDataBucket["root"] = dataBucket
-// 			if err := lib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
-// 				return nil, err
-// 			}
-// 			for _, f := range filesToMerge {
-// 				var fileToMerge interface{}
-// 				if err := readData(f, 0, &fileToMerge); err != nil {
-// 					if allowEmptyFlag && err == io.EOF {
-// 						continue
-// 					}
-// 					return nil, err
-// 				}
-// 				mapDataBucket["root"] = fileToMerge
-// 				if err := lib.Merge(&mergedData, mapDataBucket, overwriteFlag, appendFlag); err != nil {
-// 					return nil, err
-// 				}
-// 			}
-// 			return mergedData["root"], nil
-// 		}
-// 		return dataBucket, nil
-// 	}
-// 	return readAndUpdate(cmd.OutOrStdout(), input, updateData)
-// }
 
 type updateCommandParsed struct {
 	Command string
