@@ -231,8 +231,6 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 
 If overwrite flag is set then existing values will be overwritten using the values from each additional yaml file.
 If append flag is set then existing arrays will be merged with the arrays from each additional yaml file.
-
-Note that if you set both flags only overwrite will take effect.
 `,
 		RunE: mergeProperties,
 	}
