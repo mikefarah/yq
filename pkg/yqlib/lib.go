@@ -96,7 +96,7 @@ type lib struct {
 	parser    PathParser
 }
 
-func NewYqLib(l *logging.Logger) YqLib {
+func NewYqLib() YqLib {
 	return &lib{
 		parser: NewPathParser(),
 	}

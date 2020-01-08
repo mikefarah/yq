@@ -3,7 +3,6 @@ package yqlib
 import (
 	"strconv"
 
-	logging "gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -12,20 +11,17 @@ type ValueParser interface {
 }
 
 type valueParser struct {
-	log *logging.Logger
 }
 
-func NewValueParser(l *logging.Logger) ValueParser {
-	return &valueParser{log: l}
+func NewValueParser() ValueParser {
+	return &valueParser{}
 }
 
 func (v *valueParser) Parse(argument string, customTag string) *yaml.Node {
 	var err interface{}
 	var tag = customTag
 
-	var inQuotes = len(argument) > 0 && argument[0] == '"'
-	if tag == "" && !inQuotes {
-
+	if tag == "" {
 		_, err = strconv.ParseBool(argument)
 		if err == nil {
 			tag = "!!bool"
@@ -46,6 +42,6 @@ func (v *valueParser) Parse(argument string, customTag string) *yaml.Node {
 			return &yaml.Node{Tag: "!!seq", Kind: yaml.SequenceNode}
 		}
 	}
-	v.log.Debugf("parsed value '%v', tag: '%v'", argument, tag)
+	log.Debugf("parsed value '%v', tag: '%v'", argument, tag)
 	return &yaml.Node{Value: argument, Tag: tag, Kind: yaml.ScalarNode}
 }

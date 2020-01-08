@@ -30,8 +30,8 @@ var verbose = false
 var version = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
-var lib = yqlib.NewYqLib(log)
-var valueParser = yqlib.NewValueParser(log)
+var lib = yqlib.NewYqLib()
+var valueParser = yqlib.NewValueParser()
 
 func main() {
 	cmd := newCommandCLI()
@@ -210,6 +210,7 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 		RunE: newProperty,
 	}
 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	cmdNew.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
 	return cmdNew
 }
 
