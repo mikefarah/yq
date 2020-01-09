@@ -6,6 +6,9 @@ import (
 
 func TestLib(t *testing.T) {
 
+	// PathStackToString
+	// MergePathStackToString (with true)
+
 	// var log = logging.MustGetLogger("yq")
 	// subject := NewYqLib(log)
 

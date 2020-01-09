@@ -95,7 +95,7 @@ func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
 }
 
 func (ns *NavigationStrategyImpl) Visit(nodeContext NodeContext) error {
-	log.Debug("Visit?, %v, %v", nodeContext.Head, PathStackToString(nodeContext.PathStack))
+	log.Debug("Visit?, %v, %v", nodeContext.Head, pathStackToString(nodeContext.PathStack))
 	DebugNode(nodeContext.Node)
 	if ns.shouldVisit(nodeContext) {
 		log.Debug("yep, visiting")
@@ -112,12 +112,12 @@ func (ns *NavigationStrategyImpl) Visit(nodeContext NodeContext) error {
 func (ns *NavigationStrategyImpl) DebugVisitedNodes() {
 	log.Debug("Visited Nodes:")
 	for _, candidate := range ns.visitedNodes {
-		log.Debug(" - %v", PathStackToString(candidate.PathStack))
+		log.Debug(" - %v", pathStackToString(candidate.PathStack))
 	}
 }
 
 func (ns *NavigationStrategyImpl) alreadyVisited(pathStack []interface{}) bool {
-	log.Debug("checking already visited pathStack: %v", PathStackToString(pathStack))
+	log.Debug("checking already visited pathStack: %v", pathStackToString(pathStack))
 	for _, candidate := range ns.visitedNodes {
 		candidatePathStack := candidate.PathStack
 		if patchStacksMatch(candidatePathStack, pathStack) {
@@ -131,7 +131,7 @@ func (ns *NavigationStrategyImpl) alreadyVisited(pathStack []interface{}) bool {
 }
 
 func patchStacksMatch(path1 []interface{}, path2 []interface{}) bool {
-	log.Debug("checking against path: %v", PathStackToString(path1))
+	log.Debug("checking against path: %v", pathStackToString(path1))
 
 	if len(path1) != len(path2) {
 		return false

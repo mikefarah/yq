@@ -96,7 +96,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		newPathStack := append(pathStack, contents[indexInMap].Value)
 		log.Debug("appended %v", contents[indexInMap].Value)
 		n.navigationStrategy.DebugVisitedNodes()
-		log.Debug("should I traverse? %v, %v", head, PathStackToString(newPathStack))
+		log.Debug("should I traverse? %v, %v", head, pathStackToString(newPathStack))
 		DebugNode(value)
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) == true {
 			log.Debug("recurseMap: Going to traverse")
@@ -232,7 +232,7 @@ func (n *navigator) appendArray(value *yaml.Node, head string, tail []string, pa
 func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	var index, err = strconv.ParseInt(head, 10, 64) // nolint
 	if err != nil {
-		return errors.Wrapf(err, "Error parsing array index '%v' for '%v'", head, PathStackToString(pathStack))
+		return errors.Wrapf(err, "Error parsing array index '%v' for '%v'", head, pathStackToString(pathStack))
 	}
 
 	for int64(len(value.Content)) <= index {

@@ -12,7 +12,6 @@ import (
 
 var log = logging.MustGetLogger("yq")
 
-// TODO: enumerate
 type UpdateCommand struct {
 	Command   string
 	Path      string
@@ -33,11 +32,11 @@ func DebugNode(value *yaml.Node) {
 	}
 }
 
-func PathStackToString(pathStack []interface{}) string {
-	return MergePathStackToString(pathStack, false)
+func pathStackToString(pathStack []interface{}) string {
+	return mergePathStackToString(pathStack, false)
 }
 
-func MergePathStackToString(pathStack []interface{}, appendArrays bool) string {
+func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 	var sb strings.Builder
 	for index, path := range pathStack {
 		switch path.(type) {
@@ -89,6 +88,9 @@ type YqLib interface {
 	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
+
+	PathStackToString(pathStack []interface{}) string
+	MergePathStackToString(pathStack []interface{}, appendArrays bool) string
 }
 
 type lib struct {
@@ -109,6 +111,14 @@ func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	error := navigator.Traverse(rootNode, paths)
 	return NavigationStrategy.GetVisitedNodes(), error
 
+}
+
+func (l *lib) PathStackToString(pathStack []interface{}) string {
+	return pathStackToString(pathStack)
+}
+
+func (l *lib) MergePathStackToString(pathStack []interface{}, appendArrays bool) string {
+	return mergePathStackToString(pathStack, appendArrays)
 }
 
 func (l *lib) New(path string) yaml.Node {

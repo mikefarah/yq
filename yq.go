@@ -335,7 +335,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 	for index, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "k":
-			cmd.Print(yqlib.PathStackToString(mappedDoc.PathStack))
+			cmd.Print(lib.PathStackToString(mappedDoc.PathStack))
 			if index < len(matchingNodes)-1 {
 				cmd.Print("\n")
 			}
@@ -343,7 +343,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 			// put it into a node and print that.
 			var parentNode = yaml.Node{Kind: yaml.MappingNode}
 			parentNode.Content = make([]*yaml.Node, 2)
-			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: yqlib.PathStackToString(mappedDoc.PathStack)}
+			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
 			parentNode.Content[1] = mappedDoc.Node
 			if err := printValue(&parentNode, cmd); err != nil {
 				return err
@@ -438,7 +438,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			return errorProcessingFile
 		}
 		for _, matchingNode := range matchingNodes {
-			mergePath := yqlib.MergePathStackToString(matchingNode.PathStack, appendFlag)
+			mergePath := lib.MergePathStackToString(matchingNode.PathStack, appendFlag)
 			updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
 		}
 	}
