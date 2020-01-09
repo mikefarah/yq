@@ -2,26 +2,37 @@ package yqlib
 
 import (
 	"testing"
+
+	"github.com/mikefarah/yq/v3/test"
 )
 
 func TestLib(t *testing.T) {
 
-	// PathStackToString
-	// MergePathStackToString (with true)
+	subject := NewYqLib()
 
-	// var log = logging.MustGetLogger("yq")
-	// subject := NewYqLib(log)
+	t.Run("PathStackToString_Empty", func(t *testing.T) {
+		emptyArray := make([]interface{}, 0)
+		got := subject.PathStackToString(emptyArray)
+		test.AssertResult(t, ``, got)
+	})
 
-	// 	t.Run("TestReadPath", func(t *testing.T) {
-	// 		var data = test.ParseData(`
-	// ---
-	// b:
-	//   2: c
-	// `)
+	t.Run("PathStackToString", func(t *testing.T) {
+		array := make([]interface{}, 3)
+		array[0] = "a"
+		array[1] = 0
+		array[2] = "b"
+		got := subject.PathStackToString(array)
+		test.AssertResult(t, `a.[0].b`, got)
+	})
 
-	// 		got, _ := subject.ReadPath(data, "b.2")
-	// 		test.AssertResult(t, `c`, got)
-	// 	})
+	t.Run("MergePathStackToString", func(t *testing.T) {
+		array := make([]interface{}, 3)
+		array[0] = "a"
+		array[1] = 0
+		array[2] = "b"
+		got := subject.MergePathStackToString(array, true)
+		test.AssertResult(t, `a.[+].b`, got)
+	})
 
 	// 	t.Run("TestReadPath_WithError", func(t *testing.T) {
 	// 		var data = test.ParseData(`
