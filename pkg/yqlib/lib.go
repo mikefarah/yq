@@ -25,7 +25,10 @@ func DebugNode(value *yaml.Node) {
 	} else if log.IsEnabledFor(logging.DEBUG) {
 		buf := new(bytes.Buffer)
 		encoder := yaml.NewEncoder(buf)
-		encoder.Encode(value)
+		errorEncoding := encoder.Encode(value)
+		if errorEncoding != nil {
+			log.Error("Error debugging node, %v", errorEncoding.Error())
+		}
 		encoder.Close()
 		log.Debug("Tag: %v", value.Tag)
 		log.Debug("%v", buf.String())
@@ -94,8 +97,7 @@ type YqLib interface {
 }
 
 type lib struct {
-	navigator DataNavigator
-	parser    PathParser
+	parser PathParser
 }
 
 func NewYqLib() YqLib {

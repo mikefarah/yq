@@ -40,7 +40,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pat
 		// ignore errors here, we are deep splatting so we may accidently give a string key
 		// to an array sequence
 		if len(tail) > 0 {
-			n.recurse(value, tail[0], tail[1:], pathStack)
+			_ = n.recurse(value, tail[0], tail[1:], pathStack)
 		}
 		return errorDeepSplatting
 	}
@@ -78,7 +78,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
-		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) == true {
+		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) {
 			log.Debug("following the alias")
 			return n.recurse(value.Alias, head, tail, pathStack)
 		}
@@ -98,7 +98,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		n.navigationStrategy.DebugVisitedNodes()
 		log.Debug("should I traverse? %v, %v", head, pathStackToString(newPathStack))
 		DebugNode(value)
-		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) == true {
+		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) {
 			log.Debug("recurseMap: Going to traverse")
 			traversedEntry = true
 			// contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(head, tail, contents[indexInMap+1].Kind))
@@ -116,7 +116,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return errorVisiting
 	}
 
-	if traversedEntry == true || head == "*" || head == "**" || n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) == false {
+	if traversedEntry || head == "*" || head == "**" || !n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) {
 		return nil
 	}
 
@@ -156,7 +156,7 @@ func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []st
 	// if we don't find a match directly on this node first.
 	errorVisitedDirectEntries := n.visitDirectMatchingEntries(node, head, tail, pathStack, visit)
 
-	if errorVisitedDirectEntries != nil || n.navigationStrategy.FollowAlias(NewNodeContext(node, head, tail, pathStack)) == false {
+	if errorVisitedDirectEntries != nil || !n.navigationStrategy.FollowAlias(NewNodeContext(node, head, tail, pathStack)) {
 		return errorVisitedDirectEntries
 	}
 	return n.visitAliases(contents, head, tail, pathStack, visit)

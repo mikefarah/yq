@@ -12,7 +12,7 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 		visit: func(nodeContext NodeContext) error {
 			node := nodeContext.Node
 			changesToApply := updateCommand.Value
-			if updateCommand.Overwrite == true || node.Value == "" {
+			if updateCommand.Overwrite || node.Value == "" {
 				log.Debug("going to update")
 				DebugNode(node)
 				log.Debug("with")

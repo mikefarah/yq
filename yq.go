@@ -434,7 +434,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 
 	for _, fileToMerge := range filesToMerge {
 		matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
-		if errorProcessingFile != nil && (allowEmptyFlag == false || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
+		if errorProcessingFile != nil && (!allowEmptyFlag || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
 			return errorProcessingFile
 		}
 		for _, matchingNode := range matchingNodes {
@@ -464,9 +464,9 @@ func newProperty(cmd *cobra.Command, args []string) error {
 
 	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
 	encoder.SetIndent(2)
-	encoder.Encode(&newNode)
+	errorEncoding := encoder.Encode(&newNode)
 	encoder.Close()
-	return nil
+	return errorEncoding
 }
 
 func prefixProperty(cmd *cobra.Command, args []string) error {
