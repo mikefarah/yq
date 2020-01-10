@@ -494,7 +494,7 @@ func TestReadCmd_Verbose(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "2", result.Output)
+	test.AssertResult(t, "2\n", result.Output)
 }
 
 // func TestReadCmd_ToJson(t *testing.T) {

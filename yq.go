@@ -22,6 +22,7 @@ var customTag = ""
 var printMode = "v"
 var writeInplace = false
 var writeScript = ""
+var outputToJSON = false
 var overwriteFlag = false
 var autoCreateFlag = true
 var allowEmptyFlag = false
@@ -73,6 +74,7 @@ func newCommandCLI() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
 	rootCmd.AddCommand(
@@ -97,9 +99,9 @@ func createReadCmd() *cobra.Command {
 yq read things.yaml a.b.c
 yq r - a.b.c (reads from stdin)
 yq r things.yaml a.*.c
-yq r -d1 things.yaml a.array[0].blah
-yq r things.yaml a.array[*].blah
-yq r -- things.yaml --key-starting-with-dashes
+yq r -d1 things.yaml 'a.array[0].blah'
+yq r things.yaml 'a.array[*].blah'
+yq r -- things.yaml --key-starting-with-dashes.blah
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
@@ -115,13 +117,15 @@ func createWriteCmd() *cobra.Command {
 		Aliases: []string{"w"},
 		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
 		Example: `
-yq write things.yaml a.b.c cat
+yq write things.yaml a.b.c true
+yq write things.yaml a.b.c --tag '!!str' true
+yq write things.yaml a.b.c --tag '!!float' 3
 yq write --inplace -- things.yaml a.b.c --cat
 yq w -i things.yaml a.b.c cat
 yq w --script update_script.yaml things.yaml
 yq w -i -s update_script.yaml things.yaml
-yq w --doc 2 things.yaml a.b.d[+] foo
-yq w -d2 things.yaml a.b.d[+] foo
+yq w --doc 2 things.yaml 'a.b.d[+]' foo
+yq w -d2 things.yaml 'a.b.d[+]' foo
       `,
 		Long: `Updates the yaml file w.r.t the given path and value.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
@@ -129,12 +133,16 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 Append value to array adds the value to the end of array.
 
 Update Scripts:
-Note that you can give an update script to perform more sophisticated updated. Update script
-format is a yaml map where the key is the path and the value is..well the value. e.g.:
+Note that you can give an update script to perform more sophisticated update. Update script
+format is list of update commands (update or delete) like so:
 ---
-a.b.c: true,
-a.b.e:
-  - name: bob
+- command: update 
+  path: b.c
+  value:
+    #great 
+    things: frog # wow!
+- command: delete
+  path: b.d
 `,
 		RunE: writeProperty,
 	}
@@ -198,6 +206,7 @@ func createNewCmd() *cobra.Command {
 		Example: `
 yq new a.b.c cat
 yq n a.b.c cat
+yq n a.b[+] --tag '!!str' true
 yq n -- --key-starting-with-dash cat
 yq n --script create_script.yaml
       `,
@@ -226,6 +235,7 @@ yq m -i things.yaml other.yaml
 yq m --overwrite things.yaml other.yaml
 yq m -i -x things.yaml other.yaml
 yq m -i -a things.yaml other.yaml
+yq m -i --autocreate=false things.yaml other.yaml
       `,
 		Long: `Updates the yaml file by adding/updating the path(s) and value(s) from additional yaml file(s).
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
@@ -313,16 +323,18 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 }
 
 func printValue(node *yaml.Node, cmd *cobra.Command) error {
-	if node.Kind == yaml.ScalarNode {
-		cmd.Print(node.Value)
-		return nil
+	bufferedWriter := bufio.NewWriter(cmd.OutOrStdout())
+	defer safelyFlush(bufferedWriter)
+
+	var encoder yqlib.Encoder
+	if outputToJSON {
+		encoder = yqlib.NewJsonEncoder(bufferedWriter)
+	} else {
+		encoder = yqlib.NewYamlEncoder(bufferedWriter)
 	}
-	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
-	encoder.SetIndent(2)
 	if err := encoder.Encode(node); err != nil {
 		return err
 	}
-	encoder.Close()
 	return nil
 }
 
@@ -376,7 +388,7 @@ func parseDocumentIndex() (bool, int, error) {
 
 type updateDataFn func(dataBucket *yaml.Node, currentIndex int) error
 
-func mapYamlDecoder(updateData updateDataFn, encoder *yaml.Encoder) yamlDecoderFn {
+func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderFn {
 	return func(decoder *yaml.Decoder) error {
 		var dataBucket yaml.Node
 		var errorReading error
@@ -561,14 +573,21 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 			safelyRenameFile(tempFile.Name(), inputFile)
 		}()
 	} else {
-		var writer = bufio.NewWriter(stdOut)
-		destination = writer
+		destination = stdOut
 		destinationName = "Stdout"
-		defer safelyFlush(writer)
 	}
-	var encoder = yaml.NewEncoder(destination)
-	encoder.SetIndent(2)
+
 	log.Debugf("Writing to %v from %v", destinationName, inputFile)
+
+	bufferedWriter := bufio.NewWriter(destination)
+	defer safelyFlush(bufferedWriter)
+
+	var encoder yqlib.Encoder
+	if outputToJSON {
+		encoder = yqlib.NewJsonEncoder(bufferedWriter)
+	} else {
+		encoder = yqlib.NewYamlEncoder(bufferedWriter)
+	}
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
 

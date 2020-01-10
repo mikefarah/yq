@@ -1,15 +1,12 @@
-# Update doco / notes
-  - --autocreate=false to turn off default flags
-  - add comments to test yaml to ensure they are kept on updating.
-  - update built in command notes to includes quotes around path args.
 
 # New Features
   - Keeps comments and formatting (e.g. inline arrays)!
   - Handles anchors!
   - Can specify yaml tags (e.g. !!int), quoting values no longer sufficient, need to specify the tag value instead.
+  - JSON output works for all commands! Yaml files with multiple documents are printed out as one JSON document per line. 
 
-# Update scripts file format has changed
+# Update scripts file format has changed to be more powerful. Comments can be added, and delete commands have been introduced.
 
 # Merge command
-- autocreates missing entries in target by default, new flag to turn that off.
+- New flag 'autocreates' missing entries in target by default, new flag to turn that off.
 

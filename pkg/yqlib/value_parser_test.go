@@ -14,7 +14,7 @@ var parseValueTests = []struct {
 	testDescription string
 }{
 	{"true", "", "!!bool", "boolean"},
-	{"true", "!!string", "!!string", "boolean forced as string"},
+	{"true", "!!str", "!!str", "boolean forced as string"},
 	{"3.4", "", "!!float", "float"},
 	{"1212121", "", "!!int", "big number"},
 	{"1212121.1", "", "!!float", "big float number"},
