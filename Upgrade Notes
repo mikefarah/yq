@@ -1,11 +1,55 @@
 
 # New Features
-  - Keeps comments and formatting (e.g. inline arrays)!
-  - Handles anchors!
+  - Keeps yaml comments and formatting (string blocks are saved, number formatting is preserved, so it won't drop off trailing 0s for values like 0.10, which is important when that's a version entry )
+  
+  - Handles anchors! (doc link)
   - Can specify yaml tags (e.g. !!int), quoting values no longer sufficient, need to specify the tag value instead.
+  - Can print out matching paths and values when splatting (doc link)
   - JSON output works for all commands! Yaml files with multiple documents are printed out as one JSON document per line. 
+  - Deep splat (**) to match arbitrary paths, (doc link)
 
-# Update scripts file format has changed to be more powerful. Comments can be added, and delete commands have been introduced.
+
+# Breaking changes
+
+## Update scripts file format has changed to be more powerful. 
+Comments can be added, and delete commands have been introduced.
+
+## Reading and splatting, matching results are printed once per line.
+  e.g:
+
+```json
+parent:
+  childA: 
+    no: matches here
+  childB:
+    there: matches
+    hi: no match
+    there2: also matches
+```
+
+yq r sample.yaml 'parent.*.there*'
+
+old
+```yaml
+- null
+- - matches
+  - also matches
+```
+
+new
+```yaml
+matches
+also matches
+```
+
+and you can print the matching paths:
+
+yq r --printMode pv sample.yaml 'parent.*.there*'
+
+```yaml
+parent.childB.there: matches
+parent.childB.there2: also matches
+```
 
 # Merge command
 - New flag 'autocreates' missing entries in target by default, new flag to turn that off.

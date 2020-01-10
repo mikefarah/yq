@@ -107,7 +107,7 @@ yq r -- things.yaml --key-starting-with-dashes.blah
 		RunE: readProperty,
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
-	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), k (keys), kv (key and value pairs)")
+	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
 	return cmdRead
 }
 
@@ -218,7 +218,7 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 `,
 		RunE: newProperty,
 	}
-	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for updating yaml")
+	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for creating yaml")
 	cmdNew.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
 	return cmdNew
 }
@@ -323,6 +323,11 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 }
 
 func printValue(node *yaml.Node, cmd *cobra.Command) error {
+	if node.Kind == yaml.ScalarNode {
+		cmd.Print(node.Value)
+		return nil
+	}
+
 	bufferedWriter := bufio.NewWriter(cmd.OutOrStdout())
 	defer safelyFlush(bufferedWriter)
 
@@ -346,12 +351,12 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 
 	for index, mappedDoc := range matchingNodes {
 		switch printMode {
-		case "k":
+		case "p":
 			cmd.Print(lib.PathStackToString(mappedDoc.PathStack))
 			if index < len(matchingNodes)-1 {
 				cmd.Print("\n")
 			}
-		case "kv", "vk":
+		case "pv", "vp":
 			// put it into a node and print that.
 			var parentNode = yaml.Node{Kind: yaml.MappingNode}
 			parentNode.Content = make([]*yaml.Node, 2)
@@ -601,9 +606,13 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
 	if writeScript != "" {
 		var parsedCommands = make([]updateCommandParsed, 0)
-		if err := readData(writeScript, 0, &parsedCommands); err != nil {
+
+		err := readData(writeScript, 0, &parsedCommands)
+
+		if err != nil && err != io.EOF {
 			return nil, err
 		}
+
 		log.Debugf("Read write commands file '%v'", parsedCommands)
 		for index := range parsedCommands {
 			parsedCommand := parsedCommands[index]
