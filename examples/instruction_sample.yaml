@@ -3,8 +3,5 @@
   value:
     #great 
     things: frog # wow!
-- command: update
-  path: b.e[+].name
-  value: Mike Farah
 - command: delete
   path: b.d
