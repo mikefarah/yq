@@ -35,6 +35,14 @@ func TestNewYamlArray(t *testing.T) {
 		formattedResult)
 }
 
+func TestNewYamlBigInt(t *testing.T) {
+	result, _ := newYaml([]string{"b", "1212121"})
+	formattedResult := fmt.Sprintf("%v", result)
+	test.AssertResult(t,
+		"[{b 1212121}]",
+		formattedResult)
+}
+
 func TestNewYaml_WithScript(t *testing.T) {
 	writeScript = "examples/instruction_sample.yaml"
 	expectedResult := `b:

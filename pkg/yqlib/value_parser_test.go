@@ -16,6 +16,7 @@ var parseValueTests = []struct {
 	{"3.4", 3.4, "number"},
 	{"\"3.4\"", "3.4", "number as string"},
 	{"", "", "empty string"},
+	{"1212121", int64(1212121), "big number"},
 }
 
 func TestParseValue(t *testing.T) {
