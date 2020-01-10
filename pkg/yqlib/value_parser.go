@@ -18,9 +18,16 @@ func (v *valueParser) ParseValue(argument string) interface{} {
 	var value, err interface{}
 	var inQuotes = len(argument) > 0 && argument[0] == '"'
 	if !inQuotes {
-		value, err = strconv.ParseFloat(argument, 64)
-		if err == nil {
-			return value
+		intValue, intErr := strconv.ParseInt(argument, 10, 64)
+		floatValue, floatErr := strconv.ParseFloat(argument, 64)
+		if intErr == nil && floatErr == nil {
+			if int64(floatValue) == intValue {
+				return intValue
+			}
+			return floatValue
+		} else if floatErr == nil {
+			// In case cannot parse the int due to large precision
+			return floatValue
 		}
 		value, err = strconv.ParseBool(argument)
 		if err == nil {
