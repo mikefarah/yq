@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"runtime"
 	"testing"
 
 	"github.com/mikefarah/yq/v2/pkg/marshal"
 	"github.com/mikefarah/yq/v2/test"
+	"github.com/spf13/cobra"
 )
 
 func TestMultilineString(t *testing.T) {
@@ -57,4 +59,28 @@ func TestNewYaml_WithUnknownScript(t *testing.T) {
 		expectedOutput = `open fake-unknown: no such file or directory`
 	}
 	test.AssertResult(t, expectedOutput, err.Error())
+}
+
+func TestReadWithKeyOnly(t *testing.T) {
+	readCmd := createReadCmd()
+	expectedResult := `b
+d
+f
+`
+	actualResult, err := executeTestCommand(readCmd, "test/fixture/keyonly.yaml", "a", "-k")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	test.AssertResult(t, expectedResult, actualResult)
+}
+
+func executeTestCommand(command *cobra.Command, args ...string) (output string, err error) {
+	buf := new(bytes.Buffer)
+
+	command.SetOutput(buf)
+	command.SetArgs(args)
+
+	_, err = command.ExecuteC()
+
+	return buf.String(), err
 }

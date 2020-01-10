@@ -25,6 +25,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var overwriteFlag = false
+var keyOnlyFlag = false
 var allowEmptyFlag = false
 var appendFlag = false
 var verbose = false
@@ -111,6 +112,7 @@ yq r -- things.yaml --key-starting-with-dashes
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
+	cmdRead.PersistentFlags().BoolVarP(&keyOnlyFlag, "keyonly", "k", false, "output with top level keys only")
 	return cmdRead
 }
 
@@ -302,6 +304,13 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		dataBucket = mappedDocs[0]
 	} else {
 		dataBucket = mappedDocs
+	}
+
+	if keyOnlyFlag {
+		for _, value := range dataBucket.(yaml.MapSlice) {
+			cmd.Println(value.Key)
+		}
+		return nil
 	}
 
 	dataStr, err := toString(dataBucket)
