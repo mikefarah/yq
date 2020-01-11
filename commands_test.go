@@ -96,7 +96,7 @@ func TestReadCmd(t *testing.T) {
 
 func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/sample.yaml b.e(name == sam).value")
+	result := test.RunCmd(cmd, "read -v examples/sample.yaml b.e(name==sam).value")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
