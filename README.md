@@ -35,16 +35,16 @@ snap install yq
 `yq` installs with with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
 ```
-sudo cat /etc/myfile | yq -r - somecommand
+sudo cat /etc/myfile | yq r - a.path
 ```
 
 And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
 ```
-sudo cat /etc/myfile | yq -r - somecommand | sudo sponge /etc/myfile
+sudo cat /etc/myfile | yq w - a.path value | sudo sponge /etc/myfile
 ```
 or write to a temporary file:
 ```
-sudo cat /etc/myfile | yq -r - somecommand | sudo tee /etc/myfile.tmp
+sudo cat /etc/myfile | yq w - a.path value | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
