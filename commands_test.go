@@ -94,6 +94,15 @@ func TestReadCmd(t *testing.T) {
 	test.AssertResult(t, "2", result.Output)
 }
 
+func TestReadWithAdvancedFilterCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read examples/sample.yaml b.e(name == sam).value")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "4", result.Output)
+}
+
 func TestReadWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.c")

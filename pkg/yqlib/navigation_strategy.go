@@ -39,10 +39,11 @@ type NavigationStrategy interface {
 }
 
 type NavigationStrategyImpl struct {
-	followAlias   func(nodeContext NodeContext) bool
-	autoCreateMap func(nodeContext NodeContext) bool
-	visit         func(nodeContext NodeContext) error
-	visitedNodes  []*NodeContext
+	followAlias        func(nodeContext NodeContext) bool
+	autoCreateMap      func(nodeContext NodeContext) bool
+	visit              func(nodeContext NodeContext) error
+	shouldVisitExtraFn func(nodeContext NodeContext) bool
+	visitedNodes       []*NodeContext
 }
 
 func (ns *NavigationStrategyImpl) GetVisitedNodes() []*NodeContext {
@@ -90,8 +91,8 @@ func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
 	parser := NewPathParser()
 
 	// only visit aliases if its an exact match
-	return (nodeKey == "<<" && nodeContext.Head == "<<") || (nodeKey != "<<" &&
-		parser.MatchesNextPathElement(nodeContext, nodeKey))
+	return ((nodeKey == "<<" && nodeContext.Head == "<<") || (nodeKey != "<<" &&
+		parser.MatchesNextPathElement(nodeContext, nodeKey))) && (ns.shouldVisitExtraFn == nil || ns.shouldVisitExtraFn(nodeContext))
 }
 
 func (ns *NavigationStrategyImpl) Visit(nodeContext NodeContext) error {

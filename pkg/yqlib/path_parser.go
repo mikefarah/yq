@@ -28,6 +28,26 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 	if head == "**" || head == "*" {
 		return true
 	}
+	if strings.Contains(head, "==") {
+		log.Debug("ooh deep recursion time")
+		result := strings.SplitN(head, "==", 2)
+		path := strings.TrimSpace(result[0])
+		value := strings.TrimSpace(result[1])
+		log.Debug("path %v", path)
+		log.Debug("value %v", value)
+		DebugNode(nodeContext.Node)
+		navigationStrategy := FilterMatchingNodesNavigationStrategy(value)
+
+		navigator := NewDataNavigator(navigationStrategy)
+		err := navigator.Traverse(nodeContext.Node, p.ParsePath(path))
+		if err != nil {
+			log.Error(err.Error())
+		}
+		//crap handle error
+		log.Debug("done deep recursing, found %v matches", len(navigationStrategy.GetVisitedNodes()))
+		return len(navigationStrategy.GetVisitedNodes()) > 0
+	}
+
 	if head == "+" {
 		log.Debug("head is +, nodeKey is %v", nodeKey)
 		var _, err = strconv.ParseInt(nodeKey, 10, 64) // nolint
@@ -66,9 +86,12 @@ func (p *pathParser) nextYamlPath(path string) (pathElement string, remaining st
 	case '"':
 		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
 		return p.search(path[1:], []uint8{'"'}, true)
+	case '(':
+		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
+		return p.search(path[1:], []uint8{')'}, true)
 	default:
 		// e.g "a.blah.cat" -> return "a" and "blah.cat"
-		return p.search(path[0:], []uint8{'.', '['}, false)
+		return p.search(path[0:], []uint8{'.', '[', '"', '('}, false)
 	}
 }
 

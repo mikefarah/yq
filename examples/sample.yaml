@@ -1,9 +1,4 @@
-a: true
-b:
-  c: 2
-  d: [3, 4, 5]
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
+- name: fred
+  value: 3
+- name: sam
+  value: 4

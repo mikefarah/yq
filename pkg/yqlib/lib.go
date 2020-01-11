@@ -108,10 +108,10 @@ func NewYqLib() YqLib {
 
 func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	NavigationStrategy := ReadNavigationStrategy()
-	navigator := NewDataNavigator(NavigationStrategy)
+	navigationStrategy := ReadNavigationStrategy()
+	navigator := NewDataNavigator(navigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
-	return NavigationStrategy.GetVisitedNodes(), error
+	return navigationStrategy.GetVisitedNodes(), error
 
 }
 

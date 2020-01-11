@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"strconv"
+	"strings"
 
 	errors "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
@@ -69,7 +70,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		return n.recurseMap(value, head, tail, pathStack)
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
-		if head == "*" || head == "**" {
+		if head == "*" || head == "**" || strings.Contains(head, "==") {
 			return n.splatArray(value, head, tail, pathStack)
 		} else if head == "+" {
 			return n.appendArray(value, head, tail, pathStack)
@@ -96,7 +97,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		newPathStack := append(pathStack, contents[indexInMap].Value)
 		log.Debug("appended %v", contents[indexInMap].Value)
 		n.navigationStrategy.DebugVisitedNodes()
-		log.Debug("should I traverse? %v, %v", head, pathStackToString(newPathStack))
+		log.Debug("should I traverse? head: %v, path: %v", head, pathStackToString(newPathStack))
 		DebugNode(value)
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) {
 			log.Debug("recurseMap: Going to traverse")
@@ -214,9 +215,13 @@ func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pat
 		log.Debug("processing")
 		DebugNode(childValue)
 		childValue = n.getOrReplace(childValue, guessKind(head, tail, childValue.Kind))
-		var err = n.doTraverse(childValue, head, tail, append(pathStack, index))
-		if err != nil {
-			return err
+
+		newPathStack := append(pathStack, index)
+		if n.navigationStrategy.ShouldTraverse(NewNodeContext(childValue, head, tail, newPathStack), childValue.Value) {
+			var err = n.doTraverse(childValue, head, tail, newPathStack)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
