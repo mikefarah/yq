@@ -8,12 +8,17 @@ import (
 type PathParser interface {
 	ParsePath(path string) []string
 	MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool
+	IsPathExpression(pathElement string) bool
 }
 
 type pathParser struct{}
 
 func NewPathParser() PathParser {
 	return &pathParser{}
+}
+
+func (p *pathParser) IsPathExpression(pathElement string) bool {
+	return pathElement == "*" || pathElement == "**" || strings.Contains(pathElement, "==")
 }
 
 /**

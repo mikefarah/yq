@@ -3,6 +3,7 @@ package yqlib
 func FilterMatchingNodesNavigationStrategy(value string) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
+		pathParser:   NewPathParser(),
 		followAlias: func(nodeContext NodeContext) bool {
 			return true
 		},

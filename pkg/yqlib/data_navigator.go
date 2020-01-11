@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"strconv"
-	"strings"
 
 	errors "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
@@ -70,7 +69,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		return n.recurseMap(value, head, tail, pathStack)
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
-		if head == "*" || head == "**" || strings.Contains(head, "==") {
+		if n.navigationStrategy.GetPathParser().IsPathExpression(head) {
 			return n.splatArray(value, head, tail, pathStack)
 		} else if head == "+" {
 			return n.appendArray(value, head, tail, pathStack)
@@ -117,7 +116,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return errorVisiting
 	}
 
-	if traversedEntry || head == "*" || head == "**" || !n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) {
+	if traversedEntry || n.navigationStrategy.GetPathParser().IsPathExpression(head) || !n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) {
 		return nil
 	}
 

@@ -10,6 +10,7 @@ func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
 	parser := NewPathParser()
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
+		pathParser:   parser,
 		followAlias: func(nodeContext NodeContext) bool {
 			return false
 		},

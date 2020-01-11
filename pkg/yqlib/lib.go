@@ -74,7 +74,8 @@ func guessKind(head string, tail []string, guess yaml.Kind) yaml.Kind {
 	if tail[0] == "+" || errorParsingInt == nil {
 		return yaml.SequenceNode
 	}
-	if (tail[0] == "*" || tail[0] == "**" || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
+	pathParser := NewPathParser()
+	if (pathParser.IsPathExpression(tail[0]) || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
 		return guess
 	}
 	if guess == yaml.AliasNode {

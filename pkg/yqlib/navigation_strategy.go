@@ -36,6 +36,7 @@ type NavigationStrategy interface {
 	ShouldTraverse(nodeContext NodeContext, nodeKey string) bool
 	GetVisitedNodes() []*NodeContext
 	DebugVisitedNodes()
+	GetPathParser() PathParser
 }
 
 type NavigationStrategyImpl struct {
@@ -44,6 +45,11 @@ type NavigationStrategyImpl struct {
 	visit              func(nodeContext NodeContext) error
 	shouldVisitExtraFn func(nodeContext NodeContext) bool
 	visitedNodes       []*NodeContext
+	pathParser         PathParser
+}
+
+func (ns *NavigationStrategyImpl) GetPathParser() PathParser {
+	return ns.pathParser
 }
 
 func (ns *NavigationStrategyImpl) GetVisitedNodes() []*NodeContext {
@@ -68,10 +74,8 @@ func (ns *NavigationStrategyImpl) ShouldTraverse(nodeContext NodeContext, nodeKe
 		return false
 	}
 
-	parser := NewPathParser()
-
 	return (nodeKey == "<<" && ns.FollowAlias(nodeContext)) || (nodeKey != "<<" &&
-		parser.MatchesNextPathElement(nodeContext, nodeKey))
+		ns.pathParser.MatchesNextPathElement(nodeContext, nodeKey))
 }
 
 func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
@@ -88,11 +92,10 @@ func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
 
 	nodeKey := fmt.Sprintf("%v", pathStack[len(pathStack)-1])
 	log.Debug("nodeKey: %v, nodeContext.Head: %v", nodeKey, nodeContext.Head)
-	parser := NewPathParser()
 
 	// only visit aliases if its an exact match
 	return ((nodeKey == "<<" && nodeContext.Head == "<<") || (nodeKey != "<<" &&
-		parser.MatchesNextPathElement(nodeContext, nodeKey))) && (ns.shouldVisitExtraFn == nil || ns.shouldVisitExtraFn(nodeContext))
+		ns.pathParser.MatchesNextPathElement(nodeContext, nodeKey))) && (ns.shouldVisitExtraFn == nil || ns.shouldVisitExtraFn(nodeContext))
 }
 
 func (ns *NavigationStrategyImpl) Visit(nodeContext NodeContext) error {

@@ -3,6 +3,7 @@ package yqlib
 func ReadNavigationStrategy() NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
+		pathParser:   NewPathParser(),
 		followAlias: func(nodeContext NodeContext) bool {
 			return true
 		},

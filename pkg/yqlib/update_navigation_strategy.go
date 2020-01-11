@@ -3,6 +3,7 @@ package yqlib
 func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
+		pathParser:   NewPathParser(),
 		followAlias: func(nodeContext NodeContext) bool {
 			return false
 		},
