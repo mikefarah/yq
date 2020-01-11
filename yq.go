@@ -100,7 +100,7 @@ yq read things.yaml a.b.c
 yq r - a.b.c (reads from stdin)
 yq r things.yaml a.*.c
 yq r things.yaml a.**.c
-yq r things.yaml a.(child.subchild==cool).c
+yq r things.yaml a.(child.subchild==co*).c
 yq r -d1 things.yaml 'a.array[0].blah'
 yq r things.yaml 'a.array[*].blah'
 yq r -- things.yaml --key-starting-with-dashes.blah
@@ -122,7 +122,7 @@ func createWriteCmd() *cobra.Command {
 yq write things.yaml a.b.c true
 yq write things.yaml 'a.*.c' true
 yq write things.yaml 'a.**' true
-yq write things.yaml a.(child.subchild==cool).c true
+yq write things.yaml a.(child.subchild==co*).c true
 yq write things.yaml a.b.c --tag '!!str' true
 yq write things.yaml a.b.c --tag '!!float' 3
 yq write --inplace -- things.yaml a.b.c --cat
@@ -189,7 +189,7 @@ func createDeleteCmd() *cobra.Command {
 		Example: `
 yq delete things.yaml a.b.c
 yq delete things.yaml a.*.c
-yq delete things.yaml a.(child.subchild==cool).c
+yq delete things.yaml a.(child.subchild==co*).c
 yq delete things.yaml a.**
 yq delete --inplace things.yaml a.b.c
 yq delete --inplace -- things.yaml --key-starting-with-dash

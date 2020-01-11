@@ -15,7 +15,7 @@ func FilterMatchingNodesNavigationStrategy(value string) NavigationStrategy {
 		},
 		shouldVisitExtraFn: func(nodeContext NodeContext) bool {
 			log.Debug("does %v match %v ? %v", nodeContext.Node.Value, value, nodeContext.Node.Value == value)
-			return nodeContext.Node.Value == value
+			return matchesString(value, nodeContext.Node.Value)
 		},
 	}
 }

@@ -17,6 +17,15 @@ func NewPathParser() PathParser {
 	return &pathParser{}
 }
 
+func matchesString(expression string, value string) bool {
+	var prefixMatch = strings.TrimSuffix(expression, "*")
+	if prefixMatch != expression {
+		log.Debug("prefix match, %v", strings.HasPrefix(value, prefixMatch))
+		return strings.HasPrefix(value, prefixMatch)
+	}
+	return value == expression
+}
+
 func (p *pathParser) IsPathExpression(pathElement string) bool {
 	return pathElement == "*" || pathElement == "**" || strings.Contains(pathElement, "==")
 }
@@ -60,12 +69,8 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 			return true
 		}
 	}
-	var prefixMatch = strings.TrimSuffix(head, "*")
-	if prefixMatch != head {
-		log.Debug("prefix match, %v", strings.HasPrefix(nodeKey, prefixMatch))
-		return strings.HasPrefix(nodeKey, prefixMatch)
-	}
-	return nodeKey == head
+
+	return matchesString(head, nodeKey)
 }
 
 func (p *pathParser) ParsePath(path string) []string {
