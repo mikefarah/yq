@@ -7,7 +7,21 @@ a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
+
+## Major upgrade - V3 beta is out! 
+
+This addresses a number of features requests and issues that have been raised :)
+
+Currently only available only available as a [binary release here](https://github.com/mikefarah/yq/releases/tag/3.0.0-beta) or via docker mikefarah/yq:3.0.0-beta!
+
+It does have a few breaking changes listed on the [release page](https://github.com/mikefarah/yq/releases/tag/3.0.0-beta)
+
+Looking forward to feedback - once this is out of beta it will be added to the remaining package managers, and be the default version downloaded (and merged into master).
+
+V2 will no longer have any new features added, and will be moved to a branch (v2). It will have limited maintenance for bugs for a few months.
+
 ## Install
+
 ### On MacOS:
 ```
 brew install yq
