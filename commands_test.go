@@ -103,6 +103,18 @@ func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	test.AssertResult(t, "4", result.Output)
 }
 
+func TestReadWithAdvancedFilterMapCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -v examples/sample.yaml b.e[name==fred]")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `name: fred
+value: 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.c")
