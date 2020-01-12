@@ -130,7 +130,7 @@ Use "yq [command] --help" for more information about a command.
 
 ## Contribute
 
-Note: v3 is currently in progress - for the moment I won't be accepting new feature PRs until v3 is ready :)
+**Note: v3 is currently in progress - for the moment I won't be accepting new feature PRs until v3 is ready :)**
 
 1. `scripts/devtools.sh`
 2. `make [local] vendor`
