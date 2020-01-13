@@ -253,6 +253,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
+      Path Expressions
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../write/" title="Write/Update" class="md-nav__link">
       Write/Update
     </a>
@@ -455,11 +467,11 @@
                 
                   <h1>Prefix</h1>
                 
-                <p>Paths can be prefixed using the 'prefix' command.
-The complete yaml content will be nested inside the new prefix path.</p>
-<pre><code>yq p &lt;yaml_file&gt; &lt;path&gt;
+                <pre><code>yq p &lt;yaml_file&gt; &lt;path&gt;
 </code></pre>
 
+<p>Prefixes a yaml document with the given path expression. The complete yaml content will be nested inside the new prefix path.</p>
+<p>See docs for <a href="../path_expressions/">path expression</a> for more details.</p>
 <h3 id="to-stdout">To Stdout<a class="headerlink" href="#to-stdout" title="Permanent link">&para;</a></h3>
 <p>Given a data1.yaml file of:</p>
 <pre><code class="yaml">a: simple

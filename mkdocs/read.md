@@ -1,10 +1,14 @@
 ```
-yq r <yaml_file|json_file> <path>
+yq r <yaml_file|json_file> <path_expression>
 ```
 
-{!snippets/works_with_json.md!}
+TALK PRINTING ABOUT KEYS AND VALUES
 
-### Basic
+Returns the matching nodes of the path expression for the given yaml file (or STDIN).
+
+See docs for [path expression](path_expressions.md) for more details.
+
+## Basic
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -16,59 +20,16 @@ yq r sample.yaml b.c
 ```
 will output the value of '2'.
 
-### From Stdin
+## From Stdin
 Given a sample.yaml file of:
 ```bash
 cat sample.yaml | yq r - b.c
 ```
 will output the value of '2'.
 
-### Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-```
-then
-```bash
-yq r sample.yaml bob.*.cats
-```
-will output
-```yaml
-- bananas
-- apples
-- oranges
-```
 
-### Prefix Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-```
-then
-```bash
-yq r sample.yaml bob.item*.cats
-```
-will output
-```yaml
-- bananas
-- apples
-```
-
-### Multiple Documents - specify a single document
+## Multiple Documents
+### Reading from a single document
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -82,7 +43,7 @@ yq r -d1 sample.yaml b.c
 ```
 will output the value of '2'.
 
-### Multiple Documents - read all documents
+### Read from all documents
 Reading all documents will return the result as an array. This can be converted to json using the '-j' flag if desired.
 
 Given a sample.yaml file of:
@@ -106,45 +67,3 @@ will output:
 - Stella
 - Android
 ```
-
-### Arrays
-You can give an index to access a specific element:
-e.g.: given a sample file of
-```yaml
-b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-```
-then
-```
-yq r sample.yaml 'b.e[1].name'
-```
-will output 'sam'
-
-Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
-
-### Array Splat
-e.g.: given a sample file of
-```yaml
-b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-```
-then
-```
-yq r sample.yaml 'b.e[*].name'
-```
-will output:
-```
-- fred
-- sam
-```
-Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
-
-{!snippets/niche.md!}

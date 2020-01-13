@@ -5,6 +5,7 @@ theme: 'material'
 pages:
     - Install: index.md
     - Read: read.md
+    - Path Expressions: path_expressions.md
     - Write/Update: write.md
     - Prefix: prefix.md
     - Delete: delete.md

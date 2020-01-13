@@ -1,8 +1,12 @@
 ```
-yq w <yaml_file> <path> <new value>
+yq w <yaml_file> <path_expression> <new value>
 ```
 
-### To Stdout
+Updates all the matching nodes of path expression to the supplied value.
+
+See docs for [path expression](path_expressions.md) for more details.
+
+## Basic
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -18,12 +22,18 @@ b:
   c: cat
 ```
 
-### From STDIN
+### Updating files in-place
+```bash
+yq w -i sample.yaml b.c cat
+```
+will update the sample.yaml file so that the value of 'c' is cat.
+
+## From STDIN
 ```bash
 cat sample.yaml | yq w - b.c blah
 ```
 
-### Adding new fields
+## Adding new fields
 Any missing fields in the path will be created on the fly.
 
 Given a sample.yaml file of:
@@ -43,85 +53,7 @@ b:
     - new thing
 ```
 
-### Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-```
-then
-```bash
-yq w sample.yaml bob.*.cats meow
-```
-will output:
-```yaml
----
-bob:
-  item1:
-    cats: meow
-  item2:
-    cats: meow
-  thing:
-    cats: meow
-```
-
-### Prefix Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-```
-then
-```bash
-yq w sample.yaml bob.item*.cats meow
-```
-will output:
-```yaml
----
-bob:
-  item1:
-    cats: meow
-  item2:
-    cats: meow
-  thing:
-    cats: oranges
-```
-
-### Array Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-- cats: bananas
-- cats: apples
-- cats: oranges
-```
-then
-```bash
-yq w sample.yaml bob[*].cats meow
-```
-will output:
-```yaml
----
-bob:
-- cats: meow
-- cats: meow
-- cats: meow
-```
-
-### Appending value to an array field
+## Appending value to an array field
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -146,7 +78,8 @@ b:
 
 Note that the path is in quotes to avoid the square brackets being interpreted by your shell.
 
-### Multiple Documents - update a single document
+## Multiple Documents 
+### Update a single document
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -166,7 +99,7 @@ b:
   c: 5
 ```
 
-### Multiple Documents - update all documents
+### Update all documents
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -188,22 +121,11 @@ b:
   c: 5
 ```
 
-Note that '*' is in quotes to avoid being interpreted by your shell.
+UPDATE THIS
+UPDATE THIS 
+INCLUDE DELETE EXAMPLE
 
-### Updating files in-place
-Given a sample.yaml file of:
-```yaml
-b:
-  c: 2
-```
-then
-```bash
-yq w -i sample.yaml b.c cat
-```
-will update the sample.yaml file so that the value of 'c' is cat.
-
-
-### Updating multiple values with a script
+## Updating multiple values with a script 
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -233,18 +155,3 @@ And, of course, you can pipe the instructions in using '-':
 ```bash
 cat update_instructions.yaml | yq w -s - sample.yaml
 ```
-
-### Values starting with a hyphen (or dash)
-The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags:
-
-```
-yq w -- my.path -3
-```
-
-will output
-```yaml
-my:
-  path: -3
-```
-
-{!snippets/niche.md!}

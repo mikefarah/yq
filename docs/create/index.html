@@ -253,6 +253,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
+      Path Expressions
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../write/" title="Write/Update" class="md-nav__link">
       Write/Update
     </a>
@@ -325,20 +337,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
-    Keys (and values) with leading dashes
-  </a>
-  
-</li>
-      
       
       
       
@@ -406,20 +404,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
-    Keys (and values) with leading dashes
-  </a>
-  
-</li>
-      
       
       
       
@@ -441,10 +425,11 @@
                 
                   <h1>Create</h1>
                 
-                <p>Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file. Currently this does not support creating multiple documents in a single yaml file.</p>
-<pre><code>yq n &lt;path&gt; &lt;new value&gt;
+                <pre><code>yq n &lt;path_expression&gt; &lt;new value&gt;
 </code></pre>
 
+<p>Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file. Currently this does not support creating multiple documents in a single yaml file.</p>
+<p>See docs for <a href="../path_expressions/">path expression</a></p>
 <h3 id="creating-a-simple-yaml-file">Creating a simple yaml file<a class="headerlink" href="#creating-a-simple-yaml-file" title="Permanent link">&para;</a></h3>
 <pre><code class="bash">yq n b.c cat
 </code></pre>
@@ -457,8 +442,11 @@
 <h3 id="creating-using-a-create-script">Creating using a create script<a class="headerlink" href="#creating-using-a-create-script" title="Permanent link">&para;</a></h3>
 <p>Create scripts follow the same format as the update scripts.</p>
 <p>Given a script create_instructions.yaml of:</p>
-<pre><code class="yaml">b.c: 3
-b.e[+].name: Howdy Partner
+<pre><code class="yaml">- command: update 
+  path: b.c
+  value:
+    #great 
+    things: frog # wow!
 </code></pre>
 
 <p>then</p>
@@ -467,38 +455,14 @@ b.e[+].name: Howdy Partner
 
 <p>will output:</p>
 <pre><code class="yaml">b:
-  c: 3
-  e:
-    - name: Howdy Partner
+  c:
+    #great
+    things: frog # wow!
 </code></pre>
 
 <p>You can also pipe the instructions in:</p>
 <pre><code class="bash">cat create_instructions.yaml | yq n -s -
 </code></pre>
-
-<h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
-<p>When specifying a key that has a dot use key lookup indicator.</p>
-<pre><code class="yaml">b:
-  foo.bar: 7
-</code></pre>
-
-<pre><code class="bash">yaml r sample.yaml 'b[foo.bar]'
-</code></pre>
-
-<pre><code class="bash">yaml w sample.yaml 'b[foo.bar]' 9
-</code></pre>
-
-<p>Any valid yaml key can be specified as part of a key lookup.</p>
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
-<h3 id="keys-and-values-with-leading-dashes">Keys (and values) with leading dashes<a class="headerlink" href="#keys-and-values-with-leading-dashes" title="Permanent link">&para;</a></h3>
-<p>If a key or value has leading dashes, yq won't know that you are passing a value as opposed to a flag (and you will get a 'bad flag syntax' error).</p>
-<p>To fix that, you will need to tell it to stop processing flags by adding '--' after the last flag like so:</p>
-<pre><code class="bash">yq n -t -- --key --value
-</code></pre>
-
-<p>Will result in</p>
-<p><code>`
---key: --value</code></p>
                 
                   
                 

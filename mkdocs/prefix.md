@@ -1,28 +1,12 @@
-Paths can be prefixed using the 'prefix' command.
-The complete yaml content will be nested inside the new prefix path.
-
 ```
 yq p <yaml_file> <path>
 ```
 
-### To Stdout
-Given a data1.yaml file of:
-```yaml
-a: simple
-b: [1, 2]
-```
-then
-```bash
-yq p data1.yaml c
-```
-will output:
-```yaml
-c:
-  a: simple
-  b: [1, 2]
-```
+Prefixes a yaml document with the given path expression. The complete yaml content will be nested inside the new prefix path.
 
-### Arbitrary depth
+See docs for [path expression](path_expressions.md) for more details.
+
+## Prefix a document
 Given a data1.yaml file of:
 ```yaml
 a:
@@ -40,19 +24,14 @@ c:
       b: [1, 2]
 ```
 
-### Updating files in-place
-Given a data1.yaml file of:
-```yaml
-a: simple
-b: [1, 2]
-```
-then
+## Updating files in-place
 ```bash
 yq p -i data1.yaml c
 ```
-will update the data1.yaml file so that the path 'c' is prefixed to all other paths.
+will update the data1.yaml file so that the path 'c' prefixes the document.
 
-### Multiple Documents - prefix a single document
+## Multiple Documents
+### Prefix a single document
 Given a data1.yaml file of:
 ```yaml
 something: else
@@ -73,7 +52,7 @@ c:
   b: cat
 ```
 
-### Multiple Documents - prefix all documents
+### Prefix all documents
 Given a data1.yaml file of:
 ```yaml
 something: else

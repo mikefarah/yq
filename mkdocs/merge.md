@@ -6,7 +6,7 @@ yq m <yaml_file> <path>...
 ```
 
 
-### To Stdout
+## Merge example
 Given a data1.yaml file of:
 ```yaml
 a: simple
@@ -30,25 +30,13 @@ c:
   test: 1
 ```
 
-### Updating files in-place
-Given a data1.yaml file of:
-```yaml
-a: simple
-b: [1, 2]
-```
-and data2.yaml file of:
-```yaml
-a: other
-c:
-  test: 1
-```
-then
+## Updating files in-place
 ```bash
 yq m -i data1.yaml data2.yaml
 ```
-will update the data1.yaml file so that the value of 'c' is 'test: 1'.
+will update the data1.yaml file with the merged result.
 
-### Overwrite values
+## Overwrite values
 Given a data1.yaml file of:
 ```yaml
 a: simple
@@ -102,7 +90,7 @@ d: false
 
 Notice that 'b' does not result in the merging of the values within an array. 
 
-### Append values with arrays
+## Append values with arrays
 Given a data1.yaml file of:
 ```yaml
 a: simple
@@ -133,9 +121,8 @@ d: hi
 
 Note that the 'b' array has concatenated the values from the second data file. Also note that other map keys are not overridden (field a).
 
-Append cannot be used with overwrite, if both flags are given then append is ignored.
-
-### Multiple Documents - merge into single document
+## Multiple Documents
+### Merge into single document
 Currently yq only has multi-document support for the _first_ document being merged into. The remaining yaml files will have their first document selected.
 
 Given a data1.yaml file of:
@@ -161,7 +148,7 @@ a: simple
 b: dog
 ```
 
-### Multiple Documents - merge into all documents
+### Merge into all documents
 Currently yq only has multi-document support for the _first_ document being merged into. The remaining yaml files will have their first document selected.
 
 Given a data1.yaml file of:

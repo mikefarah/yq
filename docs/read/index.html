@@ -319,20 +319,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
-    Keys (and values) with leading dashes
-  </a>
-  
-</li>
-      
       
       
       
@@ -341,6 +327,18 @@
   
 </nav>
     
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
+      Path Expressions
+    </a>
   </li>
 
     
@@ -490,20 +488,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#keys-with-dots" title="Keys with dots" class="md-nav__link">
-    Keys with dots
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#keys-and-values-with-leading-dashes" title="Keys (and values) with leading dashes" class="md-nav__link">
-    Keys (and values) with leading dashes
-  </a>
-  
-</li>
-      
       
       
       
@@ -525,10 +509,11 @@
                 
                   <h1>Read</h1>
                 
-                <pre><code>yq r &lt;yaml_file|json_file&gt; &lt;path&gt;
+                <pre><code>yq r &lt;yaml_file|json_file&gt; &lt;path_expression&gt;
 </code></pre>
 
-<p>This command can take a json file as input too, and will output yaml unless specified to export as json (-j)</p>
+<p>Returns the matching nodes of the path expression for the given yaml file (or STDIN).</p>
+<p>See docs for <a href="../path_expressions/">path expression</a> for more details.</p>
 <h3 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
@@ -662,29 +647,6 @@ e.g.: given a sample file of</p>
 </code></pre>
 
 <p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
-<h3 id="keys-with-dots">Keys with dots<a class="headerlink" href="#keys-with-dots" title="Permanent link">&para;</a></h3>
-<p>When specifying a key that has a dot use key lookup indicator.</p>
-<pre><code class="yaml">b:
-  foo.bar: 7
-</code></pre>
-
-<pre><code class="bash">yaml r sample.yaml 'b[foo.bar]'
-</code></pre>
-
-<pre><code class="bash">yaml w sample.yaml 'b[foo.bar]' 9
-</code></pre>
-
-<p>Any valid yaml key can be specified as part of a key lookup.</p>
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
-<h3 id="keys-and-values-with-leading-dashes">Keys (and values) with leading dashes<a class="headerlink" href="#keys-and-values-with-leading-dashes" title="Permanent link">&para;</a></h3>
-<p>If a key or value has leading dashes, yq won't know that you are passing a value as opposed to a flag (and you will get a 'bad flag syntax' error).</p>
-<p>To fix that, you will need to tell it to stop processing flags by adding '--' after the last flag like so:</p>
-<pre><code class="bash">yq n -t -- --key --value
-</code></pre>
-
-<p>Will result in</p>
-<p><code>`
---key: --value</code></p>
                 
                   
                 
@@ -720,13 +682,13 @@ e.g.: given a sample file of</p>
           </a>
         
         
-          <a href="../write/" title="Write/Update" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../path_expressions/" title="Path Expressions" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Write/Update
+                Path Expressions
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

@@ -1,8 +1,13 @@
 ```
-yq d <yaml_file> <path_to_delete>
+yq delete <yaml_file|-> <path_expression>
 ```
 
-### To Stdout
+The delete command will delete all the matching nodes for the path expression in the given yaml input.
+
+See docs for [path expression](path_expressions.md) for more details.
+
+
+## Deleting from a simple document
 Given a sample.yaml file of:
 ```yaml
 b:
@@ -13,141 +18,29 @@ then
 ```bash
 yq d sample.yaml b.c
 ```
-will output:
+will output
 ```yaml
 b:
   apples: green
 ```
 
-### From STDIN
+## From STDIN
+Use "-" (without quotes) in-place of a file name if you wish to pipe in input from STDIN.
+
 ```bash
 cat sample.yaml | yq d - b.c
 ```
 
-### Deleting array elements
-Given a sample.yaml file of:
-```yaml
-b:
-  c: 
-    - 1
-    - 2
-    - 3
-```
-then
-```bash
-yq d sample.yaml 'b.c[1]'
-```
-will output:
-```yaml
-b:
-  c:
-  - 1
-  - 3
-```
-
-### Deleting nodes in-place
-Given a sample.yaml file of:
-```yaml
-b:
-  c: 2
-  apples: green
-```
-then
+## Deleting in-place
 ```bash
 yq d -i sample.yaml b.c
 ```
 will update the sample.yaml file so that the 'c' node is deleted
 
 
-### Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-    dogs: woof
-  item2:
-    cats: apples
-    dogs: woof2
-  thing:
-    cats: oranges
-    dogs: woof3
-```
-then
-```bash
-yq d sample.yaml bob.*.cats
-```
-will output:
-```yaml
----
-bob:
-  item1:
-    dogs: woof
-  item2:
-    dogs: woof2
-  thing:
-    dogs: woof3
-```
+## Multiple Documents
 
-### Prefix Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-  item1:
-    cats: bananas
-    dogs: woof
-  item2:
-    cats: apples
-    dogs: woof2
-  thing:
-    cats: oranges
-    dogs: woof3
-```
-then
-```bash
-yq d sample.yaml bob.item*.cats
-```
-will output:
-```yaml
----
-bob:
-  item1:
-    dogs: woof
-  item2:
-    dogs: woof2
-  thing:
-    cats: oranges
-    dogs: woof3
-```
-
-### Array Splat
-Given a sample.yaml file of:
-```yaml
----
-bob:
-- cats: bananas
-  dogs: woof
-- cats: apples
-  dogs: woof2
-- cats: oranges
-  dogs: woof3
-```
-then
-```bash
-yq d sample.yaml bob.[*].cats
-```
-will output:
-```yaml
----
-bob:
-- dogs: woof
-- dogs: woof2
-- dogs: woof3
-```
-
-### Multiple Documents - delete from single document
+### Delete from single document
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -170,7 +63,7 @@ b:
   c: 2
 ```
 
-### Multiple Documents - delete from all documents
+### Delete from all documents
 Given a sample.yaml file of:
 ```yaml
 something: else
@@ -191,7 +84,3 @@ something: else
 b:
   c: 2
 ```
-
-Note that '*' is in quotes to avoid being interpreted by your shell.
-
-{!snippets/niche.md!}

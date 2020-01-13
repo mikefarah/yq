@@ -1,5 +1,7 @@
-### Yaml to Json
-To convert output to json, use the --tojson (or -j) flag. This can only be used with the read command.
+## Yaml to Json
+To convert output to json, use the --tojson (or -j) flag. This is supported by all commands.
+
+Each matching yaml node will be converted to json and printed out on a separate line.
 
 Given a sample.yaml file of:
 ```yaml
@@ -8,7 +10,7 @@ b:
 ```
 then
 ```bash
-yq r -j sample.yaml b.c
+yq r -j sample.yaml
 ```
 
 will output
@@ -16,7 +18,25 @@ will output
 {"b":{"c":2}}
 ```
 
-### Json to Yaml
+Given a sample.yaml file of:
+```yaml
+bob:
+  c: 2
+bab:
+  c: 5
+```
+then
+```bash
+yq r -j sample.yaml b*
+```
+
+will output
+```json
+{"c":2}
+{"c":5}
+```
+
+## Json to Yaml
 To read in json, just pass in a json file instead of yaml, it will just work :)
 
 e.g given a json file

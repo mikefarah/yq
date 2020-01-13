@@ -92,18 +92,18 @@ func newCommandCLI() *cobra.Command {
 
 func createReadCmd() *cobra.Command {
 	var cmdRead = &cobra.Command{
-		Use:     "read [yaml_file] [path]",
+		Use:     "read [yaml_file] [path_expression]",
 		Aliases: []string{"r"},
-		Short:   "yq r [--doc/-d index] sample.yaml a.b.c",
+		Short:   "yq r [--doc/-d index] sample.yaml 'a.b.c'",
 		Example: `
-yq read things.yaml a.b.c
-yq r - a.b.c (reads from stdin)
-yq r things.yaml a.*.c
-yq r things.yaml a.**.c
-yq r things.yaml a.(child.subchild==co*).c
+yq read things.yaml 'a.b.c'
+yq r - 'a.b.c' # reads from stdin
+yq r things.yaml 'a.*.c'
+yq r things.yaml 'a.**.c' # deep splat
+yq r things.yaml 'a.(child.subchild==co*).c'
 yq r -d1 things.yaml 'a.array[0].blah'
 yq r things.yaml 'a.array[*].blah'
-yq r -- things.yaml --key-starting-with-dashes.blah
+yq r -- things.yaml '--key-starting-with-dashes.blah'
       `,
 		Long: "Outputs the value of the given path in the yaml file to STDOUT",
 		RunE: readProperty,
@@ -115,24 +115,24 @@ yq r -- things.yaml --key-starting-with-dashes.blah
 
 func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
-		Use:     "write [yaml_file] [path] [value]",
+		Use:     "write [yaml_file] [path_expression] [value]",
 		Aliases: []string{"w"},
-		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'a.b.c' newValue",
 		Example: `
-yq write things.yaml a.b.c true
+yq write things.yaml 'a.b.c' true
 yq write things.yaml 'a.*.c' true
 yq write things.yaml 'a.**' true
-yq write things.yaml a.(child.subchild==co*).c true
-yq write things.yaml a.b.c --tag '!!str' true
-yq write things.yaml a.b.c --tag '!!float' 3
-yq write --inplace -- things.yaml a.b.c --cat
-yq w -i things.yaml a.b.c cat
+yq write things.yaml 'a.(child.subchild==co*).c' true
+yq write things.yaml 'a.b.c' --tag '!!str' true # force 'true' to be interpreted as a string instead of bool
+yq write things.yaml 'a.b.c' --tag '!!float' 3
+yq write --inplace -- things.yaml 'a.b.c' '--cat' # need to use '--' to stop processing arguments as flags
+yq w -i things.yaml 'a.b.c' cat
 yq w --script update_script.yaml things.yaml
 yq w -i -s update_script.yaml things.yaml
-yq w --doc 2 things.yaml 'a.b.d[+]' foo
-yq w -d2 things.yaml 'a.b.d[+]' foo
+yq w things.yaml 'a.b.d[+]' foo # appends a new node to the 'd' array
+yq w --doc 2 things.yaml 'a.b.d[+]' foo # updates the 3rd document of the yaml file
       `,
-		Long: `Updates the yaml file w.r.t the given path and value.
+		Long: `Updates the matching nodes of path expression to the specified value
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
 
 Append value to array adds the value to the end of array.
@@ -164,12 +164,12 @@ func createPrefixCmd() *cobra.Command {
 		Aliases: []string{"p"},
 		Short:   "yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
 		Example: `
-yq prefix things.yaml a.b.c
-yq prefix --inplace things.yaml a.b.c
-yq prefix --inplace -- things.yaml --key-starting-with-dash
-yq p -i things.yaml a.b.c
-yq p --doc 2 things.yaml a.b.d
-yq p -d2 things.yaml a.b.d
+yq prefix things.yaml 'a.b.c'
+yq prefix --inplace things.yaml 'a.b.c'
+yq prefix --inplace -- things.yaml '--key-starting-with-dash' # need to use '--' to stop processing arguments as flags
+yq p -i things.yaml 'a.b.c'
+yq p --doc 2 things.yaml 'a.b.d'
+yq p -d2 things.yaml 'a.b.d'
       `,
 		Long: `Prefixes w.r.t to the yaml file at the given path.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
@@ -183,20 +183,19 @@ Outputs to STDOUT unless the inplace flag is used, in which case the file is upd
 
 func createDeleteCmd() *cobra.Command {
 	var cmdDelete = &cobra.Command{
-		Use:     "delete [yaml_file] [path]",
+		Use:     "delete [yaml_file] [path_expression]",
 		Aliases: []string{"d"},
 		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
 		Example: `
-yq delete things.yaml a.b.c
-yq delete things.yaml a.*.c
-yq delete things.yaml a.(child.subchild==co*).c
-yq delete things.yaml a.**
-yq delete --inplace things.yaml a.b.c
-yq delete --inplace -- things.yaml --key-starting-with-dash
-yq d -i things.yaml a.b.c
-yq d things.yaml a.b.c
+yq delete things.yaml 'a.b.c'
+yq delete things.yaml 'a.*.c'
+yq delete things.yaml 'a.(child.subchild==co*).c'
+yq delete things.yaml 'a.**'
+yq delete --inplace things.yaml 'a.b.c'
+yq delete --inplace -- things.yaml '--key-starting-with-dash' # need to use '--' to stop processing arguments as flags
+yq d -i things.yaml 'a.b.c'
 	`,
-		Long: `Deletes the given path from the YAML file.
+		Long: `Deletes the nodes matching the given path expression from the YAML file.
 Outputs to STDOUT unless the inplace flag is used, in which case the file is updated instead.
 `,
 		RunE: deleteProperty,
@@ -212,10 +211,10 @@ func createNewCmd() *cobra.Command {
 		Aliases: []string{"n"},
 		Short:   "yq n [--script/-s script_file] a.b.c newValue",
 		Example: `
-yq new a.b.c cat
-yq n a.b.c cat
-yq n a.b[+] --tag '!!str' true
-yq n -- --key-starting-with-dash cat
+yq new 'a.b.c' cat
+yq n 'a.b.c' --tag '!!str' true # force 'true' to be interpreted as a string instead of bool
+yq n 'a.b[+]' cat
+yq n -- '--key-starting-with-dash' cat # need to use '--' to stop processing arguments as flags
 yq n --script create_script.yaml
       `,
 		Long: `Creates a new yaml w.r.t the given path and value.
