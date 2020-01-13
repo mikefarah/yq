@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 )
 
 func getRootCommand() *cobra.Command {
-	return newCommandCLI()
+	return New()
 }
 
 func TestRootCmd(t *testing.T) {
@@ -87,7 +87,7 @@ func TestRootCmd_VersionLong(t *testing.T) {
 
 func TestReadCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -117,7 +117,7 @@ value: 3
 
 func TestReadWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -126,7 +126,7 @@ func TestReadWithKeyAndValueCmd(t *testing.T) {
 
 func TestReadArrayCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.e.1.name")
+	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.e.1.name")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -135,7 +135,7 @@ func TestReadArrayCmd(t *testing.T) {
 
 func TestReadDeepSplatCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.**")
+	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.**")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -153,7 +153,7 @@ b.e.[1].value: 4
 
 func TestReadDeepSplatWithSuffixCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/sample.yaml b.**.name")
+	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.**.name")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -165,7 +165,7 @@ b.e.[1].name: sam
 
 func TestReadWithKeyCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p p examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -p p ../examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -174,7 +174,7 @@ func TestReadWithKeyCmd(t *testing.T) {
 
 func TestReadAnchorsCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/simple-anchor.yaml foobar.a")
+	result := test.RunCmd(cmd, "read ../examples/simple-anchor.yaml foobar.a")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -183,7 +183,7 @@ func TestReadAnchorsCmd(t *testing.T) {
 
 func TestReadAnchorsWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/simple-anchor.yaml foobar.a")
+	result := test.RunCmd(cmd, "read -p pv ../examples/simple-anchor.yaml foobar.a")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -192,7 +192,7 @@ func TestReadAnchorsWithKeyAndValueCmd(t *testing.T) {
 
 func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobar.a")
+	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobar.a")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -201,7 +201,7 @@ func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
 
 func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobar.thing")
+	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobar.thing")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -210,7 +210,7 @@ func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
 
 func TestReadMergeAnchorsPrefixMatchCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "r -p pv examples/merge-anchor.yaml foobar.th*")
+	result := test.RunCmd(cmd, "r -p pv ../examples/merge-anchor.yaml foobar.th*")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -223,7 +223,7 @@ foobar.thirsty: yep
 
 func TestReadMergeAnchorsListOriginalCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.a")
+	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobarList.a")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -232,7 +232,7 @@ func TestReadMergeAnchorsListOriginalCmd(t *testing.T) {
 
 func TestReadMergeAnchorsListOverrideInListCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.thing")
+	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobarList.thing")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -241,7 +241,7 @@ func TestReadMergeAnchorsListOverrideInListCmd(t *testing.T) {
 
 func TestReadMergeAnchorsListOverrideCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/merge-anchor.yaml foobarList.c")
+	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobarList.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -250,7 +250,7 @@ func TestReadMergeAnchorsListOverrideCmd(t *testing.T) {
 
 func TestReadInvalidDocumentIndexCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -df examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -df ../examples/sample.yaml b.c")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
@@ -260,7 +260,7 @@ func TestReadInvalidDocumentIndexCmd(t *testing.T) {
 
 func TestReadBadDocumentIndexCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -d1 examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -d1 ../examples/sample.yaml b.c")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to invalid path")
 	}
@@ -270,7 +270,7 @@ func TestReadBadDocumentIndexCmd(t *testing.T) {
 
 func TestReadOrderCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/order.yaml")
+	result := test.RunCmd(cmd, "read ../examples/order.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -283,7 +283,7 @@ application: MyApp
 
 func TestReadMultiCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -d 1 examples/multiple_docs.yaml another.document")
+	result := test.RunCmd(cmd, "read -d 1 ../examples/multiple_docs.yaml another.document")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -292,7 +292,7 @@ func TestReadMultiCmd(t *testing.T) {
 
 func TestReadMultiWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p vp -d 1 examples/multiple_docs.yaml another.document")
+	result := test.RunCmd(cmd, "read -p vp -d 1 ../examples/multiple_docs.yaml another.document")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -301,7 +301,7 @@ func TestReadMultiWithKeyAndValueCmd(t *testing.T) {
 
 func TestReadMultiAllCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -d* examples/multiple_docs.yaml commonKey")
+	result := test.RunCmd(cmd, "read -d* ../examples/multiple_docs.yaml commonKey")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -313,7 +313,7 @@ third document`, result.Output)
 
 func TestReadMultiAllWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv -d* examples/multiple_docs.yaml commonKey")
+	result := test.RunCmd(cmd, "read -p pv -d* ../examples/multiple_docs.yaml commonKey")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -326,7 +326,7 @@ commonKey: third document
 
 func TestReadCmd_ArrayYaml(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [0].gather_facts")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [0].gather_facts")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -335,7 +335,7 @@ func TestReadCmd_ArrayYaml(t *testing.T) {
 
 func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -355,7 +355,7 @@ func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
 
 func TestReadCmd_ArrayYaml_OneElement(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [0]")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [0]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -373,7 +373,7 @@ serial: 1
 
 func TestReadCmd_ArrayYaml_SplatCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [*]")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [*]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -393,7 +393,7 @@ gather_facts: true
 
 func TestReadCmd_ArrayYaml_SplatWithKeyAndValueCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv examples/array.yaml [*]")
+	result := test.RunCmd(cmd, "read -p pv ../examples/array.yaml [*]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -415,7 +415,7 @@ func TestReadCmd_ArrayYaml_SplatWithKeyAndValueCmd(t *testing.T) {
 
 func TestReadCmd_ArrayYaml_SplatWithKeyCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p p examples/array.yaml [*]")
+	result := test.RunCmd(cmd, "read -p p ../examples/array.yaml [*]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -426,7 +426,7 @@ func TestReadCmd_ArrayYaml_SplatWithKeyCmd(t *testing.T) {
 
 func TestReadCmd_ArrayYaml_SplatKey(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [*].gather_facts")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [*].gather_facts")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -437,7 +437,7 @@ true`
 
 func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [x].gather_facts")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [x].gather_facts")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to missing arg")
 	}
@@ -447,7 +447,7 @@ func TestReadCmd_ArrayYaml_ErrorBadPath(t *testing.T) {
 
 func TestReadCmd_ArrayYaml_Splat_ErrorBadPath(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read examples/array.yaml [*].roles[x]")
+	result := test.RunCmd(cmd, "read ../examples/array.yaml [*].roles[x]")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to missing arg")
 	}
@@ -511,7 +511,7 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 
 func TestReadCmd_Verbose(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -v examples/sample.yaml b.c")
+	result := test.RunCmd(cmd, "read -v ../examples/sample.yaml b.c")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -520,7 +520,7 @@ func TestReadCmd_Verbose(t *testing.T) {
 
 // func TestReadCmd_ToJson(t *testing.T) {
 // 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, "read -j examples/sample.yaml b.c")
+// 	result := test.RunCmd(cmd, "read -j ../examples/sample.yaml b.c")
 // 	if result.Error != nil {
 // 		t.Error(result.Error)
 // 	}
@@ -529,7 +529,7 @@ func TestReadCmd_Verbose(t *testing.T) {
 
 // func TestReadCmd_ToJsonLong(t *testing.T) {
 // 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, "read --tojson examples/sample.yaml b.c")
+// 	result := test.RunCmd(cmd, "read --tojson ../examples/sample.yaml b.c")
 // 	if result.Error != nil {
 // 		t.Error(result.Error)
 // 	}
@@ -875,7 +875,7 @@ func TestWriteCmdScript(t *testing.T) {
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
 
-	updateScript := `- command: update 
+	updateScript := `- command: update
   path: b.c
   value: 7`
 	scriptFilename := test.WriteTempYamlFile(updateScript)
@@ -1324,7 +1324,7 @@ something: else`
 
 func TestMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge ../examples/data1.yaml ../examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1341,7 +1341,7 @@ c:
 
 func TestMergeNoAutoCreateCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge -c=false examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge -c=false ../examples/data1.yaml ../examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1355,7 +1355,7 @@ c:
 
 func TestMergeOverwriteCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge -c=false --overwrite examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge -c=false --overwrite ../examples/data1.yaml ../examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1369,7 +1369,7 @@ c:
 
 func TestMergeAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --autocreate=false --append examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge --autocreate=false --append ../examples/data1.yaml ../examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1383,7 +1383,7 @@ c:
 
 func TestMergeOverwriteAndAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --autocreate=false --append --overwrite examples/data1.yaml examples/data2.yaml")
+	result := test.RunCmd(cmd, "merge --autocreate=false --append --overwrite ../examples/data1.yaml ../examples/data2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1397,7 +1397,7 @@ c:
 
 func TestMergeArraysCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --append examples/sample_array.yaml examples/sample_array_2.yaml")
+	result := test.RunCmd(cmd, "merge --append ../examples/sample_array.yaml ../examples/sample_array_2.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1408,7 +1408,7 @@ func TestMergeArraysCmd(t *testing.T) {
 
 func TestMergeCmd_Multi(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge -d1 examples/multiple_docs_small.yaml examples/data1.yaml")
+	result := test.RunCmd(cmd, "merge -d1 ../examples/multiple_docs_small.yaml ../examples/data1.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1491,7 +1491,7 @@ apples: red
 
 func TestMergeCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge examples/data1.yaml")
+	result := test.RunCmd(cmd, "merge ../examples/data1.yaml")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to missing arg")
 	}
@@ -1501,7 +1501,7 @@ func TestMergeCmd_Error(t *testing.T) {
 
 func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge examples/data1.yaml fake-unknown")
+	result := test.RunCmd(cmd, "merge ../examples/data1.yaml fake-unknown")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to unknown file")
 	}
@@ -1515,7 +1515,7 @@ func TestMergeCmd_ErrorUnreadableFile(t *testing.T) {
 }
 
 func TestMergeCmd_Inplace(t *testing.T) {
-	filename := test.WriteTempYamlFile(test.ReadTempYamlFile("examples/data1.yaml"))
+	filename := test.WriteTempYamlFile(test.ReadTempYamlFile("../examples/data1.yaml"))
 	err := os.Chmod(filename, os.FileMode(int(0666)))
 	if err != nil {
 		t.Error(err)
@@ -1523,7 +1523,7 @@ func TestMergeCmd_Inplace(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("merge -i %s examples/data2.yaml", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("merge -i %s ../examples/data2.yaml", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1543,7 +1543,7 @@ c:
 
 func TestMergeAllowEmptyCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --allow-empty examples/data1.yaml examples/empty.yaml")
+	result := test.RunCmd(cmd, "merge --allow-empty ../examples/data1.yaml ../examples/empty.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -1557,7 +1557,7 @@ c:
 
 func TestMergeDontAllowEmptyCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge examples/data1.yaml examples/empty.yaml")
+	result := test.RunCmd(cmd, "merge ../examples/data1.yaml ../examples/empty.yaml")
 	expectedOutput := `Could not process document index 0 as there are only 0 document(s)`
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
