@@ -1,13 +1,9 @@
-bob:
-  item:
-    cats: bananas
-  something:
-    cats: lemons
-  itemThing:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-my:
-  path: -3
+a: true
+b:
+  c: 2
+  d: [3, 4, 5]
+  e:
+    - name: fred
+      value: 3
+    - name: sam
+      value: 4
