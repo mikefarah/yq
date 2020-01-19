@@ -4,8 +4,9 @@ site_name: Yq
 theme: 'material'
 pages:
     - Install: index.md
-    - Read: read.md
     - Path Expressions: path_expressions.md
+    - Value Parsing: value_parsing.md
+    - Read: read.md
     - Write/Update: write.md
     - Prefix: prefix.md
     - Delete: delete.md

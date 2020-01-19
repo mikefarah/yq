@@ -239,18 +239,6 @@
       
       
 
-
-  <li class="md-nav__item">
-    <a href="../read/" title="Read" class="md-nav__link">
-      Read
-    </a>
-  </li>
-
-    
-      
-      
-      
-
   
 
 
@@ -328,6 +316,19 @@
     Maps
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix splat" class="md-nav__link">
+    Prefix splat
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -350,8 +351,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#finding-parents-with-particular-children-nodes" title="Finding parents with particular children nodes" class="md-nav__link">
-    Finding parents with particular children nodes
+  <a href="#search-by-children-nodes" title="Search by children nodes" class="md-nav__link">
+    Search by children nodes
   </a>
   
     <nav class="md-nav">
@@ -404,6 +405,30 @@
   
 </nav>
     
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../value_parsing/" title="Value Parsing" class="md-nav__link">
+      Value Parsing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../read/" title="Read" class="md-nav__link">
+      Read
+    </a>
   </li>
 
     
@@ -550,6 +575,19 @@
     Maps
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prefix-splat" title="Prefix splat" class="md-nav__link">
+    Prefix splat
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -572,8 +610,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#finding-parents-with-particular-children-nodes" title="Finding parents with particular children nodes" class="md-nav__link">
-    Finding parents with particular children nodes
+  <a href="#search-by-children-nodes" title="Search by children nodes" class="md-nav__link">
+    Search by children nodes
   </a>
   
     <nav class="md-nav">
@@ -640,7 +678,7 @@
                   <h1>Path Expressions</h1>
                 
                 <p>Path expressions are used to deeply navigate and match particular yaml nodes.</p>
-<p><em>As a general rule, you should wrap paths in quotes in the CLI to prevent your interpreter from processing '*, []' and other special characters.</em></p>
+<p><em>As a general rule, you should wrap paths in quotes to prevent your CLI from processing '*, []' and other special characters.</em></p>
 <h2 id="simple-expressions">Simple expressions<a class="headerlink" href="#simple-expressions" title="Permanent link">&para;</a></h2>
 <h3 id="maps">Maps<a class="headerlink" href="#maps" title="Permanent link">&para;</a></h3>
 <p>a.b.c</p>
@@ -679,8 +717,25 @@
 <pre><code class="yaml">a:
   b1:
     c: thing # MATCHES
+    d: whatever
   b2:
     c: thing # MATCHES
+    f: something irrelevant
+</code></pre>
+
+<h4 id="prefix-splat">Prefix splat<a class="headerlink" href="#prefix-splat" title="Permanent link">&para;</a></h4>
+<p>bob.item*.cats</p>
+<pre><code class="yaml">bob:
+  item:
+    cats: bananas # MATCHES
+  something:
+    cats: lemons
+  itemThing:
+    cats: more bananas # MATCHES
+  item2:
+    cats: apples # MATCHES
+  thing:
+    cats: oranges
 </code></pre>
 
 <h3 id="arrays_1">Arrays<a class="headerlink" href="#arrays_1" title="Permanent link">&para;</a></h3>
@@ -688,8 +743,11 @@
 <pre><code class="yaml">a:
   b:
   - c: thing0 # MATCHES
+    d: what..ever
   - c: thing1 # MATCHES
+    d: blarh
   - c: thing2 # MATCHES
+    f: thingamabob
 </code></pre>
 
 <h2 id="deep-splat">Deep Splat<a class="headerlink" href="#deep-splat" title="Permanent link">&para;</a></h2>
@@ -698,18 +756,23 @@
 <pre><code class="yaml">a:
   b1:
     c: thing1 # MATCHES
+    d: cat cat
   b2:
     c: thing2 # MATCHES
+    d: dog dog
   b3:
     d:
     - f:
         c: thing3 # MATCHES
+        d: beep
     - f:
         g:
           c: thing4 # MATCHES
+          d: boop
+    - d: mooo
 </code></pre>
 
-<h2 id="finding-parents-with-particular-children-nodes">Finding parents with particular children nodes<a class="headerlink" href="#finding-parents-with-particular-children-nodes" title="Permanent link">&para;</a></h2>
+<h2 id="search-by-children-nodes">Search by children nodes<a class="headerlink" href="#search-by-children-nodes" title="Permanent link">&para;</a></h2>
 <p>a.(b.d==cat).b.c</p>
 <pre><code class="yaml">a:
   - b:
@@ -767,9 +830,8 @@
 <p>Any valid yaml key can be specified as part of a key lookup.</p>
 <p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
 <h3 id="keys-and-values-with-leading-dashes">Keys (and values) with leading dashes<a class="headerlink" href="#keys-and-values-with-leading-dashes" title="Permanent link">&para;</a></h3>
-<p>If a key or value has leading dashes, yq won't know that you are passing a value as opposed to a flag (and you will get a 'bad flag syntax' error).</p>
-<p>To fix that, you will need to tell it to stop processing flags by adding '--' after the last flag like so:</p>
-<pre><code class="bash">yq n -t -- --key --value
+<p>The flag terminator needs to be used to stop the app from attempting to parse the subsequent arguments as flags, if they start if a dash.</p>
+<pre><code class="bash">yq n -j -- --key --value
 </code></pre>
 
 <p>Will result in</p>
@@ -795,7 +857,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../read/" title="Read" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href=".." title="Install" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -804,19 +866,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Read
+                Install
               </span>
             </div>
           </a>
         
         
-          <a href="../write/" title="Write/Update" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../value_parsing/" title="Value Parsing" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Write/Update
+                Value Parsing
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

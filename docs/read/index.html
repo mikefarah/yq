@@ -239,6 +239,30 @@
       
       
 
+
+  <li class="md-nav__item">
+    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
+      Path Expressions
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../value_parsing/" title="Value Parsing" class="md-nav__link">
+      Value Parsing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
   
 
 
@@ -278,44 +302,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#splat" title="Splat" class="md-nav__link">
-    Splat
+  <a href="#multiple-documents" title="Multiple Documents" class="md-nav__link">
+    Multiple Documents
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-from-a-single-document" title="Reading from a single document" class="md-nav__link">
+    Reading from a single document
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
-    Prefix Splat
+        
+          <li class="md-nav__item">
+  <a href="#read-from-all-documents" title="Read from all documents" class="md-nav__link">
+    Read from all documents
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-specify-a-single-document" title="Multiple Documents - specify a single document" class="md-nav__link">
-    Multiple Documents - specify a single document
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-read-all-documents" title="Multiple Documents - read all documents" class="md-nav__link">
-    Multiple Documents - read all documents
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#arrays" title="Arrays" class="md-nav__link">
-    Arrays
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#array-splat" title="Array Splat" class="md-nav__link">
-    Array Splat
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -327,18 +336,6 @@
   
 </nav>
     
-  </li>
-
-    
-      
-      
-      
-
-
-  <li class="md-nav__item">
-    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
-      Path Expressions
-    </a>
   </li>
 
     
@@ -447,44 +444,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#splat" title="Splat" class="md-nav__link">
-    Splat
+  <a href="#multiple-documents" title="Multiple Documents" class="md-nav__link">
+    Multiple Documents
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-from-a-single-document" title="Reading from a single document" class="md-nav__link">
+    Reading from a single document
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#prefix-splat" title="Prefix Splat" class="md-nav__link">
-    Prefix Splat
+        
+          <li class="md-nav__item">
+  <a href="#read-from-all-documents" title="Read from all documents" class="md-nav__link">
+    Read from all documents
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-specify-a-single-document" title="Multiple Documents - specify a single document" class="md-nav__link">
-    Multiple Documents - specify a single document
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#multiple-documents-read-all-documents" title="Multiple Documents - read all documents" class="md-nav__link">
-    Multiple Documents - read all documents
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#arrays" title="Arrays" class="md-nav__link">
-    Arrays
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#array-splat" title="Array Splat" class="md-nav__link">
-    Array Splat
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -512,9 +494,10 @@
                 <pre><code>yq r &lt;yaml_file|json_file&gt; &lt;path_expression&gt;
 </code></pre>
 
+<p>TALK PRINTING ABOUT KEYS AND VALUES</p>
 <p>Returns the matching nodes of the path expression for the given yaml file (or STDIN).</p>
 <p>See docs for <a href="../path_expressions/">path expression</a> for more details.</p>
-<h3 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">&para;</a></h3>
+<h2 id="basic">Basic<a class="headerlink" href="#basic" title="Permanent link">&para;</a></h2>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">b:
   c: 2
@@ -525,56 +508,14 @@
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="from-stdin">From Stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h3>
+<h2 id="from-stdin">From Stdin<a class="headerlink" href="#from-stdin" title="Permanent link">&para;</a></h2>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="bash">cat sample.yaml | yq r - b.c
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="splat">Splat<a class="headerlink" href="#splat" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">---
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq r sample.yaml bob.*.cats
-</code></pre>
-
-<p>will output</p>
-<pre><code class="yaml">- bananas
-- apples
-- oranges
-</code></pre>
-
-<h3 id="prefix-splat">Prefix Splat<a class="headerlink" href="#prefix-splat" title="Permanent link">&para;</a></h3>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">---
-bob:
-  item1:
-    cats: bananas
-  item2:
-    cats: apples
-  thing:
-    cats: oranges
-</code></pre>
-
-<p>then</p>
-<pre><code class="bash">yq r sample.yaml bob.item*.cats
-</code></pre>
-
-<p>will output</p>
-<pre><code class="yaml">- bananas
-- apples
-</code></pre>
-
-<h3 id="multiple-documents-specify-a-single-document">Multiple Documents - specify a single document<a class="headerlink" href="#multiple-documents-specify-a-single-document" title="Permanent link">&para;</a></h3>
+<h2 id="multiple-documents">Multiple Documents<a class="headerlink" href="#multiple-documents" title="Permanent link">&para;</a></h2>
+<h3 id="reading-from-a-single-document">Reading from a single document<a class="headerlink" href="#reading-from-a-single-document" title="Permanent link">&para;</a></h3>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">something: else
 ---
@@ -587,7 +528,7 @@ b:
 </code></pre>
 
 <p>will output the value of '2'.</p>
-<h3 id="multiple-documents-read-all-documents">Multiple Documents - read all documents<a class="headerlink" href="#multiple-documents-read-all-documents" title="Permanent link">&para;</a></h3>
+<h3 id="read-from-all-documents">Read from all documents<a class="headerlink" href="#read-from-all-documents" title="Permanent link">&para;</a></h3>
 <p>Reading all documents will return the result as an array. This can be converted to json using the '-j' flag if desired.</p>
 <p>Given a sample.yaml file of:</p>
 <pre><code class="yaml">name: Fred
@@ -609,44 +550,6 @@ age: 232
 - Stella
 - Android
 </code></pre>
-
-<h3 id="arrays">Arrays<a class="headerlink" href="#arrays" title="Permanent link">&para;</a></h3>
-<p>You can give an index to access a specific element:
-e.g.: given a sample file of</p>
-<pre><code class="yaml">b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-</code></pre>
-
-<p>then</p>
-<pre><code>yq r sample.yaml 'b.e[1].name'
-</code></pre>
-
-<p>will output 'sam'</p>
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
-<h3 id="array-splat">Array Splat<a class="headerlink" href="#array-splat" title="Permanent link">&para;</a></h3>
-<p>e.g.: given a sample file of</p>
-<pre><code class="yaml">b:
-  e:
-    - name: fred
-      value: 3
-    - name: sam
-      value: 4
-</code></pre>
-
-<p>then</p>
-<pre><code>yq r sample.yaml 'b.e[*].name'
-</code></pre>
-
-<p>will output:</p>
-<pre><code>- fred
-- sam
-</code></pre>
-
-<p>Note that the path is in quotes to avoid the square brackets being interpreted by your shell.</p>
                 
                   
                 
@@ -667,7 +570,7 @@ e.g.: given a sample file of</p>
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href=".." title="Install" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../value_parsing/" title="Value Parsing" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -676,19 +579,19 @@ e.g.: given a sample file of</p>
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Install
+                Value Parsing
               </span>
             </div>
           </a>
         
         
-          <a href="../path_expressions/" title="Path Expressions" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../write/" title="Write/Update" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Path Expressions
+                Write/Update
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

@@ -241,8 +241,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../read/" title="Read" class="md-nav__link">
-      Read
+    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
+      Path Expressions
     </a>
   </li>
 
@@ -253,8 +253,20 @@
 
 
   <li class="md-nav__item">
-    <a href="../path_expressions/" title="Path Expressions" class="md-nav__link">
-      Path Expressions
+    <a href="../value_parsing/" title="Value Parsing" class="md-nav__link">
+      Value Parsing
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../read/" title="Read" class="md-nav__link">
+      Read
     </a>
   </li>
 
@@ -430,7 +442,7 @@
 
 <p>Yaml files can be created using the 'new' command. This works in the same way as the write command, but you don't pass in an existing Yaml file. Currently this does not support creating multiple documents in a single yaml file.</p>
 <p>See docs for <a href="../path_expressions/">path expression</a></p>
-<h3 id="creating-a-simple-yaml-file">Creating a simple yaml file<a class="headerlink" href="#creating-a-simple-yaml-file" title="Permanent link">&para;</a></h3>
+<h2 id="creating-a-simple-yaml-file">Creating a simple yaml file<a class="headerlink" href="#creating-a-simple-yaml-file" title="Permanent link">&para;</a></h2>
 <pre><code class="bash">yq n b.c cat
 </code></pre>
 
@@ -439,7 +451,7 @@
   c: cat
 </code></pre>
 
-<h3 id="creating-using-a-create-script">Creating using a create script<a class="headerlink" href="#creating-using-a-create-script" title="Permanent link">&para;</a></h3>
+<h2 id="creating-using-a-create-script">Creating using a create script<a class="headerlink" href="#creating-using-a-create-script" title="Permanent link">&para;</a></h2>
 <p>Create scripts follow the same format as the update scripts.</p>
 <p>Given a script create_instructions.yaml of:</p>
 <pre><code class="yaml">- command: update 

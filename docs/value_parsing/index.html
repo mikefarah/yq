@@ -36,7 +36,7 @@
     
     
       
-        <title>Convert - Yq</title>
+        <title>Value Parsing - Yq</title>
       
     
     
@@ -94,7 +94,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
     
-      <a href="#yaml-to-json" tabindex="1" class="md-skip">
+      <a href="#default-behaviour" tabindex="1" class="md-skip">
         Skip to content
       </a>
     
@@ -119,7 +119,7 @@
               Yq
             </span>
             <span class="md-header-nav__topic">
-              Convert
+              Value Parsing
             </span>
           
         </div>
@@ -251,11 +251,114 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../value_parsing/" title="Value Parsing" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Value Parsing
+      </label>
+    
+    <a href="./" title="Value Parsing" class="md-nav__link md-nav__link--active">
       Value Parsing
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#default-behaviour" title="Default behaviour" class="md-nav__link">
+    Default behaviour
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers" title="Integers" class="md-nav__link">
+    Integers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float" title="Float" class="md-nav__link">
+    Float
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#booleans" title="Booleans" class="md-nav__link">
+    Booleans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nulls" title="Nulls" class="md-nav__link">
+    Nulls
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strings" title="Strings" class="md-nav__link">
+    Strings
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-tag-field-to-override" title="Using the tag field to override" class="md-nav__link">
+    Using the tag field to override
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#casting-booleans" title="Casting booleans" class="md-nav__link">
+    Casting booleans
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#casting-nulls" title="Casting nulls" class="md-nav__link">
+    Casting nulls
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-types" title="Custom types" class="md-nav__link">
+    Custom types
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -323,52 +426,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Convert
-      </label>
-    
-    <a href="./" title="Convert" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../convert/" title="Convert" class="md-nav__link">
       Convert
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#yaml-to-json" title="Yaml to Json" class="md-nav__link">
-    Yaml to Json
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#json-to-yaml" title="Json to Yaml" class="md-nav__link">
-    Json to Yaml
-  </a>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
     
@@ -403,15 +465,77 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#yaml-to-json" title="Yaml to Json" class="md-nav__link">
-    Yaml to Json
+  <a href="#default-behaviour" title="Default behaviour" class="md-nav__link">
+    Default behaviour
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers" title="Integers" class="md-nav__link">
+    Integers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#float" title="Float" class="md-nav__link">
+    Float
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#booleans" title="Booleans" class="md-nav__link">
+    Booleans
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nulls" title="Nulls" class="md-nav__link">
+    Nulls
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#strings" title="Strings" class="md-nav__link">
+    Strings
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-the-tag-field-to-override" title="Using the tag field to override" class="md-nav__link">
+    Using the tag field to override
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#json-to-yaml" title="Json to Yaml" class="md-nav__link">
-    Json to Yaml
+  <a href="#casting-booleans" title="Casting booleans" class="md-nav__link">
+    Casting booleans
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#casting-nulls" title="Casting nulls" class="md-nav__link">
+    Casting nulls
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-types" title="Custom types" class="md-nav__link">
+    Custom types
   </a>
   
 </li>
@@ -432,60 +556,121 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/mikefarah/yq/edit/master/docs/convert.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/mikefarah/yq/edit/master/docs/value_parsing.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
-                  <h1>Convert</h1>
+                  <h1>Value Parsing</h1>
                 
-                <h2 id="yaml-to-json">Yaml to Json<a class="headerlink" href="#yaml-to-json" title="Permanent link">&para;</a></h2>
-<p>To convert output to json, use the --tojson (or -j) flag. This is supported by all commands.</p>
-<p>Each matching yaml node will be converted to json and printed out on a separate line.</p>
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">b:
-  c: 2
+                <p>This describes how values are parsed from the CLI to commands that create/update yaml (e.g. new/write).</p>
+<p><code>yq</code> attempts to parse values intelligently, e.g. when a number is passed it - it will assume it's a number as opposed to a string. <code>yq</code> will not alter the representation of what you give. So if you pass '03.0' in, it will assume it's a number and keep the value formatted as it was passed in, that is '03.0'.</p>
+<p>The <code>--tag</code> flag can be used to override the tag type to force particular tags.</p>
+<h2 id="default-behaviour">Default behaviour<a class="headerlink" href="#default-behaviour" title="Permanent link">&para;</a></h2>
+<h3 id="integers">Integers<a class="headerlink" href="#integers" title="Permanent link">&para;</a></h3>
+<p><em>Given</em></p>
+<pre><code class="bash">yq new key 3
 </code></pre>
 
-<p>then</p>
-<pre><code class="bash">yq r -j sample.yaml
+<p>results in</p>
+<pre><code class="yaml">key: 3
 </code></pre>
 
-<p>will output</p>
-<pre><code class="json">{&quot;b&quot;:{&quot;c&quot;:2}}
+<p><em>Given a formatted number</em></p>
+<pre><code class="bash">yq new key 03
 </code></pre>
 
-<p>Given a sample.yaml file of:</p>
-<pre><code class="yaml">bob:
-  c: 2
-bab:
-  c: 5
+<p>results in</p>
+<pre><code class="yaml">key: 03
 </code></pre>
 
-<p>then</p>
-<pre><code class="bash">yq r -j sample.yaml b*
+<p><code>yq</code> keeps the number formatted as it was passed in.</p>
+<h3 id="float">Float<a class="headerlink" href="#float" title="Permanent link">&para;</a></h3>
+<p><em>Given</em></p>
+<pre><code class="bash">yq new key &quot;3.1&quot;
 </code></pre>
 
-<p>will output</p>
-<pre><code class="json">{&quot;c&quot;:2}
-{&quot;c&quot;:5}
+<p>results in</p>
+<pre><code class="yaml">key: 3.1
 </code></pre>
 
-<h2 id="json-to-yaml">Json to Yaml<a class="headerlink" href="#json-to-yaml" title="Permanent link">&para;</a></h2>
-<p>To read in json, just pass in a json file instead of yaml, it will just work :)</p>
-<p>e.g given a json file</p>
-<pre><code class="json">{&quot;a&quot;:&quot;Easy! as one two three&quot;,&quot;b&quot;:{&quot;c&quot;:2,&quot;d&quot;:[3,4]}}
+<p>Note that quoting the number does not make a difference.</p>
+<p><em><em>Given a formatted decimal number</em></em></p>
+<pre><code class="bash">yq new key 03.0
 </code></pre>
 
-<p>then</p>
-<pre><code class="bash">yq r sample.json
+<p>results in </p>
+<pre><code class="yaml">key: 03.0
 </code></pre>
 
-<p>will output</p>
-<pre><code class="yaml">a: Easy! as one two three
-b:
-  c: 2
-  d:
-  - 3
-  - 4
+<p><code>yq</code> will keep the number formatted as it was passed in</p>
+<h3 id="booleans">Booleans<a class="headerlink" href="#booleans" title="Permanent link">&para;</a></h3>
+<pre><code class="bash">yq new key true
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: true
+</code></pre>
+
+<h3 id="nulls">Nulls<a class="headerlink" href="#nulls" title="Permanent link">&para;</a></h3>
+<pre><code class="bash">yq new key null
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: null
+</code></pre>
+
+<pre><code class="bash">yq new key '~'
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: ~
+</code></pre>
+
+<pre><code class="bash">yq new key ''
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key:
+</code></pre>
+
+<h3 id="strings">Strings<a class="headerlink" href="#strings" title="Permanent link">&para;</a></h3>
+<pre><code class="bash">yq new key whatever
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: whatever
+</code></pre>
+
+<pre><code class="bash">yq new key ' whatever '
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: ' whatever '
+</code></pre>
+
+<h2 id="using-the-tag-field-to-override">Using the tag field to override<a class="headerlink" href="#using-the-tag-field-to-override" title="Permanent link">&para;</a></h2>
+<p>Previous versions of yq required double quoting to force values to be strings, this no longer works - instead use the --tag flag.</p>
+<h2 id="casting-booleans">Casting booleans<a class="headerlink" href="#casting-booleans" title="Permanent link">&para;</a></h2>
+<pre><code class="bash">yq new --tag '!!str' key true
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: 'true'
+</code></pre>
+
+<h2 id="casting-nulls">Casting nulls<a class="headerlink" href="#casting-nulls" title="Permanent link">&para;</a></h2>
+<pre><code class="bash">yq new --tag '!!str' key null
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: 'null'
+</code></pre>
+
+<h2 id="custom-types">Custom types<a class="headerlink" href="#custom-types" title="Permanent link">&para;</a></h2>
+<pre><code class="bash">yq new --tag '!!farah' key gold
+</code></pre>
+
+<p>results in</p>
+<pre><code class="yaml">key: !!farah gold
 </code></pre>
                 
                   
@@ -507,7 +692,7 @@ b:
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../create/" title="Create" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../path_expressions/" title="Path Expressions" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -516,19 +701,19 @@ b:
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Create
+                Path Expressions
               </span>
             </div>
           </a>
         
         
-          <a href="../merge/" title="Merge" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../read/" title="Read" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Merge
+                Read
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
