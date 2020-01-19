@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
-	"os"
 )
 
 func New() *cobra.Command {

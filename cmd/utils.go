@@ -3,14 +3,15 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/mikefarah/yq/v3/pkg/yqlib"
-	errors "github.com/pkg/errors"
-	"github.com/spf13/cobra"
-	yaml "gopkg.in/yaml.v3"
 	"io"
 	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/mikefarah/yq/v3/pkg/yqlib"
+	errors "github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func readYamlFile(filename string, path string, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {

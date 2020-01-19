@@ -13,13 +13,9 @@ var parseValueTests = []struct {
 	expectedTag     string
 	testDescription string
 }{
-	{"true", "", "!!bool", "boolean"},
 	{"true", "!!str", "!!str", "boolean forced as string"},
-	{"3.4", "", "!!float", "float"},
-	{"1212121", "", "!!int", "big number"},
-	{"1212121.1", "", "!!float", "big float number"},
-	{"3", "", "!!int", "int"},
-	{"null", "", "!!null", "null"},
+	{"3", "!!int", "!!int", "int"},
+	{"cat", "", "", "default"},
 }
 
 func TestValueParserParse(t *testing.T) {

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"os"
+
 	command "github.com/mikefarah/yq/v3/cmd"
 	logging "gopkg.in/op/go-logging.v1"
-	"os"
 )
 
 func main() {

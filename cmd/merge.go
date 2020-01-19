@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 	errors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 func createMergeCmd() *cobra.Command {
