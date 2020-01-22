@@ -16,6 +16,8 @@ Currently only available only available as a [binary release here](https://githu
 
 It does have a few breaking changes listed on the [release page](https://github.com/mikefarah/yq/releases/tag/3.0.0-beta)
 
+The updated user docs are available [here](https://mikefarah.gitbook.io/yq/)
+
 Looking forward to feedback - once this is out of beta it will be added to the remaining package managers, and be the default version downloaded (and merged into master).
 
 V2 will no longer have any new features added, and will be moved to a branch (v2). It will have limited maintenance for bugs for a few months.
@@ -99,9 +101,9 @@ yq() {
 - Merge multiple yaml files and append array values.
 - Supports multiple documents in a single yaml file
 
-## [Usage](http://mikefarah.github.io/yq/)
+## [Usage](https://mikefarah.gitbook.io/yq/v/v2.x/)
 
-Check out the [documentation](http://mikefarah.github.io/yq/) for more detailed and advanced usage.
+Check out the [documentation](https://mikefarah.gitbook.io/yq/v/v2.x/) for more detailed and advanced usage.
 
 ```
 yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.
