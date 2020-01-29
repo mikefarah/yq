@@ -8,7 +8,7 @@ func createWriteCmd() *cobra.Command {
 	var cmdWrite = &cobra.Command{
 		Use:     "write [yaml_file] [path_expression] [value]",
 		Aliases: []string{"w"},
-		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue",
+		Short:   "yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue",
 		Example: `
 yq write things.yaml 'a.b.c' true
 yq write things.yaml 'a.*.c' true

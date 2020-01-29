@@ -10,7 +10,7 @@ func createDeleteCmd() *cobra.Command {
 	var cmdDelete = &cobra.Command{
 		Use:     "delete [yaml_file] [path_expression]",
 		Aliases: []string{"d"},
-		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c",
+		Short:   "yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred).value'",
 		Example: `
 yq delete things.yaml 'a.b.c'
 yq delete things.yaml 'a.*.c'

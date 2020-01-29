@@ -7,6 +7,9 @@ a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
+## New version!
+V3 is officially out - if you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
+
 ## Install
 ### On MacOS:
 ```
@@ -70,44 +73,39 @@ yq() {
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
-- Deep read a yaml file with a given path
-- Update a yaml file given a path
-- Update a yaml file given a script file
+- [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
+- [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
+- Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
-- Create a yaml file given a deep path and value
-- Create a yaml file given a script file
-- Prefix a path to a yaml file
-- Convert from json to yaml
-- Convert from yaml to json
-- Pipe data in by using '-'
-- Merge multiple yaml files where each additional file sets values for missing or null value keys.
-- Merge multiple yaml files and override previous values.
-- Merge multiple yaml files and append array values.
-- Supports multiple documents in a single yaml file
+- Keeps yaml formatting and comments when updating
+- Create a yaml file given a [deep path and value](https://mikefarah.gitbook.io/yq/commands/create#creating-a-simple-yaml-file) or a [script file](https://mikefarah.gitbook.io/yq/commands/create#creating-using-a-create-script)
+- [Prefix a path to a yaml file](https://mikefarah.gitbook.io/yq/commands/prefix)
+- [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/usage/convert)
+- [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/commands/read#from-stdin)
+- [Merge](https://mikefarah.gitbook.io/yq/commands/merge) multiple yaml files with various options for [overriding](https://mikefarah.gitbook.io/yq/commands/merge#overwrite-values) and [appending](https://mikefarah.gitbook.io/yq/commands/merge#append-values-with-arrays)
+- Supports multiple documents in a single yaml file for [reading](https://mikefarah.gitbook.io/yq/commands/read#multiple-documents), [writing](https://mikefarah.gitbook.io/yq/commands/write-update#multiple-documents) and [merging](https://mikefarah.gitbook.io/yq/commands/merge#multiple-documents)
 
-## [Usage](http://mikefarah.github.io/yq/)
+## [Usage](https://mikefarah.gitbook.io/yq/)
 
-Check out the [documentation](http://mikefarah.github.io/yq/) for more detailed and advanced usage.
+Check out the [documentation](https://mikefarah.gitbook.io/yq/) for more detailed and advanced usage.
 
 ```
-yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.
-
 Usage:
   yq [flags]
   yq [command]
 
 Available Commands:
-  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
+  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred).value'
   help        Help about any command
   merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValue
   prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
-  read        yq r [--doc/-d index] sample.yaml a.b.c
-  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue
+  read        yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
+  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
   -h, --help      help for yq
-  -t, --trim      trim yaml output (default true)
+  -j, --tojson    output as json
   -v, --verbose   verbose mode
   -V, --version   Print version information and quit
 
@@ -120,8 +118,4 @@ Use "yq [command] --help" for more information about a command.
 3. add unit tests
 4. apply changes to go.mod
 5. `make [local] build`
-6. If required, update the user documentation
-    - Update README.md and/or documentation under the mkdocs folder
-    - `make [local] build-docs`
-    - browse to docs/index.html and check your changes
 7. profit

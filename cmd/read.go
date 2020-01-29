@@ -9,7 +9,7 @@ func createReadCmd() *cobra.Command {
 	var cmdRead = &cobra.Command{
 		Use:     "read [yaml_file] [path_expression]",
 		Aliases: []string{"r"},
-		Short:   "yq r [--doc/-d index] sample.yaml 'a.b.c'",
+		Short:   "yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'",
 		Example: `
 yq read things.yaml 'a.b.c'
 yq r - 'a.b.c' # reads from stdin
