@@ -2,29 +2,6 @@ docs_dir: mkdocs
 site_dir: docs
 site_name: Yq
 theme: 'material'
-pages:
-    - Install: index.md
-    - Path Expressions: path_expressions.md
-    - Value Parsing: value_parsing.md
-    - Read: read.md
-    - Write/Update: write.md
-    - Prefix: prefix.md
-    - Delete: delete.md
-    - Create: create.md
-    - Convert: convert.md
-    - Merge: merge.md
 repo_name: 'mikefarah/yq'
 repo_url: 'https://github.com/mikefarah/yq'
 
-extra:
-  social:
-    - type: 'github'
-      link: 'https://github.com/mikefarah'
-    - type: 'linkedin'
-      link: 'https://www.linkedin.com/in/mike-farah-b5a75b2/'
-
-markdown_extensions:
-  - markdown_include.include:
-      base_path: mkdocs
-  - toc:
-      permalink: True
