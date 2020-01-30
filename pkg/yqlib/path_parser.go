@@ -55,9 +55,8 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 		navigator := NewDataNavigator(navigationStrategy)
 		err := navigator.Traverse(nodeContext.Node, p.ParsePath(path))
 		if err != nil {
-			log.Error(err.Error())
+			log.Info(err.Error())
 		}
-		//crap handle error
 		log.Debug("done deep recursing, found %v matches", len(navigationStrategy.GetVisitedNodes()))
 		return len(navigationStrategy.GetVisitedNodes()) > 0
 	}
