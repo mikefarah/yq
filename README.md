@@ -12,6 +12,10 @@ V3 is officially out - if you've been using v2 and want/need to upgrade, checkou
 
 ## Install
 
+### Download the latest binary
+
+[Here](https://github.com/mikefarah/yq/releases/latest)
+
 ### On MacOS:
 ```
 brew install yq
@@ -45,7 +49,7 @@ sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 ```
-### or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
+### Go Get:
 ```
 GO111MODULE=on go get github.com/mikefarah/yq/v3
 ```
