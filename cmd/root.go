@@ -44,6 +44,7 @@ func New() *cobra.Command {
 
 	rootCmd.AddCommand(
 		createReadCmd(),
+		createValidateCmd(),
 		createWriteCmd(),
 		createPrefixCmd(),
 		createDeleteCmd(),

@@ -94,6 +94,15 @@ func TestReadCmd(t *testing.T) {
 	test.AssertResult(t, "2", result.Output)
 }
 
+func TestValidateCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "validate ../examples/sample.yaml b.c")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "", result.Output)
+}
+
 func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -v ../examples/sample.yaml b.e(name==sam).value")
@@ -547,7 +556,21 @@ func TestReadBadDataCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, fmt.Sprintf("read %s", filename))
 	if result.Error == nil {
-		t.Error("Expected command to fail due to invalid path")
+		t.Error("Expected command to fail")
+	}
+	expectedOutput := `yaml: line 1: did not find expected ',' or ']'`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestValidateBadDataCmd(t *testing.T) {
+	content := `[!Whatever]`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("validate %s", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail")
 	}
 	expectedOutput := `yaml: line 1: did not find expected ',' or ']'`
 	test.AssertResult(t, expectedOutput, result.Error.Error())
