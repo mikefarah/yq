@@ -22,10 +22,7 @@ func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
 			log.Debug("need to find and delete %v in here", pathElementToDelete)
 			DebugNode(node)
 			if node.Kind == yaml.SequenceNode {
-				newContent, errorDeleting := deleteFromArray(node.Content, pathElementToDelete)
-				if errorDeleting != nil {
-					return errorDeleting
-				}
+				newContent := deleteFromArray(parser, node.Content, nodeContext.PathStack, pathElementToDelete)
 				node.Content = newContent
 			} else if node.Kind == yaml.MappingNode {
 				node.Content = deleteFromMap(parser, node.Content, nodeContext.PathStack, pathElementToDelete)
@@ -49,19 +46,28 @@ func deleteFromMap(pathParser PathParser, contents []*yaml.Node, pathStack []int
 	return newContents
 }
 
-func deleteFromArray(content []*yaml.Node, pathElementToDelete string) ([]*yaml.Node, error) {
+func deleteFromArray(pathParser PathParser, content []*yaml.Node, pathStack []interface{}, pathElementToDelete string) []*yaml.Node {
 
-	if pathElementToDelete == "*" {
-		return make([]*yaml.Node, 0), nil
+	var indexToDelete, err = strconv.ParseInt(pathElementToDelete, 10, 64) // nolint
+	if err == nil {
+		return deleteIndexInArray(content, indexToDelete)
 	}
+	log.Debug("%v is not a numeric index, finding matching patterns", pathElementToDelete)
+	var newArray = make([]*yaml.Node, 0)
 
-	var index, err = strconv.ParseInt(pathElementToDelete, 10, 64) // nolint
-	if err != nil {
-		return content, err
+	for _, childValue := range content {
+		if !pathParser.MatchesNextPathElement(NewNodeContext(childValue, pathElementToDelete, []string{}, pathStack), childValue.Value) {
+			newArray = append(newArray, childValue)
+		}
 	}
+	return newArray
+}
+
+func deleteIndexInArray(content []*yaml.Node, index int64) []*yaml.Node {
+	log.Debug("deleting index %v in array", index)
 	if index >= int64(len(content)) {
 		log.Debug("index %v is greater than content length %v", index, len(content))
-		return content, nil
+		return content
 	}
-	return append(content[:index], content[index+1:]...), nil
+	return append(content[:index], content[index+1:]...)
 }

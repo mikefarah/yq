@@ -1255,7 +1255,7 @@ b:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestDeleteYamlArray(t *testing.T) {
+func TestDeleteYamlArrayCmd(t *testing.T) {
 	content := `- 1
 - 2
 - 3
@@ -1271,6 +1271,26 @@ func TestDeleteYamlArray(t *testing.T) {
 
 	expectedOutput := `- 1
 - 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestDeleteYamlArrayExpressionCmd(t *testing.T) {
+	content := `- name: fred
+- name: cat
+- name: thing
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("delete %s (name==cat)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `- name: fred
+- name: thing
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
