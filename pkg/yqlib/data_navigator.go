@@ -3,7 +3,6 @@ package yqlib
 import (
 	"strconv"
 
-	errors "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -69,12 +68,15 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		return n.recurseMap(value, head, tail, pathStack)
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
-		if n.navigationStrategy.GetPathParser().IsPathExpression(head) {
-			return n.splatArray(value, head, tail, pathStack)
+
+		var index, errorParsingIndex = strconv.ParseInt(head, 10, 64) // nolint
+		if errorParsingIndex == nil {
+			return n.recurseArray(value, index, head, tail, pathStack)
 		} else if head == "+" {
 			return n.appendArray(value, head, tail, pathStack)
 		}
-		return n.recurseArray(value, head, tail, pathStack)
+		return n.splatArray(value, head, tail, pathStack)
+
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
@@ -233,12 +235,7 @@ func (n *navigator) appendArray(value *yaml.Node, head string, tail []string, pa
 	return n.doTraverse(&newNode, head, tail, append(pathStack, len(value.Content)-1))
 }
 
-func (n *navigator) recurseArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
-	var index, err = strconv.ParseInt(head, 10, 64) // nolint
-	if err != nil {
-		return errors.Wrapf(err, "Error parsing array index '%v' for '%v'", head, pathStackToString(pathStack))
-	}
-
+func (n *navigator) recurseArray(value *yaml.Node, index int64, head string, tail []string, pathStack []interface{}) error {
 	for int64(len(value.Content)) <= index {
 		value.Content = append(value.Content, &yaml.Node{Kind: guessKind(head, tail, 0)})
 	}
