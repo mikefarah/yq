@@ -79,6 +79,7 @@ yq() {
 - Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
 - Keeps yaml formatting and comments when updating
+- [Validate a yaml file](https://mikefarah.gitbook.io/yq/commands/validate)
 - Create a yaml file given a [deep path and value](https://mikefarah.gitbook.io/yq/commands/create#creating-a-simple-yaml-file) or a [script file](https://mikefarah.gitbook.io/yq/commands/create#creating-using-a-create-script)
 - [Prefix a path to a yaml file](https://mikefarah.gitbook.io/yq/commands/prefix)
 - [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/usage/convert)
@@ -102,6 +103,7 @@ Available Commands:
   new         yq n [--script/-s script_file] a.b.c newValue
   prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
   read        yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
+  validate    yq v sample.yaml
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
