@@ -539,6 +539,20 @@ func TestReadCmd_Verbose(t *testing.T) {
 // 	test.AssertResult(t, "2\n", result.Output)
 // }
 
+func TestReadBadDataCmd(t *testing.T) {
+	content := `[!Whatever]`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s", filename))
+	if result.Error == nil {
+		t.Error("Expected command to fail due to invalid path")
+	}
+	expectedOutput := `yaml: line 1: did not find expected ',' or ']'`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
+}
+
 func TestReadSplatPrefixCmd(t *testing.T) {
 	content := `a: 2
 b:

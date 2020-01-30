@@ -25,11 +25,18 @@ func readYamlFile(filename string, path string, updateAll bool, docIndexInt int)
 
 			if errorReading == io.EOF {
 				return handleEOF(updateAll, docIndexInt, currentIndex)
+			} else if errorReading != nil {
+				return errorReading
 			}
+
 			var errorParsing error
 			matchingNodes, errorParsing = appendDocument(matchingNodes, dataBucket, path, updateAll, docIndexInt, currentIndex)
 			if errorParsing != nil {
 				return errorParsing
+			}
+			if !updateAll && currentIndex == docIndexInt {
+				log.Debug("all done")
+				return nil
 			}
 			currentIndex = currentIndex + 1
 		}
