@@ -1,0 +1,19 @@
+foo: &foo
+  a: original
+  thing: coolasdf
+  thirsty: yep
+
+bar: &bar
+  b: 2
+  thing: coconut
+  c: oldbar
+
+foobarList:
+  <<: [*foo,*bar]
+  c: newbar
+
+foobar:
+  <<: *foo
+  thirty: well beyond
+  thing: ice
+  c: 3

@@ -1,7 +1,14 @@
 package yqlib
 
+import (
+	"strconv"
+	"strings"
+)
+
 type PathParser interface {
 	ParsePath(path string) []string
+	MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool
+	IsPathExpression(pathElement string) bool
 }
 
 type pathParser struct{}
@@ -10,7 +17,66 @@ func NewPathParser() PathParser {
 	return &pathParser{}
 }
 
+func matchesString(expression string, value string) bool {
+	var prefixMatch = strings.TrimSuffix(expression, "*")
+	if prefixMatch != expression {
+		log.Debug("prefix match, %v", strings.HasPrefix(value, prefixMatch))
+		return strings.HasPrefix(value, prefixMatch)
+	}
+	return value == expression
+}
+
+func (p *pathParser) IsPathExpression(pathElement string) bool {
+	return pathElement == "*" || pathElement == "**" || strings.Contains(pathElement, "==")
+}
+
+/**
+ * node: node that we may traverse/visit
+ * head: path element expression to match against
+ * tail: remaining path element expressions
+ * pathStack: stack of actual paths we've matched to get to node
+ * nodeKey: actual value of this nodes 'key' or index.
+ */
+func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool {
+	head := nodeContext.Head
+	if head == "**" || head == "*" {
+		return true
+	}
+	if strings.Contains(head, "==") {
+		log.Debug("ooh deep recursion time")
+		result := strings.SplitN(head, "==", 2)
+		path := strings.TrimSpace(result[0])
+		value := strings.TrimSpace(result[1])
+		log.Debug("path %v", path)
+		log.Debug("value %v", value)
+		DebugNode(nodeContext.Node)
+		navigationStrategy := FilterMatchingNodesNavigationStrategy(value)
+
+		navigator := NewDataNavigator(navigationStrategy)
+		err := navigator.Traverse(nodeContext.Node, p.ParsePath(path))
+		if err != nil {
+			log.Error(err.Error())
+		}
+		//crap handle error
+		log.Debug("done deep recursing, found %v matches", len(navigationStrategy.GetVisitedNodes()))
+		return len(navigationStrategy.GetVisitedNodes()) > 0
+	}
+
+	if head == "+" {
+		log.Debug("head is +, nodeKey is %v", nodeKey)
+		var _, err = strconv.ParseInt(nodeKey, 10, 64) // nolint
+		if err == nil {
+			return true
+		}
+	}
+
+	return matchesString(head, nodeKey)
+}
+
 func (p *pathParser) ParsePath(path string) []string {
+	if path == "" {
+		return []string{}
+	}
 	return p.parsePathAccum([]string{}, path)
 }
 
@@ -30,9 +96,12 @@ func (p *pathParser) nextYamlPath(path string) (pathElement string, remaining st
 	case '"':
 		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
 		return p.search(path[1:], []uint8{'"'}, true)
+	case '(':
+		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
+		return p.search(path[1:], []uint8{')'}, true)
 	default:
 		// e.g "a.blah.cat" -> return "a" and "blah.cat"
-		return p.search(path[0:], []uint8{'.', '['}, false)
+		return p.search(path[0:], []uint8{'.', '[', '"', '('}, false)
 	}
 }
 

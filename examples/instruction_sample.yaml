@@ -1,2 +1,7 @@
-b.c: cat
-b.e[+].name: Mike Farah
+- command: update 
+  path: b.c
+  value:
+    #great 
+    things: frog # wow!
+- command: delete
+  path: b.d

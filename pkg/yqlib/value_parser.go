@@ -1,35 +1,23 @@
 package yqlib
 
 import (
-	"strconv"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type ValueParser interface {
-	ParseValue(argument string) interface{}
+	Parse(argument string, customTag string) *yaml.Node
 }
 
-type valueParser struct{}
+type valueParser struct {
+}
 
 func NewValueParser() ValueParser {
 	return &valueParser{}
 }
 
-func (v *valueParser) ParseValue(argument string) interface{} {
-	var value, err interface{}
-	var inQuotes = len(argument) > 0 && argument[0] == '"'
-	if !inQuotes {
-		value, err = strconv.ParseFloat(argument, 64)
-		if err == nil {
-			return value
-		}
-		value, err = strconv.ParseBool(argument)
-		if err == nil {
-			return value
-		}
-		if argument == "[]" {
-			return make([]interface{}, 0)
-		}
-		return argument
+func (v *valueParser) Parse(argument string, customTag string) *yaml.Node {
+	if argument == "[]" {
+		return &yaml.Node{Tag: "!!seq", Kind: yaml.SequenceNode}
 	}
-	return argument[1 : len(argument)-1]
+	return &yaml.Node{Value: argument, Tag: customTag, Kind: yaml.ScalarNode}
 }

@@ -1,26 +1,14 @@
 # yq
 
-[![Build Status](https://travis-ci.com/mikefarah/yq.svg?branch=master)](https://travis-ci.com/mikefarah/yq) ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq)
+[![Build Status](https://api.travis-ci.com/mikefarah/yq.svg?branch=master)](https://travis-ci.com/mikefarah/yq/)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq)
 
 
 a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
-
-## Major upgrade - V3 beta is out! 
-
-This addresses a number of features requests and issues that have been raised :)
-
-Currently only available only available as a [binary release here](https://github.com/mikefarah/yq/releases/tag/3.0.0-beta) or via docker mikefarah/yq:3.0.0-beta!
-
-It does have a few breaking changes listed on the [release page](https://github.com/mikefarah/yq/releases/tag/3.0.0-beta)
-
-The updated user docs are available [here](https://mikefarah.gitbook.io/yq/)
-
-Looking forward to feedback - once this is out of beta it will be added to the remaining package managers, and be the default version downloaded (and merged into master).
-
-V2 will no longer have any new features added, and will be moved to a branch (v2). It will have limited maintenance for bugs for a few months.
+## New version!
+V3 is officially out - if you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
 
 ## Install
 
@@ -59,7 +47,7 @@ sudo apt install yq -y
 ```
 ### or, [Download latest binary](https://github.com/mikefarah/yq/releases/latest) or alternatively:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq/v2
+GO111MODULE=on go get github.com/mikefarah/yq/v3
 ```
 
 ## Run with Docker
@@ -86,44 +74,39 @@ yq() {
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
-- Deep read a yaml file with a given path
-- Update a yaml file given a path
-- Update a yaml file given a script file
+- [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
+- [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
+- Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
-- Create a yaml file given a deep path and value
-- Create a yaml file given a script file
-- Prefix a path to a yaml file
-- Convert from json to yaml
-- Convert from yaml to json
-- Pipe data in by using '-'
-- Merge multiple yaml files where each additional file sets values for missing or null value keys.
-- Merge multiple yaml files and override previous values.
-- Merge multiple yaml files and append array values.
-- Supports multiple documents in a single yaml file
+- Keeps yaml formatting and comments when updating
+- Create a yaml file given a [deep path and value](https://mikefarah.gitbook.io/yq/commands/create#creating-a-simple-yaml-file) or a [script file](https://mikefarah.gitbook.io/yq/commands/create#creating-using-a-create-script)
+- [Prefix a path to a yaml file](https://mikefarah.gitbook.io/yq/commands/prefix)
+- [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/usage/convert)
+- [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/commands/read#from-stdin)
+- [Merge](https://mikefarah.gitbook.io/yq/commands/merge) multiple yaml files with various options for [overriding](https://mikefarah.gitbook.io/yq/commands/merge#overwrite-values) and [appending](https://mikefarah.gitbook.io/yq/commands/merge#append-values-with-arrays)
+- Supports multiple documents in a single yaml file for [reading](https://mikefarah.gitbook.io/yq/commands/read#multiple-documents), [writing](https://mikefarah.gitbook.io/yq/commands/write-update#multiple-documents) and [merging](https://mikefarah.gitbook.io/yq/commands/merge#multiple-documents)
 
-## [Usage](https://mikefarah.gitbook.io/yq/v/v2.x/)
+## [Usage](https://mikefarah.gitbook.io/yq/)
 
-Check out the [documentation](https://mikefarah.gitbook.io/yq/v/v2.x/) for more detailed and advanced usage.
+Check out the [documentation](https://mikefarah.gitbook.io/yq/) for more detailed and advanced usage.
 
 ```
-yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.
-
 Usage:
   yq [flags]
   yq [command]
 
 Available Commands:
-  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
+  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred).value'
   help        Help about any command
   merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
   new         yq n [--script/-s script_file] a.b.c newValue
   prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
-  read        yq r [--doc/-d index] sample.yaml a.b.c
-  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml a.b.c newValue
+  read        yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
+  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
   -h, --help      help for yq
-  -t, --trim      trim yaml output (default true)
+  -j, --tojson    output as json
   -v, --verbose   verbose mode
   -V, --version   Print version information and quit
 
@@ -139,8 +122,4 @@ Use "yq [command] --help" for more information about a command.
 3. add unit tests
 4. apply changes to go.mod
 5. `make [local] build`
-6. If required, update the user documentation
-    - Update README.md and/or documentation under the mkdocs folder
-    - `make [local] build-docs`
-    - browse to docs/index.html and check your changes
 7. profit

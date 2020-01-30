@@ -32,5 +32,5 @@ upload() {
     done < <(find ./build -mindepth 1 -maxdepth 1 -print0)
 }
 
-release
+# release
 upload

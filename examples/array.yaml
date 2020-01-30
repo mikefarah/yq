@@ -7,3 +7,5 @@
     - lala
     - land
   serial: 1
+- become: false
+  gather_facts: true
