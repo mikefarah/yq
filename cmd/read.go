@@ -25,6 +25,7 @@ yq r -- things.yaml '--key-starting-with-dashes.blah'
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
+	cmdRead.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
 	return cmdRead
 }
 
@@ -46,6 +47,10 @@ func readProperty(cmd *cobra.Command, args []string) error {
 
 	if errorReadingStream != nil {
 		return errorReadingStream
+	}
+
+	if prettyPrint {
+		setStyle(matchingNodes, 0)
 	}
 
 	return printResults(matchingNodes, cmd)

@@ -87,6 +87,20 @@ func printValue(node *yaml.Node, cmd *cobra.Command) error {
 	return nil
 }
 
+func setStyle(matchingNodes []*yqlib.NodeContext, style yaml.Style) {
+	for _, nodeContext := range matchingNodes {
+		updateStyleOfNode(nodeContext.Node, style)
+	}
+}
+
+func updateStyleOfNode(node *yaml.Node, style yaml.Style) {
+	node.Style = style
+
+	for _, child := range node.Content {
+		updateStyleOfNode(child, style)
+	}
+}
+
 func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error {
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
