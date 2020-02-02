@@ -11,6 +11,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var prettyPrint = false
+var defaultValue = ""
 var overwriteFlag = false
 var autoCreateFlag = true
 var allowEmptyFlag = false

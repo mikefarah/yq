@@ -356,6 +356,20 @@ func TestReadEmptyContentCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadEmptyContentWithDefaultValueCmd(t *testing.T) {
+	content := ``
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read --defaultValue things %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `things`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadPrettyPrintCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -P ../examples/sample.json")

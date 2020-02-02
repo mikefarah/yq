@@ -104,6 +104,9 @@ func updateStyleOfNode(node *yaml.Node, style yaml.Style) {
 func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error {
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
+		if defaultValue != "" {
+			cmd.Print(defaultValue)
+		}
 		return nil
 	}
 
