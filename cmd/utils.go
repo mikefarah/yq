@@ -46,7 +46,7 @@ func readYamlFile(filename string, path string, updateAll bool, docIndexInt int)
 
 func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	log.Debugf("done %v / %v", currentIndex, docIndexInt)
-	if !updateAll && currentIndex <= docIndexInt {
+	if !updateAll && currentIndex <= docIndexInt && docIndexInt != 0 {
 		return fmt.Errorf("Could not process document index %v as there are only %v document(s)", docIndex, currentIndex)
 	}
 	return nil

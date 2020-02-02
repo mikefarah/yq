@@ -342,6 +342,20 @@ func TestReadCmd_ArrayYaml(t *testing.T) {
 	test.AssertResult(t, "false", result.Output)
 }
 
+func TestReadEmptyContentCmd(t *testing.T) {
+	content := ``
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := ``
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadPrettyPrintCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -P ../examples/sample.json")
@@ -1636,9 +1650,13 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestMergeDontAllowEmptyCmd(t *testing.T) {
+func TestMergeAllowEmptyMergeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge ../examples/data1.yaml ../examples/empty.yaml")
-	expectedOutput := `Could not process document index 0 as there are only 0 document(s)`
-	test.AssertResult(t, expectedOutput, result.Error.Error())
+	expectedOutput := `a: simple # just the best
+b: [1, 2]
+c:
+  test: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
 }
