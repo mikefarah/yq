@@ -1224,6 +1224,38 @@ func TestWriteCmd_Append(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteCmd_AppendInline(t *testing.T) {
+	content := `b: [foo]`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b[+] 7", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b: [foo, 7]
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestWriteCmd_AppendInlinePretty(t *testing.T) {
+	content := `b: [foo]`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s -P b[+] 7", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+- foo
+- 7
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteCmd_AppendEmptyArray(t *testing.T) {
 	content := `a: 2
 `
