@@ -102,6 +102,7 @@ Usage:
   yq [command]
 
 Available Commands:
+  compare     yq x [--prettyPrint/-P] dataA.yaml dataB.yaml 'b.e(name==fr*).value'
   delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred)'
   help        Help about any command
   merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
