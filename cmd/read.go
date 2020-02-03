@@ -54,5 +54,5 @@ func readProperty(cmd *cobra.Command, args []string) error {
 		setStyle(matchingNodes, 0)
 	}
 
-	return printResults(matchingNodes, cmd)
+	return printResults(matchingNodes, cmd.OutOrStdout())
 }

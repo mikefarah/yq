@@ -10,7 +10,6 @@ import (
 
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 	errors "github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -66,23 +65,20 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
-func printValue(node *yaml.Node, cmd *cobra.Command) error {
+func printValue(node *yaml.Node, writer io.Writer) error {
 	if node.Kind == yaml.ScalarNode {
-		cmd.Print(node.Value)
+		writer.Write([]byte(node.Value))
 		return nil
 	}
-	return printNode(node, cmd.OutOrStdout())
+	return printNode(node, writer)
 }
 
 func printNode(node *yaml.Node, writer io.Writer) error {
-	bufferedWriter := bufio.NewWriter(writer)
-	defer safelyFlush(bufferedWriter)
-
 	var encoder yqlib.Encoder
 	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(bufferedWriter)
+		encoder = yqlib.NewJsonEncoder(writer)
 	} else {
-		encoder = yqlib.NewYamlEncoder(bufferedWriter)
+		encoder = yqlib.NewYamlEncoder(writer)
 	}
 	return encoder.Encode(node)
 }
@@ -101,11 +97,14 @@ func updateStyleOfNode(node *yaml.Node, style yaml.Style) {
 	}
 }
 
-func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error {
+func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
+	bufferedWriter := bufio.NewWriter(writer)
+	defer safelyFlush(bufferedWriter)
+
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
 		if defaultValue != "" {
-			cmd.Print(defaultValue)
+			bufferedWriter.Write([]byte(defaultValue))
 		}
 		return nil
 	}
@@ -113,9 +112,9 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 	for index, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "p":
-			cmd.Print(lib.PathStackToString(mappedDoc.PathStack))
+			bufferedWriter.Write([]byte(lib.PathStackToString(mappedDoc.PathStack)))
 			if index < len(matchingNodes)-1 {
-				cmd.Print("\n")
+				bufferedWriter.Write([]byte("\n"))
 			}
 		case "pv", "vp":
 			// put it into a node and print that.
@@ -123,17 +122,17 @@ func printResults(matchingNodes []*yqlib.NodeContext, cmd *cobra.Command) error 
 			parentNode.Content = make([]*yaml.Node, 2)
 			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
 			parentNode.Content[1] = mappedDoc.Node
-			if err := printValue(&parentNode, cmd); err != nil {
+			if err := printValue(&parentNode, bufferedWriter); err != nil {
 				return err
 			}
 		default:
-			if err := printValue(mappedDoc.Node, cmd); err != nil {
+			if err := printValue(mappedDoc.Node, bufferedWriter); err != nil {
 				return err
 			}
 			// Printing our Scalars does not print a new line at the end
 			// we only want to do that if there are more values (so users can easily script extraction of values in the yaml)
 			if index < len(matchingNodes)-1 && mappedDoc.Node.Kind == yaml.ScalarNode {
-				cmd.Print("\n")
+				bufferedWriter.Write([]byte("\n"))
 			}
 		}
 	}
