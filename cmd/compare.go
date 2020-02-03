@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"strings"
 
 	"github.com/kylelemons/godebug/diff"
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
@@ -75,6 +76,7 @@ func compareDocuments(cmd *cobra.Command, args []string) error {
 		return errorDoingThings
 	}
 
-	cmd.Print(diff.Diff(dataBufferA.String(), dataBufferB.String()))
+	cmd.Print(diff.Diff(strings.TrimSuffix(dataBufferA.String(), "\n"), strings.TrimSuffix(dataBufferB.String(), "\n")))
+	cmd.Print("\n")
 	return nil
 }

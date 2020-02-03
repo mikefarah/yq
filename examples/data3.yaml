@@ -1,14 +1,4 @@
-deep1:
-   hostA:
-      value: 1234
-   notRelevant:
-      value: bananas
-   hostB:
-      value: 5678
-deep2:
-   hostC:
-      value: 1234
-   notRelevant:
-      value: bananas
-   hostD:
-      value: 5678
+a: "simple" # just the best
+b: [1, 3]
+c:
+  test: 1
