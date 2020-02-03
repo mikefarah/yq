@@ -15,7 +15,7 @@ func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
 			return false
 		},
 		autoCreateMap: func(nodeContext NodeContext) bool {
-			return true
+			return false
 		},
 		visit: func(nodeContext NodeContext) error {
 			node := nodeContext.Node

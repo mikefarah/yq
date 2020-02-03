@@ -1405,6 +1405,22 @@ b:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestDeleteDeepDoesNotExistCmd(t *testing.T) {
+	content := `a: 2`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("delete %s b.c", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: 2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteSplatYaml(t *testing.T) {
 	content := `a: other
 b: [3, 4]
