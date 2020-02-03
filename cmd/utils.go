@@ -76,9 +76,9 @@ func printValue(node *yaml.Node, writer io.Writer) error {
 func printNode(node *yaml.Node, writer io.Writer) error {
 	var encoder yqlib.Encoder
 	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(writer, prettyPrint)
+		encoder = yqlib.NewJsonEncoder(writer, prettyPrint, indent)
 	} else {
-		encoder = yqlib.NewYamlEncoder(writer)
+		encoder = yqlib.NewYamlEncoder(writer, indent)
 	}
 	return encoder.Encode(node)
 }
@@ -289,9 +289,9 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 
 	var encoder yqlib.Encoder
 	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint)
+		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint, indent)
 	} else {
-		encoder = yqlib.NewYamlEncoder(bufferedWriter)
+		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent)
 	}
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }

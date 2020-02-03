@@ -15,9 +15,12 @@ type yamlEncoder struct {
 	encoder *yaml.Encoder
 }
 
-func NewYamlEncoder(destination io.Writer) Encoder {
+func NewYamlEncoder(destination io.Writer, indent int) Encoder {
 	var encoder = yaml.NewEncoder(destination)
-	encoder.SetIndent(2)
+	if indent < 0 {
+		indent = 0
+	}
+	encoder.SetIndent(indent)
 	return &yamlEncoder{encoder}
 }
 
@@ -29,10 +32,15 @@ type jsonEncoder struct {
 	encoder *json.Encoder
 }
 
-func NewJsonEncoder(destination io.Writer, prettyPrint bool) Encoder {
+func NewJsonEncoder(destination io.Writer, prettyPrint bool, indent int) Encoder {
 	var encoder = json.NewEncoder(destination)
+	var indentString = ""
+
+	for index := 0; index < indent; index++ {
+		indentString = indentString + " "
+	}
 	if prettyPrint {
-		encoder.SetIndent("", " ")
+		encoder.SetIndent("", indentString)
 	}
 	return &jsonEncoder{encoder}
 }

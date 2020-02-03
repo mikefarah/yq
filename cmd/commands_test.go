@@ -439,6 +439,27 @@ b:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadPrettyPrintWithIndentCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -P -I4 ../examples/sample.json")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: Easy! as one two three
+b:
+    c: 2
+    d:
+      - 3
+      - 4
+    e:
+      - name: fred
+        value: 3
+      - name: sam
+        value: 4
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read ../examples/array.yaml")
@@ -645,22 +666,50 @@ func TestReadToJsonPrettyCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `{
- "c": 2,
- "d": [
-  3,
-  4,
-  5
- ],
- "e": [
-  {
-   "name": "fred",
-   "value": 3
-  },
-  {
-   "name": "sam",
-   "value": 4
-  }
- ]
+  "c": 2,
+  "d": [
+    3,
+    4,
+    5
+  ],
+  "e": [
+    {
+      "name": "fred",
+      "value": 3
+    },
+    {
+      "name": "sam",
+      "value": 4
+    }
+  ]
+}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadToJsonPrettyIndentCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -j -I4 -P ../examples/sample.yaml b")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{
+    "c": 2,
+    "d": [
+        3,
+        4,
+        5
+    ],
+    "e": [
+        {
+            "name": "fred",
+            "value": 3
+        },
+        {
+            "name": "sam",
+            "value": 4
+        }
+    ]
 }
 `
 	test.AssertResult(t, expectedOutput, result.Output)

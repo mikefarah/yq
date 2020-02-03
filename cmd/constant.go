@@ -12,6 +12,7 @@ var writeScript = ""
 var outputToJSON = false
 var prettyPrint = false
 var defaultValue = ""
+var indent = 2
 var overwriteFlag = false
 var autoCreateFlag = true
 var allowEmptyFlag = false
