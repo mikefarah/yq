@@ -76,7 +76,7 @@ func printValue(node *yaml.Node, writer io.Writer) error {
 func printNode(node *yaml.Node, writer io.Writer) error {
 	var encoder yqlib.Encoder
 	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(writer)
+		encoder = yqlib.NewJsonEncoder(writer, prettyPrint)
 	} else {
 		encoder = yqlib.NewYamlEncoder(writer)
 	}
@@ -103,6 +103,10 @@ func writeString(writer io.Writer, txt string) error {
 }
 
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
+	if prettyPrint {
+		setStyle(matchingNodes, 0)
+	}
+
 	bufferedWriter := bufio.NewWriter(writer)
 	defer safelyFlush(bufferedWriter)
 
@@ -281,7 +285,7 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 
 	var encoder yqlib.Encoder
 	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(bufferedWriter)
+		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint)
 	} else {
 		encoder = yqlib.NewYamlEncoder(bufferedWriter)
 	}

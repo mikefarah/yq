@@ -26,7 +26,7 @@ yq x -d1 dataA.yaml dataB.yaml 'a.b.c'
 	}
 	cmdCompare.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdCompare.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
-	cmdCompare.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print (does not have an affect with json output)")
+	cmdCompare.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty(ish) print")
 	cmdCompare.PersistentFlags().StringVarP(&defaultValue, "defaultValue", "D", "", "default value printed when there are no results")
 	return cmdCompare
 }
@@ -58,11 +58,6 @@ func compareDocuments(cmd *cobra.Command, args []string) error {
 	matchingNodesB, errorDoingThings = readYamlFile(args[1], path, updateAll, docIndexInt)
 	if errorDoingThings != nil {
 		return errorDoingThings
-	}
-
-	if prettyPrint {
-		setStyle(matchingNodesA, 0)
-		setStyle(matchingNodesB, 0)
 	}
 
 	var dataBufferA bytes.Buffer

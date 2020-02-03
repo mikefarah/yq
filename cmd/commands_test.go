@@ -627,23 +627,44 @@ func TestReadCmd_Verbose(t *testing.T) {
 	test.AssertResult(t, "2", result.Output)
 }
 
-// func TestReadCmd_ToJson(t *testing.T) {
-// 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, "read -j ../examples/sample.yaml b.c")
-// 	if result.Error != nil {
-// 		t.Error(result.Error)
-// 	}
-// 	test.AssertResult(t, "2\n", result.Output)
-// }
+func TestReadToJsonCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -j ../examples/sample.yaml b")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{"c":2,"d":[3,4,5],"e":[{"name":"fred","value":3},{"name":"sam","value":4}]}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
 
-// func TestReadCmd_ToJsonLong(t *testing.T) {
-// 	cmd := getRootCommand()
-// 	result := test.RunCmd(cmd, "read --tojson ../examples/sample.yaml b.c")
-// 	if result.Error != nil {
-// 		t.Error(result.Error)
-// 	}
-// 	test.AssertResult(t, "2\n", result.Output)
-// }
+func TestReadToJsonPrettyCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -j -P ../examples/sample.yaml b")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{
+ "c": 2,
+ "d": [
+  3,
+  4,
+  5
+ ],
+ "e": [
+  {
+   "name": "fred",
+   "value": 3
+  },
+  {
+   "name": "sam",
+   "value": 4
+  }
+ ]
+}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
 
 func TestReadBadDataCmd(t *testing.T) {
 	content := `[!Whatever]`

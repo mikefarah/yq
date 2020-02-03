@@ -29,8 +29,11 @@ type jsonEncoder struct {
 	encoder *json.Encoder
 }
 
-func NewJsonEncoder(destination io.Writer) Encoder {
+func NewJsonEncoder(destination io.Writer, prettyPrint bool) Encoder {
 	var encoder = json.NewEncoder(destination)
+	if prettyPrint {
+		encoder.SetIndent("", " ")
+	}
 	return &jsonEncoder{encoder}
 }
 
