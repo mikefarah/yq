@@ -40,6 +40,7 @@ func New() *cobra.Command {
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json")
+	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
 	rootCmd.AddCommand(

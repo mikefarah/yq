@@ -25,7 +25,6 @@ yq r -- things.yaml '--key-starting-with-dashes.blah'
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
-	cmdRead.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty(ish) print")
 	cmdRead.PersistentFlags().StringVarP(&defaultValue, "defaultValue", "D", "", "default value printed when there are no results")
 	return cmdRead
 }

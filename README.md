@@ -113,10 +113,11 @@ Available Commands:
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
-  -h, --help      help for yq
-  -j, --tojson    output as json
-  -v, --verbose   verbose mode
-  -V, --version   Print version information and quit
+  -h, --help          help for yq
+  -P, --prettyPrint   pretty print
+  -j, --tojson        output as json
+  -v, --verbose       verbose mode
+  -V, --version       Print version information and quit
 
 Use "yq [command] --help" for more information about a command.
 ```

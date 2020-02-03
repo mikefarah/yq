@@ -201,6 +201,10 @@ func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderF
 				return errors.Wrapf(errorUpdating, "Error updating document at index %v", currentIndex)
 			}
 
+			if prettyPrint {
+				updateStyleOfNode(&dataBucket, 0)
+			}
+
 			errorWriting = encoder.Encode(&dataBucket)
 
 			if errorWriting != nil {
