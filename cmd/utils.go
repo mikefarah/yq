@@ -71,8 +71,11 @@ func printValue(node *yaml.Node, cmd *cobra.Command) error {
 		cmd.Print(node.Value)
 		return nil
 	}
+	return printNode(node, cmd.OutOrStdout())
+}
 
-	bufferedWriter := bufio.NewWriter(cmd.OutOrStdout())
+func printNode(node *yaml.Node, writer io.Writer) error {
+	bufferedWriter := bufio.NewWriter(writer)
 	defer safelyFlush(bufferedWriter)
 
 	var encoder yqlib.Encoder
@@ -81,10 +84,7 @@ func printValue(node *yaml.Node, cmd *cobra.Command) error {
 	} else {
 		encoder = yqlib.NewYamlEncoder(bufferedWriter)
 	}
-	if err := encoder.Encode(node); err != nil {
-		return err
-	}
-	return nil
+	return encoder.Encode(node)
 }
 
 func setStyle(matchingNodes []*yqlib.NodeContext, style yaml.Style) {

@@ -1,6 +1,7 @@
 module github.com/mikefarah/yq/v3
 
 require (
+	github.com/kylelemons/godebug v1.1.0
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v0.0.5
 	golang.org/x/tools v0.0.0-20191213221258-04c2e8eff935 // indirect
