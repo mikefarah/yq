@@ -67,8 +67,8 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 
 func printValue(node *yaml.Node, writer io.Writer) error {
 	if node.Kind == yaml.ScalarNode {
-		writer.Write([]byte(node.Value))
-		return nil
+		_, errorWriting := writer.Write([]byte(node.Value))
+		return errorWriting
 	}
 	return printNode(node, writer)
 }
@@ -97,6 +97,11 @@ func updateStyleOfNode(node *yaml.Node, style yaml.Style) {
 	}
 }
 
+func writeString(writer io.Writer, txt string) error {
+	_, errorWriting := writer.Write([]byte(txt))
+	return errorWriting
+}
+
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	bufferedWriter := bufio.NewWriter(writer)
 	defer safelyFlush(bufferedWriter)
@@ -104,17 +109,23 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	if len(matchingNodes) == 0 {
 		log.Debug("no matching results, nothing to print")
 		if defaultValue != "" {
-			bufferedWriter.Write([]byte(defaultValue))
+			return writeString(bufferedWriter, defaultValue)
 		}
 		return nil
 	}
-
+	var errorWriting error
 	for index, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "p":
-			bufferedWriter.Write([]byte(lib.PathStackToString(mappedDoc.PathStack)))
+			errorWriting = writeString(bufferedWriter, lib.PathStackToString(mappedDoc.PathStack))
+			if errorWriting != nil {
+				return errorWriting
+			}
 			if index < len(matchingNodes)-1 {
-				bufferedWriter.Write([]byte("\n"))
+				errorWriting = writeString(bufferedWriter, "\n")
+				if errorWriting != nil {
+					return errorWriting
+				}
 			}
 		case "pv", "vp":
 			// put it into a node and print that.
@@ -132,7 +143,10 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 			// Printing our Scalars does not print a new line at the end
 			// we only want to do that if there are more values (so users can easily script extraction of values in the yaml)
 			if index < len(matchingNodes)-1 && mappedDoc.Node.Kind == yaml.ScalarNode {
-				bufferedWriter.Write([]byte("\n"))
+				errorWriting = writeString(bufferedWriter, "\n")
+				if errorWriting != nil {
+					return errorWriting
+				}
 			}
 		}
 	}

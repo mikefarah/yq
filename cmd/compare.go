@@ -14,11 +14,13 @@ func createCompareCmd() *cobra.Command {
 	var cmdCompare = &cobra.Command{
 		Use:     "compare [yaml_file_a] [yaml_file_b]",
 		Aliases: []string{"x"},
-		Short:   "yq x data1.yml data2.yml ",
+		Short:   "yq x [--prettyPrint/-P] dataA.yaml dataB.yaml 'b.e(name==fr*).value'",
 		Example: `
 yq x - data2.yml # reads from stdin
+yq x -pp dataA.yaml dataB.yaml '**' # compare paths
+yq x -d1 dataA.yaml dataB.yaml 'a.b.c'
 `,
-		Long: "Compares two yaml files, prints the difference. same ",
+		Long: "Deeply compares two yaml files, prints the difference. Use with prettyPrint flag to ignore formatting differences.",
 		RunE: compareDocuments,
 	}
 	cmdCompare.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
@@ -44,17 +46,17 @@ func compareDocuments(cmd *cobra.Command, args []string) error {
 
 	var matchingNodesA []*yqlib.NodeContext
 	var matchingNodesB []*yqlib.NodeContext
-	var errorReadingStream error
+	var errorDoingThings error
 
-	matchingNodesA, errorReadingStream = readYamlFile(args[0], path, updateAll, docIndexInt)
+	matchingNodesA, errorDoingThings = readYamlFile(args[0], path, updateAll, docIndexInt)
 
-	if errorReadingStream != nil {
-		return errorReadingStream
+	if errorDoingThings != nil {
+		return errorDoingThings
 	}
 
-	matchingNodesB, errorReadingStream = readYamlFile(args[1], path, updateAll, docIndexInt)
-	if errorReadingStream != nil {
-		return errorReadingStream
+	matchingNodesB, errorDoingThings = readYamlFile(args[1], path, updateAll, docIndexInt)
+	if errorDoingThings != nil {
+		return errorDoingThings
 	}
 
 	if prettyPrint {
@@ -64,8 +66,14 @@ func compareDocuments(cmd *cobra.Command, args []string) error {
 
 	var dataBufferA bytes.Buffer
 	var dataBufferB bytes.Buffer
-	printResults(matchingNodesA, bufio.NewWriter(&dataBufferA))
-	printResults(matchingNodesB, bufio.NewWriter(&dataBufferB))
+	errorDoingThings = printResults(matchingNodesA, bufio.NewWriter(&dataBufferA))
+	if errorDoingThings != nil {
+		return errorDoingThings
+	}
+	errorDoingThings = printResults(matchingNodesB, bufio.NewWriter(&dataBufferB))
+	if errorDoingThings != nil {
+		return errorDoingThings
+	}
 
 	cmd.Print(diff.Diff(dataBufferA.String(), dataBufferB.String()))
 	return nil
