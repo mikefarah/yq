@@ -35,7 +35,9 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pat
 	DebugNode(value)
 	var errorDeepSplatting error
 	if head == "**" && value.Kind != yaml.ScalarNode {
-		errorDeepSplatting = n.recurse(value, head, tail, pathStack)
+		if len(pathStack) == 0 || pathStack[len(pathStack)-1] != "<<" {
+			errorDeepSplatting = n.recurse(value, head, tail, pathStack)
+		}
 		// ignore errors here, we are deep splatting so we may accidently give a string key
 		// to an array sequence
 		if len(tail) > 0 {
@@ -93,10 +95,9 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 	traversedEntry := false
 	errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
-		log.Debug("recurseMap: visitMatchingEntries")
+		log.Debug("recurseMap: visitMatchingEntries for %v", contents[indexInMap].Value)
 		n.navigationStrategy.DebugVisitedNodes()
 		newPathStack := append(pathStack, contents[indexInMap].Value)
-		log.Debug("appended %v", contents[indexInMap].Value)
 		n.navigationStrategy.DebugVisitedNodes()
 		log.Debug("should I traverse? head: %v, path: %v", head, pathStackToString(newPathStack))
 		DebugNode(value)

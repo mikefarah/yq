@@ -247,6 +247,32 @@ func TestReadAnchorsWithKeyAndValueCmd(t *testing.T) {
 	test.AssertResult(t, "foobar.a: 1\n", result.Output)
 }
 
+func TestReadAllAnchorsWithKeyAndValueCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -p pv ../examples/merge-anchor.yaml **")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `foo.a: original
+foo.thing: coolasdf
+foo.thirsty: yep
+bar.b: 2
+bar.thing: coconut
+bar.c: oldbar
+foobarList.c: newbar
+foobarList.b: 2
+foobarList.thing: coconut
+foobarList.a: original
+foobarList.thirsty: yep
+foobar.thirty: well beyond
+foobar.thing: ice
+foobar.c: 3
+foobar.a: original
+foobar.thirsty: yep
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobar.a")
