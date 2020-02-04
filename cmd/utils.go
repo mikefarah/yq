@@ -188,7 +188,12 @@ func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderF
 			log.Debugf("Read doc %v", currentIndex)
 			errorReading = decoder.Decode(&dataBucket)
 
-			if errorReading == io.EOF {
+			if errorReading == io.EOF && docIndexInt == 0 && currentIndex == 0 {
+				//empty document, lets just make one
+				child := yaml.Node{Kind: yaml.MappingNode}
+				dataBucket = yaml.Node{Kind: yaml.DocumentNode, Content: make([]*yaml.Node, 1)}
+				dataBucket.Content[0] = &child
+			} else if errorReading == io.EOF {
 				if !updateAll && currentIndex <= docIndexInt {
 					return fmt.Errorf("asked to process document index %v but there are only %v document(s)", docIndex, currentIndex)
 				}
