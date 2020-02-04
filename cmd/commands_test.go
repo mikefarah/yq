@@ -1872,14 +1872,16 @@ c:
 	test.AssertResult(t, os.FileMode(int(0666)), info.Mode())
 }
 
-func TestMergeAllowEmptyCmd(t *testing.T) {
+func TestMergeAllowEmptyTargetCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge --allow-empty ../examples/data1.yaml ../examples/empty.yaml")
+	result := test.RunCmd(cmd, "merge ../examples/empty.yaml ../examples/data1.yaml")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: simple # just the best
-b: [1, 2]
+b:
+- 1
+- 2
 c:
   test: 1
 `

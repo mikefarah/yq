@@ -15,7 +15,6 @@ var defaultValue = ""
 var indent = 2
 var overwriteFlag = false
 var autoCreateFlag = true
-var allowEmptyFlag = false
 var appendFlag = false
 var verbose = false
 var version = false

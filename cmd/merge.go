@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"strings"
-
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 	errors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -34,7 +32,6 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
-	cmdMerge.PersistentFlags().BoolVarP(&allowEmptyFlag, "allow-empty", "e", false, "allow empty yaml files")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -52,7 +49,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 
 		for _, fileToMerge := range filesToMerge {
 			matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
-			if errorProcessingFile != nil && (!allowEmptyFlag || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
+			if errorProcessingFile != nil {
 				return errorProcessingFile
 			}
 			for _, matchingNode := range matchingNodes {
