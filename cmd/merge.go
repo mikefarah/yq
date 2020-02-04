@@ -40,21 +40,25 @@ If append flag is set then existing arrays will be merged with the arrays from e
 }
 
 func mergeProperties(cmd *cobra.Command, args []string) error {
-	if len(args) < 2 {
-		return errors.New("Must provide at least 2 yaml files")
-	}
-	// first generate update commands from the file
-	var filesToMerge = args[1:]
 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
 
-	for _, fileToMerge := range filesToMerge {
-		matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
-		if errorProcessingFile != nil && (!allowEmptyFlag || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
-			return errorProcessingFile
-		}
-		for _, matchingNode := range matchingNodes {
-			mergePath := lib.MergePathStackToString(matchingNode.PathStack, appendFlag)
-			updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
+	if len(args) < 1 {
+		return errors.New("Must provide at least 1 yaml file")
+	}
+
+	if len(args) > 1 {
+		// first generate update commands from the file
+		var filesToMerge = args[1:]
+
+		for _, fileToMerge := range filesToMerge {
+			matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
+			if errorProcessingFile != nil && (!allowEmptyFlag || !strings.HasPrefix(errorProcessingFile.Error(), "Could not process document index")) {
+				return errorProcessingFile
+			}
+			for _, matchingNode := range matchingNodes {
+				mergePath := lib.MergePathStackToString(matchingNode.PathStack, appendFlag)
+				updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
+			}
 		}
 	}
 

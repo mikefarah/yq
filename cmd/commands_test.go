@@ -1656,6 +1656,20 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeOneFileCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "merge ../examples/data1.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `a: simple # just the best
+b: [1, 2]
+c:
+  test: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeNoAutoCreateCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge -c=false ../examples/data1.yaml ../examples/data2.yaml")
@@ -1808,11 +1822,11 @@ apples: red
 
 func TestMergeCmd_Error(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "merge ../examples/data1.yaml")
+	result := test.RunCmd(cmd, "merge")
 	if result.Error == nil {
 		t.Error("Expected command to fail due to missing arg")
 	}
-	expectedOutput := `Must provide at least 2 yaml files`
+	expectedOutput := `Must provide at least 1 yaml file`
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
