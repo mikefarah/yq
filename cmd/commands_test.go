@@ -1262,7 +1262,7 @@ c:
   toast: leave
   test: 1
   tell: 1
-  taco: cool
+  tasty.taco: cool
 `
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
@@ -1277,7 +1277,7 @@ c:
 b: [3, 4]
 c:
   toast: leave
-  taco: cool
+  tasty.taco: cool
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -1443,7 +1443,7 @@ c:
   test: 1
   toast: leave
   tell: 1
-  taco: cool
+  tasty.taco: cool
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -1644,7 +1644,7 @@ c:
   test: 1
   toast: leave
   tell: 1
-  taco: cool
+  tasty.taco: cool
 `
 	test.AssertResult(t, expectedOutput, gotOutput)
 	test.AssertResult(t, os.FileMode(int(0666)), info.Mode())

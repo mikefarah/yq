@@ -51,7 +51,15 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 			}
 
 		default:
-			sb.WriteString(fmt.Sprintf("%v", path))
+			s := fmt.Sprintf("%v", path)
+			hasDot := strings.Contains(s, ".")
+			if hasDot {
+				sb.WriteString("[")
+			}
+			sb.WriteString(s)
+			if hasDot {
+				sb.WriteString("]")
+			}
 		}
 
 		if index < len(pathStack)-1 {
