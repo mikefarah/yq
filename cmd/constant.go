@@ -11,6 +11,7 @@ var writeInplace = false
 var writeScript = ""
 var outputToJSON = false
 var prettyPrint = false
+var explodeAnchors = false
 var defaultValue = ""
 var indent = 2
 var overwriteFlag = false

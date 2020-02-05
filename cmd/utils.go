@@ -102,9 +102,31 @@ func writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
+func explode(matchingNodes []*yqlib.NodeContext) error {
+	for _, nodeContext := range matchingNodes {
+		var targetNode = yaml.Node{Kind: yaml.MappingNode}
+		explodedNodes, errorRetrieving := lib.Get(nodeContext.Node, "**")
+		if errorRetrieving != nil {
+			return errorRetrieving
+		}
+		for _, matchingNode := range explodedNodes {
+			mergePath := lib.MergePathStackToString(matchingNode.PathStack, appendFlag)
+			updateCommand := yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag}
+			lib.Update(&targetNode, updateCommand, true)
+		}
+		nodeContext.Node = &targetNode
+	}
+	return nil
+}
+
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	if prettyPrint {
 		setStyle(matchingNodes, 0)
+	}
+
+	//always explode anchors when printing json
+	if explodeAnchors || outputToJSON {
+		explode(matchingNodes)
 	}
 
 	bufferedWriter := bufio.NewWriter(writer)
