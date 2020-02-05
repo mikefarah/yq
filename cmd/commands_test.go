@@ -282,6 +282,47 @@ func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
 	test.AssertResult(t, "original", result.Output)
 }
 
+func TestReadMergeAnchorsExplodeJsonCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -j ../examples/merge-anchor.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{"bar":{"b":2,"c":"oldbar","thing":"coconut"},"foo":{"a":"original","thing":"coolasdf","thirsty":"yep"},"foobar":{"a":"original","c":3,"thing":"ice","thirsty":"yep","thirty":"well beyond"},"foobarList":{"a":"original","b":2,"c":"newbar","thing":"coconut","thirsty":"yep"}}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadMergeAnchorsExplodeCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read -X ../examples/merge-anchor.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `foo:
+  a: original
+  thing: coolasdf
+  thirsty: yep
+bar:
+  b: 2
+  thing: coconut
+  c: oldbar
+foobarList:
+  c: newbar
+  b: 2
+  thing: coconut
+  a: original
+  thirsty: yep
+foobar:
+  thirty: well beyond
+  thing: ice
+  c: 3
+  a: original
+  thirsty: yep
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read ../examples/merge-anchor.yaml foobar.thing")
