@@ -31,10 +31,16 @@ func (n *navigator) Traverse(value *yaml.Node, path []string) error {
 }
 
 func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+
+	if value.Kind == yaml.ScalarNode {
+		return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
+	}
+
 	log.Debug("head %v", head)
 	DebugNode(value)
+
 	var errorDeepSplatting error
-	if head == "**" && value.Kind != yaml.ScalarNode {
+	if head == "**" {
 		if len(pathStack) == 0 || pathStack[len(pathStack)-1] != "<<" {
 			errorDeepSplatting = n.recurse(value, head, tail, pathStack)
 		}

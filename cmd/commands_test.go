@@ -322,6 +322,21 @@ pointer: *value-pointer`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadMergeAnchorsExplodeSimpleValueForValueCmd(t *testing.T) {
+	content := `value: &value-pointer the value
+pointer: *value-pointer`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -X %s value", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `the value`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadMergeAnchorsExplodeCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -X ../examples/merge-anchor.yaml")
