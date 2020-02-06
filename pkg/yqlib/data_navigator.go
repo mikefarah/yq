@@ -63,7 +63,7 @@ func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *y
 }
 
 func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
-	log.Debug("recursing, processing %v", head)
+	log.Debug("recursing, processing %v, pathStack %v", head, pathStackToString(pathStack))
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
@@ -83,8 +83,14 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
 		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) {
-			log.Debug("following the alias")
-			return n.recurse(value.Alias, head, tail, pathStack)
+
+			if value.Alias.Kind == yaml.ScalarNode {
+				log.Debug("alias to a scalar")
+				return n.navigationStrategy.Visit(NewNodeContext(value.Alias, head, tail, pathStack))
+			} else {
+				log.Debug("following the alias")
+				return n.recurse(value.Alias, head, tail, pathStack)
+			}
 		}
 		return nil
 	default:
