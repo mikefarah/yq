@@ -98,7 +98,6 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		log.Debug("recurseMap: visitMatchingEntries for %v", contents[indexInMap].Value)
 		n.navigationStrategy.DebugVisitedNodes()
 		newPathStack := append(pathStack, contents[indexInMap].Value)
-		n.navigationStrategy.DebugVisitedNodes()
 		log.Debug("should I traverse? head: %v, path: %v", head, pathStackToString(newPathStack))
 		DebugNode(value)
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) {
@@ -172,10 +171,10 @@ func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []stri
 	// a node can either be
 	// an alias to one other node (e.g. <<: *blah)
 	// or a sequence of aliases   (e.g. <<: [*blah, *foo])
-	log.Debug("checking for aliases")
+	log.Debug("checking for aliases, head: %v, pathstack: %v", head, pathStackToString(pathStack))
 	for index := len(contents) - 2; index >= 0; index = index - 2 {
 
-		if contents[index+1].Kind == yaml.AliasNode {
+		if contents[index+1].Kind == yaml.AliasNode && contents[index].Value == "<<" {
 			valueNode := contents[index+1]
 			log.Debug("found an alias")
 			DebugNode(contents[index])
