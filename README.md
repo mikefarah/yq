@@ -114,8 +114,9 @@ Available Commands:
 
 Flags:
   -h, --help          help for yq
+  -I, --indent int    sets indent level for output (default 2)
   -P, --prettyPrint   pretty print
-  -j, --tojson        output as json
+  -j, --tojson        output as json. By default it prints a json document in one line, use the prettyPrint flag to print a formatted doc.
   -v, --verbose       verbose mode
   -V, --version       Print version information and quit
 
