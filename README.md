@@ -82,7 +82,7 @@ yq() {
 - [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
 - Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
-- Deeply compare yaml files
+- Deeply [compare](https://mikefarah.gitbook.io/yq/commands/compare) yaml files
 - Keeps yaml formatting and comments when updating
 - [Validate a yaml file](https://mikefarah.gitbook.io/yq/commands/validate)
 - Create a yaml file given a [deep path and value](https://mikefarah.gitbook.io/yq/commands/create#creating-a-simple-yaml-file) or a [script file](https://mikefarah.gitbook.io/yq/commands/create#creating-using-a-create-script)
