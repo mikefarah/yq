@@ -34,18 +34,20 @@ type NavigationStrategy interface {
 	// node key is the string value of the last element in the path stack
 	// we use it to match against the pathExpression in head.
 	ShouldTraverse(nodeContext NodeContext, nodeKey string) bool
+	ShouldDeeplyTraverse(nodeContext NodeContext) bool
 	GetVisitedNodes() []*NodeContext
 	DebugVisitedNodes()
 	GetPathParser() PathParser
 }
 
 type NavigationStrategyImpl struct {
-	followAlias        func(nodeContext NodeContext) bool
-	autoCreateMap      func(nodeContext NodeContext) bool
-	visit              func(nodeContext NodeContext) error
-	shouldVisitExtraFn func(nodeContext NodeContext) bool
-	visitedNodes       []*NodeContext
-	pathParser         PathParser
+	followAlias          func(nodeContext NodeContext) bool
+	autoCreateMap        func(nodeContext NodeContext) bool
+	visit                func(nodeContext NodeContext) error
+	shouldVisitExtraFn   func(nodeContext NodeContext) bool
+	shouldDeeplyTraverse func(nodeContext NodeContext) bool
+	visitedNodes         []*NodeContext
+	pathParser           PathParser
 }
 
 func (ns *NavigationStrategyImpl) GetPathParser() PathParser {
@@ -62,6 +64,10 @@ func (ns *NavigationStrategyImpl) FollowAlias(nodeContext NodeContext) bool {
 
 func (ns *NavigationStrategyImpl) AutoCreateMap(nodeContext NodeContext) bool {
 	return ns.autoCreateMap(nodeContext)
+}
+
+func (ns *NavigationStrategyImpl) ShouldDeeplyTraverse(nodeContext NodeContext) bool {
+	return ns.shouldDeeplyTraverse(nodeContext)
 }
 
 func (ns *NavigationStrategyImpl) ShouldTraverse(nodeContext NodeContext, nodeKey string) bool {
@@ -84,7 +90,6 @@ func (ns *NavigationStrategyImpl) shouldVisit(nodeContext NodeContext) bool {
 		return true
 	}
 	log.Debug("tail len %v", len(nodeContext.Tail))
-	// SOMETHING HERE!
 
 	if ns.alreadyVisited(pathStack) || len(nodeContext.Tail) != 0 {
 		return false

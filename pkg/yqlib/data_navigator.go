@@ -34,9 +34,10 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pat
 
 	log.Debug("head %v", head)
 	DebugNode(value)
+	var nodeContext = NewNodeContext(value, head, tail, pathStack)
 
 	var errorDeepSplatting error
-	if head == "**" && value.Kind != yaml.ScalarNode {
+	if head == "**" && value.Kind != yaml.ScalarNode && n.navigationStrategy.ShouldDeeplyTraverse(nodeContext) {
 		if len(pathStack) == 0 || pathStack[len(pathStack)-1] != "<<" {
 			errorDeepSplatting = n.recurse(value, head, tail, pathStack)
 		}
@@ -53,7 +54,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pat
 		DebugNode(value)
 		return n.recurse(value, tail[0], tail[1:], pathStack)
 	}
-	return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
+	return n.navigationStrategy.Visit(nodeContext)
 }
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
@@ -221,6 +222,9 @@ func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pat
 
 		newPathStack := append(pathStack, index)
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(childValue, head, tail, newPathStack), childValue.Value) {
+			// here we should not deeply traverse the array if we are appending..not sure how to do that.
+			// need to visit instead...
+			// easiest way is to pop off the head and pass the rest of the tail in.
 			var err = n.doTraverse(childValue, head, tail, newPathStack)
 			if err != nil {
 				return err

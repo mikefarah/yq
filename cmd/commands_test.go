@@ -1812,6 +1812,33 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeAppendArraysCmd(t *testing.T) {
+	content := `people:
+  - name: Barry
+    age: 21`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `people:
+  - name: Roger
+    age: 44`
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --append -d* %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `people:
+- name: Barry
+  age: 21
+- name: Roger
+  age: 44
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeOverwriteAndAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --autocreate=false --append --overwrite ../examples/data1.yaml ../examples/data2.yaml")

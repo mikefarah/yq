@@ -97,7 +97,7 @@ func guessKind(head string, tail []string, guess yaml.Kind) yaml.Kind {
 }
 
 type YqLib interface {
-	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
+	Get(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
 
@@ -115,9 +115,9 @@ func NewYqLib() YqLib {
 	}
 }
 
-func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
+func (l *lib) Get(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	navigationStrategy := ReadNavigationStrategy()
+	navigationStrategy := ReadNavigationStrategy(deeplyTraverseArrays)
 	navigator := NewDataNavigator(navigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
 	return navigationStrategy.GetVisitedNodes(), error

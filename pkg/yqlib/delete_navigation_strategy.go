@@ -17,6 +17,9 @@ func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
 		autoCreateMap: func(nodeContext NodeContext) bool {
 			return false
 		},
+		shouldDeeplyTraverse: func(nodeContext NodeContext) bool {
+			return true
+		},
 		visit: func(nodeContext NodeContext) error {
 			node := nodeContext.Node
 			log.Debug("need to find and delete %v in here", pathElementToDelete)

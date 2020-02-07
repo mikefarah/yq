@@ -13,7 +13,19 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+type readDataFn func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error)
+
+func createReadFunction(path string) func(*yaml.Node) ([]*yqlib.NodeContext, error) {
+	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
+		return lib.Get(dataBucket, path, true)
+	}
+}
+
 func readYamlFile(filename string, path string, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {
+	return doReadYamlFile(filename, createReadFunction(path), updateAll, docIndexInt)
+}
+
+func doReadYamlFile(filename string, readFn readDataFn, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {
 	var matchingNodes []*yqlib.NodeContext
 
 	var currentIndex = 0
@@ -29,7 +41,7 @@ func readYamlFile(filename string, path string, updateAll bool, docIndexInt int)
 			}
 
 			var errorParsing error
-			matchingNodes, errorParsing = appendDocument(matchingNodes, dataBucket, path, updateAll, docIndexInt, currentIndex)
+			matchingNodes, errorParsing = appendDocument(matchingNodes, dataBucket, readFn, updateAll, docIndexInt, currentIndex)
 			if errorParsing != nil {
 				return errorParsing
 			}
@@ -51,14 +63,14 @@ func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	return nil
 }
 
-func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.Node, path string, updateAll bool, docIndexInt int, currentIndex int) ([]*yqlib.NodeContext, error) {
+func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.Node, readFn readDataFn, updateAll bool, docIndexInt int, currentIndex int) ([]*yqlib.NodeContext, error) {
 	log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
 	yqlib.DebugNode(&dataBucket)
 	if !updateAll && currentIndex != docIndexInt {
 		return originalMatchingNodes, nil
 	}
-	log.Debugf("reading %v in document %v", path, currentIndex)
-	matchingNodes, errorParsing := lib.Get(&dataBucket, path)
+	log.Debugf("reading in document %v", currentIndex)
+	matchingNodes, errorParsing := readFn(&dataBucket)
 	if errorParsing != nil {
 		return nil, errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
 	}
@@ -106,7 +118,7 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 
 	for _, nodeContext := range matchingNodes {
 		var targetNode = yaml.Node{Kind: yaml.MappingNode}
-		explodedNodes, errorRetrieving := lib.Get(nodeContext.Node, "**")
+		explodedNodes, errorRetrieving := lib.Get(nodeContext.Node, "**", true)
 		if errorRetrieving != nil {
 			return errorRetrieving
 		}

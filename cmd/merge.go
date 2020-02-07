@@ -4,6 +4,7 @@ import (
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
 	errors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func createMergeCmd() *cobra.Command {
@@ -36,6 +37,16 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	return cmdMerge
 }
 
+/*
+* We don't deeply traverse arrays when appending a merge, instead we want to
+* append the entire array element.
+ */
+func createReadFunctionForMerge() func(*yaml.Node) ([]*yqlib.NodeContext, error) {
+	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
+		return lib.Get(dataBucket, "**", !appendFlag)
+	}
+}
+
 func mergeProperties(cmd *cobra.Command, args []string) error {
 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
 
@@ -48,7 +59,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 		var filesToMerge = args[1:]
 
 		for _, fileToMerge := range filesToMerge {
-			matchingNodes, errorProcessingFile := readYamlFile(fileToMerge, "**", false, 0)
+			matchingNodes, errorProcessingFile := doReadYamlFile(fileToMerge, createReadFunctionForMerge(), false, 0)
 			if errorProcessingFile != nil {
 				return errorProcessingFile
 			}
