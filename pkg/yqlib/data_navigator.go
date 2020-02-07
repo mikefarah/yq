@@ -32,15 +32,11 @@ func (n *navigator) Traverse(value *yaml.Node, path []string) error {
 
 func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
 
-	if value.Kind == yaml.ScalarNode {
-		return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
-	}
-
 	log.Debug("head %v", head)
 	DebugNode(value)
 
 	var errorDeepSplatting error
-	if head == "**" {
+	if head == "**" && value.Kind != yaml.ScalarNode {
 		if len(pathStack) == 0 || pathStack[len(pathStack)-1] != "<<" {
 			errorDeepSplatting = n.recurse(value, head, tail, pathStack)
 		}
@@ -52,7 +48,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pat
 		return errorDeepSplatting
 	}
 
-	if len(tail) > 0 {
+	if len(tail) > 0 && value.Kind != yaml.ScalarNode {
 		log.Debugf("diving into %v", tail[0])
 		DebugNode(value)
 		return n.recurse(value, tail[0], tail[1:], pathStack)
@@ -89,18 +85,12 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
 		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) {
-
-			if value.Alias.Kind == yaml.ScalarNode {
-				log.Debug("alias to a scalar")
-				return n.navigationStrategy.Visit(NewNodeContext(value.Alias, head, tail, pathStack))
-			} else {
-				log.Debug("following the alias")
-				return n.recurse(value.Alias, head, tail, pathStack)
-			}
+			log.Debug("following the alias")
+			return n.recurse(value.Alias, head, tail, pathStack)
 		}
 		return nil
 	default:
-		return nil
+		return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
 	}
 }
 
