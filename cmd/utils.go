@@ -367,6 +367,17 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		}
 
 		log.Debugf("Read write commands file '%v'", updateCommands)
+	} else if sourceYamlFile != "" && len(args) == expectedArgs-1 {
+		log.Debugf("Reading value from %v", sourceYamlFile)
+		var value yaml.Node
+		err := readData(sourceYamlFile, 0, &value)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+		log.Debug("args %v", args[expectedArgs-2])
+		updateCommands = make([]yqlib.UpdateCommand, 1)
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value.Content[0], Overwrite: true}
+
 	} else if len(args) < expectedArgs {
 		return nil, errors.New(badArgsMessage)
 	} else {

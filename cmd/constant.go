@@ -9,6 +9,7 @@ var customTag = ""
 var printMode = "v"
 var writeInplace = false
 var writeScript = ""
+var sourceYamlFile = ""
 var outputToJSON = false
 var prettyPrint = false
 var explodeAnchors = false

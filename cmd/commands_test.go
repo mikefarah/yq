@@ -1201,6 +1201,29 @@ func TestWriteCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteFromFileCmd(t *testing.T) {
+	content := `b:
+  c: 3
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	source := `kittens: are cute # sure are!`
+	fromFilename := test.WriteTempYamlFile(source)
+	defer test.RemoveTempYamlFile(fromFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c -f %s", filename, fromFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c:
+    kittens: are cute # sure are!
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteEmptyCmd(t *testing.T) {
 	content := ``
 	filename := test.WriteTempYamlFile(content)
