@@ -1,12 +1,13 @@
 package yqlib
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
 
 type PathParser interface {
-	ParsePath(path string) []string
+	ParsePath(path string) []interface{}
 	MatchesNextPathElement(nodeContext NodeContext, nodeKey string) bool
 	IsPathExpression(pathElement string) bool
 }
@@ -42,9 +43,11 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 	if head == "**" || head == "*" {
 		return true
 	}
-	if strings.Contains(head, "==") {
+	var headString = fmt.Sprintf("%v", head)
+
+	if strings.Contains(headString, "==") {
 		log.Debug("ooh deep recursion time")
-		result := strings.SplitN(head, "==", 2)
+		result := strings.SplitN(headString, "==", 2)
 		path := strings.TrimSpace(result[0])
 		value := strings.TrimSpace(result[1])
 		log.Debug("path %v", path)
@@ -70,17 +73,18 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 		}
 	}
 
-	return matchesString(head, nodeKey)
+	return matchesString(headString, nodeKey)
 }
 
-func (p *pathParser) ParsePath(path string) []string {
+func (p *pathParser) ParsePath(path string) []interface{} {
+	var paths = make([]interface{}, 0)
 	if path == "" {
-		return []string{}
+		return paths
 	}
-	return p.parsePathAccum([]string{}, path)
+	return p.parsePathAccum(paths, path)
 }
 
-func (p *pathParser) parsePathAccum(paths []string, remaining string) []string {
+func (p *pathParser) parsePathAccum(paths []interface{}, remaining string) []interface{} {
 	head, tail := p.nextYamlPath(remaining)
 	if tail == "" {
 		return append(paths, head)
@@ -88,11 +92,16 @@ func (p *pathParser) parsePathAccum(paths []string, remaining string) []string {
 	return p.parsePathAccum(append(paths, head), tail)
 }
 
-func (p *pathParser) nextYamlPath(path string) (pathElement string, remaining string) {
+func (p *pathParser) nextYamlPath(path string) (pathElement interface{}, remaining string) {
 	switch path[0] {
 	case '[':
 		// e.g [0].blah.cat -> we need to return "0" and "blah.cat"
-		return p.search(path[1:], []uint8{']'}, true)
+		var value, remainingBit = p.search(path[1:], []uint8{']'}, true)
+		var number, errParsingInt = strconv.ParseInt(value, 10, 64) // nolint
+		if errParsingInt == nil {
+			return number, remainingBit
+		}
+		return value, remainingBit
 	case '"':
 		// e.g "a.b".blah.cat -> we need to return "a.b" and "blah.cat"
 		return p.search(path[1:], []uint8{'"'}, true)

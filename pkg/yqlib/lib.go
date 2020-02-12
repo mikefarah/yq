@@ -43,7 +43,7 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 	var sb strings.Builder
 	for index, path := range pathStack {
 		switch path.(type) {
-		case int:
+		case int, int64:
 			if appendArrays {
 				sb.WriteString("[+]")
 			} else {
@@ -52,13 +52,15 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 
 		default:
 			s := fmt.Sprintf("%v", path)
+			var _, errParsingInt = strconv.ParseInt(s, 10, 64) // nolint
+
 			hasDot := strings.Contains(s, ".")
-			if hasDot {
-				sb.WriteString("[")
+			if hasDot || errParsingInt == nil {
+				sb.WriteString("\"")
 			}
 			sb.WriteString(s)
-			if hasDot {
-				sb.WriteString("]")
+			if hasDot || errParsingInt == nil {
+				sb.WriteString("\"")
 			}
 		}
 
@@ -66,34 +68,41 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 			sb.WriteString(".")
 		}
 	}
-	return sb.String()
+	var pathString = sb.String()
+	log.Debug("got a path string: %v", pathString)
+	return pathString
 }
 
-func guessKind(head string, tail []string, guess yaml.Kind) yaml.Kind {
-	log.Debug("tail %v", tail)
+func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind {
+	log.Debug("guessKind: tail %v", tail)
 	if len(tail) == 0 && guess == 0 {
 		log.Debug("end of path, must be a scalar")
 		return yaml.ScalarNode
 	} else if len(tail) == 0 {
 		return guess
 	}
-
-	var _, errorParsingInt = strconv.ParseInt(tail[0], 10, 64)
-	if tail[0] == "+" || errorParsingInt == nil {
+	var next = tail[0]
+	switch next.(type) {
+	case int64:
 		return yaml.SequenceNode
+	default:
+		var nextString = fmt.Sprintf("%v", next)
+		if nextString == "+" {
+			return yaml.SequenceNode
+		}
+		pathParser := NewPathParser()
+		if (pathParser.IsPathExpression(nextString) || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
+			return guess
+		}
+		if guess == yaml.AliasNode {
+			log.Debug("guess was an alias, okey doke.")
+			return guess
+		}
+		log.Debug("forcing a mapping node")
+		log.Debug("yaml.SequenceNode %v", guess == yaml.SequenceNode)
+		log.Debug("yaml.ScalarNode %v", guess == yaml.ScalarNode)
+		return yaml.MappingNode
 	}
-	pathParser := NewPathParser()
-	if (pathParser.IsPathExpression(tail[0]) || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
-		return guess
-	}
-	if guess == yaml.AliasNode {
-		log.Debug("guess was an alias, okey doke.")
-		return guess
-	}
-	log.Debug("forcing a mapping node")
-	log.Debug("yaml.SequenceNode %v", guess == yaml.SequenceNode)
-	log.Debug("yaml.ScalarNode %v", guess == yaml.ScalarNode)
-	return yaml.MappingNode
 }
 
 type YqLib interface {

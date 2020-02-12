@@ -10,20 +10,21 @@ var parser = NewPathParser()
 
 var parsePathsTests = []struct {
 	path          string
-	expectedPaths []string
+	expectedPaths []interface{}
 }{
-	{"a.b", []string{"a", "b"}},
-	{"a.b.**", []string{"a", "b", "**"}},
-	{"a.b.*", []string{"a", "b", "*"}},
-	{"a.b[0]", []string{"a", "b", "0"}},
-	{"a.b.d[+]", []string{"a", "b", "d", "+"}},
-	{"a", []string{"a"}},
-	{"a.b.c", []string{"a", "b", "c"}},
-	{"\"a.b\".c", []string{"a.b", "c"}},
-	{"a.\"b.c\".d", []string{"a", "b.c", "d"}},
-	{"[1].a.d", []string{"1", "a", "d"}},
-	{"a[0].c", []string{"a", "0", "c"}},
-	{"[0]", []string{"0"}},
+	{"a.b", append(make([]interface{}, 0), "a", "b")},
+	{"a.b.**", append(make([]interface{}, 0), "a", "b", "**")},
+	{"a.b.*", append(make([]interface{}, 0), "a", "b", "*")},
+	{"a.b[0]", append(make([]interface{}, 0), "a", "b", int64(0))},
+	{"a.b.0", append(make([]interface{}, 0), "a", "b", "0")},
+	{"a.b.d[+]", append(make([]interface{}, 0), "a", "b", "d", "+")},
+	{"a", append(make([]interface{}, 0), "a")},
+	{"a.b.c", append(make([]interface{}, 0), "a", "b", "c")},
+	{"\"a.b\".c", append(make([]interface{}, 0), "a.b", "c")},
+	{"a.\"b.c\".d", append(make([]interface{}, 0), "a", "b.c", "d")},
+	{"[1].a.d", append(make([]interface{}, 0), int64(1), "a", "d")},
+	{"a[0].c", append(make([]interface{}, 0), "a", int64(0), "c")},
+	{"[0]", append(make([]interface{}, 0), int64(0))},
 }
 
 func TestPathParserParsePath(t *testing.T) {

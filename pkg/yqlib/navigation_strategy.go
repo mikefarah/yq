@@ -8,13 +8,13 @@ import (
 
 type NodeContext struct {
 	Node      *yaml.Node
-	Head      string
-	Tail      []string
+	Head      interface{}
+	Tail      []interface{}
 	PathStack []interface{}
 }
 
-func NewNodeContext(node *yaml.Node, head string, tail []string, pathStack []interface{}) NodeContext {
-	newTail := make([]string, len(tail))
+func NewNodeContext(node *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) NodeContext {
+	newTail := make([]interface{}, len(tail))
 	copy(newTail, tail)
 
 	newPathStack := make([]interface{}, len(pathStack))

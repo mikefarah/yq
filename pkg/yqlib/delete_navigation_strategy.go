@@ -1,12 +1,10 @@
 package yqlib
 
 import (
-	"strconv"
-
 	yaml "gopkg.in/yaml.v3"
 )
 
-func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
+func DeleteNavigationStrategy(pathElementToDelete interface{}) NavigationStrategy {
 	parser := NewPathParser()
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
@@ -34,12 +32,12 @@ func DeleteNavigationStrategy(pathElementToDelete string) NavigationStrategy {
 		},
 	}
 }
-func deleteFromMap(pathParser PathParser, contents []*yaml.Node, pathStack []interface{}, pathElementToDelete string) []*yaml.Node {
+func deleteFromMap(pathParser PathParser, contents []*yaml.Node, pathStack []interface{}, pathElementToDelete interface{}) []*yaml.Node {
 	newContents := make([]*yaml.Node, 0)
 	for index := 0; index < len(contents); index = index + 2 {
 		keyNode := contents[index]
 		valueNode := contents[index+1]
-		if !pathParser.MatchesNextPathElement(NewNodeContext(keyNode, pathElementToDelete, []string{}, pathStack), keyNode.Value) {
+		if !pathParser.MatchesNextPathElement(NewNodeContext(keyNode, pathElementToDelete, make([]interface{}, 0), pathStack), keyNode.Value) {
 			log.Debug("adding node %v", keyNode.Value)
 			newContents = append(newContents, keyNode, valueNode)
 		} else {
@@ -49,21 +47,23 @@ func deleteFromMap(pathParser PathParser, contents []*yaml.Node, pathStack []int
 	return newContents
 }
 
-func deleteFromArray(pathParser PathParser, content []*yaml.Node, pathStack []interface{}, pathElementToDelete string) []*yaml.Node {
+func deleteFromArray(pathParser PathParser, content []*yaml.Node, pathStack []interface{}, pathElementToDelete interface{}) []*yaml.Node {
 
-	var indexToDelete, err = strconv.ParseInt(pathElementToDelete, 10, 64) // nolint
-	if err == nil {
-		return deleteIndexInArray(content, indexToDelete)
-	}
-	log.Debug("%v is not a numeric index, finding matching patterns", pathElementToDelete)
-	var newArray = make([]*yaml.Node, 0)
+	switch pathElementToDelete := pathElementToDelete.(type) {
+	case int64:
+		return deleteIndexInArray(content, pathElementToDelete)
+	default:
+		log.Debug("%v is not a numeric index, finding matching patterns", pathElementToDelete)
+		var newArray = make([]*yaml.Node, 0)
 
-	for _, childValue := range content {
-		if !pathParser.MatchesNextPathElement(NewNodeContext(childValue, pathElementToDelete, []string{}, pathStack), childValue.Value) {
-			newArray = append(newArray, childValue)
+		for _, childValue := range content {
+			if !pathParser.MatchesNextPathElement(NewNodeContext(childValue, pathElementToDelete, make([]interface{}, 0), pathStack), childValue.Value) {
+				newArray = append(newArray, childValue)
+			}
 		}
+		return newArray
 	}
-	return newArray
+
 }
 
 func deleteIndexInArray(content []*yaml.Node, index int64) []*yaml.Node {

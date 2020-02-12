@@ -1,13 +1,14 @@
 package yqlib
 
 import (
+	"fmt"
 	"strconv"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type DataNavigator interface {
-	Traverse(value *yaml.Node, path []string) error
+	Traverse(value *yaml.Node, path []interface{}) error
 }
 
 type navigator struct {
@@ -20,7 +21,7 @@ func NewDataNavigator(NavigationStrategy NavigationStrategy) DataNavigator {
 	}
 }
 
-func (n *navigator) Traverse(value *yaml.Node, path []string) error {
+func (n *navigator) Traverse(value *yaml.Node, path []interface{}) error {
 	realValue := value
 	emptyArray := make([]interface{}, 0)
 	if realValue.Kind == yaml.DocumentNode {
@@ -30,7 +31,7 @@ func (n *navigator) Traverse(value *yaml.Node, path []string) error {
 	return n.doTraverse(value, "", path, emptyArray)
 }
 
-func (n *navigator) doTraverse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) doTraverse(value *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) error {
 
 	log.Debug("head %v", head)
 	DebugNode(value)
@@ -65,23 +66,27 @@ func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *y
 	return original
 }
 
-func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) error {
 	log.Debug("recursing, processing %v, pathStack %v", head, pathStackToString(pathStack))
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		return n.recurseMap(value, head, tail, pathStack)
+		headString := fmt.Sprintf("%v", head)
+		return n.recurseMap(value, headString, tail, pathStack)
+
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
 
-		var index, errorParsingIndex = strconv.ParseInt(head, 10, 64) // nolint
-		if errorParsingIndex == nil {
-			return n.recurseArray(value, index, head, tail, pathStack)
-		} else if head == "+" {
-			return n.appendArray(value, head, tail, pathStack)
-		}
-		return n.splatArray(value, head, tail, pathStack)
+		switch head := head.(type) {
+		case int64:
+			return n.recurseArray(value, head, head, tail, pathStack)
+		default:
 
+			if head == "+" {
+				return n.appendArray(value, head, tail, pathStack)
+			}
+			return n.splatArray(value, head, tail, pathStack)
+		}
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
@@ -95,7 +100,7 @@ func (n *navigator) recurse(value *yaml.Node, head string, tail []string, pathSt
 	}
 }
 
-func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) recurseMap(value *yaml.Node, head string, tail []interface{}, pathStack []interface{}) error {
 	traversedEntry := false
 	errorVisiting := n.visitMatchingEntries(value, head, tail, pathStack, func(contents []*yaml.Node, indexInMap int) error {
 		log.Debug("recurseMap: visitMatchingEntries for %v", contents[indexInMap].Value)
@@ -125,18 +130,27 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []string, pat
 		return nil
 	}
 
+	_, errorParsingInt := strconv.ParseInt(head, 10, 64)
+
 	mapEntryKey := yaml.Node{Value: head, Kind: yaml.ScalarNode}
+
+	if errorParsingInt == nil {
+		// fixes a json encoding problem where keys that look like numbers
+		// get treated as numbers and cannot be used in a json map
+		mapEntryKey.Style = yaml.LiteralStyle
+	}
+
 	value.Content = append(value.Content, &mapEntryKey)
 	mapEntryValue := yaml.Node{Kind: guessKind(head, tail, 0)}
 	value.Content = append(value.Content, &mapEntryValue)
-	log.Debug("adding new node %v", head)
+	log.Debug("adding a new node %v - def a string", head)
 	return n.doTraverse(&mapEntryValue, head, tail, append(pathStack, head))
 }
 
 // need to pass the node in, as it may be aliased
 type mapVisitorFn func(contents []*yaml.Node, index int) error
 
-func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
+func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tail []interface{}, pathStack []interface{}, visit mapVisitorFn) error {
 	var contents = node.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		content := contents[index]
@@ -151,7 +165,7 @@ func (n *navigator) visitDirectMatchingEntries(node *yaml.Node, head string, tai
 	return nil
 }
 
-func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
+func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []interface{}, pathStack []interface{}, visit mapVisitorFn) error {
 	var contents = node.Content
 	log.Debug("visitMatchingEntries %v", head)
 	DebugNode(node)
@@ -167,7 +181,7 @@ func (n *navigator) visitMatchingEntries(node *yaml.Node, head string, tail []st
 	return n.visitAliases(contents, head, tail, pathStack, visit)
 }
 
-func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
+func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []interface{}, pathStack []interface{}, visit mapVisitorFn) error {
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match on this node first.
 	// traverse them backwards so that the last alias overrides the preceding.
@@ -198,7 +212,7 @@ func (n *navigator) visitAliases(contents []*yaml.Node, head string, tail []stri
 	return nil
 }
 
-func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head string, tail []string, pathStack []interface{}, visit mapVisitorFn) error {
+func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head string, tail []interface{}, pathStack []interface{}, visit mapVisitorFn) error {
 	// need to search this backwards too, so that aliases defined last override the preceding.
 	for aliasIndex := len(possibleAliasArray) - 1; aliasIndex >= 0; aliasIndex = aliasIndex - 1 {
 		child := possibleAliasArray[aliasIndex]
@@ -214,7 +228,7 @@ func (n *navigator) visitAliasSequence(possibleAliasArray []*yaml.Node, head str
 	return nil
 }
 
-func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) splatArray(value *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) error {
 	for index, childValue := range value.Content {
 		log.Debug("processing")
 		DebugNode(childValue)
@@ -234,14 +248,14 @@ func (n *navigator) splatArray(value *yaml.Node, head string, tail []string, pat
 	return nil
 }
 
-func (n *navigator) appendArray(value *yaml.Node, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) appendArray(value *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) error {
 	var newNode = yaml.Node{Kind: guessKind(head, tail, 0)}
 	value.Content = append(value.Content, &newNode)
 	log.Debug("appending a new node, %v", value.Content)
 	return n.doTraverse(&newNode, head, tail, append(pathStack, len(value.Content)-1))
 }
 
-func (n *navigator) recurseArray(value *yaml.Node, index int64, head string, tail []string, pathStack []interface{}) error {
+func (n *navigator) recurseArray(value *yaml.Node, index int64, head interface{}, tail []interface{}, pathStack []interface{}) error {
 	for int64(len(value.Content)) <= index {
 		value.Content = append(value.Content, &yaml.Node{Kind: guessKind(head, tail, 0)})
 	}

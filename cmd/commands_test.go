@@ -153,7 +153,7 @@ func TestValidateCmd(t *testing.T) {
 
 func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -v ../examples/sample.yaml b.e(name==sam).value")
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml b.e(name==sam).value")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -162,7 +162,7 @@ func TestReadWithAdvancedFilterCmd(t *testing.T) {
 
 func TestReadWithAdvancedFilterMapCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -v ../examples/sample.yaml b.e[name==fr*]")
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml b.e[name==fr*]")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -183,11 +183,11 @@ func TestReadWithKeyAndValueCmd(t *testing.T) {
 
 func TestReadArrayCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.e.1.name")
+	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.e[1].name")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "b.e.1.name: sam\n", result.Output)
+	test.AssertResult(t, "b.e.[1].name: sam\n", result.Output)
 }
 
 func TestReadDeepSplatCmd(t *testing.T) {
@@ -333,6 +333,21 @@ func TestReadMergeAnchorsExplodeSimpleArrayCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `- things
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadNumberKeyJsonCmd(t *testing.T) {
+	content := `data: {"40433437326": 10.833332}`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -j %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{"data":{"40433437326":10.833332}}
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -795,15 +810,6 @@ func TestReadCmd_ErrorBadPath(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestReadCmd_Verbose(t *testing.T) {
-	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "read -v ../examples/sample.yaml b.c")
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	test.AssertResult(t, "2", result.Output)
-}
-
 func TestReadToJsonCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -j ../examples/sample.yaml b")
@@ -1139,25 +1145,6 @@ func TestPrefixCmd_ErrorUnreadableFile(t *testing.T) {
 		expectedOutput = `open fake-unknown: no such file or directory`
 	}
 	test.AssertResult(t, expectedOutput, result.Error.Error())
-}
-
-func TestPrefixCmd_Verbose(t *testing.T) {
-	content := `b:
-  c: 3
-`
-	filename := test.WriteTempYamlFile(content)
-	defer test.RemoveTempYamlFile(filename)
-
-	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("prefix %s x", filename))
-	if result.Error != nil {
-		t.Error(result.Error)
-	}
-	expectedOutput := `x:
-  b:
-    c: 3
-`
-	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 func TestPrefixCmd_Inplace(t *testing.T) {
