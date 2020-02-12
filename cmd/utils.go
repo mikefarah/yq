@@ -115,9 +115,9 @@ func writeString(writer io.Writer, txt string) error {
 }
 
 func explode(matchingNodes []*yqlib.NodeContext) error {
-
+	log.Debug("exploding nodes")
 	for _, nodeContext := range matchingNodes {
-		var targetNode = yaml.Node{Kind: yaml.MappingNode}
+		var targetNode = yaml.Node{Kind: nodeContext.Node.Kind}
 		explodedNodes, errorRetrieving := lib.Get(nodeContext.Node, "**", true)
 		if errorRetrieving != nil {
 			return errorRetrieving
@@ -132,6 +132,7 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 		}
 		nodeContext.Node = &targetNode
 	}
+	log.Debug("done exploding nodes")
 	return nil
 }
 
