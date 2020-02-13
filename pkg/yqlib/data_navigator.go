@@ -84,6 +84,8 @@ func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface
 
 			if head == "+" {
 				return n.appendArray(value, head, tail, pathStack)
+			} else if len(value.Content) == 0 && head == "**" {
+				return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
 			}
 			return n.splatArray(value, head, tail, pathStack)
 		}
@@ -126,7 +128,9 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []interface{}
 		return errorVisiting
 	}
 
-	if traversedEntry || n.navigationStrategy.GetPathParser().IsPathExpression(head) || !n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) {
+	if len(value.Content) == 0 && head == "**" {
+		return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
+	} else if traversedEntry || n.navigationStrategy.GetPathParser().IsPathExpression(head) || !n.navigationStrategy.AutoCreateMap(NewNodeContext(value, head, tail, pathStack)) {
 		return nil
 	}
 

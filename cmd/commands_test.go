@@ -575,6 +575,28 @@ func TestReadEmptyContentCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadEmptyNodesPrintPathCmd(t *testing.T) {
+	content := `map: 
+  that: {}
+array: 
+  great: []
+null:
+  indeed: ~`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s -ppv **", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `map.that: {}
+array.great: []
+null.indeed: ~
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadEmptyContentWithDefaultValueCmd(t *testing.T) {
 	content := ``
 	filename := test.WriteTempYamlFile(content)
