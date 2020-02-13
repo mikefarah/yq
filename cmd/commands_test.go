@@ -1581,7 +1581,7 @@ func TestWriteCmd_SplatMapEmpty(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-  c: thing
+  c: {}
   d: another thing
 `
 	test.AssertResult(t, expectedOutput, result.Output)
@@ -2007,6 +2007,25 @@ something: good
 apples: red
 `
 	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeYamlNullMapCmd(t *testing.T) {
+	content := `b:`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `b:
+  thing: a frog
+`
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, mergeContent, result.Output)
 }
 
 func TestMergeCmd_Error(t *testing.T) {

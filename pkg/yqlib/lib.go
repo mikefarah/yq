@@ -19,6 +19,23 @@ type UpdateCommand struct {
 	Overwrite bool
 }
 
+func KindString(kind yaml.Kind) string {
+	switch kind {
+	case yaml.ScalarNode:
+		return "ScalarNode"
+	case yaml.SequenceNode:
+		return "SequenceNode"
+	case yaml.MappingNode:
+		return "MappingNode"
+	case yaml.DocumentNode:
+		return "DocumentNode"
+	case yaml.AliasNode:
+		return "AliasNode"
+	default:
+		return "unknown!"
+	}
+}
+
 func DebugNode(value *yaml.Node) {
 	if value == nil {
 		log.Debug("-- node is nil --")
@@ -30,7 +47,7 @@ func DebugNode(value *yaml.Node) {
 			log.Error("Error debugging node, %v", errorEncoding.Error())
 		}
 		encoder.Close()
-		log.Debug("Tag: %v", value.Tag)
+		log.Debug("Tag: %v, Kind: %v", value.Tag, KindString(value.Kind))
 		log.Debug("%v", buf.String())
 	}
 }
@@ -91,11 +108,13 @@ func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind 
 			return yaml.SequenceNode
 		}
 		pathParser := NewPathParser()
-		if (pathParser.IsPathExpression(nextString) || head == "**") && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
+		if pathParser.IsPathExpression(nextString) && (guess == yaml.SequenceNode || guess == yaml.MappingNode) {
 			return guess
-		}
-		if guess == yaml.AliasNode {
+		} else if guess == yaml.AliasNode {
 			log.Debug("guess was an alias, okey doke.")
+			return guess
+		} else if head == "**" {
+			log.Debug("deep wildcard, go with the guess")
 			return guess
 		}
 		log.Debug("forcing a mapping node")

@@ -60,7 +60,7 @@ func (n *navigator) doTraverse(value *yaml.Node, head interface{}, tail []interf
 
 func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *yaml.Node {
 	if original.Kind != expectedKind {
-		log.Debug("wanted %v but it was %v, overriding", expectedKind, original.Kind)
+		log.Debug("wanted %v but it was %v, overriding", KindString(expectedKind), KindString(original.Kind))
 		return &yaml.Node{Kind: expectedKind}
 	}
 	return original
@@ -113,7 +113,7 @@ func (n *navigator) recurseMap(value *yaml.Node, head string, tail []interface{}
 		if n.navigationStrategy.ShouldTraverse(NewNodeContext(contents[indexInMap+1], head, tail, newPathStack), contents[indexInMap].Value) {
 			log.Debug("recurseMap: Going to traverse")
 			traversedEntry = true
-			// contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(head, tail, contents[indexInMap+1].Kind))
+			contents[indexInMap+1] = n.getOrReplace(contents[indexInMap+1], guessKind(head, tail, contents[indexInMap+1].Kind))
 			errorTraversing := n.doTraverse(contents[indexInMap+1], head, tail, newPathStack)
 			log.Debug("recurseMap: Finished traversing")
 			n.navigationStrategy.DebugVisitedNodes()
