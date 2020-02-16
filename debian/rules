@@ -14,46 +14,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 PROJECT := yq
 OWNER := mikefarah
 REPO := github.com
-GOVERSION := 1.10
+GOVERSION := 1.13
+
 export DH_OPTIONS
 export DH_GOPKG := ${REPO}/${OWNER}/${PROJECT}
 export GOROOT := /usr/lib/go-${GOVERSION}
 export GOPATH := ${CURDIR}/_build
 export GOBIN := ${GOPATH}/bin
 export PATH := ${GOROOT}/bin:${GOBIN}:${PATH}
-BLDPATH := $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-SRCDIR := ${CURDIR}/_build/src/${DH_GOPKG}
+export GOCACHE := /tmp/gocache
+export GOFLAGS := -mod=vendor
+
+SRCDIR := ${GOPATH}/src/${DH_GOPKG}
 DESTDIR := ${CURDIR}/debian/${PROJECT}
 BINDIR := /usr/bin
 ASSETSDIR := /usr/share/${PROJECT}
 
 %:
-	dh $@ --buildsystem=golang --with=golang
+	dh $@ --builddirectory=${GOPATH} --buildsystem=golang
 
 override_dh_auto_build:
 	mkdir -p ${SRCDIR}
 	mkdir -p ${GOBIN}
 	# copy project to local srcdir to build from there
-	rsync -avz --progress --exclude=obj-${BLDPATH} --exclude=debian . $(SRCDIR)
+	rsync -avz --progress --exclude=_build --exclude=debian --exclude=tmp. --exclude=go.mod . $(SRCDIR)
 	# build go code
-	(cd ${SRCDIR} && go install ./...)
-
+	(cd ${SRCDIR} && go install -buildmode=pie ./...)
+	
 override_dh_auto_test:
 	(cd ${SRCDIR} && go test -v ./...)
 
 override_dh_auto_install:
 	mkdir -p ${DESTDIR}/${BINDIR}
 	mkdir -p ${DESTDIR}/${ASSETSDIR}
-	cp ${CURDIR}/_build/bin/yq ${DESTDIR}/${BINDIR}
-	cp -rf ${SRCDIR}/LICENSE ${DESTDIR}/${ASSETSDIR}
-	cp -rf ${SRCDIR}/README.md ${DESTDIR}/${PLUGINSDIR}
+	cp ${GOBIN}/yq ${DESTDIR}/${BINDIR}
+	cp -f ${SRCDIR}/LICENSE ${DESTDIR}/${ASSETSDIR}
 	chmod a+x ${DESTDIR}/${BINDIR}/yq
 
 override_dh_auto_clean:
 	dh_clean
-	rm -rf ${CURDIR}/obj-${BLDPATH}
 	rm -rf ${CURDIR}/_build
