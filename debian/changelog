@@ -1,3 +1,16 @@
+yq (3.1.1) eoan; urgency=medium
+
+  * Keeps yaml comments and formatting, can specify yaml tags when updating.
+  * Handles anchors!  https://github.com/mikefarah/yq/issues/310, https://github.com/mikefarah/yq/issues/178
+  * Can print out matching paths and values when splatting https://github.com/mikefarah/yq/issues/20
+  * JSON output works for all commands! Yaml files with multiple documents are printed out as one JSON document per line.
+  * Deep splat (**) to match arbitrary paths
+  * Update scripts file format has changed to be more powerful
+  * Reading and splatting, matching results are printed once per line
+  * Bugfixing
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Tue, 11 Feb 2020 22:18:24 +0100
+
 yq (2.2-1) bionic; urgency=medium
 
   * Added Windows support for the "--inplace" command flag
