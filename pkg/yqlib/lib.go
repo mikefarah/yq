@@ -71,13 +71,20 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 			s := fmt.Sprintf("%v", path)
 			var _, errParsingInt = strconv.ParseInt(s, 10, 64) // nolint
 
-			hasDot := strings.Contains(s, ".")
-			if hasDot || errParsingInt == nil {
-				sb.WriteString("\"")
+			hasSpecial := strings.Contains(s, ".") || strings.Contains(s, "[") || strings.Contains(s, "]") || strings.Contains(s, "\"")
+			hasDoubleQuotes := strings.Contains(s, "\"")
+			wrappingCharacterStart := "\""
+			wrappingCharacterEnd := "\""
+			if hasDoubleQuotes {
+				wrappingCharacterStart = "("
+				wrappingCharacterEnd = ")"
+			}
+			if hasSpecial || errParsingInt == nil {
+				sb.WriteString(wrappingCharacterStart)
 			}
 			sb.WriteString(s)
-			if hasDot || errParsingInt == nil {
-				sb.WriteString("\"")
+			if hasSpecial || errParsingInt == nil {
+				sb.WriteString(wrappingCharacterEnd)
 			}
 		}
 

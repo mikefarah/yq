@@ -1999,6 +1999,27 @@ apples: red
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeSpecialCharacterKeysCmd(t *testing.T) {
+	content := ``
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `key[bracket]: value
+key.bracket: value
+key"value": value
+key'value': value
+`
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, mergeContent, result.Output)
+}
+
 func TestMergeYamlMultiAllOverwriteCmd(t *testing.T) {
 	content := `b:
   c: 3
