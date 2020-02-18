@@ -1279,6 +1279,26 @@ func TestWriteEmptyCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteAutoCreateCmd(t *testing.T) {
+	content := `applications:
+  - name: app
+    env:`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s applications[0].env.hello world", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `applications:
+- name: app
+  env:
+    hello: world
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteCmdScript(t *testing.T) {
 	content := `b:
   c: 3
