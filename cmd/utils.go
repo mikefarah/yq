@@ -79,7 +79,7 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 
 func printValue(node *yaml.Node, writer io.Writer) error {
 	if node.Kind == yaml.ScalarNode {
-		_, errorWriting := writer.Write([]byte(node.Value))
+		_, errorWriting := writer.Write([]byte(node.Value + "\n"))
 		return errorWriting
 	}
 	return printNode(node, writer)
@@ -160,18 +160,12 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 		return nil
 	}
 	var errorWriting error
-	for index, mappedDoc := range matchingNodes {
+	for _, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "p":
-			errorWriting = writeString(bufferedWriter, lib.PathStackToString(mappedDoc.PathStack))
+			errorWriting = writeString(bufferedWriter, lib.PathStackToString(mappedDoc.PathStack)+"\n")
 			if errorWriting != nil {
 				return errorWriting
-			}
-			if index < len(matchingNodes)-1 {
-				errorWriting = writeString(bufferedWriter, "\n")
-				if errorWriting != nil {
-					return errorWriting
-				}
 			}
 		case "pv", "vp":
 			// put it into a node and print that.
@@ -185,14 +179,6 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 		default:
 			if err := printValue(mappedDoc.Node, bufferedWriter); err != nil {
 				return err
-			}
-			// Printing our Scalars does not print a new line at the end
-			// we only want to do that if there are more values (so users can easily script extraction of values in the yaml)
-			if index < len(matchingNodes)-1 && mappedDoc.Node.Kind == yaml.ScalarNode {
-				errorWriting = writeString(bufferedWriter, "\n")
-				if errorWriting != nil {
-					return errorWriting
-				}
 			}
 		}
 	}

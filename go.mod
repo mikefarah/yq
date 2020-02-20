@@ -20,8 +20,7 @@ require (
 	golang.org/x/tools v0.0.0-20191213221258-04c2e8eff935 // indirect
 	gopkg.in/imdario/mergo.v0 v0.3.7 // indirect
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
-	gopkg.in/yaml.v2 v2.2.8 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20191120175047-4206685974f2
+	gopkg.in/yaml.v3 v3.0.0-20200121175148-a6ecf24a6d71
 )
 
 go 1.13

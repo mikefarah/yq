@@ -91,7 +91,7 @@ func TestReadCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "2", result.Output)
+	test.AssertResult(t, "2\n", result.Output)
 }
 
 func TestCompareCmd(t *testing.T) {
@@ -157,7 +157,7 @@ func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "4", result.Output)
+	test.AssertResult(t, "4\n", result.Output)
 }
 
 func TestReadWithAdvancedFilterMapCmd(t *testing.T) {
@@ -226,7 +226,7 @@ func TestReadWithKeyCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "b.c", result.Output)
+	test.AssertResult(t, "b.c\n", result.Output)
 }
 
 func TestReadAnchorsCmd(t *testing.T) {
@@ -235,7 +235,7 @@ func TestReadAnchorsCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "1", result.Output)
+	test.AssertResult(t, "1\n", result.Output)
 }
 
 func TestReadAnchorsWithKeyAndValueCmd(t *testing.T) {
@@ -279,7 +279,7 @@ func TestReadMergeAnchorsOriginalCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "original", result.Output)
+	test.AssertResult(t, "original\n", result.Output)
 }
 
 func TestReadMergeAnchorsExplodeJsonCmd(t *testing.T) {
@@ -318,7 +318,7 @@ pointer: *value-pointer`
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `the value`
+	expectedOutput := "the value\n"
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -378,7 +378,7 @@ pointer: *value-pointer`
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `the value`
+	expectedOutput := "the value\n"
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -433,7 +433,7 @@ func TestReadMergeAnchorsOverrideCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "ice", result.Output)
+	test.AssertResult(t, "ice\n", result.Output)
 }
 
 func TestReadMergeAnchorsPrefixMatchCmd(t *testing.T) {
@@ -455,7 +455,7 @@ func TestReadMergeAnchorsListOriginalCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "original", result.Output)
+	test.AssertResult(t, "original\n", result.Output)
 }
 
 func TestReadMergeAnchorsListOverrideInListCmd(t *testing.T) {
@@ -464,7 +464,7 @@ func TestReadMergeAnchorsListOverrideInListCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "coconut", result.Output)
+	test.AssertResult(t, "coconut\n", result.Output)
 }
 
 func TestReadMergeAnchorsListOverrideCmd(t *testing.T) {
@@ -473,7 +473,7 @@ func TestReadMergeAnchorsListOverrideCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "newbar", result.Output)
+	test.AssertResult(t, "newbar\n", result.Output)
 }
 
 func TestReadInvalidDocumentIndexCmd(t *testing.T) {
@@ -515,7 +515,7 @@ func TestReadMultiCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "here", result.Output)
+	test.AssertResult(t, "here\n", result.Output)
 }
 
 func TestReadMultiWithKeyAndValueCmd(t *testing.T) {
@@ -536,7 +536,8 @@ func TestReadMultiAllCmd(t *testing.T) {
 	test.AssertResult(t,
 		`first document
 second document
-third document`, result.Output)
+third document
+`, result.Output)
 }
 
 func TestReadMultiAllWithKeyAndValueCmd(t *testing.T) {
@@ -558,7 +559,7 @@ func TestReadCmd_ArrayYaml(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "false", result.Output)
+	test.AssertResult(t, "false\n", result.Output)
 }
 
 func TestReadEmptyContentCmd(t *testing.T) {
@@ -740,7 +741,8 @@ func TestReadCmd_ArrayYaml_SplatWithKeyCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `[0]
-[1]`
+[1]
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -751,7 +753,8 @@ func TestReadCmd_ArrayYaml_SplatKey(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `false
-true`
+true
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -950,7 +953,8 @@ b:
 	}
 
 	expectedOutput := `more things
-more things also`
+more things also
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
@@ -1005,7 +1009,8 @@ b:
 	}
 
 	expectedOutput := `b.there.c
-b.there2.c`
+b.there2.c
+`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
