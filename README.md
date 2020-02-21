@@ -123,12 +123,3 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
-
-## Contribute
-
-1. `scripts/devtools.sh`
-2. `make [local] vendor`
-3. add unit tests
-4. apply changes to go.mod
-5. `make [local] build`
-7. profit
