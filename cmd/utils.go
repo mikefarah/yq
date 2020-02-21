@@ -199,6 +199,11 @@ func parseDocumentIndex() (bool, int, error) {
 
 type updateDataFn func(dataBucket *yaml.Node, currentIndex int) error
 
+func isNullDocument(dataBucket *yaml.Node) bool {
+	return dataBucket.Kind == yaml.DocumentNode && (len(dataBucket.Content) == 0 ||
+		dataBucket.Content[0].Kind == yaml.ScalarNode && dataBucket.Content[0].Tag == "!!null")
+}
+
 func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderFn {
 	return func(decoder *yaml.Decoder) error {
 		var dataBucket yaml.Node
@@ -218,8 +223,11 @@ func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderF
 
 			if errorReading == io.EOF && docIndexInt == 0 && currentIndex == 0 {
 				//empty document, lets just make one
-				child := yaml.Node{Kind: yaml.MappingNode}
 				dataBucket = yaml.Node{Kind: yaml.DocumentNode, Content: make([]*yaml.Node, 1)}
+				child := yaml.Node{Kind: yaml.MappingNode}
+				dataBucket.Content[0] = &child
+			} else if isNullDocument(&dataBucket) {
+				child := yaml.Node{Kind: yaml.MappingNode}
 				dataBucket.Content[0] = &child
 			} else if errorReading == io.EOF {
 				if !updateAll && currentIndex <= docIndexInt {

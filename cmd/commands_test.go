@@ -1245,6 +1245,25 @@ func TestWriteCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteEmptyMultiDocCmd(t *testing.T) {
+	content := `# this is empty
+---
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s c 7", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `c: 7
+
+# this is empty
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteFromFileCmd(t *testing.T) {
 	content := `b:
   c: 3
