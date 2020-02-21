@@ -226,7 +226,7 @@ func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderF
 				dataBucket = yaml.Node{Kind: yaml.DocumentNode, Content: make([]*yaml.Node, 1)}
 				child := yaml.Node{Kind: yaml.MappingNode}
 				dataBucket.Content[0] = &child
-			} else if isNullDocument(&dataBucket) {
+			} else if isNullDocument(&dataBucket) && (updateAll || docIndexInt == currentIndex) {
 				child := yaml.Node{Kind: yaml.MappingNode}
 				dataBucket.Content[0] = &child
 			} else if errorReading == io.EOF {
