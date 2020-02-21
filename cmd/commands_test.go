@@ -1264,8 +1264,11 @@ func TestWriteEmptyMultiDocCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestWriteTrailingEmptyMultiDocCmd(t *testing.T) {
-	content := `cat: frog
+func TestWriteSurroundingEmptyMultiDocCmd(t *testing.T) {
+	content := `---
+# empty
+---
+cat: frog
 ---
 
 # empty
@@ -1274,11 +1277,15 @@ func TestWriteTrailingEmptyMultiDocCmd(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("write %s c 7", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s -d1 c 7", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `cat: frog
+	expectedOutput := `
+
+# empty
+---
+cat: frog
 c: 7
 ---
 
