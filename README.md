@@ -12,15 +12,13 @@ V3 is officially out - if you've been using v2 and want/need to upgrade, checkou
 
 ## Install
 
-### Download the latest binary
+### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
-[Here](https://github.com/mikefarah/yq/releases/latest)
-
-### On MacOS:
+### MacOS:
 ```
 brew install yq
 ```
-### On Ubuntu and other Linux distros supporting `snap` packages:
+### Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
 ```
@@ -50,6 +48,8 @@ sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 ```
+Supported by @rmescandon
+
 ### Go Get:
 ```
 GO111MODULE=on go get github.com/mikefarah/yq/v3
