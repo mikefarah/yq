@@ -40,7 +40,7 @@ override_dh_auto_build:
 	mkdir -p ${SRCDIR}
 	mkdir -p ${GOBIN}
 	# copy project to local srcdir to build from there
-	rsync -avz --progress --exclude=_build --exclude=debian --exclude=tmp. --exclude=go.mod . $(SRCDIR)
+	rsync -avz --progress --exclude=_build --exclude=debian --exclude=tmp. --exclude=go.mod --exclude=docs . $(SRCDIR)
 	# build go code
 	(cd ${SRCDIR} && go install -buildmode=pie ./...)
 	
@@ -48,8 +48,6 @@ override_dh_auto_test:
 	(cd ${SRCDIR} && go test -v ./...)
 
 override_dh_auto_install:
-	mkdir -p ${DESTDIR}/${BINDIR}
-	mkdir -p ${DESTDIR}/${ASSETSDIR}
 	cp ${GOBIN}/yq ${DESTDIR}/${BINDIR}
 	cp -f ${SRCDIR}/LICENSE ${DESTDIR}/${ASSETSDIR}
 	chmod a+x ${DESTDIR}/${BINDIR}/yq
