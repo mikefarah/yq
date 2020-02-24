@@ -1,21 +1,24 @@
-yq (3.1-1ubuntu1) eoan; urgency=medium
+yq (3.1-2) eoan; urgency=medium
 
-  * yq 3 was removing empty inline-style objects and arrays (Closes: #355)
-  * Merge option returned different output when switching order of merging files (Closes: #347)
-  * Add new object to existing array object was failing in 3.1.1 (Closes: #361)
-  * yq 3 empty keys did not allow merging of values (Closes: #356)
-  * keys quoted during merge (Closes: #363)
-  * Correct length with wc -l (Closes: #362)
-  * Write to empty document removed path (Closes: #359)
+  * Bug fix: yq 3 was removing empty inline-style objects and arrays (#355)
+  * Bug fix: Merge option returned different output when switching order of 
+    merging files(#347)
+  * Bug fix: Add new object to existing array object was failing in 3.1.1 (#361)
+  * Bug fix: yq 3 empty keys did not allow merging of values (#356)
+  * Bug fix: keys quoted during merge (#363)
+  * Bug fix: Correct length with wc -l (#362)
+  * Bug fix: Write to empty document removed path (#359)
 
  -- Roberto Mier Escandon <rmescandon@gmail.com>  Mon, 24 Feb 2020 20:31:58 +0100
 
 yq (3.1-1) eoan; urgency=medium
 
   * Keeps yaml comments and formatting, can specify yaml tags when updating.
-  * Handles anchors!  https://github.com/mikefarah/yq/issues/310, https://github.com/mikefarah/yq/issues/178
-  * Can print out matching paths and values when splatting https://github.com/mikefarah/yq/issues/20
-  * JSON output works for all commands! Yaml files with multiple documents are printed out as one JSON document per line.
+  * Handles anchors
+  * Can print out matching paths and values when splatting
+  * JSON output works for all commands
+  * Yaml files with multiple documents are printed out as one JSON 
+    document per line.
   * Deep splat (**) to match arbitrary paths
   * Update scripts file format has changed to be more powerful
   * Reading and splatting, matching results are printed once per line

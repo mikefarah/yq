@@ -33,6 +33,8 @@
   - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
 
 - debian package
+  - ensure you get all vendor dependencies before packaging
+	```go mod vendor```
   - execute 
     ```dch -i```
   - fill debian/changelog with changes from last version
