@@ -1,0 +1,11 @@
+name: 'YAML processor'
+description: 'YAML processor for running in Github action'
+inputs:
+  cmd:
+    description: 'The Command which should be run'
+    required: true
+runs:
+  using: 'docker'
+  image: 'github-action/Dockerfile'
+  args:
+    - ${{ inputs.cmd }}
