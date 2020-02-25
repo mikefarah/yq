@@ -24,5 +24,7 @@ jobs:
             dep ensure
         fi
 
+    - name: Download deps
+      run: scripts/devtools.sh
     - name: Build
-      run: make local test
+      run: make local build
