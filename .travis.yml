@@ -1,6 +1,0 @@
-language: go
-go:
-  - 1.13.x
-script:
-  - scripts/devtools.sh
-  - make local build
