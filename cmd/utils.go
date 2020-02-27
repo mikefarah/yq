@@ -77,20 +77,12 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
-func printValue(node *yaml.Node, writer io.Writer) error {
-	if node.Kind == yaml.ScalarNode {
-		_, errorWriting := writer.Write([]byte(node.Value + "\n"))
-		return errorWriting
-	}
-	return printNode(node, writer)
-}
-
 func printNode(node *yaml.Node, writer io.Writer) error {
 	var encoder yqlib.Encoder
 	if outputToJSON {
 		encoder = yqlib.NewJsonEncoder(writer, prettyPrint, indent)
 	} else {
-		encoder = yqlib.NewYamlEncoder(writer, indent)
+		encoder = yqlib.NewYamlEncoder(writer, indent, colorsEnabled)
 	}
 	return encoder.Encode(node)
 }
@@ -173,11 +165,11 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 			parentNode.Content = make([]*yaml.Node, 2)
 			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
 			parentNode.Content[1] = mappedDoc.Node
-			if err := printValue(&parentNode, bufferedWriter); err != nil {
+			if err := printNode(&parentNode, bufferedWriter); err != nil {
 				return err
 			}
 		default:
-			if err := printValue(mappedDoc.Node, bufferedWriter); err != nil {
+			if err := printNode(mappedDoc.Node, bufferedWriter); err != nil {
 				return err
 			}
 		}
@@ -332,8 +324,9 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 	if outputToJSON {
 		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint, indent)
 	} else {
-		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent)
+		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent, colorsEnabled)
 	}
+
 	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
 }
 

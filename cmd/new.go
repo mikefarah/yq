@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/mikefarah/yq/v3/pkg/yqlib"
 	"github.com/spf13/cobra"
-	yaml "gopkg.in/yaml.v3"
 )
 
 func createNewCmd() *cobra.Command {
@@ -46,9 +46,6 @@ func newProperty(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	var encoder = yaml.NewEncoder(cmd.OutOrStdout())
-	encoder.SetIndent(2)
-	errorEncoding := encoder.Encode(&newNode)
-	encoder.Close()
-	return errorEncoding
+	var encoder = yqlib.NewYamlEncoder(cmd.OutOrStdout(), indent, colorsEnabled)
+	return encoder.Encode(&newNode)
 }

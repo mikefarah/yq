@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 
@@ -12,20 +13,45 @@ type Encoder interface {
 }
 
 type yamlEncoder struct {
-	encoder *yaml.Encoder
+	destination io.Writer
+	indent      int
+	colorise    bool
+	firstDoc    bool
 }
 
-func NewYamlEncoder(destination io.Writer, indent int) Encoder {
-	var encoder = yaml.NewEncoder(destination)
+func NewYamlEncoder(destination io.Writer, indent int, colorise bool) Encoder {
 	if indent < 0 {
 		indent = 0
 	}
-	encoder.SetIndent(indent)
-	return &yamlEncoder{encoder}
+	return &yamlEncoder{destination, indent, colorise, true}
 }
 
 func (ye *yamlEncoder) Encode(node *yaml.Node) error {
-	return ye.encoder.Encode(node)
+
+	destination := ye.destination
+	tempBuffer := bytes.NewBuffer(nil)
+	if ye.colorise {
+		destination = tempBuffer
+	}
+
+	var encoder = yaml.NewEncoder(destination)
+
+	encoder.SetIndent(ye.indent)
+	// TODO: work out if the first doc had a separator or not.
+	if ye.firstDoc {
+		ye.firstDoc = false
+	} else if _, err := destination.Write([]byte("---\n")); err != nil {
+		return err
+	}
+
+	if err := encoder.Encode(node); err != nil {
+		return err
+	}
+
+	if ye.colorise {
+		return ColorizeAndPrint(tempBuffer.Bytes(), ye.destination)
+	}
+	return nil
 }
 
 type jsonEncoder struct {
