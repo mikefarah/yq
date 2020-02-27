@@ -1,6 +1,8 @@
 module github.com/mikefarah/yq/v3
 
 require (
+	github.com/fatih/color v1.9.0
+	github.com/goccy/go-yaml v1.3.2
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0
 	github.com/pkg/errors v0.8.1
