@@ -13,6 +13,7 @@ var sourceYamlFile = ""
 var outputToJSON = false
 var prettyPrint = false
 var explodeAnchors = false
+var colorsEnabled = false
 var defaultValue = ""
 var indent = 2
 var overwriteFlag = false
