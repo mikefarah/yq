@@ -79,8 +79,10 @@ yq() {
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
+- [Colorize the output](https://mikefarah.gitbook.io/yq/usage/color)
 - [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
 - [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
+- [Return the lengths of arrays/object/scalars](https://mikefarah.gitbook.io/yq/commands/read#length)
 - Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
 - Deeply [compare](https://mikefarah.gitbook.io/yq/commands/compare) yaml files
@@ -114,6 +116,7 @@ Available Commands:
   write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
+  -C, --colors        print using colors
   -h, --help          help for yq
   -I, --indent int    sets indent level for output (default 2)
   -P, --prettyPrint   pretty print
