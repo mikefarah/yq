@@ -43,7 +43,7 @@ func New() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
-	rootCmd.PersistentFlags().BoolVarP(&colorsEnabled, "colorsEnabled", "C", false, "enable colors")
+	rootCmd.PersistentFlags().BoolVarP(&colorsEnabled, "colors", "C", false, "print using colors")
 
 	rootCmd.AddCommand(
 		createReadCmd(),
