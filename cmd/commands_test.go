@@ -225,6 +225,8 @@ func TestReadArrayLengthDeepMultipleCmd(t *testing.T) {
 	content := `holderA: 
 - things
 - whatever
+skipMe:
+- yep
 holderB: 
 - other things
 - cool
@@ -233,11 +235,54 @@ holderB:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder*", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l -c %s holder*", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "4\n", result.Output)
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadCollectCmd(t *testing.T) {
+	content := `holderA: yep
+skipMe: not me
+holderB: me too
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -c %s holder*", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- yep
+- me too
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadCollectArrayCmd(t *testing.T) {
+	content := `- name: fred
+  value: 32
+- name: sam
+  value: 67
+- name: fernie
+  value: 103
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -c %s (name==f*)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- name: fred
+  value: 32
+- name: fernie
+  value: 103
+`
+	test.AssertResult(t, expectedOutput, result.Output)
 }
 
 func TestReadArrayLengthDeepMultipleWithPathCmd(t *testing.T) {
@@ -302,11 +347,11 @@ holderB:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder*", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l -c %s holder*", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "4\n", result.Output)
+	test.AssertResult(t, "2\n", result.Output)
 }
 
 func TestReadObjectLengthDeepMultipleWithPathsCmd(t *testing.T) {
