@@ -190,6 +190,157 @@ func TestReadArrayCmd(t *testing.T) {
 	test.AssertResult(t, "b.e.[1].name: sam\n", result.Output)
 }
 
+func TestReadArrayLengthCmd(t *testing.T) {
+	content := `- things
+- whatever
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadArrayLengthDeepCmd(t *testing.T) {
+	content := `holder: 
+- things
+- whatever
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadArrayLengthDeepMultipleCmd(t *testing.T) {
+	content := `holderA: 
+- things
+- whatever
+holderB: 
+- other things
+- cool
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder*", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "4\n", result.Output)
+}
+
+func TestReadArrayLengthDeepMultipleWithPathCmd(t *testing.T) {
+	content := `holderA: 
+- things
+- whatever
+holderB: 
+- other things
+- cool
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s -ppv holder*", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "holderA: 2\nholderB: 2", result.Output)
+}
+
+func TestReadObjectLengthCmd(t *testing.T) {
+	content := `cat: meow
+dog: bark
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadObjectLengthDeepCmd(t *testing.T) {
+	content := `holder: 
+	cat: meow
+	dog: bark
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadObjectLengthDeepMultipleCmd(t *testing.T) {
+	content := `holderA: 
+	cat: meow
+	dog: bark
+holderB: 
+	elephant: meow
+	zebra: bark
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder*", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "4\n", result.Output)
+}
+
+func TestReadObjectLengthDeepMultipleWithPathsCmd(t *testing.T) {
+	content := `holderA: 
+	cat: meow
+	dog: bark
+holderB: 
+	elephant: meow
+	zebra: bark
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l -ppv %s holder*", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "holderA: 2\nholderB: 2\n", result.Output)
+}
+
+func TestReadScalarLengthCmd(t *testing.T) {
+	content := `meow`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
 func TestReadDeepSplatCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.**")

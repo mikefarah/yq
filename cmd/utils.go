@@ -128,6 +128,19 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 	return nil
 }
 
+func convertToLength(node *yaml.Node) *yaml.Node {
+
+		switch kindToCheck {
+	case yaml.ScalarNode:
+		return len(node.Value)
+	case yaml.MappingNode:
+		return len(node.Content) / 2
+	default:
+		return len(node.Content)
+	}
+
+}
+
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	if prettyPrint {
 		setStyle(matchingNodes, 0)
