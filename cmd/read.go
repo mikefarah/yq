@@ -27,6 +27,7 @@ yq r -- things.yaml '--key-starting-with-dashes.blah'
 	cmdRead.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
 	cmdRead.PersistentFlags().StringVarP(&defaultValue, "defaultValue", "D", "", "default value printed when there are no results")
 	cmdRead.PersistentFlags().BoolVarP(&printLength, "length", "l", false, "print length of results")
+	cmdRead.PersistentFlags().BoolVarP(&collectIntoArray, "collect", "c", false, "collect results into array")
 	cmdRead.PersistentFlags().BoolVarP(&explodeAnchors, "explodeAnchors", "X", false, "explode anchors")
 	return cmdRead
 }

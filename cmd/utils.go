@@ -176,6 +176,9 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 		return nil
 	}
 	var errorWriting error
+
+	var arrayCollection = yaml.Node{Kind: yaml.SequenceNode}
+
 	for _, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "p":
@@ -189,13 +192,23 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 			parentNode.Content = make([]*yaml.Node, 2)
 			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
 			parentNode.Content[1] = transformNode(mappedDoc.Node)
-			if err := printNode(&parentNode, bufferedWriter); err != nil {
+			if collectIntoArray {
+				arrayCollection.Content = append(arrayCollection.Content, &parentNode)
+			} else if err := printNode(&parentNode, bufferedWriter); err != nil {
 				return err
 			}
 		default:
-			if err := printNode(transformNode(mappedDoc.Node), bufferedWriter); err != nil {
+			if collectIntoArray {
+				arrayCollection.Content = append(arrayCollection.Content, mappedDoc.Node)
+			} else if err := printNode(transformNode(mappedDoc.Node), bufferedWriter); err != nil {
 				return err
 			}
+		}
+	}
+
+	if collectIntoArray {
+		if err := printNode(transformNode(&arrayCollection), bufferedWriter); err != nil {
+			return err
 		}
 	}
 
