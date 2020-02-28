@@ -256,7 +256,7 @@ holderB:
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "holderA: 2\nholderB: 2", result.Output)
+	test.AssertResult(t, "holderA: 2\nholderB: 2\n", result.Output)
 }
 
 func TestReadObjectLengthCmd(t *testing.T) {
@@ -276,8 +276,8 @@ dog: bark
 
 func TestReadObjectLengthDeepCmd(t *testing.T) {
 	content := `holder: 
-	cat: meow
-	dog: bark
+  cat: meow
+  dog: bark
 `
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
@@ -292,11 +292,11 @@ func TestReadObjectLengthDeepCmd(t *testing.T) {
 
 func TestReadObjectLengthDeepMultipleCmd(t *testing.T) {
 	content := `holderA: 
-	cat: meow
-	dog: bark
+  cat: meow
+  dog: bark
 holderB: 
-	elephant: meow
-	zebra: bark
+  elephant: meow
+  zebra: bark
 `
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
@@ -311,11 +311,11 @@ holderB:
 
 func TestReadObjectLengthDeepMultipleWithPathsCmd(t *testing.T) {
 	content := `holderA: 
-	cat: meow
-	dog: bark
+  cat: meow
+  dog: bark
 holderB: 
-	elephant: meow
-	zebra: bark
+  elephant: meow
+  zebra: bark
 `
 	filename := test.WriteTempYamlFile(content)
 	defer test.RemoveTempYamlFile(filename)
@@ -338,7 +338,7 @@ func TestReadScalarLengthCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	test.AssertResult(t, "2\n", result.Output)
+	test.AssertResult(t, "4\n", result.Output)
 }
 
 func TestReadDeepSplatCmd(t *testing.T) {

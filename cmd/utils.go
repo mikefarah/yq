@@ -77,6 +77,30 @@ func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.
 	return append(originalMatchingNodes, matchingNodes...), nil
 }
 
+func lengthOf(node *yaml.Node) int {
+	kindToCheck := node.Kind
+	if node.Kind == yaml.DocumentNode && len(node.Content) == 1 {
+		log.Debugf("length of document node, calculating length of child")
+		kindToCheck = node.Content[0].Kind
+	}
+	switch kindToCheck {
+	case yaml.ScalarNode:
+		return len(node.Value)
+	case yaml.MappingNode:
+		return len(node.Content) / 2
+	default:
+		return len(node.Content)
+	}
+}
+
+// transforms node before printing, if required
+func transformNode(node *yaml.Node) *yaml.Node {
+	if printLength {
+		return &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", lengthOf(node))}
+	}
+	return node
+}
+
 func printNode(node *yaml.Node, writer io.Writer) error {
 	var encoder yqlib.Encoder
 	if outputToJSON {
@@ -128,19 +152,6 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 	return nil
 }
 
-func convertToLength(node *yaml.Node) *yaml.Node {
-
-		switch kindToCheck {
-	case yaml.ScalarNode:
-		return len(node.Value)
-	case yaml.MappingNode:
-		return len(node.Content) / 2
-	default:
-		return len(node.Content)
-	}
-
-}
-
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	if prettyPrint {
 		setStyle(matchingNodes, 0)
@@ -177,12 +188,12 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 			var parentNode = yaml.Node{Kind: yaml.MappingNode}
 			parentNode.Content = make([]*yaml.Node, 2)
 			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
-			parentNode.Content[1] = mappedDoc.Node
+			parentNode.Content[1] = transformNode(mappedDoc.Node)
 			if err := printNode(&parentNode, bufferedWriter); err != nil {
 				return err
 			}
 		default:
-			if err := printNode(mappedDoc.Node, bufferedWriter); err != nil {
+			if err := printNode(transformNode(mappedDoc.Node), bufferedWriter); err != nil {
 				return err
 			}
 		}
