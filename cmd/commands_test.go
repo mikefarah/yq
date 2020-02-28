@@ -2005,6 +2005,20 @@ func TestDeleteYamlArrayCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadExpression(t *testing.T) {
+	content := `name: value`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("r %s (x==f)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := ``
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteYamlArrayExpressionCmd(t *testing.T) {
 	content := `- name: fred
 - name: cat

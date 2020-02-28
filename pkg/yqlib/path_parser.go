@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	yaml "gopkg.in/yaml.v3"
 )
 
 type PathParser interface {
@@ -45,7 +47,7 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 	}
 	var headString = fmt.Sprintf("%v", head)
 
-	if strings.Contains(headString, "==") {
+	if strings.Contains(headString, "==") && nodeContext.Node.Kind != yaml.ScalarNode {
 		log.Debug("ooh deep recursion time")
 		result := strings.SplitN(headString, "==", 2)
 		path := strings.TrimSpace(result[0])
