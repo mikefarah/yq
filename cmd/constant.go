@@ -7,6 +7,7 @@ import (
 
 var customTag = ""
 var printMode = "v"
+var printLength = false
 var writeInplace = false
 var writeScript = ""
 var sourceYamlFile = ""
