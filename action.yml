@@ -1,5 +1,7 @@
 name: 'YAML processor'
 description: 'YAML processor for running in Github action'
+icon: command
+color: gray-dark
 inputs:
   cmd:
     description: 'The Command which should be run'
