@@ -2019,7 +2019,7 @@ func TestReadExpression(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestReadFindValueCmd(t *testing.T) {
+func TestReadFindValueArrayCmd(t *testing.T) {
 	content := `- cat
 - dog
 - rat
@@ -2037,7 +2037,7 @@ func TestReadFindValueCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestReadFindValueDeepCmd(t *testing.T) {
+func TestReadFindValueDeepArrayCmd(t *testing.T) {
 	content := `animals:
   - cat
   - dog
@@ -2052,6 +2052,24 @@ func TestReadFindValueDeepCmd(t *testing.T) {
 	}
 
 	expectedOutput := `dog
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadFindValueDeepObjectCmd(t *testing.T) {
+	content := `animals:
+  great: yes
+  small: sometimes
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("r %s animals(.==yes) -ppv", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `animals.great: yes
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
