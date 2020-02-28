@@ -65,6 +65,14 @@ func (p *pathParser) MatchesNextPathElement(nodeContext NodeContext, nodeKey str
 		}
 		log.Debug("done deep recursing, found %v matches", len(navigationStrategy.GetVisitedNodes()))
 		return len(navigationStrategy.GetVisitedNodes()) > 0
+	} else if strings.Contains(headString, "==") && nodeContext.Node.Kind == yaml.ScalarNode {
+		result := strings.SplitN(headString, "==", 2)
+		path := strings.TrimSpace(result[0])
+		value := strings.TrimSpace(result[1])
+		if path == "." {
+			log.Debug("need to match scalar")
+			return matchesString(value, nodeContext.Node.Value)
+		}
 	}
 
 	if head == "+" {

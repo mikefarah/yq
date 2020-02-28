@@ -2019,6 +2019,43 @@ func TestReadExpression(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadFindValueCmd(t *testing.T) {
+	content := `- cat
+- dog
+- rat
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("r %s (.==dog)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `dog
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadFindValueDeepCmd(t *testing.T) {
+	content := `animals:
+  - cat
+  - dog
+  - rat
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("r %s animals(.==dog)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `dog
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteYamlArrayExpressionCmd(t *testing.T) {
 	content := `- name: fred
 - name: cat
