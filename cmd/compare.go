@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"os"
 	"strings"
 
 	"github.com/kylelemons/godebug/diff"
@@ -10,6 +11,9 @@ import (
 	errors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
+
+// turn off for unit tests :(
+var forceOsExit = true
 
 func createCompareCmd() *cobra.Command {
 	var cmdCompare = &cobra.Command{
@@ -70,7 +74,14 @@ func compareDocuments(cmd *cobra.Command, args []string) error {
 		return errorDoingThings
 	}
 
-	cmd.Print(diff.Diff(strings.TrimSuffix(dataBufferA.String(), "\n"), strings.TrimSuffix(dataBufferB.String(), "\n")))
-	cmd.Print("\n")
+	diffString := diff.Diff(strings.TrimSuffix(dataBufferA.String(), "\n"), strings.TrimSuffix(dataBufferB.String(), "\n"))
+
+	if len(diffString) > 1 {
+		cmd.Print(diffString)
+		cmd.Print("\n")
+		if forceOsExit {
+			os.Exit(1)
+		}
+	}
 	return nil
 }
