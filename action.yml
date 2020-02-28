@@ -1,5 +1,5 @@
-name: 'YAML processor'
-description: 'YAML processor for running in Github action'
+name: 'yq'
+description: 'update, validate and do more with yaml documents'
 icon: command
 color: gray-dark
 inputs:
