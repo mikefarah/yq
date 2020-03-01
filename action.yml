@@ -1,4 +1,4 @@
-name: 'yq action - portable yaml processor'
+name: 'yq - portable yaml processor'
 description: 'create, read, update, delete, merge, validate and do more with yaml'
 icon: command
 color: gray-dark
