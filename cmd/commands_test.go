@@ -443,6 +443,25 @@ hijklmno
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadQuotedMultinlineNoNewLineStringCmd(t *testing.T) {
+	content := `test: |-
+  abcdefg    
+  hijklmno
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s test", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `abcdefg    
+hijklmno
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadBooleanCmd(t *testing.T) {
 	content := `name: true`
 	filename := test.WriteTempYamlFile(content)
