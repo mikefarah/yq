@@ -397,6 +397,78 @@ func TestReadScalarLengthCmd(t *testing.T) {
 	test.AssertResult(t, "4\n", result.Output)
 }
 
+func TestReadDoubleQuotedStringCmd(t *testing.T) {
+	content := `name: "meow face"`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s name", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "meow face\n", result.Output)
+}
+
+func TestReadSingleQuotedStringCmd(t *testing.T) {
+	content := `name: 'meow face'`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s name", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "meow face\n", result.Output)
+}
+
+func TestReadQuotedMultinlineStringCmd(t *testing.T) {
+	content := `test: |
+  abcdefg    
+  hijklmno
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s test", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `abcdefg    
+hijklmno
+
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestReadBooleanCmd(t *testing.T) {
+	content := `name: true`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s name", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "true\n", result.Output)
+}
+
+func TestReadNumberCmd(t *testing.T) {
+	content := `name: 32.13`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s name", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "32.13\n", result.Output)
+}
+
 func TestReadDeepSplatCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -p pv ../examples/sample.yaml b.**")

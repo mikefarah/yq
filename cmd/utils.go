@@ -103,6 +103,9 @@ func transformNode(node *yaml.Node) *yaml.Node {
 
 func printNode(node *yaml.Node, writer io.Writer) error {
 	var encoder yqlib.Encoder
+	if node.Kind == yaml.ScalarNode {
+		return writeString(writer, node.Value+"\n")
+	}
 	if outputToJSON {
 		encoder = yqlib.NewJsonEncoder(writer, prettyPrint, indent)
 	} else {
