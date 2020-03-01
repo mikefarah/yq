@@ -79,10 +79,10 @@ yq() {
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
-- [Colorize the output](https://mikefarah.gitbook.io/yq/usage/color)
+- [Colorize the output](https://mikefarah.gitbook.io/yq/usage/output-format#colorize-output)
 - [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
 - [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
-- [Return the lengths of arrays/object/scalars](https://mikefarah.gitbook.io/yq/commands/read#length)
+- [Return the lengths of arrays/object/scalars](https://mikefarah.gitbook.io/yq/commands/read#printing-length-of-the-results)
 - Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly
 - Deeply [compare](https://mikefarah.gitbook.io/yq/commands/compare) yaml files
