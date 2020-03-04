@@ -16,6 +16,7 @@ parts:
   yq:
     plugin: go
     source: .
+    source-type: git
     go-importpath: github.com/mikefarah/yq
     after: [go]
   go:
