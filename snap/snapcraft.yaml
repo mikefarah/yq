@@ -4,6 +4,7 @@ summary: A lightweight and portable command-line YAML processor
 description: |
   The aim of the project is to be the jq or sed of yaml files.
 
+base: core18
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
 
@@ -15,9 +16,7 @@ apps:
 parts:
   yq:
     plugin: go
+    go-channel: 1.13/stable
     source: .
     source-type: git
     go-importpath: github.com/mikefarah/yq
-    after: [go]
-  go:
-    source-tag: go1.13
