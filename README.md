@@ -126,3 +126,7 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/mikefarah/yq.svg)](https://starchart.cc/mikefarah/yq)
