@@ -201,6 +201,49 @@ func TestReadArrayCmd(t *testing.T) {
 	test.AssertResult(t, "b.e.[1].name: sam\n", result.Output)
 }
 
+func TestReadArrayBackwardsCmd(t *testing.T) {
+	content := `- one
+- two
+- three`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -p pv %s [-1]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "'[-1]': three\n", result.Output)
+}
+
+func TestReadArrayBackwardsNegative0Cmd(t *testing.T) {
+	content := `- one
+- two
+- three`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -p pv %s [-0]", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "'[0]': one\n", result.Output)
+}
+
+func TestReadArrayBackwardsPastLimitCmd(t *testing.T) {
+	content := `- one
+- two
+- three`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -p pv %s [-4]", filename))
+	expectedOutput := "Error reading path in document index 0: Index [-4] out of range, array size is 3"
+	test.AssertResult(t, expectedOutput, result.Error.Error())
+}
+
 func TestReadArrayLengthCmd(t *testing.T) {
 	content := `- things
 - whatever
