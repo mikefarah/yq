@@ -1,4 +1,4 @@
-FROM golang:1.13
+FROM golang:1.14
 
 COPY scripts/devtools.sh /opt/devtools.sh
 
@@ -9,15 +9,15 @@ RUN set -e -x \
 RUN set -ex \
     && buildDeps=' \
         build-essential \
-        python-dev \
+        python3-dev \
     ' \
     && apt-get update && apt-get install -y --no-install-recommends \
         $buildDeps \
-        python2.7 \
-        python-setuptools \
-        python-wheel \
-        python-pip \
-    && pip install --upgrade \
+        python3 \
+        python3-setuptools \
+        python3-wheel \
+        python3-pip \
+    && pip3 install --upgrade \
         pip \
         'Markdown>=2.6.9' \
         'mkdocs>=0.16.3' \
