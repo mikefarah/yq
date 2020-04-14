@@ -25,6 +25,10 @@ jobs:
         fi
 
     - name: Download deps
-      run: scripts/devtools.sh
+      run: |
+        export PATH=${PATH}:`go env GOPATH`/bin
+        scripts/devtools.sh
     - name: Build
-      run: make local build
+      run: |
+        export PATH=${PATH}:`go env GOPATH`/bin
+        make local build
