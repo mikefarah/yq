@@ -263,6 +263,7 @@ func (n *navigator) recurseArray(value *yaml.Node, index int64, head interface{}
 	var contentLength = int64(len(value.Content))
 	for contentLength <= index {
 		value.Content = append(value.Content, &yaml.Node{Kind: guessKind(head, tail, 0)})
+		contentLength = int64(len(value.Content))
 	}
 	var indexToUse = index
 
