@@ -9,6 +9,7 @@ var customTag = ""
 var printMode = "v"
 var printLength = false
 var unwrapScalar = true
+var stripComments = false
 var collectIntoArray = false
 var writeInplace = false
 var writeScript = ""

@@ -109,6 +109,29 @@ func TestReadUnwrapCmd(t *testing.T) {
 	test.AssertResult(t, "'frog' # my favourite\n", result.Output)
 }
 
+func TestReadStripCommentsCmd(t *testing.T) {
+
+	content := `# this is really cool
+b: # my favourite
+  c: 5 # cats
+# blah
+`
+
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s --stripComments", filename))
+
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 5
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadUnwrapJsonByDefaultCmd(t *testing.T) {
 
 	content := `b: 'frog' # my favourite`

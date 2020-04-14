@@ -114,6 +114,22 @@ func printNode(node *yaml.Node, writer io.Writer) error {
 	return encoder.Encode(node)
 }
 
+func removeComments(matchingNodes []*yqlib.NodeContext) {
+	for _, nodeContext := range matchingNodes {
+		removeCommentOfNode(nodeContext.Node)
+	}
+}
+
+func removeCommentOfNode(node *yaml.Node) {
+	node.HeadComment = ""
+	node.LineComment = ""
+	node.FootComment = ""
+
+	for _, child := range node.Content {
+		removeCommentOfNode(child)
+	}
+}
+
 func setStyle(matchingNodes []*yqlib.NodeContext, style yaml.Style) {
 	for _, nodeContext := range matchingNodes {
 		updateStyleOfNode(nodeContext.Node, style)
@@ -158,6 +174,10 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	if prettyPrint {
 		setStyle(matchingNodes, 0)
+	}
+
+	if stripComments {
+		removeComments(matchingNodes)
 	}
 
 	//always explode anchors when printing json
