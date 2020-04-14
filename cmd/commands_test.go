@@ -109,6 +109,21 @@ func TestReadUnwrapCmd(t *testing.T) {
 	test.AssertResult(t, "'frog' # my favourite\n", result.Output)
 }
 
+func TestReadUnwrapJsonByDefaultCmd(t *testing.T) {
+
+	content := `b: 'frog' # my favourite`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s b -j", filename))
+
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "\"frog\"\n", result.Output)
+}
+
 func TestCompareSameCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "compare ../examples/data1.yaml ../examples/data1.yaml")
