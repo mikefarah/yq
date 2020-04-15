@@ -351,6 +351,7 @@ func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io
 func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
 	var destination io.Writer
 	var destinationName string
+	var completedSuccessfully = false
 	if writeInplace {
 		info, err := os.Stat(inputFile)
 		if err != nil {
@@ -368,7 +369,9 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 		destination = tempFile
 		defer func() {
 			safelyCloseFile(tempFile)
-			safelyRenameFile(tempFile.Name(), inputFile)
+			if completedSuccessfully {
+				safelyRenameFile(tempFile.Name(), inputFile)
+			}
 		}()
 	} else {
 		destination = stdOut
@@ -387,7 +390,9 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent, colorsEnabled)
 	}
 
-	return readStream(inputFile, mapYamlDecoder(updateData, encoder))
+	var errorProcessing = readStream(inputFile, mapYamlDecoder(updateData, encoder))
+	completedSuccessfully = errorProcessing == nil
+	return errorProcessing
 }
 
 type updateCommandParsed struct {

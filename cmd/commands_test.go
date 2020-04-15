@@ -1927,6 +1927,22 @@ func TestWriteCmd_Inplace(t *testing.T) {
 	test.AssertResult(t, expectedOutput, strings.Trim(gotOutput, "\n "))
 }
 
+func TestWriteCmd_InplaceError(t *testing.T) {
+	content := `b: cat
+  c: 3
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write -i %s b.c 7", filename))
+	if result.Error == nil {
+		t.Error("Expected Error to occur!")
+	}
+	gotOutput := test.ReadTempYamlFile(filename)
+	test.AssertResult(t, content, gotOutput)
+}
+
 func TestWriteCmd_Append(t *testing.T) {
 	content := `b:
   - foo
