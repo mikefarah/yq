@@ -63,6 +63,46 @@ func TestWriteWithDoubleQuotedStyleCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteUpdateStyleOnlyCmd(t *testing.T) {
+	content := `b:
+  c: dog
+  d: things
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.* --style=single", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 'dog'
+  d: 'things'
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestWriteUpdateTagOnlyCmd(t *testing.T) {
+	content := `b:
+  c: true
+  d: false
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.* --tag=!!str", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: "true"
+  d: "false"
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteWithSingleQuotedStyleCmd(t *testing.T) {
 	content := `b:
   c: dog

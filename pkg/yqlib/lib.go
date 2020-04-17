@@ -13,10 +13,11 @@ import (
 var log = logging.MustGetLogger("yq")
 
 type UpdateCommand struct {
-	Command   string
-	Path      string
-	Value     *yaml.Node
-	Overwrite bool
+	Command             string
+	Path                string
+	Value               *yaml.Node
+	Overwrite           bool
+	DontUpdateNodeValue bool
 }
 
 func KindString(kind yaml.Kind) string {

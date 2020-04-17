@@ -21,7 +21,9 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 				DebugNode(node)
 				log.Debug("with")
 				DebugNode(changesToApply)
-				node.Value = changesToApply.Value
+				if !updateCommand.DontUpdateNodeValue {
+					node.Value = changesToApply.Value
+				}
 				node.Tag = changesToApply.Tag
 				node.Kind = changesToApply.Kind
 				node.Style = changesToApply.Style
