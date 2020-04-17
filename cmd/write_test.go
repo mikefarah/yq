@@ -53,7 +53,7 @@ func TestWriteWithDoubleQuotedStyleCmd(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c cat --style=doubleQuoted", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c cat --style=double", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -71,7 +71,7 @@ func TestWriteWithSingleQuotedStyleCmd(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c cat --style=singleQuoted", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c cat --style=single", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}

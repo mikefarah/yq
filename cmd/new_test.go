@@ -54,7 +54,7 @@ func TestNewWithTaggedStyleCmd(t *testing.T) {
 
 func TestNewWithDoubleQuotedStyleCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "new b.c cat --style=doubleQuoted")
+	result := test.RunCmd(cmd, "new b.c cat --style=double")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -66,7 +66,7 @@ func TestNewWithDoubleQuotedStyleCmd(t *testing.T) {
 
 func TestNewWithSingleQuotedStyleCmd(t *testing.T) {
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, "new b.c cat --style=singleQuoted")
+	result := test.RunCmd(cmd, "new b.c cat --style=single")
 	if result.Error != nil {
 		t.Error(result.Error)
 	}

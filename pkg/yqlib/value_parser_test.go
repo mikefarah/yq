@@ -13,8 +13,8 @@ var parseStyleTests = []struct {
 }{
 	{"", 0},
 	{"tagged", yaml.TaggedStyle},
-	{"doubleQuoted", yaml.DoubleQuotedStyle},
-	{"singleQuoted", yaml.SingleQuotedStyle},
+	{"double", yaml.DoubleQuotedStyle},
+	{"single", yaml.SingleQuotedStyle},
 	{"folded", yaml.FoldedStyle},
 	{"literal", yaml.LiteralStyle},
 }

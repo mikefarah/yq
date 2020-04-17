@@ -19,14 +19,16 @@ func (v *valueParser) Parse(argument string, customTag string, customStyle strin
 	var style yaml.Style
 	if customStyle == "tagged" {
 		style = yaml.TaggedStyle
-	} else if customStyle == "doubleQuoted" {
+	} else if customStyle == "double" {
 		style = yaml.DoubleQuotedStyle
-	} else if customStyle == "singleQuoted" {
+	} else if customStyle == "single" {
 		style = yaml.SingleQuotedStyle
 	} else if customStyle == "literal" {
 		style = yaml.LiteralStyle
 	} else if customStyle == "folded" {
 		style = yaml.FoldedStyle
+	} else if customStyle != "" {
+		log.Error("Unknown style %v, ignoring", customStyle)
 	}
 
 	if argument == "[]" {
