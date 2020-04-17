@@ -438,7 +438,7 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		log.Debug("args %v", args)
 		log.Debug("path %v", args[expectedArgs-2])
 		log.Debug("Value %v", args[expectedArgs-1])
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse(args[expectedArgs-1], customTag), Overwrite: true}
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse(args[expectedArgs-1], customTag, customStyle), Overwrite: true}
 	}
 	return updateCommands, nil
 }

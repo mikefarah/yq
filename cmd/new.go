@@ -27,6 +27,7 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 	}
 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for creating yaml")
 	cmdNew.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
+	cmdNew.PersistentFlags().StringVarP(&customStyle, "style", "", "", "formatting style of the value: singleQuoted, doubleQuoted, folded, flow, literal, tagged")
 	return cmdNew
 }
 

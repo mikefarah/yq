@@ -1,0 +1,77 @@
+package cmd
+
+import (
+	"testing"
+
+	"github.com/mikefarah/yq/v3/test"
+)
+
+func TestNewCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c 3")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewArrayCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b[0] 3")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+- 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewCmd_Error(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c")
+	if result.Error == nil {
+		t.Error("Expected command to fail due to missing arg")
+	}
+	expectedOutput := `Must provide <path_to_update> <value>`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestNewWithTaggedStyleCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c cat --tag=!!str --style=tagged")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: !!str cat
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewWithDoubleQuotedStyleCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c cat --style=doubleQuoted")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: "cat"
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewWithSingleQuotedStyleCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c cat --style=singleQuoted")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 'cat'
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
