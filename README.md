@@ -60,20 +60,20 @@ GO111MODULE=on go get github.com/mikefarah/yq/v3
 Oneshot use:
 
 ```bash
-docker run --rm -v ${PWD}:/workdir mikefarah/yq yq [flags] <command> FILE...
+docker run --rm -v "${PWD}":/workdir mikefarah/yq yq [flags] <command> FILE...
 ```
 
 Run commands interactively:
 
 ```bash
-docker run --rm -it -v ${PWD}:/workdir mikefarah/yq sh
+docker run --rm -it -v "${PWD}":/workdir mikefarah/yq sh
 ```
 
 It can be useful to have a bash function to avoid typing the whole docker command:
 
 ```bash
 yq() {
-  docker run --rm -i -v ${PWD}:/workdir mikefarah/yq yq $@
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq yq "$@"
 }
 ```
 
