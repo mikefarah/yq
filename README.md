@@ -18,6 +18,13 @@ V3 is officially out - if you've been using v2 and want/need to upgrade, checkou
 ```
 brew install yq
 ```
+
+### Windows:
+```
+choco install yq
+```
+Supported by @chillum
+
 ### Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
