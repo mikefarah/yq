@@ -1,3 +1,13 @@
+yq (3.3-0) focal; urgency=medium
+
+  * You can control string styles (quotes) using the new --style flag
+  * String values now always have quotes when outputting to json
+  * Negative array indices now traverse the array backwards
+  * Added a --stripComments flag to print yaml without any comments
+  * Bumped go to version 1.14
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Thu, 30 Apr 2020 20:45:44 +0200
+
 yq (3.1-2) eoan; urgency=medium
 
   * Bug fix: yq 3 was removing empty inline-style objects and arrays (#355)
