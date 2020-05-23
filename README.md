@@ -31,7 +31,7 @@ snap install yq
 ```
 
 #### Snap notes
-`yq` installs with with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
+`yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
 ```
 sudo cat /etc/myfile | yq r - a.path
