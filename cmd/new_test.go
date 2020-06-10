@@ -25,7 +25,7 @@ func TestNewArrayCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-- 3
+  - 3
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }

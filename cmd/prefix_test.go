@@ -41,8 +41,8 @@ func TestPrefixCmdArray(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `- d:
-  - b:
-      c: 3
+    - b:
+        c: 3
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }

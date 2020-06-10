@@ -94,8 +94,8 @@ b:
 	expectedOutput := `a: 2
 b:
   hi:
-  - name: fred
-  - name: sam
+    - name: fred
+    - name: sam
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }

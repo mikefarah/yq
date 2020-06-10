@@ -101,10 +101,10 @@ func TestMergeAppendArraysCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `people:
-- name: Barry
-  age: 21
-- name: Roger
-  age: 44
+  - name: Barry
+    age: 21
+  - name: Roger
+    age: 44
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -146,8 +146,8 @@ another:
   document: here
 a: simple # just the best
 b:
-- 1
-- 2
+  - 1
+  - 2
 c:
   test: 1
 ---
@@ -317,8 +317,8 @@ func TestMergeAllowEmptyTargetCmd(t *testing.T) {
 	}
 	expectedOutput := `a: simple # just the best
 b:
-- 1
-- 2
+  - 1
+  - 2
 c:
   test: 1
 `

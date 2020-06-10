@@ -40,9 +40,9 @@ func TestComparePrettyCmd(t *testing.T) {
 	}
 	expectedOutput := ` a: simple # just the best
  b:
- - 1
--- 2
-+- 3
+   - 1
+-  - 2
++  - 3
  c:
    test: 1
 `

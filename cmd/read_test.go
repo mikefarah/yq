@@ -871,13 +871,13 @@ func TestReadPrettyPrintCmd(t *testing.T) {
 b:
   c: 2
   d:
-  - 3
-  - 4
+    - 3
+    - 4
   e:
-  - name: fred
-    value: 3
-  - name: sam
-    value: 4
+    - name: fred
+      value: 3
+    - name: sam
+      value: 4
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -892,13 +892,13 @@ func TestReadPrettyPrintWithIndentCmd(t *testing.T) {
 b:
     c: 2
     d:
-      - 3
-      - 4
+        - 3
+        - 4
     e:
-      - name: fred
-        value: 3
-      - name: sam
-        value: 4
+        - name: fred
+          value: 3
+        - name: sam
+          value: 4
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -914,8 +914,8 @@ func TestReadCmd_ArrayYaml_NoPath(t *testing.T) {
   hosts: lalaland
   name: "Apply smth"
   roles:
-  - lala
-  - land
+    - lala
+    - land
   serial: 1
 - become: false
   gather_facts: true
@@ -934,8 +934,8 @@ gather_facts: false
 hosts: lalaland
 name: "Apply smth"
 roles:
-- lala
-- land
+  - lala
+  - land
 serial: 1
 `
 	test.AssertResult(t, expectedOutput, result.Output)
@@ -952,8 +952,8 @@ gather_facts: false
 hosts: lalaland
 name: "Apply smth"
 roles:
-- lala
-- land
+  - lala
+  - land
 serial: 1
 become: false
 gather_facts: true
@@ -973,8 +973,8 @@ func TestReadCmd_ArrayYaml_SplatWithKeyAndValueCmd(t *testing.T) {
   hosts: lalaland
   name: "Apply smth"
   roles:
-  - lala
-  - land
+    - lala
+    - land
   serial: 1
 '[1]':
   become: false

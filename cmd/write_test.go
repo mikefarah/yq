@@ -261,9 +261,9 @@ func TestWriteAutoCreateCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `applications:
-- name: app
-  env:
-    hello: world
+  - name: app
+    env:
+      hello: world
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -476,8 +476,8 @@ func TestWriteCmd_Append(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-- foo
-- 7
+  - foo
+  - 7
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -508,8 +508,8 @@ func TestWriteCmd_AppendInlinePretty(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-- foo
-- 7
+  - foo
+  - 7
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -527,7 +527,7 @@ func TestWriteCmd_AppendEmptyArray(t *testing.T) {
 	}
 	expectedOutput := `a: 2
 b:
-- v
+  - v
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -546,8 +546,8 @@ func TestWriteCmd_SplatArray(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `b:
-- c: new
-- c: new
+  - c: new
+  - c: new
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
