@@ -16,6 +16,7 @@ var parseStyleTests = []struct {
 	{"double", yaml.DoubleQuotedStyle},
 	{"single", yaml.SingleQuotedStyle},
 	{"folded", yaml.FoldedStyle},
+	{"flow", yaml.FlowStyle},
 	{"literal", yaml.LiteralStyle},
 }
 

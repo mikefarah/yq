@@ -27,6 +27,8 @@ func (v *valueParser) Parse(argument string, customTag string, customStyle strin
 		style = yaml.LiteralStyle
 	} else if customStyle == "folded" {
 		style = yaml.FoldedStyle
+	} else if customStyle == "flow" {
+		style = yaml.FlowStyle
 	} else if customStyle != "" {
 		log.Error("Unknown style %v, ignoring", customStyle)
 	}
