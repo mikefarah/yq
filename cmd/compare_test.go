@@ -16,6 +16,55 @@ func TestCompareSameCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestCompareIgnoreCommentsCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "compare --stripComments ../examples/data1.yaml ../examples/data1-no-comments.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := ``
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestCompareDontIgnoreCommentsCmd(t *testing.T) {
+	forceOsExit = false
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "compare ../examples/data1.yaml ../examples/data1-no-comments.yaml")
+
+	expectedOutput := `-a: simple # just the best
++a: simple
+ b: [1, 2]
+ c:
+   test: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestCompareExplodeAnchorsCommentsCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "compare --explodeAnchors ../examples/simple-anchor.yaml ../examples/simple-anchor-exploded.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := ``
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestCompareDontExplodeAnchorsCmd(t *testing.T) {
+	forceOsExit = false
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "compare ../examples/simple-anchor.yaml ../examples/simple-anchor-exploded.yaml")
+
+	expectedOutput := `-foo: &foo
++foo:
+   a: 1
+ foobar:
+-  !!merge <<: *foo
++  a: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestCompareDifferentCmd(t *testing.T) {
 	forceOsExit = false
 	cmd := getRootCommand()
