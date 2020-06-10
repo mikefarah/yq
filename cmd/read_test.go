@@ -882,6 +882,24 @@ b:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadNotFoundWithExitStatus(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml adsf -e")
+	if result.Error == nil {
+		t.Error("Expected command to fail")
+	}
+	expectedOutput := `No matches found`
+	test.AssertResult(t, expectedOutput, result.Error.Error())
+}
+
+func TestReadNotFoundWithoutExitStatus(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml adsf")
+	if result.Error != nil {
+		t.Error("Expected command to succeed!")
+	}
+}
+
 func TestReadPrettyPrintWithIndentCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read -P -I4 ../examples/sample.json")

@@ -31,6 +31,7 @@ yq r -- things.yaml '--key-starting-with-dashes.blah'
 	cmdRead.PersistentFlags().BoolVarP(&unwrapScalar, "unwrapScalar", "", true, "unwrap scalar, print the value with no quotes, colors or comments")
 	cmdRead.PersistentFlags().BoolVarP(&stripComments, "stripComments", "", false, "print yaml without any comments")
 	cmdRead.PersistentFlags().BoolVarP(&explodeAnchors, "explodeAnchors", "X", false, "explode anchors")
+	cmdRead.PersistentFlags().BoolVarP(&exitStatus, "exitStatus", "e", false, "set exit status if no matches are found")
 	return cmdRead
 }
 
@@ -49,6 +50,11 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	}
 
 	matchingNodes, errorReadingStream := readYamlFile(args[0], path, updateAll, docIndexInt)
+
+	if exitStatus {
+		cmd.SilenceUsage = true
+		return errors.New("No matches found")
+	}
 
 	if errorReadingStream != nil {
 		return errorReadingStream

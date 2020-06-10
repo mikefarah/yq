@@ -16,6 +16,7 @@ var writeInplace = false
 var writeScript = ""
 var sourceYamlFile = ""
 var outputToJSON = false
+var exitStatus = false
 var prettyPrint = false
 var explodeAnchors = false
 var colorsEnabled = false
