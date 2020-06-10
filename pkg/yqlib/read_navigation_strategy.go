@@ -26,5 +26,8 @@ func ReadNavigationStrategy(deeplyTraverseArrays bool) NavigationStrategy {
 			}
 			return deeplyTraverseArrays || !isInArray
 		},
+		shouldOnlyDeeplyVisitLeaves: func(nodeContext NodeContext) bool {
+			return true
+		},
 	}
 }

@@ -18,9 +18,12 @@ func DeleteNavigationStrategy(pathElementToDelete interface{}) NavigationStrateg
 		shouldDeeplyTraverse: func(nodeContext NodeContext) bool {
 			return true
 		},
+		shouldOnlyDeeplyVisitLeaves: func(nodeContext NodeContext) bool {
+			return false
+		},
 		visit: func(nodeContext NodeContext) error {
 			node := nodeContext.Node
-			log.Debug("need to find and delete %v in here", pathElementToDelete)
+			log.Debug("need to find and delete %v in here (%v)", pathElementToDelete, pathStackToString(nodeContext.PathStack))
 			DebugNode(node)
 			if node.Kind == yaml.SequenceNode {
 				newContent := deleteFromArray(parser, node.Content, nodeContext.PathStack, pathElementToDelete)

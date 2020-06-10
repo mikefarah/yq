@@ -24,6 +24,7 @@ func NewDataNavigator(NavigationStrategy NavigationStrategy) DataNavigator {
 func (n *navigator) Traverse(value *yaml.Node, path []interface{}) error {
 	realValue := value
 	emptyArray := make([]interface{}, 0)
+	log.Debugf("Traversing path %v", pathStackToString(path))
 	if realValue.Kind == yaml.DocumentNode {
 		log.Debugf("its a document! returning the first child")
 		return n.doTraverse(value.Content[0], "", path, emptyArray)
@@ -68,6 +69,16 @@ func (n *navigator) getOrReplace(original *yaml.Node, expectedKind yaml.Kind) *y
 
 func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) error {
 	log.Debug("recursing, processing %v, pathStack %v", head, pathStackToString(pathStack))
+
+	nodeContext := NewNodeContext(value, head, tail, pathStack)
+
+	if head == "**" && !n.navigationStrategy.ShouldOnlyDeeplyVisitLeaves(nodeContext) {
+		errorVisitingDeeply := n.navigationStrategy.Visit(nodeContext)
+		if errorVisitingDeeply != nil {
+			return errorVisitingDeeply
+		}
+	}
+
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
@@ -85,20 +96,20 @@ func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface
 			if head == "+" {
 				return n.appendArray(value, head, tail, pathStack)
 			} else if len(value.Content) == 0 && head == "**" {
-				return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
+				return n.navigationStrategy.Visit(nodeContext)
 			}
 			return n.splatArray(value, head, tail, pathStack)
 		}
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		DebugNode(value.Alias)
-		if n.navigationStrategy.FollowAlias(NewNodeContext(value, head, tail, pathStack)) {
+		if n.navigationStrategy.FollowAlias(nodeContext) {
 			log.Debug("following the alias")
 			return n.recurse(value.Alias, head, tail, pathStack)
 		}
 		return nil
 	default:
-		return n.navigationStrategy.Visit(NewNodeContext(value, head, tail, pathStack))
+		return n.navigationStrategy.Visit(nodeContext)
 	}
 }
 

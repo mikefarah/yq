@@ -100,6 +100,29 @@ b:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestDeleteDeepSplatArrayYaml(t *testing.T) {
+	content := `thing: 123
+b:
+ hi:
+  - thing: item1
+    name: fred
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("delete %s **.thing", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `b:
+  hi:
+    - name: fred
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestDeleteSplatPrefixYaml(t *testing.T) {
 	content := `a: 2
 b:
