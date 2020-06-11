@@ -22,7 +22,7 @@ var parseStyleTests = []struct {
 
 func TestValueParserStyleTag(t *testing.T) {
 	for _, tt := range parseStyleTests {
-		actual := NewValueParser().Parse("cat", "", tt.customStyle)
+		actual := NewValueParser().Parse("cat", "", tt.customStyle, "", false)
 		test.AssertResultWithContext(t, tt.expectedStyle, actual.Style, tt.customStyle)
 	}
 }
@@ -40,7 +40,7 @@ var parseValueTests = []struct {
 
 func TestValueParserParse(t *testing.T) {
 	for _, tt := range parseValueTests {
-		actual := NewValueParser().Parse(tt.argument, tt.customTag, "")
+		actual := NewValueParser().Parse(tt.argument, tt.customTag, "", "", false)
 		test.AssertResultWithContext(t, tt.argument, actual.Value, tt.testDescription)
 		test.AssertResultWithContext(t, tt.expectedTag, actual.Tag, tt.testDescription)
 		test.AssertResult(t, yaml.ScalarNode, actual.Kind)
@@ -48,7 +48,18 @@ func TestValueParserParse(t *testing.T) {
 }
 
 func TestValueParserParseEmptyArray(t *testing.T) {
-	actual := NewValueParser().Parse("[]", "", "")
+	actual := NewValueParser().Parse("[]", "", "", "", false)
 	test.AssertResult(t, "!!seq", actual.Tag)
 	test.AssertResult(t, yaml.SequenceNode, actual.Kind)
+}
+
+func TestValueParserParseAlias(t *testing.T) {
+	actual := NewValueParser().Parse("bob", "", "", "", true)
+	test.AssertResult(t, "bob", actual.Value)
+	test.AssertResult(t, yaml.AliasNode, actual.Kind)
+}
+
+func TestValueParserAnchorname(t *testing.T) {
+	actual := NewValueParser().Parse("caterpillar", "", "", "foo", false)
+	test.AssertResult(t, "foo", actual.Anchor)
 }

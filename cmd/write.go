@@ -47,6 +47,8 @@ format is list of update commands (update or delete) like so:
 	cmdWrite.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
 	cmdWrite.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	cmdWrite.PersistentFlags().StringVarP(&customStyle, "style", "", "", "formatting style of the value: single, double, folded, flow, literal, tagged")
+	cmdWrite.PersistentFlags().StringVarP(&anchorName, "anchorName", "", "", "anchor name")
+	cmdWrite.PersistentFlags().BoolVarP(&makeAlias, "makeAlias", "", false, "create an alias using the value as the anchor name")
 	return cmdWrite
 }
 

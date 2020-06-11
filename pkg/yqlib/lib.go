@@ -48,7 +48,7 @@ func DebugNode(value *yaml.Node) {
 			log.Error("Error debugging node, %v", errorEncoding.Error())
 		}
 		encoder.Close()
-		log.Debug("Tag: %v, Kind: %v", value.Tag, KindString(value.Kind))
+		log.Debug("Tag: %v, Kind: %v, Anchor: %v", value.Tag, KindString(value.Kind), value.Anchor)
 		log.Debug("%v", buf.String())
 	}
 }

@@ -18,6 +18,30 @@ func TestNewCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestNewAnchorCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c 3 --anchorName=fred")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: &fred 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewAliasCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "new b.c foo --makeAlias")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: *foo
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestNewArrayCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "new b[0] 3")

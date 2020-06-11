@@ -5,7 +5,7 @@ import (
 )
 
 type ValueParser interface {
-	Parse(argument string, customTag string, customStyle string) *yaml.Node
+	Parse(argument string, customTag string, customStyle string, anchorName string, createAlias bool) *yaml.Node
 }
 
 type valueParser struct {
@@ -15,7 +15,7 @@ func NewValueParser() ValueParser {
 	return &valueParser{}
 }
 
-func (v *valueParser) Parse(argument string, customTag string, customStyle string) *yaml.Node {
+func (v *valueParser) Parse(argument string, customTag string, customStyle string, anchorName string, createAlias bool) *yaml.Node {
 	var style yaml.Style
 	if customStyle == "tagged" {
 		style = yaml.TaggedStyle
@@ -32,9 +32,15 @@ func (v *valueParser) Parse(argument string, customTag string, customStyle strin
 	} else if customStyle != "" {
 		log.Error("Unknown style %v, ignoring", customStyle)
 	}
-
 	if argument == "[]" {
 		return &yaml.Node{Tag: "!!seq", Kind: yaml.SequenceNode, Style: style}
 	}
-	return &yaml.Node{Value: argument, Tag: customTag, Kind: yaml.ScalarNode, Style: style}
+
+	kind := yaml.ScalarNode
+
+	if createAlias {
+		kind = yaml.AliasNode
+	}
+
+	return &yaml.Node{Value: argument, Tag: customTag, Kind: kind, Style: style, Anchor: anchorName}
 }

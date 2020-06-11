@@ -29,6 +29,8 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 	cmdNew.PersistentFlags().StringVarP(&writeScript, "script", "s", "", "yaml script for creating yaml")
 	cmdNew.PersistentFlags().StringVarP(&customTag, "tag", "t", "", "set yaml tag (e.g. !!int)")
 	cmdNew.PersistentFlags().StringVarP(&customStyle, "style", "", "", "formatting style of the value: single, double, folded, flow, literal, tagged")
+	cmdNew.PersistentFlags().StringVarP(&anchorName, "anchorName", "", "", "anchor name")
+	cmdNew.PersistentFlags().BoolVarP(&makeAlias, "makeAlias", "", false, "create an alias using the value as the anchor name")
 	return cmdNew
 }
 
