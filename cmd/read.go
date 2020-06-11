@@ -57,6 +57,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 	}
 
 	if errorReadingStream != nil {
+		cmd.SilenceUsage = true
 		return errorReadingStream
 	}
 	out := cmd.OutOrStdout()

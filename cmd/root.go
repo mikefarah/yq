@@ -55,7 +55,5 @@ func New() *cobra.Command {
 		createNewCmd(),
 		createMergeCmd(),
 	)
-	rootCmd.SetOutput(os.Stdout)
-
 	return rootCmd
 }
