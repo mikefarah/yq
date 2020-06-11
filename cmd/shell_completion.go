@@ -25,17 +25,13 @@ func createBashCompletionCmd(rootCmd *cobra.Command) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			switch shellVariant {
 			case "bash", "":
-				rootCmd.GenBashCompletion(os.Stdout)
-				return nil
+				return rootCmd.GenBashCompletion(os.Stdout)
 			case "zsh":
-				rootCmd.GenZshCompletion(os.Stdout)
-				return nil
+				return rootCmd.GenZshCompletion(os.Stdout)
 			case "fish":
-				rootCmd.GenFishCompletion(os.Stdout, true)
-				return nil
+				return rootCmd.GenFishCompletion(os.Stdout, true)
 			case "powershell":
-				rootCmd.GenPowerShellCompletion(os.Stdout)
-				return nil
+				return rootCmd.GenPowerShellCompletion(os.Stdout)
 			default:
 				return fmt.Errorf("Unknown variant %v", shellVariant)
 			}
