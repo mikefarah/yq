@@ -16,13 +16,13 @@ func createBashCompletionCmd(rootCmd *cobra.Command) *cobra.Command {
 		Long: `To load completion for:
 bash:
 	Run	
-	. <(yq bash-completion)
+	. <(yq shell-completion)
 	
 	To configure your bash shell to load completions for each session add to
 	your bashrc
 	
 	# ~/.bashrc or ~/.profile
-	. <(yq bash-completion)
+	. <(yq shell-completion)
 
 zsh:
 	The generated completion script should be put somewhere in your $fpath named _yq

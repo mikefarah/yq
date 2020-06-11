@@ -101,6 +101,7 @@ yq() {
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/commands/read#from-stdin)
 - [Merge](https://mikefarah.gitbook.io/yq/commands/merge) multiple yaml files with various options for [overriding](https://mikefarah.gitbook.io/yq/commands/merge#overwrite-values) and [appending](https://mikefarah.gitbook.io/yq/commands/merge#append-values-with-arrays)
 - Supports multiple documents in a single yaml file for [reading](https://mikefarah.gitbook.io/yq/commands/read#multiple-documents), [writing](https://mikefarah.gitbook.io/yq/commands/write-update#multiple-documents) and [merging](https://mikefarah.gitbook.io/yq/commands/merge#multiple-documents)
+- General shell completion scripts (bash/zsh/fish/powershell) (https://mikefarah.gitbook.io/yq/commands/shell-completion)
 
 ## [Usage](https://mikefarah.gitbook.io/yq/)
 
@@ -112,18 +113,19 @@ Usage:
   yq [command]
 
 Available Commands:
-  compare     yq x [--prettyPrint/-P] dataA.yaml dataB.yaml 'b.e(name==fr*).value'
-  delete      yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred)'
-  help        Help about any command
-  merge       yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
-  new         yq n [--script/-s script_file] a.b.c newValue
-  prefix      yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
-  read        yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
-  validate    yq v sample.yaml
-  write       yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
+  compare          yq x [--prettyPrint/-P] dataA.yaml dataB.yaml 'b.e(name==fr*).value'
+  delete           yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred)'
+  help             Help about any command
+  merge            yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
+  new              yq n [--script/-s script_file] a.b.c newValue
+  prefix           yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
+  read             yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
+  shell-completion Generates shell completion scripts
+  validate         yq v sample.yaml
+  write            yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
 
 Flags:
-  -C, --colors        print using colors
+  -C, --colors        print with colors
   -h, --help          help for yq
   -I, --indent int    sets indent level for output (default 2)
   -P, --prettyPrint   pretty print
