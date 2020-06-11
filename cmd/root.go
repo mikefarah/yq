@@ -54,6 +54,7 @@ func New() *cobra.Command {
 		createDeleteCmd(),
 		createNewCmd(),
 		createMergeCmd(),
+		createBashCompletionCmd(rootCmd),
 	)
 	return rootCmd
 }
