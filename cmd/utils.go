@@ -423,6 +423,14 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 		if err != nil {
 			return err
 		}
+		// mkdir temp dir as some docker images does not have temp dir
+		_, err = os.Stat(os.TempDir())
+		if os.IsNotExist(err) {
+			err = os.Mkdir(os.TempDir(), 0700)
+			if err != nil {
+				return err
+			}
+		}
 		tempFile, err := ioutil.TempFile("", "temp")
 		if err != nil {
 			return err
