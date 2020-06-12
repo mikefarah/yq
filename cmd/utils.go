@@ -430,6 +430,8 @@ func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) 
 			if err != nil {
 				return err
 			}
+		} else if err != nil {
+			return err
 		}
 		tempFile, err := ioutil.TempFile("", "temp")
 		if err != nil {
