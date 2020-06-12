@@ -51,7 +51,7 @@ func readProperty(cmd *cobra.Command, args []string) error {
 
 	matchingNodes, errorReadingStream := readYamlFile(args[0], path, updateAll, docIndexInt)
 
-	if exitStatus {
+	if exitStatus && len(matchingNodes) == 0 {
 		cmd.SilenceUsage = true
 		return errors.New("No matches found")
 	}

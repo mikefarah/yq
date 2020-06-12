@@ -17,6 +17,30 @@ func TestReadCmd(t *testing.T) {
 	test.AssertResult(t, "2\n", result.Output)
 }
 
+func TestReadCmdWithExitStatus(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml b.c -e")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "2\n", result.Output)
+}
+
+func TestReadCmdWithExitStatusNotExist(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml caterpillar -e")
+	test.AssertResult(t, "No matches found", result.Error.Error())
+}
+
+func TestReadCmdNotExist(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "read ../examples/sample.yaml caterpillar")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	test.AssertResult(t, "", result.Output)
+}
+
 func TestReadUnwrapCmd(t *testing.T) {
 
 	content := `b: 'frog' # my favourite`
