@@ -62,19 +62,32 @@ func (ns *NavigationStrategyImpl) GetVisitedNodes() []*NodeContext {
 }
 
 func (ns *NavigationStrategyImpl) FollowAlias(nodeContext NodeContext) bool {
-	return ns.followAlias(nodeContext)
+	if ns.followAlias != nil {
+		return ns.followAlias(nodeContext)
+	}
+	return true
 }
 
 func (ns *NavigationStrategyImpl) AutoCreateMap(nodeContext NodeContext) bool {
-	return ns.autoCreateMap(nodeContext)
+	if ns.autoCreateMap != nil {
+		return ns.autoCreateMap(nodeContext)
+	}
+	return false
 }
 
 func (ns *NavigationStrategyImpl) ShouldDeeplyTraverse(nodeContext NodeContext) bool {
-	return ns.shouldDeeplyTraverse(nodeContext)
+	if ns.shouldDeeplyTraverse != nil {
+		return ns.shouldDeeplyTraverse(nodeContext)
+	}
+	return true
 }
 
 func (ns *NavigationStrategyImpl) ShouldOnlyDeeplyVisitLeaves(nodeContext NodeContext) bool {
-	return ns.shouldOnlyDeeplyVisitLeaves(nodeContext)
+	if ns.shouldOnlyDeeplyVisitLeaves != nil {
+		return ns.shouldOnlyDeeplyVisitLeaves(nodeContext)
+	}
+	return true
+
 }
 
 func (ns *NavigationStrategyImpl) ShouldTraverse(nodeContext NodeContext, nodeKey string) bool {

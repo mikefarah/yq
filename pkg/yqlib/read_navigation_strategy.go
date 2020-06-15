@@ -4,12 +4,6 @@ func ReadNavigationStrategy(deeplyTraverseArrays bool) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
 		pathParser:   NewPathParser(),
-		followAlias: func(nodeContext NodeContext) bool {
-			return true
-		},
-		autoCreateMap: func(nodeContext NodeContext) bool {
-			return false
-		},
 		visit: func(nodeContext NodeContext) error {
 			return nil
 		},
@@ -25,9 +19,6 @@ func ReadNavigationStrategy(deeplyTraverseArrays bool) NavigationStrategy {
 				}
 			}
 			return deeplyTraverseArrays || !isInArray
-		},
-		shouldOnlyDeeplyVisitLeaves: func(nodeContext NodeContext) bool {
-			return true
 		},
 	}
 }

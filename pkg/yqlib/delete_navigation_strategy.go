@@ -12,12 +12,6 @@ func DeleteNavigationStrategy(pathElementToDelete interface{}) NavigationStrateg
 		followAlias: func(nodeContext NodeContext) bool {
 			return false
 		},
-		autoCreateMap: func(nodeContext NodeContext) bool {
-			return false
-		},
-		shouldDeeplyTraverse: func(nodeContext NodeContext) bool {
-			return true
-		},
 		shouldOnlyDeeplyVisitLeaves: func(nodeContext NodeContext) bool {
 			return false
 		},

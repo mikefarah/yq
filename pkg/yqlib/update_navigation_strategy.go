@@ -10,12 +10,6 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 		autoCreateMap: func(nodeContext NodeContext) bool {
 			return autoCreate
 		},
-		shouldDeeplyTraverse: func(nodeContext NodeContext) bool {
-			return true
-		},
-		shouldOnlyDeeplyVisitLeaves: func(nodeContext NodeContext) bool {
-			return true
-		},
 		visit: func(nodeContext NodeContext) error {
 			node := nodeContext.Node
 			changesToApply := updateCommand.Value

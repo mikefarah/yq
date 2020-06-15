@@ -1207,6 +1207,26 @@ func TestReadBadDataCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Error.Error())
 }
 
+func TestReadDeepFromRootCmd(t *testing.T) {
+	content := `state:
+  country: 
+    city: foo
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s (**.city==foo)", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `country:
+  city: foo
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadSplatPrefixCmd(t *testing.T) {
 	content := `a: 2
 b:
