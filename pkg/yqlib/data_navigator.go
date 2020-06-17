@@ -22,13 +22,8 @@ func NewDataNavigator(NavigationStrategy NavigationStrategy) DataNavigator {
 }
 
 func (n *navigator) Traverse(value *yaml.Node, path []interface{}) error {
-	realValue := value
 	emptyArray := make([]interface{}, 0)
 	log.Debugf("Traversing path %v", pathStackToString(path))
-	if realValue.Kind == yaml.DocumentNode {
-		log.Debugf("its a document! returning the first child")
-		return n.doTraverse(value.Content[0], "", path, emptyArray)
-	}
 	return n.doTraverse(value, "", path, emptyArray)
 }
 
@@ -39,7 +34,8 @@ func (n *navigator) doTraverse(value *yaml.Node, head interface{}, tail []interf
 	var nodeContext = NewNodeContext(value, head, tail, pathStack)
 
 	var errorDeepSplatting error
-	if head == "**" && value.Kind != yaml.ScalarNode && n.navigationStrategy.ShouldDeeplyTraverse(nodeContext) {
+	// no need to deeply traverse the DocumentNode, as it's already covered by its first child.
+	if head == "**" && value.Kind != yaml.DocumentNode && value.Kind != yaml.ScalarNode && n.navigationStrategy.ShouldDeeplyTraverse(nodeContext) {
 		if len(pathStack) == 0 || pathStack[len(pathStack)-1] != "<<" {
 			errorDeepSplatting = n.recurse(value, head, tail, pathStack)
 		}
@@ -51,7 +47,11 @@ func (n *navigator) doTraverse(value *yaml.Node, head interface{}, tail []interf
 		return errorDeepSplatting
 	}
 
-	if len(tail) > 0 && value.Kind != yaml.ScalarNode {
+	if value.Kind == yaml.DocumentNode {
+		log.Debugf("its a document, diving into %v", head)
+		DebugNode(value)
+		return n.recurse(value, head, tail, pathStack)
+	} else if len(tail) > 0 && value.Kind != yaml.ScalarNode {
 		log.Debugf("diving into %v", tail[0])
 		DebugNode(value)
 		return n.recurse(value, tail[0], tail[1:], pathStack)
@@ -108,6 +108,8 @@ func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface
 			return n.recurse(value.Alias, head, tail, pathStack)
 		}
 		return nil
+	case yaml.DocumentNode:
+		return n.doTraverse(value.Content[0], head, tail, pathStack)
 	default:
 		return n.navigationStrategy.Visit(nodeContext)
 	}
