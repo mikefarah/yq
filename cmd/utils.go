@@ -17,7 +17,7 @@ type readDataFn func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error)
 
 func createReadFunction(path string) func(*yaml.Node) ([]*yqlib.NodeContext, error) {
 	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
-		return lib.Get(dataBucket, path, true)
+		return lib.Get(dataBucket, path)
 	}
 }
 

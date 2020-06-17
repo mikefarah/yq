@@ -11,6 +11,9 @@ type NodeContext struct {
 	Head      interface{}
 	Tail      []interface{}
 	PathStack []interface{}
+	// middle nodes are nodes that match along the original path, but not a
+	// target match of the path. This is only relevant when ShouldOnlyDeeplyVisitLeaves is false.
+	IsMiddleNode bool
 }
 
 func NewNodeContext(node *yaml.Node, head interface{}, tail []interface{}, pathStack []interface{}) NodeContext {

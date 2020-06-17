@@ -129,7 +129,11 @@ func TestMergeArraysCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `[1, 2, 3, 4, 5]
+	expectedOutput := `- 1
+- 2
+- 3
+- 4
+- 5
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -145,9 +149,7 @@ func TestMergeCmd_Multi(t *testing.T) {
 another:
   document: here
 a: simple # just the best
-b:
-  - 1
-  - 2
+b: [1, 2]
 c:
   test: 1
 ---
@@ -316,9 +318,7 @@ func TestMergeAllowEmptyTargetCmd(t *testing.T) {
 		t.Error(result.Error)
 	}
 	expectedOutput := `a: simple # just the best
-b:
-  - 1
-  - 2
+b: [1, 2]
 c:
   test: 1
 `

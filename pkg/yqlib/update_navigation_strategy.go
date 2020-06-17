@@ -24,7 +24,9 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 				node.Tag = changesToApply.Tag
 				node.Kind = changesToApply.Kind
 				node.Style = changesToApply.Style
-				node.Content = changesToApply.Content
+				if !updateCommand.DontUpdateNodeContent {
+					node.Content = changesToApply.Content
+				}
 				node.Anchor = changesToApply.Anchor
 				node.Alias = changesToApply.Alias
 				node.HeadComment = changesToApply.HeadComment

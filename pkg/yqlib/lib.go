@@ -13,11 +13,12 @@ import (
 var log = logging.MustGetLogger("yq")
 
 type UpdateCommand struct {
-	Command             string
-	Path                string
-	Value               *yaml.Node
-	Overwrite           bool
-	DontUpdateNodeValue bool
+	Command               string
+	Path                  string
+	Value                 *yaml.Node
+	Overwrite             bool
+	DontUpdateNodeValue   bool
+	DontUpdateNodeContent bool
 }
 
 func KindString(kind yaml.Kind) string {
@@ -49,7 +50,10 @@ func DebugNode(value *yaml.Node) {
 		}
 		encoder.Close()
 		log.Debug("Tag: %v, Kind: %v, Anchor: %v", value.Tag, KindString(value.Kind), value.Anchor)
-		log.Debug("%v", buf.String())
+		log.Debug("Head Comment: %v", value.HeadComment)
+		log.Debug("Line Comment: %v", value.LineComment)
+		log.Debug("FootComment Comment: %v", value.FootComment)
+		log.Debug("\n%v", buf.String())
 	}
 }
 
@@ -131,7 +135,8 @@ func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind 
 }
 
 type YqLib interface {
-	Get(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error)
+	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
+	GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
 
@@ -149,13 +154,20 @@ func NewYqLib() YqLib {
 	}
 }
 
-func (l *lib) Get(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error) {
+func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	navigationStrategy := ReadNavigationStrategy(deeplyTraverseArrays)
+	navigationStrategy := ReadNavigationStrategy()
 	navigator := NewDataNavigator(navigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
 	return navigationStrategy.GetVisitedNodes(), error
+}
 
+func (l *lib) GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error) {
+	var paths = l.parser.ParsePath(path)
+	navigationStrategy := ReadForMergeNavigationStrategy(deeplyTraverseArrays)
+	navigator := NewDataNavigator(navigationStrategy)
+	error := navigator.Traverse(rootNode, paths)
+	return navigationStrategy.GetVisitedNodes(), error
 }
 
 func (l *lib) PathStackToString(pathStack []interface{}) string {
@@ -178,6 +190,10 @@ func (l *lib) Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreat
 	case "update":
 		var paths = l.parser.ParsePath(updateCommand.Path)
 		navigator := NewDataNavigator(UpdateNavigationStrategy(updateCommand, autoCreate))
+		return navigator.Traverse(rootNode, paths)
+	case "merge":
+		var paths = l.parser.ParsePath(updateCommand.Path)
+		navigator := NewDataNavigator(MergeNavigationStrategy(updateCommand, autoCreate))
 		return navigator.Traverse(rootNode, paths)
 	case "delete":
 		var paths = l.parser.ParsePath(updateCommand.Path)

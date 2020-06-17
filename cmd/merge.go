@@ -43,7 +43,7 @@ If append flag is set then existing arrays will be merged with the arrays from e
  */
 func createReadFunctionForMerge() func(*yaml.Node) ([]*yqlib.NodeContext, error) {
 	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
-		return lib.Get(dataBucket, "**", !appendFlag)
+		return lib.GetForMerge(dataBucket, "**", !appendFlag)
 	}
 }
 
@@ -63,9 +63,21 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			if errorProcessingFile != nil {
 				return errorProcessingFile
 			}
+			log.Debugf("finished reading for merge!")
+			for _, matchingNode := range matchingNodes {
+				log.Debugf("matched node %v", lib.PathStackToString(matchingNode.PathStack))
+				yqlib.DebugNode(matchingNode.Node)
+			}
 			for _, matchingNode := range matchingNodes {
 				mergePath := lib.MergePathStackToString(matchingNode.PathStack, appendFlag)
-				updateCommands = append(updateCommands, yqlib.UpdateCommand{Command: "update", Path: mergePath, Value: matchingNode.Node, Overwrite: overwriteFlag})
+				updateCommands = append(updateCommands, yqlib.UpdateCommand{
+					Command:   "merge",
+					Path:      mergePath,
+					Value:     matchingNode.Node,
+					Overwrite: overwriteFlag,
+					// dont update the content for nodes midway, only leaf nodes
+					DontUpdateNodeContent: matchingNode.IsMiddleNode,
+				})
 			}
 		}
 	}

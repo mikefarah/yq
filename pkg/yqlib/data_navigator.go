@@ -73,6 +73,7 @@ func (n *navigator) recurse(value *yaml.Node, head interface{}, tail []interface
 	nodeContext := NewNodeContext(value, head, tail, pathStack)
 
 	if head == "**" && !n.navigationStrategy.ShouldOnlyDeeplyVisitLeaves(nodeContext) {
+		nodeContext.IsMiddleNode = true
 		errorVisitingDeeply := n.navigationStrategy.Visit(nodeContext)
 		if errorVisitingDeeply != nil {
 			return errorVisitingDeeply
