@@ -109,6 +109,49 @@ func TestMergeAppendArraysCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeAliasArraysCmd(t *testing.T) {
+	content := `
+vars:
+  variable1: &var1 cat
+
+usage:
+  value1: *var1
+  valueAnother: *var1
+  valuePlain: thing
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `
+vars:
+  variable2: &var2 puppy
+
+usage:
+  value2: *var2
+  valueAnother: *var2
+  valuePlain: *var2
+`
+
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge -x %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `vars:
+  variable1: &var1 cat
+  variable2: &var2 puppy
+usage:
+  value1: *var1
+  valueAnother: *var2
+  valuePlain: *var2
+  value2: *var2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeOverwriteAndAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --autocreate=false --append --overwrite ../examples/data1.yaml ../examples/data2.yaml")
