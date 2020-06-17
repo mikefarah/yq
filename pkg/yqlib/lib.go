@@ -93,9 +93,7 @@ func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
 			sb.WriteString(".")
 		}
 	}
-	var pathString = sb.String()
-	log.Debug("got a path string: %v", pathString)
-	return pathString
+	return sb.String()
 }
 
 func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind {
