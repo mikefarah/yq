@@ -32,7 +32,7 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
-	cmdMerge.PersistentFlags().StringVarP(&arrayMergeStrategyFlag, "array", "a", "update", "array merge strategy (update/append/overwrite)")
+	cmdMerge.PersistentFlags().StringVarP(&arrayMergeStrategyFlag, "arrays", "a", "update", "array merge strategy (update/append/overwrite)")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
