@@ -32,7 +32,15 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	cmdMerge.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace")
 	cmdMerge.PersistentFlags().BoolVarP(&overwriteFlag, "overwrite", "x", false, "update the yaml file by overwriting existing values")
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
-	cmdMerge.PersistentFlags().StringVarP(&arrayMergeStrategyFlag, "arrays", "a", "update", "array merge strategy (update/append/overwrite)")
+	cmdMerge.PersistentFlags().StringVarP(&arrayMergeStrategyFlag, "arrays", "a", "update", `array merge strategy (update/append/overwrite)
+update: recursively update arrays by their index
+append: concatenate arrays together
+overwrite: replace arrays`)
+	cmdMerge.PersistentFlags().StringVarP(&commentsMergeStrategyFlag, "comments", "", "setWhenBlank", `comments merge strategy (setWhenBlank/ignore/append/overwrite)
+setWhenBlank: set comment if the original document has no comment at that node
+ignore: leave comments as-is in the original
+append: append comments together
+overwrite: overwrite comments completely`)
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
@@ -66,6 +74,21 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 		return errors.New("Array merge strategy must be one of: update/append/overwrite")
 	}
 
+	var commentsMergeStrategy yqlib.CommentsMergeStrategy
+
+	switch commentsMergeStrategyFlag {
+	case "setWhenBlank":
+		commentsMergeStrategy = yqlib.SetWhenBlankCommentsMergeStrategy
+	case "ignore":
+		commentsMergeStrategy = yqlib.IgnoreCommentsMergeStrategy
+	case "append":
+		commentsMergeStrategy = yqlib.AppendCommentsMergeStrategy
+	case "overwrite":
+		commentsMergeStrategy = yqlib.OverwriteCommentsMergeStrategy
+	default:
+		return errors.New("Comments merge strategy must be one of: setWhenBlank/ignore/append/overwrite")
+	}
+
 	if len(args) > 1 {
 		// first generate update commands from the file
 		var filesToMerge = args[1:]
@@ -83,10 +106,11 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 			for _, matchingNode := range matchingNodes {
 				mergePath := lib.MergePathStackToString(matchingNode.PathStack, arrayMergeStrategy)
 				updateCommands = append(updateCommands, yqlib.UpdateCommand{
-					Command:   "merge",
-					Path:      mergePath,
-					Value:     matchingNode.Node,
-					Overwrite: overwriteFlag,
+					Command:               "merge",
+					Path:                  mergePath,
+					Value:                 matchingNode.Node,
+					Overwrite:             overwriteFlag,
+					CommentsMergeStrategy: commentsMergeStrategy,
 					// dont update the content for nodes midway, only leaf nodes
 					DontUpdateNodeContent: matchingNode.IsMiddleNode && (arrayMergeStrategy != yqlib.OverwriteArrayMergeStrategy || matchingNode.Node.Kind != yaml.SequenceNode),
 				})

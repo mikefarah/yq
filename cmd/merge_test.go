@@ -60,7 +60,7 @@ func TestMergeOverwriteCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: other # better than the original
+	expectedOutput := `a: other # just the best
 b: [3, 4]
 c:
   test: 1
@@ -185,10 +185,101 @@ func TestMergeOverwriteAndAppendCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `a: other # better than the original
+	expectedOutput := `a: other # just the best
 b: [1, 2, 3, 4]
 c:
   test: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+var commentContentA = `
+a: valueA1 # commentA1
+b: valueB1
+`
+
+var commentContentB = `
+a: valueA2 # commentA2
+b: valueB2 # commentB2
+c: valueC2 # commentC2
+`
+
+func TestMergeCommentsSetWhenBlankCmd(t *testing.T) {
+	filename := test.WriteTempYamlFile(commentContentA)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeFilename := test.WriteTempYamlFile(commentContentB)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --comments=setWhenBlank %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: valueA1 # commentA1
+b: valueB1 # commentB2
+c: valueC2 # commentC2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeCommentsIgnoreCmd(t *testing.T) {
+	filename := test.WriteTempYamlFile(commentContentA)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeFilename := test.WriteTempYamlFile(commentContentB)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --comments=ignore %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: valueA1 # commentA1
+b: valueB1
+c: valueC2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeCommentsAppendCmd(t *testing.T) {
+	filename := test.WriteTempYamlFile(commentContentA)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeFilename := test.WriteTempYamlFile(commentContentB)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --comments=append %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: valueA1 # commentA1 # commentA2
+b: valueB1 # commentB2
+c: valueC2 # commentC2
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeCommentsOverwriteCmd(t *testing.T) {
+	filename := test.WriteTempYamlFile(commentContentA)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeFilename := test.WriteTempYamlFile(commentContentB)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --comments=overwrite %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: valueA1 # commentA2
+b: valueB1 # commentB2
+c: valueC2 # commentC2
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -213,7 +304,7 @@ b: [6]`
 		t.Error(result.Error)
 	}
 
-	expectedOutput := `a: things
+	expectedOutput := `a: things # just the best
 b: [6]
 c:
   test: 1

@@ -19,6 +19,7 @@ type UpdateCommand struct {
 	Overwrite             bool
 	DontUpdateNodeValue   bool
 	DontUpdateNodeContent bool
+	CommentsMergeStrategy CommentsMergeStrategy
 }
 
 func KindString(kind yaml.Kind) string {

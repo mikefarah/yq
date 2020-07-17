@@ -10,6 +10,15 @@ const (
 	AppendArrayMergeStrategy
 )
 
+type CommentsMergeStrategy uint32
+
+const (
+	SetWhenBlankCommentsMergeStrategy CommentsMergeStrategy = 1 << iota
+	IgnoreCommentsMergeStrategy
+	OverwriteCommentsMergeStrategy
+	AppendCommentsMergeStrategy
+)
+
 func MergeNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
@@ -31,40 +40,63 @@ func MergeNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navig
 				node = node.Content[0]
 			}
 
+			log.Debug("going to update")
+			DebugNode(node)
+			log.Debug("with")
+			DebugNode(changesToApply)
+
 			if updateCommand.Overwrite || node.Value == "" {
-				log.Debug("going to update")
-				DebugNode(node)
-				log.Debug("with")
-				DebugNode(changesToApply)
 				node.Value = changesToApply.Value
 				node.Tag = changesToApply.Tag
 				node.Kind = changesToApply.Kind
 				node.Style = changesToApply.Style
 				node.Anchor = changesToApply.Anchor
 				node.Alias = changesToApply.Alias
-				node.HeadComment = changesToApply.HeadComment
-				node.LineComment = changesToApply.LineComment
-				node.FootComment = changesToApply.FootComment
 
 				if !updateCommand.DontUpdateNodeContent {
 					node.Content = changesToApply.Content
 				}
-
-				// // TODO: mergeComments flag
-				// if node.HeadComment != "" && changesToApply.HeadComment != "" {
-				// 	node.HeadComment = node.HeadComment + "\n" + changesToApply.HeadComment
-				// 	log.Debug("merged comments with a space, %v", node.HeadComment)
-				// } else {
-				// 	node.HeadComment = node.HeadComment + changesToApply.HeadComment
-				// 	if node.HeadComment != "" {
-				// 		log.Debug("merged comments with no space, %v", node.HeadComment)
-				// 	}
-				// }
-				// node.LineComment = node.LineComment + changesToApply.LineComment
-				// node.FootComment = node.FootComment + changesToApply.FootComment
 			} else {
 				log.Debug("skipping update as node already has value %v and overwriteFlag is ", node.Value, updateCommand.Overwrite)
 			}
+
+			switch updateCommand.CommentsMergeStrategy {
+			case OverwriteCommentsMergeStrategy:
+				node.HeadComment = changesToApply.HeadComment
+				node.LineComment = changesToApply.LineComment
+				node.FootComment = changesToApply.FootComment
+			case SetWhenBlankCommentsMergeStrategy:
+				if node.HeadComment == "" {
+					node.HeadComment = changesToApply.HeadComment
+				}
+				if node.LineComment == "" {
+					node.LineComment = changesToApply.LineComment
+				}
+				if node.FootComment == "" {
+					node.FootComment = changesToApply.FootComment
+				}
+			case AppendCommentsMergeStrategy:
+				if node.HeadComment == "" {
+					node.HeadComment = changesToApply.HeadComment
+				} else {
+					node.HeadComment = node.HeadComment + "\n" + changesToApply.HeadComment
+				}
+				if node.LineComment == "" {
+					node.LineComment = changesToApply.LineComment
+				} else {
+					node.LineComment = node.LineComment + " " + changesToApply.LineComment
+				}
+				if node.FootComment == "" {
+					node.FootComment = changesToApply.FootComment
+				} else {
+					node.FootComment = node.FootComment + "\n" + changesToApply.FootComment
+				}
+			default:
+			}
+
+			log.Debug("result")
+			DebugNode(node)
+
 			return nil
 		},
 	}

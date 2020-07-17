@@ -27,6 +27,7 @@ var indent = 2
 var overwriteFlag = false
 var autoCreateFlag = true
 var arrayMergeStrategyFlag = "update"
+var commentsMergeStrategyFlag = "setWhenBlank"
 var verbose = false
 var version = false
 var docIndex = "0"
