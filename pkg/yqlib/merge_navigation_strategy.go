@@ -2,6 +2,14 @@ package yqlib
 
 import "gopkg.in/yaml.v3"
 
+type ArrayMergeStrategy uint32
+
+const (
+	UpdateArrayMergeStrategy ArrayMergeStrategy = 1 << iota
+	OverwriteArrayMergeStrategy
+	AppendArrayMergeStrategy
+)
+
 func MergeNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},

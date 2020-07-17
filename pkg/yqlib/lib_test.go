@@ -30,7 +30,7 @@ func TestLib(t *testing.T) {
 		array[0] = "a"
 		array[1] = 0
 		array[2] = "b"
-		got := subject.MergePathStackToString(array, true)
+		got := subject.MergePathStackToString(array, AppendArrayMergeStrategy)
 		test.AssertResult(t, `a.[+].b`, got)
 	})
 

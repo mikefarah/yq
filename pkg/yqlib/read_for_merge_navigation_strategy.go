@@ -2,7 +2,7 @@ package yqlib
 
 import "gopkg.in/yaml.v3"
 
-func ReadForMergeNavigationStrategy(deeplyTraverseArrays bool, overwriteArray bool) NavigationStrategy {
+func ReadForMergeNavigationStrategy(arrayMergeStrategy ArrayMergeStrategy) NavigationStrategy {
 	return &NavigationStrategyImpl{
 		visitedNodes: []*NodeContext{},
 		pathParser:   NewPathParser(),
@@ -16,7 +16,7 @@ func ReadForMergeNavigationStrategy(deeplyTraverseArrays bool, overwriteArray bo
 			return nil
 		},
 		shouldDeeplyTraverse: func(nodeContext NodeContext) bool {
-			if nodeContext.Node.Kind == yaml.SequenceNode && overwriteArray {
+			if nodeContext.Node.Kind == yaml.SequenceNode && arrayMergeStrategy == OverwriteArrayMergeStrategy {
 				nodeContext.IsMiddleNode = false
 				return false
 			}
@@ -31,7 +31,7 @@ func ReadForMergeNavigationStrategy(deeplyTraverseArrays bool, overwriteArray bo
 					isInArray = false
 				}
 			}
-			return deeplyTraverseArrays || !isInArray
+			return arrayMergeStrategy == UpdateArrayMergeStrategy || !isInArray
 		},
 	}
 }

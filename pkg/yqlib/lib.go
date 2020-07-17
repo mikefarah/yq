@@ -58,15 +58,15 @@ func DebugNode(value *yaml.Node) {
 }
 
 func pathStackToString(pathStack []interface{}) string {
-	return mergePathStackToString(pathStack, false)
+	return mergePathStackToString(pathStack, UpdateArrayMergeStrategy)
 }
 
-func mergePathStackToString(pathStack []interface{}, appendArrays bool) string {
+func mergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string {
 	var sb strings.Builder
 	for index, path := range pathStack {
 		switch path.(type) {
 		case int, int64:
-			if appendArrays {
+			if arrayMergeStrategy == AppendArrayMergeStrategy {
 				sb.WriteString("[+]")
 			} else {
 				sb.WriteString(fmt.Sprintf("[%v]", path))
@@ -136,12 +136,12 @@ func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind 
 
 type YqLib interface {
 	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
-	GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool, overwriteArray bool) ([]*NodeContext, error)
+	GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
 
 	PathStackToString(pathStack []interface{}) string
-	MergePathStackToString(pathStack []interface{}, appendArrays bool) string
+	MergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string
 }
 
 type lib struct {
@@ -162,9 +162,9 @@ func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	return navigationStrategy.GetVisitedNodes(), error
 }
 
-func (l *lib) GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool, overwriteArray bool) ([]*NodeContext, error) {
+func (l *lib) GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	navigationStrategy := ReadForMergeNavigationStrategy(deeplyTraverseArrays, overwriteArray)
+	navigationStrategy := ReadForMergeNavigationStrategy(arrayMergeStrategy)
 	navigator := NewDataNavigator(navigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
 	return navigationStrategy.GetVisitedNodes(), error
@@ -174,8 +174,8 @@ func (l *lib) PathStackToString(pathStack []interface{}) string {
 	return pathStackToString(pathStack)
 }
 
-func (l *lib) MergePathStackToString(pathStack []interface{}, appendArrays bool) string {
-	return mergePathStackToString(pathStack, appendArrays)
+func (l *lib) MergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string {
+	return mergePathStackToString(pathStack, arrayMergeStrategy)
 }
 
 func (l *lib) New(path string) yaml.Node {
