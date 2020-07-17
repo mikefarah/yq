@@ -136,7 +136,7 @@ func guessKind(head interface{}, tail []interface{}, guess yaml.Kind) yaml.Kind 
 
 type YqLib interface {
 	Get(rootNode *yaml.Node, path string) ([]*NodeContext, error)
-	GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error)
+	GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool, overwriteArray bool) ([]*NodeContext, error)
 	Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	New(path string) yaml.Node
 
@@ -162,9 +162,9 @@ func (l *lib) Get(rootNode *yaml.Node, path string) ([]*NodeContext, error) {
 	return navigationStrategy.GetVisitedNodes(), error
 }
 
-func (l *lib) GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool) ([]*NodeContext, error) {
+func (l *lib) GetForMerge(rootNode *yaml.Node, path string, deeplyTraverseArrays bool, overwriteArray bool) ([]*NodeContext, error) {
 	var paths = l.parser.ParsePath(path)
-	navigationStrategy := ReadForMergeNavigationStrategy(deeplyTraverseArrays)
+	navigationStrategy := ReadForMergeNavigationStrategy(deeplyTraverseArrays, overwriteArray)
 	navigator := NewDataNavigator(navigationStrategy)
 	error := navigator.Traverse(rootNode, paths)
 	return navigationStrategy.GetVisitedNodes(), error

@@ -34,6 +34,7 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	cmdMerge.PersistentFlags().BoolVarP(&autoCreateFlag, "autocreate", "c", true, "automatically create any missing entries")
 	cmdMerge.PersistentFlags().BoolVarP(&appendFlag, "append", "a", false, "update the yaml file by appending array values")
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	cmdMerge.PersistentFlags().BoolVarP(&overwriteArrays, "overwriteArrays", "", false, "overwrite arrays rather than update recursively")
 	return cmdMerge
 }
 
@@ -43,7 +44,7 @@ If append flag is set then existing arrays will be merged with the arrays from e
  */
 func createReadFunctionForMerge() func(*yaml.Node) ([]*yqlib.NodeContext, error) {
 	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
-		return lib.GetForMerge(dataBucket, "**", !appendFlag)
+		return lib.GetForMerge(dataBucket, "**", !appendFlag, overwriteArrays)
 	}
 }
 
@@ -76,7 +77,7 @@ func mergeProperties(cmd *cobra.Command, args []string) error {
 					Value:     matchingNode.Node,
 					Overwrite: overwriteFlag,
 					// dont update the content for nodes midway, only leaf nodes
-					DontUpdateNodeContent: matchingNode.IsMiddleNode,
+					DontUpdateNodeContent: matchingNode.IsMiddleNode && (!overwriteArrays || matchingNode.Node.Kind != yaml.SequenceNode),
 				})
 			}
 		}

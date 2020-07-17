@@ -68,6 +68,33 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeOverwriteDeepExampleCmd(t *testing.T) {
+	content := `c:
+  test: 1
+  thing: whatever
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `c:
+  test: 5
+`
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --autocreate=false --overwrite %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `c:
+  test: 5
+  thing: whatever
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeAppendCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --autocreate=false --append ../examples/data1.yaml ../examples/data2.yaml")
@@ -166,7 +193,35 @@ c:
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
-func TestMergeArraysCmd(t *testing.T) {
+func TestMergeOverwriteArraysTooCmd(t *testing.T) {
+	content := `a: simple # just the best
+b: [1, 2]
+c:
+  test: 1
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	mergeContent := `a: things
+b: [6]`
+	mergeFilename := test.WriteTempYamlFile(mergeContent)
+	defer test.RemoveTempYamlFile(mergeFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("merge --autocreate=false --overwriteArrays --overwrite %s %s", filename, mergeFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `a: things
+b: [6]
+c:
+  test: 1
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeRootArraysCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge --append ../examples/sample_array.yaml ../examples/sample_array_2.yaml")
 	if result.Error != nil {
@@ -176,6 +231,18 @@ func TestMergeArraysCmd(t *testing.T) {
 - 2
 - 3
 - 4
+- 5
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestMergeOverwriteArraysCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "merge --overwriteArrays ../examples/sample_array.yaml ../examples/sample_array_2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- 4
 - 5
 `
 	test.AssertResult(t, expectedOutput, result.Output)

@@ -27,6 +27,7 @@ var indent = 2
 var overwriteFlag = false
 var autoCreateFlag = true
 var appendFlag = false
+var overwriteArrays = false
 var verbose = false
 var version = false
 var docIndex = "0"
