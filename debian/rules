@@ -17,16 +17,17 @@
 PROJECT := yq
 OWNER := mikefarah
 REPO := github.com
-GOVERSION := 1.13
+GO := $(shell which go)
 
 export DH_OPTIONS
 export DH_GOPKG := ${REPO}/${OWNER}/${PROJECT}
-export GOROOT := /usr/lib/go-${GOVERSION}
+export GOROOT := $($(GO) env GOROOT)
 export GOPATH := ${CURDIR}/_build
 export GOBIN := ${GOPATH}/bin
 export PATH := ${GOROOT}/bin:${GOBIN}:${PATH}
 export GOCACHE := /tmp/gocache
-export GOFLAGS := -mod=vendor
+export GOFLAGS := -mod=vendor -modcacherw
+export CGO_ENABLED := 0
 
 SRCDIR := ${GOPATH}/src/${DH_GOPKG}
 DESTDIR := ${CURDIR}/debian/${PROJECT}
@@ -42,10 +43,10 @@ override_dh_auto_build:
 	# copy project to local srcdir to build from there
 	rsync -avz --progress --exclude=_build --exclude=debian --exclude=tmp. --exclude=go.mod --exclude=docs . $(SRCDIR)
 	# build go code
-	(cd ${SRCDIR} && go install -buildmode=pie ./...)
+	(cd ${SRCDIR} && $(GO) mod vendor && $(GO) install -buildmode=pie ./...)
 	
 override_dh_auto_test:
-	(cd ${SRCDIR} && go test -v ./...)
+	(cd ${SRCDIR} && $(GO) test -v ./...)
 
 override_dh_auto_install:
 	cp ${GOBIN}/yq ${DESTDIR}/${BINDIR}

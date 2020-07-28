@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Roberto Mier Escandón <rmescandon@gmail.com>
 Build-Depends: debhelper (>=10),
                dh-golang (>=1.34),
-               golang-1.13,
+               golang-go (>=1.13) | go (>=1.13) | go1.13,
                rsync
 Standards-Version: 4.1.4
 Homepage: https://github.com/mikefarah/yq.git

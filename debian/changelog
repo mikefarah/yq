@@ -1,4 +1,4 @@
-yq (3.3-0) focal; urgency=medium
+yq (3.3.0) focal; urgency=medium
 
   * You can control string styles (quotes) using the new --style flag
   * String values now always have quotes when outputting to json
