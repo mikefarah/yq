@@ -1,3 +1,10 @@
+yq (3.3.2) focal; urgency=medium
+
+  * Bug fix: existStatus bug (#459)
+  * Automatically makes a os temp directory if it does not exist (#461)
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Fri, 07 Aug 2020 18:53:01 +0200
+
 yq (3.3-0) focal; urgency=medium
 
   * You can control string styles (quotes) using the new --style flag
