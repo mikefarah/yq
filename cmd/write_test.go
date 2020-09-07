@@ -27,6 +27,24 @@ func TestWriteCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestWriteKeepCommentsCmd(t *testing.T) {
+	content := `b:
+  c: 3 # comment
+`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("write %s b.c 7", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 7 # comment
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestWriteWithTaggedStyleCmd(t *testing.T) {
 	content := `b:
   c: dog

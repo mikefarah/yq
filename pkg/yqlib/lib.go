@@ -18,6 +18,7 @@ type UpdateCommand struct {
 	Value               *yaml.Node
 	Overwrite           bool
 	DontUpdateNodeValue bool
+	DontUpdateComments  bool
 }
 
 func KindString(kind yaml.Kind) string {

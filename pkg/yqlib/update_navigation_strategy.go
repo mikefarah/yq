@@ -27,9 +27,11 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 				node.Content = changesToApply.Content
 				node.Anchor = changesToApply.Anchor
 				node.Alias = changesToApply.Alias
-				node.HeadComment = changesToApply.HeadComment
-				node.LineComment = changesToApply.LineComment
-				node.FootComment = changesToApply.FootComment
+				if !updateCommand.DontUpdateComments {
+					node.HeadComment = changesToApply.HeadComment
+					node.LineComment = changesToApply.LineComment
+					node.FootComment = changesToApply.FootComment
+				}
 			} else {
 				log.Debug("skipping update as node already has value %v and overwriteFlag is ", node.Value, updateCommand.Overwrite)
 			}
