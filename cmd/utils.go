@@ -477,7 +477,7 @@ type updateCommandParsed struct {
 	Value   yaml.Node
 }
 
-func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) ([]yqlib.UpdateCommand, error) {
+func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string, allowNoValue bool) ([]yqlib.UpdateCommand, error) {
 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
 	if writeScript != "" {
 		var parsedCommands = make([]updateCommandParsed, 0)
@@ -513,7 +513,7 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string) 
 		log.Debug("Value %v", args[expectedArgs-1])
 		value := valueParser.Parse(args[expectedArgs-1], customTag, customStyle, anchorName, makeAlias)
 		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value, Overwrite: true, DontUpdateComments: true}
-	} else if len(args) == expectedArgs-1 {
+	} else if len(args) == expectedArgs-1 && allowNoValue {
 		// don't update the value
 		updateCommands = make([]yqlib.UpdateCommand, 1)
 		log.Debug("args %v", args)

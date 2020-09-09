@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
-	errors "github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -36,11 +35,7 @@ Note that you can give a create script to perform more sophisticated yaml. This 
 
 func newProperty(cmd *cobra.Command, args []string) error {
 	var badArgsMessage = "Must provide <path_to_update> <value>"
-	if len(args) != 2 {
-		return errors.New(badArgsMessage)
-	}
-
-	var updateCommands, updateCommandsError = readUpdateCommands(args, 2, badArgsMessage)
+	var updateCommands, updateCommandsError = readUpdateCommands(args, 2, badArgsMessage, false)
 	if updateCommandsError != nil {
 		return updateCommandsError
 	}
