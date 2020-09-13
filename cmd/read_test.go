@@ -94,6 +94,28 @@ func TestReadUnwrapJsonByDefaultCmd(t *testing.T) {
 	test.AssertResult(t, "\"frog\"\n", result.Output)
 }
 
+func TestReadOutputJsonNonStringKeysCmd(t *testing.T) {
+
+	content := `
+true: true
+5: 
+  null: 
+    0.1: deeply
+    false: things`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s -j", filename))
+
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `{"5":{"null":{"0.1":"deeply","false":"things"}},"true":true}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadWithAdvancedFilterCmd(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "read ../examples/sample.yaml b.e(name==sam).value")

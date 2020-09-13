@@ -58,6 +58,21 @@ type jsonEncoder struct {
 	encoder *json.Encoder
 }
 
+func mapKeysToStrings(node *yaml.Node) {
+	
+	if node.Kind == yaml.MappingNode {
+		for index, child := range node.Content {
+			if index % 2 == 0 { // its a map key
+				child.Tag = "!!str"
+			}
+		}	
+	}
+
+	for _, child := range node.Content {
+		mapKeysToStrings(child)
+	}
+}
+
 func NewJsonEncoder(destination io.Writer, prettyPrint bool, indent int) Encoder {
 	var encoder = json.NewEncoder(destination)
 	var indentString = ""
@@ -73,6 +88,8 @@ func NewJsonEncoder(destination io.Writer, prettyPrint bool, indent int) Encoder
 
 func (je *jsonEncoder) Encode(node *yaml.Node) error {
 	var dataBucket interface{}
+	// firstly, convert all map keys to strings
+	mapKeysToStrings(node)
 	errorDecoding := node.Decode(&dataBucket)
 	if errorDecoding != nil {
 		return errorDecoding
