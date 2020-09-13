@@ -23,7 +23,16 @@ brew install yq
 ```
 choco install yq
 ```
-Supported by @chillum
+Supported by @chillum (https://chocolatey.org/packages/yq)
+
+### Alpine Linux
+- Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
+- Update database index with ```apk update```
+- Install yq with ```apk add yq```
+
+Supported by Tuan Hoang
+https://pkgs.alpinelinux.org/package/edge/community/x86/yq
+
 
 ### Ubuntu and other Linux distros supporting `snap` packages:
 ```
@@ -55,7 +64,7 @@ sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 ```
-Supported by @rmescandon
+Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ### Go Get:
 ```
@@ -135,3 +144,6 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
+
+## Known Issues
+- `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)

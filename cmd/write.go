@@ -53,7 +53,7 @@ format is list of update commands (update or delete) like so:
 }
 
 func writeProperty(cmd *cobra.Command, args []string) error {
-	var updateCommands, updateCommandsError = readUpdateCommands(args, 3, "Must provide <filename> <path_to_update> <value>")
+	var updateCommands, updateCommandsError = readUpdateCommands(args, 3, "Must provide <filename> <path_to_update> <value>", true)
 	if updateCommandsError != nil {
 		return updateCommandsError
 	}

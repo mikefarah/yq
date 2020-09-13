@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mikefarah/yq/v3/test"
@@ -14,6 +15,24 @@ func TestNewCmd(t *testing.T) {
 	}
 	expectedOutput := `b:
   c: 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
+func TestNewCmdScript(t *testing.T) {
+	updateScript := `- command: update
+  path: b.c
+  value: 7`
+	scriptFilename := test.WriteTempYamlFile(updateScript)
+	defer test.RemoveTempYamlFile(scriptFilename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("new --script %s", scriptFilename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `b:
+  c: 7
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
