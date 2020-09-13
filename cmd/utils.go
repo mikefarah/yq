@@ -163,6 +163,9 @@ func setIfNotThere(node *yaml.Node, key string, value *yaml.Node) {
 }
 
 func applyAlias(node *yaml.Node, alias *yaml.Node) {
+	if alias == nil {
+		return
+	}
 	for index := 0; index < len(alias.Content); index = index + 2 {
 		keyNode := alias.Content[index]
 		log.Debugf("applying alias key %v", keyNode.Value)
@@ -185,12 +188,14 @@ func explodeNode(node *yaml.Node) error {
 		return nil
 	case yaml.AliasNode:
 		log.Debugf("its an alias!")
-		node.Kind = node.Alias.Kind
-		node.Style = node.Alias.Style
-		node.Tag = node.Alias.Tag
-		node.Content = node.Alias.Content
-		node.Value = node.Alias.Value
-		node.Alias = nil
+		if node.Alias != nil {
+			node.Kind = node.Alias.Kind
+			node.Style = node.Alias.Style
+			node.Tag = node.Alias.Tag
+			node.Content = node.Alias.Content
+			node.Value = node.Alias.Value
+			node.Alias = nil
+		}
 		return nil
 	case yaml.MappingNode:
 		for index := 0; index < len(node.Content); index = index + 2 {
