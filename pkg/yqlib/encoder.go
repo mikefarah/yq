@@ -59,13 +59,13 @@ type jsonEncoder struct {
 }
 
 func mapKeysToStrings(node *yaml.Node) {
-	
+
 	if node.Kind == yaml.MappingNode {
 		for index, child := range node.Content {
-			if index % 2 == 0 { // its a map key
+			if index%2 == 0 { // its a map key
 				child.Tag = "!!str"
 			}
-		}	
+		}
 	}
 
 	for _, child := range node.Content {

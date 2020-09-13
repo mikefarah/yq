@@ -512,7 +512,7 @@ func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string, 
 		log.Debug("path %v", args[expectedArgs-2])
 		log.Debug("Value %v", args[expectedArgs-1])
 		value := valueParser.Parse(args[expectedArgs-1], customTag, customStyle, anchorName, makeAlias)
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value, Overwrite: true, DontUpdateComments: true}
+		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value, Overwrite: true, CommentsMergeStrategy: yqlib.IgnoreCommentsMergeStrategy}
 	} else if len(args) == expectedArgs-1 && allowNoValue {
 		// don't update the value
 		updateCommands = make([]yqlib.UpdateCommand, 1)

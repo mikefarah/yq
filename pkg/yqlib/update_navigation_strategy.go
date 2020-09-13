@@ -29,7 +29,7 @@ func UpdateNavigationStrategy(updateCommand UpdateCommand, autoCreate bool) Navi
 				}
 				node.Anchor = changesToApply.Anchor
 				node.Alias = changesToApply.Alias
-				if !updateCommand.DontUpdateComments {
+				if updateCommand.CommentsMergeStrategy != IgnoreCommentsMergeStrategy {
 					node.HeadComment = changesToApply.HeadComment
 					node.LineComment = changesToApply.LineComment
 					node.FootComment = changesToApply.FootComment
