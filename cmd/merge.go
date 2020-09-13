@@ -35,12 +35,14 @@ If append flag is set then existing arrays will be merged with the arrays from e
 	cmdMerge.PersistentFlags().StringVarP(&arrayMergeStrategyFlag, "arrays", "a", "update", `array merge strategy (update/append/overwrite)
 update: recursively update arrays by their index
 append: concatenate arrays together
-overwrite: replace arrays`)
+overwrite: replace arrays
+`)
 	cmdMerge.PersistentFlags().StringVarP(&commentsMergeStrategyFlag, "comments", "", "setWhenBlank", `comments merge strategy (setWhenBlank/ignore/append/overwrite)
 setWhenBlank: set comment if the original document has no comment at that node
 ignore: leave comments as-is in the original
 append: append comments together
-overwrite: overwrite comments completely`)
+overwrite: overwrite comments completely
+`)
 	cmdMerge.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdMerge
 }
