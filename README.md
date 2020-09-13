@@ -23,7 +23,7 @@ brew install yq
 ```
 choco install yq
 ```
-Supported by @chillum
+Supported by @chillum (https://chocolatey.org/packages/yq)
 
 ### Alpine Linux
 - Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
@@ -64,7 +64,7 @@ sudo add-apt-repository ppa:rmescandon/yq
 sudo apt update
 sudo apt install yq -y
 ```
-Supported by @rmescandon
+Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ### Go Get:
 ```
