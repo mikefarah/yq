@@ -339,6 +339,19 @@ func TestMergeOverwriteArraysCmd(t *testing.T) {
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestMergeUpdateArraysCmd(t *testing.T) {
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, "merge -x --arrays=update ../examples/sample_array.yaml ../examples/sample_array_2.yaml")
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `- 4
+- 5
+- 3
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestMergeCmd_Multi(t *testing.T) {
 	cmd := getRootCommand()
 	result := test.RunCmd(cmd, "merge -d1 ../examples/multiple_docs_small.yaml ../examples/data1.yaml")
