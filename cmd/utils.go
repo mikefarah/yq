@@ -202,6 +202,10 @@ func explodeNode(node *yaml.Node) error {
 				if errorInContent != nil {
 					return errorInContent
 				}
+				errorInContent = explodeNode(keyNode)
+				if errorInContent != nil {
+					return errorInContent
+				}
 			} else {
 				if valueNode.Kind == yaml.SequenceNode {
 					log.Debugf("an alias merge list!")

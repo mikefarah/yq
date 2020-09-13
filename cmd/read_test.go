@@ -617,6 +617,23 @@ pointer: *value-pointer`
 	test.AssertResult(t, expectedOutput, result.Output)
 }
 
+func TestReadMergeAnchorsExplodeKeyCmd(t *testing.T) {
+	content := `name: &nameField Mike
+*nameField: Great Guy`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("read -X %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+	expectedOutput := `name: Mike
+Mike: Great Guy
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
+
 func TestReadMergeAnchorsExplodeSimpleArrayCmd(t *testing.T) {
 	content := `- things`
 	filename := test.WriteTempYamlFile(content)
