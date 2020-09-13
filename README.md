@@ -25,6 +25,15 @@ choco install yq
 ```
 Supported by @chillum
 
+### Alpine Linux
+- Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
+- Update database index with ```apk update```
+- Install yq with ```apk add yq```
+
+Supported by Tuan Hoang
+https://pkgs.alpinelinux.org/package/edge/community/x86/yq
+
+
 ### Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
