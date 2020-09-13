@@ -22,6 +22,7 @@ func New() *cobra.Command {
 			return nil
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			cmd.SetOut(cmd.OutOrStdout())
 			var format = logging.MustStringFormatter(
 				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
 			)
