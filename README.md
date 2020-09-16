@@ -147,4 +147,4 @@ Use "yq [command] --help" for more information about a command.
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
-- You cannot (yet) select multiple paths/keys from the yaml to be printed out.
+- You cannot (yet) select multiple paths/keys from the yaml to be printed out (https://github.com/mikefarah/yq/issues/287)
