@@ -5,7 +5,7 @@ WORKDIR /go/src/mikefarah/yq
 # cache devtools
 COPY ./scripts/devtools.sh /go/src/mikefarah/yq/scripts/devtools.sh
 RUN ./scripts/devtools.sh
-
+#RUN apk update && apk upgrade && apk add bash 
 COPY . /go/src/mikefarah/yq
 
 RUN CGO_ENABLED=0 make local build
@@ -16,7 +16,7 @@ FROM alpine:3.8 as production
 
 COPY --from=builder /go/src/mikefarah/yq/yq /usr/bin/yq
 RUN chmod +x /usr/bin/yq
-
+RUN apk update && apk upgrade && apk add bash
 ARG VERSION=none
 LABEL version=${VERSION}
 
