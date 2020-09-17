@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"strconv"
 	"strings"
 
 	lex "github.com/timtadh/lexmachine"
@@ -43,6 +44,30 @@ func token(name string) lex.Action {
 	}
 }
 
+func unwrap(value string) string {
+	return value[1 : len(value)-1]
+}
+
+func wrappedToken(name string) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return s.Token(TokenIds[name], unwrap(string(m.Bytes)), m), nil
+	}
+}
+
+func numberToken(name string, wrapped bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		var numberString = string(m.Bytes)
+		if wrapped {
+			numberString = unwrap(numberString)
+		}
+		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+		return s.Token(TokenIds[name], number, m), nil
+	}
+}
+
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
@@ -51,9 +76,10 @@ func initLexer() (*lex.Lexer, error) {
 		lexer.Add([]byte(r), token(lit))
 	}
 	lexer.Add([]byte(`([Oo][Rr]|[Aa][Nn][Dd]|==)`), token("OPERATION"))
-	lexer.Add([]byte(`\[-?[0-9]+\]`), token("ARRAY_INDEX"))
+	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
+	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
-	lexer.Add([]byte(`"[^ "]+"`), token("PATH"))
+	lexer.Add([]byte(`"[^ "]+"`), wrappedToken("PATH"))
 	lexer.Add([]byte(`[^ \.\[\(\)=]+`), token("PATH"))
 	lexer.Add([]byte(`\.`), skip)
 	err := lexer.Compile()
