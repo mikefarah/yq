@@ -23,9 +23,8 @@ func initTokens() {
 	}
 	Tokens = []string{
 		"OPERATION",   // ==, OR, AND
-		"PATH",        // a.b.c
+		"PATH_KEY",    // apples
 		"ARRAY_INDEX", // 1234
-		"PATH_JOIN",   // "."
 	}
 	Tokens = append(Tokens, Literals...)
 	TokenIds = make(map[string]int)
@@ -79,8 +78,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
 	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
-	lexer.Add([]byte(`"[^ "]+"`), wrappedToken("PATH"))
-	lexer.Add([]byte(`[^ \.\[\(\)=]+`), token("PATH"))
+	lexer.Add([]byte(`"[^ "]+"`), wrappedToken("PATH_KEY"))
+	lexer.Add([]byte(`[^ \.\[\(\)=]+`), token("PATH_KEY"))
 	lexer.Add([]byte(`\.`), skip)
 	err := lexer.Compile()
 	if err != nil {
