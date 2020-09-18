@@ -11,3 +11,4 @@ CGO_ENABLED=0 gox -ldflags "${LDFLAGS}" -os=linux  -output="build/yq_{{.OS}}_{{.
 cd build
 rhash -r -a . -P -o checksums
 
+rhash --list-hashes > checksums_hashes_order
