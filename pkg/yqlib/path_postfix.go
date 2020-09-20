@@ -39,7 +39,11 @@ func (p *PathElement) toString() string {
 	var result string = `Type: `
 	switch p.PathElementType {
 	case PathKey:
-		result = result + fmt.Sprintf("PathKey - %v\n", p.Value)
+		result = result + fmt.Sprintf("PathKey - %v", p.Value)
+		for _, next := range p.ChildElements[0] {
+			result = result + fmt.Sprintf(".%v", next.Value)
+		}
+		result = result + "\n"
 	case ArrayIndex:
 		result = result + fmt.Sprintf("ArrayIndex - %v\n", p.Value)
 	case Operation:
