@@ -12,6 +12,7 @@ var tokeniserTests = []struct {
 }{ // TODO: Ensure ALL documented examples have tests! sheesh
 
 	{"apples.BANANAS", append(make([]interface{}, 0), "apples", "BANANAS")},
+	{"appl*.BANA*", append(make([]interface{}, 0), "appl*", "BANA*")},
 	{"a.b.**", append(make([]interface{}, 0), "a", "b", "**")},
 	{"a.\"=\".frog", append(make([]interface{}, 0), "a", "=", "frog")},
 	{"a.b.*", append(make([]interface{}, 0), "a", "b", "*")},

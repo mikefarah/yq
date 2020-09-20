@@ -22,7 +22,9 @@ func initTokens() {
 		"**",
 	}
 	Tokens = []string{
-		"OPERATION",   // ==, OR, AND
+		"OR_OPERATOR",
+		"AND_OPERATOR",
+		"EQUALS_OPERATOR",
 		"PATH_KEY",    // apples
 		"ARRAY_INDEX", // 1234
 	}
@@ -31,6 +33,8 @@ func initTokens() {
 	for i, tok := range Tokens {
 		TokenIds[tok] = i
 	}
+
+	initMaps()
 }
 
 func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
@@ -74,7 +78,9 @@ func initLexer() (*lex.Lexer, error) {
 		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
 		lexer.Add([]byte(r), token(lit))
 	}
-	lexer.Add([]byte(`([Oo][Rr]|[Aa][Nn][Dd]|==)`), token("OPERATION"))
+	lexer.Add([]byte(`([Oo][Rr])`), token("OR_OPERATOR"))
+	lexer.Add([]byte(`([Aa][Nn][Dd])`), token("AND_OPERATOR"))
+	lexer.Add([]byte(`(==)`), token("EQUALS_OPERATOR"))
 	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
 	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
