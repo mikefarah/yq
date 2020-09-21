@@ -15,7 +15,7 @@ yq v - # reads from stdin
 `,
 		RunE:          validateProperty,
 		SilenceUsage:  true,
-		SilenceErrors: true,
+		SilenceErrors: false,
 	}
 	cmdRead.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
 	return cmdRead
