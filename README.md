@@ -7,9 +7,6 @@ a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
-## New version!
-V3 is officially out - if you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
-
 ## Install
 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
@@ -18,21 +15,6 @@ V3 is officially out - if you've been using v2 and want/need to upgrade, checkou
 ```
 brew install yq
 ```
-
-### Windows:
-```
-choco install yq
-```
-Supported by @chillum (https://chocolatey.org/packages/yq)
-
-### Alpine Linux
-- Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
-- Update database index with ```apk update```
-- Install yq with ```apk add yq```
-
-Supported by Tuan Hoang
-https://pkgs.alpinelinux.org/package/edge/community/x86/yq
-
 
 ### Ubuntu and other Linux distros supporting `snap` packages:
 ```
@@ -57,29 +39,27 @@ sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
 
-### On Ubuntu 16.04 or higher from Debian package:
-```sh
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-sudo add-apt-repository ppa:rmescandon/yq
-sudo apt update
-sudo apt install yq -y
-```
-Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
+### wget
 
-### Go Get:
-```
-GO111MODULE=on go get github.com/mikefarah/yq/v3
+Use wget to download the pre-compiled binaries:
+
+```bash
+wget https://github.com/mikefarah/yq/releases/download/{VERSION}/{BINARY} -O /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
 ```
 
-## Run with Docker
+For instance, VERSION=3.4.0 and BINARY=yq_linux_amd64
 
-Oneshot use:
+
+### Run with Docker
+
+#### Oneshot use:
 
 ```bash
 docker run --rm -v "${PWD}":/workdir mikefarah/yq yq [flags] <command> FILE...
 ```
 
-Run commands interactively:
+#### Run commands interactively:
 
 ```bash
 docker run --rm -it -v "${PWD}":/workdir mikefarah/yq sh
@@ -92,6 +72,39 @@ yq() {
   docker run --rm -i -v "${PWD}":/workdir mikefarah/yq yq "$@"
 }
 ```
+
+### Go Get:
+```
+GO111MODULE=on go get github.com/mikefarah/yq/v3
+```
+
+## Community Supported Installation methods
+As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
+
+
+### Windows:
+```
+choco install yq
+```
+Supported by @chillum (https://chocolatey.org/packages/yq)
+
+### Alpine Linux
+- Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
+- Update database index with ```apk update```
+- Install yq with ```apk add yq```
+
+Supported by Tuan Hoang
+https://pkgs.alpinelinux.org/package/edge/community/x86/yq
+
+
+### On Ubuntu 16.04 or higher from Debian package:
+```sh
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
+sudo add-apt-repository ppa:rmescandon/yq
+sudo apt update
+sudo apt install yq -y
+```
+Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
@@ -144,6 +157,9 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
+
+## Upgrade from V2
+If you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
