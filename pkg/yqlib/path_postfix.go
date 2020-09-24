@@ -21,31 +21,28 @@ type OperationType uint32
 
 const (
 	None OperationType = 1 << iota
+	Traverse
 	Or
 	And
 	Equals
+	EqualsSelf
 )
 
 type PathElement struct {
 	PathElementType PathElementType
 	OperationType   OperationType
 	Value           interface{}
-	ChildElements   [][]*PathElement
 	Finished        bool
 }
 
 // debugging purposes only
 func (p *PathElement) toString() string {
-	var result string = `Type: `
+	var result string = ``
 	switch p.PathElementType {
 	case PathKey:
-		result = result + fmt.Sprintf("PathKey - %v", p.Value)
-		for _, next := range p.ChildElements[0] {
-			result = result + fmt.Sprintf(".%v", next.Value)
-		}
-		result = result + "\n"
+		result = result + fmt.Sprintf("PathKey - '%v'\n", p.Value)
 	case ArrayIndex:
-		result = result + fmt.Sprintf("ArrayIndex - %v\n", p.Value)
+		result = result + fmt.Sprintf("ArrayIndex - '%v'\n", p.Value)
 	case Operation:
 		result = result + "Operation - "
 		switch p.OperationType {
@@ -55,7 +52,12 @@ func (p *PathElement) toString() string {
 			result = result + "AND\n"
 		case Equals:
 			result = result + "EQUALS\n"
+		case EqualsSelf:
+			result = result + "EQUALS SELF\n"
+		case Traverse:
+			result = result + "TRAVERSE\n"
 		}
+
 	}
 	return result
 }
@@ -76,11 +78,16 @@ func initMaps() {
 
 	precedenceMap[TokenIds["EQUALS_OPERATOR"]] = 30
 	operationTypeMapper[TokenIds["EQUALS_OPERATOR"]] = Equals
+
+	precedenceMap[TokenIds["EQUALS_SELF_OPERATOR"]] = 30
+	operationTypeMapper[TokenIds["EQUALS_SELF_OPERATOR"]] = EqualsSelf
+
+	precedenceMap[TokenIds["TRAVERSE_OPERATOR"]] = 40
+	operationTypeMapper[TokenIds["TRAVERSE_OPERATOR"]] = Traverse
 }
 
 func createOperationPathElement(opToken *lex.Token) PathElement {
-	var childElements = make([][]*PathElement, 2)
-	var pathElement = PathElement{PathElementType: Operation, OperationType: operationTypeMapper[opToken.Type], ChildElements: childElements}
+	var pathElement = PathElement{PathElementType: Operation, OperationType: operationTypeMapper[opToken.Type]}
 	return pathElement
 }
 
@@ -119,22 +126,15 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 	for _, token := range tokens {
 		switch token.Type {
 		case TokenIds["PATH_KEY"]: // handle splats and array appends here too
-			var emptyArray = [][]*PathElement{make([]*PathElement, 0)}
-			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value, ChildElements: emptyArray}
-
-			if len(result) > 0 && result[len(result)-1].PathElementType == PathKey && !result[len(result)-1].Finished {
-				var lastElement = result[len(result)-1]
-				lastElement.ChildElements[0] = append(lastElement.ChildElements[0], &pathElement)
-			} else {
-				result = append(result, &pathElement)
-			}
+			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value}
+			result = append(result, &pathElement)
 		case TokenIds["("]:
 			opStack = append(opStack, token)
 			finishPathKey(result)
-		case TokenIds["OR_OPERATOR"], TokenIds["AND_OPERATOR"], TokenIds["EQUALS_OPERATOR"]:
+		case TokenIds["OR_OPERATOR"], TokenIds["AND_OPERATOR"], TokenIds["EQUALS_OPERATOR"], TokenIds["EQUALS_SELF_OPERATOR"], TokenIds["TRAVERSE_OPERATOR"]:
 			var currentPrecedence = precedenceMap[token.Type]
 			// pop off higher precedent operators onto the result
-			for len(opStack) > 0 && precedenceMap[opStack[len(opStack)-1].Type] > currentPrecedence {
+			for len(opStack) > 0 && precedenceMap[opStack[len(opStack)-1].Type] >= currentPrecedence {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			// add this operator to the opStack

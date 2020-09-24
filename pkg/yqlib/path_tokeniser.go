@@ -25,8 +25,6 @@ func initTokens() {
 		")",
 	}
 	Tokens = []string{
-		"BEGIN_SUB_EXPRESSION",
-		"END_SUB_EXPRESSION",
 		"OR_OPERATOR",
 		"AND_OPERATOR",
 		"EQUALS_OPERATOR",

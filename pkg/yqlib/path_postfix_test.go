@@ -25,9 +25,9 @@ func testExpression(expression string) (string, error) {
 	return formatted, nil
 }
 
-func TestPostFixSimple(t *testing.T) {
+func TestPostFixSimpleExample(t *testing.T) {
 	var infix = "a"
-	var expectedOutput = `Type: PathKey - a
+	var expectedOutput = `PathKey - 'a'
 --------
 `
 
@@ -39,9 +39,17 @@ func TestPostFixSimple(t *testing.T) {
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
-func TestPostFixSimplePath(t *testing.T) {
+func TestPostFixSimplePathExample(t *testing.T) {
 	var infix = "apples.bananas*.cat"
-	var expectedOutput = `Type: PathKey - apples.bananas*.cat
+	var expectedOutput = `PathKey - 'apples'
+--------
+PathKey - 'bananas*'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'cat'
+--------
+Operation - TRAVERSE
 --------
 `
 
@@ -53,13 +61,13 @@ func TestPostFixSimplePath(t *testing.T) {
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
-func TestPostFixOr(t *testing.T) {
+func TestPostFixOrExample(t *testing.T) {
 	var infix = "a OR b"
-	var expectedOutput = `Type: PathKey - a
+	var expectedOutput = `PathKey - 'a'
 --------
-Type: PathKey - b
+PathKey - 'b'
 --------
-Type: Operation - OR
+Operation - OR
 --------
 `
 
@@ -71,21 +79,21 @@ Type: Operation - OR
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
-func TestPostFixOrWithEquals(t *testing.T) {
+func TestPostFixOrWithEqualsExample(t *testing.T) {
 	var infix = "a==thing OR b==thongs"
-	var expectedOutput = `Type: PathKey - a
+	var expectedOutput = `PathKey - 'a'
 --------
-Type: PathKey - thing
+PathKey - 'thing'
 --------
-Type: Operation - EQUALS
+Operation - EQUALS
 --------
-Type: PathKey - b
+PathKey - 'b'
 --------
-Type: PathKey - thongs
+PathKey - 'thongs'
 --------
-Type: Operation - EQUALS
+Operation - EQUALS
 --------
-Type: Operation - OR
+Operation - OR
 --------
 `
 
@@ -97,21 +105,29 @@ Type: Operation - OR
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
-func TestPostFixOrWithEqualsPath(t *testing.T) {
+func TestPostFixOrWithEqualsPathExample(t *testing.T) {
 	var infix = "apples.monkeys==thing OR bogs.bobos==thongs"
-	var expectedOutput = `Type: PathKey - apples.monkeys
+	var expectedOutput = `PathKey - 'apples'
 --------
-Type: PathKey - thing
+PathKey - 'monkeys'
 --------
-Type: Operation - EQUALS
+Operation - TRAVERSE
 --------
-Type: PathKey - bogs.bobos
+PathKey - 'thing'
 --------
-Type: PathKey - thongs
+Operation - EQUALS
 --------
-Type: Operation - EQUALS
+PathKey - 'bogs'
 --------
-Type: Operation - OR
+PathKey - 'bobos'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'thongs'
+--------
+Operation - EQUALS
+--------
+Operation - OR
 --------
 `
 
