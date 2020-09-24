@@ -8,27 +8,35 @@ import (
 	"github.com/timtadh/lexmachine/machines"
 )
 
-var Literals []string       // The tokens representing literal strings
-var Keywords []string       // The keyword tokens
-var Tokens []string         // All of the tokens (including literals and keywords)
-var TokenIds map[string]int // A map from the token names to their int ids
+var Literals []string        // The tokens representing literal strings
+var ClosingLiterals []string // The tokens representing literal strings
+var Keywords []string        // The keyword tokens
+var Tokens []string          // All of the tokens (including literals and keywords)
+var TokenIds map[string]int  // A map from the token names to their int ids
 
 func initTokens() {
-	Literals = []string{
+	Literals = []string{ // these need a traverse operator infront
 		"(",
-		")",
 		"[+]",
 		"[*]",
 		"**",
 	}
+	ClosingLiterals = []string{ // these need a traverse operator after
+		")",
+	}
 	Tokens = []string{
+		"BEGIN_SUB_EXPRESSION",
+		"END_SUB_EXPRESSION",
 		"OR_OPERATOR",
 		"AND_OPERATOR",
 		"EQUALS_OPERATOR",
+		"EQUALS_SELF_OPERATOR",
+		"TRAVERSE_OPERATOR",
 		"PATH_KEY",    // apples
-		"ARRAY_INDEX", // 1234
+		"ARRAY_INDEX", // 123
 	}
 	Tokens = append(Tokens, Literals...)
+	Tokens = append(Tokens, ClosingLiterals...)
 	TokenIds = make(map[string]int)
 	for i, tok := range Tokens {
 		TokenIds[tok] = i
@@ -78,15 +86,20 @@ func initLexer() (*lex.Lexer, error) {
 		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
 		lexer.Add([]byte(r), token(lit))
 	}
+	for _, lit := range ClosingLiterals {
+		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
+		lexer.Add([]byte(r), token(lit))
+	}
 	lexer.Add([]byte(`([Oo][Rr])`), token("OR_OPERATOR"))
 	lexer.Add([]byte(`([Aa][Nn][Dd])`), token("AND_OPERATOR"))
-	lexer.Add([]byte(`(==)`), token("EQUALS_OPERATOR"))
+	lexer.Add([]byte(`\.\s*==\s*`), token("EQUALS_SELF_OPERATOR"))
+	lexer.Add([]byte(`\s*==\s*`), token("EQUALS_OPERATOR"))
 	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
 	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 	lexer.Add([]byte(`"[^ "]+"`), wrappedToken("PATH_KEY"))
 	lexer.Add([]byte(`[^ \.\[\(\)=]+`), token("PATH_KEY"))
-	lexer.Add([]byte(`\.`), skip)
+	lexer.Add([]byte(`\.`), token("TRAVERSE_OPERATOR"))
 	err := lexer.Compile()
 	if err != nil {
 		return nil, err
@@ -129,6 +142,22 @@ func (p *pathTokeniser) Tokenise(path string) ([]*lex.Token, error) {
 			return nil, err
 		}
 	}
+	var postProcessedTokens []*lex.Token = make([]*lex.Token, 0)
 
-	return tokens, nil
+	for index, token := range tokens {
+		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX") {
+			if index > 0 && token.Type == TokenIds[literalTokenDef] && tokens[index-1].Type != TokenIds["TRAVERSE_OPERATOR"] {
+				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
+			}
+		}
+
+		postProcessedTokens = append(postProcessedTokens, token)
+		for _, literalTokenDef := range append(ClosingLiterals, "ARRAY_INDEX") {
+			if index != len(tokens)-1 && token.Type == TokenIds[literalTokenDef] && tokens[index+1].Type != TokenIds["TRAVERSE_OPERATOR"] {
+				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
+			}
+		}
+	}
+
+	return postProcessedTokens, nil
 }
