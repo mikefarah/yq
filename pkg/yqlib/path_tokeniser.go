@@ -8,21 +8,19 @@ import (
 	"github.com/timtadh/lexmachine/machines"
 )
 
-var Literals []string        // The tokens representing literal strings
-var ClosingLiterals []string // The tokens representing literal strings
-var Keywords []string        // The keyword tokens
-var Tokens []string          // All of the tokens (including literals and keywords)
-var TokenIds map[string]int  // A map from the token names to their int ids
+var Literals []string       // The tokens representing literal strings
+var Keywords []string       // The keyword tokens
+var Tokens []string         // All of the tokens (including literals and keywords)
+var TokenIds map[string]int // A map from the token names to their int ids
+
+var bracketLiterals []string
 
 func initTokens() {
+	bracketLiterals = []string{"(", ")"}
 	Literals = []string{ // these need a traverse operator infront
-		"(",
 		"[+]",
 		"[*]",
 		"**",
-	}
-	ClosingLiterals = []string{ // these need a traverse operator after
-		")",
 	}
 	Tokens = []string{
 		"OR_OPERATOR",
@@ -33,8 +31,8 @@ func initTokens() {
 		"PATH_KEY",    // apples
 		"ARRAY_INDEX", // 123
 	}
+	Tokens = append(Tokens, bracketLiterals...)
 	Tokens = append(Tokens, Literals...)
-	Tokens = append(Tokens, ClosingLiterals...)
 	TokenIds = make(map[string]int)
 	for i, tok := range Tokens {
 		TokenIds[tok] = i
@@ -80,11 +78,11 @@ func numberToken(name string, wrapped bool) lex.Action {
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
-	for _, lit := range Literals {
+	for _, lit := range bracketLiterals {
 		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
 		lexer.Add([]byte(r), token(lit))
 	}
-	for _, lit := range ClosingLiterals {
+	for _, lit := range Literals {
 		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
 		lexer.Add([]byte(r), token(lit))
 	}
@@ -143,14 +141,14 @@ func (p *pathTokeniser) Tokenise(path string) ([]*lex.Token, error) {
 	var postProcessedTokens []*lex.Token = make([]*lex.Token, 0)
 
 	for index, token := range tokens {
-		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX") {
+		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", "(") {
 			if index > 0 && token.Type == TokenIds[literalTokenDef] && tokens[index-1].Type != TokenIds["TRAVERSE_OPERATOR"] {
 				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
 			}
 		}
 
 		postProcessedTokens = append(postProcessedTokens, token)
-		for _, literalTokenDef := range append(ClosingLiterals, "ARRAY_INDEX") {
+		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", ")") {
 			if index != len(tokens)-1 && token.Type == TokenIds[literalTokenDef] && tokens[index+1].Type != TokenIds["TRAVERSE_OPERATOR"] {
 				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
 			}

@@ -43,6 +43,7 @@ var tokeniserTests = []struct {
 	{"a.[0].c", append(make([]interface{}, 0), "a", ".", int64(0), ".", "c")},
 	{"[0]", append(make([]interface{}, 0), int64(0))},
 	{"0", append(make([]interface{}, 0), int64(0))},
+	{"a.b[+]c", append(make([]interface{}, 0), "a", ".", "b", ".", "[+]", ".", "c")},
 	{"a.cool(s.d.f == cool)", append(make([]interface{}, 0), "a", ".", "cool", ".", "(", "s", ".", "d", ".", "f", " == ", "cool", ")")},
 	{"a.cool.(s.d.f==cool OR t.b.h==frog).caterpillar", append(make([]interface{}, 0), "a", ".", "cool", ".", "(", "s", ".", "d", ".", "f", "==", "cool", "OR", "t", ".", "b", ".", "h", "==", "frog", ")", ".", "caterpillar")},
 	{"a.cool(s.d.f==cool and t.b.h==frog)*", append(make([]interface{}, 0), "a", ".", "cool", ".", "(", "s", ".", "d", ".", "f", "==", "cool", "and", "t", ".", "b", ".", "h", "==", "frog", ")", ".", "*")},

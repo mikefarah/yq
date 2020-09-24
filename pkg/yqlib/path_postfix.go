@@ -125,7 +125,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 
 	for _, token := range tokens {
 		switch token.Type {
-		case TokenIds["PATH_KEY"]: // handle splats and array appends here too
+		case TokenIds["PATH_KEY"], TokenIds["ARRAY_INDEX"], TokenIds["[+]"], TokenIds["[*]"], TokenIds["**"]:
 			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value}
 			result = append(result, &pathElement)
 		case TokenIds["("]:

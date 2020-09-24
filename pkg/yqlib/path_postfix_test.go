@@ -61,6 +61,94 @@ Operation - TRAVERSE
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
+func TestPostFixSimplePathNumbersExample(t *testing.T) {
+	var infix = "apples[0].cat"
+	var expectedOutput = `PathKey - 'apples'
+--------
+PathKey - '0'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'cat'
+--------
+Operation - TRAVERSE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixSimplePathAppendArrayExample(t *testing.T) {
+	var infix = "apples[+].cat"
+	var expectedOutput = `PathKey - 'apples'
+--------
+PathKey - '[+]'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'cat'
+--------
+Operation - TRAVERSE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixSimplePathSplatArrayExample(t *testing.T) {
+	var infix = "apples.[*]cat"
+	var expectedOutput = `PathKey - 'apples'
+--------
+PathKey - '[*]'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'cat'
+--------
+Operation - TRAVERSE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixDeepMatchExample(t *testing.T) {
+	var infix = "apples.**.cat"
+	var expectedOutput = `PathKey - 'apples'
+--------
+PathKey - '**'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'cat'
+--------
+Operation - TRAVERSE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
 func TestPostFixOrExample(t *testing.T) {
 	var infix = "a OR b"
 	var expectedOutput = `PathKey - 'a'
