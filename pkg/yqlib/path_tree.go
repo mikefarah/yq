@@ -1,27 +1,39 @@
 package yqlib
 
-import lex "github.com/timtadh/lexmachine"
+import "fmt"
 
-func parseTree(tokens []*lex.Token, currentElement *PathElement, allElements []*PathElement) []*PathElement {
-	currentToken, remainingTokens := tokens[0], tokens[1:]
-
-	switch currentToken.Type {
-	case TokenIds["PATH_KEY"]:
-		currentElement.PathElementType = PathKey
-		currentElement.OperationType = None
-		currentElement.Value = currentToken.Value
-	}
-
-	if len(remainingTokens) == 0 {
-		return append(allElements, currentElement)
-	}
-	return parseTree(remainingTokens, &PathElement{}, append(allElements, currentElement))
-
+type PathTreeNode struct {
+	PathElement *PathElement
+	Lhs         *PathTreeNode
+	Rhs         *PathTreeNode
 }
 
-func ParseTree(tokens []*lex.Token) []*PathElement {
-	if len(tokens) == 0 {
-		return make([]*PathElement, 0)
+type PathTreeCreator interface {
+	CreatePathTree([]*PathElement) (*PathTreeNode, error)
+}
+
+type pathTreeCreator struct {
+}
+
+func NewPathTreeCreator() PathTreeCreator {
+	return &pathTreeCreator{}
+}
+
+func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error) {
+	var stack = make([]*PathTreeNode, 0)
+
+	for _, pathElement := range postFixPath {
+		var newNode = PathTreeNode{PathElement: pathElement}
+		if pathElement.PathElementType == Operation {
+			remaining, lhs, rhs := stack[:len(stack)-2], stack[len(stack)-2], stack[len(stack)-1]
+			newNode.Lhs = lhs
+			newNode.Rhs = rhs
+			stack = remaining
+		}
+		stack = append(stack, &newNode)
 	}
-	return parseTree(tokens, &PathElement{}, make([]*PathElement, 0))
+	if len(stack) != 1 {
+		return nil, fmt.Errorf("expected stack to have 1 thing but its %v", stack)
+	}
+	return stack[0], nil
 }

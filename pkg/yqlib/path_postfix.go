@@ -32,7 +32,6 @@ type PathElement struct {
 	PathElementType PathElementType
 	OperationType   OperationType
 	Value           interface{}
-	Finished        bool
 }
 
 // debugging purposes only
@@ -109,14 +108,6 @@ func popOpToResult(opStack []*lex.Token, result []*PathElement) ([]*lex.Token, [
 	return opStack, append(result, &pathElement)
 }
 
-func finishPathKey(result []*PathElement) {
-	if len(result) > 0 {
-		//need to mark PathKey elements as finished so we
-		//stop appending PathKeys as children
-		result[len(result)-1].Finished = true
-	}
-}
-
 func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathElement, error) {
 	var result []*PathElement
 	// surround the whole thing with quotes
@@ -130,7 +121,6 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			result = append(result, &pathElement)
 		case TokenIds["("]:
 			opStack = append(opStack, token)
-			finishPathKey(result)
 		case TokenIds["OR_OPERATOR"], TokenIds["AND_OPERATOR"], TokenIds["EQUALS_OPERATOR"], TokenIds["EQUALS_SELF_OPERATOR"], TokenIds["TRAVERSE_OPERATOR"]:
 			var currentPrecedence = precedenceMap[token.Type]
 			// pop off higher precedent operators onto the result
@@ -139,7 +129,6 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			}
 			// add this operator to the opStack
 			opStack = append(opStack, token)
-			finishPathKey(result)
 		case TokenIds[")"]:
 			for len(opStack) > 0 && opStack[len(opStack)-1].Type != TokenIds["("] {
 				opStack, result = popOpToResult(opStack, result)
@@ -149,7 +138,6 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			}
 			// now we should have ( as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
-			finishPathKey(result)
 		}
 	}
 	return result, nil
