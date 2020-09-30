@@ -89,7 +89,7 @@ choco install yq
 Supported by @chillum (https://chocolatey.org/packages/yq)
 
 ### Alpine Linux
-- Enable community repo by adding ```$MIRROR/alpine/v$VERSION/community``` to ```/etc/apk/repositories```
+- Enable edge/community repo by adding ```$MIRROR/alpine/edge/community``` to ```/etc/apk/repositories```
 - Update database index with ```apk update```
 - Install yq with ```apk add yq```
 
