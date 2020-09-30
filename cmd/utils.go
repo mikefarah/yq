@@ -149,10 +149,15 @@ func writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
-func setIfNotThere(node *yaml.Node, key string, value *yaml.Node) {
+func overwriteOrSet(node *yaml.Node, key string, value *yaml.Node) {
 	for index := 0; index < len(node.Content); index = index + 2 {
 		keyNode := node.Content[index]
-		if keyNode.Value == key {
+		valueNode := node.Content[index+1]
+		if keyNode.Value == key && valueNode.Value == value.Value {
+			return
+		}
+		if keyNode.Value == key && valueNode.Value != value.Value {
+			node.Content[index+1] = value
 			return
 		}
 	}
@@ -170,7 +175,7 @@ func applyAlias(node *yaml.Node, alias *yaml.Node) {
 		keyNode := alias.Content[index]
 		log.Debugf("applying alias key %v", keyNode.Value)
 		valueNode := alias.Content[index+1]
-		setIfNotThere(node, keyNode.Value, valueNode)
+		overwriteOrSet(node, keyNode.Value, valueNode)
 	}
 }
 
