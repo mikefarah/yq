@@ -166,7 +166,9 @@ func (o orderedMap) MarshalJSON() ([]byte, error) {
 			return nil, err
 		}
 		buf.WriteByte(':')
-		enc.Encode(el.V)
+		if err := enc.Encode(el.V); err != nil {
+			return nil, err
+		}
 		if idx != len(o.kv)-1 {
 			buf.WriteByte(',')
 		}
