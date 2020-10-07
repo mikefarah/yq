@@ -98,8 +98,8 @@ func TestReadOutputJsonNonStringKeysCmd(t *testing.T) {
 
 	content := `
 true: true
-5: 
-  null: 
+5:
+  null:
     0.1: deeply
     false: things`
 	filename := test.WriteTempYamlFile(content)
@@ -111,7 +111,7 @@ true: true
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `{"5":{"null":{"0.1":"deeply","false":"things"}},"true":true}
+	expectedOutput := `{"true":true,"5":{"null":{"0.1":"deeply","false":"things"}}}
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -214,7 +214,7 @@ func TestReadArrayLengthCmd(t *testing.T) {
 }
 
 func TestReadArrayLengthDeepCmd(t *testing.T) {
-	content := `holder: 
+	content := `holder:
 - things
 - whatever
 `
@@ -230,12 +230,12 @@ func TestReadArrayLengthDeepCmd(t *testing.T) {
 }
 
 func TestReadArrayLengthDeepMultipleCmd(t *testing.T) {
-	content := `holderA: 
+	content := `holderA:
 - things
 - whatever
 skipMe:
 - yep
-holderB: 
+holderB:
 - other things
 - cool
 `
@@ -294,10 +294,10 @@ func TestReadCollectArrayCmd(t *testing.T) {
 }
 
 func TestReadArrayLengthDeepMultipleWithPathCmd(t *testing.T) {
-	content := `holderA: 
+	content := `holderA:
 - things
 - whatever
-holderB: 
+holderB:
 - other things
 - cool
 `
@@ -328,7 +328,7 @@ dog: bark
 }
 
 func TestReadObjectLengthDeepCmd(t *testing.T) {
-	content := `holder: 
+	content := `holder:
   cat: meow
   dog: bark
 `
@@ -344,10 +344,10 @@ func TestReadObjectLengthDeepCmd(t *testing.T) {
 }
 
 func TestReadObjectLengthDeepMultipleCmd(t *testing.T) {
-	content := `holderA: 
+	content := `holderA:
   cat: meow
   dog: bark
-holderB: 
+holderB:
   elephant: meow
   zebra: bark
 `
@@ -363,10 +363,10 @@ holderB:
 }
 
 func TestReadObjectLengthDeepMultipleWithPathsCmd(t *testing.T) {
-	content := `holderA: 
+	content := `holderA:
   cat: meow
   dog: bark
-holderB: 
+holderB:
   elephant: meow
   zebra: bark
 `
@@ -422,7 +422,7 @@ func TestReadSingleQuotedStringCmd(t *testing.T) {
 
 func TestReadQuotedMultinlineStringCmd(t *testing.T) {
 	content := `test: |
-  abcdefg    
+  abcdefg
   hijklmno
 `
 	filename := test.WriteTempYamlFile(content)
@@ -433,7 +433,7 @@ func TestReadQuotedMultinlineStringCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `abcdefg    
+	expectedOutput := `abcdefg
 hijklmno
 
 `
@@ -442,7 +442,7 @@ hijklmno
 
 func TestReadQuotedMultinlineNoNewLineStringCmd(t *testing.T) {
 	content := `test: |-
-  abcdefg    
+  abcdefg
   hijklmno
 `
 	filename := test.WriteTempYamlFile(content)
@@ -453,7 +453,7 @@ func TestReadQuotedMultinlineNoNewLineStringCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `abcdefg    
+	expectedOutput := `abcdefg
 hijklmno
 `
 	test.AssertResult(t, expectedOutput, result.Output)
@@ -583,7 +583,7 @@ func TestReadMergeAnchorsExplodeJsonCmd(t *testing.T) {
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
-	expectedOutput := `{"bar":{"b":2,"c":"oldbar","thing":"coconut"},"foo":{"a":"original","thing":"coolasdf","thirsty":"yep"},"foobar":{"a":"original","c":3,"thing":"ice","thirsty":"yep","thirty":"well beyond"},"foobarList":{"a":"original","b":2,"c":"newbar","thing":"coconut","thirsty":"yep"}}
+	expectedOutput := `{"foo":{"a":"original","thing":"coolasdf","thirsty":"yep"},"bar":{"b":2,"thing":"coconut","c":"oldbar"},"foobarList":{"c":"newbar","b":2,"thing":"coconut","a":"original","thirsty":"yep"},"foobar":{"thirty":"well beyond","thing":"ice","c":3,"a":"original","thirsty":"yep"}}
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -910,9 +910,9 @@ func TestReadEmptyContentCmd(t *testing.T) {
 }
 
 func TestReadEmptyNodesPrintPathCmd(t *testing.T) {
-	content := `map: 
+	content := `map:
   that: {}
-array: 
+array:
   great: []
 null:
   indeed: ~`
@@ -962,6 +962,7 @@ b:
       value: 3
     - name: sam
       value: 4
+ab: must appear last
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -1001,6 +1002,7 @@ b:
           value: 3
         - name: sam
           value: 4
+ab: must appear last
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
@@ -1269,7 +1271,7 @@ func TestReadBadDataCmd(t *testing.T) {
 
 func TestReadDeepFromRootCmd(t *testing.T) {
 	content := `state:
-  country: 
+  country:
     city: foo
 `
 	filename := test.WriteTempYamlFile(content)
