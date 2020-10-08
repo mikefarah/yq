@@ -1441,3 +1441,23 @@ func TestReadFindValueDeepObjectCmd(t *testing.T) {
 `
 	test.AssertResult(t, expectedOutput, result.Output)
 }
+
+func TestReadKeepsKeyOrderInJson(t *testing.T) {
+	const content = `{
+	"z": "One",
+	"a": 1,
+	"w": ["a", "r"],
+	"u": {"d": "o", "0": 11.5},
+}`
+	filename := test.WriteTempYamlFile(content)
+	defer test.RemoveTempYamlFile(filename)
+	cmd := getRootCommand()
+	result := test.RunCmd(cmd, fmt.Sprintf("r -j %s", filename))
+	if result.Error != nil {
+		t.Error(result.Error)
+	}
+
+	expectedOutput := `{"z":"One","a":1,"w":["a","r"],"u":{"d":"o","0":11.5}}
+`
+	test.AssertResult(t, expectedOutput, result.Output)
+}
