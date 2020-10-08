@@ -1,4 +1,4 @@
-package yqlib
+package treeops
 
 import (
 	"errors"

@@ -1,6 +1,9 @@
-package yqlib
+package treeops
 
 import "fmt"
+
+var myPathTokeniser = NewPathTokeniser()
+var myPathPostfixer = NewPathPostFixer()
 
 type PathTreeNode struct {
 	PathElement *PathElement
@@ -9,7 +12,8 @@ type PathTreeNode struct {
 }
 
 type PathTreeCreator interface {
-	CreatePathTree([]*PathElement) (*PathTreeNode, error)
+	ParsePath(path string) (*PathTreeNode, error)
+	CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error)
 }
 
 type pathTreeCreator struct {
@@ -17,6 +21,19 @@ type pathTreeCreator struct {
 
 func NewPathTreeCreator() PathTreeCreator {
 	return &pathTreeCreator{}
+}
+
+func (p *pathTreeCreator) ParsePath(path string) (*PathTreeNode, error) {
+	tokens, err := myPathTokeniser.Tokenise(path)
+	if err != nil {
+		return nil, err
+	}
+	var pathElements []*PathElement
+	pathElements, err = myPathPostfixer.ConvertToPostfix(tokens)
+	if err != nil {
+		return nil, err
+	}
+	return p.CreatePathTree(pathElements)
 }
 
 func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error) {
