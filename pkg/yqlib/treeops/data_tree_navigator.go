@@ -34,8 +34,9 @@ func (d *dataTreeNavigator) traverse(matchingNodes []*CandidateNode, pathNode *P
 	return newMatchingNodes, nil
 }
 
-func (d *dataTreeNavigator) setFunction(op OperationType, lhs []*CandidateNode, rhs []*CandidateNode) ([]*CandidateNode, error) {
-	return append(lhs, rhs...), nil
+func (d *dataTreeNavigator) setFunction(op OperationType, lhs []*CandidateNode, rhs []*CandidateNode) []*CandidateNode {
+
+	return append(lhs, rhs...)
 }
 
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
@@ -61,7 +62,7 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 			if err != nil {
 				return nil, err
 			}
-			return d.setFunction(pathNode.PathElement.OperationType, lhs, rhs)
+			return d.setFunction(pathNode.PathElement.OperationType, lhs, rhs), nil
 		// case Equals:
 		// 	lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 		// 	if err != nil {

@@ -223,3 +223,29 @@ func TestDataTreeNavigatorOrSimpleWithDepth(t *testing.T) {
 `
 	test.AssertResult(t, expected, resultsToString(results))
 }
+
+func TestDataTreeNavigatorOrDeDupes(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: apple
+  mad: things`)
+
+	path, errPath := treeCreator.ParsePath("a.(cat or cat)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  apple
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
