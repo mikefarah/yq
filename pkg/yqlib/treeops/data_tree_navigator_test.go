@@ -102,7 +102,8 @@ func TestDataTreeNavigatorSimpleMismatch(t *testing.T) {
 func TestDataTreeNavigatorWild(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
-  cat: apple`)
+  cat: apple
+  mad: things`)
 
 	path, errPath := treeCreator.ParsePath("a.*a*")
 	if errPath != nil {
@@ -119,7 +120,106 @@ func TestDataTreeNavigatorWild(t *testing.T) {
   Document 0, path: [a cat]
   Tag: !!str, Kind: ScalarNode, Anchor: 
   apple
+
+-- Node --
+  Document 0, path: [a mad]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  things
 `
 
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorWildDeepish(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: {b: 3}
+  mad: {b: 4}
+  fad: {c: t}`)
+
+	path, errPath := treeCreator.ParsePath("a.*a*.b")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat b]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  3
+
+-- Node --
+  Document 0, path: [a mad b]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  4
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorOrSimple(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: apple
+  mad: things`)
+
+	path, errPath := treeCreator.ParsePath("a.(cat or mad)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  apple
+
+-- Node --
+  Document 0, path: [a mad]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  things
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorOrSimpleWithDepth(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: {b: 3}
+  mad: {b: 4}
+  fad: {c: t}`)
+
+	path, errPath := treeCreator.ParsePath("a.(cat.* or fad.*)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat b]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  3
+
+-- Node --
+  Document 0, path: [a fad c]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  t
+`
 	test.AssertResult(t, expected, resultsToString(results))
 }

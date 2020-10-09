@@ -34,12 +34,16 @@ func (d *dataTreeNavigator) traverse(matchingNodes []*CandidateNode, pathNode *P
 	return newMatchingNodes, nil
 }
 
+func (d *dataTreeNavigator) setFunction(op OperationType, lhs []*CandidateNode, rhs []*CandidateNode) ([]*CandidateNode, error) {
+	return append(lhs, rhs...), nil
+}
+
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
 	if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
 		return d.traverse(matchingNodes, pathNode.PathElement)
 	} else {
-		var lhs []*CandidateNode //, rhs
+		var lhs, rhs []*CandidateNode
 		var err error
 		switch pathNode.PathElement.OperationType {
 		case Traverse:
@@ -48,16 +52,16 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 				return nil, err
 			}
 			return d.GetMatchingNodes(lhs, pathNode.Rhs)
-		// case Or, And:
-		// 	lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	rhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	return d.setFunction(pathNode.PathElement, lhs, rhs), nil
+		case Or, And:
+			lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+			if err != nil {
+				return nil, err
+			}
+			rhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+			return d.setFunction(pathNode.PathElement.OperationType, lhs, rhs)
 		// case Equals:
 		// 	lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 		// 	if err != nil {
