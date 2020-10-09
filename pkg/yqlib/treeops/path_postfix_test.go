@@ -25,6 +25,20 @@ func testExpression(expression string) (string, error) {
 	return formatted, nil
 }
 
+func TestPostFixArrayEquals(t *testing.T) {
+	var infix = "a"
+	var expectedOutput = `PathKey - 'a'
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
 func TestPostFixSimpleExample(t *testing.T) {
 	var infix = "a"
 	var expectedOutput = `PathKey - 'a'
@@ -156,6 +170,24 @@ func TestPostFixOrExample(t *testing.T) {
 PathKey - 'b'
 --------
 Operation - OR
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixEqualsNumberExample(t *testing.T) {
+	var infix = "(animal == 3)"
+	var expectedOutput = `PathKey - 'animal'
+--------
+PathKey - '3'
+--------
+Operation - EQUALS
 --------
 `
 

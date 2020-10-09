@@ -11,6 +11,8 @@ var tokeniserTests = []struct {
 	expectedTokens []interface{}
 }{ // TODO: Ensure ALL documented examples have tests! sheesh
 
+	{"(animal==3)", append(make([]interface{}, 0), "(", "animal", "==", int64(3), ")")},
+	{"(animal==f3)", append(make([]interface{}, 0), "(", "animal", "==", "f3", ")")},
 	{"apples.BANANAS", append(make([]interface{}, 0), "apples", ".", "BANANAS")},
 	{"appl*.BANA*", append(make([]interface{}, 0), "appl*", ".", "BANA*")},
 	{"a.b.**", append(make([]interface{}, 0), "a", ".", "b", ".", "**")},

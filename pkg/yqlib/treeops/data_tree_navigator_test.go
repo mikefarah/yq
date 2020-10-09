@@ -390,6 +390,34 @@ func TestDataTreeNavigatorArrayEquals(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorArrayEqualsDeep(t *testing.T) {
+
+	nodes := readDoc(t, `apples:
+  - { b: apple, animal: {legs: 2} }
+  - { b: banana, animal: {legs: 4} }
+  - { b: corn, animal: {legs: 6} }
+`)
+
+	path, errPath := treeCreator.ParsePath("apples(animal.legs == 4)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [apples 1]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {b: banana, animal: {legs: 4}}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorEqualsTrickey(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
