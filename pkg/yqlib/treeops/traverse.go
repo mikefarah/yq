@@ -47,6 +47,37 @@ func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement)
 		}
 	}
 	return newMatches, nil
+}
+
+func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
+	log.Debug("pathNode Value %v", pathNode.Value)
+	if pathNode.Value == "[*]" {
+
+		var contents = candidate.Node.Content
+		var newMatches = make([]*CandidateNode, len(contents))
+
+		for index := 0; index < len(contents); index = index + 1 {
+			newMatches[index] = &CandidateNode{
+				Document: candidate.Document,
+				Path:     append(candidate.Path, index),
+				Node:     contents[index],
+			}
+		}
+		return newMatches, nil
+
+	}
+
+	index := pathNode.Value.(int64)
+	if int64(len(candidate.Node.Content)) < index {
+		// handle auto append here
+		return make([]*CandidateNode, 0), nil
+	}
+
+	return []*CandidateNode{&CandidateNode{
+		Node:     candidate.Node.Content[index],
+		Document: candidate.Document,
+		Path:     append(candidate.Path, index),
+	}}, nil
 
 }
 
@@ -58,8 +89,9 @@ func (t *traverser) Traverse(matchingNode *CandidateNode, pathNode *PathElement)
 		log.Debug("its a map with %v entries", len(value.Content)/2)
 		return t.traverseMap(matchingNode, pathNode)
 
-	// case yaml.SequenceNode:
-	// 	log.Debug("its a sequence of %v things!", len(value.Content))
+	case yaml.SequenceNode:
+		log.Debug("its a sequence of %v things!", len(value.Content))
+		return t.traverseArray(matchingNode, pathNode)
 
 	// 	switch head := head.(type) {
 	// 	case int64:

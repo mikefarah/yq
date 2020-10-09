@@ -54,6 +54,60 @@ func TestDataTreeNavigatorSimple(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorArraySimple(t *testing.T) {
+
+	nodes := readDoc(t, `- b: apple`)
+
+	path, errPath := treeCreator.ParsePath("[0]")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [0]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  b: apple
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorArraySplat(t *testing.T) {
+
+	nodes := readDoc(t, `- b: apple
+- c: banana`)
+
+	path, errPath := treeCreator.ParsePath("[*]")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [0]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  b: apple
+
+-- Node --
+  Document 0, path: [1]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  c: banana
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorSimpleDeep(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
