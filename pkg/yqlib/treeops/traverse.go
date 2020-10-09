@@ -1,8 +1,6 @@
 package treeops
 
 import (
-	"fmt"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -19,7 +17,7 @@ func NewTraverser(navigationPrefs NavigationPrefs) Traverser {
 }
 
 func (t *traverser) keyMatches(key *yaml.Node, pathNode *PathElement) bool {
-	return Match(key.Value, fmt.Sprintf("%v", pathNode.Value))
+	return Match(key.Value, pathNode.StringValue)
 }
 
 func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {

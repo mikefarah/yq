@@ -32,6 +32,7 @@ type PathElement struct {
 	PathElementType PathElementType
 	OperationType   OperationType
 	Value           interface{}
+	StringValue     string
 }
 
 // debugging purposes only
@@ -117,7 +118,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 	for _, token := range tokens {
 		switch token.Type {
 		case TokenIds["PATH_KEY"], TokenIds["ARRAY_INDEX"], TokenIds["[+]"], TokenIds["[*]"], TokenIds["**"]:
-			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value}
+			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value, StringValue: fmt.Sprintf("%v", token.Value)}
 			result = append(result, &pathElement)
 		case TokenIds["("]:
 			opStack = append(opStack, token)

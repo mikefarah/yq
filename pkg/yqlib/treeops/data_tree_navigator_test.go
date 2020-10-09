@@ -277,3 +277,64 @@ func TestDataTreeNavigatorAnd(t *testing.T) {
 
 	test.AssertResult(t, expected, resultsToString(results))
 }
+
+func TestDataTreeNavigatorEquals(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: {b: apple, c: yes}
+  pat: {b: banana}
+`)
+
+	path, errPath := treeCreator.ParsePath("a.(b == apple)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {b: apple, c: yes}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorEqualsTrickey(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  cat: {b: apso, c: {d : yes}}
+  pat: {b: apple, c: {d : no}}
+  sat: {b: apsy, c: {d : yes}}
+  fat: {b: apple}
+`)
+
+	path, errPath := treeCreator.ParsePath("a.(b == ap* and c.d == yes)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a cat]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {b: apso, c: {d: yes}}
+
+-- Node --
+  Document 0, path: [a sat]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {b: apsy, c: {d: yes}}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
