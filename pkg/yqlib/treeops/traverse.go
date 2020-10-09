@@ -51,7 +51,7 @@ func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement)
 
 func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
 	log.Debug("pathNode Value %v", pathNode.Value)
-	if pathNode.Value == "[*]" {
+	if pathNode.Value == "[*]" || pathNode.Value == "*" {
 
 		var contents = candidate.Node.Content
 		var newMatches = make([]*CandidateNode, len(contents))
@@ -92,10 +92,6 @@ func (t *traverser) Traverse(matchingNode *CandidateNode, pathNode *PathElement)
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
 		return t.traverseArray(matchingNode, pathNode)
-
-	// 	switch head := head.(type) {
-	// 	case int64:
-	// 		return n.recurseArray(value, head, head, tail, pathStack)
 	// 	default:
 
 	// 		if head == "+" {
