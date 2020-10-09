@@ -42,11 +42,21 @@ func (d *dataTreeNavigator) traverse(matchMap *orderedmap.OrderedMap, pathNode *
 
 func (d *dataTreeNavigator) setFunction(op OperationType, lhs *orderedmap.OrderedMap, rhs *orderedmap.OrderedMap) *orderedmap.OrderedMap {
 
-	for el := rhs.Front(); el != nil; el = el.Next() {
-		node := el.Value.(*CandidateNode)
-		lhs.Set(node.getKey(), node)
+	if op == Or {
+		for el := rhs.Front(); el != nil; el = el.Next() {
+			node := el.Value.(*CandidateNode)
+			lhs.Set(node.getKey(), node)
+		}
+		return lhs
 	}
-	return lhs
+	var matchingNodeMap = orderedmap.NewOrderedMap()
+	for el := lhs.Front(); el != nil; el = el.Next() {
+		_, exists := rhs.Get(el.Key)
+		if exists {
+			matchingNodeMap.Set(el.Key, el.Value)
+		}
+	}
+	return matchingNodeMap
 
 }
 
