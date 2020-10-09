@@ -1,6 +1,7 @@
 module github.com/mikefarah/yq/v3
 
 require (
+	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/color v1.9.0
 	github.com/goccy/go-yaml v1.8.1
 	github.com/kylelemons/godebug v1.1.0
