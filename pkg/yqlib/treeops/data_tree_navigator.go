@@ -1,5 +1,9 @@
 package treeops
 
+import (
+	"github.com/elliotchance/orderedmap"
+)
+
 type dataTreeNavigator struct {
 	traverser Traverser
 }
@@ -17,54 +21,81 @@ func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
 	return &dataTreeNavigator{traverse}
 }
 
-func (d *dataTreeNavigator) traverse(matchingNodes []*CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
+func (d *dataTreeNavigator) traverse(matchMap *orderedmap.OrderedMap, pathNode *PathElement) (*orderedmap.OrderedMap, error) {
 	log.Debugf("-- Traversing")
-	var newMatchingNodes = make([]*CandidateNode, 0)
+	var matchingNodeMap = orderedmap.NewOrderedMap()
 	var newNodes []*CandidateNode
 	var err error
-	for _, node := range matchingNodes {
 
-		newNodes, err = d.traverser.Traverse(node, pathNode)
+	for el := matchMap.Front(); el != nil; el = el.Next() {
+		newNodes, err = d.traverser.Traverse(el.Value.(*CandidateNode), pathNode)
 		if err != nil {
 			return nil, err
 		}
-		newMatchingNodes = append(newMatchingNodes, newNodes...)
+		for _, n := range newNodes {
+			matchingNodeMap.Set(n.getKey(), n)
+		}
 	}
 
-	return newMatchingNodes, nil
+	return matchingNodeMap, nil
 }
 
-func (d *dataTreeNavigator) setFunction(op OperationType, lhs []*CandidateNode, rhs []*CandidateNode) []*CandidateNode {
+func (d *dataTreeNavigator) setFunction(op OperationType, lhs *orderedmap.OrderedMap, rhs *orderedmap.OrderedMap) *orderedmap.OrderedMap {
 
-	return append(lhs, rhs...)
+	for el := rhs.Front(); el != nil; el = el.Next() {
+		node := el.Value.(*CandidateNode)
+		lhs.Set(node.getKey(), node)
+	}
+	return lhs
+
 }
 
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
+	var matchingNodeMap = orderedmap.NewOrderedMap()
+
+	for _, n := range matchingNodes {
+		matchingNodeMap.Set(n.getKey(), n)
+	}
+
+	matchedNodes, err := d.getMatchingNodes(matchingNodeMap, pathNode)
+	if err != nil {
+		return nil, err
+	}
+
+	values := make([]*CandidateNode, 0, matchedNodes.Len())
+
+	for el := matchedNodes.Front(); el != nil; el = el.Next() {
+		values = append(values, el.Value.(*CandidateNode))
+	}
+	return values, nil
+}
+
+func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
 	if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
 		return d.traverse(matchingNodes, pathNode.PathElement)
 	} else {
-		var lhs, rhs []*CandidateNode
+		var lhs, rhs *orderedmap.OrderedMap
 		var err error
 		switch pathNode.PathElement.OperationType {
 		case Traverse:
-			lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+			lhs, err = d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 			if err != nil {
 				return nil, err
 			}
-			return d.GetMatchingNodes(lhs, pathNode.Rhs)
+			return d.getMatchingNodes(lhs, pathNode.Rhs)
 		case Or, And:
-			lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+			lhs, err = d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 			if err != nil {
 				return nil, err
 			}
-			rhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+			rhs, err = d.getMatchingNodes(matchingNodes, pathNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
 			return d.setFunction(pathNode.PathElement.OperationType, lhs, rhs), nil
 		// case Equals:
-		// 	lhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+		// 	lhs, err = d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 		// 	if err != nil {
 		// 		return nil, err
 		// 	}

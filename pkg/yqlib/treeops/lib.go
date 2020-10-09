@@ -18,6 +18,10 @@ type CandidateNode struct {
 	IsMiddleNode bool
 }
 
+func (n *CandidateNode) getKey() string {
+	return fmt.Sprintf("%v - %v", n.Document, n.Path)
+}
+
 var log = logging.MustGetLogger("yq-treeops")
 
 func NodeToString(node *CandidateNode) string {
