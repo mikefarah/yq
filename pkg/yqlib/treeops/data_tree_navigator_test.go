@@ -54,6 +54,112 @@ func TestDataTreeNavigatorSimple(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorSubtractSimple(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: apple
+  c: camel`)
+
+	path, errPath := treeCreator.ParsePath("a .- b")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  c: camel
+`
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorSubtractTwice(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: apple
+  c: camel
+  d: dingo`)
+
+	path, errPath := treeCreator.ParsePath("a .- b OR a .- c")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  d: dingo
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorSubtractWithUnion(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: apple
+  c: camel
+  d: dingo`)
+
+	path, errPath := treeCreator.ParsePath("a .- (b OR c)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  d: dingo
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorSubtractArray(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  - b: apple
+  - b: sdfsd
+  - b: apple`)
+
+	path, errPath := treeCreator.ParsePath("a .- (b == a*)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - b: sdfsd
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorArraySimple(t *testing.T) {
 
 	nodes := readDoc(t, `- b: apple`)

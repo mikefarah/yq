@@ -27,6 +27,7 @@ const (
 	Equals
 	EqualsSelf
 	Assign
+	DeleteChild
 )
 
 type PathElement struct {
@@ -59,6 +60,9 @@ func (p *PathElement) toString() string {
 			result = result + "ASSIGN\n"
 		case Traverse:
 			result = result + "TRAVERSE\n"
+		case DeleteChild:
+			result = result + "DELETE CHILD\n"
+
 		}
 
 	}
@@ -84,6 +88,9 @@ func initMaps() {
 
 	precedenceMap[TokenIds["EQUALS_SELF_OPERATOR"]] = 30
 	operationTypeMapper[TokenIds["EQUALS_SELF_OPERATOR"]] = EqualsSelf
+
+	precedenceMap[TokenIds["DELETE_CHILD_OPERATOR"]] = 30
+	operationTypeMapper[TokenIds["DELETE_CHILD_OPERATOR"]] = DeleteChild
 
 	precedenceMap[TokenIds["ASSIGN_OPERATOR"]] = 35
 	operationTypeMapper[TokenIds["ASSIGN_OPERATOR"]] = Assign

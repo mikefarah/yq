@@ -28,6 +28,7 @@ func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
 	operatorHandlers[Or] = UnionOperator
 	operatorHandlers[And] = IntersectionOperator
 	operatorHandlers[Assign] = AssignOperator
+	operatorHandlers[DeleteChild] = DeleteChildOperator
 
 	return &dataTreeNavigator{leafTraverser, operatorHandlers}
 }

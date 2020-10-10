@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/elliotchance/orderedmap"
 	"gopkg.in/op/go-logging.v1"
 	"gopkg.in/yaml.v3"
 )
@@ -14,10 +15,6 @@ type CandidateNode struct {
 	Node     *yaml.Node    // the actual node
 	Path     []interface{} /// the path we took to get to this node
 	Document uint          // the document index of this node
-
-	// middle nodes are nodes that match along the original path, but not a
-	// target match of the path. This is only relevant when ShouldOnlyDeeplyVisitLeaves is false.
-	IsMiddleNode bool
 }
 
 func (n *CandidateNode) getKey() string {
@@ -36,6 +33,19 @@ type YqTreeLib interface {
 
 type lib struct {
 	treeCreator PathTreeCreator
+}
+
+//use for debugging only
+func NodesToString(collection *orderedmap.OrderedMap) string {
+	if !log.IsEnabledFor(logging.DEBUG) {
+		return ""
+	}
+
+	result := ""
+	for el := collection.Front(); el != nil; el = el.Next() {
+		result = result + "\n" + NodeToString(el.Value.(*CandidateNode))
+	}
+	return result
 }
 
 func NodeToString(node *CandidateNode) string {

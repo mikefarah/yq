@@ -11,6 +11,8 @@ var tokeniserTests = []struct {
 	expectedTokens []interface{}
 }{ // TODO: Ensure ALL documented examples have tests! sheesh
 
+	{"a OR (b OR c)", append(make([]interface{}, 0), "a", "OR", "(", "b", "OR", "c", ")")},
+	{"a .- (b OR c)", append(make([]interface{}, 0), "a", " .- ", "(", "b", "OR", "c", ")")},
 	{"(animal==3)", append(make([]interface{}, 0), "(", "animal", "==", int64(3), ")")},
 	{"(animal==f3)", append(make([]interface{}, 0), "(", "animal", "==", "f3", ")")},
 	{"apples.BANANAS", append(make([]interface{}, 0), "apples", ".", "BANANAS")},
@@ -27,7 +29,7 @@ var tokeniserTests = []struct {
 	{"a.b.[+]", append(make([]interface{}, 0), "a", ".", "b", ".", "[+]")},
 	{"a.b[-12]", append(make([]interface{}, 0), "a", ".", "b", ".", int64(-12))},
 	{"a.b.0", append(make([]interface{}, 0), "a", ".", "b", ".", int64(0))},
-	{"a.b.-12", append(make([]interface{}, 0), "a", ".", "b", ".", int64(-12))},
+	// {"a.b.-12", append(make([]interface{}, 0), "a", ".", "b", ".", int64(-12))},
 	{"a", append(make([]interface{}, 0), "a")},
 	{"\"a.b\".c", append(make([]interface{}, 0), "a.b", ".", "c")},
 	{`b."foo.bar"`, append(make([]interface{}, 0), "b", ".", "foo.bar")},

@@ -28,6 +28,7 @@ func initTokens() {
 		"EQUALS_OPERATOR",
 		"EQUALS_SELF_OPERATOR",
 		"ASSIGN_OPERATOR",
+		"DELETE_CHILD_OPERATOR",
 		"TRAVERSE_OPERATOR",
 		"PATH_KEY",    // apples
 		"ARRAY_INDEX", // 123
@@ -91,6 +92,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`([Aa][Nn][Dd])`), token("AND_OPERATOR"))
 	lexer.Add([]byte(`\.\s*==\s*`), token("EQUALS_SELF_OPERATOR"))
 	lexer.Add([]byte(`\s*==\s*`), token("EQUALS_OPERATOR"))
+	lexer.Add([]byte(`\s*.-\s*`), token("DELETE_CHILD_OPERATOR"))
 	lexer.Add([]byte(`\s*:=\s*`), token("ASSIGN_OPERATOR"))
 	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
 	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
@@ -133,7 +135,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*lex.Token, error) {
 
 		if tok != nil {
 			token := tok.(*lex.Token)
-			log.Debugf("Processing %v - %v", token.Value, Tokens[token.Type])
+			log.Debugf("Tokenising %v - %v", token.Value, Tokens[token.Type])
 			tokens = append(tokens, token)
 		}
 		if err != nil {
@@ -144,14 +146,14 @@ func (p *pathTokeniser) Tokenise(path string) ([]*lex.Token, error) {
 
 	for index, token := range tokens {
 		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", "(") {
-			if index > 0 && token.Type == TokenIds[literalTokenDef] && tokens[index-1].Type != TokenIds["TRAVERSE_OPERATOR"] && tokens[index-1].Type != TokenIds["EQUALS_OPERATOR"] && tokens[index-1].Type != TokenIds["EQUALS_SELF_OPERATOR"] {
+			if index > 0 && token.Type == TokenIds[literalTokenDef] && tokens[index-1].Type == TokenIds["PATH_KEY"] {
 				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
 			}
 		}
 
 		postProcessedTokens = append(postProcessedTokens, token)
 		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", ")") {
-			if index != len(tokens)-1 && token.Type == TokenIds[literalTokenDef] && tokens[index+1].Type != TokenIds["TRAVERSE_OPERATOR"] && tokens[index+1].Type != TokenIds[")"] {
+			if index != len(tokens)-1 && token.Type == TokenIds[literalTokenDef] && tokens[index+1].Type == TokenIds["PATH_KEY"] {
 				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
 			}
 		}

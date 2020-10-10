@@ -59,20 +59,24 @@ func IntersectionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordere
 	return matchingNodeMap, nil
 }
 
+func splatNode(d *dataTreeNavigator, candidate *CandidateNode) (*orderedmap.OrderedMap, error) {
+	elMap := orderedmap.NewOrderedMap()
+	elMap.Set(candidate.getKey(), candidate)
+	//need to splat matching nodes, then search through them
+	splatter := &PathTreeNode{PathElement: &PathElement{
+		PathElementType: PathKey,
+		Value:           "*",
+		StringValue:     "*",
+	}}
+	return d.getMatchingNodes(elMap, splatter)
+}
+
 func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
 	log.Debugf("-- equalsOperation")
 	var results = orderedmap.NewOrderedMap()
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
-		elMap := orderedmap.NewOrderedMap()
-		elMap.Set(el.Key, el.Value)
-		//need to splat matching nodes, then search through them
-		splatter := &PathTreeNode{PathElement: &PathElement{
-			PathElementType: PathKey,
-			Value:           "*",
-			StringValue:     "*",
-		}}
-		children, err := d.getMatchingNodes(elMap, splatter)
+		children, err := splatNode(d, el.Value.(*CandidateNode))
 		log.Debugf("-- splatted matches, ")
 		if err != nil {
 			return nil, err
