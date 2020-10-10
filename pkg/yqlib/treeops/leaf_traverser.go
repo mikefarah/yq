@@ -8,11 +8,11 @@ type traverser struct {
 	prefs NavigationPrefs
 }
 
-type Traverser interface {
+type LeafTraverser interface {
 	Traverse(matchingNode *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error)
 }
 
-func NewTraverser(navigationPrefs NavigationPrefs) Traverser {
+func NewLeafTraverser(navigationPrefs NavigationPrefs) LeafTraverser {
 	return &traverser{navigationPrefs}
 }
 

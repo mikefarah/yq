@@ -8,6 +8,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var log = logging.MustGetLogger("yq-treeops")
+
 type CandidateNode struct {
 	Node     *yaml.Node    // the actual node
 	Path     []interface{} /// the path we took to get to this node
@@ -22,7 +24,19 @@ func (n *CandidateNode) getKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
-var log = logging.MustGetLogger("yq-treeops")
+type YqTreeLib interface {
+	Get(rootNode *yaml.Node, path string) ([]*CandidateNode, error)
+	// GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error)
+	// Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
+	// New(path string) yaml.Node
+
+	// PathStackToString(pathStack []interface{}) string
+	// MergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string
+}
+
+type lib struct {
+	treeCreator PathTreeCreator
+}
 
 func NodeToString(node *CandidateNode) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
