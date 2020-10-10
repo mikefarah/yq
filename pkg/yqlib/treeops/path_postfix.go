@@ -26,6 +26,7 @@ const (
 	And
 	Equals
 	EqualsSelf
+	Assign
 )
 
 type PathElement struct {
@@ -54,6 +55,8 @@ func (p *PathElement) toString() string {
 			result = result + "EQUALS\n"
 		case EqualsSelf:
 			result = result + "EQUALS SELF\n"
+		case Assign:
+			result = result + "ASSIGN\n"
 		case Traverse:
 			result = result + "TRAVERSE\n"
 		}
@@ -81,6 +84,9 @@ func initMaps() {
 
 	precedenceMap[TokenIds["EQUALS_SELF_OPERATOR"]] = 30
 	operationTypeMapper[TokenIds["EQUALS_SELF_OPERATOR"]] = EqualsSelf
+
+	precedenceMap[TokenIds["ASSIGN_OPERATOR"]] = 35
+	operationTypeMapper[TokenIds["ASSIGN_OPERATOR"]] = Assign
 
 	precedenceMap[TokenIds["TRAVERSE_OPERATOR"]] = 40
 	operationTypeMapper[TokenIds["TRAVERSE_OPERATOR"]] = Traverse
@@ -122,14 +128,6 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			result = append(result, &pathElement)
 		case TokenIds["("]:
 			opStack = append(opStack, token)
-		case TokenIds["OR_OPERATOR"], TokenIds["AND_OPERATOR"], TokenIds["EQUALS_OPERATOR"], TokenIds["EQUALS_SELF_OPERATOR"], TokenIds["TRAVERSE_OPERATOR"]:
-			var currentPrecedence = precedenceMap[token.Type]
-			// pop off higher precedent operators onto the result
-			for len(opStack) > 0 && precedenceMap[opStack[len(opStack)-1].Type] >= currentPrecedence {
-				opStack, result = popOpToResult(opStack, result)
-			}
-			// add this operator to the opStack
-			opStack = append(opStack, token)
 		case TokenIds[")"]:
 			for len(opStack) > 0 && opStack[len(opStack)-1].Type != TokenIds["("] {
 				opStack, result = popOpToResult(opStack, result)
@@ -139,6 +137,14 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			}
 			// now we should have ( as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
+		default:
+			var currentPrecedence = precedenceMap[token.Type]
+			// pop off higher precedent operators onto the result
+			for len(opStack) > 0 && precedenceMap[opStack[len(opStack)-1].Type] >= currentPrecedence {
+				opStack, result = popOpToResult(opStack, result)
+			}
+			// add this operator to the opStack
+			opStack = append(opStack, token)
 		}
 	}
 	return result, nil

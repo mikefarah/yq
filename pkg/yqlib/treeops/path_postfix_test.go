@@ -75,6 +75,28 @@ Operation - TRAVERSE
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
+func TestPostFixSimpleAssign(t *testing.T) {
+	var infix = "a.b := frog"
+	var expectedOutput = `PathKey - 'a'
+--------
+PathKey - 'b'
+--------
+Operation - TRAVERSE
+--------
+PathKey - 'frog'
+--------
+Operation - ASSIGN
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
 func TestPostFixSimplePathNumbersExample(t *testing.T) {
 	var infix = "apples[0].cat"
 	var expectedOutput = `PathKey - 'apples'

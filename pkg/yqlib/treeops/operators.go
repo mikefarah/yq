@@ -12,6 +12,18 @@ func TraverseOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap
 	return d.getMatchingNodes(lhs, pathNode.Rhs)
 }
 
+func AssignOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	if err != nil {
+		return nil, err
+	}
+	for el := lhs.Front(); el != nil; el = el.Next() {
+		node := el.Value.(*CandidateNode)
+		node.Node.Value = pathNode.Rhs.PathElement.StringValue
+	}
+	return lhs, nil
+}
+
 func UnionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {

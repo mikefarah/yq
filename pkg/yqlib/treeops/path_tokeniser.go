@@ -27,6 +27,7 @@ func initTokens() {
 		"AND_OPERATOR",
 		"EQUALS_OPERATOR",
 		"EQUALS_SELF_OPERATOR",
+		"ASSIGN_OPERATOR",
 		"TRAVERSE_OPERATOR",
 		"PATH_KEY",    // apples
 		"ARRAY_INDEX", // 123
@@ -90,6 +91,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`([Aa][Nn][Dd])`), token("AND_OPERATOR"))
 	lexer.Add([]byte(`\.\s*==\s*`), token("EQUALS_SELF_OPERATOR"))
 	lexer.Add([]byte(`\s*==\s*`), token("EQUALS_OPERATOR"))
+	lexer.Add([]byte(`\s*:=\s*`), token("ASSIGN_OPERATOR"))
 	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
 	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
