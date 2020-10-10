@@ -19,6 +19,7 @@ func AssignOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, 
 	}
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
+		log.Debugf("Assiging %v to %v", node.getKey(), pathNode.Rhs.PathElement.StringValue)
 		node.Node.Value = pathNode.Rhs.PathElement.StringValue
 	}
 	return lhs, nil

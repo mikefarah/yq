@@ -133,6 +133,65 @@ func TestDataTreeNavigatorSubtractWithUnion(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorSubtractByIndex(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  - b: apple
+  - b: sdfsd
+  - b: apple`)
+
+	path, errPath := treeCreator.ParsePath("(a .- (0 or 1))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - b: apple
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorDeleteAndWrite(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  - b: apple
+  - b: sdfsd
+  - { b: apple, c: cat }`)
+
+	path, errPath := treeCreator.ParsePath("(a .- (0 or 1)) or (a[0].b := frog)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - {b: frog, c: cat}
+
+-- Node --
+  Document 0, path: [a 0 b]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorSubtractArray(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
