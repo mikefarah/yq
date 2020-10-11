@@ -522,7 +522,7 @@ func TestDataTreeNavigatorAnd(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorEquals(t *testing.T) {
+func TestDataTreeNavigatorEqualsSimple(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   cat: {b: apple, c: yes}
@@ -544,6 +544,94 @@ func TestDataTreeNavigatorEquals(t *testing.T) {
   Document 0, path: [a cat]
   Tag: !!map, Kind: MappingNode, Anchor: 
   {b: apple, c: yes}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorEqualsSelf(t *testing.T) {
+
+	nodes := readDoc(t, `a: frog
+b: cat
+c: frog`)
+
+	path, errPath := treeCreator.ParsePath("(a or b).(. == frog)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorEqualsNested(t *testing.T) {
+
+	nodes := readDoc(t, `a: {t: frog}
+b: {t: cat}
+c: {t: frog}`)
+
+	path, errPath := treeCreator.ParsePath("(t == frog)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {t: frog}
+
+-- Node --
+  Document 0, path: [c]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {t: frog}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorArrayEqualsSelf(t *testing.T) {
+
+	nodes := readDoc(t, `- cat
+- dog
+- frog`)
+
+	path, errPath := treeCreator.ParsePath("*(. == *og)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [1]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  dog
+
+-- Node --
+  Document 0, path: [2]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
 `
 
 	test.AssertResult(t, expected, resultsToString(results))

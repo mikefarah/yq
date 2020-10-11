@@ -2,54 +2,48 @@ package treeops
 
 import (
 	"strconv"
-	"strings"
 
 	lex "github.com/timtadh/lexmachine"
 	"github.com/timtadh/lexmachine/machines"
 )
 
-var Literals []string       // The tokens representing literal strings
-var Keywords []string       // The keyword tokens
-var Tokens []string         // All of the tokens (including literals and keywords)
-var TokenIds map[string]int // A map from the token names to their int ids
-
-var bracketLiterals []string
-
-func initTokens() {
-	bracketLiterals = []string{"(", ")"}
-	Literals = []string{ // these need a traverse operator infront
-		"[+]",
-		"[*]",
-		"**",
-	}
-	Tokens = []string{
-		"OR_OPERATOR",
-		"AND_OPERATOR",
-		"EQUALS_OPERATOR",
-		"EQUALS_SELF_OPERATOR",
-		"ASSIGN_OPERATOR",
-		"DELETE_CHILD_OPERATOR",
-		"TRAVERSE_OPERATOR",
-		"PATH_KEY",    // apples
-		"ARRAY_INDEX", // 123
-	}
-	Tokens = append(Tokens, bracketLiterals...)
-	Tokens = append(Tokens, Literals...)
-	TokenIds = make(map[string]int)
-	for i, tok := range Tokens {
-		TokenIds[tok] = i
-	}
-
-	initMaps()
-}
-
 func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
 	return nil, nil
 }
 
-func token(name string) lex.Action {
+type Token struct {
+	PathElementType PathElementType
+	OperationType   OperationType
+	Value           interface{}
+	StringValue     string
+	AgainstSelf     bool
+
+	CheckForPreTraverse bool // this token can sometimes have the traverse '.' missing in frnot of it
+	// e.g. a[1] should really be a.[1]
+	CheckForPostTraverse bool // samething but for post, e.g. [1]cat should really be [1].cat
+
+}
+
+func pathToken(wrapped bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return s.Token(TokenIds[name], string(m.Bytes), m), nil
+		value := string(m.Bytes)
+		if wrapped {
+			value = unwrap(value)
+		}
+		return &Token{PathElementType: PathKey, OperationType: None, Value: value, StringValue: value}, nil
+	}
+}
+
+func opToken(op OperationType, againstSelf bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+		return &Token{PathElementType: Operation, OperationType: op, Value: value, StringValue: value, AgainstSelf: againstSelf}, nil
+	}
+}
+
+func literalToken(pType PathElementType, literal string, checkForPre bool, checkForPost bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return &Token{PathElementType: pType, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -57,13 +51,7 @@ func unwrap(value string) string {
 	return value[1 : len(value)-1]
 }
 
-func wrappedToken(name string) lex.Action {
-	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return s.Token(TokenIds[name], unwrap(string(m.Bytes)), m), nil
-	}
-}
-
-func numberToken(name string, wrapped bool) lex.Action {
+func arrayIndextoken(wrapped bool, checkForPre bool, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
 		if wrapped {
@@ -73,33 +61,40 @@ func numberToken(name string, wrapped bool) lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return s.Token(TokenIds[name], number, m), nil
+		return &Token{PathElementType: ArrayIndex, Value: number, StringValue: numberString, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
-	for _, lit := range bracketLiterals {
-		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
-		lexer.Add([]byte(r), token(lit))
-	}
-	for _, lit := range Literals {
-		r := "\\" + strings.Join(strings.Split(lit, ""), "\\")
-		lexer.Add([]byte(r), token(lit))
-	}
-	lexer.Add([]byte(`([Oo][Rr])`), token("OR_OPERATOR"))
-	lexer.Add([]byte(`([Aa][Nn][Dd])`), token("AND_OPERATOR"))
-	lexer.Add([]byte(`\.\s*==\s*`), token("EQUALS_SELF_OPERATOR"))
-	lexer.Add([]byte(`\s*==\s*`), token("EQUALS_OPERATOR"))
-	lexer.Add([]byte(`\s*.-\s*`), token("DELETE_CHILD_OPERATOR"))
-	lexer.Add([]byte(`\s*:=\s*`), token("ASSIGN_OPERATOR"))
-	lexer.Add([]byte(`\[-?[0-9]+\]`), numberToken("ARRAY_INDEX", true))
-	lexer.Add([]byte(`-?[0-9]+`), numberToken("ARRAY_INDEX", false))
+	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", true, false))
+	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", false, true))
+
+	lexer.Add([]byte(`\[\+\]`), literalToken(PathKey, "[+]", true, true))
+	lexer.Add([]byte(`\[\*\]`), literalToken(PathKey, "[*]", true, true))
+	lexer.Add([]byte(`\*\*`), literalToken(PathKey, "**", false, false))
+
+	lexer.Add([]byte(`([Oo][Rr])`), opToken(Or, false))
+	lexer.Add([]byte(`([Aa][Nn][Dd])`), opToken(And, false))
+
+	lexer.Add([]byte(`\.\s*==\s*`), opToken(Equals, true))
+	lexer.Add([]byte(`\s*==\s*`), opToken(Equals, false))
+
+	lexer.Add([]byte(`\.\s*.-\s*`), opToken(DeleteChild, true))
+	lexer.Add([]byte(`\s*.-\s*`), opToken(DeleteChild, false))
+
+	lexer.Add([]byte(`\.\s*:=\s*`), opToken(Assign, true))
+	lexer.Add([]byte(`\s*:=\s*`), opToken(Assign, false))
+
+	lexer.Add([]byte(`\[-?[0-9]+\]`), arrayIndextoken(true, true, true))
+	lexer.Add([]byte(`-?[0-9]+`), arrayIndextoken(false, false, false))
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
-	lexer.Add([]byte(`"[^ "]+"`), wrappedToken("PATH_KEY"))
-	lexer.Add([]byte(`[^ \.\[\(\)=]+`), token("PATH_KEY"))
-	lexer.Add([]byte(`\.`), token("TRAVERSE_OPERATOR"))
+
+	lexer.Add([]byte(`"[^ "]+"`), pathToken(true))
+	lexer.Add([]byte(`[^ \.\[\(\)=]+`), pathToken(false))
+
+	lexer.Add([]byte(`\.`), opToken(Traverse, false))
 	err := lexer.Compile()
 	if err != nil {
 		return nil, err
@@ -108,7 +103,7 @@ func initLexer() (*lex.Lexer, error) {
 }
 
 type PathTokeniser interface {
-	Tokenise(path string) ([]*lex.Token, error)
+	Tokenise(path string) ([]*Token, error)
 }
 
 type pathTokeniser struct {
@@ -116,7 +111,6 @@ type pathTokeniser struct {
 }
 
 func NewPathTokeniser() PathTokeniser {
-	initTokens()
 	var lexer, err = initLexer()
 	if err != nil {
 		panic(err)
@@ -124,38 +118,40 @@ func NewPathTokeniser() PathTokeniser {
 	return &pathTokeniser{lexer}
 }
 
-func (p *pathTokeniser) Tokenise(path string) ([]*lex.Token, error) {
+func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 	scanner, err := p.lexer.Scanner([]byte(path))
 
 	if err != nil {
 		return nil, err
 	}
-	var tokens []*lex.Token
+	var tokens []*Token
 	for tok, err, eof := scanner.Next(); !eof; tok, err, eof = scanner.Next() {
 
 		if tok != nil {
-			token := tok.(*lex.Token)
-			log.Debugf("Tokenising %v - %v", token.Value, Tokens[token.Type])
+			token := tok.(*Token)
+			log.Debugf("Tokenising %v", token.Value)
 			tokens = append(tokens, token)
 		}
 		if err != nil {
 			return nil, err
 		}
 	}
-	var postProcessedTokens []*lex.Token = make([]*lex.Token, 0)
+	var postProcessedTokens = make([]*Token, 0)
 
 	for index, token := range tokens {
-		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", "(") {
-			if index > 0 && token.Type == TokenIds[literalTokenDef] && tokens[index-1].Type == TokenIds["PATH_KEY"] {
-				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
-			}
+		if index > 0 && token.CheckForPreTraverse &&
+			(tokens[index-1].PathElementType == PathKey || tokens[index-1].PathElementType == CloseBracket) {
+			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Traverse, Value: "."})
+		}
+		if token.PathElementType == Operation && token.AgainstSelf {
+			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: SelfReference, Value: "SELF"})
 		}
 
 		postProcessedTokens = append(postProcessedTokens, token)
-		for _, literalTokenDef := range append(Literals, "ARRAY_INDEX", ")") {
-			if index != len(tokens)-1 && token.Type == TokenIds[literalTokenDef] && tokens[index+1].Type == TokenIds["PATH_KEY"] {
-				postProcessedTokens = append(postProcessedTokens, &lex.Token{Type: TokenIds["TRAVERSE_OPERATOR"], Value: "."})
-			}
+
+		if index != len(tokens)-1 && token.CheckForPostTraverse &&
+			tokens[index+1].PathElementType == PathKey {
+			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Traverse, Value: "."})
 		}
 	}
 

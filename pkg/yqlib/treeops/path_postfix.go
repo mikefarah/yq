@@ -3,8 +3,6 @@ package treeops
 import (
 	"errors"
 	"fmt"
-
-	lex "github.com/timtadh/lexmachine"
 )
 
 var precedenceMap map[int]int
@@ -15,6 +13,9 @@ const (
 	PathKey PathElementType = 1 << iota
 	ArrayIndex
 	Operation
+	SelfReference
+	OpenBracket
+	CloseBracket
 )
 
 type OperationType uint32
@@ -25,7 +26,6 @@ const (
 	Or
 	And
 	Equals
-	EqualsSelf
 	Assign
 	DeleteChild
 )
@@ -45,6 +45,8 @@ func (p *PathElement) toString() string {
 		result = result + fmt.Sprintf("PathKey - '%v'\n", p.Value)
 	case ArrayIndex:
 		result = result + fmt.Sprintf("ArrayIndex - '%v'\n", p.Value)
+	case SelfReference:
+		result = result + fmt.Sprintf("SELF\n")
 	case Operation:
 		result = result + "Operation - "
 		switch p.OperationType {
@@ -54,8 +56,6 @@ func (p *PathElement) toString() string {
 			result = result + "AND\n"
 		case Equals:
 			result = result + "EQUALS\n"
-		case EqualsSelf:
-			result = result + "EQUALS SELF\n"
 		case Assign:
 			result = result + "ASSIGN\n"
 		case Traverse:
@@ -69,43 +69,13 @@ func (p *PathElement) toString() string {
 	return result
 }
 
-var operationTypeMapper map[int]OperationType
-
-func initMaps() {
-	precedenceMap = make(map[int]int)
-	operationTypeMapper = make(map[int]OperationType)
-
-	precedenceMap[TokenIds["("]] = 0
-
-	precedenceMap[TokenIds["OR_OPERATOR"]] = 10
-	operationTypeMapper[TokenIds["OR_OPERATOR"]] = Or
-
-	precedenceMap[TokenIds["AND_OPERATOR"]] = 20
-	operationTypeMapper[TokenIds["AND_OPERATOR"]] = And
-
-	precedenceMap[TokenIds["EQUALS_OPERATOR"]] = 30
-	operationTypeMapper[TokenIds["EQUALS_OPERATOR"]] = Equals
-
-	precedenceMap[TokenIds["EQUALS_SELF_OPERATOR"]] = 30
-	operationTypeMapper[TokenIds["EQUALS_SELF_OPERATOR"]] = EqualsSelf
-
-	precedenceMap[TokenIds["DELETE_CHILD_OPERATOR"]] = 30
-	operationTypeMapper[TokenIds["DELETE_CHILD_OPERATOR"]] = DeleteChild
-
-	precedenceMap[TokenIds["ASSIGN_OPERATOR"]] = 35
-	operationTypeMapper[TokenIds["ASSIGN_OPERATOR"]] = Assign
-
-	precedenceMap[TokenIds["TRAVERSE_OPERATOR"]] = 40
-	operationTypeMapper[TokenIds["TRAVERSE_OPERATOR"]] = Traverse
-}
-
-func createOperationPathElement(opToken *lex.Token) PathElement {
-	var pathElement = PathElement{PathElementType: Operation, OperationType: operationTypeMapper[opToken.Type]}
+func createOperationPathElement(opToken *Token) PathElement {
+	var pathElement = PathElement{PathElementType: Operation, OperationType: opToken.OperationType}
 	return pathElement
 }
 
 type PathPostFixer interface {
-	ConvertToPostfix([]*lex.Token) ([]*PathElement, error)
+	ConvertToPostfix([]*Token) ([]*PathElement, error)
 }
 
 type pathPostFixer struct {
@@ -115,28 +85,29 @@ func NewPathPostFixer() PathPostFixer {
 	return &pathPostFixer{}
 }
 
-func popOpToResult(opStack []*lex.Token, result []*PathElement) ([]*lex.Token, []*PathElement) {
-	var operatorToPushToPostFix *lex.Token
+func popOpToResult(opStack []*Token, result []*PathElement) ([]*Token, []*PathElement) {
+	var operatorToPushToPostFix *Token
 	opStack, operatorToPushToPostFix = opStack[0:len(opStack)-1], opStack[len(opStack)-1]
 	var pathElement = createOperationPathElement(operatorToPushToPostFix)
 	return opStack, append(result, &pathElement)
 }
 
-func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathElement, error) {
+func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, error) {
 	var result []*PathElement
 	// surround the whole thing with quotes
-	var opStack = []*lex.Token{&lex.Token{Type: TokenIds["("]}}
-	var tokens = append(infixTokens, &lex.Token{Type: TokenIds[")"]})
+	var opStack = []*Token{&Token{PathElementType: OpenBracket}}
+	var tokens = append(infixTokens, &Token{PathElementType: CloseBracket})
 
 	for _, token := range tokens {
-		switch token.Type {
-		case TokenIds["PATH_KEY"], TokenIds["ARRAY_INDEX"], TokenIds["[+]"], TokenIds["[*]"], TokenIds["**"]:
-			var pathElement = PathElement{PathElementType: PathKey, Value: token.Value, StringValue: fmt.Sprintf("%v", token.Value)}
+		switch token.PathElementType {
+		case PathKey, ArrayIndex, SelfReference:
+			var pathElement = PathElement{PathElementType: token.PathElementType, Value: token.Value, StringValue: token.StringValue}
 			result = append(result, &pathElement)
-		case TokenIds["("]:
+		case OpenBracket:
 			opStack = append(opStack, token)
-		case TokenIds[")"]:
-			for len(opStack) > 0 && opStack[len(opStack)-1].Type != TokenIds["("] {
+
+		case CloseBracket:
+			for len(opStack) > 0 && opStack[len(opStack)-1].PathElementType != OpenBracket {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			if len(opStack) == 0 {
@@ -144,10 +115,11 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 			}
 			// now we should have ( as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
+
 		default:
-			var currentPrecedence = precedenceMap[token.Type]
+			var currentPrecedence = p.precendenceOf(token)
 			// pop off higher precedent operators onto the result
-			for len(opStack) > 0 && precedenceMap[opStack[len(opStack)-1].Type] >= currentPrecedence {
+			for len(opStack) > 0 && p.precendenceOf(opStack[len(opStack)-1]) >= currentPrecedence {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			// add this operator to the opStack
@@ -155,4 +127,20 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*lex.Token) ([]*PathEleme
 		}
 	}
 	return result, nil
+}
+
+func (p *pathPostFixer) precendenceOf(token *Token) int {
+	switch token.OperationType {
+	case Or:
+		return 10
+	case And:
+		return 20
+	case Equals, DeleteChild:
+		return 30
+	case Assign:
+		return 35
+	case Traverse:
+		return 40
+	}
+	return 0
 }

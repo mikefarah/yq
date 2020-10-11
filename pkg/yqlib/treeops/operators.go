@@ -77,26 +77,46 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 	var results = orderedmap.NewOrderedMap()
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
-		children, err := splatNode(d, el.Value.(*CandidateNode))
-		log.Debugf("-- splatted matches, ")
-		if err != nil {
-			return nil, err
-		}
-		for childEl := children.Front(); childEl != nil; childEl = childEl.Next() {
-			childMap := orderedmap.NewOrderedMap()
-			childMap.Set(childEl.Key, childEl.Value)
-			childMatches, errChild := d.getMatchingNodes(childMap, pathNode.Lhs)
-			if errChild != nil {
-				return nil, errChild
-			}
+		candidate := el.Value.(*CandidateNode)
+		valuePattern := pathNode.Rhs.PathElement.StringValue
+		log.Debug("checking %v", candidate)
 
-			if containsMatchingValue(childMatches, pathNode.Rhs.PathElement.StringValue) {
-				results.Set(childEl.Key, childEl.Value)
+		if pathNode.Lhs.PathElement.PathElementType == SelfReference {
+			if Match(candidate.Node.Value, valuePattern) {
+				results.Set(el.Key, el.Value)
+			}
+		} else {
+			errInChild := findMatchingChildren(d, results, candidate, pathNode.Lhs, valuePattern)
+			if errInChild != nil {
+				return nil, errInChild
 			}
 		}
+
 	}
 
 	return results, nil
+}
+
+func findMatchingChildren(d *dataTreeNavigator, results *orderedmap.OrderedMap, candidate *CandidateNode, lhs *PathTreeNode, valuePattern string) error {
+	children, err := splatNode(d, candidate)
+	log.Debugf("-- splatted matches, ")
+	if err != nil {
+		return err
+	}
+	for childEl := children.Front(); childEl != nil; childEl = childEl.Next() {
+		childMap := orderedmap.NewOrderedMap()
+		childMap.Set(childEl.Key, childEl.Value)
+		childMatches, errChild := d.getMatchingNodes(childMap, lhs)
+		log.Debug("got the LHS")
+		if errChild != nil {
+			return errChild
+		}
+
+		if containsMatchingValue(childMatches, valuePattern) {
+			results.Set(childEl.Key, childEl.Value)
+		}
+	}
+	return nil
 }
 
 func containsMatchingValue(matchMap *orderedmap.OrderedMap, valuePattern string) bool {
@@ -104,10 +124,12 @@ func containsMatchingValue(matchMap *orderedmap.OrderedMap, valuePattern string)
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
+		log.Debugf("-- compating %v to %v", node.Node.Value, valuePattern)
 		if Match(node.Node.Value, valuePattern) {
 			return true
 		}
 	}
+	log.Debugf("-- done findMatchingValues")
 
 	return false
 }

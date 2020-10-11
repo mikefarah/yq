@@ -26,8 +26,16 @@ func testExpression(expression string) (string, error) {
 }
 
 func TestPostFixArrayEquals(t *testing.T) {
-	var infix = "a"
-	var expectedOutput = `PathKey - 'a'
+	var infix = "animals(.== cat)"
+	var expectedOutput = `PathKey - 'animals'
+--------
+SELF
+--------
+PathKey - 'cat'
+--------
+Operation - EQUALS
+--------
+Operation - TRAVERSE
 --------
 `
 
