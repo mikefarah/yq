@@ -637,6 +637,37 @@ func TestDataTreeNavigatorArrayEqualsSelf(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorArrayEqualsSelfSplatFirst(t *testing.T) {
+
+	nodes := readDoc(t, `- cat
+- dog
+- frog`)
+
+	path, errPath := treeCreator.ParsePath("*(. == *og)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [1]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  dog
+
+-- Node --
+  Document 0, path: [2]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorArrayEquals(t *testing.T) {
 
 	nodes := readDoc(t, `- { b: apple, animal: rabbit }
