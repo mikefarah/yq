@@ -18,7 +18,7 @@ func readDoc(t *testing.T, content string) []*CandidateNode {
 	if err != nil {
 		t.Error(err)
 	}
-	return []*CandidateNode{&CandidateNode{Node: &dataBucket, Document: 0}}
+	return []*CandidateNode{&CandidateNode{Node: dataBucket.Content[0], Document: 0}}
 }
 
 func resultsToString(results []*CandidateNode) string {
@@ -54,7 +54,7 @@ func TestDataTreeNavigatorSimple(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorSubtractSimple(t *testing.T) {
+func TestDataTreeNavigatorDeleteSimple(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   b: apple
@@ -79,7 +79,7 @@ func TestDataTreeNavigatorSubtractSimple(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorSubtractTwice(t *testing.T) {
+func TestDataTreeNavigatorDeleteTwice(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   b: apple
@@ -106,7 +106,7 @@ func TestDataTreeNavigatorSubtractTwice(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorSubtractWithUnion(t *testing.T) {
+func TestDataTreeNavigatorDeleteWithUnion(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   b: apple
@@ -133,7 +133,7 @@ func TestDataTreeNavigatorSubtractWithUnion(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorSubtractByIndex(t *testing.T) {
+func TestDataTreeNavigatorDeleteByIndex(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   - b: apple
@@ -155,6 +155,86 @@ func TestDataTreeNavigatorSubtractByIndex(t *testing.T) {
   Document 0, path: [a]
   Tag: !!seq, Kind: SequenceNode, Anchor: 
   - b: apple
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorDeleteByFind(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  - b: apple
+  - b: sdfsd
+  - b: apple`)
+
+	path, errPath := treeCreator.ParsePath("(a .- (* == apple))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - b: sdfsd
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorDeleteArrayByFind(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  - apple
+  - sdfsd
+  - apple`)
+
+	path, errPath := treeCreator.ParsePath("(a .- (. == apple))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - sdfsd
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorDeleteViaSelf(t *testing.T) {
+
+	nodes := readDoc(t, `- apple
+- sdfsd
+- apple`)
+
+	path, errPath := treeCreator.ParsePath("(. .- .)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: []
+  Tag: !!seq, Kind: SequenceNode, Anchor: 
+  - sdfsd
 `
 
 	test.AssertResult(t, expected, resultsToString(results))
@@ -192,7 +272,7 @@ func TestDataTreeNavigatorDeleteAndWrite(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorSubtractArray(t *testing.T) {
+func TestDataTreeNavigatorDeleteArray(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   - b: apple
@@ -249,6 +329,56 @@ func TestDataTreeNavigatorSimpleAssign(t *testing.T) {
   b: apple`)
 
 	path, errPath := treeCreator.ParsePath("a.b := frog")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a b]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorSimpleAssignSelf(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: apple`)
+
+	path, errPath := treeCreator.ParsePath("a(. == apple)(. := frog)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a b]
+  Tag: !!str, Kind: ScalarNode, Anchor: 
+  frog
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorSimpleAssignByFind(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: apple`)
+
+	path, errPath := treeCreator.ParsePath("(b == apple) := frog)")
 	if errPath != nil {
 		t.Error(errPath)
 	}

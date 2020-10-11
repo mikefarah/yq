@@ -16,7 +16,7 @@ type Token struct {
 	OperationType   OperationType
 	Value           interface{}
 	StringValue     string
-	AgainstSelf     bool
+	PrefixSelf      bool
 
 	CheckForPreTraverse bool // this token can sometimes have the traverse '.' missing in frnot of it
 	// e.g. a[1] should really be a.[1]
@@ -37,13 +37,13 @@ func pathToken(wrapped bool) lex.Action {
 func opToken(op OperationType, againstSelf bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		return &Token{PathElementType: Operation, OperationType: op, Value: value, StringValue: value, AgainstSelf: againstSelf}, nil
+		return &Token{PathElementType: Operation, OperationType: op, Value: value, StringValue: value, PrefixSelf: againstSelf}, nil
 	}
 }
 
-func literalToken(pType PathElementType, literal string, checkForPre bool, checkForPost bool) lex.Action {
+func literalToken(pType PathElementType, literal string, checkForPre bool, checkForPost bool, againstSelf bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: pType, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
+		return &Token{PathElementType: pType, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost, PrefixSelf: againstSelf}, nil
 	}
 }
 
@@ -68,12 +68,13 @@ func arrayIndextoken(wrapped bool, checkForPre bool, checkForPost bool) lex.Acti
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
-	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", true, false))
-	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", false, true))
+	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", true, false, false))
+	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", false, true, false))
+	lexer.Add([]byte(`\.\s*\)`), literalToken(CloseBracket, ")", false, true, true))
 
-	lexer.Add([]byte(`\[\+\]`), literalToken(PathKey, "[+]", true, true))
-	lexer.Add([]byte(`\[\*\]`), literalToken(PathKey, "[*]", true, true))
-	lexer.Add([]byte(`\*\*`), literalToken(PathKey, "**", false, false))
+	lexer.Add([]byte(`\[\+\]`), literalToken(PathKey, "[+]", true, true, false))
+	lexer.Add([]byte(`\[\*\]`), literalToken(PathKey, "[*]", true, true, false))
+	lexer.Add([]byte(`\*\*`), literalToken(PathKey, "**", false, false, false))
 
 	lexer.Add([]byte(`([Oo][Rr])`), opToken(Or, false))
 	lexer.Add([]byte(`([Aa][Nn][Dd])`), opToken(And, false))
@@ -143,7 +144,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 			(tokens[index-1].PathElementType == PathKey || tokens[index-1].PathElementType == CloseBracket) {
 			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Traverse, Value: "."})
 		}
-		if token.PathElementType == Operation && token.AgainstSelf {
+		if token.PrefixSelf {
 			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: SelfReference, Value: "SELF"})
 		}
 

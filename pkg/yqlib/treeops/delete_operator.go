@@ -26,8 +26,10 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordered
 
 		if candidate.Node.Kind == yaml.SequenceNode {
 			deleteFromArray(candidate, nodesToDelete)
-		} else {
+		} else if candidate.Node.Kind == yaml.MappingNode {
 			deleteFromMap(candidate, nodesToDelete)
+		} else {
+			log.Debug("Cannot delete from node that's not a map or array %v", NodeToString(candidate))
 		}
 	}
 	return lhs, nil

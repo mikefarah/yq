@@ -84,17 +84,10 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 		valuePattern := pathNode.Rhs.PathElement.StringValue
 		log.Debug("checking %v", candidate)
 
-		// if pathNode.Lhs.PathElement.PathElementType == SelfReference {
-		// 	if Match(candidate.Node.Value, valuePattern) {
-		// 		results.Set(el.Key, el.Value)
-		// 	}
-		// } else {
 		errInChild := findMatchingChildren(d, results, candidate, pathNode.Lhs, valuePattern)
 		if errInChild != nil {
 			return nil, errInChild
 		}
-		// }
-
 	}
 
 	return results, nil
