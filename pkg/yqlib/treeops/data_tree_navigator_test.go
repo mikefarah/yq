@@ -612,7 +612,7 @@ func TestDataTreeNavigatorArrayEqualsSelf(t *testing.T) {
 - dog
 - frog`)
 
-	path, errPath := treeCreator.ParsePath("*(. == *og)")
+	path, errPath := treeCreator.ParsePath("(. == *og)")
 	if errPath != nil {
 		t.Error(errPath)
 	}

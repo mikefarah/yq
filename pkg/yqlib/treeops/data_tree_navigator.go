@@ -74,15 +74,16 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 
 func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
-	if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
+	if pathNode.PathElement.PathElementType == SelfReference {
+		return matchingNodes, nil
+	} else if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
 		return d.traverse(matchingNodes, pathNode.PathElement)
 	} else {
 		handler := d.operatorHandlers[pathNode.PathElement.OperationType]
 		if handler != nil {
 			return handler(d, matchingNodes, pathNode)
-		} else {
-			return nil, fmt.Errorf("Unknown operator %v", pathNode.PathElement.OperationType)
 		}
+		return nil, fmt.Errorf("Unknown operator %v", pathNode.PathElement.OperationType)
 	}
 
 }

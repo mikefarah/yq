@@ -1,6 +1,9 @@
 package treeops
 
-import "github.com/elliotchance/orderedmap"
+import (
+	"github.com/elliotchance/orderedmap"
+	"gopkg.in/yaml.v3"
+)
 
 type OperatorHandler func(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error)
 
@@ -81,16 +84,16 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 		valuePattern := pathNode.Rhs.PathElement.StringValue
 		log.Debug("checking %v", candidate)
 
-		if pathNode.Lhs.PathElement.PathElementType == SelfReference {
-			if Match(candidate.Node.Value, valuePattern) {
-				results.Set(el.Key, el.Value)
-			}
-		} else {
-			errInChild := findMatchingChildren(d, results, candidate, pathNode.Lhs, valuePattern)
-			if errInChild != nil {
-				return nil, errInChild
-			}
+		// if pathNode.Lhs.PathElement.PathElementType == SelfReference {
+		// 	if Match(candidate.Node.Value, valuePattern) {
+		// 		results.Set(el.Key, el.Value)
+		// 	}
+		// } else {
+		errInChild := findMatchingChildren(d, results, candidate, pathNode.Lhs, valuePattern)
+		if errInChild != nil {
+			return nil, errInChild
 		}
+		// }
 
 	}
 
@@ -98,11 +101,20 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 }
 
 func findMatchingChildren(d *dataTreeNavigator, results *orderedmap.OrderedMap, candidate *CandidateNode, lhs *PathTreeNode, valuePattern string) error {
-	children, err := splatNode(d, candidate)
-	log.Debugf("-- splatted matches, ")
-	if err != nil {
-		return err
+	var children *orderedmap.OrderedMap
+	var err error
+	// don't splat scalars.
+	if candidate.Node.Kind != yaml.ScalarNode {
+		children, err = splatNode(d, candidate)
+		log.Debugf("-- splatted matches, ")
+		if err != nil {
+			return err
+		}
+	} else {
+		children = orderedmap.NewOrderedMap()
+		children.Set(candidate.getKey(), candidate)
 	}
+
 	for childEl := children.Front(); childEl != nil; childEl = childEl.Next() {
 		childMap := orderedmap.NewOrderedMap()
 		childMap.Set(childEl.Key, childEl.Value)
