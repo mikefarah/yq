@@ -21,6 +21,57 @@ func (n *CandidateNode) getKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
+type PathElementType uint32
+
+const (
+	PathKey PathElementType = 1 << iota
+	ArrayIndex
+	Operation
+	SelfReference
+	OpenBracket
+	CloseBracket
+)
+
+type OperationType struct {
+	Type       string
+	NumArgs    uint // number of arguments to the op
+	Precedence uint
+	Handler    OperatorHandler
+}
+
+var None = &OperationType{Type: "NONE", NumArgs: 0, Precedence: 0}
+var Traverse = &OperationType{Type: "TRAVERSE", NumArgs: 2, Precedence: 40, Handler: TraverseOperator}
+var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
+var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
+var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 30, Handler: EqualsOperator}
+var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 35, Handler: AssignOperator}
+var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 30, Handler: DeleteChildOperator}
+
+// var Length = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
+
+type PathElement struct {
+	PathElementType PathElementType
+	OperationType   *OperationType
+	Value           interface{}
+	StringValue     string
+}
+
+// debugging purposes only
+func (p *PathElement) toString() string {
+	var result string = ``
+	switch p.PathElementType {
+	case PathKey:
+		result = result + fmt.Sprintf("PathKey - '%v'\n", p.Value)
+	case ArrayIndex:
+		result = result + fmt.Sprintf("ArrayIndex - '%v'\n", p.Value)
+	case SelfReference:
+		result = result + fmt.Sprintf("SELF\n")
+	case Operation:
+		result = result + fmt.Sprintf("Operation - %v\n", p.OperationType.Type)
+	}
+	return result
+}
+
 type YqTreeLib interface {
 	Get(rootNode *yaml.Node, path string) ([]*CandidateNode, error)
 	// GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error)

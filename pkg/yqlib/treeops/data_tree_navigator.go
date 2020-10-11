@@ -7,8 +7,7 @@ import (
 )
 
 type dataTreeNavigator struct {
-	leafTraverser    LeafTraverser
-	operatorHandlers map[OperationType]OperatorHandler
+	leafTraverser LeafTraverser
 }
 
 type NavigationPrefs struct {
@@ -21,16 +20,7 @@ type DataTreeNavigator interface {
 
 func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
 	leafTraverser := NewLeafTraverser(navigationPrefs)
-	operatorHandlers := make(map[OperationType]OperatorHandler)
-
-	operatorHandlers[Traverse] = TraverseOperator
-	operatorHandlers[Equals] = EqualsOperator
-	operatorHandlers[Or] = UnionOperator
-	operatorHandlers[And] = IntersectionOperator
-	operatorHandlers[Assign] = AssignOperator
-	operatorHandlers[DeleteChild] = DeleteChildOperator
-
-	return &dataTreeNavigator{leafTraverser, operatorHandlers}
+	return &dataTreeNavigator{leafTraverser}
 }
 
 func (d *dataTreeNavigator) traverse(matchMap *orderedmap.OrderedMap, pathNode *PathElement) (*orderedmap.OrderedMap, error) {
@@ -79,7 +69,7 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 	} else if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
 		return d.traverse(matchingNodes, pathNode.PathElement)
 	} else {
-		handler := d.operatorHandlers[pathNode.PathElement.OperationType]
+		handler := pathNode.PathElement.OperationType.Handler
 		if handler != nil {
 			return handler(d, matchingNodes, pathNode)
 		}

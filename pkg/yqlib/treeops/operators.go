@@ -129,7 +129,7 @@ func containsMatchingValue(matchMap *orderedmap.OrderedMap, valuePattern string)
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
-		log.Debugf("-- compating %v to %v", node.Node.Value, valuePattern)
+		log.Debugf("-- comparing %v to %v", node.Node.Value, valuePattern)
 		if Match(node.Node.Value, valuePattern) {
 			return true
 		}

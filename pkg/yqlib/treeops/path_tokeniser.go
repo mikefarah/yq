@@ -13,7 +13,7 @@ func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
 
 type Token struct {
 	PathElementType PathElementType
-	OperationType   OperationType
+	OperationType   *OperationType
 	Value           interface{}
 	StringValue     string
 	PrefixSelf      bool
@@ -21,7 +21,6 @@ type Token struct {
 	CheckForPreTraverse bool // this token can sometimes have the traverse '.' missing in frnot of it
 	// e.g. a[1] should really be a.[1]
 	CheckForPostTraverse bool // samething but for post, e.g. [1]cat should really be [1].cat
-
 }
 
 func pathToken(wrapped bool) lex.Action {
@@ -34,7 +33,7 @@ func pathToken(wrapped bool) lex.Action {
 	}
 }
 
-func opToken(op OperationType, againstSelf bool) lex.Action {
+func opToken(op *OperationType, againstSelf bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
 		return &Token{PathElementType: Operation, OperationType: op, Value: value, StringValue: value, PrefixSelf: againstSelf}, nil
@@ -43,7 +42,7 @@ func opToken(op OperationType, againstSelf bool) lex.Action {
 
 func literalToken(pType PathElementType, literal string, checkForPre bool, checkForPost bool, againstSelf bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: pType, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost, PrefixSelf: againstSelf}, nil
+		return &Token{PathElementType: pType, OperationType: None, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost, PrefixSelf: againstSelf}, nil
 	}
 }
 
@@ -61,7 +60,7 @@ func arrayIndextoken(wrapped bool, checkForPre bool, checkForPost bool) lex.Acti
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: ArrayIndex, Value: number, StringValue: numberString, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
+		return &Token{PathElementType: ArrayIndex, OperationType: None, Value: number, StringValue: numberString, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -130,7 +129,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 
 		if tok != nil {
 			token := tok.(*Token)
-			log.Debugf("Tokenising %v", token.Value)
+			log.Debugf("Tokenising %v - %v", token.Value, token.OperationType.Type)
 			tokens = append(tokens, token)
 		}
 		if err != nil {

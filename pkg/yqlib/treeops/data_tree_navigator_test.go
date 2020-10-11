@@ -220,7 +220,7 @@ func TestDataTreeNavigatorDeleteViaSelf(t *testing.T) {
 - sdfsd
 - apple`)
 
-	path, errPath := treeCreator.ParsePath("(. .- .)")
+	path, errPath := treeCreator.ParsePath(". .- (. == apple)")
 	if errPath != nil {
 		t.Error(errPath)
 	}
@@ -378,7 +378,7 @@ func TestDataTreeNavigatorSimpleAssignByFind(t *testing.T) {
 	nodes := readDoc(t, `a: 
   b: apple`)
 
-	path, errPath := treeCreator.ParsePath("(b == apple) := frog)")
+	path, errPath := treeCreator.ParsePath("a(. == apple) := frog")
 	if errPath != nil {
 		t.Error(errPath)
 	}
