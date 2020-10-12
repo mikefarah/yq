@@ -36,7 +36,7 @@ func pathToken(wrapped bool) lex.Action {
 func opToken(op *OperationType, againstSelf bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		return &Token{PathElementType: Operation, OperationType: op, Value: value, StringValue: value, PrefixSelf: againstSelf}, nil
+		return &Token{PathElementType: Operation, OperationType: op, Value: op.Type, StringValue: value, PrefixSelf: againstSelf}, nil
 	}
 }
 
@@ -77,6 +77,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`([Oo][Rr])`), opToken(Or, false))
 	lexer.Add([]byte(`([Aa][Nn][Dd])`), opToken(And, false))
+	lexer.Add([]byte(`([Cc][Oo][Uu][Nn][Tt])`), opToken(Count, false))
 
 	lexer.Add([]byte(`\.\s*==\s*`), opToken(Equals, true))
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals, false))

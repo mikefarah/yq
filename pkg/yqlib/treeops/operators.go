@@ -1,6 +1,8 @@
 package treeops
 
 import (
+	"fmt"
+
 	"github.com/elliotchance/orderedmap"
 	"gopkg.in/yaml.v3"
 )
@@ -88,6 +90,30 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 		if errInChild != nil {
 			return nil, errInChild
 		}
+	}
+
+	return results, nil
+}
+
+func CountOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+	log.Debugf("-- countOperation")
+	var results = orderedmap.NewOrderedMap()
+
+	for el := matchMap.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		elMap := orderedmap.NewOrderedMap()
+		elMap.Set(el.Key, el.Value)
+		childMatches, errChild := d.getMatchingNodes(elMap, pathNode.Rhs)
+
+		if errChild != nil {
+			return nil, errChild
+		}
+
+		length := childMatches.Len()
+		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
+		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
+		results.Set(candidate.getKey(), lengthCand)
+
 	}
 
 	return results, nil

@@ -47,6 +47,22 @@ Operation - TRAVERSE
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
+func TestPostFixLength(t *testing.T) {
+	var infix = "len(a)"
+	var expectedOutput = `PathKey - 'a'
+--------
+Operation - Length
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
 func TestPostFixSimpleExample(t *testing.T) {
 	var infix = "a"
 	var expectedOutput = `PathKey - 'a'

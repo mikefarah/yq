@@ -47,7 +47,10 @@ var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 30, Handler:
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 35, Handler: AssignOperator}
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 30, Handler: DeleteChildOperator}
 
-// var Length = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
+var Count = &OperationType{Type: "COUNT", NumArgs: 1, Precedence: 35, Handler: CountOperator}
+
+// var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
+// filters matches if they have the existing path
 
 type PathElement struct {
 	PathElementType PathElementType

@@ -240,6 +240,197 @@ func TestDataTreeNavigatorDeleteViaSelf(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorCountWithFilter(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: frog
+  b: dally
+  c: log`)
+
+	path, errPath := treeCreator.ParsePath("f(count(. == *og))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  2
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountWithFilter2(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: frog
+  b: dally
+  c: log`)
+
+	path, errPath := treeCreator.ParsePath("count(f(. == *og))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: []
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  2
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountMultipleMatchesInside(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: [1,2]
+  b: dally
+  c: [3,4,5]`)
+
+	path, errPath := treeCreator.ParsePath("f(count(a or c))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  2
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountMultipleMatchesInsideSplat(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: [1,2,3]
+  b: [1,2,3,4]
+  c: [1,2,3,4,5]`)
+
+	path, errPath := treeCreator.ParsePath("f(count( (a or c)*))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  8
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountMultipleMatchesOutside(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: [1,2,3]
+  b: [1,2,3,4]
+  c: [1,2,3,4,5]`)
+
+	path, errPath := treeCreator.ParsePath("f(a or c)(count(*))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f a]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  3
+-- Node --
+  Document 0, path: [f c]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  5
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountOfResults(t *testing.T) {
+
+	nodes := readDoc(t, `- apple
+- sdfsd
+- apple`)
+
+	path, errPath := treeCreator.ParsePath("count(*)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: []
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  3
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountNoMatches(t *testing.T) {
+
+	nodes := readDoc(t, `- apple
+- sdfsd
+- apple`)
+
+	path, errPath := treeCreator.ParsePath("count(5)")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: []
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  0
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorDeleteAndWrite(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
