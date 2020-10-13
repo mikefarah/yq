@@ -94,8 +94,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
 	lexer.Add([]byte(`"[^ "]+"`), pathToken(true))
-	lexer.Add([]byte(`[^ \.\[\(\)=]+`), pathToken(false))
+	lexer.Add([]byte(`[^ \|\.\[\(\)=]+`), pathToken(false))
 
+	lexer.Add([]byte(`\|`), opToken(Traverse, false))
 	lexer.Add([]byte(`\.`), opToken(Traverse, false))
 	err := lexer.Compile()
 	if err != nil {

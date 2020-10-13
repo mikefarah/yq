@@ -30,15 +30,15 @@ type OperationType struct {
 }
 
 var None = &OperationType{Type: "NONE", NumArgs: 0, Precedence: 0}
-var Traverse = &OperationType{Type: "TRAVERSE", NumArgs: 2, Precedence: 40, Handler: TraverseOperator}
+var Traverse = &OperationType{Type: "TRAVERSE", NumArgs: 2, Precedence: 35, Handler: TraverseOperator}
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 30, Handler: EqualsOperator}
-var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 35, Handler: AssignOperator}
+var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 30, Handler: DeleteChildOperator}
 
-var Count = &OperationType{Type: "COUNT", NumArgs: 1, Precedence: 35, Handler: CountOperator}
-var Collect = &OperationType{Type: "COLLECT", NumArgs: 1, Precedence: 35, Handler: CollectOperator}
+var Count = &OperationType{Type: "COUNT", NumArgs: 1, Precedence: 40, Handler: CountOperator}
+var Collect = &OperationType{Type: "COLLECT", NumArgs: 1, Precedence: 40, Handler: CollectOperator}
 
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
 // filters matches if they have the existing path

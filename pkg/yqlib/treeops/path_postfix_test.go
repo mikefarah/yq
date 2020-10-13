@@ -25,6 +25,26 @@ func testExpression(expression string) (string, error) {
 	return formatted, nil
 }
 
+func TestPostFixTraverseBar(t *testing.T) {
+	var infix = "animals | collect(.)"
+	var expectedOutput = `PathKey - 'animals'
+--------
+SELF
+--------
+Operation - COLLECT
+--------
+Operation - TRAVERSE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
 func TestPostFixArrayEquals(t *testing.T) {
 	var infix = "animals(.== cat)"
 	var expectedOutput = `PathKey - 'animals'

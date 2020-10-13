@@ -357,7 +357,7 @@ func TestDataTreeNavigatorCountMultipleMatchesInside(t *testing.T) {
   b: dally
   c: [3,4,5]`)
 
-	path, errPath := treeCreator.ParsePath("f(count(a or c))")
+	path, errPath := treeCreator.ParsePath("f | count(a or c)")
 	if errPath != nil {
 		t.Error(errPath)
 	}
@@ -384,7 +384,7 @@ func TestDataTreeNavigatorCollectMultipleMatchesInside(t *testing.T) {
   b: dally
   c: [3,4,5]`)
 
-	path, errPath := treeCreator.ParsePath("f(collect(a or c))")
+	path, errPath := treeCreator.ParsePath("f | collect(a or c)")
 	if errPath != nil {
 		t.Error(errPath)
 	}
