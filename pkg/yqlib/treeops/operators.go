@@ -119,6 +119,37 @@ func CountOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNo
 	return results, nil
 }
 
+func CollectOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+	log.Debugf("-- collectOperation")
+
+	log.Debugf("-- countOperation")
+	var results = orderedmap.NewOrderedMap()
+
+	for el := matchMap.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		elMap := orderedmap.NewOrderedMap()
+		elMap.Set(el.Key, el.Value)
+		childMatches, errChild := d.getMatchingNodes(elMap, pathNode.Rhs)
+
+		if errChild != nil {
+			return nil, errChild
+		}
+
+		node := &yaml.Node{Kind: yaml.SequenceNode}
+
+		for childEl := childMatches.Front(); childEl != nil; childEl = childEl.Next() {
+			childCandidate := childEl.Value.(*CandidateNode)
+			node.Content = append(node.Content, childCandidate.Node)
+		}
+
+		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
+		results.Set(candidate.GetKey(), lengthCand)
+	}
+
+	return results, nil
+
+}
+
 func findMatchingChildren(d *dataTreeNavigator, results *orderedmap.OrderedMap, candidate *CandidateNode, lhs *PathTreeNode, valuePattern string) error {
 	var children *orderedmap.OrderedMap
 	var err error

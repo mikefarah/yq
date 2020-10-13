@@ -267,6 +267,34 @@ func TestDataTreeNavigatorCountWithFilter(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorCollectWithFilter(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: frog
+  b: dally
+  c: log`)
+
+	path, errPath := treeCreator.ParsePath("f(collect(. == *og))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: , Kind: SequenceNode, Anchor: 
+  - frog
+- log
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorCountWithFilter2(t *testing.T) {
 
 	nodes := readDoc(t, `f:
@@ -294,6 +322,34 @@ func TestDataTreeNavigatorCountWithFilter2(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorCollectWithFilter2(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: frog
+  b: dally
+  c: log`)
+
+	path, errPath := treeCreator.ParsePath("collect(f(. == *og))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: []
+  Tag: , Kind: SequenceNode, Anchor: 
+  - frog
+- log
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorCountMultipleMatchesInside(t *testing.T) {
 
 	nodes := readDoc(t, `f:
@@ -316,6 +372,34 @@ func TestDataTreeNavigatorCountMultipleMatchesInside(t *testing.T) {
   Document 0, path: [f]
   Tag: !!int, Kind: ScalarNode, Anchor: 
   2
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCollectMultipleMatchesInside(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: [1,2]
+  b: dally
+  c: [3,4,5]`)
+
+	path, errPath := treeCreator.ParsePath("f(collect(a or c))")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: , Kind: SequenceNode, Anchor: 
+  - [1, 2]
+- [3, 4, 5]
 `
 
 	test.AssertResult(t, expected, resultsToString(results))

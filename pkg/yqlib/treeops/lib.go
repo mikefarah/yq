@@ -38,6 +38,7 @@ var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 35, Handler:
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 30, Handler: DeleteChildOperator}
 
 var Count = &OperationType{Type: "COUNT", NumArgs: 1, Precedence: 35, Handler: CountOperator}
+var Collect = &OperationType{Type: "COLLECT", NumArgs: 1, Precedence: 35, Handler: CollectOperator}
 
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
 // filters matches if they have the existing path
