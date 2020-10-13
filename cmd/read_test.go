@@ -320,7 +320,7 @@ dog: bark
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s count(*)", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -336,7 +336,7 @@ func TestReadObjectLengthDeepCmd(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s holder", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s count(holder.*)", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -355,7 +355,7 @@ holderB:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l -c %s holder*", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s count(holder*)", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -374,7 +374,7 @@ holderB:
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l -ppv %s holder*", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read -ppv %s holder*.(count(*))", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}
@@ -387,7 +387,7 @@ func TestReadScalarLengthCmd(t *testing.T) {
 	defer test.RemoveTempYamlFile(filename)
 
 	cmd := getRootCommand()
-	result := test.RunCmd(cmd, fmt.Sprintf("read -l %s", filename))
+	result := test.RunCmd(cmd, fmt.Sprintf("read %s 'count(.)'", filename))
 	if result.Error != nil {
 		t.Error(result.Error)
 	}

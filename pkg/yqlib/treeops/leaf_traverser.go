@@ -1,6 +1,8 @@
 package treeops
 
 import (
+	"fmt"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -68,13 +70,23 @@ func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElemen
 	}
 
 	index := pathNode.Value.(int64)
-	if int64(len(candidate.Node.Content)) < index {
+	indexToUse := index
+	contentLength := int64(len(candidate.Node.Content))
+	if contentLength <= index {
 		// handle auto append here
 		return make([]*CandidateNode, 0), nil
 	}
 
+	if indexToUse < 0 {
+		indexToUse = contentLength + indexToUse
+	}
+
+	if indexToUse < 0 {
+		return nil, fmt.Errorf("Index [%v] out of range, array size is %v", index, contentLength)
+	}
+
 	return []*CandidateNode{&CandidateNode{
-		Node:     candidate.Node.Content[index],
+		Node:     candidate.Node.Content[indexToUse],
 		Document: candidate.Document,
 		Path:     append(candidate.Path, index),
 	}}, nil
