@@ -11,16 +11,6 @@ import (
 
 var log = logging.MustGetLogger("yq-treeops")
 
-type CandidateNode struct {
-	Node     *yaml.Node    // the actual node
-	Path     []interface{} /// the path we took to get to this node
-	Document uint          // the document index of this node
-}
-
-func (n *CandidateNode) getKey() string {
-	return fmt.Sprintf("%v - %v", n.Document, n.Path)
-}
-
 type PathElementType uint32
 
 const (
@@ -76,7 +66,7 @@ func (p *PathElement) toString() string {
 }
 
 type YqTreeLib interface {
-	Get(rootNode *yaml.Node, path string) ([]*CandidateNode, error)
+	Get(document int, documentNode *yaml.Node, path string) ([]*CandidateNode, error)
 	// GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error)
 	// Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
 	// New(path string) yaml.Node
@@ -85,8 +75,22 @@ type YqTreeLib interface {
 	// MergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string
 }
 
+func NewYqTreeLib() YqTreeLib {
+	return &lib{treeCreator: NewPathTreeCreator()}
+}
+
 type lib struct {
 	treeCreator PathTreeCreator
+}
+
+func (l *lib) Get(document int, documentNode *yaml.Node, path string) ([]*CandidateNode, error) {
+	nodes := []*CandidateNode{&CandidateNode{Node: documentNode.Content[0], Document: 0}}
+	navigator := NewDataTreeNavigator(NavigationPrefs{})
+	pathNode, errPath := l.treeCreator.ParsePath(path)
+	if errPath != nil {
+		return nil, errPath
+	}
+	return navigator.GetMatchingNodes(nodes, pathNode)
 }
 
 //use for debugging only

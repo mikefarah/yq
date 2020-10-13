@@ -35,7 +35,7 @@ func (d *dataTreeNavigator) traverse(matchMap *orderedmap.OrderedMap, pathNode *
 			return nil, err
 		}
 		for _, n := range newNodes {
-			matchingNodeMap.Set(n.getKey(), n)
+			matchingNodeMap.Set(n.GetKey(), n)
 		}
 	}
 
@@ -46,7 +46,7 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 	var matchingNodeMap = orderedmap.NewOrderedMap()
 
 	for _, n := range matchingNodes {
-		matchingNodeMap.Set(n.getKey(), n)
+		matchingNodeMap.Set(n.GetKey(), n)
 	}
 
 	matchedNodes, err := d.getMatchingNodes(matchingNodeMap, pathNode)
@@ -63,6 +63,10 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 }
 
 func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+	if pathNode == nil {
+		log.Debugf("getMatchingNodes - nothing to do")
+		return matchingNodes, nil
+	}
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
 	if pathNode.PathElement.PathElementType == SelfReference {
 		return matchingNodes, nil

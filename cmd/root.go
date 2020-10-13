@@ -48,13 +48,13 @@ func New() *cobra.Command {
 
 	rootCmd.AddCommand(
 		createReadCmd(),
-		createCompareCmd(),
+		// createCompareCmd(),
 		createValidateCmd(),
-		createWriteCmd(),
-		createPrefixCmd(),
-		createDeleteCmd(),
-		createNewCmd(),
-		createMergeCmd(),
+		// createWriteCmd(),
+		// createPrefixCmd(),
+		// createDeleteCmd(),
+		// createNewCmd(),
+		// createMergeCmd(),
 		createBashCompletionCmd(rootCmd),
 	)
 	return rootCmd

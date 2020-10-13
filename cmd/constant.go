@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
+	"github.com/mikefarah/yq/v3/pkg/yqlib/treeops"
 	logging "gopkg.in/op/go-logging.v1"
 )
 
@@ -32,5 +33,5 @@ var verbose = false
 var version = false
 var docIndex = "0"
 var log = logging.MustGetLogger("yq")
-var lib = yqlib.NewYqLib()
+var lib = treeops.NewYqTreeLib()
 var valueParser = yqlib.NewValueParser()

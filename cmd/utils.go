@@ -4,29 +4,29 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 
 	"github.com/mikefarah/yq/v3/pkg/yqlib"
+	"github.com/mikefarah/yq/v3/pkg/yqlib/treeops"
 	errors "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 )
 
-type readDataFn func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error)
+type readDataFn func(document int, dataBucket *yaml.Node) ([]*treeops.CandidateNode, error)
 
-func createReadFunction(path string) func(*yaml.Node) ([]*yqlib.NodeContext, error) {
-	return func(dataBucket *yaml.Node) ([]*yqlib.NodeContext, error) {
-		return lib.Get(dataBucket, path)
+func createReadFunction(path string) func(int, *yaml.Node) ([]*treeops.CandidateNode, error) {
+	return func(document int, dataBucket *yaml.Node) ([]*treeops.CandidateNode, error) {
+		return lib.Get(document, dataBucket, path)
 	}
 }
 
-func readYamlFile(filename string, path string, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {
+func readYamlFile(filename string, path string, updateAll bool, docIndexInt int) ([]*treeops.CandidateNode, error) {
 	return doReadYamlFile(filename, createReadFunction(path), updateAll, docIndexInt)
 }
 
-func doReadYamlFile(filename string, readFn readDataFn, updateAll bool, docIndexInt int) ([]*yqlib.NodeContext, error) {
-	var matchingNodes []*yqlib.NodeContext
+func doReadYamlFile(filename string, readFn readDataFn, updateAll bool, docIndexInt int) ([]*treeops.CandidateNode, error) {
+	var matchingNodes []*treeops.CandidateNode
 
 	var currentIndex = 0
 	var errorReadingStream = readStream(filename, func(decoder *yaml.Decoder) error {
@@ -63,14 +63,14 @@ func handleEOF(updateAll bool, docIndexInt int, currentIndex int) error {
 	return nil
 }
 
-func appendDocument(originalMatchingNodes []*yqlib.NodeContext, dataBucket yaml.Node, readFn readDataFn, updateAll bool, docIndexInt int, currentIndex int) ([]*yqlib.NodeContext, error) {
+func appendDocument(originalMatchingNodes []*treeops.CandidateNode, dataBucket yaml.Node, readFn readDataFn, updateAll bool, docIndexInt int, currentIndex int) ([]*treeops.CandidateNode, error) {
 	log.Debugf("processing document %v - requested index %v", currentIndex, docIndexInt)
-	yqlib.DebugNode(&dataBucket)
+	// yqlib.DebugNode(&dataBucket)
 	if !updateAll && currentIndex != docIndexInt {
 		return originalMatchingNodes, nil
 	}
 	log.Debugf("reading in document %v", currentIndex)
-	matchingNodes, errorParsing := readFn(&dataBucket)
+	matchingNodes, errorParsing := readFn(currentIndex, &dataBucket)
 	if errorParsing != nil {
 		return nil, errors.Wrapf(errorParsing, "Error reading path in document index %v", currentIndex)
 	}
@@ -114,7 +114,7 @@ func printNode(node *yaml.Node, writer io.Writer) error {
 	return encoder.Encode(node)
 }
 
-func removeComments(matchingNodes []*yqlib.NodeContext) {
+func removeComments(matchingNodes []*treeops.CandidateNode) {
 	for _, nodeContext := range matchingNodes {
 		removeCommentOfNode(nodeContext.Node)
 	}
@@ -130,7 +130,7 @@ func removeCommentOfNode(node *yaml.Node) {
 	}
 }
 
-func setStyle(matchingNodes []*yqlib.NodeContext, style yaml.Style) {
+func setStyle(matchingNodes []*treeops.CandidateNode, style yaml.Style) {
 	for _, nodeContext := range matchingNodes {
 		updateStyleOfNode(nodeContext.Node, style)
 	}
@@ -234,10 +234,10 @@ func explodeNode(node *yaml.Node) error {
 	}
 }
 
-func explode(matchingNodes []*yqlib.NodeContext) error {
+func explode(matchingNodes []*treeops.CandidateNode) error {
 	log.Debug("exploding nodes")
 	for _, nodeContext := range matchingNodes {
-		log.Debugf("exploding %v", nodeContext.Head)
+		log.Debugf("exploding %v", nodeContext.GetKey())
 		errorExplodingNode := explodeNode(nodeContext.Node)
 		if errorExplodingNode != nil {
 			return errorExplodingNode
@@ -246,7 +246,7 @@ func explode(matchingNodes []*yqlib.NodeContext) error {
 	return nil
 }
 
-func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
+func printResults(matchingNodes []*treeops.CandidateNode, writer io.Writer) error {
 	if prettyPrint {
 		setStyle(matchingNodes, 0)
 	}
@@ -280,7 +280,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 	for _, mappedDoc := range matchingNodes {
 		switch printMode {
 		case "p":
-			errorWriting = writeString(bufferedWriter, lib.PathStackToString(mappedDoc.PathStack)+"\n")
+			errorWriting = writeString(bufferedWriter, mappedDoc.PathStackToString()+"\n")
 			if errorWriting != nil {
 				return errorWriting
 			}
@@ -288,7 +288,7 @@ func printResults(matchingNodes []*yqlib.NodeContext, writer io.Writer) error {
 			// put it into a node and print that.
 			var parentNode = yaml.Node{Kind: yaml.MappingNode}
 			parentNode.Content = make([]*yaml.Node, 2)
-			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: lib.PathStackToString(mappedDoc.PathStack)}
+			parentNode.Content[0] = &yaml.Node{Kind: yaml.ScalarNode, Value: mappedDoc.PathStackToString()}
 			parentNode.Content[1] = transformNode(mappedDoc.Node)
 			if collectIntoArray {
 				arrayCollection.Content = append(arrayCollection.Content, &parentNode)
@@ -383,102 +383,102 @@ func mapYamlDecoder(updateData updateDataFn, encoder yqlib.Encoder) yamlDecoderF
 	}
 }
 
-func prefixDocument(updateAll bool, docIndexInt int, currentIndex int, dataBucket *yaml.Node, updateCommand yqlib.UpdateCommand) error {
-	if updateAll || currentIndex == docIndexInt {
-		log.Debugf("Prefixing document %v", currentIndex)
-		yqlib.DebugNode(dataBucket)
-		updateCommand.Value = dataBucket.Content[0]
-		dataBucket.Content = make([]*yaml.Node, 1)
+// func prefixDocument(updateAll bool, docIndexInt int, currentIndex int, dataBucket *yaml.Node, updateCommand yqlib.UpdateCommand) error {
+// 	if updateAll || currentIndex == docIndexInt {
+// 		log.Debugf("Prefixing document %v", currentIndex)
+// 		// yqlib.DebugNode(dataBucket)
+// 		updateCommand.Value = dataBucket.Content[0]
+// 		dataBucket.Content = make([]*yaml.Node, 1)
 
-		newNode := lib.New(updateCommand.Path)
-		dataBucket.Content[0] = &newNode
+// 		newNode := lib.New(updateCommand.Path)
+// 		dataBucket.Content[0] = &newNode
 
-		errorUpdating := lib.Update(dataBucket, updateCommand, true)
-		if errorUpdating != nil {
-			return errorUpdating
-		}
-	}
-	return nil
-}
+// 		errorUpdating := lib.Update(dataBucket, updateCommand, true)
+// 		if errorUpdating != nil {
+// 			return errorUpdating
+// 		}
+// 	}
+// 	return nil
+// }
 
-func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io.Writer) error {
-	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
-	if errorParsingDocIndex != nil {
-		return errorParsingDocIndex
-	}
+// func updateDoc(inputFile string, updateCommands []yqlib.UpdateCommand, writer io.Writer) error {
+// 	var updateAll, docIndexInt, errorParsingDocIndex = parseDocumentIndex()
+// 	if errorParsingDocIndex != nil {
+// 		return errorParsingDocIndex
+// 	}
 
-	var updateData = func(dataBucket *yaml.Node, currentIndex int) error {
-		if updateAll || currentIndex == docIndexInt {
-			log.Debugf("Updating doc %v", currentIndex)
-			for _, updateCommand := range updateCommands {
-				log.Debugf("Processing update to Path %v", updateCommand.Path)
-				errorUpdating := lib.Update(dataBucket, updateCommand, autoCreateFlag)
-				if errorUpdating != nil {
-					return errorUpdating
-				}
-			}
-		}
-		return nil
-	}
-	return readAndUpdate(writer, inputFile, updateData)
-}
+// 	var updateData = func(dataBucket *yaml.Node, currentIndex int) error {
+// 		if updateAll || currentIndex == docIndexInt {
+// 			log.Debugf("Updating doc %v", currentIndex)
+// 			for _, updateCommand := range updateCommands {
+// 				log.Debugf("Processing update to Path %v", updateCommand.Path)
+// 				errorUpdating := lib.Update(dataBucket, updateCommand, autoCreateFlag)
+// 				if errorUpdating != nil {
+// 					return errorUpdating
+// 				}
+// 			}
+// 		}
+// 		return nil
+// 	}
+// 	return readAndUpdate(writer, inputFile, updateData)
+// }
 
-func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
-	var destination io.Writer
-	var destinationName string
-	var completedSuccessfully = false
-	if writeInplace {
-		info, err := os.Stat(inputFile)
-		if err != nil {
-			return err
-		}
-		// mkdir temp dir as some docker images does not have temp dir
-		_, err = os.Stat(os.TempDir())
-		if os.IsNotExist(err) {
-			err = os.Mkdir(os.TempDir(), 0700)
-			if err != nil {
-				return err
-			}
-		} else if err != nil {
-			return err
-		}
-		tempFile, err := ioutil.TempFile("", "temp")
-		if err != nil {
-			return err
-		}
-		destinationName = tempFile.Name()
-		err = os.Chmod(destinationName, info.Mode())
-		if err != nil {
-			return err
-		}
-		destination = tempFile
-		defer func() {
-			safelyCloseFile(tempFile)
-			if completedSuccessfully {
-				safelyRenameFile(tempFile.Name(), inputFile)
-			}
-		}()
-	} else {
-		destination = stdOut
-		destinationName = "Stdout"
-	}
+// func readAndUpdate(stdOut io.Writer, inputFile string, updateData updateDataFn) error {
+// 	var destination io.Writer
+// 	var destinationName string
+// 	var completedSuccessfully = false
+// 	if writeInplace {
+// 		info, err := os.Stat(inputFile)
+// 		if err != nil {
+// 			return err
+// 		}
+// 		// mkdir temp dir as some docker images does not have temp dir
+// 		_, err = os.Stat(os.TempDir())
+// 		if os.IsNotExist(err) {
+// 			err = os.Mkdir(os.TempDir(), 0700)
+// 			if err != nil {
+// 				return err
+// 			}
+// 		} else if err != nil {
+// 			return err
+// 		}
+// 		tempFile, err := ioutil.TempFile("", "temp")
+// 		if err != nil {
+// 			return err
+// 		}
+// 		destinationName = tempFile.Name()
+// 		err = os.Chmod(destinationName, info.Mode())
+// 		if err != nil {
+// 			return err
+// 		}
+// 		destination = tempFile
+// 		defer func() {
+// 			safelyCloseFile(tempFile)
+// 			if completedSuccessfully {
+// 				safelyRenameFile(tempFile.Name(), inputFile)
+// 			}
+// 		}()
+// 	} else {
+// 		destination = stdOut
+// 		destinationName = "Stdout"
+// 	}
 
-	log.Debugf("Writing to %v from %v", destinationName, inputFile)
+// 	log.Debugf("Writing to %v from %v", destinationName, inputFile)
 
-	bufferedWriter := bufio.NewWriter(destination)
-	defer safelyFlush(bufferedWriter)
+// 	bufferedWriter := bufio.NewWriter(destination)
+// 	defer safelyFlush(bufferedWriter)
 
-	var encoder yqlib.Encoder
-	if outputToJSON {
-		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint, indent)
-	} else {
-		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent, colorsEnabled)
-	}
+// 	var encoder yqlib.Encoder
+// 	if outputToJSON {
+// 		encoder = yqlib.NewJsonEncoder(bufferedWriter, prettyPrint, indent)
+// 	} else {
+// 		encoder = yqlib.NewYamlEncoder(bufferedWriter, indent, colorsEnabled)
+// 	}
 
-	var errorProcessing = readStream(inputFile, mapYamlDecoder(updateData, encoder))
-	completedSuccessfully = errorProcessing == nil
-	return errorProcessing
-}
+// 	var errorProcessing = readStream(inputFile, mapYamlDecoder(updateData, encoder))
+// 	completedSuccessfully = errorProcessing == nil
+// 	return errorProcessing
+// }
 
 type updateCommandParsed struct {
 	Command string
@@ -486,53 +486,53 @@ type updateCommandParsed struct {
 	Value   yaml.Node
 }
 
-func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string, allowNoValue bool) ([]yqlib.UpdateCommand, error) {
-	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
-	if writeScript != "" {
-		var parsedCommands = make([]updateCommandParsed, 0)
+// func readUpdateCommands(args []string, expectedArgs int, badArgsMessage string, allowNoValue bool) ([]yqlib.UpdateCommand, error) {
+// 	var updateCommands []yqlib.UpdateCommand = make([]yqlib.UpdateCommand, 0)
+// 	if writeScript != "" {
+// 		var parsedCommands = make([]updateCommandParsed, 0)
 
-		err := readData(writeScript, 0, &parsedCommands)
+// 		err := readData(writeScript, 0, &parsedCommands)
 
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
+// 		if err != nil && err != io.EOF {
+// 			return nil, err
+// 		}
 
-		log.Debugf("Read write commands file '%v'", parsedCommands)
-		for index := range parsedCommands {
-			parsedCommand := parsedCommands[index]
-			updateCommand := yqlib.UpdateCommand{Command: parsedCommand.Command, Path: parsedCommand.Path, Value: &parsedCommand.Value, Overwrite: true}
-			updateCommands = append(updateCommands, updateCommand)
-		}
+// 		log.Debugf("Read write commands file '%v'", parsedCommands)
+// 		for index := range parsedCommands {
+// 			parsedCommand := parsedCommands[index]
+// 			updateCommand := yqlib.UpdateCommand{Command: parsedCommand.Command, Path: parsedCommand.Path, Value: &parsedCommand.Value, Overwrite: true}
+// 			updateCommands = append(updateCommands, updateCommand)
+// 		}
 
-		log.Debugf("Read write commands file '%v'", updateCommands)
-	} else if sourceYamlFile != "" && len(args) == expectedArgs-1 {
-		log.Debugf("Reading value from %v", sourceYamlFile)
-		var value yaml.Node
-		err := readData(sourceYamlFile, 0, &value)
-		if err != nil && err != io.EOF {
-			return nil, err
-		}
-		log.Debug("args %v", args[expectedArgs-2])
-		updateCommands = make([]yqlib.UpdateCommand, 1)
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value.Content[0], Overwrite: true}
-	} else if len(args) == expectedArgs {
-		updateCommands = make([]yqlib.UpdateCommand, 1)
-		log.Debug("args %v", args)
-		log.Debug("path %v", args[expectedArgs-2])
-		log.Debug("Value %v", args[expectedArgs-1])
-		value := valueParser.Parse(args[expectedArgs-1], customTag, customStyle, anchorName, makeAlias)
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value, Overwrite: true, CommentsMergeStrategy: yqlib.IgnoreCommentsMergeStrategy}
-	} else if len(args) == expectedArgs-1 && allowNoValue {
-		// don't update the value
-		updateCommands = make([]yqlib.UpdateCommand, 1)
-		log.Debug("args %v", args)
-		log.Debug("path %v", args[expectedArgs-2])
-		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse("", customTag, customStyle, anchorName, makeAlias), Overwrite: true, DontUpdateNodeValue: true}
-	} else {
-		return nil, errors.New(badArgsMessage)
-	}
-	return updateCommands, nil
-}
+// 		log.Debugf("Read write commands file '%v'", updateCommands)
+// 	} else if sourceYamlFile != "" && len(args) == expectedArgs-1 {
+// 		log.Debugf("Reading value from %v", sourceYamlFile)
+// 		var value yaml.Node
+// 		err := readData(sourceYamlFile, 0, &value)
+// 		if err != nil && err != io.EOF {
+// 			return nil, err
+// 		}
+// 		log.Debug("args %v", args[expectedArgs-2])
+// 		updateCommands = make([]yqlib.UpdateCommand, 1)
+// 		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value.Content[0], Overwrite: true}
+// 	} else if len(args) == expectedArgs {
+// 		updateCommands = make([]yqlib.UpdateCommand, 1)
+// 		log.Debug("args %v", args)
+// 		log.Debug("path %v", args[expectedArgs-2])
+// 		log.Debug("Value %v", args[expectedArgs-1])
+// 		value := valueParser.Parse(args[expectedArgs-1], customTag, customStyle, anchorName, makeAlias)
+// 		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: value, Overwrite: true, CommentsMergeStrategy: yqlib.IgnoreCommentsMergeStrategy}
+// 	} else if len(args) == expectedArgs-1 && allowNoValue {
+// 		// don't update the value
+// 		updateCommands = make([]yqlib.UpdateCommand, 1)
+// 		log.Debug("args %v", args)
+// 		log.Debug("path %v", args[expectedArgs-2])
+// 		updateCommands[0] = yqlib.UpdateCommand{Command: "update", Path: args[expectedArgs-2], Value: valueParser.Parse("", customTag, customStyle, anchorName, makeAlias), Overwrite: true, DontUpdateNodeValue: true}
+// 	} else {
+// 		return nil, errors.New(badArgsMessage)
+// 	}
+// 	return updateCommands, nil
+// }
 
 func safelyRenameFile(from string, to string) {
 	if renameError := os.Rename(from, to); renameError != nil {

@@ -24,7 +24,7 @@ func AssignOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, 
 	}
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
-		log.Debugf("Assiging %v to %v", node.getKey(), pathNode.Rhs.PathElement.StringValue)
+		log.Debugf("Assiging %v to %v", node.GetKey(), pathNode.Rhs.PathElement.StringValue)
 		node.Node.Value = pathNode.Rhs.PathElement.StringValue
 	}
 	return lhs, nil
@@ -41,7 +41,7 @@ func UnionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, p
 	}
 	for el := rhs.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
-		lhs.Set(node.getKey(), node)
+		lhs.Set(node.GetKey(), node)
 	}
 	return lhs, nil
 }
@@ -67,7 +67,7 @@ func IntersectionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordere
 
 func splatNode(d *dataTreeNavigator, candidate *CandidateNode) (*orderedmap.OrderedMap, error) {
 	elMap := orderedmap.NewOrderedMap()
-	elMap.Set(candidate.getKey(), candidate)
+	elMap.Set(candidate.GetKey(), candidate)
 	//need to splat matching nodes, then search through them
 	splatter := &PathTreeNode{PathElement: &PathElement{
 		PathElementType: PathKey,
@@ -112,7 +112,7 @@ func CountOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNo
 		length := childMatches.Len()
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
 		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.Set(candidate.getKey(), lengthCand)
+		results.Set(candidate.GetKey(), lengthCand)
 
 	}
 
@@ -131,7 +131,7 @@ func findMatchingChildren(d *dataTreeNavigator, results *orderedmap.OrderedMap, 
 		}
 	} else {
 		children = orderedmap.NewOrderedMap()
-		children.Set(candidate.getKey(), candidate)
+		children.Set(candidate.GetKey(), candidate)
 	}
 
 	for childEl := children.Front(); childEl != nil; childEl = childEl.Next() {

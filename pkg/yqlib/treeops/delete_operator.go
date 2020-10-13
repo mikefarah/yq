@@ -17,7 +17,7 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordered
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		elMap := orderedmap.NewOrderedMap()
-		elMap.Set(candidate.getKey(), candidate)
+		elMap.Set(candidate.GetKey(), candidate)
 		nodesToDelete, err := d.getMatchingNodes(elMap, pathNode.Rhs)
 		log.Debug("nodesToDelete:\n%v", NodesToString(nodesToDelete))
 		if err != nil {
@@ -50,9 +50,9 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *orderedmap.OrderedMa
 			Document: candidate.Document,
 			Path:     append(candidate.Path, key.Value),
 		}
-		_, shouldDelete := nodesToDelete.Get(childCandidate.getKey())
+		_, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
 
-		log.Debugf("shouldDelete %v ? %v", childCandidate.getKey(), shouldDelete)
+		log.Debugf("shouldDelete %v ? %v", childCandidate.GetKey(), shouldDelete)
 
 		if !shouldDelete {
 			newContents = append(newContents, key, value)
@@ -76,7 +76,7 @@ func deleteFromArray(candidate *CandidateNode, nodesToDelete *orderedmap.Ordered
 			Path:     append(candidate.Path, index),
 		}
 
-		_, shouldDelete := nodesToDelete.Get(childCandidate.getKey())
+		_, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
 		if !shouldDelete {
 			newContents = append(newContents, value)
 		}

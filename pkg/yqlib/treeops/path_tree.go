@@ -39,6 +39,10 @@ func (p *pathTreeCreator) ParsePath(path string) (*PathTreeNode, error) {
 func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error) {
 	var stack = make([]*PathTreeNode, 0)
 
+	if len(postFixPath) == 0 {
+		return nil, nil
+	}
+
 	for _, pathElement := range postFixPath {
 		var newNode = PathTreeNode{PathElement: pathElement}
 		if pathElement.PathElementType == Operation {
