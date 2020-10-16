@@ -72,6 +72,8 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 		return matchingNodes, nil
 	} else if pathNode.PathElement.PathElementType == PathKey {
 		return d.traverse(matchingNodes, pathNode.PathElement)
+	} else if pathNode.PathElement.PathElementType == Value {
+		return nodeToMap(BuildCandidateNodeFrom(pathNode.PathElement)), nil
 	} else {
 		handler := pathNode.PathElement.OperationType.Handler
 		if handler != nil {
