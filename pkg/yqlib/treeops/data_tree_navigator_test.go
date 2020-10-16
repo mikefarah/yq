@@ -724,6 +724,31 @@ func TestDataTreeNavigatorSimpleAssignBooleanCmd(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
+func TestDataTreeNavigatorSimpleAssignChildCmd(t *testing.T) {
+
+	nodes := readDoc(t, `a: 
+  b: {g: 3}`)
+
+	path, errPath := treeCreator.ParsePath(`.a |= .b`)
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [a]
+  Tag: !!map, Kind: MappingNode, Anchor: 
+  {g: 3}
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
 func TestDataTreeNavigatorSimpleAssignSelf(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
