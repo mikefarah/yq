@@ -20,20 +20,20 @@ func testExpression(expression string) (string, error) {
 	}
 	formatted := ""
 	for _, path := range results {
-		formatted = formatted + path.toString() + "--------\n"
+		formatted = formatted + path.toString() + "\n--------\n"
 	}
 	return formatted, nil
 }
 
 func TestPostFixTraverseBar(t *testing.T) {
-	var infix = "animals | collect(.)"
-	var expectedOutput = `PathKey - 'animals'
+	var infix = ".animals | [.]"
+	var expectedOutput = `PathKey - animals
 --------
 SELF
 --------
 Operation - COLLECT
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
 `
 
@@ -45,17 +45,87 @@ Operation - TRAVERSE
 	test.AssertResultComplex(t, expectedOutput, actual)
 }
 
-func TestPostFixArrayEquals(t *testing.T) {
-	var infix = "animals(.== cat)"
-	var expectedOutput = `PathKey - 'animals'
+func TestPostFixPipeEquals(t *testing.T) {
+	var infix = `.animals |   (. == "cat") `
+	var expectedOutput = `PathKey - animals
 --------
 SELF
 --------
-PathKey - 'cat'
+Value - cat (string)
 --------
 Operation - EQUALS
 --------
-Operation - TRAVERSE
+Operation - PIPE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixCollect(t *testing.T) {
+	var infix = "[.a]"
+	var expectedOutput = `PathKey - a
+--------
+Operation - COLLECT
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixSplatSearch(t *testing.T) {
+	var infix = `.a | (.[].b == "apple")`
+	var expectedOutput = `PathKey - a
+--------
+PathKey - []
+--------
+PathKey - b
+--------
+Operation - PIPE
+--------
+Value - apple (string)
+--------
+Operation - EQUALS
+--------
+Operation - PIPE
+--------
+`
+
+	actual, err := testExpression(infix)
+	if err != nil {
+		t.Error(err)
+	}
+
+	test.AssertResultComplex(t, expectedOutput, actual)
+}
+
+func TestPostFixCollectWithExpression(t *testing.T) {
+	var infix = `[ (.a == "fred") | (.d, .f)]`
+	var expectedOutput = `PathKey - a
+--------
+Value - fred (string)
+--------
+Operation - EQUALS
+--------
+PathKey - d
+--------
+PathKey - f
+--------
+Operation - OR
+--------
+Operation - PIPE
+--------
+Operation - COLLECT
 --------
 `
 
@@ -68,10 +138,12 @@ Operation - TRAVERSE
 }
 
 func TestPostFixLength(t *testing.T) {
-	var infix = "len(a)"
-	var expectedOutput = `PathKey - 'a'
+	var infix = ".a | length"
+	var expectedOutput = `PathKey - a
 --------
-Operation - Length
+Operation - LENGTH
+--------
+Operation - PIPE
 --------
 `
 
@@ -84,8 +156,8 @@ Operation - Length
 }
 
 func TestPostFixSimpleExample(t *testing.T) {
-	var infix = "a"
-	var expectedOutput = `PathKey - 'a'
+	var infix = ".a"
+	var expectedOutput = `PathKey - a
 --------
 `
 
@@ -98,16 +170,16 @@ func TestPostFixSimpleExample(t *testing.T) {
 }
 
 func TestPostFixSimplePathExample(t *testing.T) {
-	var infix = "apples.bananas*.cat"
-	var expectedOutput = `PathKey - 'apples'
+	var infix = ".apples.bananas*.cat"
+	var expectedOutput = `PathKey - apples
 --------
-PathKey - 'bananas*'
+PathKey - bananas*
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'cat'
+PathKey - cat
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
 `
 
@@ -120,14 +192,14 @@ Operation - TRAVERSE
 }
 
 func TestPostFixSimpleAssign(t *testing.T) {
-	var infix = "a.b := frog"
-	var expectedOutput = `PathKey - 'a'
+	var infix = ".a.b |= \"frog\""
+	var expectedOutput = `PathKey - a
 --------
-PathKey - 'b'
+PathKey - b
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'frog'
+Value - frog (string)
 --------
 Operation - ASSIGN
 --------
@@ -142,38 +214,16 @@ Operation - ASSIGN
 }
 
 func TestPostFixSimplePathNumbersExample(t *testing.T) {
-	var infix = "apples[0].cat"
-	var expectedOutput = `PathKey - 'apples'
+	var infix = ".apples[0].cat"
+	var expectedOutput = `PathKey - apples
 --------
-PathKey - '0'
+PathKey - 0
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'cat'
+PathKey - cat
 --------
-Operation - TRAVERSE
---------
-`
-
-	actual, err := testExpression(infix)
-	if err != nil {
-		t.Error(err)
-	}
-
-	test.AssertResultComplex(t, expectedOutput, actual)
-}
-
-func TestPostFixSimplePathAppendArrayExample(t *testing.T) {
-	var infix = "apples[+].cat"
-	var expectedOutput = `PathKey - 'apples'
---------
-PathKey - '[+]'
---------
-Operation - TRAVERSE
---------
-PathKey - 'cat'
---------
-Operation - TRAVERSE
+Operation - PIPE
 --------
 `
 
@@ -186,38 +236,16 @@ Operation - TRAVERSE
 }
 
 func TestPostFixSimplePathSplatArrayExample(t *testing.T) {
-	var infix = "apples.[*]cat"
-	var expectedOutput = `PathKey - 'apples'
+	var infix = ".apples[].cat"
+	var expectedOutput = `PathKey - apples
 --------
-PathKey - '[*]'
+PathKey - []
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'cat'
+PathKey - cat
 --------
-Operation - TRAVERSE
---------
-`
-
-	actual, err := testExpression(infix)
-	if err != nil {
-		t.Error(err)
-	}
-
-	test.AssertResultComplex(t, expectedOutput, actual)
-}
-
-func TestPostFixDeepMatchExample(t *testing.T) {
-	var infix = "apples.**.cat"
-	var expectedOutput = `PathKey - 'apples'
---------
-PathKey - '**'
---------
-Operation - TRAVERSE
---------
-PathKey - 'cat'
---------
-Operation - TRAVERSE
+Operation - PIPE
 --------
 `
 
@@ -230,10 +258,10 @@ Operation - TRAVERSE
 }
 
 func TestPostFixOrExample(t *testing.T) {
-	var infix = "a OR b"
-	var expectedOutput = `PathKey - 'a'
+	var infix = ".a, .b"
+	var expectedOutput = `PathKey - a
 --------
-PathKey - 'b'
+PathKey - b
 --------
 Operation - OR
 --------
@@ -248,10 +276,10 @@ Operation - OR
 }
 
 func TestPostFixEqualsNumberExample(t *testing.T) {
-	var infix = "(animal == 3)"
-	var expectedOutput = `PathKey - 'animal'
+	var infix = ".animal == 3"
+	var expectedOutput = `PathKey - animal
 --------
-PathKey - '3'
+Value - 3 (int64)
 --------
 Operation - EQUALS
 --------
@@ -266,16 +294,16 @@ Operation - EQUALS
 }
 
 func TestPostFixOrWithEqualsExample(t *testing.T) {
-	var infix = "a==thing OR b==thongs"
-	var expectedOutput = `PathKey - 'a'
+	var infix = ".a==\"thing\", .b==.thongs"
+	var expectedOutput = `PathKey - a
 --------
-PathKey - 'thing'
+Value - thing (string)
 --------
 Operation - EQUALS
 --------
-PathKey - 'b'
+PathKey - b
 --------
-PathKey - 'thongs'
+PathKey - thongs
 --------
 Operation - EQUALS
 --------
@@ -292,24 +320,24 @@ Operation - OR
 }
 
 func TestPostFixOrWithEqualsPathExample(t *testing.T) {
-	var infix = "apples.monkeys==thing OR bogs.bobos==thongs"
-	var expectedOutput = `PathKey - 'apples'
+	var infix = ".apples.monkeys==\"thing\", .bogs.bobos==true"
+	var expectedOutput = `PathKey - apples
 --------
-PathKey - 'monkeys'
+PathKey - monkeys
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'thing'
+Value - thing (string)
 --------
 Operation - EQUALS
 --------
-PathKey - 'bogs'
+PathKey - bogs
 --------
-PathKey - 'bobos'
+PathKey - bobos
 --------
-Operation - TRAVERSE
+Operation - PIPE
 --------
-PathKey - 'thongs'
+Value - true (bool)
 --------
 Operation - EQUALS
 --------

@@ -15,11 +15,13 @@ type PathElementType uint32
 
 const (
 	PathKey PathElementType = 1 << iota
-	ArrayIndex
 	Operation
 	SelfReference
 	OpenBracket
 	CloseBracket
+	OpenCollect
+	CloseCollect
+	Value // e.g. string, int
 )
 
 type OperationType struct {
@@ -30,15 +32,22 @@ type OperationType struct {
 }
 
 var None = &OperationType{Type: "NONE", NumArgs: 0, Precedence: 0}
-var Traverse = &OperationType{Type: "TRAVERSE", NumArgs: 2, Precedence: 35, Handler: TraverseOperator}
+
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
-var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 30, Handler: EqualsOperator}
-var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
-var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 30, Handler: DeleteChildOperator}
 
-var Count = &OperationType{Type: "COUNT", NumArgs: 1, Precedence: 40, Handler: CountOperator}
+var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
+var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
+var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
+
+var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
+
+// not sure yet
+
+var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 40, Handler: DeleteChildOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 1, Precedence: 40, Handler: CollectOperator}
+
+// var Splat = &OperationType{Type: "SPLAT", NumArgs: 0, Precedence: 40, Handler: SplatOperator}
 
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
 // filters matches if they have the existing path
@@ -55,13 +64,15 @@ func (p *PathElement) toString() string {
 	var result string = ``
 	switch p.PathElementType {
 	case PathKey:
-		result = result + fmt.Sprintf("PathKey - '%v'\n", p.Value)
-	case ArrayIndex:
-		result = result + fmt.Sprintf("ArrayIndex - '%v'\n", p.Value)
+		result = result + fmt.Sprintf("PathKey - %v", p.Value)
 	case SelfReference:
-		result = result + fmt.Sprintf("SELF\n")
+		result = result + fmt.Sprintf("SELF")
 	case Operation:
-		result = result + fmt.Sprintf("Operation - %v\n", p.OperationType.Type)
+		result = result + fmt.Sprintf("Operation - %v", p.OperationType.Type)
+	case Value:
+		result = result + fmt.Sprintf("Value - %v (%T)", p.Value, p.Value)
+	default:
+		result = result + "I HAVENT GOT A STRATEGY"
 	}
 	return result
 }

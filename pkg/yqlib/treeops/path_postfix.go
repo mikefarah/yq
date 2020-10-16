@@ -25,17 +25,28 @@ func popOpToResult(opStack []*Token, result []*PathElement) ([]*Token, []*PathEl
 func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, error) {
 	var result []*PathElement
 	// surround the whole thing with quotes
-	var opStack = []*Token{&Token{PathElementType: OpenBracket, OperationType: None}}
-	var tokens = append(infixTokens, &Token{PathElementType: CloseBracket, OperationType: None})
+	var opStack = []*Token{&Token{PathElementType: OpenBracket, OperationType: None, Value: "("}}
+	var tokens = append(infixTokens, &Token{PathElementType: CloseBracket, OperationType: None, Value: ")"})
 
 	for _, token := range tokens {
+		log.Debugf("postfix processing token %v", token.Value)
 		switch token.PathElementType {
-		case PathKey, ArrayIndex, SelfReference:
+		case PathKey, SelfReference, Value:
 			var pathElement = PathElement{PathElementType: token.PathElementType, Value: token.Value, StringValue: token.StringValue}
 			result = append(result, &pathElement)
-		case OpenBracket:
+		case OpenBracket, OpenCollect:
 			opStack = append(opStack, token)
-
+		case CloseCollect:
+			for len(opStack) > 0 && opStack[len(opStack)-1].PathElementType != OpenCollect {
+				opStack, result = popOpToResult(opStack, result)
+			}
+			if len(opStack) == 0 {
+				return nil, errors.New("Bad path expression, got close collect brackets without matching opening bracket")
+			}
+			// now we should have ( as the last element on the opStack, get rid of it
+			opStack = opStack[0 : len(opStack)-1]
+			//and append a collect to the opStack
+			opStack = append(opStack, &Token{PathElementType: Operation, OperationType: Collect})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].PathElementType != OpenBracket {
 				opStack, result = popOpToResult(opStack, result)

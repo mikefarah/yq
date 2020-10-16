@@ -18,6 +18,15 @@ func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
+// updates this candidate from the given candidate node
+func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
+	n.Node.Content = other.Node.Content
+	n.Node.Value = other.Node.Value
+	n.Node.Kind = other.Node.Kind
+	n.Node.Tag = other.Node.Tag
+	n.Node.Style = other.Node.Style
+}
+
 func (n *CandidateNode) PathStackToString() string {
 	return mergePathStackToString(n.Path)
 }

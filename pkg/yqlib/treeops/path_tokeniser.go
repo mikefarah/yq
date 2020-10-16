@@ -18,31 +18,30 @@ type Token struct {
 	StringValue     string
 	PrefixSelf      bool
 
-	CheckForPreTraverse bool // this token can sometimes have the traverse '.' missing in frnot of it
-	// e.g. a[1] should really be a.[1]
-	CheckForPostTraverse bool // samething but for post, e.g. [1]cat should really be [1].cat
+	CheckForPostTraverse bool // e.g. [1]cat should really be [1].cat
 }
 
 func pathToken(wrapped bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
+		value = value[1:len(value)]
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{PathElementType: PathKey, OperationType: None, Value: value, StringValue: value}, nil
+		return &Token{PathElementType: PathKey, OperationType: None, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
 	}
 }
 
-func opToken(op *OperationType, againstSelf bool) lex.Action {
+func opToken(op *OperationType) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		return &Token{PathElementType: Operation, OperationType: op, Value: op.Type, StringValue: value, PrefixSelf: againstSelf}, nil
+		return &Token{PathElementType: Operation, OperationType: op, Value: op.Type, StringValue: value}, nil
 	}
 }
 
-func literalToken(pType PathElementType, literal string, checkForPre bool, checkForPost bool, againstSelf bool) lex.Action {
+func literalToken(pType PathElementType, literal string, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: pType, OperationType: None, Value: literal, StringValue: literal, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost, PrefixSelf: againstSelf}, nil
+		return &Token{PathElementType: pType, OperationType: None, Value: literal, StringValue: literal, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -50,54 +49,96 @@ func unwrap(value string) string {
 	return value[1 : len(value)-1]
 }
 
-func arrayIndextoken(wrapped bool, checkForPre bool, checkForPost bool) lex.Action {
+func arrayIndextoken(precedingDot bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
-		if wrapped {
-			numberString = unwrap(numberString)
+		startIndex := 1
+		if precedingDot {
+			startIndex = 2
 		}
+		numberString = numberString[startIndex : len(numberString)-1]
 		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: ArrayIndex, OperationType: None, Value: number, StringValue: numberString, CheckForPreTraverse: checkForPre, CheckForPostTraverse: checkForPost}, nil
+		return &Token{PathElementType: PathKey, OperationType: None, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+	}
+}
+
+func numberValue() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		var numberString = string(m.Bytes)
+		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+		return &Token{PathElementType: Value, OperationType: None, Value: number, StringValue: numberString}, nil
+	}
+}
+
+func booleanValue(val bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return &Token{PathElementType: Value, OperationType: None, Value: val, StringValue: string(m.Bytes)}, nil
+	}
+}
+
+func stringValue(wrapped bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+		if wrapped {
+			value = unwrap(value)
+		}
+		return &Token{PathElementType: Value, OperationType: None, Value: value, StringValue: value}, nil
+	}
+}
+
+func selfToken() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return &Token{PathElementType: SelfReference, OperationType: None, Value: "SELF", StringValue: "SELF"}, nil
 	}
 }
 
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
-	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", true, false, false))
-	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", false, true, false))
-	lexer.Add([]byte(`\.\s*\)`), literalToken(CloseBracket, ")", false, true, true))
+	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", false))
+	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", true))
 
-	lexer.Add([]byte(`\[\+\]`), literalToken(PathKey, "[+]", true, true, false))
-	lexer.Add([]byte(`\[\*\]`), literalToken(PathKey, "[*]", true, true, false))
-	lexer.Add([]byte(`\*\*`), literalToken(PathKey, "**", false, false, false))
+	lexer.Add([]byte(`\.?\[\]`), literalToken(PathKey, "[]", true))
+	lexer.Add([]byte(`\.\.`), literalToken(PathKey, "..", true))
 
-	lexer.Add([]byte(`([Oo][Rr])`), opToken(Or, false))
-	lexer.Add([]byte(`([Aa][Nn][Dd])`), opToken(And, false))
-	lexer.Add([]byte(`([Cc][Oo][Uu][Nn][Tt])`), opToken(Count, false))
-	lexer.Add([]byte(`([Cc][Oo][Ll][Ll][Ee][Cc][Tt])`), opToken(Collect, false))
+	lexer.Add([]byte(`,`), opToken(Or))
+	lexer.Add([]byte(`length`), opToken(Length))
+	lexer.Add([]byte(`([Cc][Oo][Ll][Ll][Ee][Cc][Tt])`), opToken(Collect))
 
-	lexer.Add([]byte(`\.\s*==\s*`), opToken(Equals, true))
-	lexer.Add([]byte(`\s*==\s*`), opToken(Equals, false))
+	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
 
-	lexer.Add([]byte(`\.\s*.-\s*`), opToken(DeleteChild, true))
-	lexer.Add([]byte(`\s*.-\s*`), opToken(DeleteChild, false))
+	lexer.Add([]byte(`\s*.-\s*`), opToken(DeleteChild))
 
-	lexer.Add([]byte(`\.\s*:=\s*`), opToken(Assign, true))
-	lexer.Add([]byte(`\s*:=\s*`), opToken(Assign, false))
+	lexer.Add([]byte(`\s*\|=\s*`), opToken(Assign))
 
-	lexer.Add([]byte(`\[-?[0-9]+\]`), arrayIndextoken(true, true, true))
-	lexer.Add([]byte(`-?[0-9]+`), arrayIndextoken(false, false, false))
+	lexer.Add([]byte(`\[-?[0-9]+\]`), arrayIndextoken(false))
+	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
+
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
-	lexer.Add([]byte(`"[^ "]+"`), pathToken(true))
-	lexer.Add([]byte(`[^ \|\.\[\(\)=]+`), pathToken(false))
+	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
+	lexer.Add([]byte(`\.[^ \[\],\|\.\[\(\)=]+`), pathToken(false))
+	lexer.Add([]byte(`\.`), selfToken())
 
-	lexer.Add([]byte(`\|`), opToken(Traverse, false))
-	lexer.Add([]byte(`\.`), opToken(Traverse, false))
+	lexer.Add([]byte(`\|`), opToken(Pipe))
+
+	lexer.Add([]byte(`-?[0-9]+`), numberValue())
+
+	lexer.Add([]byte(`[Tt][Rr][Uu][Ee]`), booleanValue(true))
+	lexer.Add([]byte(`[Ff][Aa][Ll][Ss][Ee]`), booleanValue(false))
+
+	lexer.Add([]byte(`"[^ "]+"`), stringValue(true))
+
+	lexer.Add([]byte(`\[`), literalToken(OpenCollect, "[", false))
+	lexer.Add([]byte(`\]`), literalToken(CloseCollect, "]", true))
+
+	// lexer.Add([]byte(`[^ \,\|\.\[\(\)=]+`), stringValue(false))
 	err := lexer.Compile()
 	if err != nil {
 		return nil, err
@@ -142,19 +183,12 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 	var postProcessedTokens = make([]*Token, 0)
 
 	for index, token := range tokens {
-		if index > 0 && token.CheckForPreTraverse &&
-			(tokens[index-1].PathElementType == PathKey || tokens[index-1].PathElementType == CloseBracket) {
-			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Traverse, Value: "."})
-		}
-		if token.PrefixSelf {
-			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: SelfReference, Value: "SELF"})
-		}
 
 		postProcessedTokens = append(postProcessedTokens, token)
 
 		if index != len(tokens)-1 && token.CheckForPostTraverse &&
 			tokens[index+1].PathElementType == PathKey {
-			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Traverse, Value: "."})
+			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Pipe, Value: "PIPE"})
 		}
 	}
 

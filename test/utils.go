@@ -54,6 +54,14 @@ func AssertResultComplex(t *testing.T, expectedValue interface{}, actualValue in
 	}
 }
 
+func AssertResultComplexWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
+	t.Helper()
+	if !reflect.DeepEqual(expectedValue, actualValue) {
+		t.Error(context)
+		t.Error("\nExpected <", expectedValue, ">\nbut got  <", actualValue, ">", fmt.Sprintf("%T", actualValue))
+	}
+}
+
 func AssertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
 	t.Helper()
 	if expectedValue != actualValue {

@@ -240,14 +240,41 @@ func TestDataTreeNavigatorDeleteViaSelf(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorCountWithFilter(t *testing.T) {
+func TestDataTreeNavigatorFilterWithSplat(t *testing.T) {
 
 	nodes := readDoc(t, `f:
   a: frog
   b: dally
   c: log`)
 
-	path, errPath := treeCreator.ParsePath("f(count(. == *og))")
+	path, errPath := treeCreator.ParsePath(".f | .[] == \"frog\"")
+	if errPath != nil {
+		t.Error(errPath)
+	}
+	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+
+	if errNav != nil {
+		t.Error(errNav)
+	}
+
+	expected := `
+-- Node --
+  Document 0, path: [f]
+  Tag: !!int, Kind: ScalarNode, Anchor: 
+  2
+`
+
+	test.AssertResult(t, expected, resultsToString(results))
+}
+
+func TestDataTreeNavigatorCountAndCollectWithFilterCmd(t *testing.T) {
+
+	nodes := readDoc(t, `f:
+  a: frog
+  b: dally
+  c: log`)
+
+	path, errPath := treeCreator.ParsePath(".f | .[] == *og ")
 	if errPath != nil {
 		t.Error(errPath)
 	}
@@ -934,7 +961,7 @@ func TestDataTreeNavigatorEqualsSimple(t *testing.T) {
   pat: {b: banana}
 `)
 
-	path, errPath := treeCreator.ParsePath("a.(b == apple)")
+	path, errPath := treeCreator.ParsePath(".a | (.[].b == \"apple\")")
 	if errPath != nil {
 		t.Error(errPath)
 	}
@@ -1132,7 +1159,7 @@ func TestDataTreeNavigatorArrayEqualsDeep(t *testing.T) {
 	test.AssertResult(t, expected, resultsToString(results))
 }
 
-func TestDataTreeNavigatorEqualsTrickey(t *testing.T) {
+func xTestDataTreeNavigatorEqualsTrickey(t *testing.T) {
 
 	nodes := readDoc(t, `a: 
   cat: {b: apso, c: {d : yes}}
@@ -1141,7 +1168,7 @@ func TestDataTreeNavigatorEqualsTrickey(t *testing.T) {
   fat: {b: apple}
 `)
 
-	path, errPath := treeCreator.ParsePath("a.(b == ap* and c.d == yes)")
+	path, errPath := treeCreator.ParsePath(".a(.b == ap* and .c.d == yes)")
 	if errPath != nil {
 		t.Error(errPath)
 	}

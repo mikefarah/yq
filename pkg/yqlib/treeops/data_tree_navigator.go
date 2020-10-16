@@ -70,7 +70,7 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
 	if pathNode.PathElement.PathElementType == SelfReference {
 		return matchingNodes, nil
-	} else if pathNode.PathElement.PathElementType == PathKey || pathNode.PathElement.PathElementType == ArrayIndex {
+	} else if pathNode.PathElement.PathElementType == PathKey {
 		return d.traverse(matchingNodes, pathNode.PathElement)
 	} else {
 		handler := pathNode.PathElement.OperationType.Handler

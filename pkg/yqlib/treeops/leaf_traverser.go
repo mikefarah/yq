@@ -53,7 +53,7 @@ func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement)
 
 func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
 	log.Debug("pathNode Value %v", pathNode.Value)
-	if pathNode.Value == "[*]" || pathNode.Value == "*" {
+	if pathNode.Value == "[]" {
 
 		var contents = candidate.Node.Content
 		var newMatches = make([]*CandidateNode, len(contents))
