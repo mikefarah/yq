@@ -76,6 +76,17 @@ func numberValue() lex.Action {
 	}
 }
 
+func floatValue() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		var numberString = string(m.Bytes)
+		var number, errParsingInt = strconv.ParseFloat(numberString, 64) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+		return &Token{PathElementType: Value, OperationType: None, Value: number, StringValue: numberString}, nil
+	}
+}
+
 func booleanValue(val bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		return &Token{PathElementType: Value, OperationType: None, Value: val, StringValue: string(m.Bytes)}, nil
@@ -111,7 +122,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`length`), opToken(Length))
 	lexer.Add([]byte(`select`), opToken(Select))
 	lexer.Add([]byte(`or`), opToken(Or))
-	lexer.Add([]byte(`and`), opToken(And))
+	// lexer.Add([]byte(`and`), opToken())
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
@@ -131,7 +142,9 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\|`), opToken(Pipe))
 
-	lexer.Add([]byte(`-?[0-9]+`), numberValue())
+	lexer.Add([]byte(`-?\d+(\.\d+)`), floatValue())
+	lexer.Add([]byte(`-?[1-9](\.\d+)?[Ee][-+]?\d+`), floatValue())
+	lexer.Add([]byte(`-?\d+`), numberValue())
 
 	lexer.Add([]byte(`[Tt][Rr][Uu][Ee]`), booleanValue(true))
 	lexer.Add([]byte(`[Ff][Aa][Ll][Ss][Ee]`), booleanValue(false))
