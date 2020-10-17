@@ -17,6 +17,15 @@ func PipeOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pa
 	return d.getMatchingNodes(lhs, pathNode.Rhs)
 }
 
+func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
+	valString := "true"
+	if !value {
+		valString = "false"
+	}
+	node := &yaml.Node{Kind: yaml.ScalarNode, Value: valString, Tag: "!!bool"}
+	return &CandidateNode{Node: node, Document: owner.Document, Path: owner.Path}
+}
+
 func nodeToMap(candidate *CandidateNode) *orderedmap.OrderedMap {
 	elMap := orderedmap.NewOrderedMap()
 	elMap.Set(candidate.GetKey(), candidate)
@@ -47,22 +56,6 @@ func AssignOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, 
 	return lhs, nil
 }
 
-func UnionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
-	if err != nil {
-		return nil, err
-	}
-	rhs, err := d.getMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
-	for el := rhs.Front(); el != nil; el = el.Next() {
-		node := el.Value.(*CandidateNode)
-		lhs.Set(node.GetKey(), node)
-	}
-	return lhs, nil
-}
-
 func IntersectionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
@@ -80,16 +73,6 @@ func IntersectionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordere
 		}
 	}
 	return matchingNodeMap, nil
-}
-
-func splatNode(d *dataTreeNavigator, candidate *CandidateNode) (*orderedmap.OrderedMap, error) {
-	//need to splat matching nodes, then search through them
-	splatter := &PathTreeNode{PathElement: &PathElement{
-		PathElementType: PathKey,
-		Value:           "*",
-		StringValue:     "*",
-	}}
-	return d.getMatchingNodes(nodeToMap(candidate), splatter)
 }
 
 func LengthOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
@@ -116,30 +99,4 @@ func LengthOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 	}
 
 	return results, nil
-}
-
-func CollectOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
-	log.Debugf("-- collectOperation")
-
-	var results = orderedmap.NewOrderedMap()
-
-	node := &yaml.Node{Kind: yaml.SequenceNode}
-
-	var document uint = 0
-	var path []interface{}
-
-	for el := matchMap.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		if path == nil && candidate.Path != nil {
-			path = candidate.Path
-			document = candidate.Document
-		}
-		node.Content = append(node.Content, candidate.Node)
-	}
-
-	collectC := &CandidateNode{Node: node, Document: document, Path: path}
-	results.Set(collectC.GetKey(), collectC)
-
-	return results, nil
-
 }

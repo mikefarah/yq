@@ -107,9 +107,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\.?\[\]`), literalToken(PathKey, "[]", true))
 	lexer.Add([]byte(`\.\.`), literalToken(PathKey, "..", true))
 
-	lexer.Add([]byte(`,`), opToken(Or))
+	lexer.Add([]byte(`,`), opToken(Union))
 	lexer.Add([]byte(`length`), opToken(Length))
-	lexer.Add([]byte(`([Cc][Oo][Ll][Ll][Ee][Cc][Tt])`), opToken(Collect))
+	lexer.Add([]byte(`select`), opToken(Select))
+	lexer.Add([]byte(`or`), opToken(Or))
+	lexer.Add([]byte(`and`), opToken(And))
+	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
 

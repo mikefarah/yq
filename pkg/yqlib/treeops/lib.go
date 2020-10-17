@@ -33,19 +33,24 @@ type OperationType struct {
 
 var None = &OperationType{Type: "NONE", NumArgs: 0, Precedence: 0}
 
-var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
-var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
+var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
+var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
+
+var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
+var Intersection = &OperationType{Type: "INTERSECTION", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
 var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
+var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
 
 // not sure yet
 
+var Select = &OperationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: SelectOperator}
+
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 40, Handler: DeleteChildOperator}
-var Collect = &OperationType{Type: "COLLECT", NumArgs: 1, Precedence: 40, Handler: CollectOperator}
 
 // var Splat = &OperationType{Type: "SPLAT", NumArgs: 0, Precedence: 40, Handler: SplatOperator}
 
@@ -64,13 +69,13 @@ func (p *PathElement) toString() string {
 	var result string = ``
 	switch p.PathElementType {
 	case PathKey:
-		result = result + fmt.Sprintf("PathKey - %v", p.Value)
+		result = result + fmt.Sprintf("%v", p.Value)
 	case SelfReference:
 		result = result + fmt.Sprintf("SELF")
 	case Operation:
-		result = result + fmt.Sprintf("Operation - %v", p.OperationType.Type)
+		result = result + fmt.Sprintf("%v", p.OperationType.Type)
 	case Value:
-		result = result + fmt.Sprintf("Value - %v (%T)", p.Value, p.Value)
+		result = result + fmt.Sprintf("%v (%T)", p.Value, p.Value)
 	default:
 		result = result + "I HAVENT GOT A STRATEGY"
 	}
@@ -124,7 +129,7 @@ func NodeToString(node *CandidateNode) string {
 	}
 	value := node.Node
 	if value == nil {
-		return "-- node is nil --"
+		return "-- nil --"
 	}
 	buf := new(bytes.Buffer)
 	encoder := yaml.NewEncoder(buf)
@@ -133,10 +138,7 @@ func NodeToString(node *CandidateNode) string {
 		log.Error("Error debugging node, %v", errorEncoding.Error())
 	}
 	encoder.Close()
-	return fmt.Sprintf(`-- Node --
-  Document %v, path: %v
-  Tag: %v, Kind: %v, Anchor: %v
-  %v`, node.Document, node.Path, value.Tag, KindString(value.Kind), value.Anchor, buf.String())
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, value.Tag, buf.String())
 }
 
 func KindString(kind yaml.Kind) string {

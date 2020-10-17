@@ -2,7 +2,6 @@ package treeops
 
 import (
 	"github.com/elliotchance/orderedmap"
-	"gopkg.in/yaml.v3"
 )
 
 func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
@@ -18,15 +17,8 @@ func EqualsOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 			return nil, errInChild
 		}
 
-		matchString := "true"
-		if !matches {
-			matchString = "false"
-		}
-
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: matchString, Tag: "!!bool"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.Set(candidate.GetKey(), lengthCand)
-
+		equalsCandidate := createBooleanCandidate(candidate, matches)
+		results.Set(equalsCandidate.GetKey(), equalsCandidate)
 	}
 
 	return results, nil

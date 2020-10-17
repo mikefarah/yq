@@ -20,10 +20,11 @@ func testExpression(expression string) (string, error) {
 	}
 	formatted := ""
 	for _, path := range results {
-		formatted = formatted + path.toString() + "\n--------\n"
+		formatted = formatted + path.toString() + ", "
 	}
 	return formatted, nil
 }
+
 
 func TestPostFixTraverseBar(t *testing.T) {
 	var infix = ".animals | [.]"

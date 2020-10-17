@@ -12,6 +12,9 @@ var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
 var treeCreator = NewPathTreeCreator()
 
 func readDoc(t *testing.T, content string) []*CandidateNode {
+	if content == "" {
+		return []*CandidateNode{}
+	}
 	decoder := yaml.NewDecoder(strings.NewReader(content))
 	var dataBucket yaml.Node
 	err := decoder.Decode(&dataBucket)
@@ -21,10 +24,10 @@ func readDoc(t *testing.T, content string) []*CandidateNode {
 	return []*CandidateNode{&CandidateNode{Node: dataBucket.Content[0], Document: 0}}
 }
 
-func resultsToString(results []*CandidateNode) string {
-	var pretty string = ""
+func resultsToString(results []*CandidateNode) []string {
+	var pretty []string = make([]string, 0)
 	for _, n := range results {
-		pretty = pretty + "\n" + NodeToString(n)
+		pretty = append(pretty, NodeToString(n))
 	}
 	return pretty
 }
@@ -1048,245 +1051,6 @@ func TestDataTreeNavigatorAnd(t *testing.T) {
   Document 0, path: [a cat]
   Tag: !!str, Kind: ScalarNode, Anchor: 
   apple
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorEqualsSimple(t *testing.T) {
-
-	nodes := readDoc(t, `a: 
-  cat: {b: apple, c: yes}
-  pat: {b: banana}
-`)
-
-	path, errPath := treeCreator.ParsePath(".a | (.[].b == \"apple\")")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [a cat]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: apple, c: yes}
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorEqualsSelf(t *testing.T) {
-
-	nodes := readDoc(t, `a: frog
-b: cat
-c: frog`)
-
-	path, errPath := treeCreator.ParsePath("(a or b).(. == frog)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [a]
-  Tag: !!str, Kind: ScalarNode, Anchor: 
-  frog
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorEqualsNested(t *testing.T) {
-
-	nodes := readDoc(t, `a: {t: frog}
-b: {t: cat}
-c: {t: frog}`)
-
-	path, errPath := treeCreator.ParsePath("(t == frog)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [a]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {t: frog}
-
--- Node --
-  Document 0, path: [c]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {t: frog}
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorArrayEqualsSelf(t *testing.T) {
-
-	nodes := readDoc(t, `- cat
-- dog
-- frog`)
-
-	path, errPath := treeCreator.ParsePath("(. == *og)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [1]
-  Tag: !!str, Kind: ScalarNode, Anchor: 
-  dog
-
--- Node --
-  Document 0, path: [2]
-  Tag: !!str, Kind: ScalarNode, Anchor: 
-  frog
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorArrayEqualsSelfSplatFirst(t *testing.T) {
-
-	nodes := readDoc(t, `- cat
-- dog
-- frog`)
-
-	path, errPath := treeCreator.ParsePath("*(. == *og)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [1]
-  Tag: !!str, Kind: ScalarNode, Anchor: 
-  dog
-
--- Node --
-  Document 0, path: [2]
-  Tag: !!str, Kind: ScalarNode, Anchor: 
-  frog
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorArrayEquals(t *testing.T) {
-
-	nodes := readDoc(t, `- { b: apple, animal: rabbit }
-- { b: banana, animal: cat }
-- { b: corn, animal: dog }`)
-
-	path, errPath := treeCreator.ParsePath("(b == apple or animal == dog)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [0]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: apple, animal: rabbit}
-
--- Node --
-  Document 0, path: [2]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: corn, animal: dog}
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func TestDataTreeNavigatorArrayEqualsDeep(t *testing.T) {
-
-	nodes := readDoc(t, `apples:
-  - { b: apple, animal: {legs: 2} }
-  - { b: banana, animal: {legs: 4} }
-  - { b: corn, animal: {legs: 6} }
-`)
-
-	path, errPath := treeCreator.ParsePath("apples(animal.legs == 4)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [apples 1]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: banana, animal: {legs: 4}}
-`
-
-	test.AssertResult(t, expected, resultsToString(results))
-}
-
-func xTestDataTreeNavigatorEqualsTrickey(t *testing.T) {
-
-	nodes := readDoc(t, `a: 
-  cat: {b: apso, c: {d : yes}}
-  pat: {b: apple, c: {d : no}}
-  sat: {b: apsy, c: {d : yes}}
-  fat: {b: apple}
-`)
-
-	path, errPath := treeCreator.ParsePath(".a(.b == ap* and .c.d == yes)")
-	if errPath != nil {
-		t.Error(errPath)
-	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
-
-	if errNav != nil {
-		t.Error(errNav)
-	}
-
-	expected := `
--- Node --
-  Document 0, path: [a cat]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: apso, c: {d: yes}}
-
--- Node --
-  Document 0, path: [a sat]
-  Tag: !!map, Kind: MappingNode, Anchor: 
-  {b: apsy, c: {d: yes}}
 `
 
 	test.AssertResult(t, expected, resultsToString(results))

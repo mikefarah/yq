@@ -52,7 +52,7 @@ func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeN
 				remaining, rhs := stack[:len(stack)-1], stack[len(stack)-1]
 				newNode.Rhs = rhs
 				stack = remaining
-			} else {
+			} else if numArgs == 2 {
 				remaining, lhs, rhs := stack[:len(stack)-2], stack[len(stack)-2], stack[len(stack)-1]
 				newNode.Lhs = lhs
 				newNode.Rhs = rhs

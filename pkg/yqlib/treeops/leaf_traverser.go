@@ -19,7 +19,7 @@ func NewLeafTraverser(navigationPrefs NavigationPrefs) LeafTraverser {
 }
 
 func (t *traverser) keyMatches(key *yaml.Node, pathNode *PathElement) bool {
-	return Match(key.Value, pathNode.StringValue)
+	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
 }
 
 func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {

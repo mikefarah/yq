@@ -1,14 +1,16 @@
 package treeops
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mikefarah/yq/v3/test"
 )
 
-var tokeniserTests = []struct {
-	path           string
-	expectedTokens []interface{}
+var pathTests = []struct {
+	path            string
+	expectedTokens  []interface{}
+	expectedPostFix []interface{}
 }{ // TODO: Ensure ALL documented examples have tests! sheesh
 	// {"len(.)", append(make([]interface{}, 0), "LENGTH", "(", "SELF", ")")},
 	// {"\"len\"(.)", append(make([]interface{}, 0), "len", "TRAVERSE", "(", "SELF", ")")},
@@ -37,7 +39,21 @@ var tokeniserTests = []struct {
 	// {`."[a", ."b]"`, append(make([]interface{}, 0), "[a", "OR", "b]")},
 	// {`.a[]`, append(make([]interface{}, 0), "a", "PIPE", "[]")},
 	// {`.[].a`, append(make([]interface{}, 0), "[]", "PIPE", "a")},
-	{`.a | (.[].b == "apple")`, append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple", ")")},
+	{
+		`.a | (.[].b == "apple")`,
+		append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple", ")"),
+		append(make([]interface{}, 0), "a", "[]", "b", "PIPE", "apple (string)", "EQUALS", "PIPE"),
+	},
+	{
+		`.[] | select(. == "*at")`,
+		append(make([]interface{}, 0), "[]", "PIPE", "SELECT", "(", "SELF", "EQUALS", "*at", ")"),
+		append(make([]interface{}, 0), "[]", "SELF", "*at (string)", "EQUALS", "SELECT", "PIPE"),
+	},
+	{
+		`[true]`,
+		append(make([]interface{}, 0), "[", true, "]"),
+		append(make([]interface{}, 0), "true (bool)", "COLLECT"),
+	},
 
 	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},
 	// {".animals | (. == cat)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "SELF", "EQUALS", "cat", ")")},
@@ -61,8 +77,8 @@ var tokeniserTests = []struct {
 
 var tokeniser = NewPathTokeniser()
 
-func TestTokeniser(t *testing.T) {
-	for _, tt := range tokeniserTests {
+func TestPathParsing(t *testing.T) {
+	for _, tt := range pathTests {
 		tokens, err := tokeniser.Tokenise(tt.path)
 		if err != nil {
 			t.Error(tt.path, err)
@@ -71,6 +87,20 @@ func TestTokeniser(t *testing.T) {
 		for _, token := range tokens {
 			tokenValues = append(tokenValues, token.Value)
 		}
-		test.AssertResultComplexWithContext(t, tt.expectedTokens, tokenValues, tt.path)
+		test.AssertResultComplexWithContext(t, tt.expectedTokens, tokenValues, fmt.Sprintf("tokenise: %v", tt.path))
+
+		results, errorP := postFixer.ConvertToPostfix(tokens)
+
+		var readableResults []interface{}
+		for _, token := range results {
+			readableResults = append(readableResults, token.toString())
+		}
+
+		if errorP != nil {
+			t.Error(tt.path, err)
+		}
+
+		test.AssertResultComplexWithContext(t, tt.expectedPostFix, readableResults, fmt.Sprintf("postfix: %v", tt.path))
+
 	}
 }

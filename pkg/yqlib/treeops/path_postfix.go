@@ -2,6 +2,8 @@ package treeops
 
 import (
 	"errors"
+
+	"gopkg.in/op/go-logging.v1"
 )
 
 type PathPostFixer interface {
@@ -43,9 +45,10 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, 
 			if len(opStack) == 0 {
 				return nil, errors.New("Bad path expression, got close collect brackets without matching opening bracket")
 			}
-			// now we should have ( as the last element on the opStack, get rid of it
+			// now we should have [] as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
+			opStack = append(opStack, &Token{PathElementType: Operation, OperationType: Pipe})
 			opStack = append(opStack, &Token{PathElementType: Operation, OperationType: Collect})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].PathElementType != OpenBracket {
@@ -67,5 +70,13 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, 
 			opStack = append(opStack, token)
 		}
 	}
+
+	if log.IsEnabledFor(logging.DEBUG) {
+		log.Debugf("PostFix Result:")
+		for _, token := range result {
+			log.Debugf("> %v", token.toString())
+		}
+	}
+
 	return result, nil
 }

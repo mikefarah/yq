@@ -15,7 +15,7 @@ type CandidateNode struct {
 }
 
 func (n *CandidateNode) GetKey() string {
-	return fmt.Sprintf("%v - %v", n.Document, n.Path)
+	return fmt.Sprintf("%v - %v - %v", n.Document, n.Path, n.Node.Value)
 }
 
 // updates this candidate from the given candidate node

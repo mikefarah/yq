@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/elliotchance/orderedmap"
+	"gopkg.in/op/go-logging.v1"
 )
 
 type dataTreeNavigator struct {
@@ -68,6 +69,13 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 		return matchingNodes, nil
 	}
 	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
+	if log.IsEnabledFor(logging.DEBUG) {
+		for el := matchingNodes.Front(); el != nil; el = el.Next() {
+			log.Debug(NodeToString(el.Value.(*CandidateNode)))
+		}
+	}
+	log.Debug(">>")
+
 	if pathNode.PathElement.PathElementType == SelfReference {
 		return matchingNodes, nil
 	} else if pathNode.PathElement.PathElementType == PathKey {
