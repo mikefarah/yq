@@ -29,6 +29,24 @@ var assignOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 3.142}}\n",
 		},
+	}, {
+		document:   `{a: {b: {g: foof}}}`,
+		expression: `.a |= .b`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {g: foof}}\n",
+		},
+	}, {
+		document:   `{a: {b: apple, c: cactus}}`,
+		expression: `.a[] | select(. == "apple") |= "frog"`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: frog, c: cactus}}\n",
+		},
+	}, {
+		document:   `[candy, apple, sandy]`,
+		expression: `.[] | select(. == "*andy") |= "bogs"`,
+		expected: []string{
+			"D0, P[], (!!seq)::[bogs, apple, bogs]\n",
+		},
 		// 	document:   `{}`,
 		// 	expression: `["cat", "dog"]`,
 		// 	expected: []string{
