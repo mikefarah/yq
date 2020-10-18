@@ -4,6 +4,7 @@
 - tag git with same version number
 - make sure local build passes
 - push tag to git
+  - 3.4.0, v3
   - git push --tags
 - make local xcompile (builds binaries for all platforms)
 
