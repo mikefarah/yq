@@ -47,29 +47,6 @@ var assignOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::[bogs, apple, bogs]\n",
 		},
-		// 	document:   `{}`,
-		// 	expression: `["cat", "dog"]`,
-		// 	expected: []string{
-		// 		"D0, P[], (!!seq)::- cat\n- dog\n",
-		// 	},
-		// }, {
-		// 	document:   `{}`,
-		// 	expression: `1 | collect`,
-		// 	expected: []string{
-		// 		"D0, P[], (!!seq)::- 1\n",
-		// 	},
-		// }, {
-		// 	document:   `[1,2,3]`,
-		// 	expression: `[.[]]`,
-		// 	expected: []string{
-		// 		"D0, P[], (!!seq)::- 1\n- 2\n- 3\n",
-		// 	},
-		// }, {
-		// 	document:   `a: {b: [1,2,3]}`,
-		// 	expression: `[.a.b[]]`,
-		// 	expected: []string{
-		// 		"D0, P[a b], (!!seq)::- 1\n- 2\n- 3\n",
-		// 	},
 	},
 }
 

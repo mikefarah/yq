@@ -116,7 +116,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", true))
 
 	lexer.Add([]byte(`\.?\[\]`), literalToken(PathKey, "[]", true))
-	lexer.Add([]byte(`\.\.`), literalToken(PathKey, "..", true))
+	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))
 	lexer.Add([]byte(`length`), opToken(Length))

@@ -1,6 +1,7 @@
 package treeops
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/mikefarah/yq/v3/test"
@@ -26,5 +27,5 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		t.Error(errNav)
 		return
 	}
-	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), s.expression)
+	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
 }

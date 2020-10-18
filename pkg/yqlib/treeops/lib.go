@@ -45,6 +45,7 @@ var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: Pip
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
+var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 
 // not sure yet
 
