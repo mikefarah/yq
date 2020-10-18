@@ -40,6 +40,8 @@ var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: U
 var Intersection = &OperationType{Type: "INTERSECTION", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
+var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
+
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
 var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
 
