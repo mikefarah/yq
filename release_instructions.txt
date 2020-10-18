@@ -31,7 +31,7 @@
 
 - docker
   - build and push latest and new version tag
-  - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:VERSION 
+  - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:3 -t mikefarah/yq:3.X
 
 - debian package
   - ensure you get all vendor dependencies before packaging
