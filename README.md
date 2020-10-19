@@ -12,8 +12,15 @@ The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
 ### MacOS:
+Using [Homebrew](https://brew.sh/)
 ```
 brew install yq
+```
+
+Using [MacPorts](https://www.macports.org/)
+```
+sudo port selfupdate
+sudo port install yq
 ```
 
 ### Ubuntu and other Linux distros supporting `snap` packages:
