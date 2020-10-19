@@ -13,6 +13,12 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	}, {
 		document:   `{}`,
+		expression: `[true]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- true\n",
+		},
+	}, {
+		document:   `{}`,
 		expression: `["cat", "dog"]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n- dog\n",

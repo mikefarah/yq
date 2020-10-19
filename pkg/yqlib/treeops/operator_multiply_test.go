@@ -61,6 +61,12 @@ b:
     also: "me"
 `,
 		},
+	}, {
+		document:   `{a: [1,2,3], b: [3,4,5]}`,
+		expression: `.a * .b`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: [3, 4, 5], b: [3, 4, 5]}\n",
+		},
 	},
 }
 

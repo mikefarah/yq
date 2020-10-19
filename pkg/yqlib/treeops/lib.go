@@ -15,6 +15,7 @@ type PathElementType uint32
 
 const (
 	PathKey PathElementType = 1 << iota
+	DocumentKey
 	Operation
 	SelfReference
 	OpenBracket
@@ -75,6 +76,8 @@ func (p *PathElement) toString() string {
 	switch p.PathElementType {
 	case PathKey:
 		result = result + fmt.Sprintf("%v", p.Value)
+	case DocumentKey:
+		result = result + fmt.Sprintf("D%v", p.Value)
 	case SelfReference:
 		result = result + fmt.Sprintf("SELF")
 	case Operation:

@@ -40,6 +40,11 @@ var pathTests = []struct {
 	// {`.a[]`, append(make([]interface{}, 0), "a", "PIPE", "[]")},
 	// {`.[].a`, append(make([]interface{}, 0), "[]", "PIPE", "a")},
 	{
+		`d0.a`,
+		append(make([]interface{}, 0), int64(0), "PIPE", "a"),
+		append(make([]interface{}, 0), "D0", "a", "PIPE"),
+	},
+	{
 		`.a | (.[].b == "apple")`,
 		append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple", ")"),
 		append(make([]interface{}, 0), "a", "[]", "b", "PIPE", "apple (string)", "EQUALS", "PIPE"),
@@ -52,7 +57,7 @@ var pathTests = []struct {
 	{
 		`[true]`,
 		append(make([]interface{}, 0), "[", true, "]"),
-		append(make([]interface{}, 0), "true (bool)", "COLLECT"),
+		append(make([]interface{}, 0), "true (bool)", "COLLECT", "PIPE"),
 	},
 
 	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},

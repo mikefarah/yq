@@ -38,7 +38,8 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap
 }
 
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode {
+	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
+		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 		var results = orderedmap.NewOrderedMap()
 		recursiveDecent(d, results, nodeToMap(rhs))
 

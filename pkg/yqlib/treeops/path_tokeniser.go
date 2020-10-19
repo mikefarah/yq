@@ -32,6 +32,18 @@ func pathToken(wrapped bool) lex.Action {
 	}
 }
 
+func documentToken() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		var numberString = string(m.Bytes)
+		numberString = numberString[1:len(numberString)]
+		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+		return &Token{PathElementType: DocumentKey, OperationType: None, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+	}
+}
+
 func opToken(op *OperationType) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
@@ -135,6 +147,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
+
+	lexer.Add([]byte(`d[0-9]+`), documentToken()) // $0
 
 	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
 	lexer.Add([]byte(`\.[^ \[\],\|\.\[\(\)=]+`), pathToken(false))
