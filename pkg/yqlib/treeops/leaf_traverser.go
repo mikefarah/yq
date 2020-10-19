@@ -69,8 +69,8 @@ func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElemen
 
 		var contents = candidate.Node.Content
 		var newMatches = make([]*CandidateNode, len(contents))
-
-		for index := 0; index < len(contents); index = index + 1 {
+		var index int64
+		for index = 0; index < int64(len(contents)); index = index + 1 {
 			newMatches[index] = &CandidateNode{
 				Document: candidate.Document,
 				Path:     append(candidate.Path, index),

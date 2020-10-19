@@ -20,13 +20,18 @@ func (n *CandidateNode) GetKey() string {
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
-
+	n.UpdateAttributesFrom(other)
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value
-	n.UpdateAttributesFrom(other)
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
+	if n.Node.Kind != other.Node.Kind {
+		// clear out the contents when switching to a different type
+		// e.g. map to array
+		n.Node.Content = make([]*yaml.Node, 0)
+		n.Node.Value = ""
+	}
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
 	n.Node.Style = other.Node.Style

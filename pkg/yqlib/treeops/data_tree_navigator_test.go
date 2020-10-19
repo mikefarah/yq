@@ -19,6 +19,7 @@ func readDoc(t *testing.T, content string) []*CandidateNode {
 	var dataBucket yaml.Node
 	err := decoder.Decode(&dataBucket)
 	if err != nil {
+		t.Error(content)
 		t.Error(err)
 	}
 	return []*CandidateNode{&CandidateNode{Node: dataBucket.Content[0], Document: 0}}
