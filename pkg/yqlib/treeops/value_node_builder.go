@@ -2,11 +2,11 @@ package treeops
 
 import "gopkg.in/yaml.v3"
 
-func BuildCandidateNodeFrom(p *PathElement) *CandidateNode {
+func BuildCandidateNodeFrom(token *Token) *CandidateNode {
 	var node yaml.Node = yaml.Node{Kind: yaml.ScalarNode}
-	node.Value = p.StringValue
+	node.Value = token.StringValue
 
-	switch p.Value.(type) {
+	switch token.Value.(type) {
 	case float32, float64:
 		node.Tag = "!!float"
 	case int, int64, int32:

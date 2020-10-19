@@ -48,6 +48,18 @@ func (t *traverser) traverseMap(candidate *CandidateNode, pathNode *PathElement)
 			})
 		}
 	}
+	if len(newMatches) == 0 {
+		//no matches, create one automagically
+		valueNode := &yaml.Node{}
+		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: pathNode.StringValue}, valueNode)
+		newMatches = append(newMatches, &CandidateNode{
+			Node:     valueNode,
+			Path:     append(candidate.Path, pathNode.StringValue),
+			Document: candidate.Document,
+		})
+
+	}
+
 	return newMatches, nil
 }
 
@@ -72,9 +84,9 @@ func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElemen
 	index := pathNode.Value.(int64)
 	indexToUse := index
 	contentLength := int64(len(candidate.Node.Content))
-	if contentLength <= index {
-		// handle auto append here
-		return make([]*CandidateNode, 0), nil
+	for contentLength <= index {
+		candidate.Node.Content = append(candidate.Node.Content, &yaml.Node{})
+		contentLength = int64(len(candidate.Node.Content))
 	}
 
 	if indexToUse < 0 {
@@ -94,8 +106,22 @@ func (t *traverser) traverseArray(candidate *CandidateNode, pathNode *PathElemen
 }
 
 func (t *traverser) Traverse(matchingNode *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
-	log.Debug(NodeToString(matchingNode))
+	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
+
+	if value.Kind == 0 {
+		log.Debugf("Guessing kind")
+		// we must ahve added this automatically, lets guess what it should be now
+		switch pathNode.Value.(type) {
+		case int, int64:
+			log.Debugf("probably an array")
+			value.Kind = yaml.SequenceNode
+		default:
+			log.Debugf("probabel a map")
+			value.Kind = yaml.MappingNode
+		}
+	}
+
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)

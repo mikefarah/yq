@@ -40,6 +40,7 @@ var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: U
 var Intersection = &OperationType{Type: "INTERSECTION", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
+var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
 
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
@@ -65,6 +66,7 @@ type PathElement struct {
 	OperationType   *OperationType
 	Value           interface{}
 	StringValue     string
+	CandidateNode   *CandidateNode // used for Value Path elements
 }
 
 // debugging purposes only

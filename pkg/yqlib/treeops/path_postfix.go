@@ -33,7 +33,11 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, 
 	for _, token := range tokens {
 		log.Debugf("postfix processing token %v", token.Value)
 		switch token.PathElementType {
-		case PathKey, SelfReference, Value:
+		case Value:
+			var candidateNode = BuildCandidateNodeFrom(token)
+			var pathElement = PathElement{PathElementType: token.PathElementType, Value: token.Value, StringValue: token.StringValue, CandidateNode: candidateNode}
+			result = append(result, &pathElement)
+		case PathKey, SelfReference:
 			var pathElement = PathElement{PathElementType: token.PathElementType, Value: token.Value, StringValue: token.StringValue}
 			result = append(result, &pathElement)
 		case OpenBracket, OpenCollect:

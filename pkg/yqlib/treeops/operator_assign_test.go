@@ -47,6 +47,24 @@ var assignOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::[bogs, apple, bogs]\n",
 		},
+	}, {
+		document:   `{}`,
+		expression: `.a.b |= "bogs"`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: bogs}}\n",
+		},
+	}, {
+		document:   `{}`,
+		expression: `.a.b[0] |= "bogs"`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: [bogs]}}\n",
+		},
+	}, {
+		document:   `{}`,
+		expression: `.a.b[1].c |= "bogs"`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: [null, {c: bogs}]}}\n",
+		},
 	},
 }
 

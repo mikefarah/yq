@@ -20,11 +20,19 @@ func (n *CandidateNode) GetKey() string {
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
+
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value
+	n.UpdateAttributesFrom(other)
+}
+
+func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
 	n.Node.Style = other.Node.Style
+	n.Node.FootComment = other.Node.FootComment
+	n.Node.HeadComment = other.Node.HeadComment
+	n.Node.LineComment = other.Node.LineComment
 }
 
 func (n *CandidateNode) PathStackToString() string {
