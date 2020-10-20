@@ -11,28 +11,12 @@ import (
 
 var log = logging.MustGetLogger("yq-treeops")
 
-type PathElementType uint32
-
-const (
-	PathKey PathElementType = 1 << iota
-	DocumentKey
-	Operation
-	SelfReference
-	OpenBracket
-	CloseBracket
-	OpenCollect
-	CloseCollect
-	Value // e.g. string, int
-)
-
 type OperationType struct {
 	Type       string
 	NumArgs    uint // number of arguments to the op
 	Precedence uint
 	Handler    OperatorHandler
 }
-
-var None = &OperationType{Type: "NONE", NumArgs: 0, Precedence: 0}
 
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
@@ -49,6 +33,12 @@ var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: Pip
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
+var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
+
+var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
+var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
+var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
+
 var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 
 // not sure yet
@@ -63,31 +53,25 @@ var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 40, Han
 // filters matches if they have the existing path
 
 type PathElement struct {
-	PathElementType PathElementType
-	OperationType   *OperationType
-	Value           interface{}
-	StringValue     string
-	CandidateNode   *CandidateNode // used for Value Path elements
+	OperationType *OperationType
+	Value         interface{}
+	StringValue   string
+	CandidateNode *CandidateNode // used for Value Path elements
 }
 
 // debugging purposes only
 func (p *PathElement) toString() string {
-	var result string = ``
-	switch p.PathElementType {
-	case PathKey:
-		result = result + fmt.Sprintf("%v", p.Value)
-	case DocumentKey:
-		result = result + fmt.Sprintf("D%v", p.Value)
-	case SelfReference:
-		result = result + fmt.Sprintf("SELF")
-	case Operation:
-		result = result + fmt.Sprintf("%v", p.OperationType.Type)
-	case Value:
-		result = result + fmt.Sprintf("%v (%T)", p.Value, p.Value)
-	default:
-		result = result + "I HAVENT GOT A STRATEGY"
+	if p.OperationType == TraversePath {
+		return fmt.Sprintf("%v", p.Value)
+	} else if p.OperationType == DocumentFilter {
+		return fmt.Sprintf("d%v", p.Value)
+	} else if p.OperationType == SelfReference {
+		return "SELF"
+	} else if p.OperationType == ValueOp {
+		return fmt.Sprintf("%v (%T)", p.Value, p.Value)
+	} else {
+		return fmt.Sprintf("%v", p.OperationType.Type)
 	}
-	return result
 }
 
 type YqTreeLib interface {

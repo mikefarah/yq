@@ -11,12 +11,21 @@ func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
 	return nil, nil
 }
 
+type TokenType uint32
+
+const (
+	Operation = 1 << iota
+	OpenBracket
+	CloseBracket
+	OpenCollect
+	CloseCollect
+)
+
 type Token struct {
-	PathElementType PathElementType
-	OperationType   *OperationType
-	Value           interface{}
-	StringValue     string
-	PrefixSelf      bool
+	TokenType     TokenType
+	OperationType *OperationType
+	Value         interface{}
+	StringValue   string
 
 	CheckForPostTraverse bool // e.g. [1]cat should really be [1].cat
 }
@@ -28,7 +37,13 @@ func pathToken(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{PathElementType: PathKey, OperationType: None, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
+		return &Token{TokenType: Operation, OperationType: TraversePath, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
+	}
+}
+
+func literalPathToken(value string) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return &Token{TokenType: Operation, OperationType: TraversePath, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -40,20 +55,20 @@ func documentToken() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: DocumentKey, OperationType: None, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+		return &Token{TokenType: Operation, OperationType: DocumentFilter, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
 	}
 }
 
 func opToken(op *OperationType) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		return &Token{PathElementType: Operation, OperationType: op, Value: op.Type, StringValue: value}, nil
+		return &Token{TokenType: Operation, OperationType: op, Value: op.Type, StringValue: value}, nil
 	}
 }
 
-func literalToken(pType PathElementType, literal string, checkForPost bool) lex.Action {
+func literalToken(pType TokenType, literal string, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: pType, OperationType: None, Value: literal, StringValue: literal, CheckForPostTraverse: checkForPost}, nil
+		return &Token{TokenType: Operation, OperationType: ValueOp, Value: literal, StringValue: literal, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -73,7 +88,7 @@ func arrayIndextoken(precedingDot bool) lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: PathKey, OperationType: None, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+		return &Token{TokenType: Operation, OperationType: TraversePath, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -84,7 +99,7 @@ func numberValue() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: Value, OperationType: None, Value: number, StringValue: numberString}, nil
+		return &Token{TokenType: Operation, OperationType: ValueOp, Value: number, StringValue: numberString}, nil
 	}
 }
 
@@ -95,13 +110,13 @@ func floatValue() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{PathElementType: Value, OperationType: None, Value: number, StringValue: numberString}, nil
+		return &Token{TokenType: Operation, OperationType: ValueOp, Value: number, StringValue: numberString}, nil
 	}
 }
 
 func booleanValue(val bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: Value, OperationType: None, Value: val, StringValue: string(m.Bytes)}, nil
+		return &Token{TokenType: Operation, OperationType: ValueOp, Value: val, StringValue: string(m.Bytes)}, nil
 	}
 }
 
@@ -111,13 +126,13 @@ func stringValue(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{PathElementType: Value, OperationType: None, Value: value, StringValue: value}, nil
+		return &Token{TokenType: Operation, OperationType: ValueOp, Value: value, StringValue: value}, nil
 	}
 }
 
 func selfToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{PathElementType: SelfReference, OperationType: None, Value: "SELF", StringValue: "SELF"}, nil
+		return &Token{TokenType: Operation, OperationType: SelfReference}, nil
 	}
 }
 
@@ -127,7 +142,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", false))
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", true))
 
-	lexer.Add([]byte(`\.?\[\]`), literalToken(PathKey, "[]", true))
+	lexer.Add([]byte(`\.?\[\]`), literalPathToken("[]"))
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))
@@ -218,8 +233,8 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 		postProcessedTokens = append(postProcessedTokens, token)
 
 		if index != len(tokens)-1 && token.CheckForPostTraverse &&
-			tokens[index+1].PathElementType == PathKey {
-			postProcessedTokens = append(postProcessedTokens, &Token{PathElementType: Operation, OperationType: Pipe, Value: "PIPE"})
+			tokens[index+1].OperationType == TraversePath {
+			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: Operation, OperationType: Pipe, Value: "PIPE"})
 		}
 	}
 

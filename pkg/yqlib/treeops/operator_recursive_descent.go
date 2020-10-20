@@ -16,11 +16,14 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *orderedmap.Ordered
 }
 
 func recursiveDecent(d *dataTreeNavigator, results *orderedmap.OrderedMap, matchMap *orderedmap.OrderedMap) error {
+	splatPathElement := &PathElement{OperationType: TraversePath, Value: "[]"}
+	splatTreeNode := &PathTreeNode{PathElement: splatPathElement}
+
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		results.Set(candidate.GetKey(), candidate)
 
-		children, err := d.traverse(nodeToMap(candidate), &PathElement{PathElementType: PathKey, Value: "[]"})
+		children, err := TraversePathOperator(d, nodeToMap(candidate), splatTreeNode)
 
 		if err != nil {
 			return err

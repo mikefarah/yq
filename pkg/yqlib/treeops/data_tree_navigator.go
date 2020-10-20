@@ -8,7 +8,7 @@ import (
 )
 
 type dataTreeNavigator struct {
-	leafTraverser LeafTraverser
+	navigationPrefs NavigationPrefs
 }
 
 type NavigationPrefs struct {
@@ -20,27 +20,7 @@ type DataTreeNavigator interface {
 }
 
 func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
-	leafTraverser := NewLeafTraverser(navigationPrefs)
-	return &dataTreeNavigator{leafTraverser}
-}
-
-func (d *dataTreeNavigator) traverse(matchMap *orderedmap.OrderedMap, pathNode *PathElement) (*orderedmap.OrderedMap, error) {
-	log.Debugf("-- Traversing")
-	var matchingNodeMap = orderedmap.NewOrderedMap()
-	var newNodes []*CandidateNode
-	var err error
-
-	for el := matchMap.Front(); el != nil; el = el.Next() {
-		newNodes, err = d.leafTraverser.Traverse(el.Value.(*CandidateNode), pathNode)
-		if err != nil {
-			return nil, err
-		}
-		for _, n := range newNodes {
-			matchingNodeMap.Set(n.GetKey(), n)
-		}
-	}
-
-	return matchingNodeMap, nil
+	return &dataTreeNavigator{navigationPrefs}
 }
 
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
@@ -75,19 +55,10 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 		}
 	}
 	log.Debug(">>")
-
-	if pathNode.PathElement.PathElementType == SelfReference {
-		return matchingNodes, nil
-	} else if pathNode.PathElement.PathElementType == PathKey {
-		return d.traverse(matchingNodes, pathNode.PathElement)
-	} else if pathNode.PathElement.PathElementType == Value {
-		return nodeToMap(pathNode.PathElement.CandidateNode), nil
-	} else {
-		handler := pathNode.PathElement.OperationType.Handler
-		if handler != nil {
-			return handler(d, matchingNodes, pathNode)
-		}
-		return nil, fmt.Errorf("Unknown operator %v", pathNode.PathElement.OperationType)
+	handler := pathNode.PathElement.OperationType.Handler
+	if handler != nil {
+		return handler(d, matchingNodes, pathNode)
 	}
+	return nil, fmt.Errorf("Unknown operator %v", pathNode.PathElement.OperationType)
 
 }

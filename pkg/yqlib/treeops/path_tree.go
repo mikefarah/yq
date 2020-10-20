@@ -46,7 +46,7 @@ func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeN
 	for _, pathElement := range postFixPath {
 		var newNode = PathTreeNode{PathElement: pathElement}
 		log.Debugf("pathTree %v ", pathElement.toString())
-		if pathElement.PathElementType == Operation && pathElement.OperationType.NumArgs > 0 {
+		if pathElement.OperationType.NumArgs > 0 {
 			numArgs := pathElement.OperationType.NumArgs
 			if numArgs == 1 {
 				remaining, rhs := stack[:len(stack)-1], stack[len(stack)-1]
