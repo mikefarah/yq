@@ -41,22 +41,22 @@ var pathTests = []struct {
 	// {`.[].a`, append(make([]interface{}, 0), "[]", "PIPE", "a")},
 	{
 		`d0.a`,
-		append(make([]interface{}, 0), int64(0), "PIPE", "a"),
-		append(make([]interface{}, 0), "D0", "a", "PIPE"),
+		append(make([]interface{}, 0), "d0", "PIPE", "a"),
+		append(make([]interface{}, 0), "d0", "a", "PIPE"),
 	},
 	{
 		`.a | (.[].b == "apple")`,
-		append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple", ")"),
+		append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple (string)", ")"),
 		append(make([]interface{}, 0), "a", "[]", "b", "PIPE", "apple (string)", "EQUALS", "PIPE"),
 	},
 	{
 		`.[] | select(. == "*at")`,
-		append(make([]interface{}, 0), "[]", "PIPE", "SELECT", "(", "SELF", "EQUALS", "*at", ")"),
+		append(make([]interface{}, 0), "[]", "PIPE", "SELECT", "(", "SELF", "EQUALS", "*at (string)", ")"),
 		append(make([]interface{}, 0), "[]", "SELF", "*at (string)", "EQUALS", "SELECT", "PIPE"),
 	},
 	{
 		`[true]`,
-		append(make([]interface{}, 0), "[", true, "]"),
+		append(make([]interface{}, 0), "[", "true (bool)", "]"),
 		append(make([]interface{}, 0), "true (bool)", "COLLECT", "PIPE"),
 	},
 
@@ -91,7 +91,7 @@ func TestPathParsing(t *testing.T) {
 		}
 		var tokenValues []interface{}
 		for _, token := range tokens {
-			tokenValues = append(tokenValues, token.Value)
+			tokenValues = append(tokenValues, token.toString())
 		}
 		test.AssertResultComplexWithContext(t, tt.expectedTokens, tokenValues, fmt.Sprintf("tokenise: %v", tt.path))
 

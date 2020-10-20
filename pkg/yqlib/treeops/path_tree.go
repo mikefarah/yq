@@ -6,14 +6,14 @@ var myPathTokeniser = NewPathTokeniser()
 var myPathPostfixer = NewPathPostFixer()
 
 type PathTreeNode struct {
-	PathElement *PathElement
+	Operation *Operation
 	Lhs         *PathTreeNode
 	Rhs         *PathTreeNode
 }
 
 type PathTreeCreator interface {
 	ParsePath(path string) (*PathTreeNode, error)
-	CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error)
+	CreatePathTree(postFixPath []*Operation) (*PathTreeNode, error)
 }
 
 type pathTreeCreator struct {
@@ -28,26 +28,26 @@ func (p *pathTreeCreator) ParsePath(path string) (*PathTreeNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	var pathElements []*PathElement
-	pathElements, err = myPathPostfixer.ConvertToPostfix(tokens)
+	var Operations []*Operation
+	Operations, err = myPathPostfixer.ConvertToPostfix(tokens)
 	if err != nil {
 		return nil, err
 	}
-	return p.CreatePathTree(pathElements)
+	return p.CreatePathTree(Operations)
 }
 
-func (p *pathTreeCreator) CreatePathTree(postFixPath []*PathElement) (*PathTreeNode, error) {
+func (p *pathTreeCreator) CreatePathTree(postFixPath []*Operation) (*PathTreeNode, error) {
 	var stack = make([]*PathTreeNode, 0)
 
 	if len(postFixPath) == 0 {
 		return nil, nil
 	}
 
-	for _, pathElement := range postFixPath {
-		var newNode = PathTreeNode{PathElement: pathElement}
-		log.Debugf("pathTree %v ", pathElement.toString())
-		if pathElement.OperationType.NumArgs > 0 {
-			numArgs := pathElement.OperationType.NumArgs
+	for _, Operation := range postFixPath {
+		var newNode = PathTreeNode{Operation: Operation}
+		log.Debugf("pathTree %v ", Operation.toString())
+		if Operation.OperationType.NumArgs > 0 {
+			numArgs := Operation.OperationType.NumArgs
 			if numArgs == 1 {
 				remaining, rhs := stack[:len(stack)-1], stack[len(stack)-1]
 				newNode.Rhs = rhs

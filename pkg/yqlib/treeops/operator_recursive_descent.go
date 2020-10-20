@@ -16,8 +16,8 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *orderedmap.Ordered
 }
 
 func recursiveDecent(d *dataTreeNavigator, results *orderedmap.OrderedMap, matchMap *orderedmap.OrderedMap) error {
-	splatPathElement := &PathElement{OperationType: TraversePath, Value: "[]"}
-	splatTreeNode := &PathTreeNode{PathElement: splatPathElement}
+	splatOperation := &Operation{OperationType: TraversePath, Value: "[]"}
+	splatTreeNode := &PathTreeNode{Operation: splatOperation}
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

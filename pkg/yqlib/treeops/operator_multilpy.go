@@ -61,12 +61,12 @@ func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Ca
 
 func createTraversalTree(path []interface{}) *PathTreeNode {
 	if len(path) == 0 {
-		return &PathTreeNode{PathElement: &PathElement{OperationType: SelfReference}}
+		return &PathTreeNode{Operation: &Operation{OperationType: SelfReference}}
 	} else if len(path) == 1 {
-		return &PathTreeNode{PathElement: &PathElement{OperationType: TraversePath, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
+		return &PathTreeNode{Operation: &Operation{OperationType: TraversePath, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
 	}
 	return &PathTreeNode{
-		PathElement: &PathElement{OperationType: Pipe},
+		Operation: &Operation{OperationType: Pipe},
 		Lhs:         createTraversalTree(path[0:1]),
 		Rhs:         createTraversalTree(path[1:])}
 
@@ -77,13 +77,13 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
 
-	assignmentOp := &PathElement{OperationType: AssignAttributes}
+	assignmentOp := &Operation{OperationType: AssignAttributes}
 	if rhs.Node.Kind == yaml.ScalarNode {
 		assignmentOp.OperationType = Assign
 	}
-	rhsOp := &PathElement{OperationType: ValueOp, CandidateNode: rhs}
+	rhsOp := &Operation{OperationType: ValueOp, CandidateNode: rhs}
 
-	assignmentOpNode := &PathTreeNode{PathElement: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &PathTreeNode{PathElement: rhsOp}}
+	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &PathTreeNode{Operation: rhsOp}}
 
 	_, err := d.getMatchingNodes(nodeToMap(lhs), assignmentOpNode)
 

@@ -7,7 +7,7 @@ import (
 )
 
 type PathPostFixer interface {
-	ConvertToPostfix([]*Token) ([]*PathElement, error)
+	ConvertToPostfix([]*Token) ([]*Operation, error)
 }
 
 type pathPostFixer struct {
@@ -17,27 +17,20 @@ func NewPathPostFixer() PathPostFixer {
 	return &pathPostFixer{}
 }
 
-func popOpToResult(opStack []*Token, result []*PathElement) ([]*Token, []*PathElement) {
+func popOpToResult(opStack []*Token, result []*Operation) ([]*Token, []*Operation) {
 	var newOp *Token
 	opStack, newOp = opStack[0:len(opStack)-1], opStack[len(opStack)-1]
-	var pathElement = PathElement{OperationType: newOp.OperationType, Value: newOp.Value, StringValue: newOp.StringValue}
-
-	if newOp.OperationType == ValueOp {
-		var candidateNode = BuildCandidateNodeFrom(newOp)
-		pathElement.CandidateNode = candidateNode
-	}
-
-	return opStack, append(result, &pathElement)
+	return opStack, append(result, newOp.Operation)
 }
 
-func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, error) {
-	var result []*PathElement
+func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*Operation, error) {
+	var result []*Operation
 	// surround the whole thing with quotes
-	var opStack = []*Token{&Token{TokenType: OpenBracket, Value: "("}}
-	var tokens = append(infixTokens, &Token{TokenType: CloseBracket, Value: ")"})
+	var opStack = []*Token{&Token{TokenType: OpenBracket}}
+	var tokens = append(infixTokens, &Token{TokenType: CloseBracket})
 
 	for _, token := range tokens {
-		log.Debugf("postfix processing token %v", token.Value)
+		log.Debugf("postfix processing token %v, %v", token.toString(), token.Operation)
 		switch token.TokenType {
 		case OpenBracket, OpenCollect:
 			opStack = append(opStack, token)
@@ -51,8 +44,8 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, 
 			// now we should have [] as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
-			opStack = append(opStack, &Token{TokenType: Operation, OperationType: Pipe})
-			opStack = append(opStack, &Token{TokenType: Operation, OperationType: Collect})
+			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: Pipe}})
+			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: Collect}})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenBracket {
 				opStack, result = popOpToResult(opStack, result)
@@ -64,9 +57,11 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*PathElement, 
 			opStack = opStack[0 : len(opStack)-1]
 
 		default:
-			var currentPrecedence = token.OperationType.Precedence
+			var currentPrecedence = token.Operation.OperationType.Precedence
 			// pop off higher precedent operators onto the result
-			for len(opStack) > 0 && opStack[len(opStack)-1].OperationType.Precedence >= currentPrecedence {
+			for len(opStack) > 0 &&
+				opStack[len(opStack)-1].TokenType == OperationToken &&
+				opStack[len(opStack)-1].Operation.OperationType.Precedence >= currentPrecedence {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			// add this operator to the opStack

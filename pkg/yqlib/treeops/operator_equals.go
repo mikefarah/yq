@@ -34,7 +34,7 @@ func hasMatch(d *dataTreeNavigator, candidate *CandidateNode, lhs *PathTreeNode,
 	}
 
 	// TODO = handle other RHS types
-	return containsMatchingValue(childMatches, rhs.PathElement.StringValue), nil
+	return containsMatchingValue(childMatches, rhs.Operation.StringValue), nil
 }
 
 func containsMatchingValue(matchMap *orderedmap.OrderedMap, valuePattern string) bool {

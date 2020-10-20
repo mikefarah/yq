@@ -14,7 +14,7 @@ func TraversePathOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap,
 	var err error
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
-		newNodes, err = traverse(d, el.Value.(*CandidateNode), pathNode.PathElement)
+		newNodes, err = traverse(d, el.Value.(*CandidateNode), pathNode.Operation)
 		if err != nil {
 			return nil, err
 		}
@@ -26,7 +26,7 @@ func TraversePathOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap,
 	return matchingNodeMap, nil
 }
 
-func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
+func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
@@ -78,11 +78,11 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *PathE
 	}
 }
 
-func keyMatches(key *yaml.Node, pathNode *PathElement) bool {
+func keyMatches(key *yaml.Node, pathNode *Operation) bool {
 	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
 }
 
-func traverseMap(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
+func traverseMap(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
@@ -123,7 +123,7 @@ func traverseMap(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateN
 	return newMatches, nil
 }
 
-func traverseArray(candidate *CandidateNode, pathNode *PathElement) ([]*CandidateNode, error) {
+func traverseArray(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
 	log.Debug("pathNode Value %v", pathNode.Value)
 	if pathNode.Value == "[]" {
 

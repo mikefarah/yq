@@ -36,8 +36,8 @@ var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handle
 var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 
 var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
-var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
-var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
+var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}
+var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: ValueOperator}
 
 var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 
@@ -52,15 +52,38 @@ var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 40, Han
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
 // filters matches if they have the existing path
 
-type PathElement struct {
+type Operation struct {
 	OperationType *OperationType
 	Value         interface{}
 	StringValue   string
 	CandidateNode *CandidateNode // used for Value Path elements
 }
 
+func CreateValueOperation(value interface{}, stringValue string) *Operation {
+	var node yaml.Node = yaml.Node{Kind: yaml.ScalarNode}
+	node.Value = stringValue
+
+	switch value.(type) {
+	case float32, float64:
+		node.Tag = "!!float"
+	case int, int64, int32:
+		node.Tag = "!!int"
+	case bool:
+		node.Tag = "!!bool"
+	case string:
+		node.Tag = "!!str"
+	}
+
+	return &Operation{
+		OperationType: ValueOp,
+		Value:         value,
+		StringValue:   stringValue,
+		CandidateNode: &CandidateNode{Node: &node},
+	}
+}
+
 // debugging purposes only
-func (p *PathElement) toString() string {
+func (p *Operation) toString() string {
 	if p.OperationType == TraversePath {
 		return fmt.Sprintf("%v", p.Value)
 	} else if p.OperationType == DocumentFilter {

@@ -48,17 +48,17 @@ func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMa
 		log.Debugf("getMatchingNodes - nothing to do")
 		return matchingNodes, nil
 	}
-	log.Debugf("Processing Path: %v", pathNode.PathElement.toString())
+	log.Debugf("Processing Op: %v", pathNode.Operation.toString())
 	if log.IsEnabledFor(logging.DEBUG) {
 		for el := matchingNodes.Front(); el != nil; el = el.Next() {
 			log.Debug(NodeToString(el.Value.(*CandidateNode)))
 		}
 	}
 	log.Debug(">>")
-	handler := pathNode.PathElement.OperationType.Handler
+	handler := pathNode.Operation.OperationType.Handler
 	if handler != nil {
 		return handler(d, matchingNodes, pathNode)
 	}
-	return nil, fmt.Errorf("Unknown operator %v", pathNode.PathElement.OperationType)
+	return nil, fmt.Errorf("Unknown operator %v", pathNode.Operation.OperationType)
 
 }

@@ -11,7 +11,8 @@ var valueOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!int)::1\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `-1`,
 		expected: []string{

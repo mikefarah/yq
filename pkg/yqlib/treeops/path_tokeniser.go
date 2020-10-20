@@ -1,6 +1,7 @@
 package treeops
 
 import (
+	"fmt"
 	"strconv"
 
 	lex "github.com/timtadh/lexmachine"
@@ -14,7 +15,7 @@ func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
 type TokenType uint32
 
 const (
-	Operation = 1 << iota
+	OperationToken = 1 << iota
 	OpenBracket
 	CloseBracket
 	OpenCollect
@@ -22,12 +23,26 @@ const (
 )
 
 type Token struct {
-	TokenType     TokenType
-	OperationType *OperationType
-	Value         interface{}
-	StringValue   string
+	TokenType TokenType
+	Operation *Operation
 
 	CheckForPostTraverse bool // e.g. [1]cat should really be [1].cat
+}
+
+func (t *Token) toString() string {
+	if t.TokenType == OperationToken {
+		return t.Operation.toString()
+	} else if t.TokenType == OpenBracket {
+		return "("
+	} else if t.TokenType == CloseBracket {
+		return ")"
+	} else if t.TokenType == OpenCollect {
+		return "["
+	} else if t.TokenType == CloseCollect {
+		return "]"
+	} else {
+		return fmt.Sprintf("NFI")
+	}
 }
 
 func pathToken(wrapped bool) lex.Action {
@@ -37,13 +52,15 @@ func pathToken(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{TokenType: Operation, OperationType: TraversePath, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
+		op := &Operation{OperationType: TraversePath, Value: value, StringValue: value}
+		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
 func literalPathToken(value string) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: Operation, OperationType: TraversePath, Value: value, StringValue: value, CheckForPostTraverse: true}, nil
+		op := &Operation{OperationType: TraversePath, Value: value, StringValue: value}
+		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -55,20 +72,22 @@ func documentToken() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{TokenType: Operation, OperationType: DocumentFilter, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+		op := &Operation{OperationType: DocumentFilter, Value: number, StringValue: numberString}
+		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
 func opToken(op *OperationType) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		return &Token{TokenType: Operation, OperationType: op, Value: op.Type, StringValue: value}, nil
+		op := &Operation{OperationType: op, Value: op.Type, StringValue: value}
+		return &Token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
-func literalToken(pType TokenType, literal string, checkForPost bool) lex.Action {
+func literalToken(pType TokenType, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: Operation, OperationType: ValueOp, Value: literal, StringValue: literal, CheckForPostTraverse: checkForPost}, nil
+		return &Token{TokenType: pType, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -88,7 +107,8 @@ func arrayIndextoken(precedingDot bool) lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{TokenType: Operation, OperationType: TraversePath, Value: number, StringValue: numberString, CheckForPostTraverse: true}, nil
+		op := &Operation{OperationType: TraversePath, Value: number, StringValue: numberString}
+		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -99,7 +119,8 @@ func numberValue() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{TokenType: Operation, OperationType: ValueOp, Value: number, StringValue: numberString}, nil
+
+		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
 	}
 }
 
@@ -110,13 +131,13 @@ func floatValue() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{TokenType: Operation, OperationType: ValueOp, Value: number, StringValue: numberString}, nil
+		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
 	}
 }
 
 func booleanValue(val bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: Operation, OperationType: ValueOp, Value: val, StringValue: string(m.Bytes)}, nil
+		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(val, string(m.Bytes))}, nil
 	}
 }
 
@@ -126,21 +147,22 @@ func stringValue(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{TokenType: Operation, OperationType: ValueOp, Value: value, StringValue: value}, nil
+		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(value, value)}, nil
 	}
 }
 
 func selfToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: Operation, OperationType: SelfReference}, nil
+		op := &Operation{OperationType: SelfReference}
+		return &Token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
 // Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
-	lexer.Add([]byte(`\(`), literalToken(OpenBracket, "(", false))
-	lexer.Add([]byte(`\)`), literalToken(CloseBracket, ")", true))
+	lexer.Add([]byte(`\(`), literalToken(OpenBracket, false))
+	lexer.Add([]byte(`\)`), literalToken(CloseBracket, true))
 
 	lexer.Add([]byte(`\.?\[\]`), literalPathToken("[]"))
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
@@ -180,8 +202,8 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`"[^ "]+"`), stringValue(true))
 
-	lexer.Add([]byte(`\[`), literalToken(OpenCollect, "[", false))
-	lexer.Add([]byte(`\]`), literalToken(CloseCollect, "]", true))
+	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
+	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))
 	lexer.Add([]byte(`\*`), opToken(Multiply))
 
 	// lexer.Add([]byte(`[^ \,\|\.\[\(\)=]+`), stringValue(false))
@@ -219,7 +241,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 
 		if tok != nil {
 			token := tok.(*Token)
-			log.Debugf("Tokenising %v - %v", token.Value, token.OperationType.Type)
+			log.Debugf("Tokenising %v", token.toString())
 			tokens = append(tokens, token)
 		}
 		if err != nil {
@@ -233,8 +255,10 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 		postProcessedTokens = append(postProcessedTokens, token)
 
 		if index != len(tokens)-1 && token.CheckForPostTraverse &&
-			tokens[index+1].OperationType == TraversePath {
-			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: Operation, OperationType: Pipe, Value: "PIPE"})
+			tokens[index+1].TokenType == OperationToken &&
+			tokens[index+1].Operation.OperationType == TraversePath {
+			op := &Operation{OperationType: Pipe, Value: "PIPE"}
+			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
 		}
 	}
 
