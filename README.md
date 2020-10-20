@@ -17,12 +17,6 @@ Using [Homebrew](https://brew.sh/)
 brew install yq
 ```
 
-Using [MacPorts](https://www.macports.org/)
-```
-sudo port selfupdate
-sudo port install yq
-```
-
 ### Ubuntu and other Linux distros supporting `snap` packages:
 ```
 snap install yq
@@ -94,6 +88,14 @@ As these are supported by the community :heart: - however, they may be out of da
 choco install yq
 ```
 Supported by @chillum (https://chocolatey.org/packages/yq)
+
+### Mac:
+Using [MacPorts](https://www.macports.org/)
+```
+sudo port selfupdate
+sudo port install yq
+```
+Supported by @herbygillot (https://ports.macports.org/maintainer/github/herbygillot)
 
 ### Alpine Linux
 - Enable edge/community repo by adding ```$MIRROR/alpine/edge/community``` to ```/etc/apk/repositories```
@@ -167,6 +169,12 @@ Use "yq [command] --help" for more information about a command.
 
 ## Upgrade from V2
 If you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
+
+## V4 is in development!
+Beta will soon be released for community feedback!
+V4 will be quite different from V3 (sorry for the migration), however it will be much more similar to ```jq```, use a similar expression syntax and therefore support much more complex functionality!
+
+For now - new features will be held off from V3 in anticipation of the V4 build. Critical fixes / issues will still be released.
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
