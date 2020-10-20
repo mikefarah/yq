@@ -67,6 +67,20 @@ var valueOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!bool)::false\n",
 		},
 	},
+	{
+		document:   ``,
+		expression: `Null`,
+		expected: []string{
+			"D0, P[], (!!null)::Null\n",
+		},
+	},
+	{
+		document:   ``,
+		expression: `~`,
+		expected: []string{
+			"D0, P[], (!!null)::~\n",
+		},
+	},
 }
 
 func TestValueOperatorScenarios(t *testing.T) {

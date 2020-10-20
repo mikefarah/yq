@@ -151,6 +151,12 @@ func stringValue(wrapped bool) lex.Action {
 	}
 }
 
+func nullValue() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(nil, string(m.Bytes))}, nil
+	}
+}
+
 func selfToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		op := &Operation{OperationType: SelfReference}
@@ -199,6 +205,9 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`[Tt][Rr][Uu][Ee]`), booleanValue(true))
 	lexer.Add([]byte(`[Ff][Aa][Ll][Ss][Ee]`), booleanValue(false))
+
+	lexer.Add([]byte(`[Nn][Uu][Ll][Ll]`), nullValue())
+	lexer.Add([]byte(`~`), nullValue())
 
 	lexer.Add([]byte(`"[^ "]+"`), stringValue(true))
 

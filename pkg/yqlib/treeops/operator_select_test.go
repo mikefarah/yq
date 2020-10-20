@@ -35,6 +35,12 @@ var selectOperatorScenarios = []expressionScenario{
 			"D0, P[a things], (!!map)::{include: true}\n",
 			"D0, P[a andMe], (!!map)::{include: fold}\n",
 		},
+	}, {
+		document:   `[cat,~,dog]`,
+		expression: `.[] | select(. == ~)`,
+		expected: []string{
+			"D0, P[1], (!!null)::~\n",
+		},
 	},
 }
 

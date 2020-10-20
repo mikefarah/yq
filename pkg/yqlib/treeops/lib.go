@@ -72,6 +72,8 @@ func CreateValueOperation(value interface{}, stringValue string) *Operation {
 		node.Tag = "!!bool"
 	case string:
 		node.Tag = "!!str"
+	case nil:
+		node.Tag = "!!null"
 	}
 
 	return &Operation{
