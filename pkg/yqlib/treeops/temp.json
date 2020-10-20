@@ -1,6 +1,10 @@
 {
   "a": {
-    "cat": "apple",
-    "mad": "things"
+    "also": [
+      1
+    ]
+  },
+  "b": {
+    "also": "me"
   }
 }

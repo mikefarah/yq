@@ -38,6 +38,7 @@ var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence:
 var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}
 var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: ValueOperator}
+var Not = &OperationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: NotOperator}
 
 var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 

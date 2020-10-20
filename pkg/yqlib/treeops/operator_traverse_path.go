@@ -110,7 +110,7 @@ func traverseMap(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNod
 	}
 	if len(newMatches) == 0 {
 		//no matches, create one automagically
-		valueNode := &yaml.Node{}
+		valueNode := &yaml.Node{Tag: "!!null"}
 		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: pathNode.StringValue}, valueNode)
 		newMatches = append(newMatches, &CandidateNode{
 			Node:     valueNode,
@@ -145,7 +145,7 @@ func traverseArray(candidate *CandidateNode, pathNode *Operation) ([]*CandidateN
 	indexToUse := index
 	contentLength := int64(len(candidate.Node.Content))
 	for contentLength <= index {
-		candidate.Node.Content = append(candidate.Node.Content, &yaml.Node{})
+		candidate.Node.Content = append(candidate.Node.Content, &yaml.Node{Tag: "!!null"})
 		contentLength = int64(len(candidate.Node.Content))
 	}
 

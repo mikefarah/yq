@@ -177,6 +177,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`length`), opToken(Length))
 	lexer.Add([]byte(`select`), opToken(Select))
 	lexer.Add([]byte(`or`), opToken(Or))
+	lexer.Add([]byte(`not`), opToken(Not))
 	// lexer.Add([]byte(`and`), opToken())
 	lexer.Add([]byte(`collect`), opToken(Collect))
 

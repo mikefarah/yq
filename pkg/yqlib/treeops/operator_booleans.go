@@ -8,6 +8,9 @@ import (
 func isTruthy(c *CandidateNode) (bool, error) {
 	node := c.Node
 	value := true
+	if node.Tag == "!!null" {
+		return false, nil
+	}
 	if node.Kind == yaml.ScalarNode && node.Tag == "!!bool" {
 		errDecoding := node.Decode(&value)
 		if errDecoding != nil {

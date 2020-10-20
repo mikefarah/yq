@@ -66,6 +66,23 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a mad], (!!str)::things\n",
 		},
 	},
+	{
+		document:   `{a: {cat: apple, mad: things}}`,
+		expression: `.a | (.cat, .mad, .fad)`,
+		expected: []string{
+			"D0, P[a cat], (!!str)::apple\n",
+			"D0, P[a mad], (!!str)::things\n",
+			"D0, P[a fad], ()::null\n",
+		},
+	},
+	{
+		document:   `{a: {cat: apple, mad: things}}`,
+		expression: `.a | (.cat, .mad, .fad) | select( (. == null) | not)`,
+		expected: []string{
+			"D0, P[a cat], (!!str)::apple\n",
+			"D0, P[a mad], (!!str)::things\n",
+		},
+	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {

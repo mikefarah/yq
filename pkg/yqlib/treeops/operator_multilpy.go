@@ -7,7 +7,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+type CrossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
+
+func crossFunction(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode, calculation CrossFunctionCalculation) (*orderedmap.OrderedMap, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -26,7 +28,7 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap
 
 		for rightEl := rhs.Front(); rightEl != nil; rightEl = rightEl.Next() {
 			rhsCandidate := rightEl.Value.(*CandidateNode)
-			resultCandidate, err := multiply(d, lhsCandidate, rhsCandidate)
+			resultCandidate, err := calculation(d, lhsCandidate, rhsCandidate)
 			if err != nil {
 				return nil, err
 			}
@@ -34,7 +36,12 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap
 		}
 
 	}
-	return matchingNodes, nil
+	return results, nil
+}
+
+func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+	log.Debugf("-- MultiplyOperator")
+	return crossFunction(d, matchingNodes, pathNode, multiply)
 }
 
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
@@ -67,8 +74,8 @@ func createTraversalTree(path []interface{}) *PathTreeNode {
 	}
 	return &PathTreeNode{
 		Operation: &Operation{OperationType: Pipe},
-		Lhs:         createTraversalTree(path[0:1]),
-		Rhs:         createTraversalTree(path[1:])}
+		Lhs:       createTraversalTree(path[0:1]),
+		Rhs:       createTraversalTree(path[1:])}
 
 }
 
