@@ -8,6 +8,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func Splat(d *dataTreeNavigator, matches *list.List) (*list.List, error) {
+	splatOperation := &Operation{OperationType: TraversePath, Value: "[]"}
+	splatTreeNode := &PathTreeNode{Operation: splatOperation}
+	return TraversePathOperator(d, matches, splatTreeNode)
+}
+
 func TraversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- Traversing")
 	var matchingNodeMap = list.New()

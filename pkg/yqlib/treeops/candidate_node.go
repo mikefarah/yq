@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v3"
 )
 
@@ -16,6 +17,12 @@ type CandidateNode struct {
 
 func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v - %v - %v", n.Document, n.Path, n.Node.Value)
+}
+
+func (n *CandidateNode) Copy() *CandidateNode {
+	clone := &CandidateNode{}
+	copier.Copy(clone, n)
+	return clone
 }
 
 // updates this candidate from the given candidate node
@@ -34,7 +41,10 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	}
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
-	n.Node.Style = other.Node.Style
+	// not sure if this ever should happen here...
+	// if other.Node.Style != 0 {
+	// 	n.Node.Style = other.Node.Style
+	// }
 	n.Node.FootComment = other.Node.FootComment
 	n.Node.HeadComment = other.Node.HeadComment
 	n.Node.LineComment = other.Node.LineComment

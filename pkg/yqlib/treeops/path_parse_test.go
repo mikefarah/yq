@@ -60,6 +60,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "true (bool)", "COLLECT", "PIPE"),
 	},
 	{
+		`[true, false]`,
+		append(make([]interface{}, 0), "[", "true (bool)", "UNION", "false (bool)", "]"),
+		append(make([]interface{}, 0), "true (bool)", "false (bool)", "UNION", "COLLECT", "PIPE"),
+	},
+	{
 		`"mike": .a`,
 		append(make([]interface{}, 0), "mike (string)", "CREATE_MAP", "a"),
 		append(make([]interface{}, 0), "mike (string)", "a", "CREATE_MAP"),
@@ -68,6 +73,21 @@ var pathTests = []struct {
 		`.a: "mike"`,
 		append(make([]interface{}, 0), "a", "CREATE_MAP", "mike (string)"),
 		append(make([]interface{}, 0), "a", "mike (string)", "CREATE_MAP"),
+	},
+	{
+		`{"mike": .a}`,
+		append(make([]interface{}, 0), "{", "mike (string)", "CREATE_MAP", "a", "}"),
+		append(make([]interface{}, 0), "mike (string)", "a", "CREATE_MAP", "COLLECT_OBJECT", "PIPE"),
+	},
+	{
+		`{.a: "mike"}`,
+		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "mike (string)", "}"),
+		append(make([]interface{}, 0), "a", "mike (string)", "CREATE_MAP", "COLLECT_OBJECT", "PIPE"),
+	},
+	{
+		`{.a: .c, .b[]: .f.g[]}`,
+		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "c", "UNION", "b", "PIPE", "[]", "CREATE_MAP", "f", "PIPE", "g", "PIPE", "[]", "}"),
+		append(make([]interface{}, 0), "a", "c", "CREATE_MAP", "b", "[]", "PIPE", "f", "g", "PIPE", "[]", "PIPE", "CREATE_MAP", "UNION", "COLLECT_OBJECT", "PIPE"),
 	},
 
 	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},

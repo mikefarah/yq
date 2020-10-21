@@ -32,10 +32,16 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*Operation, er
 	for _, token := range tokens {
 		log.Debugf("postfix processing token %v, %v", token.toString(), token.Operation)
 		switch token.TokenType {
-		case OpenBracket, OpenCollect:
+		case OpenBracket, OpenCollect, OpenCollectObject:
 			opStack = append(opStack, token)
-		case CloseCollect:
-			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenCollect {
+		case CloseCollect, CloseCollectObject:
+			var opener TokenType = OpenCollect
+			var collectOperator *OperationType = Collect
+			if token.TokenType == CloseCollectObject {
+				opener = OpenCollectObject
+				collectOperator = CollectObject
+			}
+			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != opener {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			if len(opStack) == 0 {
@@ -45,7 +51,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*Operation, er
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
 			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: Pipe}})
-			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: Collect}})
+			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: collectOperator}})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenBracket {
 				opStack, result = popOpToResult(opStack, result)

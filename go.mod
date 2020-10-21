@@ -4,6 +4,7 @@ require (
 	github.com/elliotchance/orderedmap v1.3.0 // indirect
 	github.com/fatih/color v1.9.0
 	github.com/goccy/go-yaml v1.8.1
+	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/pkg/errors v0.9.1
