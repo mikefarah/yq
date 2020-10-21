@@ -3,13 +3,14 @@ package treeops
 import (
 	"fmt"
 
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/yaml.v3"
 )
 
 type CrossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func crossFunction(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode, calculation CrossFunctionCalculation) (*orderedmap.OrderedMap, error) {
+func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, calculation CrossFunctionCalculation) (*list.List, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -21,7 +22,7 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, p
 		return nil, err
 	}
 
-	var results = orderedmap.NewOrderedMap()
+	var results = list.New()
 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		lhsCandidate := el.Value.(*CandidateNode)
@@ -32,14 +33,14 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, p
 			if err != nil {
 				return nil, err
 			}
-			results.Set(resultCandidate.GetKey(), resultCandidate)
+			results.PushBack(resultCandidate)
 		}
 
 	}
 	return results, nil
 }
 
-func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func MultiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- MultiplyOperator")
 	return crossFunction(d, matchingNodes, pathNode, multiply)
 }
@@ -47,7 +48,7 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
-		var results = orderedmap.NewOrderedMap()
+		var results = list.New()
 		recursiveDecent(d, results, nodeToMap(rhs))
 
 		var pathIndexToStartFrom int = 0

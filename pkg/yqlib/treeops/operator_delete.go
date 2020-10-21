@@ -1,11 +1,12 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/yaml.v3"
 )
 
-func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -16,8 +17,8 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordered
 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		elMap := orderedmap.NewOrderedMap()
-		elMap.Set(candidate.GetKey(), candidate)
+		elMap := list.New()
+		elMap.PushBack(candidate)
 		nodesToDelete, err := d.getMatchingNodes(elMap, pathNode.Rhs)
 		log.Debug("nodesToDelete:\n%v", NodesToString(nodesToDelete))
 		if err != nil {
@@ -35,7 +36,7 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *orderedmap.Ordered
 	return lhs, nil
 }
 
-func deleteFromMap(candidate *CandidateNode, nodesToDelete *orderedmap.OrderedMap) {
+func deleteFromMap(candidate *CandidateNode, nodesToDelete *list.List) {
 	log.Debug("deleteFromMap")
 	node := candidate.Node
 	contents := node.Content
@@ -50,7 +51,8 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *orderedmap.OrderedMa
 			Document: candidate.Document,
 			Path:     append(candidate.Path, key.Value),
 		}
-		_, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
+		// _, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
+		shouldDelete := true
 
 		log.Debugf("shouldDelete %v ? %v", childCandidate.GetKey(), shouldDelete)
 
@@ -61,7 +63,7 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *orderedmap.OrderedMa
 	node.Content = newContents
 }
 
-func deleteFromArray(candidate *CandidateNode, nodesToDelete *orderedmap.OrderedMap) {
+func deleteFromArray(candidate *CandidateNode, nodesToDelete *list.List) {
 	log.Debug("deleteFromArray")
 	node := candidate.Node
 	contents := node.Content
@@ -70,13 +72,14 @@ func deleteFromArray(candidate *CandidateNode, nodesToDelete *orderedmap.Ordered
 	for index := 0; index < len(contents); index = index + 1 {
 		value := contents[index]
 
-		childCandidate := &CandidateNode{
-			Node:     value,
-			Document: candidate.Document,
-			Path:     append(candidate.Path, index),
-		}
+		// childCandidate := &CandidateNode{
+		// 	Node:     value,
+		// 	Document: candidate.Document,
+		// 	Path:     append(candidate.Path, index),
+		// }
 
-		_, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
+		// _, shouldDelete := nodesToDelete.Get(childCandidate.GetKey())
+		shouldDelete := true
 		if !shouldDelete {
 			newContents = append(newContents, value)
 		}

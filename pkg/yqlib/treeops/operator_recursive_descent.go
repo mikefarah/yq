@@ -1,11 +1,11 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
 )
 
-func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
-	var results = orderedmap.NewOrderedMap()
+func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	var results = list.New()
 
 	err := recursiveDecent(d, results, matchMap)
 	if err != nil {
@@ -15,13 +15,13 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *orderedmap.Ordered
 	return results, nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *orderedmap.OrderedMap, matchMap *orderedmap.OrderedMap) error {
+func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List) error {
 	splatOperation := &Operation{OperationType: TraversePath, Value: "[]"}
 	splatTreeNode := &PathTreeNode{Operation: splatOperation}
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		results.Set(candidate.GetKey(), candidate)
+		results.PushBack(candidate)
 
 		children, err := TraversePathOperator(d, nodeToMap(candidate), splatTreeNode)
 

@@ -24,21 +24,21 @@ var traversePathOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `.a.b`,
 		expected: []string{
-			"D0, P[a b], ()::null\n",
+			"D0, P[a b], (!!null)::null\n",
 		},
 	},
 	{
 		document:   `{}`,
 		expression: `.[1].a`,
 		expected: []string{
-			"D0, P[1 a], ()::null\n",
+			"D0, P[1 a], (!!null)::null\n",
 		},
 	},
 	{
 		document:   `{}`,
 		expression: `.a.[1]`,
 		expected: []string{
-			"D0, P[a 1], ()::null\n",
+			"D0, P[a 1], (!!null)::null\n",
 		},
 	},
 	{
@@ -55,7 +55,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[a cat b], (!!int)::3\n",
 			"D0, P[a mad b], (!!int)::4\n",
-			"D0, P[a fad b], ()::null\n",
+			"D0, P[a fad b], (!!null)::null\n",
 		},
 	},
 	{
@@ -72,7 +72,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[a cat], (!!str)::apple\n",
 			"D0, P[a mad], (!!str)::things\n",
-			"D0, P[a fad], ()::null\n",
+			"D0, P[a fad], (!!null)::null\n",
 		},
 	},
 	{

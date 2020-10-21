@@ -1,14 +1,15 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/yaml.v3"
 )
 
-func CollectOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func CollectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- collectOperation")
 
-	var results = orderedmap.NewOrderedMap()
+	var results = list.New()
 
 	node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 
@@ -26,7 +27,7 @@ func CollectOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, path
 	}
 
 	collectC := &CandidateNode{Node: node, Document: document, Path: path}
-	results.Set(collectC.GetKey(), collectC)
+	results.PushBack(collectC)
 
 	return results, nil
 }

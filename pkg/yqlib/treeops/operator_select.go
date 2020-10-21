@@ -1,13 +1,13 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
 )
 
-func SelectOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func SelectOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("-- selectOperation")
-	var results = orderedmap.NewOrderedMap()
+	var results = list.New()
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -29,7 +29,7 @@ func SelectOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, 
 			}
 
 			if includeResult {
-				results.Set(candidate.GetKey(), candidate)
+				results.PushBack(candidate)
 			}
 		}
 	}

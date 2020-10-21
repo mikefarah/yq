@@ -1,10 +1,10 @@
 package treeops
 
-import "github.com/elliotchance/orderedmap"
+import "container/list"
 
-func NotOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func NotOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- notOperation")
-	var results = orderedmap.NewOrderedMap()
+	var results = list.New()
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -14,7 +14,7 @@ func NotOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode
 			return nil, errDecoding
 		}
 		result := createBooleanCandidate(candidate, !truthy)
-		results.Set(result.GetKey(), result)
+		results.PushBack(result)
 	}
 	return results, nil
 }

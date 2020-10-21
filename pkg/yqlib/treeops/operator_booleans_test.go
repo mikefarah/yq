@@ -22,6 +22,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		expression: `.[] or (false, true)`,
 		expected: []string{
 			"D0, P[a], (!!bool)::true\n",
+			"D0, P[a], (!!bool)::true\n",
 			"D0, P[b], (!!bool)::false\n",
 			"D0, P[b], (!!bool)::true\n",
 		},

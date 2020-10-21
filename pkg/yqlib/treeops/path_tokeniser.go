@@ -20,6 +20,8 @@ const (
 	CloseBracket
 	OpenCollect
 	CloseCollect
+	OpenCollectObject
+	CloseCollectObject
 )
 
 type Token struct {
@@ -40,6 +42,10 @@ func (t *Token) toString() string {
 		return "["
 	} else if t.TokenType == CloseCollect {
 		return "]"
+	} else if t.TokenType == OpenCollectObject {
+		return "{"
+	} else if t.TokenType == CloseCollectObject {
+		return "}"
 	} else {
 		return fmt.Sprintf("NFI")
 	}
@@ -174,6 +180,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))
+	lexer.Add([]byte(`:\s*`), opToken(CreateMap))
 	lexer.Add([]byte(`length`), opToken(Length))
 	lexer.Add([]byte(`select`), opToken(Select))
 	lexer.Add([]byte(`or`), opToken(Or))
@@ -195,7 +202,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`d[0-9]+`), documentToken()) // $0
 
 	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
-	lexer.Add([]byte(`\.[^ \[\],\|\.\[\(\)=]+`), pathToken(false))
+	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=]+`), pathToken(false))
 	lexer.Add([]byte(`\.`), selfToken())
 
 	lexer.Add([]byte(`\|`), opToken(Pipe))
@@ -214,6 +221,8 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
 	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))
+	lexer.Add([]byte(`\{`), literalToken(OpenCollectObject, false))
+	lexer.Add([]byte(`\}`), literalToken(CloseCollectObject, true))
 	lexer.Add([]byte(`\*`), opToken(Multiply))
 
 	// lexer.Add([]byte(`[^ \,\|\.\[\(\)=]+`), stringValue(false))

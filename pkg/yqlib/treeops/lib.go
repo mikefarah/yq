@@ -2,9 +2,9 @@ package treeops
 
 import (
 	"bytes"
+	"container/list"
 	"fmt"
 
-	"github.com/elliotchance/orderedmap"
 	"gopkg.in/op/go-logging.v1"
 	"gopkg.in/yaml.v3"
 )
@@ -22,17 +22,18 @@ var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOpera
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
 
 var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
-var Intersection = &OperationType{Type: "INTERSECTION", NumArgs: 2, Precedence: 20, Handler: IntersectionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
 
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
+var CreateMap = &OperationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: CreateMapOperator}
 var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
+var CollectObject = &OperationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: CollectObjectOperator}
 var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 
 var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
@@ -129,7 +130,7 @@ func (l *lib) Get(document int, documentNode *yaml.Node, path string) ([]*Candid
 }
 
 //use for debugging only
-func NodesToString(collection *orderedmap.OrderedMap) string {
+func NodesToString(collection *list.List) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
 		return ""
 	}

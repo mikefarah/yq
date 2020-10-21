@@ -3,13 +3,14 @@ package treeops
 import (
 	"fmt"
 
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/yaml.v3"
 )
 
-func TraversePathOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func TraversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- Traversing")
-	var matchingNodeMap = orderedmap.NewOrderedMap()
+	var matchingNodeMap = list.New()
 	var newNodes []*CandidateNode
 	var err error
 
@@ -19,7 +20,7 @@ func TraversePathOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap,
 			return nil, err
 		}
 		for _, n := range newNodes {
-			matchingNodeMap.Set(n.GetKey(), n)
+			matchingNodeMap.PushBack(n)
 		}
 	}
 
@@ -30,7 +31,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Opera
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
-	if value.Kind == 0 {
+	if value.Tag == "!!null" {
 		log.Debugf("Guessing kind")
 		// we must ahve added this automatically, lets guess what it should be now
 		switch pathNode.Value.(type) {
@@ -41,6 +42,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Opera
 			log.Debugf("probabel a map")
 			value.Kind = yaml.MappingNode
 		}
+		value.Tag = ""
 	}
 
 	switch value.Kind {
@@ -110,7 +112,7 @@ func traverseMap(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNod
 	}
 	if len(newMatches) == 0 {
 		//no matches, create one automagically
-		valueNode := &yaml.Node{Tag: "!!null"}
+		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: pathNode.StringValue}, valueNode)
 		newMatches = append(newMatches, &CandidateNode{
 			Node:     valueNode,
@@ -145,7 +147,7 @@ func traverseArray(candidate *CandidateNode, pathNode *Operation) ([]*CandidateN
 	indexToUse := index
 	contentLength := int64(len(candidate.Node.Content))
 	for contentLength <= index {
-		candidate.Node.Content = append(candidate.Node.Content, &yaml.Node{Tag: "!!null"})
+		candidate.Node.Content = append(candidate.Node.Content, &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"})
 		contentLength = int64(len(candidate.Node.Content))
 	}
 

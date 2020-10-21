@@ -1,8 +1,8 @@
 package treeops
 
-import "github.com/elliotchance/orderedmap"
+import "container/list"
 
-func UnionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func UnionOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -13,7 +13,7 @@ func UnionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, p
 	}
 	for el := rhs.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
-		lhs.Set(node.GetKey(), node)
+		lhs.PushBack(node)
 	}
 	return lhs, nil
 }

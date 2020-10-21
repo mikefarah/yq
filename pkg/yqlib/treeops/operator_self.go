@@ -1,7 +1,7 @@
 package treeops
 
-import "github.com/elliotchance/orderedmap"
+import "container/list"
 
-func SelfOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func SelfOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	return matchMap, nil
 }

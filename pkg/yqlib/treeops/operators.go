@@ -1,15 +1,15 @@
 package treeops
 
 import (
+	"container/list"
 	"fmt"
 
-	"github.com/elliotchance/orderedmap"
 	"gopkg.in/yaml.v3"
 )
 
-type OperatorHandler func(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error)
+type OperatorHandler func(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
 
-func PipeOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func PipeOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -26,34 +26,15 @@ func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
 	return &CandidateNode{Node: node, Document: owner.Document, Path: owner.Path}
 }
 
-func nodeToMap(candidate *CandidateNode) *orderedmap.OrderedMap {
-	elMap := orderedmap.NewOrderedMap()
-	elMap.Set(candidate.GetKey(), candidate)
+func nodeToMap(candidate *CandidateNode) *list.List {
+	elMap := list.New()
+	elMap.PushBack(candidate)
 	return elMap
 }
 
-func IntersectionOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
-	if err != nil {
-		return nil, err
-	}
-	rhs, err := d.getMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
-	var matchingNodeMap = orderedmap.NewOrderedMap()
-	for el := lhs.Front(); el != nil; el = el.Next() {
-		_, exists := rhs.Get(el.Key)
-		if exists {
-			matchingNodeMap.Set(el.Key, el.Value)
-		}
-	}
-	return matchingNodeMap, nil
-}
-
-func LengthOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func LengthOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- lengthOperation")
-	var results = orderedmap.NewOrderedMap()
+	var results = list.New()
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -71,7 +52,7 @@ func LengthOperator(d *dataTreeNavigator, matchMap *orderedmap.OrderedMap, pathN
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
 		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.Set(candidate.GetKey(), lengthCand)
+		results.PushBack(lengthCand)
 	}
 
 	return results, nil

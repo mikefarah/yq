@@ -1,7 +1,8 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -23,8 +24,8 @@ func isTruthy(c *CandidateNode) (bool, error) {
 
 type boolOp func(bool, bool) bool
 
-func booleanOp(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode, op boolOp) (*orderedmap.OrderedMap, error) {
-	var results = orderedmap.NewOrderedMap()
+func booleanOp(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, op boolOp) (*list.List, error) {
+	var results = list.New()
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -52,7 +53,7 @@ func booleanOp(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathN
 				}
 				boolResult := createBooleanCandidate(lhsCandidate, op(lhsTrue, rhsTrue))
 
-				results.Set(boolResult.GetKey(), boolResult)
+				results.PushBack(boolResult)
 			}
 		}
 
@@ -60,14 +61,14 @@ func booleanOp(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathN
 	return results, nil
 }
 
-func OrOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func OrOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- orOp")
 	return booleanOp(d, matchingNodes, pathNode, func(b1 bool, b2 bool) bool {
 		return b1 || b2
 	})
 }
 
-func AndOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func AndOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- AndOp")
 	return booleanOp(d, matchingNodes, pathNode, func(b1 bool, b2 bool) bool {
 		return b1 && b2

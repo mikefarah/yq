@@ -3,7 +3,8 @@ package treeops
 import (
 	"fmt"
 
-	"github.com/elliotchance/orderedmap"
+	"container/list"
+
 	"gopkg.in/op/go-logging.v1"
 )
 
@@ -24,10 +25,10 @@ func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
 }
 
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
-	var matchingNodeMap = orderedmap.NewOrderedMap()
+	var matchingNodeMap = list.New()
 
 	for _, n := range matchingNodes {
-		matchingNodeMap.Set(n.GetKey(), n)
+		matchingNodeMap.PushBack(n)
 	}
 
 	matchedNodes, err := d.getMatchingNodes(matchingNodeMap, pathNode)
@@ -43,7 +44,7 @@ func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pat
 	return values, nil
 }
 
-func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	if pathNode == nil {
 		log.Debugf("getMatchingNodes - nothing to do")
 		return matchingNodes, nil

@@ -1,10 +1,10 @@
 package treeops
 
 import (
-	"github.com/elliotchance/orderedmap"
+	"container/list"
 )
 
-func EqualsOperator(d *dataTreeNavigator, matchingNodes *orderedmap.OrderedMap, pathNode *PathTreeNode) (*orderedmap.OrderedMap, error) {
+func EqualsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- equalsOperation")
 	return crossFunction(d, matchingNodes, pathNode, isEquals)
 }
