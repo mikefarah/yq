@@ -1,6 +1,7 @@
 package treeops
 
 import (
+	"container/list"
 	"strings"
 	"testing"
 
@@ -10,9 +11,10 @@ import (
 var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
 var treeCreator = NewPathTreeCreator()
 
-func readDoc(t *testing.T, content string) []*CandidateNode {
+func readDoc(t *testing.T, content string) *list.List {
+	inputList := list.New()
 	if content == "" {
-		return []*CandidateNode{}
+		return inputList
 	}
 	decoder := yaml.NewDecoder(strings.NewReader(content))
 	var dataBucket yaml.Node
@@ -21,12 +23,19 @@ func readDoc(t *testing.T, content string) []*CandidateNode {
 		t.Error(content)
 		t.Error(err)
 	}
-	return []*CandidateNode{&CandidateNode{Node: dataBucket.Content[0], Document: 0}}
+
+	inputList.PushBack(&CandidateNode{
+		Document: 0,
+		Filename: "test.yml",
+		Node:     &dataBucket,
+	})
+	return inputList
 }
 
-func resultsToString(results []*CandidateNode) []string {
+func resultsToString(results *list.List) []string {
 	var pretty []string = make([]string, 0)
-	for _, n := range results {
+	for el := results.Front(); el != nil; el = el.Next() {
+		n := el.Value.(*CandidateNode)
 		pretty = append(pretty, NodeToString(n))
 	}
 	return pretty

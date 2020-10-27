@@ -13,6 +13,7 @@ type CandidateNode struct {
 	Node     *yaml.Node    // the actual node
 	Path     []interface{} /// the path we took to get to this node
 	Document uint          // the document index of this node
+	Filename string
 }
 
 func (n *CandidateNode) GetKey() string {

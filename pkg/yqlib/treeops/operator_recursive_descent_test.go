@@ -11,14 +11,16 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::cat\n",
 		},
-	}, {
+	},
+	{
 		document:   `{a: frog}`,
 		expression: `..`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: frog}\n",
 			"D0, P[a], (!!str)::frog\n",
 		},
-	}, {
+	},
+	{
 		document:   `{a: {b: apple}}`,
 		expression: `..`,
 		expected: []string{
@@ -26,7 +28,8 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!map)::{b: apple}\n",
 			"D0, P[a b], (!!str)::apple\n",
 		},
-	}, {
+	},
+	{
 		document:   `[1,2,3]`,
 		expression: `..`,
 		expected: []string{
@@ -35,7 +38,8 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!int)::2\n",
 			"D0, P[2], (!!int)::3\n",
 		},
-	}, {
+	},
+	{
 		document:   `[{a: cat},2,true]`,
 		expression: `..`,
 		expected: []string{

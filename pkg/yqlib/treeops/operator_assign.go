@@ -3,14 +3,14 @@ package treeops
 import "container/list"
 
 func AssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.getMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
 
 		if err != nil {
 			return nil, err
@@ -28,14 +28,14 @@ func AssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pa
 
 // does not update content or values
 func AssignAttributesOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.getMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
 
 		if err != nil {
 			return nil, err

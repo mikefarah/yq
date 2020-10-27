@@ -9,12 +9,19 @@ import (
 
 type OperatorHandler func(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
 
+func UnwrapDoc(node *yaml.Node) *yaml.Node {
+	if node.Kind == yaml.DocumentNode {
+		return node.Content[0]
+	}
+	return node
+}
+
 func PipeOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
-	return d.getMatchingNodes(lhs, pathNode.Rhs)
+	return d.GetMatchingNodes(lhs, pathNode.Rhs)
 }
 
 func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {

@@ -3,11 +3,11 @@ package treeops
 import "container/list"
 
 func UnionOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
-	rhs, err := d.getMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
 	if err != nil {
 		return nil, err
 	}

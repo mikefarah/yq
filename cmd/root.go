@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"os"
 
+	"github.com/mikefarah/yq/v4/pkg/yqlib/treeops"
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
 )
@@ -17,9 +20,51 @@ func New() *cobra.Command {
 				cmd.Print(GetVersionDisplay())
 				return nil
 			}
-			cmd.Println(cmd.UsageString())
+			if shellCompletion != "" {
+				switch shellCompletion {
+				case "bash", "":
+					return cmd.GenBashCompletion(os.Stdout)
+				case "zsh":
+					return cmd.GenZshCompletion(os.Stdout)
+				case "fish":
+					return cmd.GenFishCompletion(os.Stdout, true)
+				case "powershell":
+					return cmd.GenPowerShellCompletion(os.Stdout)
+				default:
+					return fmt.Errorf("Unknown variant %v", shellCompletion)
+				}
+			}
+			// if len(args) == 0 {
+			// 	cmd.Println(cmd.UsageString())
+			// 	return nil
+			// }
+			cmd.SilenceUsage = true
 
-			return nil
+			var treeCreator = treeops.NewPathTreeCreator()
+
+			expression := ""
+			if len(args) > 0 {
+				expression = args[0]
+			}
+
+			pathNode, err := treeCreator.ParsePath(expression)
+			if err != nil {
+				return err
+			}
+
+			matchingNodes, err := evaluate("-", pathNode)
+			if err != nil {
+				return err
+			}
+
+			if exitStatus && matchingNodes.Len() == 0 {
+				cmd.SilenceUsage = true
+				return errors.New("No matches found")
+			}
+
+			out := cmd.OutOrStdout()
+
+			return printResults(matchingNodes, out)
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			cmd.SetOut(cmd.OutOrStdout())
@@ -44,18 +89,15 @@ func New() *cobra.Command {
 	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
-	rootCmd.PersistentFlags().BoolVarP(&colorsEnabled, "colors", "C", false, "print with colors")
 
-	rootCmd.AddCommand(
-		createReadCmd(),
-		// createCompareCmd(),
-		createValidateCmd(),
-		// createWriteCmd(),
-		// createPrefixCmd(),
-		// createDeleteCmd(),
-		// createNewCmd(),
-		// createMergeCmd(),
-		createBashCompletionCmd(rootCmd),
-	)
+	rootCmd.Flags().StringVarP(&shellCompletion, "shellCompletion", "", "", "[bash/zsh/powershell/fish] prints shell completion script")
+
+	rootCmd.PersistentFlags().BoolVarP(&forceColor, "colors", "C", false, "force print with colors")
+	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
+
+	// rootCmd.PersistentFlags().StringVarP(&docIndex, "doc", "d", "0", "process document index number (0 based, * for all documents)")
+	rootCmd.PersistentFlags().StringVarP(&printMode, "printMode", "p", "v", "print mode (v (values, default), p (paths), pv (path and value pairs)")
+	rootCmd.PersistentFlags().StringVarP(&defaultValue, "defaultValue", "D", "", "default value printed when there are no results")
+
 	return rootCmd
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mikefarah/yq/v3/test"
+	"github.com/mikefarah/yq/v4/test"
 )
 
 type expressionScenario struct {

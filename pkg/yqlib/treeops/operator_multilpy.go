@@ -11,12 +11,12 @@ import (
 type CrossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
 func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, calculation CrossFunctionCalculation) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 
-	rhs, err := d.getMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
 
 	if err != nil {
 		return nil, err
@@ -46,6 +46,9 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 }
 
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	lhs.Node = UnwrapDoc(lhs.Node)
+	rhs.Node = UnwrapDoc(rhs.Node)
+
 	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 		var results = list.New()
@@ -93,7 +96,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 
 	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &PathTreeNode{Operation: rhsOp}}
 
-	_, err := d.getMatchingNodes(nodeToMap(lhs), assignmentOpNode)
+	_, err := d.GetMatchingNodes(nodeToMap(lhs), assignmentOpNode)
 
 	return err
 }

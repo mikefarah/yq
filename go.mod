@@ -1,4 +1,4 @@
-module github.com/mikefarah/yq/v3
+module github.com/mikefarah/yq/v4
 
 require (
 	github.com/elliotchance/orderedmap v1.3.0 // indirect

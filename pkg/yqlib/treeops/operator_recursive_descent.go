@@ -18,6 +18,10 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNod
 func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List) error {
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		candidate.Node = UnwrapDoc(candidate.Node)
+
+		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 
 		children, err := Splat(d, nodeToMap(candidate))

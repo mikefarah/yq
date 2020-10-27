@@ -77,6 +77,10 @@ github.com/mattn/go-isatty v0.0.11/go.mod h1:PhnuNfih5lzO57/f3n+odYbM4JtupLOxQOA
 github.com/mattn/go-isatty v0.0.12 h1:wuysRhFDzyxgEmMf5xjvJ2M9dZoWAXNNr5LSBS7uHXY=
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
+github.com/mikefarah/yq v1.15.0 h1:ViMYNRG5UB7hzm8olxMFqPtkpMXXKO4g32/v9JUa62o=
+github.com/mikefarah/yq v2.4.0+incompatible h1:oBxbWy8R9hI3BIUUxEf0CzikWa2AgnGrGhvGQt5jgjk=
+github.com/mikefarah/yq/v3 v3.0.0-20201020025845-ccb718cd0f59 h1:6nvF+EEFIVD4KT64CgvAzWaMVC283Huno59khWs9r1A=
+github.com/mikefarah/yq/v3 v3.0.0-20201020025845-ccb718cd0f59/go.mod h1:7eVjFf5bgozMuHk+oKpyxR2zCN3iEN1tF0/bM5jvtKo=
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=

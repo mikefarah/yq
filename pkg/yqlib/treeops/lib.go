@@ -101,34 +101,6 @@ func (p *Operation) toString() string {
 	}
 }
 
-type YqTreeLib interface {
-	Get(document int, documentNode *yaml.Node, path string) ([]*CandidateNode, error)
-	// GetForMerge(rootNode *yaml.Node, path string, arrayMergeStrategy ArrayMergeStrategy) ([]*NodeContext, error)
-	// Update(rootNode *yaml.Node, updateCommand UpdateCommand, autoCreate bool) error
-	// New(path string) yaml.Node
-
-	// PathStackToString(pathStack []interface{}) string
-	// MergePathStackToString(pathStack []interface{}, arrayMergeStrategy ArrayMergeStrategy) string
-}
-
-func NewYqTreeLib() YqTreeLib {
-	return &lib{treeCreator: NewPathTreeCreator()}
-}
-
-type lib struct {
-	treeCreator PathTreeCreator
-}
-
-func (l *lib) Get(document int, documentNode *yaml.Node, path string) ([]*CandidateNode, error) {
-	nodes := []*CandidateNode{&CandidateNode{Node: documentNode.Content[0], Document: 0}}
-	navigator := NewDataTreeNavigator(NavigationPrefs{})
-	pathNode, errPath := l.treeCreator.ParsePath(path)
-	if errPath != nil {
-		return nil, errPath
-	}
-	return navigator.GetMatchingNodes(nodes, pathNode)
-}
-
 //use for debugging only
 func NodesToString(collection *list.List) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
@@ -157,7 +129,11 @@ func NodeToString(node *CandidateNode) string {
 		log.Error("Error debugging node, %v", errorEncoding.Error())
 	}
 	encoder.Close()
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, value.Tag, buf.String())
+	tag := value.Tag
+	if value.Kind == yaml.DocumentNode {
+		tag = "doc"
+	}
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())
 }
 
 func KindString(kind yaml.Kind) string {

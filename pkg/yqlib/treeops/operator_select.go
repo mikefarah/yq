@@ -12,7 +12,7 @@ func SelectOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pa
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.getMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
 
 		if err != nil {
 			return nil, err

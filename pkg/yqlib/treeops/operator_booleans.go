@@ -7,8 +7,9 @@ import (
 )
 
 func isTruthy(c *CandidateNode) (bool, error) {
-	node := c.Node
+	node := UnwrapDoc(c.Node)
 	value := true
+
 	if node.Tag == "!!null" {
 		return false, nil
 	}
@@ -29,11 +30,11 @@ func booleanOp(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTre
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		lhs, err := d.getMatchingNodes(nodeToMap(candidate), pathNode.Lhs)
+		lhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Lhs)
 		if err != nil {
 			return nil, err
 		}
-		rhs, err := d.getMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
 		if err != nil {
 			return nil, err
 		}

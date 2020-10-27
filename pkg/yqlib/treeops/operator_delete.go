@@ -7,7 +7,7 @@ import (
 )
 
 func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.getMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		candidate := el.Value.(*CandidateNode)
 		elMap := list.New()
 		elMap.PushBack(candidate)
-		nodesToDelete, err := d.getMatchingNodes(elMap, pathNode.Rhs)
+		nodesToDelete, err := d.GetMatchingNodes(elMap, pathNode.Rhs)
 		log.Debug("nodesToDelete:\n%v", NodesToString(nodesToDelete))
 		if err != nil {
 			return nil, err

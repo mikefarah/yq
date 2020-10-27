@@ -17,34 +17,17 @@ type NavigationPrefs struct {
 }
 
 type DataTreeNavigator interface {
-	GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error)
+	// given a list of CandidateEntities and a pathNode,
+	// this will process the list against the given pathNode and return
+	// a new list of matching candidates
+	GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
 }
 
 func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
 	return &dataTreeNavigator{navigationPrefs}
 }
 
-func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes []*CandidateNode, pathNode *PathTreeNode) ([]*CandidateNode, error) {
-	var matchingNodeMap = list.New()
-
-	for _, n := range matchingNodes {
-		matchingNodeMap.PushBack(n)
-	}
-
-	matchedNodes, err := d.getMatchingNodes(matchingNodeMap, pathNode)
-	if err != nil {
-		return nil, err
-	}
-
-	values := make([]*CandidateNode, 0, matchedNodes.Len())
-
-	for el := matchedNodes.Front(); el != nil; el = el.Next() {
-		values = append(values, el.Value.(*CandidateNode))
-	}
-	return values, nil
-}
-
-func (d *dataTreeNavigator) getMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	if pathNode == nil {
 		log.Debugf("getMatchingNodes - nothing to do")
 		return matchingNodes, nil
