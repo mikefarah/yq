@@ -28,6 +28,11 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
 	splatted, err := Splat(d, nodeToMap(candidate))
+
+	for splatEl := splatted.Front(); splatEl != nil; splatEl = splatEl.Next() {
+		splatEl.Value.(*CandidateNode).Path = nil
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -44,10 +49,8 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 			splatCandidate := splatEl.Value.(*CandidateNode)
 			newCandidate := aggCandidate.Copy()
 			newCandidate.Path = nil
-			splatCandidateClone := splatCandidate.Copy()
-			splatCandidateClone.Path = nil
 
-			newCandidate, err := multiply(d, newCandidate, splatCandidateClone)
+			newCandidate, err := multiply(d, newCandidate, splatCandidate)
 			if err != nil {
 				return nil, err
 			}

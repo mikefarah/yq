@@ -19,11 +19,11 @@ func CreateMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	mapPairs, err := crossFunction(d, matchingNodes, pathNode,
 		func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-			log.Debugf("LHS:", lhs.Node.Value)
-			log.Debugf("RHS:", rhs.Node.Value)
+			log.Debugf("LHS:", NodeToString(lhs))
+			log.Debugf("RHS:", NodeToString(rhs))
 			node.Content = []*yaml.Node{
-				lhs.Node,
-				rhs.Node,
+				UnwrapDoc(lhs.Node),
+				UnwrapDoc(rhs.Node),
 			}
 
 			return &CandidateNode{Node: &node, Document: document, Path: path}, nil

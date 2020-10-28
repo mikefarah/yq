@@ -53,23 +53,39 @@ func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Ca
 
 	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
-		var results = list.New()
-		recursiveDecent(d, results, nodeToMap(rhs))
 
-		var pathIndexToStartFrom int = 0
-		if results.Front() != nil {
-			pathIndexToStartFrom = len(results.Front().Value.(*CandidateNode).Path)
+		var newBlank = &CandidateNode{
+			Path:     lhs.Path,
+			Document: lhs.Document,
+			Filename: lhs.Filename,
+			Node:     &yaml.Node{},
 		}
+		var newThing, err = mergeObjects(d, newBlank, lhs)
+		if err != nil {
+			return nil, err
+		}
+		return mergeObjects(d, newThing, rhs)
 
-		for el := results.Front(); el != nil; el = el.Next() {
-			err := applyAssignment(d, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode))
-			if err != nil {
-				return nil, err
-			}
-		}
-		return lhs, nil
 	}
 	return nil, fmt.Errorf("Cannot multiply %v with %v", NodeToString(lhs), NodeToString(rhs))
+}
+
+func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	var results = list.New()
+	recursiveDecent(d, results, nodeToMap(rhs))
+
+	var pathIndexToStartFrom int = 0
+	if results.Front() != nil {
+		pathIndexToStartFrom = len(results.Front().Value.(*CandidateNode).Path)
+	}
+
+	for el := results.Front(); el != nil; el = el.Next() {
+		err := applyAssignment(d, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return lhs, nil
 }
 
 func createTraversalTree(path []interface{}) *PathTreeNode {

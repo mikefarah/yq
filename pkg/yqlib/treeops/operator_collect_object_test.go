@@ -9,15 +9,15 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		document:   `{name: Mike, age: 32}`,
 		expression: `{.name: .age}`,
 		expected: []string{
-			"D0, P[0], (!!map)::Mike: 32\n",
+			"D0, P[], (!!map)::Mike: 32\n",
 		},
 	},
 	{
 		document:   `{name: Mike, pets: [cat, dog]}`,
 		expression: `{.name: .pets[]}`,
 		expected: []string{
-			"D0, P[0], (!!map)::Mike: cat\n",
-			"D0, P[1], (!!map)::Mike: dog\n",
+			"D0, P[], (!!map)::Mike: cat\n",
+			"D0, P[], (!!map)::Mike: dog\n",
 		},
 	},
 	{
@@ -36,6 +36,29 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		expected: []string{
 			`D0, P[], (!!map)::a: Mike
 b: {cows: [apl, bba]}
+`,
+		},
+	},
+	{
+		document:   ``,
+		expression: `{"wrap": "frog"}`,
+		expected: []string{
+			"D0, P[], (!!map)::wrap: frog\n",
+		},
+	},
+	{
+		document:   `{name: Mike}`,
+		expression: `{"wrap": .}`,
+		expected: []string{
+			"D0, P[], (!!map)::wrap: {name: Mike}\n",
+		},
+	},
+	{
+		document:   `{name: Mike}`,
+		expression: `{"wrap": {"further": .}}`,
+		expected: []string{
+			`D0, P[], (!!map)::wrap:
+    further: {name: Mike}
 `,
 		},
 	},
