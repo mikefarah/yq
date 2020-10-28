@@ -61,7 +61,7 @@ b:
 `,
 		expression: `. * {"a":.b}`,
 		expected: []string{
-			`D0, P[], (!!map)::a: {things: great, also: me}
+			`D0, P[], (!!map)::a: {things: great, also: "me"}
 b:
     also: "me"
 `,

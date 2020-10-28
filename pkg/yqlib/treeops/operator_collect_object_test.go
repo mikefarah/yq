@@ -30,6 +30,15 @@ var collectObjectOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::Mike: dog\nf: burger\n",
 		},
 	},
+	{
+		document:   `{name: Mike, pets: {cows: [apl, bba]}}`,
+		expression: `{"a":.name, "b":.pets}`,
+		expected: []string{
+			`D0, P[], (!!map)::a: Mike
+b: {cows: [apl, bba]}
+`,
+		},
+	},
 }
 
 func TestCollectObjectOperatorScenarios(t *testing.T) {

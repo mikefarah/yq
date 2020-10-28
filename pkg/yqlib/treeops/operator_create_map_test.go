@@ -27,6 +27,14 @@ var createMapOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::- f: hotdog\n- f: burger\n",
 		},
 	},
+	{
+		document:   `{name: Mike, pets: {cows: [apl, bba]}}`,
+		expression: `"a":.name, "b":.pets`,
+		expected: []string{
+			"D0, P[], (!!seq)::- a: Mike\n",
+			"D0, P[], (!!seq)::- b: {cows: [apl, bba]}\n",
+		},
+	},
 }
 
 func TestCreateMapOperatorScenarios(t *testing.T) {

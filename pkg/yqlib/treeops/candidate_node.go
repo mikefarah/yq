@@ -42,10 +42,12 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	}
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
-	// not sure if this ever should happen here...
-	// if other.Node.Style != 0 {
-	// 	n.Node.Style = other.Node.Style
-	// }
+
+	// merge will pickup the style of the new thing
+	// when autocreating nodes
+	if n.Node.Style == 0 {
+		n.Node.Style = other.Node.Style
+	}
 	n.Node.FootComment = other.Node.FootComment
 	n.Node.HeadComment = other.Node.HeadComment
 	n.Node.LineComment = other.Node.LineComment

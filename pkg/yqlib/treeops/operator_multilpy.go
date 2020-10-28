@@ -48,6 +48,8 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhs.Node = UnwrapDoc(lhs.Node)
 	rhs.Node = UnwrapDoc(rhs.Node)
+	log.Debugf("Multipling LHS: %v", NodeToString(lhs))
+	log.Debugf("-          RHS: %v", NodeToString(rhs))
 
 	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {

@@ -44,8 +44,10 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 			splatCandidate := splatEl.Value.(*CandidateNode)
 			newCandidate := aggCandidate.Copy()
 			newCandidate.Path = nil
+			splatCandidateClone := splatCandidate.Copy()
+			splatCandidateClone.Path = nil
 
-			newCandidate, err := multiply(d, newCandidate, splatCandidate)
+			newCandidate, err := multiply(d, newCandidate, splatCandidateClone)
 			if err != nil {
 				return nil, err
 			}

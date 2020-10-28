@@ -37,7 +37,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Opera
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
-	if value.Tag == "!!null" {
+	if value.Tag == "!!null" && pathNode.Value != "[]" {
 		log.Debugf("Guessing kind")
 		// we must ahve added this automatically, lets guess what it should be now
 		switch pathNode.Value.(type) {
@@ -45,7 +45,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Opera
 			log.Debugf("probably an array")
 			value.Kind = yaml.SequenceNode
 		default:
-			log.Debugf("probabel a map")
+			log.Debugf("probably a map")
 			value.Kind = yaml.MappingNode
 		}
 		value.Tag = ""
