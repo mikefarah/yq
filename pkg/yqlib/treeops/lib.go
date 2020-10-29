@@ -49,8 +49,6 @@ var Select = &OperationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler:
 
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 2, Precedence: 40, Handler: DeleteChildOperator}
 
-// var Splat = &OperationType{Type: "SPLAT", NumArgs: 0, Precedence: 40, Handler: SplatOperator}
-
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
 // filters matches if they have the existing path
 
@@ -59,6 +57,7 @@ type Operation struct {
 	Value         interface{}
 	StringValue   string
 	CandidateNode *CandidateNode // used for Value Path elements
+	Preferences   interface{}
 }
 
 func CreateValueOperation(value interface{}, stringValue string) *Operation {
@@ -132,6 +131,8 @@ func NodeToString(node *CandidateNode) string {
 	tag := value.Tag
 	if value.Kind == yaml.DocumentNode {
 		tag = "doc"
+	} else if value.Kind == yaml.AliasNode {
+		tag = "alias"
 	}
 	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())
 }

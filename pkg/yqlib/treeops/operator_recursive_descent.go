@@ -2,6 +2,8 @@ package treeops
 
 import (
 	"container/list"
+
+	"gopkg.in/yaml.v3"
 )
 
 func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
@@ -24,14 +26,17 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 
-		children, err := Splat(d, nodeToMap(candidate))
+		if candidate.Node.Kind != yaml.AliasNode {
 
-		if err != nil {
-			return err
-		}
-		err = recursiveDecent(d, results, children)
-		if err != nil {
-			return err
+			children, err := Splat(d, nodeToMap(candidate))
+
+			if err != nil {
+				return err
+			}
+			err = recursiveDecent(d, results, children)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

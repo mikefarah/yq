@@ -50,6 +50,16 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 			"D0, P[2], (!!bool)::true\n",
 		},
 	},
+	{
+		document:   `{a: &cat {c: frog}, b: *cat}`,
+		expression: `..`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: &cat {c: frog}, b: *cat}\n",
+			"D0, P[a], (!!map)::&cat {c: frog}\n",
+			"D0, P[a c], (!!str)::frog\n",
+			"D0, P[b], (alias)::*cat\n",
+		},
+	},
 }
 
 func TestRecursiveDescentOperatorScenarios(t *testing.T) {

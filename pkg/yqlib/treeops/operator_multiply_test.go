@@ -81,6 +81,20 @@ b:
 			"D0, P[], (!!map)::{a: {c: cat}}\n",
 		},
 	},
+	{
+		document:   `{a: &cat {c: frog}, b: {f: *cat}, c: {g: thongs}}`,
+		expression: `.c * .b`,
+		expected: []string{
+			"D0, P[c], (!!map)::{g: thongs, f: *cat}\n",
+		},
+	},
+	{
+		document:   `{a: {c: &cat frog}, b: {f: *cat}, c: {g: thongs}}`,
+		expression: `.c * .a`,
+		expected: []string{
+			"D0, P[c], (!!map)::{g: thongs, c: frog}\n",
+		},
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {

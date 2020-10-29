@@ -8,8 +8,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type TraversePreferences struct {
+	DontFollowAlias bool
+}
+
 func Splat(d *dataTreeNavigator, matches *list.List) (*list.List, error) {
-	splatOperation := &Operation{OperationType: TraversePath, Value: "[]"}
+	preferences := &TraversePreferences{DontFollowAlias: true}
+	splatOperation := &Operation{OperationType: TraversePath, Value: "[]", Preferences: preferences}
 	splatTreeNode := &PathTreeNode{Operation: splatOperation}
 	return TraversePathOperator(d, matches, splatTreeNode)
 }
@@ -33,14 +38,20 @@ func TraversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *P
 	return matchingNodeMap, nil
 }
 
-func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
+func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
-	if value.Tag == "!!null" && pathNode.Value != "[]" {
+	followAlias := true
+
+	// if operation.Preferences != nil {
+	// 	followAlias = !operation.Preferences.(*TraversePreferences).DontFollowAlias
+	// }
+
+	if value.Tag == "!!null" && operation.Value != "[]" {
 		log.Debugf("Guessing kind")
 		// we must ahve added this automatically, lets guess what it should be now
-		switch pathNode.Value.(type) {
+		switch operation.Value.(type) {
 		case int, int64:
 			log.Debugf("probably an array")
 			value.Kind = yaml.SequenceNode
@@ -54,33 +65,24 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Opera
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		return traverseMap(matchingNode, pathNode)
+		return traverseMap(matchingNode, operation)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
-		return traverseArray(matchingNode, pathNode)
-	// 	default:
+		return traverseArray(matchingNode, operation)
 
-	// 		if head == "+" {
-	// 			return n.appendArray(value, head, tail, pathStack)
-	// 		} else if len(value.Content) == 0 && head == "**" {
-	// 			return n.navigationStrategy.Visit(nodeContext)
-	// 		}
-	// 		return n.splatArray(value, head, tail, pathStack)
-	// 	}
-	// case yaml.AliasNode:
-	// 	log.Debug("its an alias!")
-	// 	DebugNode(value.Alias)
-	// 	if n.navigationStrategy.FollowAlias(nodeContext) {
-	// 		log.Debug("following the alias")
-	// 		return n.recurse(value.Alias, head, tail, pathStack)
-	// 	}
-	// 	return nil
+	case yaml.AliasNode:
+		log.Debug("its an alias!")
+		if followAlias {
+			matchingNode.Node = matchingNode.Node.Alias
+			return traverse(d, matchingNode, operation)
+		}
+		return []*CandidateNode{matchingNode}, nil
 	case yaml.DocumentNode:
 		log.Debug("digging into doc node")
 		return traverse(d, &CandidateNode{
 			Node:     matchingNode.Node.Content[0],
-			Document: matchingNode.Document}, pathNode)
+			Document: matchingNode.Document}, operation)
 	default:
 		return nil, nil
 	}
