@@ -95,6 +95,13 @@ b:
 			"D0, P[c], (!!map)::{g: thongs, c: frog}\n",
 		},
 	},
+	{
+		document:   mergeDocSample,
+		expression: `.foobar * .foobarList`,
+		expected: []string{
+			"D0, P[foobar], (!!map)::c: foobarList_c\n<<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
+		},
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {

@@ -44,12 +44,6 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
-	followAlias := true
-
-	// if operation.Preferences != nil {
-	// 	followAlias = !operation.Preferences.(*TraversePreferences).DontFollowAlias
-	// }
-
 	if value.Tag == "!!null" && operation.Value != "[]" {
 		log.Debugf("Guessing kind")
 		// we must ahve added this automatically, lets guess what it should be now
@@ -102,11 +96,8 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
-		if followAlias {
-			matchingNode.Node = matchingNode.Node.Alias
-			return traverse(d, matchingNode, operation)
-		}
-		return []*CandidateNode{matchingNode}, nil
+		matchingNode.Node = matchingNode.Node.Alias
+		return traverse(d, matchingNode, operation)
 	case yaml.DocumentNode:
 		log.Debug("digging into doc node")
 		return traverse(d, &CandidateNode{
@@ -130,6 +121,12 @@ func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, op
 
 	node := candidate.Node
 
+	followAlias := true
+
+	if operation.Preferences != nil {
+		followAlias = !operation.Preferences.(*TraversePreferences).DontFollowAlias
+	}
+
 	var contents = node.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
@@ -137,7 +134,7 @@ func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, op
 
 		log.Debug("checking %v (%v)", key.Value, key.Tag)
 		//skip the 'merge' tag, find a direct match first
-		if key.Tag == "!!merge" {
+		if key.Tag == "!!merge" && followAlias {
 			log.Debug("Merge anchor")
 			traverseMergeAnchor(newMatches, candidate, value, operation)
 		} else if keyMatches(key, operation) {

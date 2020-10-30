@@ -49,9 +49,9 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	if n.Node.Style == 0 {
 		n.Node.Style = other.Node.Style
 	}
-	n.Node.FootComment = other.Node.FootComment
-	n.Node.HeadComment = other.Node.HeadComment
-	n.Node.LineComment = other.Node.LineComment
+	n.Node.FootComment = n.Node.FootComment + other.Node.FootComment
+	n.Node.HeadComment = n.Node.HeadComment + other.Node.HeadComment
+	n.Node.LineComment = n.Node.LineComment + other.Node.LineComment
 }
 
 func (n *CandidateNode) PathStackToString() string {

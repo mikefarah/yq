@@ -60,6 +60,28 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 			"D0, P[b], (alias)::*cat\n",
 		},
 	},
+	{
+		document:   mergeDocSample,
+		expression: `.foobar | ..`,
+		expected: []string{
+			"D0, P[foobar], (!!map)::c: foobar_c\n!!merge <<: *foo\nthing: foobar_thing\n",
+			"D0, P[foobar c], (!!str)::foobar_c\n",
+			"D0, P[foobar <<], (alias)::*foo\n",
+			"D0, P[foobar thing], (!!str)::foobar_thing\n",
+		},
+	},
+	{
+		document:   mergeDocSample,
+		expression: `.foobarList | ..`,
+		expected: []string{
+			"D0, P[foobarList], (!!map)::b: foobarList_b\n!!merge <<: [*foo, *bar]\nc: foobarList_c\n",
+			"D0, P[foobarList b], (!!str)::foobarList_b\n",
+			"D0, P[foobarList <<], (!!seq)::[*foo, *bar]\n",
+			"D0, P[foobarList << 0], (alias)::*foo\n",
+			"D0, P[foobarList << 1], (alias)::*bar\n",
+			"D0, P[foobarList c], (!!str)::foobarList_c\n",
+		},
+	},
 }
 
 func TestRecursiveDescentOperatorScenarios(t *testing.T) {

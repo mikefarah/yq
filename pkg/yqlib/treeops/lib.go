@@ -18,6 +18,17 @@ type OperationType struct {
 	Handler    OperatorHandler
 }
 
+// operators TODO:
+// - stripComments (recursive)
+// - mergeAppend (merges and appends arrays)
+// - mergeIfEmpty (sets only if the document is empty, do I do that now?)
+// - updateStyle
+// - updateTag
+// - explodeAnchors
+// - compare ??
+// - validate ??
+// - exists ??
+
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
 
