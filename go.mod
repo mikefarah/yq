@@ -1,13 +1,13 @@
 module github.com/mikefarah/yq/v4
 
 require (
-	github.com/elliotchance/orderedmap v1.3.0 // indirect
+	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/color v1.9.0
 	github.com/goccy/go-yaml v1.8.1
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
-	github.com/pkg/errors v0.9.1
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/timtadh/data-structures v0.5.3 // indirect

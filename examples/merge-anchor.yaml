@@ -1,19 +1,19 @@
 foo: &foo
-  a: original
-  thing: coolasdf
-  thirsty: yep
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
 
 bar: &bar
-  b: 2
-  thing: coconut
-  c: oldbar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
 
 foobarList:
+  b: foobarList_b
   <<: [*foo,*bar]
-  c: newbar
+  c: foobarList_c
 
 foobar:
+  c: foobar_c
   <<: *foo
-  thirty: well beyond
-  thing: ice
-  c: 3
+  thing: foobar_thing

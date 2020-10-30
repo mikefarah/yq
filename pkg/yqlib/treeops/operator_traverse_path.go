@@ -5,6 +5,8 @@ import (
 
 	"container/list"
 
+	"github.com/elliotchance/orderedmap"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -65,7 +67,34 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		return traverseMap(matchingNode, operation)
+		var newMatches = orderedmap.NewOrderedMap()
+		err := traverseMap(newMatches, matchingNode, operation)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if newMatches.Len() == 0 {
+			//no matches, create one automagically
+			valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
+			node := matchingNode.Node
+			node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: operation.StringValue}, valueNode)
+			candidateNode := &CandidateNode{
+				Node:     valueNode,
+				Path:     append(matchingNode.Path, operation.StringValue),
+				Document: matchingNode.Document,
+			}
+			newMatches.Set(candidateNode.GetKey(), candidateNode)
+
+		}
+
+		arrayMatches := make([]*CandidateNode, newMatches.Len())
+		i := 0
+		for el := newMatches.Front(); el != nil; el = el.Next() {
+			arrayMatches[i] = el.Value.(*CandidateNode)
+			i++
+		}
+		return arrayMatches, nil
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
@@ -92,14 +121,12 @@ func keyMatches(key *yaml.Node, pathNode *Operation) bool {
 	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
 }
 
-func traverseMap(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
+func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, operation *Operation) error {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match directly on this node first.
 	//TODO ALIASES, auto creation?
-
-	var newMatches = make([]*CandidateNode, 0)
 
 	node := candidate.Node
 
@@ -109,33 +136,44 @@ func traverseMap(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNod
 		value := contents[index+1]
 
 		log.Debug("checking %v (%v)", key.Value, key.Tag)
-		if keyMatches(key, pathNode) {
+		//skip the 'merge' tag, find a direct match first
+		if key.Tag == "!!merge" {
+			log.Debug("Merge anchor")
+			traverseMergeAnchor(newMatches, candidate, value, operation)
+		} else if keyMatches(key, operation) {
 			log.Debug("MATCHED")
-			newMatches = append(newMatches, &CandidateNode{
+			candidateNode := &CandidateNode{
 				Node:     value,
 				Path:     append(candidate.Path, key.Value),
 				Document: candidate.Document,
-			})
+			}
+			newMatches.Set(candidateNode.GetKey(), candidateNode)
 		}
 	}
-	if len(newMatches) == 0 {
-		//no matches, create one automagically
-		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
-		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: pathNode.StringValue}, valueNode)
-		newMatches = append(newMatches, &CandidateNode{
-			Node:     valueNode,
-			Path:     append(candidate.Path, pathNode.StringValue),
-			Document: candidate.Document,
-		})
 
-	}
-
-	return newMatches, nil
+	return nil
 }
 
-func traverseArray(candidate *CandidateNode, pathNode *Operation) ([]*CandidateNode, error) {
-	log.Debug("pathNode Value %v", pathNode.Value)
-	if pathNode.Value == "[]" {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, operation *Operation) {
+	switch value.Kind {
+	case yaml.AliasNode:
+		candidateNode := &CandidateNode{
+			Node:     value.Alias,
+			Path:     originalCandidate.Path,
+			Document: originalCandidate.Document,
+		}
+		traverseMap(newMatches, candidateNode, operation)
+	case yaml.SequenceNode:
+		for _, childValue := range value.Content {
+			traverseMergeAnchor(newMatches, originalCandidate, childValue, operation)
+		}
+	}
+	return
+}
+
+func traverseArray(candidate *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
+	log.Debug("operation Value %v", operation.Value)
+	if operation.Value == "[]" {
 
 		var contents = candidate.Node.Content
 		var newMatches = make([]*CandidateNode, len(contents))
@@ -151,7 +189,7 @@ func traverseArray(candidate *CandidateNode, pathNode *Operation) ([]*CandidateN
 
 	}
 
-	index := pathNode.Value.(int64)
+	index := operation.Value.(int64)
 	indexToUse := index
 	contentLength := int64(len(candidate.Node.Content))
 	for contentLength <= index {
