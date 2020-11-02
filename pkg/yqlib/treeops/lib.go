@@ -24,9 +24,7 @@ type OperationType struct {
 // - documentIndex - retrieves document index, can be used with select
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
-// - updateStyle - not recursive
 // - updateTag - not recursive
-// - explodeAnchors
 // - compare ??
 // - validate ??
 // - exists

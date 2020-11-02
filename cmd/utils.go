@@ -136,14 +136,6 @@ func printResults(matchingNodes *list.List, writer io.Writer) error {
 		colorsEnabled = true
 	}
 
-	//always explode anchors when printing json
-	if explodeAnchors || outputToJSON {
-		errorExploding := explode(matchingNodes)
-		if errorExploding != nil {
-			return errorExploding
-		}
-	}
-
 	bufferedWriter := bufio.NewWriter(writer)
 	defer safelyFlush(bufferedWriter)
 

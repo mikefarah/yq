@@ -52,6 +52,13 @@ func New() *cobra.Command {
 				return err
 			}
 
+			if outputToJSON {
+				explodeOp := treeops.Operation{OperationType: treeops.Explode}
+				explodeNode := treeops.PathTreeNode{Operation: &explodeOp}
+				pipeOp := treeops.Operation{OperationType: treeops.Pipe}
+				pathNode = &treeops.PathTreeNode{Operation: &pipeOp, Lhs: pathNode, Rhs: &explodeNode}
+			}
+
 			matchingNodes, err := evaluate("-", pathNode)
 			if err != nil {
 				return err
