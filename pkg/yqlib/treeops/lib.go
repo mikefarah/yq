@@ -19,23 +19,27 @@ type OperationType struct {
 }
 
 // operators TODO:
-// - stripComments (recursive)
+// - generator doc from operator tests
+// - stripComments not recursive
+// - documentIndex - retrieves document index, can be used with select
 // - mergeAppend (merges and appends arrays)
-// - mergeIfEmpty (sets only if the document is empty, do I do that now?)
-// - updateStyle
-// - updateTag
+// - mergeEmpty (sets only if the document is empty, do I do that now?)
+// - updateStyle - not recursive
+// - updateTag - not recursive
 // - explodeAnchors
 // - compare ??
 // - validate ??
-// - exists ??
+// - exists
 
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
 
 var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 
-var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignOperator}
+var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
+var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}
+
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
 
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
@@ -44,6 +48,10 @@ var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: Pip
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
+var GetStyle = &OperationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: GetStyleOperator}
+
+var Explode = &OperationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: ExplodeOperator}
+
 var CollectObject = &OperationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: CollectObjectOperator}
 var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 

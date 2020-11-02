@@ -183,8 +183,13 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`:\s*`), opToken(CreateMap))
 	lexer.Add([]byte(`length`), opToken(Length))
 	lexer.Add([]byte(`select`), opToken(Select))
+	lexer.Add([]byte(`explode`), opToken(Explode))
 	lexer.Add([]byte(`or`), opToken(Or))
 	lexer.Add([]byte(`not`), opToken(Not))
+
+	lexer.Add([]byte(`style\s*=`), opToken(AssignStyle))
+	lexer.Add([]byte(`style`), opToken(GetStyle))
+
 	// lexer.Add([]byte(`and`), opToken())
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
@@ -217,7 +222,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`[Nn][Uu][Ll][Ll]`), nullValue())
 	lexer.Add([]byte(`~`), nullValue())
 
-	lexer.Add([]byte(`"[^ "]+"`), stringValue(true))
+	lexer.Add([]byte(`"[^ "]*"`), stringValue(true))
 
 	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
 	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))

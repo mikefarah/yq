@@ -89,6 +89,26 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "c", "UNION", "b", "PIPE", "[]", "CREATE_MAP", "f", "PIPE", "g", "PIPE", "[]", "}"),
 		append(make([]interface{}, 0), "a", "c", "CREATE_MAP", "b", "[]", "PIPE", "f", "g", "PIPE", "[]", "PIPE", "CREATE_MAP", "UNION", "COLLECT_OBJECT", "PIPE"),
 	},
+	{
+		`explode(.a.b)`,
+		append(make([]interface{}, 0), "EXPLODE", "(", "a", "PIPE", "b", ")"),
+		append(make([]interface{}, 0), "a", "b", "PIPE", "EXPLODE"),
+	},
+	{
+		`.a.b style="folded"`,
+		append(make([]interface{}, 0), "a", "PIPE", "b", "ASSIGN_STYLE", "folded (string)"),
+		append(make([]interface{}, 0), "a", "b", "PIPE", "folded (string)", "ASSIGN_STYLE"),
+	},
+	// {
+	// 	`.a.b tag="!!str"`,
+	// 	append(make([]interface{}, 0), "EXPLODE", "(", "a", "PIPE", "b", ")"),
+	// 	append(make([]interface{}, 0), "a", "b", "PIPE", "EXPLODE"),
+	// },
+	{
+		`""`,
+		append(make([]interface{}, 0), " (string)"),
+		append(make([]interface{}, 0), " (string)"),
+	},
 
 	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},
 	// {".animals | (. == cat)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "SELF", "EQUALS", "cat", ")")},
