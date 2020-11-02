@@ -50,34 +50,34 @@ func explodeNode(node *yaml.Node) error {
 		}
 		return nil
 	case yaml.MappingNode:
+		var newContent = list.New()
 		for index := 0; index < len(node.Content); index = index + 2 {
 			keyNode := node.Content[index]
 			valueNode := node.Content[index+1]
 			log.Debugf("traversing %v", keyNode.Value)
 			if keyNode.Value != "<<" {
-				errorInContent := explodeNode(valueNode)
-				if errorInContent != nil {
-					return errorInContent
-				}
-				errorInContent = explodeNode(keyNode)
-				if errorInContent != nil {
-					return errorInContent
+				err := overrideEntry(node, keyNode, valueNode, index, newContent)
+				if err != nil {
+					return err
 				}
 			} else {
 				if valueNode.Kind == yaml.SequenceNode {
 					log.Debugf("an alias merge list!")
-					for index := len(valueNode.Content) - 1; index >= 0; index = index - 1 {
+					for index := 0; index < len(valueNode.Content); index = index + 1 {
 						aliasNode := valueNode.Content[index]
-						applyAlias(node, aliasNode.Alias)
+						applyAlias(node, aliasNode.Alias, index, newContent)
 					}
 				} else {
 					log.Debugf("an alias merge!")
-					applyAlias(node, valueNode.Alias)
+					applyAlias(node, valueNode.Alias, index, newContent)
 				}
-				node.Content = append(node.Content[:index], node.Content[index+2:]...)
-				//replay that index, since the array is shorter now.
-				index = index - 2
 			}
+		}
+		node.Content = make([]*yaml.Node, newContent.Len())
+		index := 0
+		for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
+			node.Content[index] = newEl.Value.(*yaml.Node)
+			index++
 		}
 
 		return nil
@@ -86,27 +86,57 @@ func explodeNode(node *yaml.Node) error {
 	}
 }
 
-func applyAlias(node *yaml.Node, alias *yaml.Node) {
+func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent *list.List) error {
 	if alias == nil {
-		return
+		return nil
 	}
 	for index := 0; index < len(alias.Content); index = index + 2 {
 		keyNode := alias.Content[index]
 		log.Debugf("applying alias key %v", keyNode.Value)
 		valueNode := alias.Content[index+1]
-		setIfNotThere(node, keyNode.Value, valueNode)
-	}
-}
-
-func setIfNotThere(node *yaml.Node, key string, value *yaml.Node) {
-	for index := 0; index < len(node.Content); index = index + 2 {
-		keyNode := node.Content[index]
-		if keyNode.Value == key {
-			return
+		err := overrideEntry(node, keyNode, valueNode, aliasIndex, newContent)
+		if err != nil {
+			return err
 		}
 	}
-	// need to add it to the map
-	mapEntryKey := yaml.Node{Value: key, Kind: yaml.ScalarNode}
-	node.Content = append(node.Content, &mapEntryKey)
-	node.Content = append(node.Content, value)
+	return nil
+}
+
+func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex int, newContent *list.List) error {
+
+	err := explodeNode(value)
+
+	if err != nil {
+		return err
+	}
+
+	for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
+		valueEl := newEl.Next() // move forward twice
+		keyNode := newEl.Value.(*yaml.Node)
+		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*yaml.Node).Value)
+		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
+			log.Debugf("overridign new content")
+			valueEl.Value = value
+			return nil
+		}
+		newEl = valueEl // move forward twice
+	}
+
+	for index := startIndex + 2; index < len(node.Content); index = index + 2 {
+		keyNode := node.Content[index]
+
+		if keyNode.Value == key.Value && keyNode.Alias == nil {
+			log.Debugf("content will be overridden at index %v", index)
+			return nil
+		}
+	}
+
+	err = explodeNode(key)
+	if err != nil {
+		return err
+	}
+	log.Debugf("adding %v:%v", key.Value, value.Value)
+	newContent.PushBack(key)
+	newContent.PushBack(value)
+	return nil
 }
