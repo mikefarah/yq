@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mikefarah/yq/v4/pkg/yqlib/treeops"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
 )
@@ -40,7 +40,7 @@ func New() *cobra.Command {
 			// }
 			cmd.SilenceUsage = true
 
-			var treeCreator = treeops.NewPathTreeCreator()
+			var treeCreator = yqlib.NewPathTreeCreator()
 
 			expression := ""
 			if len(args) > 0 {
@@ -53,13 +53,13 @@ func New() *cobra.Command {
 			}
 
 			if outputToJSON {
-				explodeOp := treeops.Operation{OperationType: treeops.Explode}
-				explodeNode := treeops.PathTreeNode{Operation: &explodeOp}
-				pipeOp := treeops.Operation{OperationType: treeops.Pipe}
-				pathNode = &treeops.PathTreeNode{Operation: &pipeOp, Lhs: pathNode, Rhs: &explodeNode}
+				explodeOp := yqlib.Operation{OperationType: yqlib.Explode}
+				explodeNode := yqlib.PathTreeNode{Operation: &explodeOp}
+				pipeOp := yqlib.Operation{OperationType: yqlib.Pipe}
+				pathNode = &yqlib.PathTreeNode{Operation: &pipeOp, Lhs: pathNode, Rhs: &explodeNode}
 			}
 
-			matchingNodes, err := evaluate("-", pathNode)
+			matchingNodes, err := yqlib.Evaluate("-", pathNode)
 			if err != nil {
 				return err
 			}
@@ -71,7 +71,14 @@ func New() *cobra.Command {
 
 			out := cmd.OutOrStdout()
 
-			return printResults(matchingNodes, out)
+			fileInfo, _ := os.Stdout.Stat()
+
+			if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
+				colorsEnabled = true
+			}
+			printer := yqlib.NewPrinter(outputToJSON, unwrapScalar, colorsEnabled, indent, printDocSeparators)
+
+			return printer.PrintResults(matchingNodes, out)
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			cmd.SetOut(cmd.OutOrStdout())
@@ -92,8 +99,7 @@ func New() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json. By default it prints a json document in one line, use the prettyPrint flag to print a formatted doc.")
-	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json. Set indent to 0 to print json in one line.")
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
