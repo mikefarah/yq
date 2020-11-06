@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -19,14 +20,12 @@ type expressionScenario struct {
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
-
-	nodes := readDoc(t, s.document)
-	path, errPath := treeCreator.ParsePath(s.expression)
+	node, errPath := treeCreator.ParsePath(s.expression)
 	if errPath != nil {
 		t.Error(errPath)
 		return
 	}
-	results, errNav := treeNavigator.GetMatchingNodes(nodes, path)
+	results, errNav := EvaluateStream("sample.yaml", strings.NewReader(s.document), node)
 
 	if errNav != nil {
 		t.Error(errNav)
@@ -67,14 +66,13 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 
 			w.WriteString(fmt.Sprintf("Result\n"))
 
-			nodes := readDoc(t, s.document)
-			path, errPath := treeCreator.ParsePath(s.expression)
+			node, errPath := treeCreator.ParsePath(s.expression)
 			if errPath != nil {
 				t.Error(errPath)
 				return
 			}
 			var output bytes.Buffer
-			results, err := treeNavigator.GetMatchingNodes(nodes, path)
+			results, err := EvaluateStream("sample.yaml", strings.NewReader(s.document), node)
 			printer.PrintResults(results, bufio.NewWriter(&output))
 
 			w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))

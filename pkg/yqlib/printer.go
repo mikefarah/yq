@@ -52,7 +52,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer
 		return nil
 	}
 
-	var previousDocIndex uint = 0
+	var previousDocIndex uint = matchingNodes.Front().Value.(*CandidateNode).Document
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)

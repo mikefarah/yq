@@ -10,7 +10,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func readStream(filename string) (*yaml.Decoder, error) {
+var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
+
+func readStream(filename string) (io.Reader, error) {
 	if filename == "" {
 		return nil, errors.New("Must provide filename")
 	}
@@ -26,22 +28,15 @@ func readStream(filename string) (*yaml.Decoder, error) {
 		defer safelyCloseFile(file)
 		stream = file
 	}
-	return yaml.NewDecoder(stream), nil
+	return stream, nil
 }
 
-// put this in lib
-func Evaluate(filename string, node *PathTreeNode) (*list.List, error) {
-
-	var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
-
+func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode) (*list.List, error) {
 	var matchingNodes = list.New()
 
 	var currentIndex uint = 0
-	var decoder, err = readStream(filename)
-	if err != nil {
-		return nil, err
-	}
 
+	decoder := yaml.NewDecoder(reader)
 	for {
 		var dataBucket yaml.Node
 		errorReading := decoder.Decode(&dataBucket)
@@ -66,8 +61,16 @@ func Evaluate(filename string, node *PathTreeNode) (*list.List, error) {
 		matchingNodes.PushBackList(newMatches)
 		currentIndex = currentIndex + 1
 	}
+}
 
-	return matchingNodes, nil
+func Evaluate(filename string, node *PathTreeNode) (*list.List, error) {
+
+	var reader, err = readStream(filename)
+	if err != nil {
+		return nil, err
+	}
+	return EvaluateStream(filename, reader, node)
+
 }
 
 func safelyRenameFile(from string, to string) {

@@ -191,6 +191,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`or`), opToken(Or))
 	lexer.Add([]byte(`not`), opToken(Not))
 
+	lexer.Add([]byte(`documentIndex`), opToken(GetDocumentIndex))
+
 	lexer.Add([]byte(`style\s*=`), opToken(AssignStyle))
 	lexer.Add([]byte(`style`), opToken(GetStyle))
 

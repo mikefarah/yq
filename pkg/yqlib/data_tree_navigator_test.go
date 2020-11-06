@@ -2,35 +2,9 @@ package yqlib
 
 import (
 	"container/list"
-	"strings"
-	"testing"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
-var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
 var treeCreator = NewPathTreeCreator()
-
-func readDoc(t *testing.T, content string) *list.List {
-	inputList := list.New()
-	if content == "" {
-		return inputList
-	}
-	decoder := yaml.NewDecoder(strings.NewReader(content))
-	var dataBucket yaml.Node
-	err := decoder.Decode(&dataBucket)
-	if err != nil {
-		t.Error(content)
-		t.Error(err)
-	}
-
-	inputList.PushBack(&CandidateNode{
-		Document: 0,
-		Filename: "test.yml",
-		Node:     &dataBucket,
-	})
-	return inputList
-}
 
 func resultsToString(results *list.List) []string {
 	var pretty []string = make([]string, 0)
