@@ -8,8 +8,18 @@ import (
 )
 
 func AssignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	customStyle := pathNode.Rhs.Operation.StringValue
-	log.Debugf("AssignStyleOperator: %v", customStyle)
+
+	log.Debugf("AssignStyleOperator: %v")
+
+	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if err != nil {
+		return nil, err
+	}
+	customStyle := ""
+
+	if rhs.Front() != nil {
+		customStyle = rhs.Front().Value.(*CandidateNode).Node.Value
+	}
 
 	var style yaml.Style
 	if customStyle == "tagged" {

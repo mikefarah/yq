@@ -84,9 +84,13 @@ func documentToken() lex.Action {
 }
 
 func opToken(op *OperationType) lex.Action {
+	return opTokenWithPrefs(op, nil)
+}
+
+func opTokenWithPrefs(op *OperationType, preferences interface{}) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		op := &Operation{OperationType: op, Value: op.Type, StringValue: value}
+		op := &Operation{OperationType: op, Value: op.Type, StringValue: value, Preferences: preferences}
 		return &Token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
@@ -189,6 +193,12 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`style\s*=`), opToken(AssignStyle))
 	lexer.Add([]byte(`style`), opToken(GetStyle))
+
+	lexer.Add([]byte(`lineComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{LineComment: true}))
+	lexer.Add([]byte(`headComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{HeadComment: true}))
+	lexer.Add([]byte(`footComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{FootComment: true}))
+	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{LineComment: true, HeadComment: true, FootComment: true}))
+	// lexer.Add([]byte(`style`), opToken(GetStyle))
 
 	// lexer.Add([]byte(`and`), opToken())
 	lexer.Add([]byte(`collect`), opToken(Collect))

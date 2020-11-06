@@ -13,6 +13,14 @@ var styleOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Set style using a path",
+		document:    `{a: cat, b: double}`,
+		expression:  `.a style=.b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: \"cat\", b: double}\n",
+		},
+	},
+	{
 		document:   `{a: "cat", b: 'dog'}`,
 		expression: `.. style=""`,
 		expected: []string{
@@ -42,4 +50,5 @@ func TestStyleOperatorScenarios(t *testing.T) {
 	for _, tt := range styleOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Style Operator", styleOperatorScenarios)
 }

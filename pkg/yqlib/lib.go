@@ -18,14 +18,12 @@ type OperationType struct {
 
 // operators TODO:
 // - generator doc from operator tests
-// - stripComments not recursive
+// - set comments not recursive
 // - documentIndex - retrieves document index, can be used with select
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - updateTag - not recursive
-// - select by tag (tag==)
 // - get tag (tag)
-// - select by style (style==)
 // - compare ??
 // - validate ??
 // - exists
@@ -38,6 +36,7 @@ var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: U
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}
+var AssignComment = &OperationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedence: 40, Handler: AssignCommentsOperator}
 
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
 
