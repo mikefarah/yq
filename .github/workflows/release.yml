@@ -1,0 +1,48 @@
+name: Publish image to Dockerhub
+
+on:
+  release:
+    types: [released]
+
+jobs:
+  build:
+    env:
+      IMAGE_NAME: mikefarah/yq
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest release tag      
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: mikefarah/yq  # The repository to scan.
+          releases-only: true  # We know that all relevant tags have a GitHub release for them.
+        id: yq  
+        
+      - name: Clone source code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ steps.yq.outputs.tag }}
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+  
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
+
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }} && docker version
+ 
+      - name: Build and push image
+        run: |
+          IMAGE_VERSION="$(git describe --tags --abbrev=0)"
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"
+          echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker buildx build --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}"  -t "${IMAGE_NAME}:latest" \
+            --push .
+    
