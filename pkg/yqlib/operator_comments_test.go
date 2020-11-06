@@ -6,7 +6,7 @@ import (
 
 var commentOperatorScenarios = []expressionScenario{
 	{
-		description: "Add line comment",
+		description: "Set line comment",
 		document:    `a: cat`,
 		expression:  `.a lineComment="single"`,
 		expected: []string{
@@ -14,7 +14,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Add head comment",
+		description: "Set head comment",
 		document:    `a: cat`,
 		expression:  `. headComment="single"`,
 		expected: []string{
@@ -22,7 +22,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Add foot comment, using an expression",
+		description: "Set foot comment, using an expression",
 		document:    `a: cat`,
 		expression:  `. footComment=.a`,
 		expected: []string{
@@ -43,6 +43,30 @@ var commentOperatorScenarios = []expressionScenario{
 		expression:  `.. comments=""`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
+		},
+	},
+	{
+		description: "Get line comment",
+		document:    "# welcome!\n\na: cat # meow\n\n# have a great day",
+		expression:  `.a | lineComment`,
+		expected: []string{
+			"D0, P[a], (!!str)::meow\n",
+		},
+	},
+	{
+		description: "Get head comment",
+		document:    "# welcome!\n\na: cat # meow\n\n# have a great day",
+		expression:  `. | headComment`,
+		expected: []string{
+			"D0, P[], (!!str)::welcome!\n",
+		},
+	},
+	{
+		description: "Get foot comment",
+		document:    "# welcome!\n\na: cat # meow\n\n# have a great day",
+		expression:  `. | footComment`,
+		expected: []string{
+			"D0, P[], (!!str)::have a great day\n",
 		},
 	},
 }

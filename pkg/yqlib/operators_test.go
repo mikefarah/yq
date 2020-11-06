@@ -15,6 +15,7 @@ type expressionScenario struct {
 	document    string
 	expression  string
 	expected    []string
+	skipDoc     bool
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
@@ -48,36 +49,39 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	printer := NewPrinter(false, true, false, 2, true)
 
 	for index, s := range scenarios {
-		if s.description != "" {
-			w.WriteString(fmt.Sprintf("### %v\n", s.description))
-		} else {
-			w.WriteString(fmt.Sprintf("### Example %v\n", index))
-		}
-		if s.document != "" {
-			w.WriteString(fmt.Sprintf("sample.yml:\n"))
-			w.WriteString(fmt.Sprintf("```yaml\n%v\n```\n", s.document))
-		}
-		if s.expression != "" {
-			w.WriteString(fmt.Sprintf("Expression\n"))
-			w.WriteString(fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
-		}
+		if !s.skipDoc {
 
-		w.WriteString(fmt.Sprintf("Result\n"))
+			if s.description != "" {
+				w.WriteString(fmt.Sprintf("### %v\n", s.description))
+			} else {
+				w.WriteString(fmt.Sprintf("### Example %v\n", index))
+			}
+			if s.document != "" {
+				w.WriteString(fmt.Sprintf("sample.yml:\n"))
+				w.WriteString(fmt.Sprintf("```yaml\n%v\n```\n", s.document))
+			}
+			if s.expression != "" {
+				w.WriteString(fmt.Sprintf("Expression\n"))
+				w.WriteString(fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
+			}
 
-		nodes := readDoc(t, s.document)
-		path, errPath := treeCreator.ParsePath(s.expression)
-		if errPath != nil {
-			t.Error(errPath)
-			return
-		}
-		var output bytes.Buffer
-		results, err := treeNavigator.GetMatchingNodes(nodes, path)
-		printer.PrintResults(results, bufio.NewWriter(&output))
+			w.WriteString(fmt.Sprintf("Result\n"))
 
-		w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))
+			nodes := readDoc(t, s.document)
+			path, errPath := treeCreator.ParsePath(s.expression)
+			if errPath != nil {
+				t.Error(errPath)
+				return
+			}
+			var output bytes.Buffer
+			results, err := treeNavigator.GetMatchingNodes(nodes, path)
+			printer.PrintResults(results, bufio.NewWriter(&output))
 
-		if err != nil {
-			panic(err)
+			w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))
+
+			if err != nil {
+				panic(err)
+			}
 		}
 
 	}

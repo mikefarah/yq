@@ -1,8 +1,13 @@
 package yqlib
 
-import "container/list"
+import (
+	"container/list"
+	"strings"
 
-type AssignCommentPreferences struct {
+	"gopkg.in/yaml.v3"
+)
+
+type CommentOpPreferences struct {
 	LineComment bool
 	HeadComment bool
 	FootComment bool
@@ -27,7 +32,7 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 		return nil, err
 	}
 
-	preferences := pathNode.Operation.Preferences.(*AssignCommentPreferences)
+	preferences := pathNode.Operation.Preferences.(*CommentOpPreferences)
 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -44,4 +49,28 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 
 	}
 	return matchingNodes, nil
+}
+
+func GetCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	preferences := pathNode.Operation.Preferences.(*CommentOpPreferences)
+	log.Debugf("GetComments operator!")
+	var results = list.New()
+
+	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		comment := ""
+		if preferences.LineComment {
+			comment = candidate.Node.LineComment
+		} else if preferences.HeadComment {
+			comment = candidate.Node.HeadComment
+		} else if preferences.FootComment {
+			comment = candidate.Node.FootComment
+		}
+		comment = strings.Replace(comment, "# ", "", 1)
+
+		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
+		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
+		results.PushBack(lengthCand)
+	}
+	return results, nil
 }

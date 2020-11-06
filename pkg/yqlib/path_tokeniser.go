@@ -194,10 +194,16 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`style\s*=`), opToken(AssignStyle))
 	lexer.Add([]byte(`style`), opToken(GetStyle))
 
-	lexer.Add([]byte(`lineComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{LineComment: true}))
-	lexer.Add([]byte(`headComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{HeadComment: true}))
-	lexer.Add([]byte(`footComment\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{FootComment: true}))
-	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, &AssignCommentPreferences{LineComment: true, HeadComment: true, FootComment: true}))
+	lexer.Add([]byte(`lineComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{LineComment: true}))
+	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{LineComment: true}))
+
+	lexer.Add([]byte(`headComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{HeadComment: true}))
+	lexer.Add([]byte(`headComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{HeadComment: true}))
+
+	lexer.Add([]byte(`footComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{FootComment: true}))
+	lexer.Add([]byte(`footComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{FootComment: true}))
+
+	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true}))
 	// lexer.Add([]byte(`style`), opToken(GetStyle))
 
 	// lexer.Add([]byte(`and`), opToken())

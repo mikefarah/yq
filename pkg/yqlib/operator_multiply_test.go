@@ -6,6 +6,7 @@ import (
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: me}}`,
 		expression: `. * {"a" : .b}`,
 		expected: []string{
@@ -13,6 +14,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {also: me}, b: {also: [1]}}`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
@@ -20,13 +22,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   `{a: {also: me}, b: {also: {g: wizz}}}`,
-		expression: `. * {"a":.b}`,
+		description: "Merge objects together",
+		document:    `{a: {also: me}, b: {also: {g: wizz}}}`,
+		expression:  `. * {"a":.b}`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {also: {g: wizz}}, b: {also: {g: wizz}}}\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {also: {g: wizz}}, b: {also: me}}`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
@@ -34,6 +38,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {also: {g: wizz}}, b: {also: [1]}}`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
@@ -41,6 +46,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: {g: wizz}}}`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
@@ -48,6 +54,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {things: great}, b: {also: me}}`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
@@ -55,6 +62,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Merge keeps style of LHS",
 		document: `a: {things: great}
 b:
   also: "me"
@@ -68,36 +76,41 @@ b:
 		},
 	},
 	{
-		document:   `{a: [1,2,3], b: [3,4,5]}`,
-		expression: `. * {"a":.b}`,
+		description: "Merge arrays",
+		document:    `{a: [1,2,3], b: [3,4,5]}`,
+		expression:  `. * {"a":.b}`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: [3, 4, 5], b: [3, 4, 5]}\n",
 		},
 	},
 	{
-		document:   `{a: cat}`,
-		expression: `. * {"a": {"c": .a}}`,
+		description: "Merge to prefix an element",
+		document:    `{a: cat, b: dog}`,
+		expression:  `. * {"a": {"c": .a}}`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: {c: cat}}\n",
+			"D0, P[], (!!map)::{a: {c: cat}, b: dog}\n",
 		},
 	},
 	{
-		document:   `{a: &cat {c: frog}, b: {f: *cat}, c: {g: thongs}}`,
-		expression: `.c * .b`,
+		description: "Merge with simple aliases",
+		document:    `{a: &cat {c: frog}, b: {f: *cat}, c: {g: thongs}}`,
+		expression:  `.c * .b`,
 		expected: []string{
 			"D0, P[c], (!!map)::{g: thongs, f: *cat}\n",
 		},
 	},
 	{
-		document:   `{a: {c: &cat frog}, b: {f: *cat}, c: {g: thongs}}`,
-		expression: `.c * .a`,
+		description: "Merge does not copy anchor names",
+		document:    `{a: {c: &cat frog}, b: {f: *cat}, c: {g: thongs}}`,
+		expression:  `.c * .a`,
 		expected: []string{
 			"D0, P[c], (!!map)::{g: thongs, c: frog}\n",
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobar * .foobarList`,
+		description: "Merge with merge anchors",
+		document:    mergeDocSample,
+		expression:  `.foobar * .foobarList`,
 		expected: []string{
 			"D0, P[foobar], (!!map)::c: foobarList_c\n<<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
 		},
@@ -108,4 +121,5 @@ func TestMultiplyOperatorScenarios(t *testing.T) {
 	for _, tt := range multiplyOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Mulitply Operator", multiplyOperatorScenarios)
 }
