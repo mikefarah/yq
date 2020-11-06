@@ -3,7 +3,7 @@
 set -o errexit
 set -o pipefail
 
-./bin/golangci-lint run
+./bin/golangci-lint run --timeout=5m
 
 # ./bin/golangci-lint \
 #   --tests \
