@@ -18,7 +18,11 @@ type OperationType struct {
 
 // operators TODO:
 // - generator doc from operator tests
-// - documentIndex - retrieves document index, can be used with select
+// - slurp - stdin, read in sequence, vs read all
+// - write in place
+// - get path operator (like doc index)
+// - get file index op (like doc index)
+// - get file name op (like doc index)
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - updateTag - not recursive

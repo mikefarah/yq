@@ -3,7 +3,6 @@ package yqlib
 import (
 	"bufio"
 	"container/list"
-	"errors"
 	"io"
 	"os"
 
@@ -11,12 +10,9 @@ import (
 )
 
 var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
+var treeCreator = NewPathTreeCreator()
 
 func readStream(filename string) (io.Reader, error) {
-	if filename == "" {
-		return nil, errors.New("Must provide filename")
-	}
-
 	var stream io.Reader
 	if filename == "-" {
 		stream = bufio.NewReader(os.Stdin)
@@ -31,7 +27,20 @@ func readStream(filename string) (io.Reader, error) {
 	return stream, nil
 }
 
-func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode) (*list.List, error) {
+func EvaluateExpression(expression string) (*list.List, error) {
+	node, err := treeCreator.ParsePath(expression)
+	if err != nil {
+		return nil, err
+	}
+	return treeNavigator.GetMatchingNodes(list.New(), node)
+}
+
+func EvaluateStream(filename string, reader io.Reader, expression string) (*list.List, error) {
+	node, err := treeCreator.ParsePath(expression)
+	if err != nil {
+		return nil, err
+	}
+
 	var matchingNodes = list.New()
 
 	var currentIndex uint = 0
@@ -63,13 +72,13 @@ func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode) (*lis
 	}
 }
 
-func Evaluate(filename string, node *PathTreeNode) (*list.List, error) {
+func Evaluate(filename string, expression string) (*list.List, error) {
 
 	var reader, err = readStream(filename)
 	if err != nil {
 		return nil, err
 	}
-	return EvaluateStream(filename, reader, node)
+	return EvaluateStream(filename, reader, expression)
 
 }
 

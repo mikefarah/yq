@@ -43,6 +43,15 @@ func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer) error {
+	var err error
+	if p.outputToJSON {
+		explodeOp := Operation{OperationType: Explode}
+		explodeNode := PathTreeNode{Operation: &explodeOp}
+		matchingNodes, err = treeNavigator.GetMatchingNodes(matchingNodes, &explodeNode)
+		if err != nil {
+			return err
+		}
+	}
 
 	bufferedWriter := bufio.NewWriter(writer)
 	defer safelyFlush(bufferedWriter)

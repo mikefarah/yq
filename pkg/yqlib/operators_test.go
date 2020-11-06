@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
+	"container/list"
 	"fmt"
 	"os"
 	"strings"
@@ -20,15 +21,16 @@ type expressionScenario struct {
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
-	node, errPath := treeCreator.ParsePath(s.expression)
-	if errPath != nil {
-		t.Error(errPath)
-		return
+	var results *list.List
+	var err error
+	if s.document != "" {
+		results, err = EvaluateStream("sample.yaml", strings.NewReader(s.document), s.expression)
+	} else {
+		results, err = EvaluateExpression(s.expression)
 	}
-	results, errNav := EvaluateStream("sample.yaml", strings.NewReader(s.document), node)
 
-	if errNav != nil {
-		t.Error(errNav)
+	if err != nil {
+		t.Error(err)
 		return
 	}
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
@@ -66,13 +68,15 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 
 			w.WriteString(fmt.Sprintf("Result\n"))
 
-			node, errPath := treeCreator.ParsePath(s.expression)
-			if errPath != nil {
-				t.Error(errPath)
-				return
-			}
 			var output bytes.Buffer
-			results, err := EvaluateStream("sample.yaml", strings.NewReader(s.document), node)
+			var results *list.List
+			var err error
+			if s.document != "" {
+				results, err = EvaluateStream("sample.yaml", strings.NewReader(s.document), s.expression)
+			} else {
+				results, err = EvaluateExpression(s.expression)
+			}
+
 			printer.PrintResults(results, bufio.NewWriter(&output))
 
 			w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))

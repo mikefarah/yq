@@ -4,8 +4,6 @@ import (
 	"container/list"
 )
 
-var treeCreator = NewPathTreeCreator()
-
 func resultsToString(results *list.List) []string {
 	var pretty []string = make([]string, 0)
 	for el := results.Front(); el != nil; el = el.Next() {
