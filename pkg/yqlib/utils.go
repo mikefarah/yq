@@ -151,23 +151,23 @@ func EvaluateFileStreamsSequence(expression string, filenames []string, printer 
 // 	}
 // }
 
-// // thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
-// func copyFileContents(src, dst string) (err error) {
-// 	in, err := os.Open(src) // nolint gosec
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer safelyCloseFile(in)
-// 	out, err := os.Create(dst)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer safelyCloseFile(out)
-// 	if _, err = io.Copy(out, in); err != nil {
-// 		return err
-// 	}
-// 	return out.Sync()
-// }
+// thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
+func copyFileContents(src, dst string) (err error) {
+	in, err := os.Open(src) // nolint gosec
+	if err != nil {
+		return err
+	}
+	defer safelyCloseFile(in)
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer safelyCloseFile(out)
+	if _, err = io.Copy(out, in); err != nil {
+		return err
+	}
+	return out.Sync()
+}
 
 func safelyFlush(writer *bufio.Writer) {
 	if err := writer.Flush(); err != nil {

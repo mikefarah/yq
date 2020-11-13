@@ -6,22 +6,25 @@ import (
 
 var equalsOperatorScenarios = []expressionScenario{
 	{
-		document:   `[cat,goat,dog]`,
-		expression: `.[] | (. == "*at")`,
+		description: "Match string",
+		document:    `[cat,goat,dog]`,
+		expression:  `.[] | (. == "*at")`,
 		expected: []string{
 			"D0, P[0], (!!bool)::true\n",
 			"D0, P[1], (!!bool)::true\n",
 			"D0, P[2], (!!bool)::false\n",
 		},
 	}, {
-		document:   `[3, 4, 5]`,
-		expression: `.[] | (. == 4)`,
+		description: "Match number",
+		document:    `[3, 4, 5]`,
+		expression:  `.[] | (. == 4)`,
 		expected: []string{
 			"D0, P[0], (!!bool)::false\n",
 			"D0, P[1], (!!bool)::true\n",
 			"D0, P[2], (!!bool)::false\n",
 		},
 	}, {
+		skipDoc:    true,
 		document:   `a: { cat: {b: apple, c: whatever}, pat: {b: banana} }`,
 		expression: `.a | (.[].b == "apple")`,
 		expected: []string{
@@ -30,6 +33,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   ``,
 		expression: `null == null`,
 		expected: []string{
@@ -37,8 +41,9 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   ``,
-		expression: `null == ~`,
+		description: "Match nulls",
+		document:    ``,
+		expression:  `null == ~`,
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
 		},

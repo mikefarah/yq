@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"container/list"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -55,35 +56,61 @@ func writeOrPanic(w *bufio.Writer, text string) {
 	}
 }
 
+func copyFromHeader(title string, out *os.File) (bool, error) {
+	source := fmt.Sprintf("doc/headers/%v.md", title)
+	_, err := os.Stat(source)
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	in, err := os.Open(source) // nolint gosec
+	if err != nil {
+		return false, err
+	}
+	defer safelyCloseFile(in)
+	_, err = io.Copy(out, in)
+	return true, err
+}
+
 func documentScenarios(t *testing.T, title string, scenarios []expressionScenario) {
 	f, err := os.Create(fmt.Sprintf("doc/%v.md", title))
 
 	if err != nil {
 		t.Error(err)
+		return
 	}
 	defer f.Close()
+
+	hasHeader, err := copyFromHeader(title, f)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	w := bufio.NewWriter(f)
-	writeOrPanic(w, fmt.Sprintf("# %v\n", title))
-	writeOrPanic(w, "## Examples\n")
+
+	if !hasHeader {
+		writeOrPanic(w, fmt.Sprintf("## %v\n", title))
+	}
 
 	for index, s := range scenarios {
 		if !s.skipDoc {
 
 			if s.description != "" {
-				writeOrPanic(w, fmt.Sprintf("### %v\n", s.description))
+				writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 			} else {
-				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
+				writeOrPanic(w, fmt.Sprintf("## Example %v\n", index))
 			}
 			if s.document != "" {
-				writeOrPanic(w, "sample.yml:\n")
+				//TODO: pretty here
+				writeOrPanic(w, "Given a sample.yml file of:\n")
 				writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.document))
 			}
 			if s.expression != "" {
-				writeOrPanic(w, "Expression\n")
+				writeOrPanic(w, "then\n")
 				writeOrPanic(w, fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
 			}
 
-			writeOrPanic(w, "Result\n")
+			writeOrPanic(w, "will output\n")
 
 			var output bytes.Buffer
 			var err error
