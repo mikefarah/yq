@@ -25,10 +25,10 @@ var documentIndexScenarios = []expressionScenario{
 	{
 		description: "Print Document Index with matches",
 		document:    "a: cat\n---\na: frog\n",
-		expression:  `.a | {"match": ., "doc": (. | documentIndex)}`,
+		expression:  `.a | ({"match": ., "doc": (. | documentIndex)})`,
 		expected: []string{
 			"D0, P[], (!!map)::match: cat\ndoc: 0\n",
-			"D1, P[], (!!map)::match: frog\ndoc: 1\n",
+			"D0, P[], (!!map)::match: frog\ndoc: 1\n",
 		},
 	},
 }

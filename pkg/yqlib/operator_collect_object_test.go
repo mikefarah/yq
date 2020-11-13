@@ -6,6 +6,26 @@ import (
 
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
+		document:   ``,
+		expression: `{}`,
+		expected:   []string{},
+	},
+	{
+		document:   "{name: Mike}\n",
+		expression: `{"wrap": .}`,
+		expected: []string{
+			"D0, P[], (!!map)::wrap: {name: Mike}\n",
+		},
+	},
+	{
+		document:   "{name: Mike}\n---\n{name: Bob}",
+		expression: `{"wrap": .}`,
+		expected: []string{
+			"D0, P[], (!!map)::wrap: {name: Mike}\n",
+			"D0, P[], (!!map)::wrap: {name: Bob}\n",
+		},
+	},
+	{
 		document:   `{name: Mike, age: 32}`,
 		expression: `{.name: .age}`,
 		expected: []string{
@@ -18,6 +38,16 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
+		},
+	},
+	{
+		document:   "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
+		expression: `{.name: .pets[]}`,
+		expected: []string{
+			"D0, P[], (!!map)::Mike: cat\n",
+			"D0, P[], (!!map)::Mike: dog\n",
+			"D0, P[], (!!map)::Rosey: monkey\n",
+			"D0, P[], (!!map)::Rosey: sheep\n",
 		},
 	},
 	{
@@ -55,11 +85,9 @@ b: {cows: [apl, bba]}
 	},
 	{
 		document:   `{name: Mike}`,
-		expression: `{"wrap": {"further": .}}`,
+		expression: `{"wrap": {"further": .}} | (.. style= "flow")`,
 		expected: []string{
-			`D0, P[], (!!map)::wrap:
-    further: {name: Mike}
-`,
+			"D0, P[], (!!map)::{wrap: {further: {name: Mike}}}\n",
 		},
 	},
 }
@@ -68,4 +96,5 @@ func TestCollectObjectOperatorScenarios(t *testing.T) {
 	for _, tt := range collectObjectOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Collect into Object", collectObjectOperatorScenarios)
 }

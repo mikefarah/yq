@@ -65,6 +65,6 @@ func New() *cobra.Command {
 
 	rootCmd.PersistentFlags().BoolVarP(&forceColor, "colors", "C", false, "force print with colors")
 	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
-	rootCmd.AddCommand(createEvaluateSequenceCommand())
+	rootCmd.AddCommand(createEvaluateSequenceCommand(), createEvaluateAllCommand())
 	return rootCmd
 }

@@ -114,6 +114,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "foo*", "PIPE", "(", "SELF", "ASSIGN_STYLE", "flow (string)", ")"),
 		append(make([]interface{}, 0), "foo*", "SELF", "flow (string)", "ASSIGN_STYLE", "PIPE"),
 	},
+	{
+		`{}`,
+		append(make([]interface{}, 0), "{", "}"),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT_OBJECT", "PIPE"),
+	},
 
 	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},
 	// {".animals | (. == cat)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "SELF", "EQUALS", "cat", ")")},

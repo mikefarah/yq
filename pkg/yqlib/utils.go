@@ -13,35 +13,14 @@ var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
 var treeCreator = NewPathTreeCreator()
 
 func readStream(filename string) (io.Reader, error) {
-	var stream io.Reader
 	if filename == "-" {
-		stream = bufio.NewReader(os.Stdin)
+		return bufio.NewReader(os.Stdin), nil
 	} else {
-		file, err := os.Open(filename) // nolint gosec
-		if err != nil {
-			return nil, err
-		}
-		defer safelyCloseFile(file)
-		stream = file
+		return os.Open(filename) // nolint gosec
 	}
-	return stream, nil
 }
 
-func EvaluateExpression(expression string) (*list.List, error) {
-	node, err := treeCreator.ParsePath(expression)
-	if err != nil {
-		return nil, err
-	}
-	return treeNavigator.GetMatchingNodes(list.New(), node)
-}
-
-func EvaluateStream(filename string, reader io.Reader, expression string) (*list.List, error) {
-	node, err := treeCreator.ParsePath(expression)
-	if err != nil {
-		return nil, err
-	}
-
-	var matchingNodes = list.New()
+func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode, printer Printer) error {
 
 	var currentIndex uint = 0
 
@@ -51,9 +30,9 @@ func EvaluateStream(filename string, reader io.Reader, expression string) (*list
 		errorReading := decoder.Decode(&dataBucket)
 
 		if errorReading == io.EOF {
-			return matchingNodes, nil
+			return nil
 		} else if errorReading != nil {
-			return nil, errorReading
+			return errorReading
 		}
 		candidateNode := &CandidateNode{
 			Document: currentIndex,
@@ -63,23 +42,92 @@ func EvaluateStream(filename string, reader io.Reader, expression string) (*list
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 
-		newMatches, errorParsing := treeNavigator.GetMatchingNodes(inputList, node)
+		matches, errorParsing := treeNavigator.GetMatchingNodes(inputList, node)
 		if errorParsing != nil {
-			return nil, errorParsing
+			return errorParsing
 		}
-		matchingNodes.PushBackList(newMatches)
+		printer.PrintResults(matches)
 		currentIndex = currentIndex + 1
 	}
 }
 
-func Evaluate(filename string, expression string) (*list.List, error) {
+func readDocuments(reader io.Reader, filename string) (*list.List, error) {
+	decoder := yaml.NewDecoder(reader)
+	inputList := list.New()
+	var currentIndex uint = 0
 
-	var reader, err = readStream(filename)
-	if err != nil {
-		return nil, err
+	for {
+		var dataBucket yaml.Node
+		errorReading := decoder.Decode(&dataBucket)
+
+		if errorReading == io.EOF {
+			switch reader.(type) {
+			case *os.File:
+				safelyCloseFile(reader.(*os.File))
+			}
+			return inputList, nil
+		} else if errorReading != nil {
+			return nil, errorReading
+		}
+		candidateNode := &CandidateNode{
+			Document: currentIndex,
+			Filename: filename,
+			Node:     &dataBucket,
+		}
+
+		inputList.PushBack(candidateNode)
+
+		currentIndex = currentIndex + 1
 	}
-	return EvaluateStream(filename, reader, expression)
+}
 
+func EvaluateAllFileStreams(expression string, filenames []string, printer Printer) error {
+	node, err := treeCreator.ParsePath(expression)
+	if err != nil {
+		return err
+	}
+	var allDocuments *list.List = list.New()
+	for _, filename := range filenames {
+		reader, err := readStream(filename)
+		if err != nil {
+			return err
+		}
+		fileDocuments, err := readDocuments(reader, filename)
+		if err != nil {
+			return err
+		}
+		allDocuments.PushBackList(fileDocuments)
+	}
+	matches, err := treeNavigator.GetMatchingNodes(allDocuments, node)
+	if err != nil {
+		return err
+	}
+	return printer.PrintResults(matches)
+}
+
+func EvaluateFileStreamsSequence(expression string, filenames []string, printer Printer) error {
+
+	node, err := treeCreator.ParsePath(expression)
+	if err != nil {
+		return err
+	}
+
+	for _, filename := range filenames {
+		reader, err := readStream(filename)
+		if err != nil {
+			return err
+		}
+		err = EvaluateStream(filename, reader, node, printer)
+		if err != nil {
+			return err
+		}
+
+		switch reader.(type) {
+		case *os.File:
+			safelyCloseFile(reader.(*os.File))
+		}
+	}
+	return nil
 }
 
 func safelyRenameFile(from string, to string) {

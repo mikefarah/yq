@@ -17,8 +17,44 @@ import (
 
 func CollectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- collectObjectOperation")
-	return collect(d, list.New(), matchMap)
 
+	if matchMap.Len() == 0 {
+		return list.New(), nil
+	}
+	first := matchMap.Front().Value.(*CandidateNode)
+	var rotated []*list.List = make([]*list.List, len(first.Node.Content))
+
+	for i := 0; i < len(first.Node.Content); i++ {
+		rotated[i] = list.New()
+	}
+
+	for el := matchMap.Front(); el != nil; el = el.Next() {
+		candidateNode := el.Value.(*CandidateNode)
+		for i := 0; i < len(first.Node.Content); i++ {
+			rotated[i].PushBack(createChildCandidate(candidateNode, i))
+		}
+	}
+
+	newObject := list.New()
+	for i := 0; i < len(first.Node.Content); i++ {
+		additions, err := collect(d, list.New(), rotated[i])
+		if err != nil {
+			return nil, err
+		}
+		newObject.PushBackList(additions)
+	}
+
+	return newObject, nil
+
+}
+
+func createChildCandidate(candidate *CandidateNode, index int) *CandidateNode {
+	return &CandidateNode{
+		Document: candidate.Document,
+		Path:     append(candidate.Path, index),
+		Filename: candidate.Filename,
+		Node:     candidate.Node.Content[index],
+	}
 }
 
 func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.List) (*list.List, error) {

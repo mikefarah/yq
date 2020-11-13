@@ -41,8 +41,14 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*Operation, er
 				opener = OpenCollectObject
 				collectOperator = CollectObject
 			}
+			itemsInMiddle := false
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != opener {
 				opStack, result = popOpToResult(opStack, result)
+				itemsInMiddle = true
+			}
+			if !itemsInMiddle {
+				// must be an empty collection, add the empty object as a LHS parameter
+				result = append(result, &Operation{OperationType: Empty})
 			}
 			if len(opStack) == 0 {
 				return nil, errors.New("Bad path expression, got close collect brackets without matching opening bracket")

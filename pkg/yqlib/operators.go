@@ -16,6 +16,10 @@ func UnwrapDoc(node *yaml.Node) *yaml.Node {
 	return node
 }
 
+func EmptyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	return list.New(), nil
+}
+
 func PipeOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {

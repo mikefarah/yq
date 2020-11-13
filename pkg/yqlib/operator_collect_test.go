@@ -6,25 +6,30 @@ import (
 
 var collectOperatorScenarios = []expressionScenario{
 	{
-		document:   `{}`,
+		document:   ``,
+		expression: `[]`,
+		expected:   []string{},
+	},
+	{
+		document:   ``,
 		expression: `["cat"]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n",
 		},
 	}, {
-		document:   `{}`,
+		document:   ``,
 		expression: `[true]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- true\n",
 		},
 	}, {
-		document:   `{}`,
+		document:   ``,
 		expression: `["cat", "dog"]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n- dog\n",
 		},
 	}, {
-		document:   `{}`,
+		document:   ``,
 		expression: `1 | collect`,
 		expected: []string{
 			"D0, P[], (!!seq)::- 1\n",
@@ -48,4 +53,5 @@ func TestCollectOperatorScenarios(t *testing.T) {
 	for _, tt := range collectOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Collect into Array", collectOperatorScenarios)
 }

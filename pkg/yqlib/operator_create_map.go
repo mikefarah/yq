@@ -8,15 +8,50 @@ import (
 
 func CreateMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- createMapOperation")
-	var path []interface{} = nil
+
+	//each matchingNodes entry should turn into a sequence of keys to create.
+	//then collect object should do a cross function of the same index sequence for all matches.
+
+	var path []interface{}
+
 	var document uint = 0
-	if matchingNodes.Front() != nil {
-		sample := matchingNodes.Front().Value.(*CandidateNode)
-		path = sample.Path
-		document = sample.Document
+
+	sequences := list.New()
+
+	if matchingNodes.Len() > 0 {
+
+		for matchingNodeEl := matchingNodes.Front(); matchingNodeEl != nil; matchingNodeEl = matchingNodeEl.Next() {
+			matchingNode := matchingNodeEl.Value.(*CandidateNode)
+			sequenceNode, err := sequenceFor(d, matchingNode, pathNode)
+			if err != nil {
+				return nil, err
+			}
+			sequences.PushBack(sequenceNode)
+		}
+	} else {
+		sequenceNode, err := sequenceFor(d, nil, pathNode)
+		if err != nil {
+			return nil, err
+		}
+		sequences.PushBack(sequenceNode)
 	}
 
-	mapPairs, err := crossFunction(d, matchingNodes, pathNode,
+	return nodeToMap(&CandidateNode{Node: listToNodeSeq(sequences), Document: document, Path: path}), nil
+
+}
+
+func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *PathTreeNode) (*CandidateNode, error) {
+	var path []interface{}
+	var document uint = 0
+	var matches = list.New()
+
+	if matchingNode != nil {
+		path = matchingNode.Path
+		document = matchingNode.Document
+		matches = nodeToMap(matchingNode)
+	}
+
+	mapPairs, err := crossFunction(d, matches, pathNode,
 		func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 			log.Debugf("LHS:", NodeToString(lhs))
@@ -32,12 +67,19 @@ func CreateMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	if err != nil {
 		return nil, err
 	}
-	//wrap up all the pairs into an array
+	innerList := listToNodeSeq(mapPairs)
+	innerList.Style = yaml.FlowStyle
+	return &CandidateNode{Node: innerList, Document: document, Path: path}, nil
+}
+
+//NOTE: here the document index gets dropped so we
+// no longer know where the node originates from.
+func listToNodeSeq(list *list.List) *yaml.Node {
 	node := yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	for mapPair := mapPairs.Front(); mapPair != nil; mapPair = mapPair.Next() {
-		mapPairCandidate := mapPair.Value.(*CandidateNode)
-		log.Debugf("Collecting %v into sequence", NodeToString(mapPairCandidate))
-		node.Content = append(node.Content, mapPairCandidate.Node)
+	for entry := list.Front(); entry != nil; entry = entry.Next() {
+		entryCandidate := entry.Value.(*CandidateNode)
+		log.Debugf("Collecting %v into sequence", NodeToString(entryCandidate))
+		node.Content = append(node.Content, entryCandidate.Node)
 	}
-	return nodeToMap(&CandidateNode{Node: &node, Document: document, Path: path}), nil
+	return &node
 }

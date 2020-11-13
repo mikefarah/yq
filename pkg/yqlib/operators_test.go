@@ -23,11 +23,23 @@ type expressionScenario struct {
 func testScenario(t *testing.T, s *expressionScenario) {
 	var results *list.List
 	var err error
-	if s.document != "" {
-		results, err = EvaluateStream("sample.yaml", strings.NewReader(s.document), s.expression)
-	} else {
-		results, err = EvaluateExpression(s.expression)
+
+	node, err := treeCreator.ParsePath(s.expression)
+	if err != nil {
+		t.Error(err)
+		return
 	}
+	inputs := list.New()
+
+	if s.document != "" {
+		inputs, err = readDocuments(strings.NewReader(s.document), "sample.yml")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	}
+
+	results, err = treeNavigator.GetMatchingNodes(inputs, node)
 
 	if err != nil {
 		t.Error(err)
@@ -40,14 +52,12 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	f, err := os.Create(fmt.Sprintf("doc/%v.md", title))
 
 	if err != nil {
-		panic(err)
+		t.Error(err)
 	}
 	defer f.Close()
 	w := bufio.NewWriter(f)
 	w.WriteString(fmt.Sprintf("# %v\n", title))
 	w.WriteString(fmt.Sprintf("## Examples\n"))
-
-	printer := NewPrinter(false, true, false, 2, true)
 
 	for index, s := range scenarios {
 		if !s.skipDoc {
@@ -69,20 +79,23 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			w.WriteString(fmt.Sprintf("Result\n"))
 
 			var output bytes.Buffer
-			var results *list.List
 			var err error
-			if s.document != "" {
-				results, err = EvaluateStream("sample.yaml", strings.NewReader(s.document), s.expression)
-			} else {
-				results, err = EvaluateExpression(s.expression)
-			}
+			printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
-			printer.PrintResults(results, bufio.NewWriter(&output))
+			if s.document != "" {
+				node, err := treeCreator.ParsePath(s.expression)
+				if err != nil {
+					t.Error(err)
+				}
+				err = EvaluateStream("sample.yaml", strings.NewReader(s.document), node, printer)
+			} else {
+				err = EvaluateAllFileStreams(s.expression, []string{}, printer)
+			}
 
 			w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))
 
 			if err != nil {
-				panic(err)
+				t.Error(err)
 			}
 		}
 

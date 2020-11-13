@@ -174,7 +174,6 @@ func selfToken() lex.Action {
 	}
 }
 
-// Creates the lexer object and compiles the NFA.
 func initLexer() (*lex.Lexer, error) {
 	lexer := lex.NewLexer()
 	lexer.Add([]byte(`\(`), literalToken(OpenBracket, false))
@@ -206,9 +205,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`footComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{FootComment: true}))
 
 	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true}))
-	// lexer.Add([]byte(`style`), opToken(GetStyle))
 
-	// lexer.Add([]byte(`and`), opToken())
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
@@ -222,8 +219,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
-	lexer.Add([]byte(`d[0-9]+`), documentToken()) // $0
-
+	lexer.Add([]byte(`d[0-9]+`), documentToken())
 	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
 	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=]+`), pathToken(false))
 	lexer.Add([]byte(`\.`), selfToken())
@@ -248,7 +244,6 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\}`), literalToken(CloseCollectObject, true))
 	lexer.Add([]byte(`\*`), opToken(Multiply))
 
-	// lexer.Add([]byte(`[^ \,\|\.\[\(\)=]+`), stringValue(false))
 	err := lexer.Compile()
 	if err != nil {
 		return nil, err

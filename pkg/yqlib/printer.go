@@ -9,7 +9,7 @@ import (
 )
 
 type Printer interface {
-	PrintResults(matchingNodes *list.List, writer io.Writer) error
+	PrintResults(matchingNodes *list.List) error
 }
 
 type resultsPrinter struct {
@@ -18,10 +18,20 @@ type resultsPrinter struct {
 	colorsEnabled      bool
 	indent             int
 	printDocSeparators bool
+	writer             io.Writer
+	firstTimePrinting  bool
 }
 
-func NewPrinter(outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
-	return &resultsPrinter{outputToJSON, unwrapScalar, colorsEnabled, indent, printDocSeparators}
+func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+	return &resultsPrinter{
+		writer:             writer,
+		outputToJSON:       outputToJSON,
+		unwrapScalar:       unwrapScalar,
+		colorsEnabled:      colorsEnabled,
+		indent:             indent,
+		printDocSeparators: printDocSeparators,
+		firstTimePrinting:  true,
+	}
 }
 
 func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
@@ -42,7 +52,7 @@ func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
-func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer) error {
+func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	var err error
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: Explode}
@@ -53,7 +63,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer
 		}
 	}
 
-	bufferedWriter := bufio.NewWriter(writer)
+	bufferedWriter := bufio.NewWriter(p.writer)
 	defer safelyFlush(bufferedWriter)
 
 	if matchingNodes.Len() == 0 {
@@ -61,12 +71,12 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer
 		return nil
 	}
 
-	var previousDocIndex uint = matchingNodes.Front().Value.(*CandidateNode).Document
+	previousDocIndex := matchingNodes.Front().Value.(*CandidateNode).Document
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
 
-		if previousDocIndex != mappedDoc.Document && p.printDocSeparators {
+		if (!p.firstTimePrinting || (previousDocIndex != mappedDoc.Document)) && p.printDocSeparators {
 			p.writeString(bufferedWriter, "---\n")
 		}
 
@@ -76,6 +86,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, writer io.Writer
 
 		previousDocIndex = mappedDoc.Document
 	}
+	p.firstTimePrinting = false
 
 	return nil
 }

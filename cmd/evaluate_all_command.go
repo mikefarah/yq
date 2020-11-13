@@ -7,22 +7,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func createEvaluateSequenceCommand() *cobra.Command {
-	var cmdEvalSequence = &cobra.Command{
-		Use:     "eval-seq [expression] [yaml_file1]...",
-		Aliases: []string{"es"},
-		Short:   "Apply expression to each document in each yaml file given in sequence",
+func createEvaluateAllCommand() *cobra.Command {
+	var cmdEvalAll = &cobra.Command{
+		Use:     "eval-all [expression] [yaml_file1]...",
+		Aliases: []string{"ea"},
+		Short:   "Loads all yaml documents of all yaml files and runs expression once",
 		Example: `
 yq es '.a.b | length' file1.yml file2.yml
 yq es < sample.yaml
 yq es -n '{"a": "b"}'
 `,
-		Long: "Evaluate Sequence:\nIterate over each yaml document, apply the expression and print the results, in sequence.",
-		RunE: evaluateSequence,
+		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval-seq",
+		RunE: evaluateAll,
 	}
-	return cmdEvalSequence
+	return cmdEvalAll
 }
-func evaluateSequence(cmd *cobra.Command, args []string) error {
+func evaluateAll(cmd *cobra.Command, args []string) error {
 	// 0 args, read std in
 	// 1 arg, null input, process expression
 	// 1 arg, read file in sequence
@@ -44,7 +44,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = yqlib.EvaluateFileStreamsSequence("", []string{"-"}, printer)
+			err = yqlib.EvaluateAllFileStreams("", []string{"-"}, printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
@@ -53,10 +53,10 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		if nullInput {
 			err = yqlib.EvaluateAllFileStreams(args[0], []string{}, printer)
 		} else {
-			err = yqlib.EvaluateFileStreamsSequence("", []string{args[0]}, printer)
+			err = yqlib.EvaluateAllFileStreams("", []string{args[0]}, printer)
 		}
 	default:
-		err = yqlib.EvaluateFileStreamsSequence(args[0], args[1:len(args)], printer)
+		err = yqlib.EvaluateAllFileStreams(args[0], args[1:len(args)], printer)
 	}
 
 	cmd.SilenceUsage = true

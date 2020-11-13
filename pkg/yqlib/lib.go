@@ -62,6 +62,7 @@ var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precede
 var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}
 var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: ValueOperator}
 var Not = &OperationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: NotOperator}
+var Empty = &OperationType{Type: "EMPTY", NumArgs: 50, Handler: EmptyOperator}
 
 var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 
