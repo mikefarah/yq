@@ -56,19 +56,34 @@ func writeOrPanic(w *bufio.Writer, text string) {
 	}
 }
 
-func copyFromHeader(title string, out *os.File) (bool, error) {
+func copyFromHeader(title string, out *os.File) error {
 	source := fmt.Sprintf("doc/headers/%v.md", title)
 	_, err := os.Stat(source)
 	if os.IsNotExist(err) {
-		return false, nil
+		return nil
 	}
 	in, err := os.Open(source) // nolint gosec
 	if err != nil {
-		return false, err
+		return err
 	}
 	defer safelyCloseFile(in)
 	_, err = io.Copy(out, in)
-	return true, err
+	return err
+}
+
+func formatYaml(yaml string) string {
+	var output bytes.Buffer
+	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
+
+	node, err := treeCreator.ParsePath(".. style= \"\"")
+	if err != nil {
+		panic(err)
+	}
+	err = EvaluateStream("sample.yaml", strings.NewReader(yaml), node, printer)
+	if err != nil {
+		panic(err)
+	}
+	return output.String()
 }
 
 func documentScenarios(t *testing.T, title string, scenarios []expressionScenario) {
@@ -80,7 +95,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	}
 	defer f.Close()
 
-	hasHeader, err := copyFromHeader(title, f)
+	err = copyFromHeader(title, f)
 	if err != nil {
 		t.Error(err)
 		return
@@ -88,26 +103,30 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 
 	w := bufio.NewWriter(f)
 
-	if !hasHeader {
-		writeOrPanic(w, fmt.Sprintf("## %v\n", title))
-	}
+	writeOrPanic(w, "## Examples\n")
 
 	for index, s := range scenarios {
 		if !s.skipDoc {
 
 			if s.description != "" {
-				writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+				writeOrPanic(w, fmt.Sprintf("### %v\n", s.description))
 			} else {
-				writeOrPanic(w, fmt.Sprintf("## Example %v\n", index))
+				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
 			}
 			if s.document != "" {
 				//TODO: pretty here
 				writeOrPanic(w, "Given a sample.yml file of:\n")
-				writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.document))
-			}
-			if s.expression != "" {
+
+				writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formatYaml(s.document)))
 				writeOrPanic(w, "then\n")
-				writeOrPanic(w, fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
+				if s.expression != "" {
+					writeOrPanic(w, fmt.Sprintf("```bash\nyq eval '%v' sample.yml\n```\n", s.expression))
+				} else {
+					writeOrPanic(w, "```bash\nyq eval sample.yml\n```\n")
+				}
+			} else {
+				writeOrPanic(w, "Running\n")
+				writeOrPanic(w, fmt.Sprintf("```bash\nyq eval --null-input '%v'\n```\n", s.expression))
 			}
 
 			writeOrPanic(w, "will output\n")
@@ -132,7 +151,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 				}
 			}
 
-			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", output.String()))
+			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 
 		}
 

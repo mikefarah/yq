@@ -6,43 +6,54 @@ import (
 
 var collectOperatorScenarios = []expressionScenario{
 	{
-		document:   ``,
-		expression: `[]`,
-		expected:   []string{},
+		description: "Collect empty",
+		document:    ``,
+		expression:  `[]`,
+		expected:    []string{},
 	},
 	{
-		document:   ``,
-		expression: `["cat"]`,
+		description: "Collect single",
+		document:    ``,
+		expression:  `["cat"]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n",
 		},
 	}, {
 		document:   ``,
+		skipDoc:    true,
 		expression: `[true]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- true\n",
 		},
-	}, {
-		document:   ``,
-		expression: `["cat", "dog"]`,
+	},
+	{
+		description: "Collect many",
+		document:    `{a: cat, b: dog}`,
+		expression:  `[.a, .b]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n- dog\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
+		skipDoc:    true,
 		expression: `1 | collect`,
 		expected: []string{
 			"D0, P[], (!!seq)::- 1\n",
 		},
-	}, {
+	},
+	{
 		document:   `[1,2,3]`,
+		skipDoc:    true,
 		expression: `[.[]]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- 1\n- 2\n- 3\n",
 		},
-	}, {
+	},
+	{
 		document:   `a: {b: [1,2,3]}`,
 		expression: `[.a.b[]]`,
+		skipDoc:    true,
 		expected: []string{
 			"D0, P[a b], (!!seq)::- 1\n- 2\n- 3\n",
 		},
