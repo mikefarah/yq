@@ -103,7 +103,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 
 	w := bufio.NewWriter(f)
 
-	writeOrPanic(w, "## Examples\n")
+	writeOrPanic(w, "\n## Examples\n")
 
 	for index, s := range scenarios {
 		if !s.skipDoc {

@@ -6,18 +6,21 @@ import (
 
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
-		document:   ``,
-		expression: `{}`,
-		expected:   []string{},
+		description: `Collect empty object`,
+		document:    ``,
+		expression:  `{}`,
+		expected:    []string{},
 	},
 	{
-		document:   "{name: Mike}\n",
-		expression: `{"wrap": .}`,
+		description: `Wrap (prefix) existing object`,
+		document:    "{name: Mike}\n",
+		expression:  `{"wrap": .}`,
 		expected: []string{
 			"D0, P[], (!!map)::wrap: {name: Mike}\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   "{name: Mike}\n---\n{name: Bob}",
 		expression: `{"wrap": .}`,
 		expected: []string{
@@ -26,6 +29,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{name: Mike, age: 32}`,
 		expression: `{.name: .age}`,
 		expected: []string{
@@ -33,24 +37,28 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   `{name: Mike, pets: [cat, dog]}`,
-		expression: `{.name: .pets[]}`,
+		description: `Using splat to create multiple objects`,
+		document:    `{name: Mike, pets: [cat, dog]}`,
+		expression:  `{.name: .pets[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
 		},
 	},
 	{
-		document:   "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
-		expression: `{.name: .pets[]}`,
+		description: `Working with multiple documents`,
+		document:    "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
+		expression:  `{.name: .pets[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
-			"D0, P[], (!!map)::Rosey: monkey\n",
-			"D0, P[], (!!map)::Rosey: sheep\n",
+			"D1, P[], (!!map)::Rosey: monkey\n",
+			"D1, P[], (!!map)::Rosey: sheep\n",
+			"this is producing incorrect formatted yaml",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{name: Mike, pets: [cat, dog], food: [hotdog, burger]}`,
 		expression: `{.name: .pets[], "f":.food[]}`,
 		expected: []string{
@@ -61,6 +69,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{name: Mike, pets: {cows: [apl, bba]}}`,
 		expression: `{"a":.name, "b":.pets}`,
 		expected: []string{
@@ -70,13 +79,15 @@ b: {cows: [apl, bba]}
 		},
 	},
 	{
-		document:   ``,
-		expression: `{"wrap": "frog"}`,
+		description: "Creating yaml from scratch",
+		document:    ``,
+		expression:  `{"wrap": "frog"}`,
 		expected: []string{
 			"D0, P[], (!!map)::wrap: frog\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{name: Mike}`,
 		expression: `{"wrap": .}`,
 		expected: []string{
@@ -84,6 +95,7 @@ b: {cows: [apl, bba]}
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{name: Mike}`,
 		expression: `{"wrap": {"further": .}} | (.. style= "flow")`,
 		expected: []string{
