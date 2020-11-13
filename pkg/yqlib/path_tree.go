@@ -7,8 +7,8 @@ var myPathPostfixer = NewPathPostFixer()
 
 type PathTreeNode struct {
 	Operation *Operation
-	Lhs         *PathTreeNode
-	Rhs         *PathTreeNode
+	Lhs       *PathTreeNode
+	Rhs       *PathTreeNode
 }
 
 type PathTreeCreator interface {

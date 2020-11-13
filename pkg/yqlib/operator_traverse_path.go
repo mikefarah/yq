@@ -136,7 +136,10 @@ func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, op
 		//skip the 'merge' tag, find a direct match first
 		if key.Tag == "!!merge" && followAlias {
 			log.Debug("Merge anchor")
-			traverseMergeAnchor(newMatches, candidate, value, operation)
+			err := traverseMergeAnchor(newMatches, candidate, value, operation)
+			if err != nil {
+				return err
+			}
 		} else if keyMatches(key, operation) {
 			log.Debug("MATCHED")
 			candidateNode := &CandidateNode{
@@ -151,7 +154,7 @@ func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, op
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, operation *Operation) {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, operation *Operation) error {
 	switch value.Kind {
 	case yaml.AliasNode:
 		candidateNode := &CandidateNode{
@@ -159,13 +162,16 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 			Path:     originalCandidate.Path,
 			Document: originalCandidate.Document,
 		}
-		traverseMap(newMatches, candidateNode, operation)
+		return traverseMap(newMatches, candidateNode, operation)
 	case yaml.SequenceNode:
 		for _, childValue := range value.Content {
-			traverseMergeAnchor(newMatches, originalCandidate, childValue, operation)
+			err := traverseMergeAnchor(newMatches, originalCandidate, childValue, operation)
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return
+	return nil
 }
 
 func traverseArray(candidate *CandidateNode, operation *Operation) ([]*CandidateNode, error) {

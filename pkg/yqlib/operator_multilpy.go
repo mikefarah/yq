@@ -72,7 +72,10 @@ func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Ca
 
 func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	var results = list.New()
-	recursiveDecent(d, results, nodeToMap(rhs))
+	err := recursiveDecent(d, results, nodeToMap(rhs))
+	if err != nil {
+		return nil, err
+	}
 
 	var pathIndexToStartFrom int = 0
 	if results.Front() != nil {

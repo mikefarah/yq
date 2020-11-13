@@ -9,8 +9,8 @@ import (
 
 func createEvaluateSequenceCommand() *cobra.Command {
 	var cmdEvalSequence = &cobra.Command{
-		Use:     "eval-seq [expression] [yaml_file1]...",
-		Aliases: []string{"es"},
+		Use:     "eval [expression] [yaml_file1]...",
+		Aliases: []string{"e"},
 		Short:   "Apply expression to each document in each yaml file given in sequence",
 		Example: `
 yq es '.a.b | length' file1.yml file2.yml
@@ -56,7 +56,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 			err = yqlib.EvaluateFileStreamsSequence("", []string{args[0]}, printer)
 		}
 	default:
-		err = yqlib.EvaluateFileStreamsSequence(args[0], args[1:len(args)], printer)
+		err = yqlib.EvaluateFileStreamsSequence(args[0], args[1:], printer)
 	}
 
 	cmd.SilenceUsage = true

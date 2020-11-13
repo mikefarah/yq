@@ -18,7 +18,10 @@ func ExplodeOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTr
 			return nil, err
 		}
 		for childEl := rhs.Front(); childEl != nil; childEl = childEl.Next() {
-			explodeNode(childEl.Value.(*CandidateNode).Node)
+			err = explodeNode(childEl.Value.(*CandidateNode).Node)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 	}
@@ -65,11 +68,17 @@ func explodeNode(node *yaml.Node) error {
 					log.Debugf("an alias merge list!")
 					for index := 0; index < len(valueNode.Content); index = index + 1 {
 						aliasNode := valueNode.Content[index]
-						applyAlias(node, aliasNode.Alias, index, newContent)
+						err := applyAlias(node, aliasNode.Alias, index, newContent)
+						if err != nil {
+							return err
+						}
 					}
 				} else {
 					log.Debugf("an alias merge!")
-					applyAlias(node, valueNode.Alias, index, newContent)
+					err := applyAlias(node, valueNode.Alias, index, newContent)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}

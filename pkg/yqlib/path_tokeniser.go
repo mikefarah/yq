@@ -1,7 +1,6 @@
 package yqlib
 
 import (
-	"fmt"
 	"strconv"
 
 	lex "github.com/timtadh/lexmachine"
@@ -47,14 +46,14 @@ func (t *Token) toString() string {
 	} else if t.TokenType == CloseCollectObject {
 		return "}"
 	} else {
-		return fmt.Sprintf("NFI")
+		return "NFI"
 	}
 }
 
 func pathToken(wrapped bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		value = value[1:len(value)]
+		value = value[1:]
 		if wrapped {
 			value = unwrap(value)
 		}
@@ -73,7 +72,7 @@ func literalPathToken(value string) lex.Action {
 func documentToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
-		numberString = numberString[1:len(numberString)]
+		numberString = numberString[1:]
 		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
 		if errParsingInt != nil {
 			return nil, errParsingInt

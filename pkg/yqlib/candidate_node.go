@@ -20,10 +20,13 @@ func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
-func (n *CandidateNode) Copy() *CandidateNode {
+func (n *CandidateNode) Copy() (*CandidateNode, error) {
 	clone := &CandidateNode{}
-	copier.Copy(clone, n)
-	return clone
+	err := copier.Copy(clone, n)
+	if err != nil {
+		return nil, err
+	}
+	return clone, nil
 }
 
 // updates this candidate from the given candidate node

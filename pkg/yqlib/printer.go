@@ -77,7 +77,10 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		mappedDoc := el.Value.(*CandidateNode)
 
 		if (!p.firstTimePrinting || (previousDocIndex != mappedDoc.Document)) && p.printDocSeparators {
-			p.writeString(bufferedWriter, "---\n")
+			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
+				return err
+			}
+
 		}
 
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {

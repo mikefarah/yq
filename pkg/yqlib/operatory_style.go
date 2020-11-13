@@ -59,7 +59,7 @@ func GetStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		var style = ""
+		var style string
 		switch candidate.Node.Style {
 		case yaml.TaggedStyle:
 			style = "tagged"

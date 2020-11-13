@@ -48,6 +48,13 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
 }
 
+func writeOrPanic(w *bufio.Writer, text string) {
+	_, err := w.WriteString(text)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func documentScenarios(t *testing.T, title string, scenarios []expressionScenario) {
 	f, err := os.Create(fmt.Sprintf("doc/%v.md", title))
 
@@ -56,27 +63,27 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	}
 	defer f.Close()
 	w := bufio.NewWriter(f)
-	w.WriteString(fmt.Sprintf("# %v\n", title))
-	w.WriteString(fmt.Sprintf("## Examples\n"))
+	writeOrPanic(w, fmt.Sprintf("# %v\n", title))
+	writeOrPanic(w, "## Examples\n")
 
 	for index, s := range scenarios {
 		if !s.skipDoc {
 
 			if s.description != "" {
-				w.WriteString(fmt.Sprintf("### %v\n", s.description))
+				writeOrPanic(w, fmt.Sprintf("### %v\n", s.description))
 			} else {
-				w.WriteString(fmt.Sprintf("### Example %v\n", index))
+				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
 			}
 			if s.document != "" {
-				w.WriteString(fmt.Sprintf("sample.yml:\n"))
-				w.WriteString(fmt.Sprintf("```yaml\n%v\n```\n", s.document))
+				writeOrPanic(w, "sample.yml:\n")
+				writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.document))
 			}
 			if s.expression != "" {
-				w.WriteString(fmt.Sprintf("Expression\n"))
-				w.WriteString(fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
+				writeOrPanic(w, "Expression\n")
+				writeOrPanic(w, fmt.Sprintf("```bash\nyq '%v' < sample.yml\n```\n", s.expression))
 			}
 
-			w.WriteString(fmt.Sprintf("Result\n"))
+			writeOrPanic(w, "Result\n")
 
 			var output bytes.Buffer
 			var err error
@@ -88,15 +95,18 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 					t.Error(err)
 				}
 				err = EvaluateStream("sample.yaml", strings.NewReader(s.document), node, printer)
+				if err != nil {
+					t.Error(err)
+				}
 			} else {
 				err = EvaluateAllFileStreams(s.expression, []string{}, printer)
+				if err != nil {
+					t.Error(err)
+				}
 			}
 
-			w.WriteString(fmt.Sprintf("```yaml\n%v```\n", output.String()))
+			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", output.String()))
 
-			if err != nil {
-				t.Error(err)
-			}
 		}
 
 	}

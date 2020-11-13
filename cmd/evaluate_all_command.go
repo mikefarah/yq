@@ -11,13 +11,13 @@ func createEvaluateAllCommand() *cobra.Command {
 	var cmdEvalAll = &cobra.Command{
 		Use:     "eval-all [expression] [yaml_file1]...",
 		Aliases: []string{"ea"},
-		Short:   "Loads all yaml documents of all yaml files and runs expression once",
+		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
 		Example: `
 yq es '.a.b | length' file1.yml file2.yml
 yq es < sample.yaml
 yq es -n '{"a": "b"}'
 `,
-		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval-seq",
+		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval",
 		RunE: evaluateAll,
 	}
 	return cmdEvalAll
@@ -56,7 +56,7 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 			err = yqlib.EvaluateAllFileStreams("", []string{args[0]}, printer)
 		}
 	default:
-		err = yqlib.EvaluateAllFileStreams(args[0], args[1:len(args)], printer)
+		err = yqlib.EvaluateAllFileStreams(args[0], args[1:], printer)
 	}
 
 	cmd.SilenceUsage = true
