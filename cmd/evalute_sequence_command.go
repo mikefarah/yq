@@ -39,7 +39,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
 		colorsEnabled = true
 	}
-	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, printDocSeparators)
+	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	switch len(args) {
 	case 0:
