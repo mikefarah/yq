@@ -209,7 +209,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
 
-	lexer.Add([]byte(`\s*.-\s*`), opToken(DeleteChild))
+	lexer.Add([]byte(`del`), opToken(DeleteChild))
 
 	lexer.Add([]byte(`\s*\|=\s*`), opToken(Assign))
 

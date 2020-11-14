@@ -6,27 +6,31 @@ import (
 
 var explodeTest = []expressionScenario{
 	{
-		document:   `{a: mike}`,
-		expression: `explode(.a)`,
-		expected: []string{
-			"D0, P[], (doc)::{a: mike}\n",
-		},
-	},
-	{
-		document:   `{f : {a: &a cat, b: *a}}`,
-		expression: `explode(.f)`,
+		description: "Explode alias and anchor",
+		document:    `{f : {a: &a cat, b: *a}}`,
+		expression:  `explode(.f)`,
 		expected: []string{
 			"D0, P[], (doc)::{f: {a: cat, b: cat}}\n",
 		},
 	},
 	{
-		document:   `{f : {a: &a cat, *a: b}}`,
-		expression: `explode(.f)`,
+		description: "Explode with no aliases or anchors",
+		document:    `{a: mike}`,
+		expression:  `explode(.a)`,
+		expected: []string{
+			"D0, P[], (doc)::{a: mike}\n",
+		},
+	},
+	{
+		description: "Explode with alias keys",
+		document:    `{f : {a: &a cat, *a: b}}`,
+		expression:  `explode(.f)`,
 		expected: []string{
 			"D0, P[], (doc)::{f: {a: cat, cat: b}}\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
@@ -36,6 +40,7 @@ var explodeTest = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
@@ -45,6 +50,7 @@ var explodeTest = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{f : {a: &a cat, b: &b {f: *a}, *a: *b}}`,
 		expression: `explode(.f)`,
 		expected: []string{
@@ -57,4 +63,5 @@ func TestExplodeOperatorScenarios(t *testing.T) {
 	for _, tt := range explodeTest {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Explode Operator", explodeTest)
 }

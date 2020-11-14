@@ -6,13 +6,23 @@ import (
 
 var assignOperatorScenarios = []expressionScenario{
 	{
-		document:   `{a: {b: apple}}`,
-		expression: `.a.b |= "frog"`,
+		description: "Update parent to be the child value",
+		document:    `{a: {b: {g: foof}}}`,
+		expression:  `.a |= .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: {g: foof}}\n",
+		},
+	},
+	{
+		description: "Update string value",
+		document:    `{a: {b: apple}}`,
+		expression:  `.a.b |= "frog"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: frog}}\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {b: apple}}`,
 		expression: `.a.b | (. |= "frog")`,
 		expected: []string{
@@ -20,6 +30,7 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {b: apple}}`,
 		expression: `.a.b |= 5`,
 		expected: []string{
@@ -27,6 +38,7 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {b: apple}}`,
 		expression: `.a.b |= 3.142`,
 		expected: []string{
@@ -34,41 +46,39 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   `{a: {b: {g: foof}}}`,
-		expression: `.a |= .b`,
-		expected: []string{
-			"D0, P[], (doc)::{a: {g: foof}}\n",
-		},
-	},
-	{
-		document:   `{a: {b: apple, c: cactus}}`,
-		expression: `.a[] | select(. == "apple") |= "frog"`,
+		description: "Update selected results",
+		document:    `{a: {b: apple, c: cactus}}`,
+		expression:  `.a[] | select(. == "apple") |= "frog"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: frog, c: cactus}}\n",
 		},
 	},
 	{
-		document:   `[candy, apple, sandy]`,
-		expression: `.[] | select(. == "*andy") |= "bogs"`,
+		description: "Update array values",
+		document:    `[candy, apple, sandy]`,
+		expression:  `.[] | select(. == "*andy") |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::[bogs, apple, bogs]\n",
 		},
 	},
 	{
-		document:   `{}`,
-		expression: `.a.b |= "bogs"`,
+		description: "Update empty object",
+		document:    `{}`,
+		expression:  `.a.b |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: bogs}}\n",
 		},
 	},
 	{
-		document:   `{}`,
-		expression: `.a.b[0] |= "bogs"`,
+		description: "Update empty object and array",
+		document:    `{}`,
+		expression:  `.a.b[0] |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: [bogs]}}\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{}`,
 		expression: `.a.b[1].c |= "bogs"`,
 		expected: []string{
@@ -81,4 +91,5 @@ func TestAssignOperatorScenarios(t *testing.T) {
 	for _, tt := range assignOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Update Assign Operator", assignOperatorScenarios)
 }
