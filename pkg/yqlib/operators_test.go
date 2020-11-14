@@ -14,11 +14,12 @@ import (
 )
 
 type expressionScenario struct {
-	description string
-	document    string
-	expression  string
-	expected    []string
-	skipDoc     bool
+	description           string
+	document              string
+	expression            string
+	expected              []string
+	skipDoc               bool
+	dontFormatInputForDoc bool // dont format input doc for documentation generation
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
@@ -113,11 +114,17 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			} else {
 				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
 			}
+			formattedDoc := ""
 			if s.document != "" {
+				if s.dontFormatInputForDoc {
+					formattedDoc = s.document
+				} else {
+					formattedDoc = formatYaml(s.document)
+				}
 				//TODO: pretty here
 				writeOrPanic(w, "Given a sample.yml file of:\n")
 
-				writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formatYaml(s.document)))
+				writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc))
 				writeOrPanic(w, "then\n")
 				if s.expression != "" {
 					writeOrPanic(w, fmt.Sprintf("```bash\nyq eval '%v' sample.yml\n```\n", s.expression))
@@ -140,7 +147,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 				if err != nil {
 					t.Error(err)
 				}
-				err = EvaluateStream("sample.yaml", strings.NewReader(s.document), node, printer)
+				err = EvaluateStream("sample.yaml", strings.NewReader(formattedDoc), node, printer)
 				if err != nil {
 					t.Error(err)
 				}

@@ -22,11 +22,19 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Merge objects together",
-		document:    `{a: {also: me}, b: {also: {g: wizz}}}`,
+		description: "Merge objects together, returning merged result only",
+		document:    `{a: {field: me, fieldA: cat}, b: {field: {g: wizz}, fieldB: dog}}`,
+		expression:  `.a * .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{field: {g: wizz}, fieldA: cat, fieldB: dog}\n",
+		},
+	},
+	{
+		description: "Merge objects together, returning parent object",
+		document:    `{a: {field: me, fieldA: cat}, b: {field: {g: wizz}, fieldB: dog}}`,
 		expression:  `. * {"a":.b}`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: {also: {g: wizz}}, b: {also: {g: wizz}}}\n",
+			"D0, P[], (!!map)::{a: {field: {g: wizz}, fieldA: cat, fieldB: dog}, b: {field: {g: wizz}, fieldB: dog}}\n",
 		},
 	},
 	{
@@ -62,7 +70,8 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Merge keeps style of LHS",
+		description:           "Merge keeps style of LHS",
+		dontFormatInputForDoc: true,
 		document: `a: {things: great}
 b:
   also: "me"
@@ -121,5 +130,5 @@ func TestMultiplyOperatorScenarios(t *testing.T) {
 	for _, tt := range multiplyOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Mulitply Operator", multiplyOperatorScenarios)
+	documentScenarios(t, "Multiply Operator", multiplyOperatorScenarios)
 }

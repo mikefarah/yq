@@ -15,10 +15,10 @@ var explodeTest = []expressionScenario{
 	},
 	{
 		description: "Explode with no aliases or anchors",
-		document:    `{a: mike}`,
+		document:    `a: mike`,
 		expression:  `explode(.a)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: mike}\n",
+			"D0, P[], (doc)::a: mike\n",
 		},
 	},
 	{
@@ -28,6 +28,29 @@ var explodeTest = []expressionScenario{
 		expected: []string{
 			"D0, P[], (doc)::{f: {a: cat, cat: b}}\n",
 		},
+	},
+	{
+		description: "Explode with merge anchors",
+		document:    mergeDocSample,
+		expression:  `explode(.)`,
+		expected: []string{`D0, P[], (doc)::foo:
+    a: foo_a
+    thing: foo_thing
+    c: foo_c
+bar:
+    b: bar_b
+    thing: bar_thing
+    c: bar_c
+foobarList:
+    b: bar_b
+    a: foo_a
+    thing: bar_thing
+    c: foobarList_c
+foobar:
+    c: foo_c
+    a: foo_a
+    thing: foobar_thing
+`},
 	},
 	{
 		skipDoc:    true,
