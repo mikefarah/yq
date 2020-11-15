@@ -7,14 +7,6 @@ PREVIOUS="$(git describe --tags --abbrev=0 --always "${CURRENT}"^)"
 OWNER="mikefarah"
 REPO="yq"
 
-release() {
-    github-release release \
-        --user "$OWNER" \
-        --draft \
-        --repo "$REPO" \
-        --tag "$CURRENT"
-}
-
 upload() {
     mkdir -p ./build-done
     while IFS=  read -r -d $'\0'; do
@@ -32,5 +24,5 @@ upload() {
     done < <(find ./build -mindepth 1 -maxdepth 1 -print0)
 }
 
-# release
+
 upload

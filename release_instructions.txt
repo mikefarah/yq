@@ -8,7 +8,8 @@
 - make local xcompile (builds binaries for all platforms)
 
 - git release
-  ./scripts/publish.sh
+  ./scripts/release.sh
+  ./scripts/upload.sh
 
 - snapcraft
   - will auto create a candidate, test it works then promote
