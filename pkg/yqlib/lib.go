@@ -17,8 +17,9 @@ type OperationType struct {
 }
 
 // operators TODO:
-// - generator doc from operator tests
-// - slurp - stdin, read in sequence, vs read all
+// - add print test, particular for streams with multilpe docs
+// (one that print doc1, then doc 3) in two calls
+// (one that prints doc1, then doc 3) in one call
 // - write in place
 // - get path operator (like doc index)
 // - get file index op (like doc index)

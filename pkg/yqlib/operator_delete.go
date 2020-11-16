@@ -51,7 +51,7 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *list.List) {
 		}
 
 		shouldDelete := false
-		for el := nodesToDelete.Front(); el != nil && shouldDelete == false; el = el.Next() {
+		for el := nodesToDelete.Front(); el != nil && !shouldDelete; el = el.Next() {
 			if el.Value.(*CandidateNode).GetKey() == childCandidate.GetKey() {
 				shouldDelete = true
 			}
@@ -82,7 +82,7 @@ func deleteFromArray(candidate *CandidateNode, nodesToDelete *list.List) {
 		}
 
 		shouldDelete := false
-		for el := nodesToDelete.Front(); el != nil && shouldDelete == false; el = el.Next() {
+		for el := nodesToDelete.Front(); el != nil && !shouldDelete; el = el.Next() {
 			if el.Value.(*CandidateNode).GetKey() == childCandidate.GetKey() {
 				shouldDelete = true
 			}

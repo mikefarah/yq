@@ -14,6 +14,5 @@ var noDocSeparators = false
 var nullInput = false
 var verbose = false
 var version = false
-var shellCompletion = ""
 
 // var log = logging.MustGetLogger("yq")

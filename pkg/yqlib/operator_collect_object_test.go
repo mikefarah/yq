@@ -46,15 +46,15 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: `Working with multiple documents`,
-		document:    "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
-		expression:  `{.name: .pets[]}`,
+		description:           `Working with multiple documents`,
+		dontFormatInputForDoc: false,
+		document:              "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
+		expression:            `{.name: .pets[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
-			"D1, P[], (!!map)::Rosey: monkey\n",
-			"D1, P[], (!!map)::Rosey: sheep\n",
-			"this is producing incorrect formatted yaml",
+			"D0, P[], (!!map)::Rosey: monkey\n",
+			"D0, P[], (!!map)::Rosey: sheep\n",
 		},
 	},
 	{

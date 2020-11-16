@@ -50,6 +50,15 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
 }
 
+func resultsToString(results *list.List) []string {
+	var pretty []string = make([]string, 0)
+	for el := results.Front(); el != nil; el = el.Next() {
+		n := el.Value.(*CandidateNode)
+		pretty = append(pretty, NodeToString(n))
+	}
+	return pretty
+}
+
 func writeOrPanic(w *bufio.Writer, text string) {
 	_, err := w.WriteString(text)
 	if err != nil {

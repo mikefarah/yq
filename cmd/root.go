@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -17,20 +16,6 @@ func New() *cobra.Command {
 			if version {
 				cmd.Print(GetVersionDisplay())
 				return nil
-			}
-			if shellCompletion != "" {
-				switch shellCompletion {
-				case "bash", "":
-					return cmd.GenBashCompletion(os.Stdout)
-				case "zsh":
-					return cmd.GenZshCompletion(os.Stdout)
-				case "fish":
-					return cmd.GenFishCompletion(os.Stdout, true)
-				case "powershell":
-					return cmd.GenPowerShellCompletion(os.Stdout)
-				default:
-					return fmt.Errorf("Unknown variant %v", shellCompletion)
-				}
 			}
 			cmd.Println(cmd.UsageString())
 			return nil
@@ -62,10 +47,12 @@ func New() *cobra.Command {
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 
-	rootCmd.Flags().StringVarP(&shellCompletion, "shellCompletion", "", "", "[bash/zsh/powershell/fish] prints shell completion script")
-
 	rootCmd.PersistentFlags().BoolVarP(&forceColor, "colors", "C", false, "force print with colors")
 	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
-	rootCmd.AddCommand(createEvaluateSequenceCommand(), createEvaluateAllCommand())
+	rootCmd.AddCommand(
+		createEvaluateSequenceCommand(),
+		createEvaluateAllCommand(),
+		completionCmd,
+	)
 	return rootCmd
 }

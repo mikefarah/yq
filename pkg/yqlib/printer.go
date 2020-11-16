@@ -20,6 +20,7 @@ type resultsPrinter struct {
 	printDocSeparators bool
 	writer             io.Writer
 	firstTimePrinting  bool
+	previousDocIndex   uint
 }
 
 func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -53,6 +54,7 @@ func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
+	log.Debug("PrintResults for %v matches", matchingNodes.Len())
 	var err error
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: Explode}
@@ -70,13 +72,16 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
-
-	previousDocIndex := matchingNodes.Front().Value.(*CandidateNode).Document
+	if p.firstTimePrinting {
+		p.previousDocIndex = matchingNodes.Front().Value.(*CandidateNode).Document
+		p.firstTimePrinting = false
+	}
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
-
-		if (!p.firstTimePrinting || (previousDocIndex != mappedDoc.Document)) && p.printDocSeparators {
+		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
+		if (p.previousDocIndex != mappedDoc.Document) && p.printDocSeparators {
+			log.Debug("-- writing doc sep")
 			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
 				return err
 			}
@@ -87,9 +92,8 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return err
 		}
 
-		previousDocIndex = mappedDoc.Document
+		p.previousDocIndex = mappedDoc.Document
 	}
-	p.firstTimePrinting = false
 
 	return nil
 }
