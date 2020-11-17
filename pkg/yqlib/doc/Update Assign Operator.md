@@ -13,7 +13,26 @@ yq eval '.a |= .b' sample.yml
 ```
 will output
 ```yaml
-{a: {g: foof}}
+a:
+  g: foof
+```
+
+### Updated multiple paths
+Given a sample.yml file of:
+```yaml
+a: fieldA
+b: fieldB
+c: fieldC
+```
+then
+```bash
+yq eval '(.a, .c) |= "potatoe"' sample.yml
+```
+will output
+```yaml
+a: potatoe
+b: fieldB
+c: potatoe
 ```
 
 ### Update string value
@@ -28,7 +47,8 @@ yq eval '.a.b |= "frog"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: frog}}
+a:
+  b: frog
 ```
 
 ### Update selected results
@@ -44,7 +64,9 @@ yq eval '.a[] | select(. == "apple") |= "frog"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: frog, c: cactus}}
+a:
+  b: frog
+  c: cactus
 ```
 
 ### Update array values
@@ -60,7 +82,9 @@ yq eval '.[] | select(. == "*andy") |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-[bogs, apple, bogs]
+- bogs
+- apple
+- bogs
 ```
 
 ### Update empty object
@@ -74,7 +98,9 @@ yq eval '.a.b |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: bogs}}
+'': null
+a:
+  b: bogs
 ```
 
 ### Update empty object and array
@@ -88,6 +114,9 @@ yq eval '.a.b[0] |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: [bogs]}}
+'': null
+a:
+  b:
+    - bogs
 ```
 

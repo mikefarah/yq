@@ -15,6 +15,7 @@ import (
 
 type expressionScenario struct {
 	description           string
+	subdescription        string
 	document              string
 	expression            string
 	expected              []string
@@ -122,6 +123,10 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 				writeOrPanic(w, fmt.Sprintf("### %v\n", s.description))
 			} else {
 				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
+			}
+			if s.subdescription != "" {
+				writeOrPanic(w, s.subdescription)
+				writeOrPanic(w, "\n\n")
 			}
 			formattedDoc := ""
 			if s.document != "" {

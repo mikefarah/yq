@@ -28,28 +28,34 @@ foobar:
 
 var traversePathOperatorScenarios = []expressionScenario{
 	{
-		document:   `{a: {b: apple}}`,
-		expression: `.a`,
+		description: "Simple map navigation",
+		document:    `{a: {b: apple}}`,
+		expression:  `.a`,
 		expected: []string{
 			"D0, P[a], (!!map)::{b: apple}\n",
 		},
 	},
 	{
-		document:   `[{b: apple}, {c: banana}]`,
-		expression: `.[]`,
+		description:    "Splat",
+		subdescription: "Often used to pipe children into other operators",
+		document:       `[{b: apple}, {c: banana}]`,
+		expression:     `.[]`,
 		expected: []string{
 			"D0, P[0], (!!map)::{b: apple}\n",
 			"D0, P[1], (!!map)::{c: banana}\n",
 		},
 	},
 	{
-		document:   `{}`,
-		expression: `.a.b`,
+		description:    "Children don't exist",
+		subdescription: "Nodes are added dynamically while traversing",
+		document:       `{c: banana}`,
+		expression:     `.a.b`,
 		expected: []string{
 			"D0, P[a b], (!!null)::null\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{}`,
 		expression: `.[1].a`,
 		expected: []string{
@@ -57,6 +63,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{}`,
 		expression: `.a.[1]`,
 		expected: []string{
@@ -64,14 +71,16 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   `{a: {cat: apple, mad: things}}`,
-		expression: `.a."*a*"`,
+		description: "Wildcard matching",
+		document:    `{a: {cat: apple, mad: things}}`,
+		expression:  `.a."*a*"`,
 		expected: []string{
 			"D0, P[a cat], (!!str)::apple\n",
 			"D0, P[a mad], (!!str)::things\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {cat: {b: 3}, mad: {b: 4}, fad: {c: t}}}`,
 		expression: `.a."*a*".b`,
 		expected: []string{
@@ -81,6 +90,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {cat: apple, mad: things}}`,
 		expression: `.a | (.cat, .mad)`,
 		expected: []string{
@@ -89,6 +99,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {cat: apple, mad: things}}`,
 		expression: `.a | (.cat, .mad, .fad)`,
 		expected: []string{
@@ -98,6 +109,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `{a: {cat: apple, mad: things}}`,
 		expression: `.a | (.cat, .mad, .fad) | select( (. == null) | not)`,
 		expected: []string{
@@ -106,40 +118,53 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   `{a: &cat {c: frog}, b: *cat}`,
-		expression: `.b`,
+		description: "Aliases",
+		document:    `{a: &cat {c: frog}, b: *cat}`,
+		expression:  `.b`,
 		expected: []string{
 			"D0, P[b], (alias)::*cat\n",
 		},
 	},
 	{
-		document:   `{a: &cat {c: frog}, b: *cat}`,
-		expression: `.b.[]`,
+		description: "Traversing aliases with splat",
+		document:    `{a: &cat {c: frog}, b: *cat}`,
+		expression:  `.b.[]`,
 		expected: []string{
 			"D0, P[b c], (!!str)::frog\n",
 		},
 	},
 	{
-		document:   `{a: &cat {c: frog}, b: *cat}`,
-		expression: `.b.c`,
+		description: "Traversing aliases explicitly",
+		document:    `{a: &cat {c: frog}, b: *cat}`,
+		expression:  `.b.c`,
 		expected: []string{
 			"D0, P[b c], (!!str)::frog\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   `[1,2,3]`,
 		expression: `.b`,
 		expected:   []string{},
 	},
 	{
-		document:   `[1,2,3]`,
-		expression: `[0]`,
+		description: "Traversing arrays by index",
+		document:    `[1,2,3]`,
+		expression:  `[0]`,
 		expected: []string{
 			"D0, P[0], (!!int)::1\n",
 		},
 	},
 	{
-		description: `Maps can have numbers as keys, so this default to a non-exisiting key behaviour.`,
+		description: "Maps with numeric keys",
+		document:    `{2: cat}`,
+		expression:  `[2]`,
+		expected: []string{
+			"D0, P[2], (!!str)::cat\n",
+		},
+	},
+	{
+		description: "Maps with non existing numeric keys",
 		document:    `{a: b}`,
 		expression:  `[0]`,
 		expected: []string{
@@ -147,6 +172,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobar`,
 		expected: []string{
@@ -154,29 +180,33 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobar.a`,
+		description: "Traversing merge anchors",
+		document:    mergeDocSample,
+		expression:  `.foobar.a`,
 		expected: []string{
 			"D0, P[foobar a], (!!str)::foo_a\n",
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobar.c`,
+		description: "Traversing merge anchors with override",
+		document:    mergeDocSample,
+		expression:  `.foobar.c`,
 		expected: []string{
 			"D0, P[foobar c], (!!str)::foo_c\n",
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobar.thing`,
+		description: "Traversing merge anchors with local override",
+		document:    mergeDocSample,
+		expression:  `.foobar.thing`,
 		expected: []string{
 			"D0, P[foobar thing], (!!str)::foobar_thing\n",
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobar.[]`,
+		description: "Splatting merge anchors",
+		document:    mergeDocSample,
+		expression:  `.foobar.[]`,
 		expected: []string{
 			"D0, P[foobar c], (!!str)::foo_c\n",
 			"D0, P[foobar a], (!!str)::foo_a\n",
@@ -184,6 +214,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobarList`,
 		expected: []string{
@@ -191,6 +222,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobarList.a`,
 		expected: []string{
@@ -198,13 +230,16 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobarList.thing`,
+		description:    "Traversing merge anchor lists",
+		subdescription: "Note that the later merge anchors override previous",
+		document:       mergeDocSample,
+		expression:     `.foobarList.thing`,
 		expected: []string{
 			"D0, P[foobarList thing], (!!str)::bar_thing\n",
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobarList.c`,
 		expected: []string{
@@ -212,6 +247,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobarList.b`,
 		expected: []string{
@@ -219,8 +255,9 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		document:   mergeDocSample,
-		expression: `.foobarList.[]`,
+		description: "Splatting merge anchor lists",
+		document:    mergeDocSample,
+		expression:  `.foobarList.[]`,
 		expected: []string{
 			"D0, P[foobarList b], (!!str)::bar_b\n",
 			"D0, P[foobarList a], (!!str)::foo_a\n",
@@ -234,4 +271,5 @@ func TestTraversePathOperatorScenarios(t *testing.T) {
 	for _, tt := range traversePathOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Traverse Operator", traversePathOperatorScenarios)
 }

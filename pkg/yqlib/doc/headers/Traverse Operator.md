@@ -1,0 +1,1 @@
+This is the simples (and perhaps most used) operator, it is used to navigate deeply into yaml structurse.

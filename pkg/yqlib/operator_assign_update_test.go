@@ -14,6 +14,14 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Updated multiple paths",
+		document:    `{a: fieldA, b: fieldB, c: fieldC}`,
+		expression:  `(.a, .c) |= "potatoe"`,
+		expected: []string{
+			"D0, P[], (doc)::{a: potatoe, b: fieldB, c: potatoe}\n",
+		},
+	},
+	{
 		description: "Update string value",
 		document:    `{a: {b: apple}}`,
 		expression:  `.a.b |= "frog"`,
