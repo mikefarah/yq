@@ -17,13 +17,11 @@ type OperationType struct {
 }
 
 // operators TODO:
-// - add print test, particular for streams with multilpe docs
-// (one that print doc1, then doc 3) in two calls
-// (one that prints doc1, then doc 3) in one call
-// - write in place
+// - get Kind
 // - get path operator (like doc index)
 // - get file index op (like doc index)
 // - get file name op (like doc index)
+// - write in place
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - updateTag - not recursive
