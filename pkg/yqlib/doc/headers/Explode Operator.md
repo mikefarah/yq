@@ -1,0 +1,1 @@
+Explodes (or dereferences) aliases and anchors.

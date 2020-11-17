@@ -1,0 +1,1 @@
+Updates the LHS using the expression on the RHS. Note that the RHS runs against the _original_ LHS value, so that you can evaluate a new value based on the old (e.g. increment).
