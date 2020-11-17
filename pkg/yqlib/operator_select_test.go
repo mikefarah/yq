@@ -6,29 +6,34 @@ import (
 
 var selectOperatorScenarios = []expressionScenario{
 	{
-		document:   `[cat,goat,dog]`,
-		expression: `.[] | select(. == "*at")`,
+		description: "Select elements from array",
+		document:    `[cat,goat,dog]`,
+		expression:  `.[] | select(. == "*at")`,
 		expected: []string{
 			"D0, P[0], (!!str)::cat\n",
 			"D0, P[1], (!!str)::goat\n",
 		},
 	}, {
+		skipDoc:    true,
 		document:   `[hot, fot, dog]`,
 		expression: `.[] | select(. == "*at")`,
 		expected:   []string{},
 	}, {
+		skipDoc:    true,
 		document:   `a: [cat,goat,dog]`,
 		expression: `.a[] | select(. == "*at")`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::cat\n",
 			"D0, P[a 1], (!!str)::goat\n"},
 	}, {
-		document:   `a: { things: cat, bob: goat, horse: dog }`,
-		expression: `.a[] | select(. == "*at")`,
+		description: "Select matching values in map",
+		document:    `a: { things: cat, bob: goat, horse: dog }`,
+		expression:  `.a[] | select(. == "*at")`,
 		expected: []string{
 			"D0, P[a things], (!!str)::cat\n",
 			"D0, P[a bob], (!!str)::goat\n"},
 	}, {
+		skipDoc:    true,
 		document:   `a: { things: {include: true}, notMe: {include: false}, andMe: {include: fold} }`,
 		expression: `.a[] | select(.include)`,
 		expected: []string{
@@ -36,6 +41,7 @@ var selectOperatorScenarios = []expressionScenario{
 			"D0, P[a andMe], (!!map)::{include: fold}\n",
 		},
 	}, {
+		skipDoc:    true,
 		document:   `[cat,~,dog]`,
 		expression: `.[] | select(. == ~)`,
 		expected: []string{
@@ -48,4 +54,5 @@ func TestSelectOperatorScenarios(t *testing.T) {
 	for _, tt := range selectOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Select Operator", selectOperatorScenarios)
 }
