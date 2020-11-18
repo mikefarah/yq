@@ -17,6 +17,7 @@ type OperationType struct {
 }
 
 // operators TODO:
+// -normal update operator
 // - get path operator (like doc index)
 // - get file index op (like doc index)
 // - get file name op (like doc index)
