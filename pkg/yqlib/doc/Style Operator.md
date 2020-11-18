@@ -1,17 +1,149 @@
-
+The style operator can be used to get or set the style of nodes (e.g. string style, yaml style)
 ## Examples
-### Example 0
+### Set tagged style
 Given a sample.yml file of:
 ```yaml
 a: cat
+b: 5
+c: 3.2
+e: true
 ```
 then
 ```bash
-yq eval '.a style="single"' sample.yml
+yq eval '.. style="tagged"' sample.yml
 ```
 will output
 ```yaml
-{a: 'cat'}
+!!map
+a: !!str cat
+b: !!int 5
+c: !!float 3.2
+e: !!bool true
+```
+
+### Set double quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style="double"' sample.yml
+```
+will output
+```yaml
+a: "cat"
+b: "5"
+c: "3.2"
+e: "true"
+```
+
+### Set single quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style="single"' sample.yml
+```
+will output
+```yaml
+a: 'cat'
+b: '5'
+c: '3.2'
+e: 'true'
+```
+
+### Set literal quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style="literal"' sample.yml
+```
+will output
+```yaml
+a: |-
+  cat
+b: |-
+  5
+c: |-
+  3.2
+e: |-
+  true
+```
+
+### Set folded quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style="folded"' sample.yml
+```
+will output
+```yaml
+a: >-
+  cat
+b: >-
+  5
+c: >-
+  3.2
+e: >-
+  true
+```
+
+### Set flow quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style="flow"' sample.yml
+```
+will output
+```yaml
+{a: cat, b: 5, c: 3.2, e: true}
+```
+
+### Set empty (default) quote style
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+```
+then
+```bash
+yq eval '.. style=""' sample.yml
+```
+will output
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
 ```
 
 ### Set style using a path
@@ -26,10 +158,11 @@ yq eval '.a style=.b' sample.yml
 ```
 will output
 ```yaml
-{a: "cat", b: double}
+a: "cat"
+b: double
 ```
 
-### Example 2
+### Example 8
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -45,7 +178,7 @@ a: cat
 b: dog
 ```
 
-### Example 3
+### Example 9
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -57,12 +190,12 @@ yq eval '.. | style' sample.yml
 ```
 will output
 ```yaml
-flow
-double
-single
+
+
+
 ```
 
-### Example 4
+### Example 10
 Given a sample.yml file of:
 ```yaml
 a: cat
