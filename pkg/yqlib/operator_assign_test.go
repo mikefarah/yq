@@ -14,6 +14,14 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Update to be the sibling value",
+		document:    `{a: {b: child}, b: sibling}`,
+		expression:  `.a = .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: sibling, b: sibling}\n",
+		},
+	},
+	{
 		description: "Updated multiple paths",
 		document:    `{a: fieldA, b: fieldB, c: fieldC}`,
 		expression:  `(.a, .c) |= "potatoe"`,
@@ -24,7 +32,16 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Update string value",
 		document:    `{a: {b: apple}}`,
-		expression:  `.a.b |= "frog"`,
+		expression:  `.a.b = "frog"`,
+		expected: []string{
+			"D0, P[], (doc)::{a: {b: frog}}\n",
+		},
+	},
+	{
+		description:    "Update string value via |=",
+		subdescription: "Note there is no difference between `=` and `|=` when the RHS is a scalar",
+		document:       `{a: {b: apple}}`,
+		expression:     `.a.b |= "frog"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: frog}}\n",
 		},
@@ -99,5 +116,5 @@ func TestAssignOperatorScenarios(t *testing.T) {
 	for _, tt := range assignOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Update Assign Operator", assignOperatorScenarios)
+	documentScenarios(t, "Assign Operator", assignOperatorScenarios)
 }

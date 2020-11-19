@@ -37,8 +37,6 @@ var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: U
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 
-// TODO: implement this
-var PlainAssign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}
 var AssignTag = &OperationType{Type: "ASSIGN_TAG", NumArgs: 2, Precedence: 40, Handler: AssignTagOperator}

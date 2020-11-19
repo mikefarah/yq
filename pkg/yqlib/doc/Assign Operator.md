@@ -1,4 +1,10 @@
-Updates the LHS using the expression on the RHS. Note that the RHS runs against the _original_ LHS value, so that you can evaluate a new value based on the old (e.g. increment).
+This operator is used to update node values. It can be used in either the:
+
+### plain form: `=`
+Which will assign the LHS node values to the RHS node values. The RHS expression is run against the matching nodes in the pipeline.
+
+### relative form: `|=`
+This will do a similar thing to the plain form, however, the RHS expression is run against _the LHS nodes_. This is useful for updating values based on old values, e.g. increment.
 ## Examples
 ### Update parent to be the child value
 Given a sample.yml file of:
@@ -15,6 +21,23 @@ will output
 ```yaml
 a:
   g: foof
+```
+
+### Update to be the sibling value
+Given a sample.yml file of:
+```yaml
+a:
+  b: child
+b: sibling
+```
+then
+```bash
+yq eval '.a = .b' sample.yml
+```
+will output
+```yaml
+a: sibling
+b: sibling
 ```
 
 ### Updated multiple paths
@@ -36,6 +59,24 @@ c: potatoe
 ```
 
 ### Update string value
+Given a sample.yml file of:
+```yaml
+a:
+  b: apple
+```
+then
+```bash
+yq eval '.a.b = "frog"' sample.yml
+```
+will output
+```yaml
+a:
+  b: frog
+```
+
+### Update string value via |=
+Note there is no difference between `=` and `|=` when the RHS is a scalar
+
 Given a sample.yml file of:
 ```yaml
 a:

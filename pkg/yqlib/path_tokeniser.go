@@ -215,11 +215,11 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
-	lexer.Add([]byte(`\s*=\s*`), opToken(PlainAssign))
+	lexer.Add([]byte(`\s*=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{false}))
 
 	lexer.Add([]byte(`del`), opToken(DeleteChild))
 
-	lexer.Add([]byte(`\s*\|=\s*`), opToken(Assign))
+	lexer.Add([]byte(`\s*\|=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{true}))
 
 	lexer.Add([]byte(`\[-?[0-9]+\]`), arrayIndextoken(false))
 	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
@@ -303,7 +303,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 
 			if index != len(tokens)-1 && token.AssignOperation != nil &&
 				tokens[index+1].TokenType == OperationToken &&
-				tokens[index+1].Operation.OperationType == PlainAssign {
+				tokens[index+1].Operation.OperationType == Assign {
 				token.Operation = token.AssignOperation
 				skipNextToken = true
 			}

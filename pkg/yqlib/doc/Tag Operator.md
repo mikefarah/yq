@@ -33,7 +33,7 @@ e: true
 ```
 then
 ```bash
-yq eval '(.. | select(tag == "!!int")) tag = "!!str"' sample.yml
+yq eval '(.. | select(tag == "!!int")) tag= "!!str"' sample.yml
 ```
 will output
 ```yaml
