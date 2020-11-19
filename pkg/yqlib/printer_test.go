@@ -35,9 +35,20 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	el = el.Next()
 	sample3 := nodeToMap(el.Value.(*CandidateNode))
 
-	printer.PrintResults(sample1)
-	printer.PrintResults(sample2)
-	printer.PrintResults(sample3)
+	err = printer.PrintResults(sample1)
+	if err != nil {
+		panic(err)
+	}
+
+	err = printer.PrintResults(sample2)
+	if err != nil {
+		panic(err)
+	}
+
+	err = printer.PrintResults(sample3)
+	if err != nil {
+		panic(err)
+	}
 
 	writer.Flush()
 	test.AssertResult(t, multiDocSample, output.String())
@@ -54,7 +65,10 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 		panic(err)
 	}
 
-	printer.PrintResults(inputs)
+	err = printer.PrintResults(inputs)
+	if err != nil {
+		panic(err)
+	}
 
 	writer.Flush()
 	test.AssertResult(t, multiDocSample, output.String())
@@ -70,7 +84,10 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 		panic(err)
 	}
 
-	printer.PrintResults(inputs)
+	err = printer.PrintResults(inputs)
+	if err != nil {
+		panic(err)
+	}
 
 	expected := `{"a":"banana"}
 {"a":"apple"}

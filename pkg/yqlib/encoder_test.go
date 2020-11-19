@@ -37,7 +37,10 @@ func TestJsonEncoderPreservesObjectOrder(t *testing.T) {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	jsonEncoder.Encode(node)
+	err = jsonEncoder.Encode(node)
+	if err != nil {
+		panic(err)
+	}
 	writer.Flush()
 	test.AssertResult(t, expectedJson, output.String())
 

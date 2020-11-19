@@ -29,6 +29,14 @@ var deleteOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::{a: cat, b: dog}\n",
 		},
 	},
+	{
+		description: "Delete matching entries",
+		document:    `{a: cat, b: dog, c: bat}`,
+		expression:  `del( .[] | select(. == "*at") )`,
+		expected: []string{
+			"D0, P[], (doc)::{b: dog}\n",
+		},
+	},
 }
 
 func TestDeleteOperatorScenarios(t *testing.T) {

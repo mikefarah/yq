@@ -48,3 +48,19 @@ a: cat
 b: dog
 ```
 
+### Delete matching entries
+Given a sample.yml file of:
+```yaml
+a: cat
+b: dog
+c: bat
+```
+then
+```bash
+yq eval 'del( .[] | select(. == "*at") )' sample.yml
+```
+will output
+```yaml
+b: dog
+```
+
