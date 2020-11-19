@@ -12,7 +12,7 @@ yq eval 'del(.b)' sample.yml
 ```
 will output
 ```yaml
-{a: cat}
+a: cat
 ```
 
 ### Delete entry in array
@@ -28,7 +28,8 @@ yq eval 'del(.[1])' sample.yml
 ```
 will output
 ```yaml
-[1, 3]
+- 1
+- 3
 ```
 
 ### Delete no matches
@@ -43,6 +44,7 @@ yq eval 'del(.c)' sample.yml
 ```
 will output
 ```yaml
-{a: cat, b: dog}
+a: cat
+b: dog
 ```
 

@@ -1,23 +1,9 @@
 This operator recursively matches all children nodes given of a particular element, including that node itself. This is most often used to apply a filter recursively against all matches, for instance to set the `style` of all nodes in a yaml doc:
 
 ```bash
-yq eval '.. style = "flow"' file.yaml
+yq eval '.. style= "flow"' file.yaml
 ```
 ## Examples
-### Matches single scalar value
-Given a sample.yml file of:
-```yaml
-cat
-```
-then
-```bash
-yq eval '..' sample.yml
-```
-will output
-```yaml
-cat
-```
-
 ### Map
 Given a sample.yml file of:
 ```yaml

@@ -146,39 +146,7 @@ c: 3.2
 e: true
 ```
 
-### Set style using a path
-Given a sample.yml file of:
-```yaml
-a: cat
-b: double
-```
-then
-```bash
-yq eval '.a style=.b' sample.yml
-```
-will output
-```yaml
-a: "cat"
-b: double
-```
-
-### Example 8
-Given a sample.yml file of:
-```yaml
-a: cat
-b: dog
-```
-then
-```bash
-yq eval '.. style=""' sample.yml
-```
-will output
-```yaml
-a: cat
-b: dog
-```
-
-### Example 9
+### Read style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -191,21 +159,6 @@ yq eval '.. | style' sample.yml
 will output
 ```yaml
 
-
-
-```
-
-### Example 10
-Given a sample.yml file of:
-```yaml
-a: cat
-```
-then
-```bash
-yq eval '.. | style' sample.yml
-```
-will output
-```yaml
 
 
 ```

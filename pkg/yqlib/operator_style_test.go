@@ -10,7 +10,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="tagged"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			"D0, P[], (!!map)::!!map\na: !!str cat\nb: !!int 5\nc: !!float 3.2\ne: !!bool true\n",
 		},
 	},
 	{
@@ -18,7 +18,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			"D0, P[], (!!map)::a: \"cat\"\nb: \"5\"\nc: \"3.2\"\ne: \"true\"\n",
 		},
 	},
 	{
@@ -26,7 +26,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="single"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			"D0, P[], (!!map)::a: 'cat'\nb: '5'\nc: '3.2'\ne: 'true'\n",
 		},
 	},
 	{
@@ -34,7 +34,15 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="literal"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			`D0, P[], (!!map)::a: |-
+    cat
+b: |-
+    5
+c: |-
+    3.2
+e: |-
+    true
+`,
 		},
 	},
 	{
@@ -42,7 +50,15 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="folded"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			`D0, P[], (!!map)::a: >-
+    cat
+b: >-
+    5
+c: >-
+    3.2
+e: >-
+    true
+`,
 		},
 	},
 	{
@@ -50,7 +66,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="flow"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			"D0, P[], (!!map)::{a: cat, b: 5, c: 3.2, e: true}\n",
 		},
 	},
 	{
@@ -58,7 +74,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style=""`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'cat'}\n",
+			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
 		},
 	},
 	{

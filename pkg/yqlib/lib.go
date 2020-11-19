@@ -36,8 +36,12 @@ var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOp
 var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
+
+// TODO: implement this
+var PlainAssign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}
+var AssignTag = &OperationType{Type: "ASSIGN_TAG", NumArgs: 2, Precedence: 40, Handler: AssignTagOperator}
 var AssignComment = &OperationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedence: 40, Handler: AssignCommentsOperator}
 
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 40, Handler: MultiplyOperator}
@@ -49,6 +53,7 @@ var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: Pip
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
 var GetStyle = &OperationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: GetStyleOperator}
+var GetTag = &OperationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: GetTagOperator}
 var GetComment = &OperationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50, Handler: GetCommentsOperator}
 var GetDocumentIndex = &OperationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: GetDocumentIndexOperator}
 

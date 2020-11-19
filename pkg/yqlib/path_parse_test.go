@@ -99,6 +99,27 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "a", "PIPE", "b", "ASSIGN_STYLE", "folded (string)"),
 		append(make([]interface{}, 0), "a", "b", "PIPE", "folded (string)", "ASSIGN_STYLE"),
 	},
+	{
+		`tag == "str"`,
+		append(make([]interface{}, 0), "GET_TAG", "EQUALS", "str (string)"),
+		append(make([]interface{}, 0), "GET_TAG", "str (string)", "EQUALS"),
+	},
+	{
+		`. tag= "str"`,
+		append(make([]interface{}, 0), "SELF", "ASSIGN_TAG", "str (string)"),
+		append(make([]interface{}, 0), "SELF", "str (string)", "ASSIGN_TAG"),
+	},
+	{
+		`lineComment == "str"`,
+		append(make([]interface{}, 0), "GET_COMMENT", "EQUALS", "str (string)"),
+		append(make([]interface{}, 0), "GET_COMMENT", "str (string)", "EQUALS"),
+	},
+	{
+		`. lineComment= "str"`,
+		append(make([]interface{}, 0), "SELF", "ASSIGN_COMMENT", "str (string)"),
+		append(make([]interface{}, 0), "SELF", "str (string)", "ASSIGN_COMMENT"),
+	},
+
 	// {
 	// 	`.a.b tag="!!str"`,
 	// 	append(make([]interface{}, 0), "EXPLODE", "(", "a", "PIPE", "b", ")"),

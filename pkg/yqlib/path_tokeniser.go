@@ -24,10 +24,11 @@ const (
 )
 
 type Token struct {
-	TokenType TokenType
-	Operation *Operation
+	TokenType            TokenType
+	Operation            *Operation
+	AssignOperation      *Operation // e.g. tag (GetTag) op becomes AssignTag if '=' follows it
+	CheckForPostTraverse bool       // e.g. [1]cat should really be [1].cat
 
-	CheckForPostTraverse bool // e.g. [1]cat should really be [1].cat
 }
 
 func (t *Token) toString() string {
@@ -83,14 +84,22 @@ func documentToken() lex.Action {
 }
 
 func opToken(op *OperationType) lex.Action {
-	return opTokenWithPrefs(op, nil)
+	return opTokenWithPrefs(op, nil, nil)
 }
 
-func opTokenWithPrefs(op *OperationType, preferences interface{}) lex.Action {
+func opAssignableToken(opType *OperationType, assignOpType *OperationType) lex.Action {
+	return opTokenWithPrefs(opType, assignOpType, nil)
+}
+
+func opTokenWithPrefs(op *OperationType, assignOpType *OperationType, preferences interface{}) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
 		op := &Operation{OperationType: op, Value: op.Type, StringValue: value, Preferences: preferences}
-		return &Token{TokenType: OperationToken, Operation: op}, nil
+		var assign *Operation
+		if assignOpType != nil {
+			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
+		}
+		return &Token{TokenType: OperationToken, Operation: op, AssignOperation: assign}, nil
 	}
 }
 
@@ -191,23 +200,22 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`documentIndex`), opToken(GetDocumentIndex))
 
-	lexer.Add([]byte(`style\s*=`), opToken(AssignStyle))
-	lexer.Add([]byte(`style`), opToken(GetStyle))
+	lexer.Add([]byte(`style`), opAssignableToken(GetStyle, AssignStyle))
 
-	lexer.Add([]byte(`lineComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{LineComment: true}))
-	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{LineComment: true}))
+	lexer.Add([]byte(`tag`), opAssignableToken(GetTag, AssignTag))
 
-	lexer.Add([]byte(`headComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{HeadComment: true}))
-	lexer.Add([]byte(`headComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{HeadComment: true}))
+	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(GetComment, AssignComment, &CommentOpPreferences{LineComment: true}))
 
-	lexer.Add([]byte(`footComment\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{FootComment: true}))
-	lexer.Add([]byte(`footComment`), opTokenWithPrefs(GetComment, &CommentOpPreferences{FootComment: true}))
+	lexer.Add([]byte(`headComment`), opTokenWithPrefs(GetComment, AssignComment, &CommentOpPreferences{HeadComment: true}))
 
-	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true}))
+	lexer.Add([]byte(`footComment`), opTokenWithPrefs(GetComment, AssignComment, &CommentOpPreferences{FootComment: true}))
+
+	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, nil, &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true}))
 
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
+	lexer.Add([]byte(`\s*=\s*`), opToken(PlainAssign))
 
 	lexer.Add([]byte(`del`), opToken(DeleteChild))
 
@@ -286,15 +294,28 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 	}
 	var postProcessedTokens = make([]*Token, 0)
 
+	skipNextToken := false
+
 	for index, token := range tokens {
+		if skipNextToken {
+			skipNextToken = false
+		} else {
 
-		postProcessedTokens = append(postProcessedTokens, token)
+			if index != len(tokens)-1 && token.AssignOperation != nil &&
+				tokens[index+1].TokenType == OperationToken &&
+				tokens[index+1].Operation.OperationType == PlainAssign {
+				token.Operation = token.AssignOperation
+				skipNextToken = true
+			}
 
-		if index != len(tokens)-1 && token.CheckForPostTraverse &&
-			tokens[index+1].TokenType == OperationToken &&
-			tokens[index+1].Operation.OperationType == TraversePath {
-			op := &Operation{OperationType: Pipe, Value: "PIPE"}
-			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+			postProcessedTokens = append(postProcessedTokens, token)
+
+			if index != len(tokens)-1 && token.CheckForPostTraverse &&
+				tokens[index+1].TokenType == OperationToken &&
+				tokens[index+1].Operation.OperationType == TraversePath {
+				op := &Operation{OperationType: Pipe, Value: "PIPE"}
+				postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+			}
 		}
 	}
 

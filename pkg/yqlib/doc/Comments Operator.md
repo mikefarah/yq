@@ -101,7 +101,7 @@ yq eval '. | headComment' sample.yml
 ```
 will output
 ```yaml
-welcome!
+
 ```
 
 ### Get foot comment
@@ -115,6 +115,6 @@ yq eval '. | footComment' sample.yml
 ```
 will output
 ```yaml
-have a great day
+
 ```
 

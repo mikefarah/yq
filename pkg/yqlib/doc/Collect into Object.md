@@ -20,7 +20,8 @@ yq eval '{"wrap": .}' sample.yml
 ```
 will output
 ```yaml
-wrap: {name: Mike}
+wrap:
+  name: Mike
 ```
 
 ### Using splat to create multiple objects
@@ -62,9 +63,7 @@ will output
 ```yaml
 Mike: cat
 Mike: dog
----
 Rosey: monkey
----
 Rosey: sheep
 ```
 

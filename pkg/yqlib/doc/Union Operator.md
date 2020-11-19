@@ -29,21 +29,3 @@ fieldA
 fieldC
 ```
 
-### Combine selected paths
-Given a sample.yml file of:
-```yaml
-a: fieldA
-b: fieldB
-c: fieldC
-```
-then
-```bash
-yq eval '(.a, .c) |= "potatoe"' sample.yml
-```
-will output
-```yaml
-a: potatoe
-b: fieldB
-c: potatoe
-```
-

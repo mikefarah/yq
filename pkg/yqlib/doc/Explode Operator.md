@@ -13,7 +13,9 @@ yq eval 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-{f: {a: cat, b: cat}}
+f:
+  a: cat
+  b: cat
 ```
 
 ### Explode with no aliases or anchors
@@ -43,7 +45,9 @@ yq eval 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-{f: {a: cat, cat: b}}
+f:
+  a: cat
+  cat: b
 ```
 
 ### Explode with merge anchors
