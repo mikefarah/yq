@@ -6,7 +6,7 @@ import (
 
 var assignOperatorScenarios = []expressionScenario{
 	{
-		description: "Update parent to be the child value",
+		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,
 		expected: []string{
@@ -14,7 +14,7 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Update to be the sibling value",
+		description: "Update node to be the sibling value",
 		document:    `{a: {b: child}, b: sibling}`,
 		expression:  `.a = .b`,
 		expected: []string{
