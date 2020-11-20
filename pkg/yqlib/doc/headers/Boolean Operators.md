@@ -1,0 +1,1 @@
+The `or` and `and` operators take two parameters and return a boolean result. These are most commonly used with the `select` operator to filter particular nodes.
