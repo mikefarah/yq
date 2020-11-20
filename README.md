@@ -171,7 +171,7 @@ Use "yq [command] --help" for more information about a command.
 If you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
 
 ## V4 is in development!
-If you're keen - check out the alpha release [here](https://github.com/mikefarah/yq/releases/) or the docs (also in alpha) [here](https://mikefarah.gitbook.io/yq/v/v4.x-alpha/).
+If you're keen - check out the alpha release [here](https://github.com/mikefarah/yq/releases/), or in docker `mikefarah/yq:4.0.0-alpha1` and the docs (also in alpha) [here](https://mikefarah.gitbook.io/yq/v/v4.x-alpha/).
 
 V4 is quite different from V3 (sorry for the migration), however it will be much more similar to ```jq```, use a similar expression syntax and therefore support much more complex functionality! 
 
