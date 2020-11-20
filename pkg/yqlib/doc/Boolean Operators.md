@@ -32,13 +32,13 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(.a == "cat" or .b == "dog")' sample.yml
+yq eval '[.[] | select(.a == "cat" or .b == "dog")]' sample.yml
 ```
 will output
 ```yaml
-a: bird
-b: dog
-a: cat
-b: fly
+- a: bird
+  b: dog
+- a: cat
+  b: fly
 ```
 
