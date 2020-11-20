@@ -22,4 +22,4 @@ LABEL version=${VERSION}
 
 WORKDIR /workdir
 
-ENTRYPOINT /usr/bin/yq
+ENTRYPOINT ["/usr/bin/yq"]
