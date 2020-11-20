@@ -6,7 +6,7 @@ Which will assign the LHS node values to the RHS node values. The RHS expression
 ### relative form: `|=`
 This will do a similar thing to the plain form, however, the RHS expression is run against _the LHS nodes_. This is useful for updating values based on old values, e.g. increment.
 ## Examples
-### Update parent to be the child value
+### Update node to be the child value
 Given a sample.yml file of:
 ```yaml
 a:
@@ -23,7 +23,7 @@ a:
   g: foof
 ```
 
-### Update to be the sibling value
+### Update node to be the sibling value
 Given a sample.yml file of:
 ```yaml
 a:

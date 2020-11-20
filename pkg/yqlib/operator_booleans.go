@@ -3,7 +3,7 @@ package yqlib
 import (
 	"container/list"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func isTruthy(c *CandidateNode) (bool, error) {
@@ -25,8 +25,41 @@ func isTruthy(c *CandidateNode) (bool, error) {
 
 type boolOp func(bool, bool) bool
 
+func performBoolOp(results *list.List, lhs *list.List, rhs *list.List, op boolOp) error {
+	for lhsChild := lhs.Front(); lhsChild != nil; lhsChild = lhsChild.Next() {
+		lhsCandidate := lhsChild.Value.(*CandidateNode)
+		lhsTrue, errDecoding := isTruthy(lhsCandidate)
+		if errDecoding != nil {
+			return errDecoding
+		}
+
+		for rhsChild := rhs.Front(); rhsChild != nil; rhsChild = rhsChild.Next() {
+			rhsCandidate := rhsChild.Value.(*CandidateNode)
+			rhsTrue, errDecoding := isTruthy(rhsCandidate)
+			if errDecoding != nil {
+				return errDecoding
+			}
+			boolResult := createBooleanCandidate(lhsCandidate, op(lhsTrue, rhsTrue))
+			results.PushBack(boolResult)
+		}
+	}
+	return nil
+}
+
 func booleanOp(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, op boolOp) (*list.List, error) {
 	var results = list.New()
+
+	if matchingNodes.Len() == 0 {
+		lhs, err := d.GetMatchingNodes(list.New(), pathNode.Lhs)
+		if err != nil {
+			return nil, err
+		}
+		rhs, err := d.GetMatchingNodes(list.New(), pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+		return results, performBoolOp(results, lhs, rhs, op)
+	}
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -39,23 +72,9 @@ func booleanOp(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTre
 			return nil, err
 		}
 
-		for lhsChild := lhs.Front(); lhsChild != nil; lhsChild = lhsChild.Next() {
-			lhsCandidate := lhsChild.Value.(*CandidateNode)
-			lhsTrue, errDecoding := isTruthy(lhsCandidate)
-			if errDecoding != nil {
-				return nil, errDecoding
-			}
-
-			for rhsChild := rhs.Front(); rhsChild != nil; rhsChild = rhsChild.Next() {
-				rhsCandidate := rhsChild.Value.(*CandidateNode)
-				rhsTrue, errDecoding := isTruthy(rhsCandidate)
-				if errDecoding != nil {
-					return nil, errDecoding
-				}
-				boolResult := createBooleanCandidate(lhsCandidate, op(lhsTrue, rhsTrue))
-
-				results.PushBack(boolResult)
-			}
+		err = performBoolOp(results, lhs, rhs, op)
+		if err != nil {
+			return nil, err
 		}
 
 	}

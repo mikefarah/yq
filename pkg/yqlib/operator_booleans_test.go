@@ -24,8 +24,8 @@ var booleanOperatorScenarios = []expressionScenario{
 		description: "Matching nodes with select, equals and or",
 		expression:  `.[] | select(.a == "cat" or .b == "dog")`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: bird, b: dog}\n",
-			"D0, P[], (!!map)::{a: cat, b: fly}\n",
+			"D0, P[0], (!!map)::{a: bird, b: dog}\n",
+			"D0, P[2], (!!map)::{a: cat, b: fly}\n",
 		},
 	},
 	{
