@@ -51,8 +51,8 @@ var GetStyle = &OperationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Han
 var GetTag = &OperationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: GetTagOperator}
 var GetComment = &OperationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50, Handler: GetCommentsOperator}
 var GetDocumentIndex = &OperationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: GetDocumentIndexOperator}
-var GetFilename = &OperationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: GetFilename}
-var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: GetFileIndex}
+var GetFilename = &OperationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: GetFilenameOperator}
+var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: GetFileIndexOperator}
 
 var Explode = &OperationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: ExplodeOperator}
 

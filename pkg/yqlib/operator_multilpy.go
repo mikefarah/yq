@@ -5,7 +5,7 @@ import (
 
 	"container/list"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type CrossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
@@ -15,12 +15,14 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pat
 	if err != nil {
 		return nil, err
 	}
+	log.Debugf("crossFunction LHS len: %v", lhs.Len())
 
 	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
 
 	if err != nil {
 		return nil, err
 	}
+	log.Debugf("crossFunction RHS len: %v", rhs.Len())
 
 	var results = list.New()
 
@@ -28,6 +30,7 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pat
 		lhsCandidate := el.Value.(*CandidateNode)
 
 		for rightEl := rhs.Front(); rightEl != nil; rightEl = rightEl.Next() {
+			log.Debugf("Applying calc")
 			rhsCandidate := rightEl.Value.(*CandidateNode)
 			resultCandidate, err := calculation(d, lhsCandidate, rhsCandidate)
 			if err != nil {
@@ -48,8 +51,8 @@ func MultiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhs.Node = UnwrapDoc(lhs.Node)
 	rhs.Node = UnwrapDoc(rhs.Node)
-	log.Debugf("Multipling LHS: %v", NodeToString(lhs))
-	log.Debugf("-          RHS: %v", NodeToString(rhs))
+	log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
+	log.Debugf("-          RHS: %v", rhs.Node.Tag)
 
 	if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 		(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
@@ -67,7 +70,7 @@ func multiply(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Ca
 		return mergeObjects(d, newThing, rhs)
 
 	}
-	return nil, fmt.Errorf("Cannot multiply %v with %v", NodeToString(lhs), NodeToString(rhs))
+	return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
 }
 
 func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

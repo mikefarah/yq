@@ -21,7 +21,7 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewPrinter(writer, false, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml")
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewPrinter(writer, false, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml")
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
 	if err != nil {
 		panic(err)
 	}
@@ -79,7 +79,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewPrinter(writer, true, true, false, 0, false)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml")
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
 	if err != nil {
 		panic(err)
 	}

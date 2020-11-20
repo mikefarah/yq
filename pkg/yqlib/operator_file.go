@@ -7,7 +7,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func GetFilename(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func GetFilenameOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetFilename")
 
 	var results = list.New()
@@ -22,7 +22,7 @@ func GetFilename(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathT
 	return results, nil
 }
 
-func GetFileIndex(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func GetFileIndexOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetFileIndex")
 
 	var results = list.New()

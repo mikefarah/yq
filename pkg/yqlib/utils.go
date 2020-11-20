@@ -9,8 +9,12 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+//TODO: convert to interface + struct
+
 var treeNavigator = NewDataTreeNavigator(NavigationPrefs{})
 var treeCreator = NewPathTreeCreator()
+
+var fileIndex = 0
 
 func readStream(filename string) (io.Reader, error) {
 	if filename == "-" {
@@ -30,14 +34,16 @@ func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode, print
 		errorReading := decoder.Decode(&dataBucket)
 
 		if errorReading == io.EOF {
+			fileIndex = fileIndex + 1
 			return nil
 		} else if errorReading != nil {
 			return errorReading
 		}
 		candidateNode := &CandidateNode{
-			Document: currentIndex,
-			Filename: filename,
-			Node:     &dataBucket,
+			Document:  currentIndex,
+			Filename:  filename,
+			Node:      &dataBucket,
+			FileIndex: fileIndex,
 		}
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
@@ -54,7 +60,7 @@ func EvaluateStream(filename string, reader io.Reader, node *PathTreeNode, print
 	}
 }
 
-func readDocuments(reader io.Reader, filename string) (*list.List, error) {
+func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List, error) {
 	decoder := yaml.NewDecoder(reader)
 	inputList := list.New()
 	var currentIndex uint = 0
@@ -73,9 +79,10 @@ func readDocuments(reader io.Reader, filename string) (*list.List, error) {
 			return nil, errorReading
 		}
 		candidateNode := &CandidateNode{
-			Document: currentIndex,
-			Filename: filename,
-			Node:     &dataBucket,
+			Document:  currentIndex,
+			Filename:  filename,
+			Node:      &dataBucket,
+			FileIndex: fileIndex,
 		}
 
 		inputList.PushBack(candidateNode)
@@ -85,6 +92,7 @@ func readDocuments(reader io.Reader, filename string) (*list.List, error) {
 }
 
 func EvaluateAllFileStreams(expression string, filenames []string, printer Printer) error {
+	fileIndex := 0
 	node, err := treeCreator.ParsePath(expression)
 	if err != nil {
 		return err
@@ -95,11 +103,12 @@ func EvaluateAllFileStreams(expression string, filenames []string, printer Print
 		if err != nil {
 			return err
 		}
-		fileDocuments, err := readDocuments(reader, filename)
+		fileDocuments, err := readDocuments(reader, filename, fileIndex)
 		if err != nil {
 			return err
 		}
 		allDocuments.PushBackList(fileDocuments)
+		fileIndex = fileIndex + 1
 	}
 	matches, err := treeNavigator.GetMatchingNodes(allDocuments, node)
 	if err != nil {

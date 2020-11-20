@@ -32,7 +32,7 @@ func TestJsonEncoderPreservesObjectOrder(t *testing.T) {
 	writer := bufio.NewWriter(&output)
 
 	var jsonEncoder = NewJsonEncoder(writer, 2)
-	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml")
+	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0)
 	if err != nil {
 		panic(err)
 	}

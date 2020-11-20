@@ -35,7 +35,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	inputs := list.New()
 
 	if s.document != "" {
-		inputs, err = readDocuments(strings.NewReader(s.document), "sample.yml")
+		inputs, err = readDocuments(strings.NewReader(s.document), "sample.yml", 0)
 		if err != nil {
 			t.Error(err)
 			return
