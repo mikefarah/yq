@@ -18,8 +18,6 @@ type OperationType struct {
 
 // operators TODO:
 // - get path operator (like doc index)
-// - get file index op (like doc index)
-// - get file name op (like doc index)
 // - write in place
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)

@@ -7,7 +7,7 @@ import (
 var fileOperatorScenarios = []expressionScenario{
 	{
 		description: "Get filename",
-		document:    `{}`,
+		document:    `{a: cat}`,
 		expression:  `filename`,
 		expected: []string{
 			"D0, P[], (!!str)::sample.yml\n",
@@ -15,7 +15,7 @@ var fileOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Get file index",
-		document:    `{}`,
+		document:    `{a: cat}`,
 		expression:  `fileIndex`,
 		expected: []string{
 			"D0, P[], (!!int)::0\n",
