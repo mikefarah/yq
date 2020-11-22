@@ -41,5 +41,5 @@ func TestPathOperatorsScenarios(t *testing.T) {
 	for _, tt := range pathOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Path Operators", pathOperatorScenarios)
+	documentScenarios(t, "Path Operator", pathOperatorScenarios)
 }
