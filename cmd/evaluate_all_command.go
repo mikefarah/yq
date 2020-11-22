@@ -40,23 +40,23 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		colorsEnabled = true
 	}
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
-
+	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = yqlib.EvaluateAllFileStreams("", []string{"-"}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles("", []string{"-"}, printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
 		}
 	case 1:
 		if nullInput {
-			err = yqlib.EvaluateAllFileStreams(args[0], []string{}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles(args[0], []string{}, printer)
 		} else {
-			err = yqlib.EvaluateAllFileStreams("", []string{args[0]}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles("", []string{args[0]}, printer)
 		}
 	default:
-		err = yqlib.EvaluateAllFileStreams(args[0], args[1:], printer)
+		err = allAtOnceEvaluator.EvaluateFiles(args[0], args[1:], printer)
 	}
 
 	cmd.SilenceUsage = true

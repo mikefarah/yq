@@ -41,22 +41,25 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	}
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
+	streamEvaluator := yqlib.NewStreamEvaluator()
+	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
+
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = yqlib.EvaluateFileStreamsSequence("", []string{"-"}, printer)
+			err = streamEvaluator.EvaluateFiles("", []string{"-"}, printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
 		}
 	case 1:
 		if nullInput {
-			err = yqlib.EvaluateAllFileStreams(args[0], []string{}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles(args[0], []string{}, printer)
 		} else {
-			err = yqlib.EvaluateFileStreamsSequence("", []string{args[0]}, printer)
+			err = streamEvaluator.EvaluateFiles("", []string{args[0]}, printer)
 		}
 	default:
-		err = yqlib.EvaluateFileStreamsSequence(args[0], args[1:], printer)
+		err = streamEvaluator.EvaluateFiles(args[0], args[1:], printer)
 	}
 
 	cmd.SilenceUsage = true

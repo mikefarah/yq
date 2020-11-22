@@ -90,7 +90,8 @@ func formatYaml(yaml string) string {
 	if err != nil {
 		panic(err)
 	}
-	err = EvaluateStream("sample.yaml", strings.NewReader(yaml), node, printer)
+	streamEvaluator := NewStreamEvaluator()
+	err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(yaml), node, printer)
 	if err != nil {
 		panic(err)
 	}
@@ -161,12 +162,14 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 				if err != nil {
 					t.Error(err)
 				}
-				err = EvaluateStream("sample.yaml", strings.NewReader(formattedDoc), node, printer)
+				streamEvaluator := NewStreamEvaluator()
+				err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(formattedDoc), node, printer)
 				if err != nil {
 					t.Error(err)
 				}
 			} else {
-				err = EvaluateAllFileStreams(s.expression, []string{}, printer)
+				allAtOnceEvaluator := NewAllAtOnceEvaluator()
+				err = allAtOnceEvaluator.EvaluateFiles(s.expression, []string{}, printer)
 				if err != nil {
 					t.Error(err)
 				}

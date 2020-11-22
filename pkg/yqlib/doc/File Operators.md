@@ -29,6 +29,6 @@ yq eval 'fileIndex' sample.yml
 ```
 will output
 ```yaml
-73
+0
 ```
 

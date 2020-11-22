@@ -5,16 +5,8 @@ import (
 
 	"container/list"
 
-	"gopkg.in/op/go-logging.v1"
+	logging "gopkg.in/op/go-logging.v1"
 )
-
-type dataTreeNavigator struct {
-	navigationPrefs NavigationPrefs
-}
-
-type NavigationPrefs struct {
-	FollowAlias bool
-}
 
 type DataTreeNavigator interface {
 	// given a list of CandidateEntities and a pathNode,
@@ -23,8 +15,11 @@ type DataTreeNavigator interface {
 	GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
 }
 
-func NewDataTreeNavigator(navigationPrefs NavigationPrefs) DataTreeNavigator {
-	return &dataTreeNavigator{navigationPrefs}
+type dataTreeNavigator struct {
+}
+
+func NewDataTreeNavigator() DataTreeNavigator {
+	return &dataTreeNavigator{}
 }
 
 func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
