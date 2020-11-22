@@ -73,7 +73,7 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Update selected results",
 		document:    `{a: {b: apple, c: cactus}}`,
-		expression:  `.a[] | select(. == "apple") |= "frog"`,
+		expression:  `.a.[] | select(. == "apple") |= "frog"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: frog, c: cactus}}\n",
 		},

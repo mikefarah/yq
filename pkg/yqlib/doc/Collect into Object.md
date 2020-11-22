@@ -34,7 +34,7 @@ pets:
 ```
 then
 ```bash
-yq eval '{.name: .pets[]}' sample.yml
+yq eval '{.name: .pets.[]}' sample.yml
 ```
 will output
 ```yaml
@@ -57,7 +57,7 @@ pets:
 ```
 then
 ```bash
-yq eval '{.name: .pets[]}' sample.yml
+yq eval '{.name: .pets.[]}' sample.yml
 ```
 will output
 ```yaml

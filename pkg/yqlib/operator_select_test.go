@@ -23,7 +23,7 @@ var selectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `a: [cat,goat,dog]`,
-		expression: `.a[] | select(. == "*at")`,
+		expression: `.a.[] | select(. == "*at")`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::cat\n",
 			"D0, P[a 1], (!!str)::goat\n"},
@@ -31,7 +31,7 @@ var selectOperatorScenarios = []expressionScenario{
 	{
 		description: "Select and update matching values in map",
 		document:    `a: { things: cat, bob: goat, horse: dog }`,
-		expression:  `(.a[] | select(. == "*at")) |= "rabbit"`,
+		expression:  `(.a.[] | select(. == "*at")) |= "rabbit"`,
 		expected: []string{
 			"D0, P[], (doc)::a: {things: rabbit, bob: rabbit, horse: dog}\n",
 		},
@@ -39,7 +39,7 @@ var selectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `a: { things: {include: true}, notMe: {include: false}, andMe: {include: fold} }`,
-		expression: `.a[] | select(.include)`,
+		expression: `.a.[] | select(.include)`,
 		expected: []string{
 			"D0, P[a things], (!!map)::{include: true}\n",
 			"D0, P[a andMe], (!!map)::{include: fold}\n",

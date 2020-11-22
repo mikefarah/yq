@@ -3,7 +3,7 @@ package yqlib
 import (
 	"errors"
 
-	"gopkg.in/op/go-logging.v1"
+	logging "gopkg.in/op/go-logging.v1"
 )
 
 type PathPostFixer interface {

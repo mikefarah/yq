@@ -29,7 +29,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 	node, err := treeCreator.ParsePath(s.expression)
 	if err != nil {
-		t.Error(err)
+		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
 		return
 	}
 	inputs := list.New()

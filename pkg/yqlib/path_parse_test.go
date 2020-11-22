@@ -37,8 +37,18 @@ var pathTests = []struct {
 	// {`.a, .b`, append(make([]interface{}, 0), "a", "OR", "b")},
 	// {`[.a, .b]`, append(make([]interface{}, 0), "[", "a", "OR", "b", "]")},
 	// {`."[a", ."b]"`, append(make([]interface{}, 0), "[a", "OR", "b]")},
-	// {`.a[]`, append(make([]interface{}, 0), "a", "PIPE", "[]")},
+	// {`.a.[]`, append(make([]interface{}, 0), "a", "PIPE", "[]")},
 	// {`.[].a`, append(make([]interface{}, 0), "[]", "PIPE", "a")},
+	// {
+	// 	`["cat"]`,
+	// 	append(make([]interface{}, 0), "[", "cat (string)", "]"),
+	// 	append(make([]interface{}, 0), "cat (string)", "COLLECT", "PIPE"),
+	// },
+	{
+		`[]`,
+		append(make([]interface{}, 0), "[", "]"),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT", "PIPE"),
+	},
 	{
 		`d0.a`,
 		append(make([]interface{}, 0), "d0", "PIPE", "a"),
@@ -85,7 +95,7 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "a", "mike (string)", "CREATE_MAP", "COLLECT_OBJECT", "PIPE"),
 	},
 	{
-		`{.a: .c, .b[]: .f.g[]}`,
+		`{.a: .c, .b.[]: .f.g.[]}`,
 		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "c", "UNION", "b", "PIPE", "[]", "CREATE_MAP", "f", "PIPE", "g", "PIPE", "[]", "}"),
 		append(make([]interface{}, 0), "a", "c", "CREATE_MAP", "b", "[]", "PIPE", "f", "g", "PIPE", "[]", "PIPE", "CREATE_MAP", "UNION", "COLLECT_OBJECT", "PIPE"),
 	},

@@ -10,6 +10,7 @@ yq eval --null-input '[]'
 ```
 will output
 ```yaml
+[]
 ```
 
 ## Collect single

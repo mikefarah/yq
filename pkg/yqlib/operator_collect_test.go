@@ -9,7 +9,9 @@ var collectOperatorScenarios = []expressionScenario{
 		description: "Collect empty",
 		document:    ``,
 		expression:  `[]`,
-		expected:    []string{},
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
 	},
 	{
 		description: "Collect single",
@@ -52,7 +54,7 @@ var collectOperatorScenarios = []expressionScenario{
 	},
 	{
 		document:   `a: {b: [1,2,3]}`,
-		expression: `[.a.b[]]`,
+		expression: `[.a.b.[]]`,
 		skipDoc:    true,
 		expected: []string{
 			"D0, P[a b], (!!seq)::- 1\n- 2\n- 3\n",

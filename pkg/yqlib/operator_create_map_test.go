@@ -21,14 +21,14 @@ var createMapOperatorScenarios = []expressionScenario{
 	},
 	{
 		document:   `{name: Mike, pets: [cat, dog]}`,
-		expression: `.name: .pets[]`,
+		expression: `.name: .pets.[]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- [{Mike: cat}, {Mike: dog}]\n",
 		},
 	},
 	{
 		document:   `{name: Mike, pets: [cat, dog], food: [hotdog, burger]}`,
-		expression: `.name: .pets[], "f":.food[]`,
+		expression: `.name: .pets.[], "f":.food.[]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- [{Mike: cat}, {Mike: dog}]\n",
 			"D0, P[], (!!seq)::- [{f: hotdog}, {f: burger}]\n",
@@ -36,7 +36,7 @@ var createMapOperatorScenarios = []expressionScenario{
 	},
 	{
 		document:   "{name: Mike, pets: [cat, dog], food: [hotdog, burger]}\n---\n{name: Fred, pets: [mouse], food: [pizza, onion, apple]}",
-		expression: `.name: .pets[], "f":.food[]`,
+		expression: `.name: .pets.[], "f":.food.[]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- [{Mike: cat}, {Mike: dog}]\n- [{Fred: mouse}]\n",
 			"D0, P[], (!!seq)::- [{f: hotdog}, {f: burger}]\n- [{f: pizza}, {f: onion}, {f: apple}]\n",

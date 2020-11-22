@@ -41,7 +41,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 	{
 		description: `Using splat to create multiple objects`,
 		document:    `{name: Mike, pets: [cat, dog]}`,
-		expression:  `{.name: .pets[]}`,
+		expression:  `{.name: .pets.[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
@@ -51,7 +51,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		description:           `Working with multiple documents`,
 		dontFormatInputForDoc: false,
 		document:              "{name: Mike, pets: [cat, dog]}\n---\n{name: Rosey, pets: [monkey, sheep]}",
-		expression:            `{.name: .pets[]}`,
+		expression:            `{.name: .pets.[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
@@ -62,7 +62,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{name: Mike, pets: [cat, dog], food: [hotdog, burger]}`,
-		expression: `{.name: .pets[], "f":.food[]}`,
+		expression: `{.name: .pets.[], "f":.food.[]}`,
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\nf: hotdog\n",
 			"D0, P[], (!!map)::Mike: cat\nf: burger\n",

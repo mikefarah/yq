@@ -33,6 +33,7 @@ type Token struct {
 
 func (t *Token) toString() string {
 	if t.TokenType == OperationToken {
+		log.Debug("toString, its an op")
 		return t.Operation.toString()
 	} else if t.TokenType == OpenBracket {
 		return "("
@@ -58,13 +59,7 @@ func pathToken(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		op := &Operation{OperationType: TraversePath, Value: value, StringValue: value}
-		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
-	}
-}
-
-func literalPathToken(value string) lex.Action {
-	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		log.Debug("PathToken %v", value)
 		op := &Operation{OperationType: TraversePath, Value: value, StringValue: value}
 		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
@@ -78,6 +73,7 @@ func documentToken() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
+		log.Debug("documentToken %v", string(m.Bytes))
 		op := &Operation{OperationType: DocumentFilter, Value: number, StringValue: numberString}
 		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
@@ -93,6 +89,7 @@ func opAssignableToken(opType *OperationType, assignOpType *OperationType) lex.A
 
 func opTokenWithPrefs(op *OperationType, assignOpType *OperationType, preferences interface{}) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		log.Debug("opTokenWithPrefs %v", string(m.Bytes))
 		value := string(m.Bytes)
 		op := &Operation{OperationType: op, Value: op.Type, StringValue: value, Preferences: preferences}
 		var assign *Operation
@@ -187,7 +184,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\(`), literalToken(OpenBracket, false))
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, true))
 
-	lexer.Add([]byte(`\.?\[\]`), literalPathToken("[]"))
+	lexer.Add([]byte(`\.\[\]`), pathToken(false))
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))

@@ -3,11 +3,17 @@ package yqlib
 import (
 	"container/list"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func CollectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- collectOperation")
+
+	if matchMap.Len() == 0 {
+		node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Value: "[]"}
+		candidate := &CandidateNode{Node: node}
+		return nodeToMap(candidate), nil
+	}
 
 	var results = list.New()
 

@@ -26,7 +26,7 @@ a:
 ```
 then
 ```bash
-yq eval '(.a[] | select(. == "*at")) |= "rabbit"' sample.yml
+yq eval '(.a.[] | select(. == "*at")) |= "rabbit"' sample.yml
 ```
 will output
 ```yaml
