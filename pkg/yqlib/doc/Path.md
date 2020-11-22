@@ -1,6 +1,5 @@
-The path operator can be used to find the traversal paths of matching nodes in an expression. The path is returned as an array, which if traversed in order will lead to the matching node.
-## Examples
-### Map path
+The path operator can be used to get the traversal paths of matching nodes in an expression. The path is returned as an array, which if traversed in order will lead to the matching node.
+## Map path
 Given a sample.yml file of:
 ```yaml
 a:
@@ -16,7 +15,7 @@ will output
 - b
 ```
 
-### Array path
+## Array path
 Given a sample.yml file of:
 ```yaml
 a:
@@ -33,7 +32,7 @@ will output
 - 1
 ```
 
-### Print path and value
+## Print path and value
 Given a sample.yml file of:
 ```yaml
 a:

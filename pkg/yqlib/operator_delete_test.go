@@ -43,5 +43,5 @@ func TestDeleteOperatorScenarios(t *testing.T) {
 	for _, tt := range deleteOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Delete Operator", deleteOperatorScenarios)
+	documentScenarios(t, "Delete", deleteOperatorScenarios)
 }

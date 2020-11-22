@@ -86,5 +86,5 @@ func TestExplodeOperatorScenarios(t *testing.T) {
 	for _, tt := range explodeTest {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Explode Operator", explodeTest)
+	documentScenarios(t, "Explode", explodeTest)
 }

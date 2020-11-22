@@ -87,17 +87,19 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Update empty object",
-		document:    `{}`,
-		expression:  `.a.b |= "bogs"`,
+		description:           "Update empty object",
+		dontFormatInputForDoc: true,
+		document:              `{}`,
+		expression:            `.a.b |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: bogs}}\n",
 		},
 	},
 	{
-		description: "Update empty object and array",
-		document:    `{}`,
-		expression:  `.a.b[0] |= "bogs"`,
+		description:           "Update empty object and array",
+		dontFormatInputForDoc: true,
+		document:              `{}`,
+		expression:            `.a.b[0] |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: [bogs]}}\n",
 		},
@@ -116,5 +118,5 @@ func TestAssignOperatorScenarios(t *testing.T) {
 	for _, tt := range assignOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Assign Operator", assignOperatorScenarios)
+	documentScenarios(t, "Assign", assignOperatorScenarios)
 }

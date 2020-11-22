@@ -9,7 +9,9 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		description: `Collect empty object`,
 		document:    ``,
 		expression:  `{}`,
-		expected:    []string{},
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
 	},
 	{
 		description: `Wrap (prefix) existing object`,

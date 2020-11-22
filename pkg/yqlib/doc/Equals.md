@@ -1,5 +1,3 @@
-## Equals Operator
-
 This is a boolean operator that will return ```true``` if the LHS is equal to the RHS and ``false`` otherwise.
 
 ```
@@ -13,8 +11,7 @@ select(.a == .b)
 ```
 
 
-## Examples
-### Match string
+## Match string
 Given a sample.yml file of:
 ```yaml
 - cat
@@ -32,7 +29,7 @@ true
 false
 ```
 
-### Match number
+## Match number
 Given a sample.yml file of:
 ```yaml
 - 3
@@ -50,7 +47,7 @@ true
 false
 ```
 
-### Match nulls
+## Match nulls
 Running
 ```bash
 yq eval --null-input 'null == ~'

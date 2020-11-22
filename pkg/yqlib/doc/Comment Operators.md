@@ -1,6 +1,5 @@
 Use these comment operators to set or retrieve comments.
-## Examples
-### Set line comment
+## Set line comment
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -14,7 +13,7 @@ will output
 a: cat # single
 ```
 
-### Set head comment
+## Set head comment
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -30,7 +29,7 @@ will output
 a: cat
 ```
 
-### Set foot comment, using an expression
+## Set foot comment, using an expression
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -46,7 +45,7 @@ a: cat
 # cat
 ```
 
-### Remove comment
+## Remove comment
 Given a sample.yml file of:
 ```yaml
 a: cat # comment
@@ -62,7 +61,7 @@ a: cat
 b: dog # leave this
 ```
 
-### Remove all comments
+## Remove all comments
 Given a sample.yml file of:
 ```yaml
 a: cat # comment
@@ -76,7 +75,7 @@ will output
 a: cat
 ```
 
-### Get line comment
+## Get line comment
 Given a sample.yml file of:
 ```yaml
 a: cat # meow
@@ -90,7 +89,7 @@ will output
 meow
 ```
 
-### Get head comment
+## Get head comment
 Given a sample.yml file of:
 ```yaml
 a: cat # meow
@@ -104,7 +103,7 @@ will output
 
 ```
 
-### Get foot comment
+## Get foot comment
 Given a sample.yml file of:
 ```yaml
 a: cat # meow

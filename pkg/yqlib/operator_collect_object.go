@@ -2,6 +2,8 @@ package yqlib
 
 import (
 	"container/list"
+
+	yaml "gopkg.in/yaml.v3"
 )
 
 /*
@@ -19,7 +21,9 @@ func CollectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *
 	log.Debugf("-- collectObjectOperation")
 
 	if matchMap.Len() == 0 {
-		return list.New(), nil
+		node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Value: "{}"}
+		candidate := &CandidateNode{Node: node}
+		return nodeToMap(candidate), nil
 	}
 	first := matchMap.Front().Value.(*CandidateNode)
 	var rotated []*list.List = make([]*list.List, len(first.Node.Content))

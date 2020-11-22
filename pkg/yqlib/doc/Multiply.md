@@ -3,8 +3,15 @@ Like the multiple operator in `jq`, depending on the operands, this multiply ope
 Upcoming versions of `yq` will add support for other types of multiplication (numbers, strings).
 
 Note that when merging objects, this operator returns the merged object (not the parent). This will be clearer in the examples below.
-## Examples
-### Merge objects together, returning merged result only
+
+## Merging files
+Note the use of eval-all to ensure all documents are loaded into memory.
+
+```bash
+yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.yaml
+```
+
+## Merge objects together, returning merged result only
 Given a sample.yml file of:
 ```yaml
 a:
@@ -27,7 +34,7 @@ fieldA: cat
 fieldB: dog
 ```
 
-### Merge objects together, returning parent object
+## Merge objects together, returning parent object
 Given a sample.yml file of:
 ```yaml
 a:
@@ -55,12 +62,13 @@ b:
   fieldB: dog
 ```
 
-### Merge keeps style of LHS
+## Merge keeps style of LHS
 Given a sample.yml file of:
 ```yaml
 a: {things: great}
 b:
   also: "me"
+
 ```
 then
 ```bash
@@ -73,7 +81,7 @@ b:
   also: "me"
 ```
 
-### Merge arrays
+## Merge arrays
 Given a sample.yml file of:
 ```yaml
 a:
@@ -101,7 +109,7 @@ b:
   - 5
 ```
 
-### Merge to prefix an element
+## Merge to prefix an element
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -118,7 +126,7 @@ a:
 b: dog
 ```
 
-### Merge with simple aliases
+## Merge with simple aliases
 Given a sample.yml file of:
 ```yaml
 a: &cat
@@ -138,7 +146,7 @@ g: thongs
 f: *cat
 ```
 
-### Merge does not copy anchor names
+## Merge does not copy anchor names
 Given a sample.yml file of:
 ```yaml
 a:
@@ -158,7 +166,7 @@ g: thongs
 c: frog
 ```
 
-### Merge with merge anchors
+## Merge with merge anchors
 Given a sample.yml file of:
 ```yaml
 foo: &foo

@@ -75,5 +75,5 @@ func TestCommentOperatorScenarios(t *testing.T) {
 	for _, tt := range commentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Comments Operator", commentOperatorScenarios)
+	documentScenarios(t, "Comment Operators", commentOperatorScenarios)
 }

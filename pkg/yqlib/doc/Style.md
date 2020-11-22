@@ -1,6 +1,5 @@
 The style operator can be used to get or set the style of nodes (e.g. string style, yaml style)
-## Examples
-### Set tagged style
+## Set tagged style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -21,7 +20,7 @@ c: !!float 3.2
 e: !!bool true
 ```
 
-### Set double quote style
+## Set double quote style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -41,7 +40,7 @@ c: "3.2"
 e: "true"
 ```
 
-### Set single quote style
+## Set single quote style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -61,7 +60,7 @@ c: '3.2'
 e: 'true'
 ```
 
-### Set literal quote style
+## Set literal quote style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -85,7 +84,7 @@ e: |-
   true
 ```
 
-### Set folded quote style
+## Set folded quote style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -109,7 +108,7 @@ e: >-
   true
 ```
 
-### Set flow quote style
+## Set flow quote style
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -126,7 +125,9 @@ will output
 {a: cat, b: 5, c: 3.2, e: true}
 ```
 
-### Set empty (default) quote style
+## Pretty print
+Set empty (default) quote style
+
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -146,11 +147,10 @@ c: 3.2
 e: true
 ```
 
-### Read style
+## Read style
 Given a sample.yml file of:
 ```yaml
-a: cat
-b: thing
+{a: "cat", b: 'thing'}
 ```
 then
 ```bash
@@ -158,8 +158,8 @@ yq eval '.. | style' sample.yml
 ```
 will output
 ```yaml
-
-
-
+flow
+double
+single
 ```
 

@@ -1,6 +1,5 @@
 This operator is used to combine different results together.
-## Examples
-### Combine scalars
+## Combine scalars
 Running
 ```bash
 yq eval --null-input '1, true, "cat"'
@@ -12,7 +11,7 @@ true
 cat
 ```
 
-### Combine selected paths
+## Combine selected paths
 Given a sample.yml file of:
 ```yaml
 a: fieldA

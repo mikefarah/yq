@@ -37,5 +37,5 @@ func TestDocumentIndexScenarios(t *testing.T) {
 	for _, tt := range documentIndexScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Document Index Operator", documentIndexScenarios)
+	documentScenarios(t, "Document Index", documentIndexScenarios)
 }

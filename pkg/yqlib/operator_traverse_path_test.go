@@ -46,6 +46,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Special characters",
+		subdescription: "Use quotes around path elements with special characters",
+		document:       `{"{}": frog}`,
+		expression:     `."{}"`,
+		expected: []string{
+			"D0, P[{}], (!!str)::frog\n",
+		},
+	},
+	{
 		description:    "Children don't exist",
 		subdescription: "Nodes are added dynamically while traversing",
 		document:       `{c: banana}`,
@@ -271,5 +280,5 @@ func TestTraversePathOperatorScenarios(t *testing.T) {
 	for _, tt := range traversePathOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Traverse Operator", traversePathOperatorScenarios)
+	documentScenarios(t, "Traverse", traversePathOperatorScenarios)
 }

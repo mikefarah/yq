@@ -1,6 +1,5 @@
 Deletes matching entries in maps or arrays.
-## Examples
-### Delete entry in map
+## Delete entry in map
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -15,7 +14,7 @@ will output
 a: cat
 ```
 
-### Delete entry in array
+## Delete entry in array
 Given a sample.yml file of:
 ```yaml
 - 1
@@ -32,7 +31,7 @@ will output
 - 3
 ```
 
-### Delete no matches
+## Delete no matches
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -48,7 +47,7 @@ a: cat
 b: dog
 ```
 
-### Delete matching entries
+## Delete matching entries
 Given a sample.yml file of:
 ```yaml
 a: cat

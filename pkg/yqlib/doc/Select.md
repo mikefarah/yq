@@ -1,6 +1,5 @@
 Select is used to filter arrays and maps by a boolean expression.
-## Examples
-### Select elements from array
+## Select elements from array
 Given a sample.yml file of:
 ```yaml
 - cat
@@ -17,7 +16,7 @@ cat
 goat
 ```
 
-### Select and update matching values in map
+## Select and update matching values in map
 Given a sample.yml file of:
 ```yaml
 a:

@@ -23,9 +23,9 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Map",
-		document:    `{a: {b: apple}}`,
-		expression:  `..`,
+		skipDoc:    true,
+		document:   `{a: {b: apple}}`,
+		expression: `..`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: apple}}\n",
 			"D0, P[a], (!!map)::{b: apple}\n",
@@ -33,9 +33,9 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Array",
-		document:    `[1,2,3]`,
-		expression:  `..`,
+		skipDoc:    true,
+		document:   `[1,2,3]`,
+		expression: `..`,
 		expected: []string{
 			"D0, P[], (!!seq)::[1, 2, 3]\n",
 			"D0, P[0], (!!int)::1\n",
@@ -44,9 +44,9 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Array of maps",
-		document:    `[{a: cat},2,true]`,
-		expression:  `..`,
+		skipDoc:    true,
+		document:   `[{a: cat},2,true]`,
+		expression: `..`,
 		expected: []string{
 			"D0, P[], (!!seq)::[{a: cat}, 2, true]\n",
 			"D0, P[0], (!!map)::{a: cat}\n",
@@ -58,23 +58,17 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 	{
 		description: "Aliases are not traversed",
 		document:    `{a: &cat {c: frog}, b: *cat}`,
-		expression:  `..`,
+		expression:  `[..]`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: &cat {c: frog}, b: *cat}\n",
-			"D0, P[a], (!!map)::&cat {c: frog}\n",
-			"D0, P[a c], (!!str)::frog\n",
-			"D0, P[b], (alias)::*cat\n",
+			"D0, P[a], (!!seq)::- {a: &cat {c: frog}, b: *cat}\n- &cat {c: frog}\n- frog\n- *cat\n",
 		},
 	},
 	{
 		description: "Merge docs are not traversed",
 		document:    mergeDocSample,
-		expression:  `.foobar | ..`,
+		expression:  `.foobar | [..]`,
 		expected: []string{
-			"D0, P[foobar], (!!map)::c: foobar_c\n!!merge <<: *foo\nthing: foobar_thing\n",
-			"D0, P[foobar c], (!!str)::foobar_c\n",
-			"D0, P[foobar <<], (alias)::*foo\n",
-			"D0, P[foobar thing], (!!str)::foobar_thing\n",
+			"D0, P[foobar], (!!seq)::- c: foobar_c\n  !!merge <<: *foo\n  thing: foobar_thing\n- foobar_c\n- *foo\n- foobar_thing\n",
 		},
 	},
 	{
@@ -96,5 +90,5 @@ func TestRecursiveDescentOperatorScenarios(t *testing.T) {
 	for _, tt := range recursiveDescentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Recursive Descent Operator", recursiveDescentOperatorScenarios)
+	documentScenarios(t, "Recursive Descent", recursiveDescentOperatorScenarios)
 }

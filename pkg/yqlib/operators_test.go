@@ -114,17 +114,13 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	}
 
 	w := bufio.NewWriter(f)
+	writeOrPanic(w, "\n")
 
-	writeOrPanic(w, "\n## Examples\n")
-
-	for index, s := range scenarios {
+	for _, s := range scenarios {
 		if !s.skipDoc {
 
-			if s.description != "" {
-				writeOrPanic(w, fmt.Sprintf("### %v\n", s.description))
-			} else {
-				writeOrPanic(w, fmt.Sprintf("### Example %v\n", index))
-			}
+			writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
 			if s.subdescription != "" {
 				writeOrPanic(w, s.subdescription)
 				writeOrPanic(w, "\n\n")
@@ -132,7 +128,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			formattedDoc := ""
 			if s.document != "" {
 				if s.dontFormatInputForDoc {
-					formattedDoc = s.document
+					formattedDoc = s.document + "\n"
 				} else {
 					formattedDoc = formatYaml(s.document)
 				}

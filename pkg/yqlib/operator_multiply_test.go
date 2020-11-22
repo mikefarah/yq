@@ -130,5 +130,5 @@ func TestMultiplyOperatorScenarios(t *testing.T) {
 	for _, tt := range multiplyOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Multiply Operator", multiplyOperatorScenarios)
+	documentScenarios(t, "Multiply", multiplyOperatorScenarios)
 }

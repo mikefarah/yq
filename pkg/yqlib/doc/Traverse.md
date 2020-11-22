@@ -1,6 +1,5 @@
-This is the simples (and perhaps most used) operator, it is used to navigate deeply into yaml structurse.
-## Examples
-### Simple map navigation
+This is the simplest (and perhaps most used) operator, it is used to navigate deeply into yaml structurse.
+## Simple map navigation
 Given a sample.yml file of:
 ```yaml
 a:
@@ -15,7 +14,7 @@ will output
 b: apple
 ```
 
-### Splat
+## Splat
 Often used to pipe children into other operators
 
 Given a sample.yml file of:
@@ -33,7 +32,23 @@ b: apple
 c: banana
 ```
 
-### Children don't exist
+## Special characters
+Use quotes around path elements with special characters
+
+Given a sample.yml file of:
+```yaml
+"{}": frog
+```
+then
+```bash
+yq eval '."{}"' sample.yml
+```
+will output
+```yaml
+frog
+```
+
+## Children don't exist
 Nodes are added dynamically while traversing
 
 Given a sample.yml file of:
@@ -49,7 +64,7 @@ will output
 null
 ```
 
-### Wildcard matching
+## Wildcard matching
 Given a sample.yml file of:
 ```yaml
 a:
@@ -66,7 +81,7 @@ apple
 things
 ```
 
-### Aliases
+## Aliases
 Given a sample.yml file of:
 ```yaml
 a: &cat
@@ -82,7 +97,7 @@ will output
 *cat
 ```
 
-### Traversing aliases with splat
+## Traversing aliases with splat
 Given a sample.yml file of:
 ```yaml
 a: &cat
@@ -98,7 +113,7 @@ will output
 frog
 ```
 
-### Traversing aliases explicitly
+## Traversing aliases explicitly
 Given a sample.yml file of:
 ```yaml
 a: &cat
@@ -114,7 +129,7 @@ will output
 frog
 ```
 
-### Traversing arrays by index
+## Traversing arrays by index
 Given a sample.yml file of:
 ```yaml
 - 1
@@ -130,7 +145,7 @@ will output
 1
 ```
 
-### Maps with numeric keys
+## Maps with numeric keys
 Given a sample.yml file of:
 ```yaml
 2: cat
@@ -144,7 +159,7 @@ will output
 cat
 ```
 
-### Maps with non existing numeric keys
+## Maps with non existing numeric keys
 Given a sample.yml file of:
 ```yaml
 a: b
@@ -158,7 +173,7 @@ will output
 null
 ```
 
-### Traversing merge anchors
+## Traversing merge anchors
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -189,7 +204,7 @@ will output
 foo_a
 ```
 
-### Traversing merge anchors with override
+## Traversing merge anchors with override
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -220,7 +235,7 @@ will output
 foo_c
 ```
 
-### Traversing merge anchors with local override
+## Traversing merge anchors with local override
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -251,7 +266,7 @@ will output
 foobar_thing
 ```
 
-### Splatting merge anchors
+## Splatting merge anchors
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -284,7 +299,7 @@ foo_a
 foobar_thing
 ```
 
-### Traversing merge anchor lists
+## Traversing merge anchor lists
 Note that the later merge anchors override previous
 
 Given a sample.yml file of:
@@ -317,7 +332,7 @@ will output
 bar_thing
 ```
 
-### Splatting merge anchor lists
+## Splatting merge anchor lists
 Given a sample.yml file of:
 ```yaml
 foo: &foo

@@ -5,8 +5,7 @@ Which will assign the LHS node values to the RHS node values. The RHS expression
 
 ### relative form: `|=`
 This will do a similar thing to the plain form, however, the RHS expression is run against _the LHS nodes_. This is useful for updating values based on old values, e.g. increment.
-## Examples
-### Update node to be the child value
+## Update node to be the child value
 Given a sample.yml file of:
 ```yaml
 a:
@@ -23,7 +22,7 @@ a:
   g: foof
 ```
 
-### Update node to be the sibling value
+## Update node to be the sibling value
 Given a sample.yml file of:
 ```yaml
 a:
@@ -40,7 +39,7 @@ a: sibling
 b: sibling
 ```
 
-### Updated multiple paths
+## Updated multiple paths
 Given a sample.yml file of:
 ```yaml
 a: fieldA
@@ -58,7 +57,7 @@ b: fieldB
 c: potatoe
 ```
 
-### Update string value
+## Update string value
 Given a sample.yml file of:
 ```yaml
 a:
@@ -74,7 +73,7 @@ a:
   b: frog
 ```
 
-### Update string value via |=
+## Update string value via |=
 Note there is no difference between `=` and `|=` when the RHS is a scalar
 
 Given a sample.yml file of:
@@ -92,7 +91,7 @@ a:
   b: frog
 ```
 
-### Update selected results
+## Update selected results
 Given a sample.yml file of:
 ```yaml
 a:
@@ -110,7 +109,7 @@ a:
   c: cactus
 ```
 
-### Update array values
+## Update array values
 Given a sample.yml file of:
 ```yaml
 - candy
@@ -128,10 +127,10 @@ will output
 - bogs
 ```
 
-### Update empty object
+## Update empty object
 Given a sample.yml file of:
 ```yaml
-'': null
+{}
 ```
 then
 ```bash
@@ -139,15 +138,13 @@ yq eval '.a.b |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-'': null
-a:
-  b: bogs
+{a: {b: bogs}}
 ```
 
-### Update empty object and array
+## Update empty object and array
 Given a sample.yml file of:
 ```yaml
-'': null
+{}
 ```
 then
 ```bash
@@ -155,9 +152,6 @@ yq eval '.a.b[0] |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-'': null
-a:
-  b:
-    - bogs
+{a: {b: [bogs]}}
 ```
 

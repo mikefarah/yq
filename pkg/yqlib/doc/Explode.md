@@ -1,6 +1,5 @@
 Explodes (or dereferences) aliases and anchors.
-## Examples
-### Explode alias and anchor
+## Explode alias and anchor
 Given a sample.yml file of:
 ```yaml
 f:
@@ -18,7 +17,7 @@ f:
   b: cat
 ```
 
-### Explode with no aliases or anchors
+## Explode with no aliases or anchors
 Given a sample.yml file of:
 ```yaml
 a: mike
@@ -32,7 +31,7 @@ will output
 a: mike
 ```
 
-### Explode with alias keys
+## Explode with alias keys
 Given a sample.yml file of:
 ```yaml
 f:
@@ -50,7 +49,7 @@ f:
   cat: b
 ```
 
-### Explode with merge anchors
+## Explode with merge anchors
 Given a sample.yml file of:
 ```yaml
 foo: &foo

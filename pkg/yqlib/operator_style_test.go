@@ -70,9 +70,10 @@ e: >-
 		},
 	},
 	{
-		description: "Set empty (default) quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
-		expression:  `.. style=""`,
+		description:    "Pretty print",
+		subdescription: "Set empty (default) quote style",
+		document:       `{a: cat, b: 5, c: 3.2, e: true}`,
+		expression:     `.. style=""`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
 		},
@@ -86,9 +87,10 @@ e: >-
 		},
 	},
 	{
-		description: "Read style",
-		document:    `{a: "cat", b: 'thing'}`,
-		expression:  `.. | style`,
+		description:           "Read style",
+		document:              `{a: "cat", b: 'thing'}`,
+		dontFormatInputForDoc: true,
+		expression:            `.. | style`,
 		expected: []string{
 			"D0, P[], (!!str)::flow\n",
 			"D0, P[a], (!!str)::double\n",
@@ -110,5 +112,5 @@ func TestStyleOperatorScenarios(t *testing.T) {
 	for _, tt := range styleOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Style Operator", styleOperatorScenarios)
+	documentScenarios(t, "Style", styleOperatorScenarios)
 }

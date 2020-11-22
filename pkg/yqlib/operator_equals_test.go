@@ -54,5 +54,5 @@ func TestEqualOperatorScenarios(t *testing.T) {
 	for _, tt := range equalsOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Equals Operator", equalsOperatorScenarios)
+	documentScenarios(t, "Equals", equalsOperatorScenarios)
 }

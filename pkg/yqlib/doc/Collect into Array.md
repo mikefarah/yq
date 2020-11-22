@@ -3,8 +3,7 @@
 This creates an array using the expression between the square brackets.
 
 
-## Examples
-### Collect empty
+## Collect empty
 Running
 ```bash
 yq eval --null-input '[]'
@@ -13,7 +12,7 @@ will output
 ```yaml
 ```
 
-### Collect single
+## Collect single
 Running
 ```bash
 yq eval --null-input '["cat"]'
@@ -23,7 +22,7 @@ will output
 - cat
 ```
 
-### Collect many
+## Collect many
 Given a sample.yml file of:
 ```yaml
 a: cat

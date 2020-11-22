@@ -1,6 +1,5 @@
-The tag operator can be used to get or set the tag of ndoes (e.g. `!!str`, `!!int`, `!!bool`).
-## Examples
-### Get tag
+The tag operator can be used to get or set the tag of nodes (e.g. `!!str`, `!!int`, `!!bool`).
+## Get tag
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -23,7 +22,7 @@ will output
 !!seq
 ```
 
-### Convert numbers to strings
+## Convert numbers to strings
 Given a sample.yml file of:
 ```yaml
 a: cat
