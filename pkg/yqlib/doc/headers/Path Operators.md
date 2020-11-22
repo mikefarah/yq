@@ -1,0 +1,1 @@
+The path operator can be used to find the traversal paths of matching nodes in an expression. The path is returned as an array, which if traversed in order will lead to the matching node.

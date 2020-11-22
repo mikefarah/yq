@@ -206,6 +206,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`tag`), opAssignableToken(GetTag, AssignTag))
 	lexer.Add([]byte(`filename`), opToken(GetFilename))
 	lexer.Add([]byte(`fileIndex`), opToken(GetFileIndex))
+	lexer.Add([]byte(`path`), opToken(GetPath))
 
 	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(GetComment, AssignComment, &CommentOpPreferences{LineComment: true}))
 

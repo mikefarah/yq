@@ -17,7 +17,6 @@ type OperationType struct {
 }
 
 // operators TODO:
-// - get path operator (like doc index)
 // - write in place
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
@@ -51,6 +50,7 @@ var GetComment = &OperationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50,
 var GetDocumentIndex = &OperationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: GetDocumentIndexOperator}
 var GetFilename = &OperationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: GetFilenameOperator}
 var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: GetFileIndexOperator}
+var GetPath = &OperationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: GetPathOperator}
 
 var Explode = &OperationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: ExplodeOperator}
 
