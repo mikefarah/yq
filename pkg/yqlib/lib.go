@@ -66,6 +66,7 @@ var Empty = &OperationType{Type: "EMPTY", NumArgs: 50, Handler: EmptyOperator}
 var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
 
 var Select = &OperationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: SelectOperator}
+var Has = &OperationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: HasOperator}
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: DeleteChildOperator}
 
 // var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}

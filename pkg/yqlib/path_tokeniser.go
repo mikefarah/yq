@@ -191,6 +191,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`:\s*`), opToken(CreateMap))
 	lexer.Add([]byte(`length`), opToken(Length))
 	lexer.Add([]byte(`select`), opToken(Select))
+	lexer.Add([]byte(`has`), opToken(Has))
 	lexer.Add([]byte(`explode`), opToken(Explode))
 	lexer.Add([]byte(`or`), opToken(Or))
 	lexer.Add([]byte(`and`), opToken(And))
