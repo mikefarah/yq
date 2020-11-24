@@ -252,6 +252,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\{`), literalToken(OpenCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(CloseCollectObject, true))
 	lexer.Add([]byte(`\*`), opToken(Multiply))
+	lexer.Add([]byte(`\+`), opToken(Add))
 
 	err := lexer.Compile()
 	if err != nil {
