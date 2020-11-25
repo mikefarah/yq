@@ -1,5 +1,5 @@
 ---
-name: Feature request
+name: Feature request - V4
 about: Suggest an idea for this project
 title: ''
 labels: enhancement
@@ -7,11 +7,15 @@ assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Please describe your feature request.**
+A clear and concise description of what the request is and what it would solve. 
+Ex. I wish I could use yq to [...]
+
+Please note that V3 will no longer have any enhancements.
 
 **Describe the solution you'd like**
 If we have data1.yml like:
+(please keep to around 10 lines )
 
 ```yaml
 country: Australia
@@ -20,7 +24,7 @@ country: Australia
 And we run a command:
 
 ```bash
-yq predictWeather data1.yml
+yq eval 'predictWeatherOf(.country)'
 ```
 
 it could output

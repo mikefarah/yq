@@ -1,5 +1,5 @@
 ---
-name: Bug report
+name: Bug report - V3 / V4
 about: Create a report to help us improve
 title: ''
 labels: bug
@@ -14,7 +14,7 @@ version of yq:
 operating system:
 
 **Input Yaml**
-Concise yaml document(s) (as simple as possible to show the bug)
+Concise yaml document(s) (as simple as possible to show the bug, please keep it to 10 lines or less)
 data1.yml:
 ```yaml
 this: should really work
