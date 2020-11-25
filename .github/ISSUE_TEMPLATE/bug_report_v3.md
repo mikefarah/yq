@@ -1,8 +1,8 @@
 ---
-name: Bug report - V3 / V4
+name: Bug report - V3
 about: Create a report to help us improve
 title: ''
-labels: bug
+labels: bug v3
 assignees: ''
 
 ---
@@ -10,8 +10,9 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-version of yq: 
-operating system:
+Version of yq: 3.X.X
+Operating system: mac/linux/windows/....
+Installed via: docker/binary release/homebrew/snap/...
 
 **Input Yaml**
 Concise yaml document(s) (as simple as possible to show the bug, please keep it to 10 lines or less)
