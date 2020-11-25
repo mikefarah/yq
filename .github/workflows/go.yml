@@ -28,7 +28,4 @@ jobs:
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
         scripts/devtools.sh
-    - name: Build
-      run: |
-        export PATH=${PATH}:`go env GOPATH`/bin
         make local build
