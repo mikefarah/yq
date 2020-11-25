@@ -26,7 +26,7 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 
-		if candidate.Node.Kind != yaml.AliasNode {
+		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 {
 
 			children, err := Splat(d, nodeToMap(candidate))
 

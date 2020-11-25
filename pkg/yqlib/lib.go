@@ -17,6 +17,7 @@ type OperationType struct {
 }
 
 // operators TODO:
+// - cookbook doc for common things
 // - write in place
 // - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
@@ -69,9 +70,6 @@ var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Pre
 var Select = &OperationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: SelectOperator}
 var Has = &OperationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: HasOperator}
 var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: DeleteChildOperator}
-
-// var Exists = &OperationType{Type: "Length", NumArgs: 2, Precedence: 35}
-// filters matches if they have the existing path
 
 type Operation struct {
 	OperationType *OperationType

@@ -7,6 +7,22 @@ import (
 var recursiveDescentOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		document:   `{}`,
+		expression: `..`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[]`,
+		expression: `..`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `cat`,
 		expression: `..`,
 		expected: []string{
