@@ -14,11 +14,27 @@ var pathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Get map key",
+		document:    `{a: {b: cat}}`,
+		expression:  `.a.b | path | .[-1]`,
+		expected: []string{
+			"D0, P[a b -1], (!!str)::b\n",
+		},
+	},
+	{
 		description: "Array path",
 		document:    `{a: [cat, dog]}`,
 		expression:  `.a.[] | select(. == "dog") | path`,
 		expected: []string{
 			"D0, P[a 1], (!!seq)::- a\n- 1\n",
+		},
+	},
+	{
+		description: "Get array index",
+		document:    `{a: [cat, dog]}`,
+		expression:  `.a.[] | select(. == "dog") | path | .[-1]`,
+		expected: []string{
+			"D0, P[a 1 -1], (!!int)::1\n",
 		},
 	},
 	{
