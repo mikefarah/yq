@@ -6,6 +6,9 @@ import (
 
 var addOperatorScenarios = []expressionScenario{
 	{
+		description: "+= test and doc",
+	},
+	{
 		description: "Concatenate arrays",
 		document:    `{a: [1,2], b: [3,4]}`,
 		expression:  `.a + .b`,

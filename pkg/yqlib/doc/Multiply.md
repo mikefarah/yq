@@ -66,9 +66,9 @@ b:
 Given a sample.yml file of:
 ```yaml
 a: {things: great}
-b:
-  also: "me"
-
+	b:
+	  also: "me"
+	
 ```
 then
 ```bash
@@ -76,9 +76,6 @@ yq eval '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
-a: {things: great, also: "me"}
-b:
-  also: "me"
 ```
 
 ## Merge arrays
@@ -107,6 +104,38 @@ b:
   - 3
   - 4
   - 5
+```
+
+## Merge, appending arrays
+Given a sample.yml file of:
+```yaml
+a:
+  array:
+    - 1
+    - 2
+    - animal: dog
+  value: coconut
+b:
+  array:
+    - 3
+    - 4
+    - animal: cat
+  value: banana
+```
+then
+```bash
+yq eval '.a *+ .b' sample.yml
+```
+will output
+```yaml
+array:
+  - 1
+  - 2
+  - animal: dog
+  - 3
+  - 4
+  - animal: cat
+value: banana
 ```
 
 ## Merge to prefix an element

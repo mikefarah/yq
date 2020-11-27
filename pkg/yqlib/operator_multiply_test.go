@@ -6,6 +6,9 @@ import (
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
+		description: "*+ doc",
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: me}}`,
 		expression: `. * {"a" : .b}`,
@@ -80,15 +83,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		description:           "Merge keeps style of LHS",
 		dontFormatInputForDoc: true,
 		document: `a: {things: great}
-b:
-  also: "me"
-`,
+	b:
+	  also: "me"
+	`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
 			`D0, P[], (!!map)::a: {things: great, also: "me"}
-b:
-    also: "me"
-`,
+	b:
+	    also: "me"
+	`,
 		},
 	},
 	{
@@ -97,6 +100,22 @@ b:
 		expression:  `. * {"a":.b}`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: [3, 4, 5], b: [3, 4, 5]}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [1], b: [2]}`,
+		expression: `.a *+ .b`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[1, 2]\n",
+		},
+	},
+	{
+		description: "Merge, appending arrays",
+		document:    `{a: {array: [1, 2, animal: dog], value: coconut}, b: {array: [3, 4, animal: cat], value: banana}}`,
+		expression:  `.a *+ .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{array: [1, 2, {animal: dog}, 3, 4, {animal: cat}], value: banana}\n",
 		},
 	},
 	{

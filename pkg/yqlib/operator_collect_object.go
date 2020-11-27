@@ -94,7 +94,7 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 
 			newCandidate.Path = nil
 
-			newCandidate, err = multiply(d, newCandidate, splatCandidate)
+			newCandidate, err = multiply(&MultiplyPreferences{AppendArrays: false})(d, newCandidate, splatCandidate)
 			if err != nil {
 				return nil, err
 			}

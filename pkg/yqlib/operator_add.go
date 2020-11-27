@@ -8,6 +8,10 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+type AddPreferences struct {
+	InPlace bool
+}
+
 func toNodes(candidates *list.List) []*yaml.Node {
 
 	if candidates.Len() == 0 {
@@ -41,26 +45,35 @@ func AddOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathT
 		return nil, err
 	}
 
+	preferences := pathNode.Operation.Preferences
+	inPlace := preferences != nil && preferences.(*AddPreferences).InPlace
+
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		lhsCandidate := el.Value.(*CandidateNode)
 		lhsNode := UnwrapDoc(lhsCandidate.Node)
 
-		var newBlank = &CandidateNode{
-			Path:     lhsCandidate.Path,
-			Document: lhsCandidate.Document,
-			Filename: lhsCandidate.Filename,
-			Node:     &yaml.Node{},
+		var target *CandidateNode
+
+		if inPlace {
+			target = lhsCandidate
+		} else {
+			target = &CandidateNode{
+				Path:     lhsCandidate.Path,
+				Document: lhsCandidate.Document,
+				Filename: lhsCandidate.Filename,
+				Node:     &yaml.Node{},
+			}
 		}
 
 		switch lhsNode.Kind {
 		case yaml.MappingNode:
 			return nil, fmt.Errorf("Maps not yet supported for addition")
 		case yaml.SequenceNode:
-			newBlank.Node.Kind = yaml.SequenceNode
-			newBlank.Node.Style = lhsNode.Style
-			newBlank.Node.Tag = "!!seq"
-			newBlank.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
-			results.PushBack(newBlank)
+			target.Node.Kind = yaml.SequenceNode
+			target.Node.Style = lhsNode.Style
+			target.Node.Tag = "!!seq"
+			target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
+			results.PushBack(target)
 		case yaml.ScalarNode:
 			return nil, fmt.Errorf("Scalars not yet supported for addition")
 		}
