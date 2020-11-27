@@ -7,6 +7,8 @@ import (
 var addOperatorScenarios = []expressionScenario{
 	{
 		description: "+= test and doc",
+		expression: ".a.b+= .e.f"
+		expected: []string{"add .e.g to be, return top level node"}
 	},
 	{
 		description: "Concatenate arrays",
