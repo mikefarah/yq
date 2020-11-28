@@ -19,11 +19,9 @@ type OperationType struct {
 // operators TODO:
 // - cookbook doc for common things
 // - write in place
-// - mergeAppend (merges and appends arrays)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - compare ??
 // - validate ??
-// - exists
 
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
