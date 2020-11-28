@@ -2,6 +2,8 @@ Like the multiple operator in `jq`, depending on the operands, this multiply ope
 
 Upcoming versions of `yq` will add support for other types of multiplication (numbers, strings).
 
+To concatenate when merging objects, use the `*+` form (see examples below). This will recursively merge objects, appending arrays when it encounters them.
+
 Note that when merging objects, this operator returns the merged object (not the parent). This will be clearer in the examples below.
 
 ## Merging files

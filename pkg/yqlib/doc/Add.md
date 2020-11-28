@@ -3,6 +3,31 @@ Add behaves differently according to the type of the LHS:
 - number scalars: arithmetic addition (soon)
 - string scalars: concatenate (soon)
 
+Use `+=` as append assign for things like increment. `.a += .x` is equivalent to running `.a |= . + .x`.
+
+## Concatenate and assign arrays
+Given a sample.yml file of:
+```yaml
+a:
+  val: thing
+  b:
+    - cat
+    - dog
+```
+then
+```bash
+yq eval '.a.b += ["cow"]' sample.yml
+```
+will output
+```yaml
+a:
+  val: thing
+  b:
+    - cat
+    - dog
+    - cow
+```
+
 ## Concatenate arrays
 Given a sample.yml file of:
 ```yaml

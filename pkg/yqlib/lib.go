@@ -31,6 +31,7 @@ var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOp
 var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
+var AddAssign = &OperationType{Type: "ADD_ASSIGN", NumArgs: 2, Precedence: 40, Handler: AddAssignOperator}
 
 var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
 var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}

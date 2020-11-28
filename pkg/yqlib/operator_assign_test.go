@@ -99,7 +99,7 @@ var assignOperatorScenarios = []expressionScenario{
 		description:           "Update empty object and array",
 		dontFormatInputForDoc: true,
 		document:              `{}`,
-		expression:            `.a.b[0] |= "bogs"`,
+		expression:            `.a.b.[0] |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: [bogs]}}\n",
 		},
@@ -107,7 +107,7 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: `.a.b[1].c |= "bogs"`,
+		expression: `.a.b.[1].c |= "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: [null, {c: bogs}]}}\n",
 		},

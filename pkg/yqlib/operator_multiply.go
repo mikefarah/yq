@@ -128,9 +128,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 		assignmentOp.OperationType = Assign
 		assignmentOp.Preferences = &AssignOpPreferences{false}
 	} else if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
-		log.Debugf("append! lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
-		assignmentOp.OperationType = Add
-		assignmentOp.Preferences = &AddPreferences{InPlace: true}
+		assignmentOp.OperationType = AddAssign
 	}
 	rhsOp := &Operation{OperationType: ValueOp, CandidateNode: rhs}
 

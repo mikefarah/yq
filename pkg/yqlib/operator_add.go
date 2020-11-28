@@ -8,8 +8,18 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type AddPreferences struct {
-	InPlace bool
+func createSelfAddOp(rhs *PathTreeNode) *PathTreeNode {
+	return &PathTreeNode{Operation: &Operation{OperationType: Add},
+		Lhs: &PathTreeNode{Operation: &Operation{OperationType: SelfReference}},
+		Rhs: rhs}
+}
+
+func AddAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	assignmentOp := &Operation{OperationType: Assign}
+	assignmentOp.Preferences = &AssignOpPreferences{true}
+
+	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createSelfAddOp(pathNode.Rhs)}
+	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
 }
 
 func toNodes(candidates *list.List) []*yaml.Node {
@@ -45,24 +55,15 @@ func AddOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathT
 		return nil, err
 	}
 
-	preferences := pathNode.Operation.Preferences
-	inPlace := preferences != nil && preferences.(*AddPreferences).InPlace
-
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		lhsCandidate := el.Value.(*CandidateNode)
 		lhsNode := UnwrapDoc(lhsCandidate.Node)
 
-		var target *CandidateNode
-
-		if inPlace {
-			target = lhsCandidate
-		} else {
-			target = &CandidateNode{
-				Path:     lhsCandidate.Path,
-				Document: lhsCandidate.Document,
-				Filename: lhsCandidate.Filename,
-				Node:     &yaml.Node{},
-			}
+		target := &CandidateNode{
+			Path:     lhsCandidate.Path,
+			Document: lhsCandidate.Document,
+			Filename: lhsCandidate.Filename,
+			Node:     &yaml.Node{},
 		}
 
 		switch lhsNode.Kind {

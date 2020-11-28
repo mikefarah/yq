@@ -6,9 +6,6 @@ import (
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
-		description: "*+ doc",
-	},
-	{
 		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: me}}`,
 		expression: `. * {"a" : .b}`,
@@ -83,15 +80,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		description:           "Merge keeps style of LHS",
 		dontFormatInputForDoc: true,
 		document: `a: {things: great}
-	b:
-	  also: "me"
-	`,
+b:
+  also: "me"
+`,
 		expression: `. * {"a":.b}`,
 		expected: []string{
 			`D0, P[], (!!map)::a: {things: great, also: "me"}
-	b:
-	    also: "me"
-	`,
+b:
+    also: "me"
+`,
 		},
 	},
 	{

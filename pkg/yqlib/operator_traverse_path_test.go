@@ -159,7 +159,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Traversing arrays by index",
 		document:    `[1,2,3]`,
-		expression:  `[0]`,
+		expression:  `.[0]`,
 		expected: []string{
 			"D0, P[0], (!!int)::1\n",
 		},
@@ -167,7 +167,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Maps with numeric keys",
 		document:    `{2: cat}`,
-		expression:  `[2]`,
+		expression:  `.[2]`,
 		expected: []string{
 			"D0, P[2], (!!str)::cat\n",
 		},
@@ -175,7 +175,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Maps with non existing numeric keys",
 		document:    `{a: b}`,
-		expression:  `[0]`,
+		expression:  `.[0]`,
 		expected: []string{
 			"D0, P[0], (!!null)::null\n",
 		},

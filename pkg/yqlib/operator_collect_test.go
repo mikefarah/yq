@@ -14,6 +14,14 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   ``,
+		expression: `[3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 3\n",
+		},
+	},
+	{
 		description: "Collect single",
 		document:    ``,
 		expression:  `["cat"]`,

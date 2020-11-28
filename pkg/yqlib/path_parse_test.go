@@ -50,6 +50,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "EMPTY", "COLLECT", "PIPE"),
 	},
 	{
+		`[3]`,
+		append(make([]interface{}, 0), "[", "3 (int64)", "]"),
+		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "PIPE"),
+	},
+	{
 		`d0.a`,
 		append(make([]interface{}, 0), "d0", "PIPE", "a"),
 		append(make([]interface{}, 0), "d0", "a", "PIPE"),

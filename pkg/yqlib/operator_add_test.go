@@ -6,9 +6,12 @@ import (
 
 var addOperatorScenarios = []expressionScenario{
 	{
-		description: "+= test and doc",
-		expression: ".a.b+= .e.f"
-		expected: []string{"add .e.g to be, return top level node"}
+		description: "Concatenate and assign arrays",
+		document:    `{a: {val: thing, b: [cat,dog]}}`,
+		expression:  ".a.b += [\"cow\"]",
+		expected: []string{
+			"D0, P[], (doc)::{a: {val: thing, b: [cat, dog, cow]}}\n",
+		},
 	},
 	{
 		description: "Concatenate arrays",

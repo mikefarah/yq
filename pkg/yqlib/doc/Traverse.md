@@ -138,7 +138,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '[0]' sample.yml
+yq eval '.[0]' sample.yml
 ```
 will output
 ```yaml
@@ -152,7 +152,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '[2]' sample.yml
+yq eval '.[2]' sample.yml
 ```
 will output
 ```yaml
@@ -166,7 +166,7 @@ a: b
 ```
 then
 ```bash
-yq eval '[0]' sample.yml
+yq eval '.[0]' sample.yml
 ```
 will output
 ```yaml

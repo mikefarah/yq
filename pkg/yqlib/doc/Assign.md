@@ -148,7 +148,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.a.b[0] |= "bogs"' sample.yml
+yq eval '.a.b.[0] |= "bogs"' sample.yml
 ```
 will output
 ```yaml

@@ -223,7 +223,6 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\s*\|=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{true}))
 
-	lexer.Add([]byte(`\[-?[0-9]+\]`), arrayIndextoken(false))
 	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
@@ -254,7 +253,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\*`), opTokenWithPrefs(Multiply, nil, &MultiplyPreferences{AppendArrays: false}))
 	lexer.Add([]byte(`\*\+`), opTokenWithPrefs(Multiply, nil, &MultiplyPreferences{AppendArrays: true}))
 	lexer.Add([]byte(`\+`), opToken(Add))
-	lexer.Add([]byte(`\+=`), opTokenWithPrefs(Add, nil, &AddPreferences{InPlace: true}))
+	lexer.Add([]byte(`\+=`), opToken(AddAssign))
 
 	err := lexer.Compile()
 	if err != nil {
