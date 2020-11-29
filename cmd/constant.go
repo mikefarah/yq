@@ -2,7 +2,7 @@ package cmd
 
 var unwrapScalar = true
 
-// var writeInplace = false
+var writeInplace = false
 var outputToJSON = false
 
 // var exitStatus = false
@@ -14,5 +14,3 @@ var noDocSeparators = false
 var nullInput = false
 var verbose = false
 var version = false
-
-// var log = logging.MustGetLogger("yq")

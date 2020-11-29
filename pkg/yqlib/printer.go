@@ -5,7 +5,7 @@ import (
 	"container/list"
 	"io"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type Printer interface {
@@ -53,6 +53,13 @@ func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
+func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
+	if err := writer.Flush(); err != nil {
+		log.Error("Error flushing writer!")
+		log.Error(err.Error())
+	}
+}
+
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
 	var err error
@@ -66,7 +73,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	}
 
 	bufferedWriter := bufio.NewWriter(p.writer)
-	defer safelyFlush(bufferedWriter)
+	defer p.safelyFlush(bufferedWriter)
 
 	if matchingNodes.Len() == 0 {
 		log.Debug("no matching results, nothing to print")

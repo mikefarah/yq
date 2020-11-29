@@ -18,6 +18,7 @@ type OperationType struct {
 
 // operators TODO:
 // - cookbook doc for common things
+// - existStatus
 // - write in place
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - compare ??
