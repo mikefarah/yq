@@ -45,15 +45,17 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Write inplace flag only applicable when giving an expression and at least one file")
 	}
 
-	completedSuccessfully := false
-
 	if writeInplace {
+		// only use colors if its forced
+		colorsEnabled = forceColor
 		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[1])
 		out, err = writeInPlaceHandler.CreateTempFile()
 		if err != nil {
 			return err
 		}
-		defer writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully)
+		// need to indirectly call the function so  that completedSuccessfully is
+		// passed when we finish execution as opposed to now
+		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
 	}
 
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)

@@ -41,15 +41,19 @@ func (w *writeInPlaceHandler) CreateTempFile() (*os.File, error) {
 	}
 
 	err = os.Chmod(file.Name(), info.Mode())
+	log.Debug("writing to tempfile: %v", file.Name())
 	w.tempFile = file
 	return file, err
 }
 
 func (w *writeInPlaceHandler) FinishWriteInPlace(evaluatedSuccessfully bool) {
+	log.Debug("Going to write-inplace, evaluatedSuccessfully=%v, target=%v", evaluatedSuccessfully, w.inputFilename)
 	safelyCloseFile(w.tempFile)
 	if evaluatedSuccessfully {
+		log.Debug("moved temp file to target")
 		safelyRenameFile(w.tempFile.Name(), w.inputFilename)
 	} else {
+		log.Debug("removed temp file")
 		os.Remove(w.tempFile.Name())
 	}
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
@@ -39,6 +40,24 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
 		colorsEnabled = true
 	}
+
+	if writeInplace && len(args) < 2 {
+		return fmt.Errorf("Write inplace flag only applicable when giving an expression and at least one file")
+	}
+
+	if writeInplace {
+		// only use colors if its forced
+		colorsEnabled = forceColor
+		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[1])
+		out, err = writeInPlaceHandler.CreateTempFile()
+		if err != nil {
+			return err
+		}
+		// need to indirectly call the function so  that completedSuccessfully is
+		// passed when we finish execution as opposed to now
+		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
+	}
+
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	streamEvaluator := yqlib.NewStreamEvaluator()
@@ -61,7 +80,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	default:
 		err = streamEvaluator.EvaluateFiles(args[0], args[1:], printer)
 	}
-
+	completedSuccessfully = err == nil
 	cmd.SilenceUsage = true
 	return err
 }

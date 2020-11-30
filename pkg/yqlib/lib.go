@@ -9,6 +9,8 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+var log = logging.MustGetLogger("yq-lib")
+
 type OperationType struct {
 	Type       string
 	NumArgs    uint // number of arguments to the op
