@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -24,6 +25,7 @@ yq es -n '{"a": "b"}'
 	return cmdEvalAll
 }
 func evaluateAll(cmd *cobra.Command, args []string) error {
+	cmd.SilenceUsage = true
 	// 0 args, read std in
 	// 1 arg, null input, process expression
 	// 1 arg, read file in sequence
@@ -81,6 +83,9 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 
 	completedSuccessfully = err == nil
 
-	cmd.SilenceUsage = true
+	if err == nil && exitStatus && !printer.PrintedAnything() {
+		return errors.New("no matches found")
+	}
+
 	return err
 }

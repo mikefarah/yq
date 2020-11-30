@@ -10,6 +10,7 @@ import (
 
 type Printer interface {
 	PrintResults(matchingNodes *list.List) error
+	PrintedAnything() bool
 }
 
 type resultsPrinter struct {
@@ -21,6 +22,7 @@ type resultsPrinter struct {
 	writer             io.Writer
 	firstTimePrinting  bool
 	previousDocIndex   uint
+	printedMatches     bool
 }
 
 func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -35,7 +37,14 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 	}
 }
 
+func (p *resultsPrinter) PrintedAnything() bool {
+	return p.printedMatches
+}
+
 func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
+	p.printedMatches = p.printedMatches || (node.Tag != "!!null" &&
+		(node.Tag != "!!bool" || node.Value != "false"))
+
 	var encoder Encoder
 	if node.Kind == yaml.ScalarNode && p.unwrapScalar && !p.outputToJSON {
 		return p.writeString(writer, node.Value+"\n")

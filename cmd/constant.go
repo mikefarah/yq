@@ -5,7 +5,7 @@ var unwrapScalar = true
 var writeInplace = false
 var outputToJSON = false
 
-// var exitStatus = false
+var exitStatus = false
 var forceColor = false
 var forceNoColor = false
 var colorsEnabled = false
