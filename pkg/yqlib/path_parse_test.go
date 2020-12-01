@@ -33,6 +33,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "a", "[]", "b", "SHORT_PIPE", "apple (string)", "EQUALS", "PIPE"),
 	},
 	{
+		`(.a | .[].b) == "apple"`,
+		append(make([]interface{}, 0), "(", "a", "PIPE", "[]", "SHORT_PIPE", "b", ")", "EQUALS", "apple (string)"),
+		append(make([]interface{}, 0), "a", "[]", "b", "SHORT_PIPE", "PIPE", "apple (string)", "EQUALS"),
+	},
+	{
 		`.[] | select(. == "*at")`,
 		append(make([]interface{}, 0), "[]", "PIPE", "SELECT", "(", "SELF", "EQUALS", "*at (string)", ")"),
 		append(make([]interface{}, 0), "[]", "SELF", "*at (string)", "EQUALS", "SELECT", "PIPE"),
