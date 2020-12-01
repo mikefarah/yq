@@ -29,6 +29,8 @@ var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOp
 
 var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
 
+var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 30, Handler: PipeOperator}
+
 var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
 var AddAssign = &OperationType{Type: "ADD_ASSIGN", NumArgs: 2, Precedence: 40, Handler: AddAssignOperator}
 
@@ -42,7 +44,8 @@ var Add = &OperationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: AddOp
 
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
 var CreateMap = &OperationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: CreateMapOperator}
-var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
+
+var ShortPipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}

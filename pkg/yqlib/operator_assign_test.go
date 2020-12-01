@@ -7,7 +7,7 @@ import (
 var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Create yaml file",
-		expression:  `(.a.b = "cat") | (.x = "frog")`,
+		expression:  `.a.b = "cat" | .x = "frog"`,
 		expected: []string{
 			"D0, P[], ()::a:\n    b: cat\nx: frog\n",
 		},
@@ -80,7 +80,7 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Update selected results",
 		document:    `{a: {b: apple, c: cactus}}`,
-		expression:  `.a.[] | select(. == "apple") |= "frog"`,
+		expression:  `(.a.[] | select(. == "apple")) = "frog"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: {b: frog, c: cactus}}\n",
 		},
@@ -88,7 +88,7 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Update array values",
 		document:    `[candy, apple, sandy]`,
-		expression:  `.[] | select(. == "*andy") |= "bogs"`,
+		expression:  `(.[] | select(. == "*andy")) = "bogs"`,
 		expected: []string{
 			"D0, P[], (doc)::[bogs, apple, bogs]\n",
 		},

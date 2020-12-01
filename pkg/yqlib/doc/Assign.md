@@ -8,7 +8,7 @@ This will do a similar thing to the plain form, however, the RHS expression is r
 ## Create yaml file
 Running
 ```bash
-yq eval --null-input '(.a.b = "cat") | (.x = "frog")'
+yq eval --null-input '.a.b = "cat" | .x = "frog"'
 ```
 will output
 ```yaml
@@ -112,7 +112,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.[] | select(. == "apple") |= "frog"' sample.yml
+yq eval '(.a.[] | select(. == "apple")) = "frog"' sample.yml
 ```
 will output
 ```yaml
@@ -130,7 +130,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(. == "*andy") |= "bogs"' sample.yml
+yq eval '(.[] | select(. == "*andy")) = "bogs"' sample.yml
 ```
 will output
 ```yaml

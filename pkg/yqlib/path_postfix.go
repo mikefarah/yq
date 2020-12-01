@@ -56,7 +56,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*Token) ([]*Operation, er
 			// now we should have [] as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
-			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: Pipe}})
+			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: ShortPipe}})
 			opStack = append(opStack, &Token{TokenType: OperationToken, Operation: &Operation{OperationType: collectOperator}})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenBracket {

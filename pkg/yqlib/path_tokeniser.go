@@ -318,7 +318,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 			if index != len(tokens)-1 && token.CheckForPostTraverse &&
 				tokens[index+1].TokenType == OperationToken &&
 				tokens[index+1].Operation.OperationType == TraversePath {
-				op := &Operation{OperationType: Pipe, Value: "PIPE"}
+				op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
 				postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
 			}
 		}

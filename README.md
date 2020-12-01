@@ -25,16 +25,16 @@ snap install yq
 `yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
 ```
-sudo cat /etc/myfile | yq r - a.path
+sudo cat /etc/myfile | yq e '.a.path' - 
 ```
 
 And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
 ```
-sudo cat /etc/myfile | yq w - a.path value | sudo sponge /etc/myfile
+sudo cat /etc/myfile | yq e '.a.path = "value"' - | sudo sponge /etc/myfile
 ```
 or write to a temporary file:
 ```
-sudo cat /etc/myfile | yq w - a.path value | sudo tee /etc/myfile.tmp
+sudo cat /etc/myfile | yq e '.a.path = "value"' | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
@@ -48,7 +48,7 @@ wget https://github.com/mikefarah/yq/releases/download/{VERSION}/{BINARY} -O /us
     chmod +x /usr/bin/yq
 ```
 
-For instance, VERSION=3.4.0 and BINARY=yq_linux_amd64
+For instance, VERSION=4.0.0 and BINARY=yq_linux_amd64
 
 
 ### Run with Docker
@@ -56,7 +56,7 @@ For instance, VERSION=3.4.0 and BINARY=yq_linux_amd64
 #### Oneshot use:
 
 ```bash
-docker run --rm -v "${PWD}":/workdir mikefarah/yq yq [flags] <command> FILE...
+docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
 
 #### Run commands interactively:
@@ -69,13 +69,13 @@ It can be useful to have a bash function to avoid typing the whole docker comman
 
 ```bash
 yq() {
-  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq yq "$@"
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
 }
 ```
 
 ### Go Get:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq/v3
+GO111MODULE=on go get github.com/mikefarah/yq/v4
 ```
 
 ## Community Supported Installation methods
@@ -108,9 +108,8 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
-- [Colorize the output](https://mikefarah.gitbook.io/yq/usage/output-format#colorize-output)
-- [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
-- [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
+- Colorized yaml output
+- [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/v/v4.x/traverse)
 - [Return the lengths of arrays/object/scalars](https://mikefarah.gitbook.io/yq/commands/read#printing-length-of-the-results)
 - Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
 - Update creates any missing entries in the path on the fly

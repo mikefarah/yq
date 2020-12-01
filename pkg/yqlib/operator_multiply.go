@@ -111,7 +111,7 @@ func createTraversalTree(path []interface{}) *PathTreeNode {
 		return &PathTreeNode{Operation: &Operation{OperationType: TraversePath, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
 	}
 	return &PathTreeNode{
-		Operation: &Operation{OperationType: Pipe},
+		Operation: &Operation{OperationType: ShortPipe},
 		Lhs:       createTraversalTree(path[0:1]),
 		Rhs:       createTraversalTree(path[1:])}
 
