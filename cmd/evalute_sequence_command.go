@@ -15,9 +15,18 @@ func createEvaluateSequenceCommand() *cobra.Command {
 		Aliases: []string{"e"},
 		Short:   "Apply expression to each document in each yaml file given in sequence",
 		Example: `
-yq es '.a.b | length' file1.yml file2.yml
-yq es < sample.yaml
-yq es -n '{"a": "b"}'
+# runs the expression against each file, in series
+yq e '.a.b | length' f1.yml f2.yml 
+
+# prints out the file
+yq e sample.yaml 
+
+# prints a new yaml document
+yq e -n '.a.b.c = "cat"' 
+
+
+# updates file.yaml directly
+yq e '.a.b = "cool"' -i file.yaml 
 `,
 		Long: "Evaluate Sequence:\nIterate over each yaml document, apply the expression and print the results, in sequence.",
 		RunE: evaluateSequence,

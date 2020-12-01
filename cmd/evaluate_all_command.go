@@ -15,9 +15,8 @@ func createEvaluateAllCommand() *cobra.Command {
 		Aliases: []string{"ea"},
 		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
 		Example: `
-yq es '.a.b | length' file1.yml file2.yml
-yq es < sample.yaml
-yq es -n '{"a": "b"}'
+# merges f2.yml into f1.yml (inplace)
+yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml		
 `,
 		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval",
 		RunE: evaluateAll,
