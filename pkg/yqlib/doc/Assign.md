@@ -5,6 +5,18 @@ Which will assign the LHS node values to the RHS node values. The RHS expression
 
 ### relative form: `|=`
 This will do a similar thing to the plain form, however, the RHS expression is run against _the LHS nodes_. This is useful for updating values based on old values, e.g. increment.
+## Create yaml file
+Running
+```bash
+yq eval --null-input '(.a.b = "cat") | (.x = "frog")'
+```
+will output
+```yaml
+a:
+  b: cat
+x: frog
+```
+
 ## Update node to be the child value
 Given a sample.yml file of:
 ```yaml

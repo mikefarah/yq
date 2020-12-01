@@ -36,6 +36,11 @@ func AssignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 			candidate.UpdateFrom(first.Value.(*CandidateNode))
 		}
 	}
+	// // if there was nothing given, perhaps we are creating a new yaml doc
+	// if matchingNodes.Len() == 0 {
+	// 	log.Debug("started with nothing, returning LHS, %v", lhs.Len())
+	// 	return lhs, nil
+	// }
 	return matchingNodes, nil
 }
 

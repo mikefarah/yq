@@ -63,7 +63,6 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	streamEvaluator := yqlib.NewStreamEvaluator()
-	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
 
 	switch len(args) {
 	case 0:
@@ -75,7 +74,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		}
 	case 1:
 		if nullInput {
-			err = allAtOnceEvaluator.EvaluateFiles(args[0], []string{}, printer)
+			err = streamEvaluator.EvaluateNew(args[0], printer)
 		} else {
 			err = streamEvaluator.EvaluateFiles("", []string{args[0]}, printer)
 		}

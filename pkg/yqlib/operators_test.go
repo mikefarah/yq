@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type expressionScenario struct {
@@ -40,6 +41,15 @@ func testScenario(t *testing.T, s *expressionScenario) {
 			t.Error(err, s.document)
 			return
 		}
+	} else {
+		candidateNode := &CandidateNode{
+			Document:  0,
+			Filename:  "",
+			Node:      &yaml.Node{Tag: "!!null"},
+			FileIndex: 0,
+		}
+		inputs.PushBack(candidateNode)
+
 	}
 
 	results, err = treeNavigator.GetMatchingNodes(inputs, node)
@@ -152,20 +162,20 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			var output bytes.Buffer
 			var err error
 			printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
+			streamEvaluator := NewStreamEvaluator()
 
 			if s.document != "" {
 				node, err := treeCreator.ParsePath(s.expression)
 				if err != nil {
 					t.Error(err)
 				}
-				streamEvaluator := NewStreamEvaluator()
 				err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(formattedDoc), node, printer)
+
 				if err != nil {
 					t.Error(err)
 				}
 			} else {
-				allAtOnceEvaluator := NewAllAtOnceEvaluator()
-				err = allAtOnceEvaluator.EvaluateFiles(s.expression, []string{}, printer)
+				err = streamEvaluator.EvaluateNew(s.expression, printer)
 				if err != nil {
 					t.Error(err)
 				}

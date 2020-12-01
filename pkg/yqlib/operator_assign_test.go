@@ -6,6 +6,13 @@ import (
 
 var assignOperatorScenarios = []expressionScenario{
 	{
+		description: "Create yaml file",
+		expression:  `(.a.b = "cat") | (.x = "frog")`,
+		expected: []string{
+			"D0, P[], ()::a:\n    b: cat\nx: frog\n",
+		},
+	},
+	{
 		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,
