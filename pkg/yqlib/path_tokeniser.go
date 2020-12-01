@@ -190,6 +190,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`,`), opToken(Union))
 	lexer.Add([]byte(`:\s*`), opToken(CreateMap))
 	lexer.Add([]byte(`length`), opToken(Length))
+	lexer.Add([]byte(`sortKeys`), opToken(SortKeys))
 	lexer.Add([]byte(`select`), opToken(Select))
 	lexer.Add([]byte(`has`), opToken(Has))
 	lexer.Add([]byte(`explode`), opToken(Explode))

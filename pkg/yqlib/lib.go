@@ -20,8 +20,6 @@ type OperationType struct {
 
 // operators TODO:
 // - cookbook doc for common things
-// - existStatus
-// - write in place
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 // - compare ??
 // - validate ??
@@ -57,6 +55,7 @@ var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence
 var GetPath = &OperationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: GetPathOperator}
 
 var Explode = &OperationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: ExplodeOperator}
+var SortKeys = &OperationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: SortKeysOperator}
 
 var CollectObject = &OperationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: CollectObjectOperator}
 var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
