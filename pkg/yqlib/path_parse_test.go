@@ -11,58 +11,26 @@ var pathTests = []struct {
 	path            string
 	expectedTokens  []interface{}
 	expectedPostFix []interface{}
-}{ // TODO: Ensure ALL documented examples have tests! sheesh
-	// {"len(.)", append(make([]interface{}, 0), "LENGTH", "(", "SELF", ")")},
-	// {"\"len\"(.)", append(make([]interface{}, 0), "len", "TRAVERSE", "(", "SELF", ")")},
-	// {".a OR (.b OR .c)", append(make([]interface{}, 0), "a", "OR", "(", "b", "OR", "c", ")")},
-	// {"a OR (b OR c)", append(make([]interface{}, 0), "a", "OR", "(", "b", "OR", "c", ")")},
-	// {"a .- (b OR c)", append(make([]interface{}, 0), "a", " .- ", "(", "b", "OR", "c", ")")},
-	// {"(animal==3)", append(make([]interface{}, 0), "(", "animal", "==", int64(3), ")")},
-	// {"(animal==f3)", append(make([]interface{}, 0), "(", "animal", "==", "f3", ")")},
-	// {"apples.BANANAS", append(make([]interface{}, 0), "apples", "TRAVERSE", "BANANAS")},
-	// {"appl*.BANA*", append(make([]interface{}, 0), "appl*", "TRAVERSE", "BANA*")},
-	// {"a.b.**", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "**")},
-	// {"a.\"=\".frog", append(make([]interface{}, 0), "a", "TRAVERSE", "=", "TRAVERSE", "frog")},
-	// {"a.b.*", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "*")},
-	// {"a.b.thin*", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "thin*")},
-	// {".a.b.[0]", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", int64(0))},
-	// {".a.b.[]", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "[]")},
-	// {".a.b.[+]", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "[+]")},
-	// {".a.b.[-12]", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", int64(-12))},
-	// {".a.b.0", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "0")},
-	// {".a", append(make([]interface{}, 0), "a")},
-	// {".\"a.b\".c", append(make([]interface{}, 0), "a.b", "TRAVERSE", "c")},
-	// {`.b."foo.bar"`, append(make([]interface{}, 0), "b", "TRAVERSE", "foo.bar")},
-	// {`f | . == *og | length`, append(make([]interface{}, 0), "f", "TRAVERSE", "SELF", "EQUALS", "*og", "TRAVERSE", "LENGTH")},
-	// {`.a, .b`, append(make([]interface{}, 0), "a", "OR", "b")},
-	// {`[.a, .b]`, append(make([]interface{}, 0), "[", "a", "OR", "b", "]")},
-	// {`."[a", ."b]"`, append(make([]interface{}, 0), "[a", "OR", "b]")},
-	// {`.a.[]`, append(make([]interface{}, 0), "a", "PIPE", "[]")},
-	// {`.[].a`, append(make([]interface{}, 0), "[]", "PIPE", "a")},
-	// {
-	// 	`["cat"]`,
-	// 	append(make([]interface{}, 0), "[", "cat (string)", "]"),
-	// 	append(make([]interface{}, 0), "cat (string)", "COLLECT", "PIPE"),
-	// },
+}{
 	{
 		`[]`,
 		append(make([]interface{}, 0), "[", "]"),
-		append(make([]interface{}, 0), "EMPTY", "COLLECT", "PIPE"),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE"),
 	},
 	{
 		`[3]`,
 		append(make([]interface{}, 0), "[", "3 (int64)", "]"),
-		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "PIPE"),
+		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "SHORT_PIPE"),
 	},
 	{
 		`d0.a`,
-		append(make([]interface{}, 0), "d0", "PIPE", "a"),
-		append(make([]interface{}, 0), "d0", "a", "PIPE"),
+		append(make([]interface{}, 0), "d0", "SHORT_PIPE", "a"),
+		append(make([]interface{}, 0), "d0", "a", "SHORT_PIPE"),
 	},
 	{
-		`.a | (.[].b == "apple")`,
-		append(make([]interface{}, 0), "a", "PIPE", "(", "[]", "PIPE", "b", "EQUALS", "apple (string)", ")"),
-		append(make([]interface{}, 0), "a", "[]", "b", "PIPE", "apple (string)", "EQUALS", "PIPE"),
+		`.a | .[].b == "apple"`,
+		append(make([]interface{}, 0), "a", "PIPE", "[]", "SHORT_PIPE", "b", "EQUALS", "apple (string)"),
+		append(make([]interface{}, 0), "a", "[]", "b", "SHORT_PIPE", "apple (string)", "EQUALS", "PIPE"),
 	},
 	{
 		`.[] | select(. == "*at")`,
@@ -72,12 +40,12 @@ var pathTests = []struct {
 	{
 		`[true]`,
 		append(make([]interface{}, 0), "[", "true (bool)", "]"),
-		append(make([]interface{}, 0), "true (bool)", "COLLECT", "PIPE"),
+		append(make([]interface{}, 0), "true (bool)", "COLLECT", "SHORT_PIPE"),
 	},
 	{
 		`[true, false]`,
 		append(make([]interface{}, 0), "[", "true (bool)", "UNION", "false (bool)", "]"),
-		append(make([]interface{}, 0), "true (bool)", "false (bool)", "UNION", "COLLECT", "PIPE"),
+		append(make([]interface{}, 0), "true (bool)", "false (bool)", "UNION", "COLLECT", "SHORT_PIPE"),
 	},
 	{
 		`"mike": .a`,
@@ -92,27 +60,27 @@ var pathTests = []struct {
 	{
 		`{"mike": .a}`,
 		append(make([]interface{}, 0), "{", "mike (string)", "CREATE_MAP", "a", "}"),
-		append(make([]interface{}, 0), "mike (string)", "a", "CREATE_MAP", "COLLECT_OBJECT", "PIPE"),
+		append(make([]interface{}, 0), "mike (string)", "a", "CREATE_MAP", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
 	{
 		`{.a: "mike"}`,
 		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "mike (string)", "}"),
-		append(make([]interface{}, 0), "a", "mike (string)", "CREATE_MAP", "COLLECT_OBJECT", "PIPE"),
+		append(make([]interface{}, 0), "a", "mike (string)", "CREATE_MAP", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
 	{
 		`{.a: .c, .b.[]: .f.g.[]}`,
-		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "c", "UNION", "b", "PIPE", "[]", "CREATE_MAP", "f", "PIPE", "g", "PIPE", "[]", "}"),
-		append(make([]interface{}, 0), "a", "c", "CREATE_MAP", "b", "[]", "PIPE", "f", "g", "PIPE", "[]", "PIPE", "CREATE_MAP", "UNION", "COLLECT_OBJECT", "PIPE"),
+		append(make([]interface{}, 0), "{", "a", "CREATE_MAP", "c", "UNION", "b", "SHORT_PIPE", "[]", "CREATE_MAP", "f", "SHORT_PIPE", "g", "SHORT_PIPE", "[]", "}"),
+		append(make([]interface{}, 0), "a", "c", "CREATE_MAP", "b", "[]", "SHORT_PIPE", "f", "g", "SHORT_PIPE", "[]", "SHORT_PIPE", "CREATE_MAP", "UNION", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
 	{
 		`explode(.a.b)`,
-		append(make([]interface{}, 0), "EXPLODE", "(", "a", "PIPE", "b", ")"),
-		append(make([]interface{}, 0), "a", "b", "PIPE", "EXPLODE"),
+		append(make([]interface{}, 0), "EXPLODE", "(", "a", "SHORT_PIPE", "b", ")"),
+		append(make([]interface{}, 0), "a", "b", "SHORT_PIPE", "EXPLODE"),
 	},
 	{
 		`.a.b style="folded"`,
-		append(make([]interface{}, 0), "a", "PIPE", "b", "ASSIGN_STYLE", "folded (string)"),
-		append(make([]interface{}, 0), "a", "b", "PIPE", "folded (string)", "ASSIGN_STYLE"),
+		append(make([]interface{}, 0), "a", "SHORT_PIPE", "b", "ASSIGN_STYLE", "folded (string)"),
+		append(make([]interface{}, 0), "a", "b", "SHORT_PIPE", "folded (string)", "ASSIGN_STYLE"),
 	},
 	{
 		`tag == "str"`,
@@ -135,11 +103,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "SELF", "str (string)", "ASSIGN_COMMENT"),
 	},
 
-	// {
-	// 	`.a.b tag="!!str"`,
-	// 	append(make([]interface{}, 0), "EXPLODE", "(", "a", "PIPE", "b", ")"),
-	// 	append(make([]interface{}, 0), "a", "b", "PIPE", "EXPLODE"),
-	// },
+	{
+		`.a.b tag="!!str"`,
+		append(make([]interface{}, 0), "a", "SHORT_PIPE", "b", "ASSIGN_TAG", "!!str (string)"),
+		append(make([]interface{}, 0), "a", "b", "SHORT_PIPE", "!!str (string)", "ASSIGN_TAG"),
+	},
 	{
 		`""`,
 		append(make([]interface{}, 0), " (string)"),
@@ -153,27 +121,8 @@ var pathTests = []struct {
 	{
 		`{}`,
 		append(make([]interface{}, 0), "{", "}"),
-		append(make([]interface{}, 0), "EMPTY", "COLLECT_OBJECT", "PIPE"),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
-
-	// {".animals | .==cat", append(make([]interface{}, 0), "animals", "TRAVERSE", "SELF", "EQUALS", "cat")},
-	// {".animals | (. == cat)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "SELF", "EQUALS", "cat", ")")},
-	// {".animals | (.==c*)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "SELF", "EQUALS", "c*", ")")},
-	// {"animals(a.b==c*)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "a", "TRAVERSE", "b", "==", "c*", ")")},
-	// {"animals.(a.b==c*)", append(make([]interface{}, 0), "animals", "TRAVERSE", "(", "a", "TRAVERSE", "b", "==", "c*", ")")},
-	// {"(a.b==c*).animals", append(make([]interface{}, 0), "(", "a", "TRAVERSE", "b", "==", "c*", ")", "TRAVERSE", "animals")},
-	// {"(a.b==c*)animals", append(make([]interface{}, 0), "(", "a", "TRAVERSE", "b", "==", "c*", ")", "TRAVERSE", "animals")},
-	// {"[1].a.d", append(make([]interface{}, 0), int64(1), "TRAVERSE", "a", "TRAVERSE", "d")},
-	// {"[1]a.d", append(make([]interface{}, 0), int64(1), "TRAVERSE", "a", "TRAVERSE", "d")},
-	// {"a[0]c", append(make([]interface{}, 0), "a", "TRAVERSE", int64(0), "TRAVERSE", "c")},
-	// {"a.[0].c", append(make([]interface{}, 0), "a", "TRAVERSE", int64(0), "TRAVERSE", "c")},
-	// {"[0]", append(make([]interface{}, 0), int64(0))},
-	// {"0", append(make([]interface{}, 0), int64(0))},
-	// {"a.b[+]c", append(make([]interface{}, 0), "a", "TRAVERSE", "b", "TRAVERSE", "[+]", "TRAVERSE", "c")},
-	// {"a.cool(s.d.f == cool)", append(make([]interface{}, 0), "a", "TRAVERSE", "cool", "TRAVERSE", "(", "s", "TRAVERSE", "d", "TRAVERSE", "f", " == ", "cool", ")")},
-	// {"a.cool.(s.d.f==cool OR t.b.h==frog).caterpillar", append(make([]interface{}, 0), "a", "TRAVERSE", "cool", "TRAVERSE", "(", "s", "TRAVERSE", "d", "TRAVERSE", "f", "==", "cool", "OR", "t", "TRAVERSE", "b", "TRAVERSE", "h", "==", "frog", ")", "TRAVERSE", "caterpillar")},
-	// {"a.cool(s.d.f==cool and t.b.h==frog)*", append(make([]interface{}, 0), "a", "TRAVERSE", "cool", "TRAVERSE", "(", "s", "TRAVERSE", "d", "TRAVERSE", "f", "==", "cool", "and", "t", "TRAVERSE", "b", "TRAVERSE", "h", "==", "frog", ")", "TRAVERSE", "*")},
-	// {"a.cool(s.d.f==cool and t.b.h==frog).th*", append(make([]interface{}, 0), "a", "TRAVERSE", "cool", "TRAVERSE", "(", "s", "TRAVERSE", "d", "TRAVERSE", "f", "==", "cool", "and", "t", "TRAVERSE", "b", "TRAVERSE", "h", "==", "frog", ")", "TRAVERSE", "th*")},
 }
 
 var tokeniser = NewPathTokeniser()

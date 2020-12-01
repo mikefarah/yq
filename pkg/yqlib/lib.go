@@ -21,8 +21,6 @@ type OperationType struct {
 // operators TODO:
 // - cookbook doc for common things
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
-// - compare ??
-// - validate ??
 
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
 var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
@@ -45,7 +43,7 @@ var Add = &OperationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: AddOp
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
 var CreateMap = &OperationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: CreateMapOperator}
 
-var ShortPipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
+var ShortPipe = &OperationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
 
 var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
 var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
