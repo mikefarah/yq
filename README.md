@@ -45,11 +45,11 @@ rm /etc/myfile.tmp
 Use wget to download the pre-compiled binaries:
 
 ```bash
-wget https://github.com/mikefarah/yq/releases/download/{VERSION}/{BINARY} -O /usr/bin/yq &&\
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
 ```
 
-For instance, VERSION=3.4.0 and BINARY=yq_linux_amd64
+For instance, VERSION=3.4.1 and BINARY=yq_linux_amd64
 
 
 ### Run with Docker
