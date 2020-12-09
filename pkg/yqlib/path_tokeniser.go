@@ -21,6 +21,7 @@ const (
 	CloseCollect
 	OpenCollectObject
 	CloseCollectObject
+	SplatOrEmptyCollect
 )
 
 type Token struct {
@@ -47,6 +48,8 @@ func (t *Token) toString() string {
 		return "{"
 	} else if t.TokenType == CloseCollectObject {
 		return "}"
+	} else if t.TokenType == SplatOrEmptyCollect {
+		return "[]?"
 	} else {
 		return "NFI"
 	}
@@ -247,6 +250,8 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`"[^ "]*"`), stringValue(true))
 
+	lexer.Add([]byte(`\[\]`), literalToken(SplatOrEmptyCollect, true))
+
 	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
 	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(OpenCollectObject, false))
@@ -301,28 +306,54 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 
 	skipNextToken := false
 
-	for index, token := range tokens {
+	for index := range tokens {
 		if skipNextToken {
 			skipNextToken = false
 		} else {
-
-			if index != len(tokens)-1 && token.AssignOperation != nil &&
-				tokens[index+1].TokenType == OperationToken &&
-				tokens[index+1].Operation.OperationType == Assign {
-				token.Operation = token.AssignOperation
-				skipNextToken = true
-			}
-
-			postProcessedTokens = append(postProcessedTokens, token)
-
-			if index != len(tokens)-1 && token.CheckForPostTraverse &&
-				tokens[index+1].TokenType == OperationToken &&
-				tokens[index+1].Operation.OperationType == TraversePath {
-				op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
-				postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
-			}
+			postProcessedTokens, skipNextToken = p.handleToken(tokens, index, postProcessedTokens)
 		}
 	}
 
 	return postProcessedTokens, nil
+}
+
+func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTokens []*Token) (tokensAccum []*Token, skipNextToken bool) {
+	skipNextToken = false
+	token := tokens[index]
+	if token.TokenType == SplatOrEmptyCollect {
+		if index > 0 && tokens[index-1].TokenType == OperationToken &&
+			tokens[index-1].Operation.OperationType == TraversePath {
+			// must be a splat without a preceding dot , e.g. .a[]
+			// lets put a pipe in front of it, and convert it to a traverse "[]" token
+			pipeOp := &Operation{OperationType: ShortPipe, Value: "PIPE"}
+
+			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: pipeOp})
+
+			traverseOp := &Operation{OperationType: TraversePath, Value: "[]", StringValue: "[]"}
+			token = &Token{TokenType: OperationToken, Operation: traverseOp, CheckForPostTraverse: true}
+
+		} else {
+			// gotta be a collect empty array, we need to split this into two tokens
+			// one OpenCollect, the other CloseCollect
+			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OpenCollect})
+			token = &Token{TokenType: CloseCollect, CheckForPostTraverse: true}
+		}
+	}
+
+	if index != len(tokens)-1 && token.AssignOperation != nil &&
+		tokens[index+1].TokenType == OperationToken &&
+		tokens[index+1].Operation.OperationType == Assign {
+		token.Operation = token.AssignOperation
+		skipNextToken = true
+	}
+
+	postProcessedTokens = append(postProcessedTokens, token)
+
+	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+		tokens[index+1].TokenType == OperationToken &&
+		tokens[index+1].Operation.OperationType == TraversePath {
+		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+	}
+	return postProcessedTokens, skipNextToken
 }

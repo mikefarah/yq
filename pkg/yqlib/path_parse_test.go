@@ -18,6 +18,21 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE"),
 	},
 	{
+		`.a[]`,
+		append(make([]interface{}, 0), "a", "SHORT_PIPE", "[]"),
+		append(make([]interface{}, 0), "a", "[]", "SHORT_PIPE"),
+	},
+	{
+		`.a.[]`,
+		append(make([]interface{}, 0), "a", "SHORT_PIPE", "[]"),
+		append(make([]interface{}, 0), "a", "[]", "SHORT_PIPE"),
+	},
+	{
+		`.a[].c`,
+		append(make([]interface{}, 0), "a", "SHORT_PIPE", "[]", "SHORT_PIPE", "c"),
+		append(make([]interface{}, 0), "a", "[]", "SHORT_PIPE", "c", "SHORT_PIPE"),
+	},
+	{
 		`[3]`,
 		append(make([]interface{}, 0), "[", "3 (int64)", "]"),
 		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "SHORT_PIPE"),
