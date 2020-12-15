@@ -22,6 +22,7 @@ type resultsPrinter struct {
 	writer             io.Writer
 	firstTimePrinting  bool
 	previousDocIndex   uint
+	previousFileIndex  int
 	printedMatches     bool
 }
 
@@ -89,19 +90,20 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		return nil
 	}
 	if p.firstTimePrinting {
-		p.previousDocIndex = matchingNodes.Front().Value.(*CandidateNode).Document
+		node := matchingNodes.Front().Value.(*CandidateNode)
+		p.previousDocIndex = node.Document
+		p.previousFileIndex = node.FileIndex
 		p.firstTimePrinting = false
 	}
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
-		if (p.previousDocIndex != mappedDoc.Document) && p.printDocSeparators {
+		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators {
 			log.Debug("-- writing doc sep")
 			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
 				return err
 			}
-
 		}
 
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {
