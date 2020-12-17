@@ -71,7 +71,7 @@ func (p *pathTreeCreator) CreatePathTree(postFixPath []*Operation) (*PathTreeNod
 		stack = append(stack, &newNode)
 	}
 	if len(stack) != 1 {
-		return nil, fmt.Errorf("expected stack to have 1 thing but its %v", stack)
+		return nil, fmt.Errorf("expected end of expression but found '%v', please check expression syntax", strings.TrimSpace(stack[1].Operation.StringValue))
 	}
 	return stack[0], nil
 }

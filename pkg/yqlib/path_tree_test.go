@@ -35,3 +35,8 @@ func TestPathTreeOneArgForOneArgOp(t *testing.T) {
 	_, err := treeCreator.ParsePath("explode(.)")
 	test.AssertResultComplex(t, nil, err)
 }
+
+func TestPathTreeExtraArgs(t *testing.T) {
+	_, err := treeCreator.ParsePath("sortKeys(.) explode(.)")
+	test.AssertResultComplex(t, "expected end of expression but found 'explode', please check expression syntax", err.Error())
+}
