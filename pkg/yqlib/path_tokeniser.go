@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"fmt"
 	"strconv"
 
 	lex "github.com/timtadh/lexmachine"
@@ -288,7 +289,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 	scanner, err := p.lexer.Scanner([]byte(path))
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Parsing expression: %v", err)
 	}
 	var tokens []*Token
 	for tok, err, eof := scanner.Next(); !eof; tok, err, eof = scanner.Next() {
@@ -299,7 +300,7 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 			tokens = append(tokens, token)
 		}
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Parsing expression: %v", err)
 		}
 	}
 	var postProcessedTokens = make([]*Token, 0)

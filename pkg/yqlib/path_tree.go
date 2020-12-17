@@ -1,6 +1,9 @@
 package yqlib
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var myPathTokeniser = NewPathTokeniser()
 var myPathPostfixer = NewPathPostFixer()
@@ -49,10 +52,16 @@ func (p *pathTreeCreator) CreatePathTree(postFixPath []*Operation) (*PathTreeNod
 		if Operation.OperationType.NumArgs > 0 {
 			numArgs := Operation.OperationType.NumArgs
 			if numArgs == 1 {
+				if len(stack) < 1 {
+					return nil, fmt.Errorf("'%v' expects 1 arg but received none", strings.TrimSpace(Operation.StringValue))
+				}
 				remaining, rhs := stack[:len(stack)-1], stack[len(stack)-1]
 				newNode.Rhs = rhs
 				stack = remaining
 			} else if numArgs == 2 {
+				if len(stack) < 2 {
+					return nil, fmt.Errorf("'%v' expects 2 args but there is %v", strings.TrimSpace(Operation.StringValue), len(stack))
+				}
 				remaining, lhs, rhs := stack[:len(stack)-2], stack[len(stack)-2], stack[len(stack)-1]
 				newNode.Lhs = lhs
 				newNode.Rhs = rhs
