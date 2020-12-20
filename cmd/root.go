@@ -18,8 +18,8 @@ func New() *cobra.Command {
 				return nil
 			}
 			cmd.Println(cmd.UsageString())
-
 			return nil
+
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			cmd.SetOut(cmd.OutOrStdout())
@@ -40,22 +40,21 @@ func New() *cobra.Command {
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json. By default it prints a json document in one line, use the prettyPrint flag to print a formatted doc.")
-	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print")
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json. Set indent to 0 to print json in one line.")
+	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.")
+	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")
+
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
-	rootCmd.PersistentFlags().BoolVarP(&colorsEnabled, "colors", "C", false, "print with colors")
+	rootCmd.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the yaml file inplace of first yaml file given.")
+	rootCmd.PersistentFlags().BoolVarP(&exitStatus, "exit-status", "e", false, "set exit status if there are no matches or null or false is returned")
 
+	rootCmd.PersistentFlags().BoolVarP(&forceColor, "colors", "C", false, "force print with colors")
+	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
 	rootCmd.AddCommand(
-		createReadCmd(),
-		createCompareCmd(),
-		createValidateCmd(),
-		createWriteCmd(),
-		createPrefixCmd(),
-		createDeleteCmd(),
-		createNewCmd(),
-		createMergeCmd(),
-		createBashCompletionCmd(rootCmd),
+		createEvaluateSequenceCommand(),
+		createEvaluateAllCommand(),
+		completionCmd,
 	)
 	return rootCmd
 }

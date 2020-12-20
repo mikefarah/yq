@@ -9,11 +9,11 @@
 - make local xcompile (builds binaries for all platforms)
 
 - git release
-  ./scripts/publish.sh
+  ./scripts/release.sh
+  ./scripts/upload.sh
 
 - snapcraft
   - will auto create a candidate, test it works then promote
-  - see https://build.snapcraft.io/user/mikefarah/yq
   
   sudo snap remove yq
   sudo snap install --edge yq

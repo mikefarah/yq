@@ -1,0 +1,1 @@
+Use the `documentIndex` operator to select nodes of a particular document.

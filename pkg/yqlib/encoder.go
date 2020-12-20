@@ -74,16 +74,14 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJsonEncoder(destination io.Writer, prettyPrint bool, indent int) Encoder {
+func NewJsonEncoder(destination io.Writer, indent int) Encoder {
 	var encoder = json.NewEncoder(destination)
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	if prettyPrint {
-		encoder.SetIndent("", indentString)
-	}
+	encoder.SetIndent("", indentString)
 	return &jsonEncoder{encoder}
 }
 

@@ -26,16 +26,16 @@ snap install yq
 `yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
 ```
-sudo cat /etc/myfile | yq r - a.path
+sudo cat /etc/myfile | yq e '.a.path' - 
 ```
 
 And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
 ```
-sudo cat /etc/myfile | yq w - a.path value | sudo sponge /etc/myfile
+sudo cat /etc/myfile | yq e '.a.path = "value"' - | sudo sponge /etc/myfile
 ```
 or write to a temporary file:
 ```
-sudo cat /etc/myfile | yq w - a.path value | sudo tee /etc/myfile.tmp
+sudo cat /etc/myfile | yq e '.a.path = "value"' | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
@@ -49,15 +49,14 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
     chmod +x /usr/bin/yq
 ```
 
-For instance, VERSION=3.4.1 and BINARY=yq_linux_amd64
-
+For instance, VERSION=4.0.0 and BINARY=yq_linux_amd64
 
 ### Run with Docker
 
 #### Oneshot use:
 
 ```bash
-docker run --rm -v "${PWD}":/workdir mikefarah/yq yq [flags] <command> FILE...
+docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
 
 #### Run commands interactively:
@@ -70,13 +69,13 @@ It can be useful to have a bash function to avoid typing the whole docker comman
 
 ```bash
 yq() {
-  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq yq "$@"
+  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
 }
 ```
 
 ### Go Get:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq/v3
+GO111MODULE=on go get github.com/mikefarah/yq/v4
 ```
 
 ## Community Supported Installation methods
@@ -117,22 +116,18 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ## Features
 - Written in portable go, so you can download a lovely dependency free binary
-- [Colorize the output](https://mikefarah.gitbook.io/yq/usage/output-format#colorize-output)
-- [Deep read a yaml file with a given path expression](https://mikefarah.gitbook.io/yq/commands/read#basic)
-- [List matching paths of a given path expression](https://mikefarah.gitbook.io/yq/commands/read#path-only)
-- [Return the lengths of arrays/object/scalars](https://mikefarah.gitbook.io/yq/commands/read#printing-length-of-the-results)
-- Update a yaml file given a [path expression](https://mikefarah.gitbook.io/yq/commands/write-update#basic) or [script file](https://mikefarah.gitbook.io/yq/commands/write-update#basic)
-- Update creates any missing entries in the path on the fly
-- Deeply [compare](https://mikefarah.gitbook.io/yq/commands/compare) yaml files
-- Keeps yaml formatting and comments when updating
-- [Validate a yaml file](https://mikefarah.gitbook.io/yq/commands/validate)
-- Create a yaml file given a [deep path and value](https://mikefarah.gitbook.io/yq/commands/create#creating-a-simple-yaml-file) or a [script file](https://mikefarah.gitbook.io/yq/commands/create#creating-using-a-create-script)
-- [Prefix a path to a yaml file](https://mikefarah.gitbook.io/yq/commands/prefix)
-- [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/usage/convert)
-- [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/commands/read#from-stdin)
-- [Merge](https://mikefarah.gitbook.io/yq/commands/merge) multiple yaml files with various options for [overriding](https://mikefarah.gitbook.io/yq/commands/merge#overwrite-values) and [appending](https://mikefarah.gitbook.io/yq/commands/merge#append-values-with-arrays)
-- Supports multiple documents in a single yaml file for [reading](https://mikefarah.gitbook.io/yq/commands/read#multiple-documents), [writing](https://mikefarah.gitbook.io/yq/commands/write-update#multiple-documents) and [merging](https://mikefarah.gitbook.io/yq/commands/merge#multiple-documents)
-- General shell completion scripts (bash/zsh/fish/powershell) (https://mikefarah.gitbook.io/yq/commands/shell-completion)
+- Uses similar syntax as `jq` but works with YAML and JSON files
+- Fully supports multi document yaml files
+- Colorized yaml output
+- [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/v/v4.x/traverse)
+- [Sort yaml by keys](https://mikefarah.gitbook.io/yq/v/v4.x/sort-keys)
+- Manipulate yaml [comments](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/comment-operators), [styling](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/style), [tags](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/tag) and [anchors](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/explode).
+- [Update yaml inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
+- [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/v/v4.x/select#select-and-update-matching-values-in-map)
+- Keeps yaml formatting and comments when updating (though there are issues with whitespace)
+- [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
+- [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
+- General shell completion scripts (bash/zsh/fish/powershell) (https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
 
 ## [Usage](https://mikefarah.gitbook.io/yq/)
 
@@ -144,31 +139,35 @@ Usage:
   yq [command]
 
 Available Commands:
-  compare          yq x [--prettyPrint/-P] dataA.yaml dataB.yaml 'b.e(name==fr*).value'
-  delete           yq d [--inplace/-i] [--doc/-d index] sample.yaml 'b.e(name==fred)'
+  eval             Apply expression to each document in each yaml file given in sequence
+  eval-all         Loads _all_ yaml documents of _all_ yaml files and runs expression once
   help             Help about any command
-  merge            yq m [--inplace/-i] [--doc/-d index] [--overwrite/-x] [--append/-a] sample.yaml sample2.yaml
-  new              yq n [--script/-s script_file] a.b.c newValue
-  prefix           yq p [--inplace/-i] [--doc/-d index] sample.yaml a.b.c
-  read             yq r [--printMode/-p pv] sample.yaml 'b.e(name==fr*).value'
-  shell-completion Generates shell completion scripts
-  validate         yq v sample.yaml
-  write            yq w [--inplace/-i] [--script/-s script_file] [--doc/-d index] sample.yaml 'b.e(name==fr*).value' newValue
+  shell-completion Generate completion script
 
 Flags:
-  -C, --colors        print with colors
+  -C, --colors        force print with colors
+  -e, --exit-status   set exit status if there are no matches or null or false is returned
   -h, --help          help for yq
   -I, --indent int    sets indent level for output (default 2)
-  -P, --prettyPrint   pretty print
-  -j, --tojson        output as json. By default it prints a json document in one line, use the prettyPrint flag to print a formatted doc.
+  -i, --inplace       update the yaml file inplace of first yaml file given.
+  -M, --no-colors     force print with no colors
+  -N, --no-doc        Don't print document separators (---)
+  -n, --null-input    Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.
+  -j, --tojson        output as json. Set indent to 0 to print json in one line.
   -v, --verbose       verbose mode
   -V, --version       Print version information and quit
 
 Use "yq [command] --help" for more information about a command.
 ```
 
-## Upgrade from V2
-If you've been using v2 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/upgrading-from-v2).
+Simple Example:
+
+```bash
+yq e '.a.b | length' f1.yml f2.yml 
+```
+
+## Upgrade from V3
+If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/v/v4.x/upgrading-from-v3).
 
 ## V4 is in development!
 If you're keen - check out the alpha release [here](https://github.com/mikefarah/yq/releases/), or in docker `mikefarah/yq:4-beta1` and the docs (also in beta) [here](https://mikefarah.gitbook.io/yq/v/v4.x-alpha/).
@@ -179,4 +178,3 @@ For now - new features will be held off from V3 in anticipation of the V4 build.
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
-- You cannot (yet) select multiple paths/keys from the yaml to be printed out (https://github.com/mikefarah/yq/issues/287) (although you can in v4!)

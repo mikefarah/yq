@@ -21,3 +21,5 @@ ARG VERSION=none
 LABEL version=${VERSION}
 
 WORKDIR /workdir
+
+ENTRYPOINT ["/usr/bin/yq"]
