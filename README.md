@@ -7,6 +7,11 @@ a lightweight and portable command-line YAML processor
 
 The aim of the project is to be the [jq](https://github.com/stedolan/jq) or sed of yaml files.
 
+## V4 released!
+V4 is now officially released, it's quite different from V3 (sorry for the migration), however it is much more similar to ```jq```, using a similar expression syntax and therefore support much more complex functionality! 
+
+If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/v/v4.x/upgrading-from-v3).
+
 ## Install
 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
@@ -127,7 +132,7 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
 - [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
-- General shell completion scripts (bash/zsh/fish/powershell) (https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
+- [General shell completion scripts (bash/zsh/fish/powershell)](https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
 
 ## [Usage](https://mikefarah.gitbook.io/yq/)
 
@@ -165,16 +170,6 @@ Simple Example:
 ```bash
 yq e '.a.b | length' f1.yml f2.yml 
 ```
-
-## Upgrade from V3
-If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/v/v4.x/upgrading-from-v3).
-
-## V4 is in development!
-If you're keen - check out the alpha release [here](https://github.com/mikefarah/yq/releases/), or in docker `mikefarah/yq:4-beta1` and the docs (also in beta) [here](https://mikefarah.gitbook.io/yq/v/v4.x-alpha/).
-
-V4 is quite different from V3 (sorry for the migration), however it will be much more similar to ```jq```, use a similar expression syntax and therefore support much more complex functionality! 
-
-For now - new features will be held off from V3 in anticipation of the V4 build. Critical fixes / issues will still be released.
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
