@@ -250,7 +250,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`[Nn][Uu][Ll][Ll]`), nullValue())
 	lexer.Add([]byte(`~`), nullValue())
 
-	lexer.Add([]byte(`"[^ "]*"`), stringValue(true))
+	lexer.Add([]byte(`"[^"]*"`), stringValue(true))
 
 	lexer.Add([]byte(`\[\]`), literalToken(SplatOrEmptyCollect, true))
 

@@ -13,6 +13,13 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Create yaml file with value with spaces",
+		expression:  `.a.b = "cat" | .x = "frog jumps"`,
+		expected: []string{
+			"D0, P[], ()::a:\n    b: cat\nx: frog jumps\n",
+		},
+	},
+	{
 		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,
