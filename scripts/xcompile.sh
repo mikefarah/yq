@@ -13,12 +13,12 @@ rhash -r -a . -P -o checksums
 
 rhash --list-hashes > checksums_hashes_order
 
-gzip -k --best * 
+find . | xargs -I {} tar czvf {}.tar.gz {}
 
-rm checksums_hashes_order.gz
-rm checksums.gz
-rm yq_windows_386.exe.gz
-rm yq_windows_amd64.exe.gz
+rm checksums_hashes_order.tar.gz
+rm checksums.tar.gz
+rm yq_windows_386.exe.tar.gz
+rm yq_windows_amd64.exe.tar.gz
 
 zip yq_windows_386.zip yq_windows_386.exe
 zip yq_windows_amd64.zip yq_windows_amd64.exe
