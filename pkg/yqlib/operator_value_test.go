@@ -36,13 +36,22 @@ var valueOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!float)::5e-10\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `"cat"`,
 		expected: []string{
 			"D0, P[], (!!str)::cat\n",
 		},
-	}, {
+	},
+	{
+		document:   ``,
+		expression: `"frog jumps"`,
+		expected: []string{
+			"D0, P[], (!!str)::frog jumps\n",
+		},
+	},
+	{
 		document:   ``,
 		expression: `"1.3"`,
 		expected: []string{
