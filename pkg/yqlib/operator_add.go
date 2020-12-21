@@ -22,13 +22,7 @@ func AddAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
 }
 
-func toNodes(candidates *list.List) []*yaml.Node {
-
-	if candidates.Len() == 0 {
-		return []*yaml.Node{}
-	}
-	candidate := candidates.Front().Value.(*CandidateNode)
-
+func toNodes(candidate *CandidateNode) []*yaml.Node {
 	if candidate.Node.Tag == "!!null" {
 		return []*yaml.Node{}
 	}
@@ -44,40 +38,33 @@ func toNodes(candidates *list.List) []*yaml.Node {
 
 func AddOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("Add operator")
-	var results = list.New()
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
-	if err != nil {
-		return nil, err
+
+	return crossFunction(d, matchingNodes, pathNode, add)
+}
+
+func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	lhs.Node = UnwrapDoc(lhs.Node)
+	rhs.Node = UnwrapDoc(rhs.Node)
+
+	target := &CandidateNode{
+		Path:     lhs.Path,
+		Document: lhs.Document,
+		Filename: lhs.Filename,
+		Node:     &yaml.Node{},
 	}
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	lhsNode := lhs.Node
 
-	if err != nil {
-		return nil, err
+	switch lhsNode.Kind {
+	case yaml.MappingNode:
+		return nil, fmt.Errorf("Maps not yet supported for addition")
+	case yaml.SequenceNode:
+		target.Node.Kind = yaml.SequenceNode
+		target.Node.Style = lhsNode.Style
+		target.Node.Tag = "!!seq"
+		target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
+	case yaml.ScalarNode:
+		return nil, fmt.Errorf("Scalars not yet supported for addition")
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
-		lhsCandidate := el.Value.(*CandidateNode)
-		lhsNode := UnwrapDoc(lhsCandidate.Node)
-
-		target := &CandidateNode{
-			Path:     lhsCandidate.Path,
-			Document: lhsCandidate.Document,
-			Filename: lhsCandidate.Filename,
-			Node:     &yaml.Node{},
-		}
-
-		switch lhsNode.Kind {
-		case yaml.MappingNode:
-			return nil, fmt.Errorf("Maps not yet supported for addition")
-		case yaml.SequenceNode:
-			target.Node.Kind = yaml.SequenceNode
-			target.Node.Style = lhsNode.Style
-			target.Node.Tag = "!!seq"
-			target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
-			results.PushBack(target)
-		case yaml.ScalarNode:
-			return nil, fmt.Errorf("Scalars not yet supported for addition")
-		}
-	}
-	return results, nil
+	return target, nil
 }

@@ -22,6 +22,14 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `[1] + ([2], [3])`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n- 2\n",
+			"D0, P[], (!!seq)::- 1\n- 3\n",
+		},
+	},
+	{
 		description: "Concatenate null to array",
 		document:    `{a: [1,2]}`,
 		expression:  `.a + null`,
