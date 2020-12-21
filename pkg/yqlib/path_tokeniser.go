@@ -201,6 +201,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`or`), opToken(Or))
 	lexer.Add([]byte(`and`), opToken(And))
 	lexer.Add([]byte(`not`), opToken(Not))
+	lexer.Add([]byte(`\/\/`), opToken(Alternative))
 
 	lexer.Add([]byte(`documentIndex`), opToken(GetDocumentIndex))
 

@@ -39,6 +39,7 @@ var AssignComment = &OperationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedenc
 
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 45, Handler: MultiplyOperator}
 var Add = &OperationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: AddOperator}
+var Alternative = &OperationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 45, Handler: AlternativeOperator}
 
 var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
 var CreateMap = &OperationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: CreateMapOperator}
