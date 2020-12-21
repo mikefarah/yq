@@ -45,6 +45,13 @@ var alternativeOperatorScenarios = []expressionScenario{
 			"D0, P[b], (!!str)::cat\n",
 		},
 	},
+	{
+		skipDoc:    true,
+		expression: `false // true`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
 }
 
 func TestAlternativeOperatorScenarios(t *testing.T) {
