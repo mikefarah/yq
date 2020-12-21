@@ -7,3 +7,5 @@ docker build \
   -t mikefarah/yq:latest \
   -t mikefarah/yq:${VERSION} \
   .
+
+trivy image mikefarah/yq:${VERSION}
