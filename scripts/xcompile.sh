@@ -13,8 +13,10 @@ rhash --list-hashes > checksums_hashes_order
 
 find . -executable -type f | xargs -I {} tar czvf {}.tar.gz {}
 
-rm checksums_hashes_order.tar.gz
-rm checksums.tar.gz
+# just in case find thinks this is executable...
+rm -f checksums_hashes_order.tar.gz 
+rm -f checksums.tar.gz
+
 rm yq_windows_386.exe.tar.gz
 rm yq_windows_amd64.exe.tar.gz
 
