@@ -118,5 +118,5 @@ func TestAnchorAliaseOperatorScenarios(t *testing.T) {
 	for _, tt := range anchorOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Anchor and Aliases Operators", anchorOperatorScenarios)
+	documentScenarios(t, "Anchor and Alias Operators", anchorOperatorScenarios)
 }

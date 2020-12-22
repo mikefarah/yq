@@ -126,7 +126,7 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - Colorized yaml output
 - [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/v/v4.x/traverse)
 - [Sort yaml by keys](https://mikefarah.gitbook.io/yq/v/v4.x/sort-keys)
-- Manipulate yaml [comments](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/comment-operators), [styling](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/style), [tags](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/tag) and [anchors](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/explode).
+- Manipulate yaml [comments](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/comment-operators), [styling](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/style), [tags](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/tag) and [anchors and aliases](https://app.gitbook.com/@mikefarah/s/yq/v/v4.x/anchor-and-alias-operators).
 - [Update yaml inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
 - [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/v/v4.x/select#select-and-update-matching-values-in-map)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
