@@ -1,11 +1,11 @@
 name: Publish image to Dockerhub
-
 on:
   release:
     types: [released]
 
 jobs:
   build:
+    environment: dockerhub
     env:
       IMAGE_NAME: mikefarah/yq
     runs-on: ubuntu-latest
