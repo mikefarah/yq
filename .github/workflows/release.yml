@@ -1,4 +1,4 @@
-name: Publish image to Dockerhub
+name: Release YQ
 on:
   push:
     tags:
@@ -14,7 +14,7 @@ jobs:
       # steps for building assets
       - name: Cross compile
         run: |
-          sudo apt-get rhash
+          sudo apt-get install rhash -y
           go get github.com/mitchellh/gox
           ./scripts/xcompile.sh
 
