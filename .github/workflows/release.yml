@@ -13,7 +13,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.15'
-      # steps for building assets
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
