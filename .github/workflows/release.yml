@@ -13,7 +13,10 @@ jobs:
 
       # steps for building assets
       - name: Cross compile
-        run: ./scripts/xcompile.sh
+        run: |
+          sudo apt-get rhash
+          go get github.com/mitchellh/gox
+          ./scripts/xcompile.sh
 
       - name: Create Release
         id: create_release
