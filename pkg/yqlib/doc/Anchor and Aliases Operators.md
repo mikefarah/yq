@@ -1,4 +1,67 @@
-Explodes (or dereferences) aliases and anchors.
+Use the `alias` and `anchor` operators to read and write yaml aliases and anchors. The `explode` operator normalises a yaml file (dereference aliases and remove anchor names).
+
+`yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
+
+
+## Get anchor
+Given a sample.yml file of:
+```yaml
+a: &billyBob cat
+```
+then
+```bash
+yq eval '.a | anchor' sample.yml
+```
+will output
+```yaml
+billyBob
+```
+
+## Set anchor
+Given a sample.yml file of:
+```yaml
+a: cat
+```
+then
+```bash
+yq eval '.a anchor = "foobar"' sample.yml
+```
+will output
+```yaml
+a: &foobar cat
+```
+
+## Get alias
+Given a sample.yml file of:
+```yaml
+b: &billyBob meow
+a: *billyBob
+```
+then
+```bash
+yq eval '.a | alias' sample.yml
+```
+will output
+```yaml
+billyBob
+```
+
+## Set alias
+Given a sample.yml file of:
+```yaml
+b: &meow purr
+a: cat
+```
+then
+```bash
+yq eval '.a alias = "meow"' sample.yml
+```
+will output
+```yaml
+b: &meow purr
+a: *meow
+```
+
 ## Explode alias and anchor
 Given a sample.yml file of:
 ```yaml

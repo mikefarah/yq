@@ -209,6 +209,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`tag`), opAssignableToken(GetTag, AssignTag))
 	lexer.Add([]byte(`anchor`), opAssignableToken(GetAnchor, AssignAnchor))
+	lexer.Add([]byte(`alias`), opAssignableToken(GetAlias, AssignAlias))
 	lexer.Add([]byte(`filename`), opToken(GetFilename))
 	lexer.Add([]byte(`fileIndex`), opToken(GetFileIndex))
 	lexer.Add([]byte(`path`), opToken(GetPath))

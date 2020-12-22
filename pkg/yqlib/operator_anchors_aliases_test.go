@@ -4,7 +4,39 @@ import (
 	"testing"
 )
 
-var explodeTest = []expressionScenario{
+var anchorOperatorScenarios = []expressionScenario{
+	{
+		description: "Get anchor",
+		document:    `a: &billyBob cat`,
+		expression:  `.a | anchor`,
+		expected: []string{
+			"D0, P[a], (!!str)::billyBob\n",
+		},
+	},
+	{
+		description: "Set anchor",
+		document:    `a: cat`,
+		expression:  `.a anchor = "foobar"`,
+		expected: []string{
+			"D0, P[], (doc)::a: &foobar cat\n",
+		},
+	},
+	{
+		description: "Get alias",
+		document:    `{b: &billyBob meow, a: *billyBob}`,
+		expression:  `.a | alias`,
+		expected: []string{
+			"D0, P[a], (!!str)::billyBob\n",
+		},
+	},
+	{
+		description: "Set alias",
+		document:    `{b: &meow purr, a: cat}`,
+		expression:  `.a alias = "meow"`,
+		expected: []string{
+			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
+		},
+	},
 	{
 		description: "Explode alias and anchor",
 		document:    `{f : {a: &a cat, b: *a}}`,
@@ -82,9 +114,9 @@ foobar:
 	},
 }
 
-func TestExplodeOperatorScenarios(t *testing.T) {
-	for _, tt := range explodeTest {
+func TestAnchorAliaseOperatorScenarios(t *testing.T) {
+	for _, tt := range anchorOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Explode", explodeTest)
+	documentScenarios(t, "Anchor and Aliases Operators", anchorOperatorScenarios)
 }

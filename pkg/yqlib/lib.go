@@ -37,6 +37,7 @@ var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 4
 var AssignTag = &OperationType{Type: "ASSIGN_TAG", NumArgs: 2, Precedence: 40, Handler: AssignTagOperator}
 var AssignComment = &OperationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedence: 40, Handler: AssignCommentsOperator}
 var AssignAnchor = &OperationType{Type: "ASSIGN_ANCHOR", NumArgs: 2, Precedence: 40, Handler: AssignAnchorOperator}
+var AssignAlias = &OperationType{Type: "ASSIGN_ALIAS", NumArgs: 2, Precedence: 40, Handler: AssignAliasOperator}
 
 var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 45, Handler: MultiplyOperator}
 var Add = &OperationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: AddOperator}
@@ -53,6 +54,7 @@ var GetStyle = &OperationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Han
 var GetTag = &OperationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: GetTagOperator}
 var GetComment = &OperationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50, Handler: GetCommentsOperator}
 var GetAnchor = &OperationType{Type: "GET_ANCHOR", NumArgs: 0, Precedence: 50, Handler: GetAnchorOperator}
+var GetAlias = &OperationType{Type: "GET_ALIAS", NumArgs: 0, Precedence: 50, Handler: GetAliasOperator}
 var GetDocumentIndex = &OperationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: GetDocumentIndexOperator}
 var GetFilename = &OperationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: GetFilenameOperator}
 var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: GetFileIndexOperator}
