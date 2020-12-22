@@ -11,7 +11,7 @@ rhash -r -a . -o checksums
 
 rhash --list-hashes > checksums_hashes_order
 
-find . -perm +111 -type f | xargs -I {} tar czvf {}.tar.gz {}
+find . -executable -type f | xargs -I {} tar czvf {}.tar.gz {}
 
 rm checksums_hashes_order.tar.gz
 rm checksums.tar.gz
