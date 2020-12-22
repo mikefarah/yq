@@ -1,8 +1,6 @@
 name: Publish image to Dockerhub
 on:
   push: # temporary
-    branches:
-      - main
   release:
     types: [released]
 
@@ -46,6 +44,6 @@ jobs:
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
           echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker buildx build --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-buildx"  -t "${IMAGE_NAME}:buildx" \
+g          docker buildx build --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-buildx"  -t "${IMAGE_NAME}:buildx" \
             --push .
     
