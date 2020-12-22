@@ -1,10 +1,37 @@
 name: Publish image to Dockerhub
 on:
-  release:
-    types: [released]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  build:
+  publishGitRelease:
+    environment: gitrelease
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # steps for building assets
+      - name: Cross compile
+        run: ./scripts/xcompile.sh
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/*
+
+  publishDocker:
     environment: dockerhub
     env:
       IMAGE_NAME: mikefarah/yq
