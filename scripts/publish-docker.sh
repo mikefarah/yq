@@ -6,6 +6,7 @@ docker build \
   --build-arg VERSION=${VERSION} \
   -t mikefarah/yq:latest \
   -t mikefarah/yq:${VERSION} \
+  -t mikefarah/yq:4 \
   .
 
 trivy image mikefarah/yq:${VERSION}
