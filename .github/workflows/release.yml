@@ -6,7 +6,6 @@ on:
 
 jobs:
   publishGitRelease:
-    environment: gitrelease
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
