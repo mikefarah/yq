@@ -14,6 +14,23 @@ will output
 a: cat
 ```
 
+## Delete nested entry in map
+Given a sample.yml file of:
+```yaml
+a:
+  a1: fred
+  a2: frood
+```
+then
+```bash
+yq eval 'del(.a.a1)' sample.yml
+```
+will output
+```yaml
+a:
+  a2: frood
+```
+
 ## Delete entry in array
 Given a sample.yml file of:
 ```yaml
@@ -29,6 +46,21 @@ will output
 ```yaml
 - 1
 - 3
+```
+
+## Delete nested entry in array
+Given a sample.yml file of:
+```yaml
+- a: cat
+  b: dog
+```
+then
+```bash
+yq eval 'del(.[0].a)' sample.yml
+```
+will output
+```yaml
+- b: dog
 ```
 
 ## Delete no matches

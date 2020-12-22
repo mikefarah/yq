@@ -2,39 +2,67 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	// for each lhs, splat the node,
-	// the intersect it against the rhs expression
-	// recreate the contents using only the intersection result.
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	nodesToDelete, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for el := nodesToDelete.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		elMap := list.New()
-		elMap.PushBack(candidate)
-		nodesToDelete, err := d.GetMatchingNodes(elMap, pathNode.Rhs)
-		log.Debug("nodesToDelete:\n%v", NodesToString(nodesToDelete))
-		if err != nil {
-			return nil, err
+
+		deleteImmediateChildOp := &Operation{
+			OperationType: DeleteImmediateChild,
+			Value:         candidate.Path[len(candidate.Path)-1],
 		}
 
-		realNode := UnwrapDoc(candidate.Node)
+		deleteImmediateChildOpNode := &PathTreeNode{
+			Operation: deleteImmediateChildOp,
+			Rhs:       createTraversalTree(candidate.Path[0 : len(candidate.Path)-1]),
+		}
 
-		if realNode.Kind == yaml.SequenceNode {
-			deleteFromArray(candidate, nodesToDelete)
-		} else if realNode.Kind == yaml.MappingNode {
-			deleteFromMap(candidate, nodesToDelete)
-		} else {
-			log.Debug("Cannot delete from node that's not a map or array %v", NodeToString(candidate))
+		_, err := d.GetMatchingNodes(matchingNodes, deleteImmediateChildOpNode)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return matchingNodes, nil
 }
 
-func deleteFromMap(candidate *CandidateNode, nodesToDelete *list.List) {
+func DeleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	parents, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+
+	if err != nil {
+		return nil, err
+	}
+
+	childPath := pathNode.Operation.Value
+
+	log.Debug("childPath to remove %v", childPath)
+
+	for el := parents.Front(); el != nil; el = el.Next() {
+		parent := el.Value.(*CandidateNode)
+		parentNode := UnwrapDoc(parent.Node)
+		if parentNode.Kind == yaml.MappingNode {
+			deleteFromMap(parent, childPath)
+		} else if parentNode.Kind == yaml.SequenceNode {
+			deleteFromArray(parent, childPath)
+		} else {
+			return nil, fmt.Errorf("Cannot delete nodes from parent of tag %v", parentNode.Tag)
+		}
+
+	}
+	return matchingNodes, nil
+}
+
+func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromMap")
 	node := UnwrapDoc(candidate.Node)
 	contents := node.Content
@@ -50,12 +78,7 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *list.List) {
 			Path:     append(candidate.Path, key.Value),
 		}
 
-		shouldDelete := false
-		for el := nodesToDelete.Front(); el != nil && !shouldDelete; el = el.Next() {
-			if el.Value.(*CandidateNode).GetKey() == childCandidate.GetKey() {
-				shouldDelete = true
-			}
-		}
+		shouldDelete := key.Value == childPath
 
 		log.Debugf("shouldDelete %v ? %v", childCandidate.GetKey(), shouldDelete)
 
@@ -66,7 +89,7 @@ func deleteFromMap(candidate *CandidateNode, nodesToDelete *list.List) {
 	node.Content = newContents
 }
 
-func deleteFromArray(candidate *CandidateNode, nodesToDelete *list.List) {
+func deleteFromArray(candidate *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromArray")
 	node := UnwrapDoc(candidate.Node)
 	contents := node.Content
@@ -75,18 +98,7 @@ func deleteFromArray(candidate *CandidateNode, nodesToDelete *list.List) {
 	for index := 0; index < len(contents); index = index + 1 {
 		value := contents[index]
 
-		childCandidate := &CandidateNode{
-			Node:     value,
-			Document: candidate.Document,
-			Path:     append(candidate.Path, index),
-		}
-
-		shouldDelete := false
-		for el := nodesToDelete.Front(); el != nil && !shouldDelete; el = el.Next() {
-			if el.Value.(*CandidateNode).GetKey() == childCandidate.GetKey() {
-				shouldDelete = true
-			}
-		}
+		shouldDelete := fmt.Sprintf("%v", index) == fmt.Sprintf("%v", childPath)
 
 		if !shouldDelete {
 			newContents = append(newContents, value)

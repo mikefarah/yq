@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 
 	"gopkg.in/yaml.v3"
 )
@@ -32,4 +33,16 @@ func nodeToMap(candidate *CandidateNode) *list.List {
 	elMap := list.New()
 	elMap.PushBack(candidate)
 	return elMap
+}
+
+func createTraversalTree(path []interface{}) *PathTreeNode {
+	if len(path) == 0 {
+		return &PathTreeNode{Operation: &Operation{OperationType: SelfReference}}
+	} else if len(path) == 1 {
+		return &PathTreeNode{Operation: &Operation{OperationType: TraversePath, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
+	}
+	return &PathTreeNode{
+		Operation: &Operation{OperationType: ShortPipe},
+		Lhs:       createTraversalTree(path[0:1]),
+		Rhs:       createTraversalTree(path[1:])}
 }

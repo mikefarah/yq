@@ -104,19 +104,6 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	return lhs, nil
 }
 
-func createTraversalTree(path []interface{}) *PathTreeNode {
-	if len(path) == 0 {
-		return &PathTreeNode{Operation: &Operation{OperationType: SelfReference}}
-	} else if len(path) == 1 {
-		return &PathTreeNode{Operation: &Operation{OperationType: TraversePath, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
-	}
-	return &PathTreeNode{
-		Operation: &Operation{OperationType: ShortPipe},
-		Lhs:       createTraversalTree(path[0:1]),
-		Rhs:       createTraversalTree(path[1:])}
-
-}
-
 func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, shouldAppendArrays bool) error {
 
 	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
