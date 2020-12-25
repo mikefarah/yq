@@ -21,6 +21,14 @@ func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
+func (n *CandidateNode) CreateChildPath(path interface{}) []interface{} {
+	//don't use append as they may actually modify the path of the orignal node!
+	newPath := make([]interface{}, len(n.Path)+1)
+	copy(newPath, n.Path)
+	newPath[len(n.Path)] = path
+	return newPath
+}
+
 func (n *CandidateNode) Copy() (*CandidateNode, error) {
 	clone := &CandidateNode{}
 	err := copier.Copy(clone, n)

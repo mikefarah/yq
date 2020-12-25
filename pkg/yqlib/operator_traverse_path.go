@@ -6,8 +6,7 @@ import (
 	"container/list"
 
 	"github.com/elliotchance/orderedmap"
-
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type TraversePreferences struct {
@@ -144,7 +143,7 @@ func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, op
 			log.Debug("MATCHED")
 			candidateNode := &CandidateNode{
 				Node:     value,
-				Path:     append(candidate.Path, key.Value),
+				Path:     candidate.CreateChildPath(key.Value),
 				Document: candidate.Document,
 			}
 			newMatches.Set(candidateNode.GetKey(), candidateNode)
@@ -182,9 +181,10 @@ func traverseArray(candidate *CandidateNode, operation *Operation) ([]*Candidate
 		var newMatches = make([]*CandidateNode, len(contents))
 		var index int64
 		for index = 0; index < int64(len(contents)); index = index + 1 {
+
 			newMatches[index] = &CandidateNode{
 				Document: candidate.Document,
-				Path:     append(candidate.Path, index),
+				Path:     candidate.CreateChildPath(index),
 				Node:     contents[index],
 			}
 		}
@@ -213,7 +213,7 @@ func traverseArray(candidate *CandidateNode, operation *Operation) ([]*Candidate
 		return []*CandidateNode{&CandidateNode{
 			Node:     candidate.Node.Content[indexToUse],
 			Document: candidate.Document,
-			Path:     append(candidate.Path, index),
+			Path:     candidate.CreateChildPath(index),
 		}}, nil
 	default:
 		log.Debug("argument not an int (%v), no array matches", operation.Value)

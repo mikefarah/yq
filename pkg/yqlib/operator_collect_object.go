@@ -55,7 +55,7 @@ func CollectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *
 func createChildCandidate(candidate *CandidateNode, index int) *CandidateNode {
 	return &CandidateNode{
 		Document: candidate.Document,
-		Path:     append(candidate.Path, index),
+		Path:     candidate.CreateChildPath(index),
 		Filename: candidate.Filename,
 		Node:     candidate.Node.Content[index],
 	}

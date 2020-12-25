@@ -14,6 +14,23 @@ var pathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc: true,
+		document: `a:
+  b:
+    c:
+    - 0
+    - 1
+    - 2
+    - 3`,
+		expression: `.a.b.c.[]`,
+		expected: []string{
+			"D0, P[a b c 0], (!!int)::0\n",
+			"D0, P[a b c 1], (!!int)::1\n",
+			"D0, P[a b c 2], (!!int)::2\n",
+			"D0, P[a b c 3], (!!int)::3\n",
+		},
+	},
+	{
 		description: "Get map key",
 		document:    `{a: {b: cat}}`,
 		expression:  `.a.b | path | .[-1]`,

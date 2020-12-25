@@ -80,7 +80,7 @@ yq() {
 
 ### Go Get:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq/v4
+GO111MODULE=on go get github.com/mikefarah/yq
 ```
 
 ## Community Supported Installation methods
