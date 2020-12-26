@@ -19,8 +19,18 @@ var pathTests = []struct {
 	},
 	{
 		`.a[]`,
-		append(make([]interface{}, 0), "a", "SHORT_PIPE", "[]"),
-		append(make([]interface{}, 0), "a", "[]", "SHORT_PIPE"),
+		append(make([]interface{}, 0), "a", "TRAVERSE_ARRAY", "[", "]"),
+		append(make([]interface{}, 0), "a", "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
+	},
+	{
+		`.a[0]`,
+		append(make([]interface{}, 0), "a", "TRAVERSE_ARRAY", "[", "0 (int64)", "]"),
+		append(make([]interface{}, 0), "a", "0 (int64)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
+	},
+	{
+		`.a.[0]`,
+		append(make([]interface{}, 0), "a", "TRAVERSE_ARRAY", "[", "0 (int64)", "]"),
+		append(make([]interface{}, 0), "a", "0 (int64)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
 	},
 	{
 		`.a.[]`,
@@ -29,8 +39,8 @@ var pathTests = []struct {
 	},
 	{
 		`.a[].c`,
-		append(make([]interface{}, 0), "a", "SHORT_PIPE", "[]", "SHORT_PIPE", "c"),
-		append(make([]interface{}, 0), "a", "[]", "SHORT_PIPE", "c", "SHORT_PIPE"),
+		append(make([]interface{}, 0), "a", "TRAVERSE_ARRAY", "[", "]", "SHORT_PIPE", "c"),
+		append(make([]interface{}, 0), "a", "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY", "c", "SHORT_PIPE"),
 	},
 	{
 		`[3]`,
