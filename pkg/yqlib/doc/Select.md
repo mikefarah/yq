@@ -19,10 +19,8 @@ goat
 ## Select and update matching values in map
 Given a sample.yml file of:
 ```yaml
-a:
-  things: cat
-  bob: goat
-  horse: dog
+a: {things: cat, bob: goat, horse: dog}
+'': null
 ```
 then
 ```bash
@@ -30,9 +28,7 @@ yq eval '(.a.[] | select(. == "*at")) |= "rabbit"' sample.yml
 ```
 will output
 ```yaml
-a:
-  things: rabbit
-  bob: rabbit
-  horse: dog
+a: {things: rabbit, bob: rabbit, horse: dog}
+'': null
 ```
 

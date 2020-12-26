@@ -6,9 +6,9 @@ yq eval '.. style= "flow"' file.yaml
 ## Aliases are not traversed
 Given a sample.yml file of:
 ```yaml
-a: &cat
-  c: frog
+a: &cat {c: frog}
 b: *cat
+'': null
 ```
 then
 ```bash
@@ -16,13 +16,10 @@ yq eval '[..]' sample.yml
 ```
 will output
 ```yaml
-- a: &cat
-    c: frog
+- a: &cat {c: frog}
   b: *cat
-- &cat
-  c: frog
-- frog
-- *cat
+  '': null
+- null
 ```
 
 ## Merge docs are not traversed
@@ -38,14 +35,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -56,8 +52,7 @@ will output
 - c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
-- foobar_c
-- *foo
-- foobar_thing
+  '': null
+- null
 ```
 

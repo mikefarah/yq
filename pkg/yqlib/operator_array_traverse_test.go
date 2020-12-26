@@ -6,6 +6,22 @@ import (
 
 var traverseArrayOperatorScenarios = []expressionScenario{
 	{
+		document:   `[a,b,c]`,
+		expression: `.[]`,
+		expected: []string{
+			"D0, P[0], (!!str)::a\n",
+			"D0, P[1], (!!str)::b\n",
+			"D0, P[2], (!!str)::c\n",
+		},
+	},
+	{
+		document:   `[a,b,c]`,
+		expression: `[]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
 		document:   `{a: [a,b,c]}`,
 		expression: `.a[0]`,
 		expected: []string{
@@ -15,6 +31,14 @@ var traverseArrayOperatorScenarios = []expressionScenario{
 	{
 		document:   `{a: [a,b,c]}`,
 		expression: `.a[0, 2]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[0, 2]`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::a\n",
 			"D0, P[a 2], (!!str)::c\n",

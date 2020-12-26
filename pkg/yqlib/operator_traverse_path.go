@@ -77,7 +77,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 }
 
 func keyMatches(key *yaml.Node, pathNode *Operation) bool {
-	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
+	return Match(key.Value, pathNode.StringValue)
 }
 
 func traverseMap(matchingNode *CandidateNode, operation *Operation) (*list.List, error) {

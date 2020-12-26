@@ -6,6 +6,7 @@ returns length of string
 Given a sample.yml file of:
 ```yaml
 a: cat
+'': null
 ```
 then
 ```bash
@@ -23,6 +24,7 @@ Given a sample.yml file of:
 ```yaml
 a: cat
 c: dog
+'': null
 ```
 then
 ```bash
@@ -30,7 +32,7 @@ yq eval 'length' sample.yml
 ```
 will output
 ```yaml
-2
+3
 ```
 
 ## Array length

@@ -9,6 +9,7 @@ yq eval-all 'select(fileIndex == 0) * select(filename == "file2.yaml")' file1.ya
 Given a sample.yml file of:
 ```yaml
 a: cat
+'': null
 ```
 then
 ```bash
@@ -23,6 +24,7 @@ sample.yaml
 Given a sample.yml file of:
 ```yaml
 a: cat
+'': null
 ```
 then
 ```bash

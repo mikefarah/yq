@@ -22,6 +22,7 @@ const (
 	CloseCollect
 	OpenCollectObject
 	CloseCollectObject
+	TraverseArrayCollect
 )
 
 type Token struct {
@@ -48,6 +49,9 @@ func (t *Token) toString() string {
 		return "{"
 	} else if t.TokenType == CloseCollectObject {
 		return "}"
+	} else if t.TokenType == TraverseArrayCollect {
+		return ".["
+
 	} else {
 		return "NFI"
 	}
@@ -185,7 +189,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\(`), literalToken(OpenBracket, false))
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, true))
 
-	lexer.Add([]byte(`\.\[\]`), pathToken(false))
+	// lexer.Add([]byte(`\.\[\]`), pathToken(false)) // traverseCollect(false)
+	lexer.Add([]byte(`\.\[`), literalToken(TraverseArrayCollect, false))
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))
@@ -228,7 +233,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\s*\|=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{true}))
 
-	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
+	// lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true)) // traverseCollect(true)
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
@@ -320,6 +325,17 @@ func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTok
 	skipNextToken = false
 	token := tokens[index]
 
+	if token.TokenType == TraverseArrayCollect {
+		//need to put a traverse array then a collect token
+		// do this by adding traverse then converting token to collect
+
+		op := &Operation{OperationType: TraverseArray, StringValue: "TRAVERSE_ARRAY"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+
+		token = &Token{TokenType: OpenCollect}
+
+	}
+
 	if index != len(tokens)-1 && token.AssignOperation != nil &&
 		tokens[index+1].TokenType == OperationToken &&
 		tokens[index+1].Operation.OperationType == Assign {
@@ -337,8 +353,19 @@ func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTok
 	}
 	if index != len(tokens)-1 && token.CheckForPostTraverse &&
 		tokens[index+1].TokenType == OpenCollect {
-		op := &Operation{OperationType: TraverseArray}
+
+		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
 		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+
+		op = &Operation{OperationType: TraverseArray}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+	}
+	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+		tokens[index+1].TokenType == TraverseArrayCollect {
+
+		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+
 	}
 	return postProcessedTokens, skipNextToken
 }

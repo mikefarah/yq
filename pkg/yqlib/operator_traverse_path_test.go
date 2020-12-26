@@ -65,7 +65,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		document:   `{}`,
+		document:   ``,
 		expression: `.[1].a`,
 		expected: []string{
 			"D0, P[1 a], (!!null)::null\n",

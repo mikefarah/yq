@@ -2,10 +2,14 @@ This is operation that returns true if the key exists in a map (or index in an a
 ## Has map key
 Given a sample.yml file of:
 ```yaml
-- a: yes
+- a: "yes"
+  '': null
 - a: ~
+  '': null
 - a:
+  '': null
 - b: nope
+  '': null
 ```
 then
 ```bash

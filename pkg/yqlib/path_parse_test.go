@@ -18,6 +18,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE"),
 	},
 	{
+		`.[]`,
+		append(make([]interface{}, 0), "TRAVERSE_ARRAY", "[", "]"),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
+	},
+	{
 		`.a[]`,
 		append(make([]interface{}, 0), "a", "TRAVERSE_ARRAY", "[", "]"),
 		append(make([]interface{}, 0), "a", "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),

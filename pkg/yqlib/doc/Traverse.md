@@ -2,8 +2,8 @@ This is the simplest (and perhaps most used) operator, it is used to navigate de
 ## Simple map navigation
 Given a sample.yml file of:
 ```yaml
-a:
-  b: apple
+a: {b: apple}
+'': null
 ```
 then
 ```bash
@@ -11,7 +11,7 @@ yq eval '.a' sample.yml
 ```
 will output
 ```yaml
-b: apple
+{b: apple}
 ```
 
 ## Splat
@@ -20,7 +20,9 @@ Often used to pipe children into other operators
 Given a sample.yml file of:
 ```yaml
 - b: apple
+  '': null
 - c: banana
+  '': null
 ```
 then
 ```bash
@@ -29,7 +31,9 @@ yq eval '.[]' sample.yml
 will output
 ```yaml
 b: apple
+'': null
 c: banana
+'': null
 ```
 
 ## Special characters
@@ -38,6 +42,7 @@ Use quotes around path elements with special characters
 Given a sample.yml file of:
 ```yaml
 "{}": frog
+'': null
 ```
 then
 ```bash
@@ -54,6 +59,7 @@ Nodes are added dynamically while traversing
 Given a sample.yml file of:
 ```yaml
 c: banana
+'': null
 ```
 then
 ```bash
@@ -67,9 +73,8 @@ null
 ## Wildcard matching
 Given a sample.yml file of:
 ```yaml
-a:
-  cat: apple
-  mad: things
+a: {cat: apple, mad: things}
+'': null
 ```
 then
 ```bash
@@ -84,9 +89,9 @@ things
 ## Aliases
 Given a sample.yml file of:
 ```yaml
-a: &cat
-  c: frog
+a: &cat {c: frog}
 b: *cat
+'': null
 ```
 then
 ```bash
@@ -100,9 +105,9 @@ will output
 ## Traversing aliases with splat
 Given a sample.yml file of:
 ```yaml
-a: &cat
-  c: frog
+a: &cat {c: frog}
 b: *cat
+'': null
 ```
 then
 ```bash
@@ -116,9 +121,9 @@ frog
 ## Traversing aliases explicitly
 Given a sample.yml file of:
 ```yaml
-a: &cat
-  c: frog
+a: &cat {c: frog}
 b: *cat
+'': null
 ```
 then
 ```bash
@@ -149,6 +154,7 @@ will output
 Given a sample.yml file of:
 ```yaml
 2: cat
+'': null
 ```
 then
 ```bash
@@ -156,13 +162,13 @@ yq eval '.[2]' sample.yml
 ```
 will output
 ```yaml
-cat
 ```
 
 ## Maps with non existing numeric keys
 Given a sample.yml file of:
 ```yaml
 a: b
+'': null
 ```
 then
 ```bash
@@ -170,7 +176,6 @@ yq eval '.[0]' sample.yml
 ```
 will output
 ```yaml
-null
 ```
 
 ## Traversing merge anchors
@@ -186,14 +191,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -217,14 +221,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -248,14 +251,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -279,14 +281,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -294,8 +295,8 @@ yq eval '.foobar.[]' sample.yml
 ```
 will output
 ```yaml
-foo_c
-foo_a
+foobar_c
+*foo
 foobar_thing
 ```
 
@@ -314,14 +315,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -345,14 +345,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -360,9 +359,8 @@ yq eval '.foobarList.[]' sample.yml
 ```
 will output
 ```yaml
-bar_b
-foo_a
-bar_thing
+foobarList_b
+[*foo, *bar]
 foobarList_c
 ```
 

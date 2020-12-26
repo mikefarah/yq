@@ -16,13 +16,9 @@ yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.y
 ## Merge objects together, returning merged result only
 Given a sample.yml file of:
 ```yaml
-a:
-  field: me
-  fieldA: cat
-b:
-  field:
-    g: wizz
-  fieldB: dog
+a: {field: me, fieldA: cat}
+b: {field: {g: wizz}, fieldB: dog}
+'': null
 ```
 then
 ```bash
@@ -30,22 +26,15 @@ yq eval '.a * .b' sample.yml
 ```
 will output
 ```yaml
-field:
-  g: wizz
-fieldA: cat
-fieldB: dog
+{'': null}
 ```
 
 ## Merge objects together, returning parent object
 Given a sample.yml file of:
 ```yaml
-a:
-  field: me
-  fieldA: cat
-b:
-  field:
-    g: wizz
-  fieldB: dog
+a: {field: me, fieldA: cat}
+b: {field: {g: wizz}, fieldB: dog}
+'': null
 ```
 then
 ```bash
@@ -53,15 +42,7 @@ yq eval '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
-a:
-  field:
-    g: wizz
-  fieldA: cat
-  fieldB: dog
-b:
-  field:
-    g: wizz
-  fieldB: dog
+'': null
 ```
 
 ## Merge keeps style of LHS
@@ -78,22 +59,15 @@ yq eval '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
-a: {things: great, also: "me"}
-b:
-  also: "me"
+'': null
 ```
 
 ## Merge arrays
 Given a sample.yml file of:
 ```yaml
-a:
-  - 1
-  - 2
-  - 3
-b:
-  - 3
-  - 4
-  - 5
+a: [1, 2, 3]
+b: [3, 4, 5]
+'': null
 ```
 then
 ```bash
@@ -101,31 +75,15 @@ yq eval '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
-a:
-  - 3
-  - 4
-  - 5
-b:
-  - 3
-  - 4
-  - 5
+'': null
 ```
 
 ## Merge, appending arrays
 Given a sample.yml file of:
 ```yaml
-a:
-  array:
-    - 1
-    - 2
-    - animal: dog
-  value: coconut
-b:
-  array:
-    - 3
-    - 4
-    - animal: cat
-  value: banana
+a: {array: [1, 2, {animal: dog}], value: coconut}
+b: {array: [3, 4, {animal: cat}], value: banana}
+'': null
 ```
 then
 ```bash
@@ -133,14 +91,7 @@ yq eval '.a *+ .b' sample.yml
 ```
 will output
 ```yaml
-array:
-  - 1
-  - 2
-  - animal: dog
-  - 3
-  - 4
-  - animal: cat
-value: banana
+{'': null}
 ```
 
 ## Merge to prefix an element
@@ -148,6 +99,7 @@ Given a sample.yml file of:
 ```yaml
 a: cat
 b: dog
+'': null
 ```
 then
 ```bash
@@ -155,20 +107,16 @@ yq eval '. * {"a": {"c": .a}}' sample.yml
 ```
 will output
 ```yaml
-a:
-  c: cat
-b: dog
+'': null
 ```
 
 ## Merge with simple aliases
 Given a sample.yml file of:
 ```yaml
-a: &cat
-  c: frog
-b:
-  f: *cat
-c:
-  g: thongs
+a: &cat {c: frog}
+b: {f: *cat}
+c: {g: thongs}
+'': null
 ```
 then
 ```bash
@@ -176,19 +124,16 @@ yq eval '.c * .b' sample.yml
 ```
 will output
 ```yaml
-g: thongs
-f: *cat
+{'': null}
 ```
 
 ## Merge does not copy anchor names
 Given a sample.yml file of:
 ```yaml
-a:
-  c: &cat frog
-b:
-  f: *cat
-c:
-  g: thongs
+a: {c: &cat frog}
+b: {f: *cat}
+c: {g: thongs}
+'': null
 ```
 then
 ```bash
@@ -196,8 +141,7 @@ yq eval '.c * .a' sample.yml
 ```
 will output
 ```yaml
-g: thongs
-c: frog
+{'': null}
 ```
 
 ## Merge with merge anchors
@@ -213,14 +157,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
+  !!merge <<: [*foo, *bar]
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
+'': null
 ```
 then
 ```bash
@@ -228,11 +171,6 @@ yq eval '.foobar * .foobarList' sample.yml
 ```
 will output
 ```yaml
-c: foobarList_c
-<<:
-  - *foo
-  - *bar
-thing: foobar_thing
-b: foobarList_b
+'': null
 ```
 

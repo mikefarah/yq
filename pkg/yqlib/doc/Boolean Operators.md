@@ -24,10 +24,13 @@ Given a sample.yml file of:
 ```yaml
 - a: bird
   b: dog
+  '': null
 - a: frog
   b: bird
+  '': null
 - a: cat
   b: fly
+  '': null
 ```
 then
 ```bash
@@ -37,8 +40,10 @@ will output
 ```yaml
 - a: bird
   b: dog
+  '': null
 - a: cat
   b: fly
+  '': null
 ```
 
 ## Not true is false

@@ -65,7 +65,7 @@ var SortKeys = &OperationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Han
 
 var CollectObject = &OperationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: CollectObjectOperator}
 var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
-var TraverseArray = &OperationType{Type: "TRAVERSE_ARRAY", NumArgs: 2, Precedence: 50, Handler: TraverseArrayOperator}
+var TraverseArray = &OperationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedence: 50, Handler: TraverseArrayOperator}
 
 var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}

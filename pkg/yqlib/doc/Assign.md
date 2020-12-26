@@ -20,9 +20,8 @@ x: frog
 ## Update node to be the child value
 Given a sample.yml file of:
 ```yaml
-a:
-  b:
-    g: foof
+a: {b: {g: foof}}
+'': null
 ```
 then
 ```bash
@@ -30,16 +29,16 @@ yq eval '.a |= .b' sample.yml
 ```
 will output
 ```yaml
-a:
-  g: foof
+a: {g: foof}
+'': null
 ```
 
 ## Update node to be the sibling value
 Given a sample.yml file of:
 ```yaml
-a:
-  b: child
+a: {b: child}
 b: sibling
+'': null
 ```
 then
 ```bash
@@ -49,6 +48,7 @@ will output
 ```yaml
 a: sibling
 b: sibling
+'': null
 ```
 
 ## Updated multiple paths
@@ -57,6 +57,7 @@ Given a sample.yml file of:
 a: fieldA
 b: fieldB
 c: fieldC
+'': null
 ```
 then
 ```bash
@@ -67,13 +68,14 @@ will output
 a: potatoe
 b: fieldB
 c: potatoe
+'': null
 ```
 
 ## Update string value
 Given a sample.yml file of:
 ```yaml
-a:
-  b: apple
+a: {b: apple}
+'': null
 ```
 then
 ```bash
@@ -81,8 +83,8 @@ yq eval '.a.b = "frog"' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: frog
+a: {b: frog}
+'': null
 ```
 
 ## Update string value via |=
@@ -90,8 +92,8 @@ Note there is no difference between `=` and `|=` when the RHS is a scalar
 
 Given a sample.yml file of:
 ```yaml
-a:
-  b: apple
+a: {b: apple}
+'': null
 ```
 then
 ```bash
@@ -99,26 +101,24 @@ yq eval '.a.b |= "frog"' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: frog
+a: {b: frog}
+'': null
 ```
 
 ## Update selected results
 Given a sample.yml file of:
 ```yaml
-a:
-  b: apple
-  c: cactus
+a: {b: apple, c: cactus}
+'': null
 ```
 then
 ```bash
-yq eval '(.a.[] | select(. == "apple")) = "frog"' sample.yml
+yq eval '(.a[] | select(. == "apple")) = "frog"' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: frog
-  c: cactus
+a: {b: frog, c: cactus}
+'': null
 ```
 
 ## Update array values
