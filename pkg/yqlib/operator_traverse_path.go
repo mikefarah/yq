@@ -60,34 +60,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		var newMatches = orderedmap.NewOrderedMap()
-		err := traverseMap(newMatches, matchingNode, operation)
-
-		if err != nil {
-			return nil, err
-		}
-
-		if newMatches.Len() == 0 {
-			//no matches, create one automagically
-			valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
-			node := matchingNode.Node
-			node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: operation.StringValue}, valueNode)
-			candidateNode := &CandidateNode{
-				Node:     valueNode,
-				Path:     append(matchingNode.Path, operation.StringValue),
-				Document: matchingNode.Document,
-			}
-			newMatches.Set(candidateNode.GetKey(), candidateNode)
-
-		}
-
-		arrayMatches := make([]*CandidateNode, newMatches.Len())
-		i := 0
-		for el := newMatches.Front(); el != nil; el = el.Next() {
-			arrayMatches[i] = el.Value.(*CandidateNode)
-			i++
-		}
-		return arrayMatches, nil
+		return traverseMap(matchingNode, operation)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
@@ -111,7 +84,38 @@ func keyMatches(key *yaml.Node, pathNode *Operation) bool {
 	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
 }
 
-func traverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, operation *Operation) error {
+func traverseMap(matchingNode *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
+	var newMatches = orderedmap.NewOrderedMap()
+	err := doTraverseMap(newMatches, matchingNode, operation)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if newMatches.Len() == 0 {
+		//no matches, create one automagically
+		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
+		node := matchingNode.Node
+		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: operation.StringValue}, valueNode)
+		candidateNode := &CandidateNode{
+			Node:     valueNode,
+			Path:     append(matchingNode.Path, operation.StringValue),
+			Document: matchingNode.Document,
+		}
+		newMatches.Set(candidateNode.GetKey(), candidateNode)
+
+	}
+
+	arrayMatches := make([]*CandidateNode, newMatches.Len())
+	i := 0
+	for el := newMatches.Front(); el != nil; el = el.Next() {
+		arrayMatches[i] = el.Value.(*CandidateNode)
+		i++
+	}
+	return arrayMatches, nil
+}
+
+func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, operation *Operation) error {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
@@ -161,7 +165,7 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 			Path:     originalCandidate.Path,
 			Document: originalCandidate.Document,
 		}
-		return traverseMap(newMatches, candidateNode, operation)
+		return doTraverseMap(newMatches, candidateNode, operation)
 	case yaml.SequenceNode:
 		for _, childValue := range value.Content {
 			err := traverseMergeAnchor(newMatches, originalCandidate, childValue, operation)
