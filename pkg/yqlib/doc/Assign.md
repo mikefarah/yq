@@ -112,7 +112,7 @@ a:
 ```
 then
 ```bash
-yq eval '(.a.[] | select(. == "apple")) = "frog"' sample.yml
+yq eval '(.a[] | select(. == "apple")) = "frog"' sample.yml
 ```
 will output
 ```yaml

@@ -38,7 +38,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	if s.document != "" {
 		inputs, err = readDocuments(strings.NewReader(s.document), "sample.yml", 0)
 		if err != nil {
-			t.Error(err, s.document)
+			t.Error(err, s.document, s.expression)
 			return
 		}
 	} else {
@@ -55,7 +55,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	results, err = treeNavigator.GetMatchingNodes(inputs, node)
 
 	if err != nil {
-		t.Error(err)
+		t.Error(fmt.Errorf("%v: %v", err, s.expression))
 		return
 	}
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
@@ -167,17 +167,17 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			if s.document != "" {
 				node, err := treeCreator.ParsePath(s.expression)
 				if err != nil {
-					t.Error(err)
+					t.Error(err, s.expression)
 				}
 				err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(formattedDoc), node, printer)
 
 				if err != nil {
-					t.Error(err)
+					t.Error(err, s.expression)
 				}
 			} else {
 				err = streamEvaluator.EvaluateNew(s.expression, printer)
 				if err != nil {
-					t.Error(err)
+					t.Error(err, s.expression)
 				}
 			}
 

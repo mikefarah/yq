@@ -22,7 +22,7 @@ const (
 	CloseCollect
 	OpenCollectObject
 	CloseCollectObject
-	SplatOrEmptyCollect
+	TraverseArrayCollect
 )
 
 type Token struct {
@@ -49,8 +49,9 @@ func (t *Token) toString() string {
 		return "{"
 	} else if t.TokenType == CloseCollectObject {
 		return "}"
-	} else if t.TokenType == SplatOrEmptyCollect {
-		return "[]?"
+	} else if t.TokenType == TraverseArrayCollect {
+		return ".["
+
 	} else {
 		return "NFI"
 	}
@@ -114,23 +115,6 @@ func unwrap(value string) string {
 	return value[1 : len(value)-1]
 }
 
-func arrayIndextoken(precedingDot bool) lex.Action {
-	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var numberString = string(m.Bytes)
-		startIndex := 1
-		if precedingDot {
-			startIndex = 2
-		}
-		numberString = numberString[startIndex : len(numberString)-1]
-		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
-		if errParsingInt != nil {
-			return nil, errParsingInt
-		}
-		op := &Operation{OperationType: TraversePath, Value: number, StringValue: numberString}
-		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
-	}
-}
-
 func numberValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
@@ -188,7 +172,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\(`), literalToken(OpenBracket, false))
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, true))
 
-	lexer.Add([]byte(`\.\[\]`), pathToken(false))
+	// lexer.Add([]byte(`\.\[\]`), pathToken(false)) // traverseCollect(false)
+	lexer.Add([]byte(`\.\[`), literalToken(TraverseArrayCollect, false))
 	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
 
 	lexer.Add([]byte(`,`), opToken(Union))
@@ -231,7 +216,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\s*\|=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{true}))
 
-	lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true))
+	// lexer.Add([]byte(`\.\[-?[0-9]+\]`), arrayIndextoken(true)) // traverseCollect(true)
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
@@ -253,8 +238,6 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`~`), nullValue())
 
 	lexer.Add([]byte(`"[^"]*"`), stringValue(true))
-
-	lexer.Add([]byte(`\[\]`), literalToken(SplatOrEmptyCollect, true))
 
 	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
 	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))
@@ -324,24 +307,16 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTokens []*Token) (tokensAccum []*Token, skipNextToken bool) {
 	skipNextToken = false
 	token := tokens[index]
-	if token.TokenType == SplatOrEmptyCollect {
-		if index > 0 && tokens[index-1].TokenType == OperationToken &&
-			tokens[index-1].Operation.OperationType == TraversePath {
-			// must be a splat without a preceding dot , e.g. .a[]
-			// lets put a pipe in front of it, and convert it to a traverse "[]" token
-			pipeOp := &Operation{OperationType: ShortPipe, Value: "PIPE"}
 
-			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: pipeOp})
+	if token.TokenType == TraverseArrayCollect {
+		//need to put a traverse array then a collect token
+		// do this by adding traverse then converting token to collect
 
-			traverseOp := &Operation{OperationType: TraversePath, Value: "[]", StringValue: "[]"}
-			token = &Token{TokenType: OperationToken, Operation: traverseOp, CheckForPostTraverse: true}
+		op := &Operation{OperationType: TraverseArray, StringValue: "TRAVERSE_ARRAY"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
 
-		} else {
-			// gotta be a collect empty array, we need to split this into two tokens
-			// one OpenCollect, the other CloseCollect
-			postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OpenCollect})
-			token = &Token{TokenType: CloseCollect, CheckForPostTraverse: true}
-		}
+		token = &Token{TokenType: OpenCollect}
+
 	}
 
 	if index != len(tokens)-1 && token.AssignOperation != nil &&
@@ -358,6 +333,22 @@ func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTok
 		tokens[index+1].Operation.OperationType == TraversePath {
 		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
 		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+	}
+	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+		tokens[index+1].TokenType == OpenCollect {
+
+		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+
+		op = &Operation{OperationType: TraverseArray}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+	}
+	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+		tokens[index+1].TokenType == TraverseArrayCollect {
+
+		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
+		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+
 	}
 	return postProcessedTokens, skipNextToken
 }

@@ -366,3 +366,21 @@ bar_thing
 foobarList_c
 ```
 
+## Select multiple indices
+Given a sample.yml file of:
+```yaml
+a:
+  - a
+  - b
+  - c
+```
+then
+```bash
+yq eval '.a[0, 2]' sample.yml
+```
+will output
+```yaml
+a
+c
+```
+
