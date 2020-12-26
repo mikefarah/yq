@@ -23,23 +23,19 @@ func Splat(d *dataTreeNavigator, matches *list.List) (*list.List, error) {
 func TraversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- Traversing")
 	var matchingNodeMap = list.New()
-	var newNodes []*CandidateNode
-	var err error
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
-		newNodes, err = traverse(d, el.Value.(*CandidateNode), pathNode.Operation)
+		newNodes, err := traverse(d, el.Value.(*CandidateNode), pathNode.Operation)
 		if err != nil {
 			return nil, err
 		}
-		for _, n := range newNodes {
-			matchingNodeMap.PushBack(n)
-		}
+		matchingNodeMap.PushBackList(newNodes)
 	}
 
 	return matchingNodeMap, nil
 }
 
-func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
+func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
@@ -76,7 +72,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 			Node:     matchingNode.Node.Content[0],
 			Document: matchingNode.Document}, operation)
 	default:
-		return nil, nil
+		return list.New(), nil
 	}
 }
 
@@ -84,7 +80,7 @@ func keyMatches(key *yaml.Node, pathNode *Operation) bool {
 	return pathNode.Value == "[]" || Match(key.Value, pathNode.StringValue)
 }
 
-func traverseMap(matchingNode *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
+func traverseMap(matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
 	err := doTraverseMap(newMatches, matchingNode, operation)
 
@@ -106,13 +102,13 @@ func traverseMap(matchingNode *CandidateNode, operation *Operation) ([]*Candidat
 
 	}
 
-	arrayMatches := make([]*CandidateNode, newMatches.Len())
+	results := list.New()
 	i := 0
 	for el := newMatches.Front(); el != nil; el = el.Next() {
-		arrayMatches[i] = el.Value.(*CandidateNode)
+		results.PushBack(el.Value)
 		i++
 	}
-	return arrayMatches, nil
+	return results, nil
 }
 
 func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, operation *Operation) error {
@@ -177,20 +173,20 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 	return nil
 }
 
-func traverseArray(candidate *CandidateNode, operation *Operation) ([]*CandidateNode, error) {
+func traverseArray(candidate *CandidateNode, operation *Operation) (*list.List, error) {
 	log.Debug("operation Value %v", operation.Value)
 	if operation.Value == "[]" {
 
 		var contents = candidate.Node.Content
-		var newMatches = make([]*CandidateNode, len(contents))
+		var newMatches = list.New()
 		var index int64
 		for index = 0; index < int64(len(contents)); index = index + 1 {
 
-			newMatches[index] = &CandidateNode{
+			newMatches.PushBack(&CandidateNode{
 				Document: candidate.Document,
 				Path:     candidate.CreateChildPath(index),
 				Node:     contents[index],
-			}
+			})
 		}
 		return newMatches, nil
 
@@ -214,14 +210,14 @@ func traverseArray(candidate *CandidateNode, operation *Operation) ([]*Candidate
 			return nil, fmt.Errorf("Index [%v] out of range, array size is %v", index, contentLength)
 		}
 
-		return []*CandidateNode{&CandidateNode{
+		return nodeToMap(&CandidateNode{
 			Node:     candidate.Node.Content[indexToUse],
 			Document: candidate.Document,
 			Path:     candidate.CreateChildPath(index),
-		}}, nil
+		}), nil
 	default:
 		log.Debug("argument not an int (%v), no array matches", operation.Value)
-		return nil, nil
+		return list.New(), nil
 	}
 
 }
