@@ -115,23 +115,6 @@ func unwrap(value string) string {
 	return value[1 : len(value)-1]
 }
 
-func arrayIndextoken(precedingDot bool) lex.Action {
-	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var numberString = string(m.Bytes)
-		startIndex := 1
-		if precedingDot {
-			startIndex = 2
-		}
-		numberString = numberString[startIndex : len(numberString)-1]
-		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
-		if errParsingInt != nil {
-			return nil, errParsingInt
-		}
-		op := &Operation{OperationType: TraversePath, Value: number, StringValue: numberString}
-		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
-	}
-}
-
 func numberValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
