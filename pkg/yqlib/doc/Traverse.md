@@ -294,8 +294,8 @@ yq eval '.foobar.[]' sample.yml
 ```
 will output
 ```yaml
-foobar_c
-*foo
+foo_c
+foo_a
 foobar_thing
 ```
 
@@ -360,9 +360,9 @@ yq eval '.foobarList.[]' sample.yml
 ```
 will output
 ```yaml
-foobarList_b
-- *foo
-- *bar
+bar_b
+foo_a
+bar_thing
 foobarList_c
 ```
 

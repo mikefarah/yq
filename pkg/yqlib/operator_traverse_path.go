@@ -58,7 +58,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 		if operation.Preferences != nil {
 			followAlias = !operation.Preferences.(*TraversePreferences).DontFollowAlias
 		}
-		return traverseMap(matchingNode, operation.StringValue, followAlias)
+		return traverseMap(matchingNode, operation.StringValue, followAlias, false)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
@@ -135,26 +135,15 @@ func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml
 }
 
 func traverseMapWithIndices(candidate *CandidateNode, indices []*yaml.Node, followAlias bool) (*list.List, error) {
-
-	node := UnwrapDoc(candidate.Node)
-	var contents = node.Content
-	var matchingNodeMap = list.New()
 	if len(indices) == 0 {
-		for index := 0; index < len(contents); index = index + 2 {
-			key := contents[index]
-			value := contents[index+1]
-			matchingNodeMap.PushBack(&CandidateNode{
-				Node:     value,
-				Path:     candidate.CreateChildPath(key.Value),
-				Document: candidate.Document,
-			})
-		}
-		return matchingNodeMap, nil
+		return traverseMap(candidate, "", followAlias, true)
 	}
+
+	var matchingNodeMap = list.New()
 
 	for _, indexNode := range indices {
 		log.Debug("traverseMapWithIndices: %v", indexNode.Value)
-		newNodes, err := traverseMap(candidate, indexNode.Value, followAlias)
+		newNodes, err := traverseMap(candidate, indexNode.Value, followAlias, false)
 		if err != nil {
 			return nil, err
 		}
@@ -217,9 +206,9 @@ func keyMatches(key *yaml.Node, wantedKey string) bool {
 	return Match(key.Value, wantedKey)
 }
 
-func traverseMap(matchingNode *CandidateNode, key string, followAlias bool) (*list.List, error) {
+func traverseMap(matchingNode *CandidateNode, key string, followAlias bool, splat bool) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
-	err := doTraverseMap(newMatches, matchingNode, key, followAlias)
+	err := doTraverseMap(newMatches, matchingNode, key, followAlias, splat)
 
 	if err != nil {
 		return nil, err
@@ -248,7 +237,7 @@ func traverseMap(matchingNode *CandidateNode, key string, followAlias bool) (*li
 	return results, nil
 }
 
-func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, wantedKey string, followAlias bool) error {
+func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, wantedKey string, followAlias bool, splat bool) error {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
@@ -265,11 +254,11 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 		//skip the 'merge' tag, find a direct match first
 		if key.Tag == "!!merge" && followAlias {
 			log.Debug("Merge anchor")
-			err := traverseMergeAnchor(newMatches, candidate, value, wantedKey)
+			err := traverseMergeAnchor(newMatches, candidate, value, wantedKey, splat)
 			if err != nil {
 				return err
 			}
-		} else if keyMatches(key, wantedKey) {
+		} else if splat || keyMatches(key, wantedKey) {
 			log.Debug("MATCHED")
 			candidateNode := &CandidateNode{
 				Node:     value,
@@ -283,7 +272,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string) error {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string, splat bool) error {
 	switch value.Kind {
 	case yaml.AliasNode:
 		candidateNode := &CandidateNode{
@@ -291,10 +280,10 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 			Path:     originalCandidate.Path,
 			Document: originalCandidate.Document,
 		}
-		return doTraverseMap(newMatches, candidateNode, wantedKey, true)
+		return doTraverseMap(newMatches, candidateNode, wantedKey, true, splat)
 	case yaml.SequenceNode:
 		for _, childValue := range value.Content {
-			err := traverseMergeAnchor(newMatches, originalCandidate, childValue, wantedKey)
+			err := traverseMergeAnchor(newMatches, originalCandidate, childValue, wantedKey, splat)
 			if err != nil {
 				return err
 			}

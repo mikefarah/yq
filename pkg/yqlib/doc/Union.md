@@ -17,7 +17,6 @@ Given a sample.yml file of:
 a: fieldA
 b: fieldB
 c: fieldC
-'': null
 ```
 then
 ```bash

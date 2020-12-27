@@ -3,8 +3,8 @@ Pipe the results of an expression into another. Like the bash operator.
 ## Simple Pipe
 Given a sample.yml file of:
 ```yaml
-a: {b: cat}
-'': null
+a:
+  b: cat
 ```
 then
 ```bash
@@ -21,7 +21,6 @@ Given a sample.yml file of:
 a: cow
 b: sheep
 c: same
-'': null
 ```
 then
 ```bash
@@ -32,6 +31,5 @@ will output
 a: cat
 b: dog
 c: same
-'': null
 ```
 

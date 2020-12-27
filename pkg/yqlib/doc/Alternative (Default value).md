@@ -4,7 +4,6 @@ This operator is used to provide alternative (or default) values when a particul
 Given a sample.yml file of:
 ```yaml
 a: bridge
-'': null
 ```
 then
 ```bash
@@ -33,7 +32,6 @@ hello
 Given a sample.yml file of:
 ```yaml
 a: ~
-'': null
 ```
 then
 ```bash
@@ -48,7 +46,6 @@ hello
 Given a sample.yml file of:
 ```yaml
 a: false
-'': null
 ```
 then
 ```bash
@@ -64,7 +61,6 @@ Given a sample.yml file of:
 ```yaml
 a: false
 b: cat
-'': null
 ```
 then
 ```bash

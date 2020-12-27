@@ -5,8 +5,8 @@ You can get the key/index of matching nodes by using the `path` operator to retu
 ## Map path
 Given a sample.yml file of:
 ```yaml
-a: {b: cat}
-'': null
+a:
+  b: cat
 ```
 then
 ```bash
@@ -21,8 +21,8 @@ will output
 ## Get map key
 Given a sample.yml file of:
 ```yaml
-a: {b: cat}
-'': null
+a:
+  b: cat
 ```
 then
 ```bash
@@ -36,8 +36,9 @@ b
 ## Array path
 Given a sample.yml file of:
 ```yaml
-a: [cat, dog]
-'': null
+a:
+  - cat
+  - dog
 ```
 then
 ```bash
@@ -52,8 +53,9 @@ will output
 ## Get array index
 Given a sample.yml file of:
 ```yaml
-a: [cat, dog]
-'': null
+a:
+  - cat
+  - dog
 ```
 then
 ```bash
@@ -67,8 +69,10 @@ will output
 ## Print path and value
 Given a sample.yml file of:
 ```yaml
-a: [cat, dog, frog]
-'': null
+a:
+  - cat
+  - dog
+  - frog
 ```
 then
 ```bash
@@ -76,7 +80,13 @@ yq eval '.a.[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
 ```
 will output
 ```yaml
-- '': null
-- '': null
+- path:
+    - a
+    - 1
+  value: dog
+- path:
+    - a
+    - 2
+  value: frog
 ```
 

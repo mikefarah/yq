@@ -13,7 +13,6 @@ will output
 Given a sample.yml file of:
 ```yaml
 name: Mike
-'': null
 ```
 then
 ```bash
@@ -23,15 +22,15 @@ will output
 ```yaml
 wrap:
   name: Mike
-  '': null
 ```
 
 ## Using splat to create multiple objects
 Given a sample.yml file of:
 ```yaml
 name: Mike
-pets: [cat, dog]
-'': null
+pets:
+  - cat
+  - dog
 ```
 then
 ```bash
@@ -47,12 +46,14 @@ Mike: dog
 Given a sample.yml file of:
 ```yaml
 name: Mike
-pets: [cat, dog]
-'': null
+pets:
+  - cat
+  - dog
 ---
 name: Rosey
-pets: [monkey, sheep]
-'': null
+pets:
+  - monkey
+  - sheep
 ```
 then
 ```bash

@@ -7,7 +7,6 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 Given a sample.yml file of:
 ```yaml
 a: &billyBob cat
-'': null
 ```
 then
 ```bash
@@ -22,7 +21,6 @@ billyBob
 Given a sample.yml file of:
 ```yaml
 a: cat
-'': null
 ```
 then
 ```bash
@@ -31,7 +29,6 @@ yq eval '.a anchor = "foobar"' sample.yml
 will output
 ```yaml
 a: &foobar cat
-'': null
 ```
 
 ## Get alias
@@ -39,7 +36,6 @@ Given a sample.yml file of:
 ```yaml
 b: &billyBob meow
 a: *billyBob
-'': null
 ```
 then
 ```bash
@@ -55,7 +51,6 @@ Given a sample.yml file of:
 ```yaml
 b: &meow purr
 a: cat
-'': null
 ```
 then
 ```bash
@@ -65,14 +60,14 @@ will output
 ```yaml
 b: &meow purr
 a: *meow
-'': null
 ```
 
 ## Explode alias and anchor
 Given a sample.yml file of:
 ```yaml
-f: {a: &a cat, b: *a}
-'': null
+f:
+  a: &a cat
+  b: *a
 ```
 then
 ```bash
@@ -80,15 +75,15 @@ yq eval 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-f: {a: cat, b: cat}
-'': null
+f:
+  a: cat
+  b: cat
 ```
 
 ## Explode with no aliases or anchors
 Given a sample.yml file of:
 ```yaml
 a: mike
-'': null
 ```
 then
 ```bash
@@ -97,14 +92,14 @@ yq eval 'explode(.a)' sample.yml
 will output
 ```yaml
 a: mike
-'': null
 ```
 
 ## Explode with alias keys
 Given a sample.yml file of:
 ```yaml
-f: {a: &a cat, *a: b}
-'': null
+f:
+  a: &a cat
+  *a: b
 ```
 then
 ```bash
@@ -112,8 +107,9 @@ yq eval 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-f: {a: cat, cat: b}
-'': null
+f:
+  a: cat
+  cat: b
 ```
 
 ## Explode with merge anchors
@@ -129,13 +125,14 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<: [*foo, *bar]
+  !!merge <<:
+    - *foo
+    - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
   !!merge <<: *foo
   thing: foobar_thing
-'': null
 ```
 then
 ```bash
@@ -160,6 +157,5 @@ foobar:
   c: foo_c
   a: foo_a
   thing: foobar_thing
-'': null
 ```
 

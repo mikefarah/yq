@@ -7,7 +7,6 @@ b: 5
 c: 3.2
 e: true
 f: []
-'': null
 ```
 then
 ```bash
@@ -16,7 +15,11 @@ yq eval '.. | tag' sample.yml
 will output
 ```yaml
 !!map
-!!null
+!!str
+!!int
+!!float
+!!bool
+!!seq
 ```
 
 ## Convert numbers to strings
@@ -26,7 +29,6 @@ a: cat
 b: 5
 c: 3.2
 e: true
-'': null
 ```
 then
 ```bash
@@ -35,9 +37,8 @@ yq eval '(.. | select(tag == "!!int")) tag= "!!str"' sample.yml
 will output
 ```yaml
 a: cat
-b: 5
+b: "5"
 c: 3.2
 e: true
-'': null
 ```
 

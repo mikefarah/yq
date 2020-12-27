@@ -28,7 +28,6 @@ Given a sample.yml file of:
 ```yaml
 a: cat
 b: dog
-'': null
 ```
 then
 ```bash
