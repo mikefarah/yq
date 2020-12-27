@@ -151,12 +151,6 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:    true,
-		document:   `[1,2,3]`,
-		expression: `.b`,
-		expected:   []string{},
-	},
-	{
 		description: "Traversing arrays by index",
 		document:    `[1,2,3]`,
 		expression:  `.[0]`,
@@ -272,6 +266,120 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[foobarList a], (!!str)::foo_a\n",
 			"D0, P[foobarList thing], (!!str)::bar_thing\n",
 			"D0, P[foobarList c], (!!str)::foobarList_c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[a,b,c]`,
+		expression: `.[]`,
+		expected: []string{
+			"D0, P[0], (!!str)::a\n",
+			"D0, P[1], (!!str)::b\n",
+			"D0, P[2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[a,b,c]`,
+		expression: `[]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a[0]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+		},
+	},
+	{
+		description: "Select multiple indices",
+		document:    `{a: [a,b,c]}`,
+		expression:  `.a[0, 2]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[0, 2]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[0]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a[-1]`,
+		expected: []string{
+			"D0, P[a -1], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[-1]`,
+		expected: []string{
+			"D0, P[a -1], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a[-2]`,
+		expected: []string{
+			"D0, P[a -2], (!!str)::b\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[-2]`,
+		expected: []string{
+			"D0, P[a -2], (!!str)::b\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a[]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 1], (!!str)::b\n",
+			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a.[]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 1], (!!str)::b\n",
+			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [a,b,c]}`,
+		expression: `.a | .[]`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::a\n",
+			"D0, P[a 1], (!!str)::b\n",
+			"D0, P[a 2], (!!str)::c\n",
 		},
 	},
 }
