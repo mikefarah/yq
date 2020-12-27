@@ -137,7 +137,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Traversing aliases with splat",
 		document:    `{a: &cat {c: frog}, b: *cat}`,
-		expression:  `.b.[]`,
+		expression:  `.b[]`,
+		expected: []string{
+			"D0, P[b c], (!!str)::frog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: &cat {c: frog}, b: *cat}`,
+		expression: `.b.[]`,
 		expected: []string{
 			"D0, P[b c], (!!str)::frog\n",
 		},
@@ -209,7 +217,17 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Splatting merge anchors",
 		document:    mergeDocSample,
-		expression:  `.foobar.[]`,
+		expression:  `.foobar[]`,
+		expected: []string{
+			"D0, P[foobar c], (!!str)::foo_c\n",
+			"D0, P[foobar a], (!!str)::foo_a\n",
+			"D0, P[foobar thing], (!!str)::foobar_thing\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample,
+		expression: `.foobar.[]`,
 		expected: []string{
 			"D0, P[foobar c], (!!str)::foo_c\n",
 			"D0, P[foobar a], (!!str)::foo_a\n",
@@ -260,7 +278,18 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Splatting merge anchor lists",
 		document:    mergeDocSample,
-		expression:  `.foobarList.[]`,
+		expression:  `.foobarList[]`,
+		expected: []string{
+			"D0, P[foobarList b], (!!str)::bar_b\n",
+			"D0, P[foobarList a], (!!str)::foo_a\n",
+			"D0, P[foobarList thing], (!!str)::bar_thing\n",
+			"D0, P[foobarList c], (!!str)::foobarList_c\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample,
+		expression: `.foobarList.[]`,
 		expected: []string{
 			"D0, P[foobarList b], (!!str)::bar_b\n",
 			"D0, P[foobarList a], (!!str)::foo_a\n",

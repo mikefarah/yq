@@ -106,7 +106,7 @@ b: *cat
 ```
 then
 ```bash
-yq eval '.b.[]' sample.yml
+yq eval '.b[]' sample.yml
 ```
 will output
 ```yaml
@@ -290,7 +290,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar.[]' sample.yml
+yq eval '.foobar[]' sample.yml
 ```
 will output
 ```yaml
@@ -356,7 +356,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobarList.[]' sample.yml
+yq eval '.foobarList[]' sample.yml
 ```
 will output
 ```yaml
