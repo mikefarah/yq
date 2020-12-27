@@ -53,12 +53,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		followAlias := true
-
-		if operation.Preferences != nil {
-			followAlias = !operation.Preferences.(*TraversePreferences).DontFollowAlias
-		}
-		return traverseMap(matchingNode, operation.StringValue, followAlias, false)
+		return traverseMap(matchingNode, operation.StringValue, true, false)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
