@@ -19,7 +19,7 @@ type OperationType struct {
 }
 
 // operators TODO:
-// - cookbook doc for common things
+// - keys operator for controlling key metadata (particularly anchors/aliases)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 
 var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}

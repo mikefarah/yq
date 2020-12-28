@@ -65,19 +65,19 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = allAtOnceEvaluator.EvaluateFiles("", []string{"-"}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
 		}
 	case 1:
 		if nullInput {
-			err = yqlib.NewStreamEvaluator().EvaluateNew(args[0], printer)
+			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(args[0]), printer)
 		} else {
-			err = allAtOnceEvaluator.EvaluateFiles("", []string{args[0]}, printer)
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer)
 		}
 	default:
-		err = allAtOnceEvaluator.EvaluateFiles(args[0], args[1:], printer)
+		err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer)
 	}
 
 	completedSuccessfully = err == nil

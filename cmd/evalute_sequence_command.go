@@ -33,6 +33,16 @@ yq e '.a.b = "cool"' -i file.yaml
 	}
 	return cmdEvalSequence
 }
+
+func processExpression(expression string) string {
+	if prettyPrint && expression == "" {
+		return `... style=""`
+	} else if prettyPrint {
+		return fmt.Sprintf("%v | ... style= \"\"", expression)
+	}
+	return expression
+}
+
 func evaluateSequence(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
 	// 0 args, read std in
@@ -76,16 +86,16 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = streamEvaluator.EvaluateFiles("", []string{"-"}, printer)
+			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
 		}
 	case 1:
 		if nullInput {
-			err = streamEvaluator.EvaluateNew(args[0], printer)
+			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer)
 		} else {
-			err = streamEvaluator.EvaluateFiles("", []string{args[0]}, printer)
+			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer)
 		}
 	default:
 		err = streamEvaluator.EvaluateFiles(args[0], args[1:], printer)

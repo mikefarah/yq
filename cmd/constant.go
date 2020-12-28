@@ -14,5 +14,6 @@ var noDocSeparators = false
 var nullInput = false
 var verbose = false
 var version = false
+var prettyPrint = false
 
 var completedSuccessfully = false
