@@ -68,7 +68,9 @@ jobs:
  
       - name: Build and push image
         run: |
-          IMAGE_VERSION="$(git describe --tags --abbrev=0)"
+          IMAGE_V_VERSION="$(git describe --tags --abbrev=0)"
+          IMAGE_VERSION=${IMAGE_V_VERSION:1}
+
           SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
