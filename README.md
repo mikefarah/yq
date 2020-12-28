@@ -158,6 +158,7 @@ Flags:
   -M, --no-colors     force print with no colors
   -N, --no-doc        Don't print document separators (---)
   -n, --null-input    Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.
+  -P, --prettyPrint    pretty print, shorthand for '... style = ""' 
   -j, --tojson        output as json. Set indent to 0 to print json in one line.
   -v, --verbose       verbose mode
   -V, --version       Print version information and quit

@@ -87,7 +87,7 @@ e: >-
 	},
 	{
 		description:    "Pretty print",
-		subdescription: "Set empty (default) quote style, note the usage of `...` to match keys too.",
+		subdescription: "Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.",
 		document:       `{a: cat, "b": 5, 'c': 3.2, "e": true}`,
 		expression:     `... style=""`,
 		expected: []string{
