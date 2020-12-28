@@ -5,6 +5,7 @@
 - tag git with same version number
 - commit vX tag - this will trigger github actions
 - use github actions to publish docker and make github release
+- check github updated yq action in marketplace
 
 - snapcraft
   - will auto create a candidate, test it works then promote
