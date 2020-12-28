@@ -22,6 +22,22 @@ var styleOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Set double quote style on map keys too",
+		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		expression:  `... style="double"`,
+		expected: []string{
+			"D0, P[], (!!map)::\"a\": \"cat\"\n\"b\": \"5\"\n\"c\": \"3.2\"\n\"e\": \"true\"\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "bing: &foo frog\na:\n  c: cat\n  <<: [*foo]",
+		expression: `(... | select(tag=="!!str")) style="single"`,
+		expected: []string{
+			"D0, P[], (!!map)::'bing': &foo 'frog'\n'a':\n    'c': 'cat'\n    !!merge <<: [*foo]\n",
+		},
+	},
+	{
 		description: "Set single quote style",
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="single"`,
@@ -71,9 +87,9 @@ e: >-
 	},
 	{
 		description:    "Pretty print",
-		subdescription: "Set empty (default) quote style",
-		document:       `{a: cat, b: 5, c: 3.2, e: true}`,
-		expression:     `.. style=""`,
+		subdescription: "Set empty (default) quote style, note the usage of `...` to match keys too.",
+		document:       `{a: cat, "b": 5, 'c': 3.2, "e": true}`,
+		expression:     `... style=""`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
 		},

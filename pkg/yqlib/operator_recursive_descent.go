@@ -6,10 +6,16 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+type RecursiveDescentPreferences struct {
+	TraversePreferences *TraversePreferences
+	RecurseArray        bool
+}
+
 func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	var results = list.New()
 
-	err := recursiveDecent(d, results, matchMap, true)
+	preferences := pathNode.Operation.Preferences.(*RecursiveDescentPreferences)
+	err := recursiveDecent(d, results, matchMap, preferences)
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +23,7 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNod
 	return results, nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, recurseArray bool) error {
+func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences *RecursiveDescentPreferences) error {
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
@@ -27,14 +33,14 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 		results.PushBack(candidate)
 
 		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 &&
-			(recurseArray || candidate.Node.Kind != yaml.SequenceNode) {
+			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
 
-			children, err := Splat(d, nodeToMap(candidate))
+			children, err := Splat(d, nodeToMap(candidate), preferences.TraversePreferences)
 
 			if err != nil {
 				return err
 			}
-			err = recursiveDecent(d, results, children, recurseArray)
+			err = recursiveDecent(d, results, children, preferences)
 			if err != nil {
 				return err
 			}

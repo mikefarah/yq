@@ -173,7 +173,11 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\)`), literalToken(CloseBracket, true))
 
 	lexer.Add([]byte(`\.\[`), literalToken(TraverseArrayCollect, false))
-	lexer.Add([]byte(`\.\.`), opToken(RecursiveDescent))
+	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(RecursiveDescent, nil, &RecursiveDescentPreferences{RecurseArray: true,
+		TraversePreferences: &TraversePreferences{FollowAlias: false, IncludeMapKeys: false}}))
+
+	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(RecursiveDescent, nil, &RecursiveDescentPreferences{RecurseArray: true,
+		TraversePreferences: &TraversePreferences{FollowAlias: false, IncludeMapKeys: true}}))
 
 	lexer.Add([]byte(`,`), opToken(Union))
 	lexer.Add([]byte(`:\s*`), opToken(CreateMap))
