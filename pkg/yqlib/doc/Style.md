@@ -146,7 +146,7 @@ will output
 ```
 
 ## Pretty print
-Set empty (default) quote style, note the usage of `...` to match keys too.
+Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.
 
 Given a sample.yml file of:
 ```yaml
