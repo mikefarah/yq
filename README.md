@@ -19,6 +19,14 @@ If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](h
 ### wget
 Use wget to download the pre-compiled binaries:
 
+## Compressed via tar.gz
+```bash
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
+  tar xz && mv ${BINARY} /usr/bin/yq
+```
+
+## Plain binary
+
 ```bash
 wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
     chmod +x /usr/bin/yq
