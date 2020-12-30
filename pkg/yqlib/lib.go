@@ -11,6 +11,11 @@ import (
 
 var log = logging.MustGetLogger("yq-lib")
 
+// GetLogger returns the yq logger instance.
+func GetLogger() *logging.Logger {
+	return log
+}
+
 type OperationType struct {
 	Type       string
 	NumArgs    uint // number of arguments to the op
