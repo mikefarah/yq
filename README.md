@@ -16,13 +16,23 @@ If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](h
 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
-### MacOS:
+### wget
+Use wget to download the pre-compiled binaries:
+
+```bash
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
+```
+
+For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
+
+### MacOS / Linux via Homebrew:
 Using [Homebrew](https://brew.sh/)
 ```
 brew install yq
 ```
 
-### Ubuntu and other Linux distros supporting `snap` packages:
+### Linux via snap:
 ```
 snap install yq
 ```
@@ -44,17 +54,6 @@ sudo cat /etc/myfile | yq e '.a.path = "value"' | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
-
-### wget
-
-Use wget to download the pre-compiled binaries:
-
-```bash
-wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
-    chmod +x /usr/bin/yq
-```
-
-For instance, VERSION=v4.0.0 and BINARY=yq_linux_amd64
 
 ### Run with Docker
 
