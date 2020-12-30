@@ -54,7 +54,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
     chmod +x /usr/bin/yq
 ```
 
-For instance, VERSION=4.0.0 and BINARY=yq_linux_amd64
+For instance, VERSION=v4.0.0 and BINARY=yq_linux_amd64
 
 ### Run with Docker
 
