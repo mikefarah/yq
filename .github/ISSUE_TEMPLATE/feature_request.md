@@ -9,9 +9,11 @@ assignees: ''
 
 **Please describe your feature request.**
 A clear and concise description of what the request is and what it would solve. 
-Ex. I wish I could use yq to [...]
+Eg. I wish I could use yq to [...]
 
-Please note that V3 will no longer have any enhancements.
+Note:
+- how to questions should be posted in the discussion board and not raised as an issue.
+- V3 will no longer have any enhancements.
 
 **Describe the solution you'd like**
 If we have data1.yml like:

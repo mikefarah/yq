@@ -10,6 +10,8 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+Note that any how to questions should be posted in the discussion board and not raised as an issue.
+
 Version of yq: 3.X.X
 Operating system: mac/linux/windows/....
 Installed via: docker/binary release/homebrew/snap/...
