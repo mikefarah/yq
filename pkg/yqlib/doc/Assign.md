@@ -34,6 +34,27 @@ a:
   g: foof
 ```
 
+## Update node from another file
+Note this will also work when the second file is a scalar (string/number)
+
+Given a sample.yml file of:
+```yaml
+a: apples
+```
+And another sample another.yml file of:
+```yaml
+b: bob
+```
+then
+```bash
+yq eval-all 'select(fileIndex==0).a = select(fileIndex==1) | select(fileIndex==0)' sample.yml another.yml
+```
+will output
+```yaml
+a:
+  b: bob
+```
+
 ## Update node to be the sibling value
 Given a sample.yml file of:
 ```yaml

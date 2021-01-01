@@ -40,6 +40,7 @@ func (n *CandidateNode) Copy() (*CandidateNode, error) {
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
+
 	n.UpdateAttributesFrom(other)
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value

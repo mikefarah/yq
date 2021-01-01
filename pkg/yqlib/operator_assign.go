@@ -33,7 +33,9 @@ func AssignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 		first := rhs.Front()
 
 		if first != nil {
-			candidate.UpdateFrom(first.Value.(*CandidateNode))
+			rhsCandidate := first.Value.(*CandidateNode)
+			rhsCandidate.Node = UnwrapDoc(rhsCandidate.Node)
+			candidate.UpdateFrom(rhsCandidate)
 		}
 	}
 	// // if there was nothing given, perhaps we are creating a new yaml doc

@@ -21,6 +21,16 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Update node from another file",
+		subdescription: "Note this will also work when the second file is a scalar (string/number)",
+		document:       `{a: apples}`,
+		document2:      "{b: bob}",
+		expression:     `select(fileIndex==0).a = select(fileIndex==1) | select(fileIndex==0)`,
+		expected: []string{
+			"D0, P[], (doc)::{a: {b: bob}}\n",
+		},
+	},
+	{
 		description: "Update node to be the sibling value",
 		document:    `{a: {b: child}, b: sibling}`,
 		expression:  `.a = .b`,

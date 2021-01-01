@@ -16,7 +16,7 @@ yq eval 'filename' sample.yml
 ```
 will output
 ```yaml
-sample.yaml
+sample.yml
 ```
 
 ## Get file index

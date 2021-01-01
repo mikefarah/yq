@@ -18,6 +18,7 @@ type expressionScenario struct {
 	description           string
 	subdescription        string
 	document              string
+	document2             string
 	expression            string
 	expected              []string
 	skipDoc               bool
@@ -40,6 +41,14 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		if err != nil {
 			t.Error(err, s.document, s.expression)
 			return
+		}
+		if s.document2 != "" {
+			moreInputs, err := readDocuments(strings.NewReader(s.document2), "another.yml", 1)
+			if err != nil {
+				t.Error(err, s.document, s.expression)
+				return
+			}
+			inputs.PushBackList(moreInputs)
 		}
 	} else {
 		candidateNode := &CandidateNode{
@@ -92,7 +101,7 @@ func copyFromHeader(title string, out *os.File) error {
 	return err
 }
 
-func formatYaml(yaml string) string {
+func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
 	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
@@ -101,7 +110,7 @@ func formatYaml(yaml string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(yaml), node, printer)
+	err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer)
 	if err != nil {
 		panic(err)
 	}
@@ -136,25 +145,42 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 				writeOrPanic(w, "\n\n")
 			}
 			formattedDoc := ""
+			formattedDoc2 := ""
+			command := "eval"
 			if s.document != "" {
 				if s.dontFormatInputForDoc {
 					formattedDoc = s.document + "\n"
 				} else {
-					formattedDoc = formatYaml(s.document)
+					formattedDoc = formatYaml(s.document, "sample.yml")
 				}
-				//TODO: pretty here
-				writeOrPanic(w, "Given a sample.yml file of:\n")
 
+				writeOrPanic(w, "Given a sample.yml file of:\n")
 				writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc))
+
+				files := "sample.yml"
+
+				if s.document2 != "" {
+					if s.dontFormatInputForDoc {
+						formattedDoc2 = s.document2 + "\n"
+					} else {
+						formattedDoc2 = formatYaml(s.document2, "another.yml")
+					}
+
+					writeOrPanic(w, "And another sample another.yml file of:\n")
+					writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc2))
+					files = "sample.yml another.yml"
+					command = "eval-all"
+				}
+
 				writeOrPanic(w, "then\n")
 				if s.expression != "" {
-					writeOrPanic(w, fmt.Sprintf("```bash\nyq eval '%v' sample.yml\n```\n", s.expression))
+					writeOrPanic(w, fmt.Sprintf("```bash\nyq %v '%v' %v\n```\n", command, s.expression, files))
 				} else {
-					writeOrPanic(w, "```bash\nyq eval sample.yml\n```\n")
+					writeOrPanic(w, fmt.Sprintf("```bash\nyq %v %v\n```\n", command, files))
 				}
 			} else {
 				writeOrPanic(w, "Running\n")
-				writeOrPanic(w, fmt.Sprintf("```bash\nyq eval --null-input '%v'\n```\n", s.expression))
+				writeOrPanic(w, fmt.Sprintf("```bash\nyq %v --null-input '%v'\n```\n", command, s.expression))
 			}
 
 			writeOrPanic(w, "will output\n")
@@ -162,23 +188,48 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 			var output bytes.Buffer
 			var err error
 			printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
-			streamEvaluator := NewStreamEvaluator()
+
+			node, err := treeCreator.ParsePath(s.expression)
+			if err != nil {
+				t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
+				return
+			}
+
+			inputs := list.New()
 
 			if s.document != "" {
-				node, err := treeCreator.ParsePath(s.expression)
+				inputs, err = readDocuments(strings.NewReader(formattedDoc), "sample.yml", 0)
 				if err != nil {
-					t.Error(err, s.expression)
+					t.Error(err, s.document, s.expression)
+					return
 				}
-				err = streamEvaluator.Evaluate("sample.yaml", strings.NewReader(formattedDoc), node, printer)
-
-				if err != nil {
-					t.Error(err, s.expression)
+				if s.document2 != "" {
+					moreInputs, err := readDocuments(strings.NewReader(formattedDoc2), "another.yml", 1)
+					if err != nil {
+						t.Error(err, s.document, s.expression)
+						return
+					}
+					inputs.PushBackList(moreInputs)
 				}
 			} else {
-				err = streamEvaluator.EvaluateNew(s.expression, printer)
-				if err != nil {
-					t.Error(err, s.expression)
+				candidateNode := &CandidateNode{
+					Document:  0,
+					Filename:  "",
+					Node:      &yaml.Node{Tag: "!!null"},
+					FileIndex: 0,
 				}
+				inputs.PushBack(candidateNode)
+
+			}
+
+			results, err := treeNavigator.GetMatchingNodes(inputs, node)
+			if err != nil {
+				t.Error(err, s.expression)
+			}
+
+			err = printer.PrintResults(results)
+			if err != nil {
+				t.Error(err, s.expression)
 			}
 
 			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
