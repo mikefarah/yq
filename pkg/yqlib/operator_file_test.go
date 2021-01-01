@@ -21,6 +21,14 @@ var fileOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!int)::0\n",
 		},
 	},
+	{
+		description: "Get file index alias",
+		document:    `{a: cat}`,
+		expression:  `fi`,
+		expected: []string{
+			"D0, P[], (!!int)::0\n",
+		},
+	},
 }
 
 func TestFileOperatorsScenarios(t *testing.T) {
