@@ -137,105 +137,116 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 
 	for _, s := range scenarios {
 		if !s.skipDoc {
-
-			writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
-
-			if s.subdescription != "" {
-				writeOrPanic(w, s.subdescription)
-				writeOrPanic(w, "\n\n")
-			}
-			formattedDoc := ""
-			formattedDoc2 := ""
-			command := "eval"
-			if s.document != "" {
-				if s.dontFormatInputForDoc {
-					formattedDoc = s.document + "\n"
-				} else {
-					formattedDoc = formatYaml(s.document, "sample.yml")
-				}
-
-				writeOrPanic(w, "Given a sample.yml file of:\n")
-				writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc))
-
-				files := "sample.yml"
-
-				if s.document2 != "" {
-					if s.dontFormatInputForDoc {
-						formattedDoc2 = s.document2 + "\n"
-					} else {
-						formattedDoc2 = formatYaml(s.document2, "another.yml")
-					}
-
-					writeOrPanic(w, "And another sample another.yml file of:\n")
-					writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc2))
-					files = "sample.yml another.yml"
-					command = "eval-all"
-				}
-
-				writeOrPanic(w, "then\n")
-				if s.expression != "" {
-					writeOrPanic(w, fmt.Sprintf("```bash\nyq %v '%v' %v\n```\n", command, s.expression, files))
-				} else {
-					writeOrPanic(w, fmt.Sprintf("```bash\nyq %v %v\n```\n", command, files))
-				}
-			} else {
-				writeOrPanic(w, "Running\n")
-				writeOrPanic(w, fmt.Sprintf("```bash\nyq %v --null-input '%v'\n```\n", command, s.expression))
-			}
-
-			writeOrPanic(w, "will output\n")
-
-			var output bytes.Buffer
-			var err error
-			printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
-
-			node, err := treeCreator.ParsePath(s.expression)
-			if err != nil {
-				t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
-				return
-			}
-
-			inputs := list.New()
-
-			if s.document != "" {
-				inputs, err = readDocuments(strings.NewReader(formattedDoc), "sample.yml", 0)
-				if err != nil {
-					t.Error(err, s.document, s.expression)
-					return
-				}
-				if s.document2 != "" {
-					moreInputs, err := readDocuments(strings.NewReader(formattedDoc2), "another.yml", 1)
-					if err != nil {
-						t.Error(err, s.document, s.expression)
-						return
-					}
-					inputs.PushBackList(moreInputs)
-				}
-			} else {
-				candidateNode := &CandidateNode{
-					Document:  0,
-					Filename:  "",
-					Node:      &yaml.Node{Tag: "!!null"},
-					FileIndex: 0,
-				}
-				inputs.PushBack(candidateNode)
-
-			}
-
-			results, err := treeNavigator.GetMatchingNodes(inputs, node)
-			if err != nil {
-				t.Error(err, s.expression)
-			}
-
-			err = printer.PrintResults(results)
-			if err != nil {
-				t.Error(err, s.expression)
-			}
-
-			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
-
+			documentScenario(t, w, s)
 		}
-
 	}
 	w.Flush()
+}
+
+func documentScenario(t *testing.T, w *bufio.Writer, s expressionScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	formattedDoc, formattedDoc2 := documentInput(w, s)
+
+	writeOrPanic(w, "will output\n")
+
+	documentOutput(t, w, s, formattedDoc, formattedDoc2)
+}
+
+func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
+	formattedDoc := ""
+	formattedDoc2 := ""
+	command := "eval"
+	if s.document != "" {
+		if s.dontFormatInputForDoc {
+			formattedDoc = s.document + "\n"
+		} else {
+			formattedDoc = formatYaml(s.document, "sample.yml")
+		}
+
+		writeOrPanic(w, "Given a sample.yml file of:\n")
+		writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc))
+
+		files := "sample.yml"
+
+		if s.document2 != "" {
+			if s.dontFormatInputForDoc {
+				formattedDoc2 = s.document2 + "\n"
+			} else {
+				formattedDoc2 = formatYaml(s.document2, "another.yml")
+			}
+
+			writeOrPanic(w, "And another sample another.yml file of:\n")
+			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc2))
+			files = "sample.yml another.yml"
+			command = "eval-all"
+		}
+
+		writeOrPanic(w, "then\n")
+		if s.expression != "" {
+			writeOrPanic(w, fmt.Sprintf("```bash\nyq %v '%v' %v\n```\n", command, s.expression, files))
+		} else {
+			writeOrPanic(w, fmt.Sprintf("```bash\nyq %v %v\n```\n", command, files))
+		}
+	} else {
+		writeOrPanic(w, "Running\n")
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq %v --null-input '%v'\n```\n", command, s.expression))
+	}
+	return formattedDoc, formattedDoc2
+}
+
+func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formattedDoc string, formattedDoc2 string) {
+	var output bytes.Buffer
+	var err error
+	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
+
+	node, err := treeCreator.ParsePath(s.expression)
+	if err != nil {
+		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
+		return
+	}
+
+	inputs := list.New()
+
+	if s.document != "" {
+		inputs, err = readDocuments(strings.NewReader(formattedDoc), "sample.yml", 0)
+		if err != nil {
+			t.Error(err, s.document, s.expression)
+			return
+		}
+		if s.document2 != "" {
+			moreInputs, err := readDocuments(strings.NewReader(formattedDoc2), "another.yml", 1)
+			if err != nil {
+				t.Error(err, s.document, s.expression)
+				return
+			}
+			inputs.PushBackList(moreInputs)
+		}
+	} else {
+		candidateNode := &CandidateNode{
+			Document:  0,
+			Filename:  "",
+			Node:      &yaml.Node{Tag: "!!null"},
+			FileIndex: 0,
+		}
+		inputs.PushBack(candidateNode)
+
+	}
+
+	results, err := treeNavigator.GetMatchingNodes(inputs, node)
+	if err != nil {
+		t.Error(err, s.expression)
+	}
+
+	err = printer.PrintResults(results)
+	if err != nil {
+		t.Error(err, s.expression)
+	}
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 }
