@@ -19,6 +19,14 @@ var tagOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
+		expression: `tag`,
+		expected: []string{
+			"D0, P[], (!!str)::'!!map'\n",
+		},
+	},
+	{
 		description: "Convert numbers to strings",
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `(.. | select(tag == "!!int")) tag= "!!str"`,
