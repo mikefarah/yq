@@ -192,6 +192,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\/\/`), opToken(Alternative))
 
 	lexer.Add([]byte(`documentIndex`), opToken(GetDocumentIndex))
+	lexer.Add([]byte(`di`), opToken(GetDocumentIndex))
 
 	lexer.Add([]byte(`style`), opAssignableToken(GetStyle, AssignStyle))
 
