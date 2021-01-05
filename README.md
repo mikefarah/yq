@@ -45,6 +45,12 @@ brew install yq
 snap install yq
 ```
 
+or, for the v3 version:
+
+```
+snap install yq --channel=v3/stable
+```
+
 #### Snap notes
 `yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
