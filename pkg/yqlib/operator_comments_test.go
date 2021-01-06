@@ -14,6 +14,39 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   "a: cat\nb: dog",
+		expression: `.a lineComment=.b`,
+		expected: []string{
+			"D0, P[], (doc)::a: cat # dog\nb: dog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a: cat\n---\na: dog",
+		expression: `.a lineComment |= documentIndex`,
+		expected: []string{
+			"D0, P[], (doc)::a: cat # 0\n",
+			"D1, P[], (doc)::a: dog # 1\n",
+		},
+	},
+	{
+		description: "Use update assign to perform relative updates",
+		document:    "a: cat\nb: dog",
+		expression:  `.. lineComment |= .`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat # cat\nb: dog # dog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a: cat\nb: dog",
+		expression: `.. comments |= .`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat # cat\n# cat\n\n# cat\nb: dog # dog\n# dog\n\n# dog\n",
+		},
+	},
+	{
 		description: "Set head comment",
 		document:    `a: cat`,
 		expression:  `. headComment="single"`,

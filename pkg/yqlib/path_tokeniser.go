@@ -92,6 +92,15 @@ func opAssignableToken(opType *OperationType, assignOpType *OperationType) lex.A
 	return opTokenWithPrefs(opType, assignOpType, nil)
 }
 
+func assignOpToken(updateAssign bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		log.Debug("assignOpToken %v", string(m.Bytes))
+		value := string(m.Bytes)
+		op := &Operation{OperationType: Assign, Value: Assign.Type, StringValue: value, UpdateAssign: updateAssign}
+		return &Token{TokenType: OperationToken, Operation: op}, nil
+	}
+}
+
 func opTokenWithPrefs(op *OperationType, assignOpType *OperationType, preferences interface{}) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		log.Debug("opTokenWithPrefs %v", string(m.Bytes))
@@ -102,6 +111,21 @@ func opTokenWithPrefs(op *OperationType, assignOpType *OperationType, preference
 			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
 		}
 		return &Token{TokenType: OperationToken, Operation: op, AssignOperation: assign}, nil
+	}
+}
+
+func assignAllCommentsOp(updateAssign bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		log.Debug("assignAllCommentsOp %v", string(m.Bytes))
+		value := string(m.Bytes)
+		op := &Operation{
+			OperationType: AssignComment,
+			Value:         AssignComment.Type,
+			StringValue:   value,
+			UpdateAssign:  updateAssign,
+			Preferences:   &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true},
+		}
+		return &Token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
@@ -210,16 +234,17 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`footComment`), opTokenWithPrefs(GetComment, AssignComment, &CommentOpPreferences{FootComment: true}))
 
-	lexer.Add([]byte(`comments\s*=`), opTokenWithPrefs(AssignComment, nil, &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true}))
+	lexer.Add([]byte(`comments\s*=`), assignAllCommentsOp(false))
+	lexer.Add([]byte(`comments\s*\|=`), assignAllCommentsOp(true))
 
 	lexer.Add([]byte(`collect`), opToken(Collect))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(Equals))
-	lexer.Add([]byte(`\s*=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{false}))
+	lexer.Add([]byte(`\s*=\s*`), assignOpToken(false))
 
 	lexer.Add([]byte(`del`), opToken(DeleteChild))
 
-	lexer.Add([]byte(`\s*\|=\s*`), opTokenWithPrefs(Assign, nil, &AssignOpPreferences{true}))
+	lexer.Add([]byte(`\s*\|=\s*`), assignOpToken(true))
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
@@ -326,6 +351,7 @@ func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTok
 		tokens[index+1].TokenType == OperationToken &&
 		tokens[index+1].Operation.OperationType == Assign {
 		token.Operation = token.AssignOperation
+		token.Operation.UpdateAssign = tokens[index+1].Operation.UpdateAssign
 		skipNextToken = true
 	}
 

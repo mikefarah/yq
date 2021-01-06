@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type CommentOpPreferences struct {
@@ -17,15 +17,6 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 
 	log.Debugf("AssignComments operator!")
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
-	comment := ""
-	if rhs.Front() != nil {
-		comment = rhs.Front().Value.(*CandidateNode).Node.Value
-	}
-
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 
 	if err != nil {
@@ -34,8 +25,32 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 
 	preferences := pathNode.Operation.Preferences.(*CommentOpPreferences)
 
+	comment := ""
+	if !pathNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+
+		if rhs.Front() != nil {
+			comment = rhs.Front().Value.(*CandidateNode).Node.Value
+		}
+	}
+
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		if pathNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+
+			if rhs.Front() != nil {
+				comment = rhs.Front().Value.(*CandidateNode).Node.Value
+			}
+		}
+
 		log.Debugf("Setting comment of : %v", candidate.GetKey())
 		if preferences.LineComment {
 			candidate.Node.LineComment = comment

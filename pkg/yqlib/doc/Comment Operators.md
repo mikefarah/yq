@@ -13,6 +13,22 @@ will output
 a: cat # single
 ```
 
+## Use update assign to perform relative updates
+Given a sample.yml file of:
+```yaml
+a: cat
+b: dog
+```
+then
+```bash
+yq eval '.. lineComment |= .' sample.yml
+```
+will output
+```yaml
+a: cat # cat
+b: dog # dog
+```
+
 ## Set head comment
 Given a sample.yml file of:
 ```yaml
