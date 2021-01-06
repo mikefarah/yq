@@ -40,6 +40,14 @@ Using [Homebrew](https://brew.sh/)
 brew install yq
 ```
 
+or, for the v3 version:
+
+```
+brew install yq@3
+```
+
+Note that for v3, as it is a versioned brew it will not add the `yq` command to your path automatically. Please follow the instructions given by brew upon installation.
+
 ### Linux via snap:
 ```
 snap install yq
