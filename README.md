@@ -12,6 +12,8 @@ V4 is now officially released, it's quite different from V3 (sorry for the migra
 
 If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/v/v4.x/upgrading-from-v3).
 
+Support for v3 will cease August 2021, until then, critical bug and security fixes will still get applied if required.
+
 ## Install
 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
@@ -40,7 +42,7 @@ Using [Homebrew](https://brew.sh/)
 brew install yq
 ```
 
-or, for the v3 version:
+or, for the (deprecated) v3 version:
 
 ```
 brew install yq@3
@@ -53,7 +55,7 @@ Note that for v3, as it is a versioned brew it will not add the `yq` command to 
 snap install yq
 ```
 
-or, for the v3 version:
+or, for the (deprecated) v3 version:
 
 ```
 snap install yq --channel=v3/stable
