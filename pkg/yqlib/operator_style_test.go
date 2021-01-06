@@ -86,12 +86,20 @@ e: >-
 		},
 	},
 	{
-		description:    "Pretty print",
+		description:    "Reset style - or pretty print",
 		subdescription: "Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.",
 		document:       `{a: cat, "b": 5, 'c': 3.2, "e": true}`,
 		expression:     `... style=""`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
+		},
+	},
+	{
+		description: "Set style relatively with assign-update",
+		document:    `{a: single, b: double}`,
+		expression:  `.[] style |= .`,
+		expected: []string{
+			"D0, P[], (doc)::{a: 'single', b: \"double\"}\n",
 		},
 	},
 	{

@@ -4,39 +4,46 @@ import (
 	"container/list"
 	"fmt"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
+
+func parseStyle(customStyle string) (yaml.Style, error) {
+	if customStyle == "tagged" {
+		return yaml.TaggedStyle, nil
+	} else if customStyle == "double" {
+		return yaml.DoubleQuotedStyle, nil
+	} else if customStyle == "single" {
+		return yaml.SingleQuotedStyle, nil
+	} else if customStyle == "literal" {
+		return yaml.LiteralStyle, nil
+	} else if customStyle == "folded" {
+		return yaml.FoldedStyle, nil
+	} else if customStyle == "flow" {
+		return yaml.FlowStyle, nil
+	} else if customStyle != "" {
+		return 0, fmt.Errorf("Unknown style %v", customStyle)
+	}
+	return 0, nil
+}
 
 func AssignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignStyleOperator: %v")
-
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
-	customStyle := ""
-
-	if rhs.Front() != nil {
-		customStyle = rhs.Front().Value.(*CandidateNode).Node.Value
-	}
-
 	var style yaml.Style
-	if customStyle == "tagged" {
-		style = yaml.TaggedStyle
-	} else if customStyle == "double" {
-		style = yaml.DoubleQuotedStyle
-	} else if customStyle == "single" {
-		style = yaml.SingleQuotedStyle
-	} else if customStyle == "literal" {
-		style = yaml.LiteralStyle
-	} else if customStyle == "folded" {
-		style = yaml.FoldedStyle
-	} else if customStyle == "flow" {
-		style = yaml.FlowStyle
-	} else if customStyle != "" {
-		return nil, fmt.Errorf("Unknown style %v", customStyle)
+	if !pathNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+
+		if rhs.Front() != nil {
+			style, err = parseStyle(rhs.Front().Value.(*CandidateNode).Node.Value)
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
+
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 
 	if err != nil {
@@ -46,6 +53,20 @@ func AssignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting style of : %v", candidate.GetKey())
+		if pathNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+
+			if rhs.Front() != nil {
+				style, err = parseStyle(rhs.Front().Value.(*CandidateNode).Node.Value)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+
 		candidate.Node.Style = style
 	}
 

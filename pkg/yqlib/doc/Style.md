@@ -145,7 +145,7 @@ will output
 {a: cat, b: 5, c: 3.2, e: true}
 ```
 
-## Pretty print
+## Reset style - or pretty print
 Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.
 
 Given a sample.yml file of:
@@ -165,6 +165,22 @@ a: cat
 b: 5
 c: 3.2
 e: true
+```
+
+## Set style relatively with assign-update
+Given a sample.yml file of:
+```yaml
+a: single
+b: double
+```
+then
+```bash
+yq eval '.[] style |= .' sample.yml
+```
+will output
+```yaml
+a: 'single'
+b: "double"
 ```
 
 ## Read style
