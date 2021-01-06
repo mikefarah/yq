@@ -31,6 +31,22 @@ will output
 a: &foobar cat
 ```
 
+## Set anchor relatively using assign-update
+Given a sample.yml file of:
+```yaml
+a:
+  b: cat
+```
+then
+```bash
+yq eval '.a anchor |= .b' sample.yml
+```
+will output
+```yaml
+a: &cat
+  b: cat
+```
+
 ## Get alias
 Given a sample.yml file of:
 ```yaml
@@ -55,6 +71,23 @@ a: cat
 then
 ```bash
 yq eval '.a alias = "meow"' sample.yml
+```
+will output
+```yaml
+b: &meow purr
+a: *meow
+```
+
+## Set alias relatively using assign-update
+Given a sample.yml file of:
+```yaml
+b: &meow purr
+a:
+  f: meow
+```
+then
+```bash
+yq eval '.a alias |= .f' sample.yml
 ```
 will output
 ```yaml
