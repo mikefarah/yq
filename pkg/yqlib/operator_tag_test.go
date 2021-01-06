@@ -27,11 +27,27 @@ var tagOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Convert numbers to strings",
+		description: "Set custom tag",
+		document:    `{a: str}`,
+		expression:  `.a tag = "!!mikefarah"`,
+		expected: []string{
+			"D0, P[], (doc)::{a: !!mikefarah str}\n",
+		},
+	},
+	{
+		description: "Find numbers and convert them to strings",
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `(.. | select(tag == "!!int")) tag= "!!str"`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: cat, b: \"5\", c: 3.2, e: true}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: "!!frog", b: "!!customTag"}`,
+		expression: `.[] tag |= .`,
+		expected: []string{
+			"D0, P[], (doc)::{a: !!frog \"!!frog\", b: !!customTag \"!!customTag\"}\n",
 		},
 	},
 }

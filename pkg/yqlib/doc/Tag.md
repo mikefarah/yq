@@ -22,7 +22,21 @@ will output
 !!seq
 ```
 
-## Convert numbers to strings
+## Set custom tag
+Given a sample.yml file of:
+```yaml
+a: str
+```
+then
+```bash
+yq eval '.a tag = "!!mikefarah"' sample.yml
+```
+will output
+```yaml
+a: !!mikefarah str
+```
+
+## Find numbers and convert them to strings
 Given a sample.yml file of:
 ```yaml
 a: cat

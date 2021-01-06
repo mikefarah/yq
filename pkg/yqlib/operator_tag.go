@@ -9,15 +9,17 @@ import (
 func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignTagOperator: %v")
-
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
 	tag := ""
 
-	if rhs.Front() != nil {
-		tag = rhs.Front().Value.(*CandidateNode).Node.Value
+	if !pathNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+
+		if rhs.Front() != nil {
+			tag = rhs.Front().Value.(*CandidateNode).Node.Value
+		}
 	}
 
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
@@ -26,11 +28,19 @@ func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 		return nil, err
 	}
 
-	// FAIL HERE
-
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting tag of : %v", candidate.GetKey())
+		if pathNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+
+			if rhs.Front() != nil {
+				tag = rhs.Front().Value.(*CandidateNode).Node.Value
+			}
+		}
 		candidate.Node.Tag = tag
 	}
 
