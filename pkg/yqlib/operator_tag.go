@@ -3,7 +3,7 @@ package yqlib
 import (
 	"container/list"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
@@ -25,6 +25,8 @@ func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	if err != nil {
 		return nil, err
 	}
+
+	// FAIL HERE
 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
