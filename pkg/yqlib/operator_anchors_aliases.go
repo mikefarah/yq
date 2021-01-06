@@ -3,20 +3,22 @@ package yqlib
 import (
 	"container/list"
 
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func AssignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignAlias operator!")
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
 	aliasName := ""
-	if rhs.Front() != nil {
-		aliasName = rhs.Front().Value.(*CandidateNode).Node.Value
+	if !pathNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+		if rhs.Front() != nil {
+			aliasName = rhs.Front().Value.(*CandidateNode).Node.Value
+		}
 	}
 
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
@@ -28,6 +30,17 @@ func AssignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting aliasName : %v", candidate.GetKey())
+
+		if pathNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+			if rhs.Front() != nil {
+				aliasName = rhs.Front().Value.(*CandidateNode).Node.Value
+			}
+		}
+
 		candidate.Node.Kind = yaml.AliasNode
 		candidate.Node.Value = aliasName
 	}
@@ -51,13 +64,16 @@ func AssignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 
 	log.Debugf("AssignAnchor operator!")
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
-	if err != nil {
-		return nil, err
-	}
 	anchorName := ""
-	if rhs.Front() != nil {
-		anchorName = rhs.Front().Value.(*CandidateNode).Node.Value
+	if !pathNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+		if err != nil {
+			return nil, err
+		}
+
+		if rhs.Front() != nil {
+			anchorName = rhs.Front().Value.(*CandidateNode).Node.Value
+		}
 	}
 
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
@@ -69,6 +85,18 @@ func AssignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting anchorName of : %v", candidate.GetKey())
+
+		if pathNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+			if err != nil {
+				return nil, err
+			}
+
+			if rhs.Front() != nil {
+				anchorName = rhs.Front().Value.(*CandidateNode).Node.Value
+			}
+		}
+
 		candidate.Node.Anchor = anchorName
 	}
 	return matchingNodes, nil

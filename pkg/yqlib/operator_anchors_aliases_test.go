@@ -22,6 +22,14 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Set anchor relatively using assign-update",
+		document:    `a: {b: cat}`,
+		expression:  `.a anchor |= .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: &cat {b: cat}\n",
+		},
+	},
+	{
 		description: "Get alias",
 		document:    `{b: &billyBob meow, a: *billyBob}`,
 		expression:  `.a | alias`,
@@ -33,6 +41,14 @@ var anchorOperatorScenarios = []expressionScenario{
 		description: "Set alias",
 		document:    `{b: &meow purr, a: cat}`,
 		expression:  `.a alias = "meow"`,
+		expected: []string{
+			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
+		},
+	},
+	{
+		description: "Set alias relatively using assign-update",
+		document:    `{b: &meow purr, a: {f: meow}}`,
+		expression:  `.a alias |= .f`,
 		expected: []string{
 			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
 		},
