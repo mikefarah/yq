@@ -138,6 +138,11 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "SELF", "str (string)", "ASSIGN_COMMENT"),
 	},
 	{
+		`. lineComment |= "str"`,
+		append(make([]interface{}, 0), "SELF", "ASSIGN_COMMENT", "str (string)"),
+		append(make([]interface{}, 0), "SELF", "str (string)", "ASSIGN_COMMENT"),
+	},
+	{
 		`.a.b tag="!!str"`,
 		append(make([]interface{}, 0), "a", "SHORT_PIPE", "b", "ASSIGN_TAG", "!!str (string)"),
 		append(make([]interface{}, 0), "a", "b", "SHORT_PIPE", "!!str (string)", "ASSIGN_TAG"),

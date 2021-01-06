@@ -115,7 +115,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 	assignmentOp := &Operation{OperationType: AssignAttributes}
 	if rhs.Node.Kind == yaml.ScalarNode || rhs.Node.Kind == yaml.AliasNode {
 		assignmentOp.OperationType = Assign
-		assignmentOp.Preferences = &AssignOpPreferences{false}
+		assignmentOp.UpdateAssign = false
 	} else if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
 		assignmentOp.OperationType = AddAssign
 	}

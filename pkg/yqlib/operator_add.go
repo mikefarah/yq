@@ -16,7 +16,7 @@ func createSelfAddOp(rhs *PathTreeNode) *PathTreeNode {
 
 func AddAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	assignmentOp := &Operation{OperationType: Assign}
-	assignmentOp.Preferences = &AssignOpPreferences{true}
+	assignmentOp.UpdateAssign = true
 
 	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createSelfAddOp(pathNode.Rhs)}
 	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
