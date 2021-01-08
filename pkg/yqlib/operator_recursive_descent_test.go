@@ -63,6 +63,24 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Recursively find nodes with keys",
+		document:    `{a: {name: frog, b: {name: blog, age: 12}}}`,
+		expression:  `.. | select(has("name"))`,
+		expected: []string{
+			"D0, P[a], (!!map)::{name: frog, b: {name: blog, age: 12}}\n",
+			"D0, P[a b], (!!map)::{name: blog, age: 12}\n",
+		},
+	},
+	{
+		description: "Recursively find nodes with values",
+		document:    `{a: {nameA: frog, b: {nameB: frog, age: 12}}}`,
+		expression:  `.. | select(. == "frog")`,
+		expected: []string{
+			"D0, P[a nameA], (!!str)::frog\n",
+			"D0, P[a b nameB], (!!str)::frog\n",
+		},
+	},
+	{
 		description:    "Recurse map (values and keys)",
 		subdescription: "Note that the map key appears in the results",
 		document:       `{a: frog}`,

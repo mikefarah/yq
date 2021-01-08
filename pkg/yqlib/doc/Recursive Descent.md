@@ -32,6 +32,48 @@ a: frog
 frog
 ```
 
+## Recursively find nodes with keys
+Given a sample.yml file of:
+```yaml
+a:
+  name: frog
+  b:
+    name: blog
+    age: 12
+```
+then
+```bash
+yq eval '.. | select(has("name"))' sample.yml
+```
+will output
+```yaml
+name: frog
+b:
+  name: blog
+  age: 12
+name: blog
+age: 12
+```
+
+## Recursively find nodes with values
+Given a sample.yml file of:
+```yaml
+a:
+  nameA: frog
+  b:
+    nameB: frog
+    age: 12
+```
+then
+```bash
+yq eval '.. | select(. == "frog")' sample.yml
+```
+will output
+```yaml
+frog
+frog
+```
+
 ## Recurse map (values and keys)
 Note that the map key appears in the results
 
