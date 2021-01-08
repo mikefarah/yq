@@ -109,6 +109,14 @@ GO111MODULE=on go get github.com/mikefarah/yq
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
+# Webi
+
+```
+webi yq
+```
+
+See [webi](https://webinstall.dev/)
+Supported by @adithyasunil26 (https://github.com/webinstall/webi-installers/tree/master/yq)
 
 ### Windows:
 ```
