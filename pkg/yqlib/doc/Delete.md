@@ -95,3 +95,23 @@ will output
 b: dog
 ```
 
+## Recursively delete matching keys
+Given a sample.yml file of:
+```yaml
+a:
+  name: frog
+  b:
+    name: blog
+    age: 12
+```
+then
+```bash
+yq eval 'del(.. | select(has("name")).name)' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    age: 12
+```
+

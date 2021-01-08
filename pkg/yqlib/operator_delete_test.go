@@ -61,6 +61,14 @@ var deleteOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::{b: dog}\n",
 		},
 	},
+	{
+		description: "Recursively delete matching keys",
+		document:    `{a: {name: frog, b: {name: blog, age: 12}}}`,
+		expression:  `del(.. | select(has("name")).name)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: {age: 12}}}\n",
+		},
+	},
 }
 
 func TestDeleteOperatorScenarios(t *testing.T) {
