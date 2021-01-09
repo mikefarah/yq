@@ -178,6 +178,25 @@ func stringValue(wrapped bool) lex.Action {
 	}
 }
 
+func envOp(strenv bool) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+
+		if strenv {
+			// strenv( )
+			value = value[7:len(value)-1]
+		 } else {
+			//env( )
+			value = value[4:len(value)-1]
+		 }
+
+		envOperation := CreateValueOperation(value, value)
+		envOperation.OperationType = EnvOp
+
+		return &Token{TokenType: OperationToken, Operation: envOperation}, nil
+	}
+}
+
 func nullValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(nil, string(m.Bytes))}, nil
@@ -266,6 +285,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`~`), nullValue())
 
 	lexer.Add([]byte(`"[^"]*"`), stringValue(true))
+	lexer.Add([]byte(`strenv\([^\)]+\)`), envOp(true))
 
 	lexer.Add([]byte(`\[`), literalToken(OpenCollect, false))
 	lexer.Add([]byte(`\]`), literalToken(CloseCollect, true))
