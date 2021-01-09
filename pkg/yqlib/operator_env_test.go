@@ -6,19 +6,60 @@ import (
 
 var envOperatorScenarios = []expressionScenario{
 	{
+		description:         "Read string environment variable",
+		environmentVariable: "cat meow",
+		expression:          `.a = env(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: cat meow\n",
+		},
+	},
+	{
+		description:         "Read boolean environment variable",
+		environmentVariable: "true",
+		expression:          `.a = env(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: true\n",
+		},
+	},
+	{
+		description:         "Read numeric environment variable",
+		environmentVariable: "12",
+		expression:          `.a = env(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: 12\n",
+		},
+	},
+	{
+		description:         "Read yaml environment variable",
+		environmentVariable: "{b: fish}",
+		expression:          `.a = env(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: {b: fish}\n",
+		},
+	},
+	{
 		description:         "Read boolean environment variable as a string",
 		environmentVariable: "true",
-		expression:          `strenv(myenv)`,
+		expression:          `.a = strenv(myenv)`,
 		expected: []string{
-			"D0, P[], (!!str)::\"true\"\n",
+			"D0, P[], ()::a: \"true\"\n",
 		},
 	},
 	{
 		description:         "Read numeric environment variable as a string",
 		environmentVariable: "12",
-		expression:          `strenv(myenv)`,
+		expression:          `.a = strenv(myenv)`,
 		expected: []string{
-			"D0, P[], (!!str)::\"12\"\n",
+			"D0, P[], ()::a: \"12\"\n",
+		},
+	},
+	{
+		description:         "Dynamic key lookup with environment variable",
+		environmentVariable: "cat",
+		document:            `{cat: meow, dog: woof}`,
+		expression:          `.[env(myenv)]`,
+		expected: []string{
+			"D0, P[cat], (!!str)::meow\n",
 		},
 	},
 }

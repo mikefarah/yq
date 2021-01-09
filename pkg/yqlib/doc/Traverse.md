@@ -48,6 +48,24 @@ will output
 frog
 ```
 
+## Dynamic keys
+Expressions within [] can be used to dynamically lookup / calculate keys
+
+Given a sample.yml file of:
+```yaml
+b: apple
+apple: crispy yum
+banana: soft yum
+```
+then
+```bash
+yq eval '.[.b]' sample.yml
+```
+will output
+```yaml
+crispy yum
+```
+
 ## Children don't exist
 Nodes are added dynamically while traversing
 
