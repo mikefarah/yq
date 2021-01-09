@@ -17,7 +17,7 @@ import (
 type expressionScenario struct {
 	description           string
 	subdescription        string
-	environmentVariable	string
+	environmentVariable   string
 	document              string
 	document2             string
 	expression            string
@@ -170,10 +170,11 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 
 	envCommand := ""
 
-		if(s.environmentVariable != "") {
-			envCommand = fmt.Sprintf("myenv=\"%v\" ", s.environmentVariable)
-		}
-		
+	if s.environmentVariable != "" {
+		envCommand = fmt.Sprintf("myenv=\"%v\" ", s.environmentVariable)
+		os.Setenv("myenv", s.environmentVariable)
+	}
+
 	if s.document != "" {
 		if s.dontFormatInputForDoc {
 			formattedDoc = s.document + "\n"
@@ -200,7 +201,6 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 		}
 
 		writeOrPanic(w, "then\n")
-		
 
 		if s.expression != "" {
 			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v '%v' %v\n```\n", envCommand, command, s.expression, files))
