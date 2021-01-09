@@ -59,6 +59,10 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
 	}
 
+	if nullInput && len(args) > 1 {
+		return errors.New("Cannot pass files in when using null-input flag")
+	}
+
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()

@@ -83,6 +83,10 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 
 	streamEvaluator := yqlib.NewStreamEvaluator()
 
+	if nullInput && len(args) > 1 {
+		return errors.New("Cannot pass files in when using null-input flag")
+	}
+
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
