@@ -17,6 +17,7 @@ import (
 type expressionScenario struct {
 	description           string
 	subdescription        string
+	environmentVariable	string
 	document              string
 	document2             string
 	expression            string
@@ -59,6 +60,10 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		}
 		inputs.PushBack(candidateNode)
 
+	}
+
+	if s.environmentVariable != "" {
+		os.Setenv("myenv", s.environmentVariable)
 	}
 
 	results, err = treeNavigator.GetMatchingNodes(inputs, node)
@@ -162,6 +167,13 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 	formattedDoc := ""
 	formattedDoc2 := ""
 	command := "eval"
+
+	envCommand := ""
+
+		if(s.environmentVariable != "") {
+			envCommand = fmt.Sprintf("myenv=\"%v\" ", s.environmentVariable)
+		}
+		
 	if s.document != "" {
 		if s.dontFormatInputForDoc {
 			formattedDoc = s.document + "\n"
@@ -188,14 +200,16 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 		}
 
 		writeOrPanic(w, "then\n")
+		
+
 		if s.expression != "" {
-			writeOrPanic(w, fmt.Sprintf("```bash\nyq %v '%v' %v\n```\n", command, s.expression, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v '%v' %v\n```\n", envCommand, command, s.expression, files))
 		} else {
-			writeOrPanic(w, fmt.Sprintf("```bash\nyq %v %v\n```\n", command, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v %v\n```\n", envCommand, command, files))
 		}
 	} else {
 		writeOrPanic(w, "Running\n")
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq %v --null-input '%v'\n```\n", command, s.expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v --null-input '%v'\n```\n", envCommand, command, s.expression))
 	}
 	return formattedDoc, formattedDoc2
 }
