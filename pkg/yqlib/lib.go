@@ -70,6 +70,7 @@ var TraverseArray = &OperationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedenc
 var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
 var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}
 var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: ValueOperator}
+var EnvOp = &OperationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: EnvOperator}
 var Not = &OperationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: NotOperator}
 var Empty = &OperationType{Type: "EMPTY", NumArgs: 50, Handler: EmptyOperator}
 

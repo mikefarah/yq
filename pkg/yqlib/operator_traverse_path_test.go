@@ -55,6 +55,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Dynamic keys",
+		subdescription: `Expressions within [] can be used to dynamically lookup / calculate keys`,
+		document:       `{b: apple, apple: crispy yum, banana: soft yum}`,
+		expression:     `.[.b]`,
+		expected: []string{
+			"D0, P[apple], (!!str)::crispy yum\n",
+		},
+	},
+	{
 		description:    "Children don't exist",
 		subdescription: "Nodes are added dynamically while traversing",
 		document:       `{c: banana}`,
