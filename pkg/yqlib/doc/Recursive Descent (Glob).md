@@ -33,6 +33,8 @@ frog
 ```
 
 ## Recursively find nodes with keys
+Note that this example has wrapped the expression in `[]` to show that there are two matches returned. You do not have to wrap in `[]` in your path expression.
+
 Given a sample.yml file of:
 ```yaml
 a:
@@ -43,16 +45,16 @@ a:
 ```
 then
 ```bash
-yq eval '.. | select(has("name"))' sample.yml
+yq eval '[.. | select(has("name"))]' sample.yml
 ```
 will output
 ```yaml
-name: frog
-b:
-  name: blog
+- name: frog
+  b:
+    name: blog
+    age: 12
+- name: blog
   age: 12
-name: blog
-age: 12
 ```
 
 ## Recursively find nodes with values
