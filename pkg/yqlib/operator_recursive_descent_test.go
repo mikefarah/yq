@@ -64,11 +64,11 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Recursively find nodes with keys",
+		subdescription: "Note that this example has wrapped the expression in `[]` to show that there are two matches returned. You do not have to wrap in `[]` in your path expression.",
 		document:    `{a: {name: frog, b: {name: blog, age: 12}}}`,
-		expression:  `.. | select(has("name"))`,
+		expression:  `[.. | select(has("name"))]`,
 		expected: []string{
-			"D0, P[a], (!!map)::{name: frog, b: {name: blog, age: 12}}\n",
-			"D0, P[a b], (!!map)::{name: blog, age: 12}\n",
+			"D0, P[a], (!!seq)::- {name: frog, b: {name: blog, age: 12}}\n- {name: blog, age: 12}\n",
 		},
 	},
 	{
@@ -233,5 +233,5 @@ func TestRecursiveDescentOperatorScenarios(t *testing.T) {
 	for _, tt := range recursiveDescentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Recursive Descent", recursiveDescentOperatorScenarios)
+	documentScenarios(t, "Recursive Descent (Glob)", recursiveDescentOperatorScenarios)
 }
