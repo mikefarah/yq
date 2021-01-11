@@ -6,6 +6,15 @@ import (
 
 var equalsOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   "cat",
+		document2:  "dog",
+		expression: "select(fi==0) == select(fi==1)",
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
 		description: "Match string",
 		document:    `[cat,goat,dog]`,
 		expression:  `.[] | (. == "*at")`,
