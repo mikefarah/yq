@@ -1,4 +1,4 @@
-Use the `documentIndex` operator to select nodes of a particular document.
+Use the `documentIndex` operator (or the `di` shorthand) to select nodes of a particular document.
 ## Retrieve a document index
 Given a sample.yml file of:
 ```yaml

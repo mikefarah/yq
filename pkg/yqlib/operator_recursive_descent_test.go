@@ -63,10 +63,10 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Recursively find nodes with keys",
+		description:    "Recursively find nodes with keys",
 		subdescription: "Note that this example has wrapped the expression in `[]` to show that there are two matches returned. You do not have to wrap in `[]` in your path expression.",
-		document:    `{a: {name: frog, b: {name: blog, age: 12}}}`,
-		expression:  `[.. | select(has("name"))]`,
+		document:       `{a: {name: frog, b: {name: blog, age: 12}}}`,
+		expression:     `[.. | select(has("name"))]`,
 		expected: []string{
 			"D0, P[a], (!!seq)::- {name: frog, b: {name: blog, age: 12}}\n- {name: blog, age: 12}\n",
 		},
