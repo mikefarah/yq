@@ -16,7 +16,7 @@ func createPathNodeFor(pathElement interface{}) *yaml.Node {
 	}
 }
 
-func GetPathOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getPathOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetPath")
 
 	var results = list.New()

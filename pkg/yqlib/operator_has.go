@@ -7,7 +7,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func HasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("-- hasOperation")
 	var results = list.New()

@@ -36,10 +36,10 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, er
 			opStack = append(opStack, currentToken)
 		case CloseCollect, CloseCollectObject:
 			var opener tokenType = OpenCollect
-			var collectOperator *OperationType = Collect
+			var collectOperator *operationType = collectOpType
 			if currentToken.TokenType == CloseCollectObject {
 				opener = OpenCollectObject
-				collectOperator = CollectObject
+				collectOperator = collectObjectOpType
 			}
 			itemsInMiddle := false
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != opener {
@@ -48,7 +48,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, er
 			}
 			if !itemsInMiddle {
 				// must be an empty collection, add the empty object as a LHS parameter
-				result = append(result, &Operation{OperationType: Empty})
+				result = append(result, &Operation{OperationType: emptyOpType})
 			}
 			if len(opStack) == 0 {
 				return nil, errors.New("Bad path expression, got close collect brackets without matching opening bracket")
@@ -56,7 +56,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, er
 			// now we should have [] as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
-			opStack = append(opStack, &token{TokenType: OperationToken, Operation: &Operation{OperationType: ShortPipe}})
+			opStack = append(opStack, &token{TokenType: OperationToken, Operation: &Operation{OperationType: shortPipeOpType}})
 			opStack = append(opStack, &token{TokenType: OperationToken, Operation: &Operation{OperationType: collectOperator}})
 		case CloseBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenBracket {

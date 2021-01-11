@@ -7,13 +7,13 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type CommentOpPreferences struct {
+type commentOpPreferences struct {
 	LineComment bool
 	HeadComment bool
 	FootComment bool
 }
 
-func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignComments operator!")
 
@@ -23,7 +23,7 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 		return nil, err
 	}
 
-	preferences := pathNode.Operation.Preferences.(*CommentOpPreferences)
+	preferences := pathNode.Operation.Preferences.(*commentOpPreferences)
 
 	comment := ""
 	if !pathNode.Operation.UpdateAssign {
@@ -66,8 +66,8 @@ func AssignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 	return matchingNodes, nil
 }
 
-func GetCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	preferences := pathNode.Operation.Preferences.(*CommentOpPreferences)
+func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	preferences := pathNode.Operation.Preferences.(*commentOpPreferences)
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 

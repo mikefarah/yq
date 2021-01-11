@@ -10,13 +10,13 @@ import (
 )
 
 func createAddOp(lhs *PathTreeNode, rhs *PathTreeNode) *PathTreeNode {
-	return &PathTreeNode{Operation: &Operation{OperationType: Add},
+	return &PathTreeNode{Operation: &Operation{OperationType: addOpType},
 		Lhs: lhs,
 		Rhs: rhs}
 }
 
-func AddAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	assignmentOp := &Operation{OperationType: Assign}
+func addAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+	assignmentOp := &Operation{OperationType: assignOpType}
 	assignmentOp.UpdateAssign = false
 
 	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createAddOp(pathNode.Lhs, pathNode.Rhs)}
@@ -37,7 +37,7 @@ func toNodes(candidate *CandidateNode) []*yaml.Node {
 
 }
 
-func AddOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func addOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("Add operator")
 
 	return crossFunction(d, matchingNodes, pathNode, add)

@@ -9,17 +9,17 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type EnvOpPreferences struct {
+type envOpPreferences struct {
 	StringValue bool
 }
 
-func EnvOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func envOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	envName := pathNode.Operation.CandidateNode.Node.Value
 	log.Debug("EnvOperator, env name:", envName)
 
 	rawValue := os.Getenv(envName)
 
-	preferences := pathNode.Operation.Preferences.(*EnvOpPreferences)
+	preferences := pathNode.Operation.Preferences.(*envOpPreferences)
 
 	var node *yaml.Node
 	if preferences.StringValue {

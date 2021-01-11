@@ -6,15 +6,15 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type RecursiveDescentPreferences struct {
-	TraversePreferences *TraversePreferences
+type recursiveDescentPreferences struct {
+	TraversePreferences *traversePreferences
 	RecurseArray        bool
 }
 
-func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	var results = list.New()
 
-	preferences := pathNode.Operation.Preferences.(*RecursiveDescentPreferences)
+	preferences := pathNode.Operation.Preferences.(*recursiveDescentPreferences)
 	err := recursiveDecent(d, results, matchMap, preferences)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func RecursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNod
 	return results, nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences *RecursiveDescentPreferences) error {
+func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences *recursiveDescentPreferences) error {
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
@@ -35,7 +35,7 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 &&
 			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
 
-			children, err := Splat(d, nodeToMap(candidate), preferences.TraversePreferences)
+			children, err := splat(d, nodeToMap(candidate), preferences.TraversePreferences)
 
 			if err != nil {
 				return err

@@ -11,78 +11,77 @@ import (
 
 var log = logging.MustGetLogger("yq-lib")
 
-type OperationType struct {
+type operationType struct {
 	Type       string
 	NumArgs    uint // number of arguments to the op
 	Precedence uint
-	Handler    OperatorHandler
+	Handler    operatorHandler
 }
 
 // operators TODO:
-// - keys operator for controlling key metadata (particularly anchors/aliases)
 // - mergeEmpty (sets only if the document is empty, do I do that now?)
 
-var Or = &OperationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: OrOperator}
-var And = &OperationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: AndOperator}
+var orOpType = &operationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: orOperator}
+var andOpType = &operationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: andOperator}
 
-var Union = &OperationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: UnionOperator}
+var unionOpType = &operationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: unionOperator}
 
-var Pipe = &OperationType{Type: "PIPE", NumArgs: 2, Precedence: 30, Handler: PipeOperator}
+var pipeOpType = &operationType{Type: "PIPE", NumArgs: 2, Precedence: 30, Handler: pipeOperator}
 
-var Assign = &OperationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: AssignUpdateOperator}
-var AddAssign = &OperationType{Type: "ADD_ASSIGN", NumArgs: 2, Precedence: 40, Handler: AddAssignOperator}
+var assignOpType = &operationType{Type: "ASSIGN", NumArgs: 2, Precedence: 40, Handler: assignUpdateOperator}
+var addAssignOpType = &operationType{Type: "ADD_ASSIGN", NumArgs: 2, Precedence: 40, Handler: addAssignOperator}
 
-var AssignAttributes = &OperationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: AssignAttributesOperator}
-var AssignStyle = &OperationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: AssignStyleOperator}
-var AssignTag = &OperationType{Type: "ASSIGN_TAG", NumArgs: 2, Precedence: 40, Handler: AssignTagOperator}
-var AssignComment = &OperationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedence: 40, Handler: AssignCommentsOperator}
-var AssignAnchor = &OperationType{Type: "ASSIGN_ANCHOR", NumArgs: 2, Precedence: 40, Handler: AssignAnchorOperator}
-var AssignAlias = &OperationType{Type: "ASSIGN_ALIAS", NumArgs: 2, Precedence: 40, Handler: AssignAliasOperator}
+var assignAttributesOpType = &operationType{Type: "ASSIGN_ATTRIBUTES", NumArgs: 2, Precedence: 40, Handler: assignAttributesOperator}
+var assignStyleOpType = &operationType{Type: "ASSIGN_STYLE", NumArgs: 2, Precedence: 40, Handler: assignStyleOperator}
+var assignTagOpType = &operationType{Type: "ASSIGN_TAG", NumArgs: 2, Precedence: 40, Handler: assignTagOperator}
+var assignCommentOpType = &operationType{Type: "ASSIGN_COMMENT", NumArgs: 2, Precedence: 40, Handler: assignCommentsOperator}
+var assignAnchorOpType = &operationType{Type: "ASSIGN_ANCHOR", NumArgs: 2, Precedence: 40, Handler: assignAnchorOperator}
+var assignAliasOpType = &operationType{Type: "ASSIGN_ALIAS", NumArgs: 2, Precedence: 40, Handler: assignAliasOperator}
 
-var Multiply = &OperationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 45, Handler: MultiplyOperator}
-var Add = &OperationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: AddOperator}
-var Alternative = &OperationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 45, Handler: AlternativeOperator}
+var multiplyOpType = &operationType{Type: "MULTIPLY", NumArgs: 2, Precedence: 45, Handler: multiplyOperator}
+var addOpType = &operationType{Type: "ADD", NumArgs: 2, Precedence: 45, Handler: addOperator}
+var alternativeOpType = &operationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 45, Handler: alternativeOperator}
 
-var Equals = &OperationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: EqualsOperator}
-var CreateMap = &OperationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: CreateMapOperator}
+var equalsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: equalsOperator}
+var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: createMapOperator}
 
-var ShortPipe = &OperationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: PipeOperator}
+var shortPipeOpType = &operationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: pipeOperator}
 
-var Length = &OperationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: LengthOperator}
-var Collect = &OperationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: CollectOperator}
-var GetStyle = &OperationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: GetStyleOperator}
-var GetTag = &OperationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: GetTagOperator}
-var GetComment = &OperationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50, Handler: GetCommentsOperator}
-var GetAnchor = &OperationType{Type: "GET_ANCHOR", NumArgs: 0, Precedence: 50, Handler: GetAnchorOperator}
-var GetAlias = &OperationType{Type: "GET_ALIAS", NumArgs: 0, Precedence: 50, Handler: GetAliasOperator}
-var GetDocumentIndex = &OperationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: GetDocumentIndexOperator}
-var GetFilename = &OperationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: GetFilenameOperator}
-var GetFileIndex = &OperationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: GetFileIndexOperator}
-var GetPath = &OperationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: GetPathOperator}
+var lengthOpType = &operationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: lengthOperator}
+var collectOpType = &operationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: collectOperator}
+var getStyleOpType = &operationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: getStyleOperator}
+var getTagOpType = &operationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: getTagOperator}
+var getCommentOpType = &operationType{Type: "GET_COMMENT", NumArgs: 0, Precedence: 50, Handler: getCommentsOperator}
+var getAnchorOpType = &operationType{Type: "GET_ANCHOR", NumArgs: 0, Precedence: 50, Handler: getAnchorOperator}
+var getAliasOptype = &operationType{Type: "GET_ALIAS", NumArgs: 0, Precedence: 50, Handler: getAliasOperator}
+var getDocumentIndexOpType = &operationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: getDocumentIndexOperator}
+var getFilenameOpType = &operationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: getFilenameOperator}
+var getFileIndexOpType = &operationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: getFileIndexOperator}
+var getPathOpType = &operationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: getPathOperator}
 
-var Explode = &OperationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: ExplodeOperator}
-var SortKeys = &OperationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: SortKeysOperator}
+var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: explodeOperator}
+var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: sortKeysOperator}
 
-var CollectObject = &OperationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: CollectObjectOperator}
-var TraversePath = &OperationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
-var TraverseArray = &OperationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedence: 50, Handler: TraverseArrayOperator}
+var collectObjectOpType = &operationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: collectObjectOperator}
+var traversePathOpType = &operationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: traversePathOperator}
+var traverseArrayOpType = &operationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedence: 50, Handler: traverseArrayOperator}
 
-var DocumentFilter = &OperationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: TraversePathOperator}
-var SelfReference = &OperationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: SelfOperator}
-var ValueOp = &OperationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: ValueOperator}
-var EnvOp = &OperationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: EnvOperator}
-var Not = &OperationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: NotOperator}
-var Empty = &OperationType{Type: "EMPTY", NumArgs: 50, Handler: EmptyOperator}
+var documentFilterOpType = &operationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: traversePathOperator}
+var selfReferenceOpType = &operationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: selfOperator}
+var valueOpType = &operationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: valueOperator}
+var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: envOperator}
+var notOpType = &operationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: notOperator}
+var emptyOpType = &operationType{Type: "EMPTY", NumArgs: 50, Handler: emptyOperator}
 
-var RecursiveDescent = &OperationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: RecursiveDescentOperator}
+var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: recursiveDescentOperator}
 
-var Select = &OperationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: SelectOperator}
-var Has = &OperationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: HasOperator}
-var DeleteChild = &OperationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: DeleteChildOperator}
-var DeleteImmediateChild = &OperationType{Type: "DELETE_IMMEDIATE_CHILD", NumArgs: 1, Precedence: 40, Handler: DeleteImmediateChildOperator}
+var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: selectOperator}
+var hasOpType = &operationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: hasOperator}
+var deleteChildOpType = &operationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: deleteChildOperator}
+var deleteImmediateChildOpType = &operationType{Type: "DELETE_IMMEDIATE_CHILD", NumArgs: 1, Precedence: 40, Handler: deleteImmediateChildOperator}
 
 type Operation struct {
-	OperationType *OperationType
+	OperationType *operationType
 	Value         interface{}
 	StringValue   string
 	CandidateNode *CandidateNode // used for Value Path elements
@@ -90,7 +89,7 @@ type Operation struct {
 	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs (instead of matching nodes)
 }
 
-func CreateValueOperation(value interface{}, stringValue string) *Operation {
+func createValueOperation(value interface{}, stringValue string) *Operation {
 	var node yaml.Node = yaml.Node{Kind: yaml.ScalarNode}
 	node.Value = stringValue
 
@@ -108,7 +107,7 @@ func CreateValueOperation(value interface{}, stringValue string) *Operation {
 	}
 
 	return &Operation{
-		OperationType: ValueOp,
+		OperationType: valueOpType,
 		Value:         value,
 		StringValue:   stringValue,
 		CandidateNode: &CandidateNode{Node: &node},
@@ -117,13 +116,13 @@ func CreateValueOperation(value interface{}, stringValue string) *Operation {
 
 // debugging purposes only
 func (p *Operation) toString() string {
-	if p.OperationType == TraversePath {
+	if p.OperationType == traversePathOpType {
 		return fmt.Sprintf("%v", p.Value)
-	} else if p.OperationType == DocumentFilter {
+	} else if p.OperationType == documentFilterOpType {
 		return fmt.Sprintf("d%v", p.Value)
-	} else if p.OperationType == SelfReference {
+	} else if p.OperationType == selfReferenceOpType {
 		return "SELF"
-	} else if p.OperationType == ValueOp {
+	} else if p.OperationType == valueOpType {
 		return fmt.Sprintf("%v (%T)", p.Value, p.Value)
 	} else {
 		return fmt.Sprintf("%v", p.OperationType.Type)

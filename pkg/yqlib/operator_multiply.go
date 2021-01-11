@@ -8,9 +8,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type CrossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
+type crossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, calculation CrossFunctionCalculation) (*list.List, error) {
+func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, calculation crossFunctionCalculation) (*list.List, error) {
 	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
 	if err != nil {
 		return nil, err
@@ -43,16 +43,16 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pat
 	return results, nil
 }
 
-type MultiplyPreferences struct {
+type multiplyPreferences struct {
 	AppendArrays bool
 }
 
-func MultiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- MultiplyOperator")
-	return crossFunction(d, matchingNodes, pathNode, multiply(pathNode.Operation.Preferences.(*MultiplyPreferences)))
+	return crossFunction(d, matchingNodes, pathNode, multiply(pathNode.Operation.Preferences.(*multiplyPreferences)))
 }
 
-func multiply(preferences *MultiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		lhs.Node = UnwrapDoc(lhs.Node)
 		rhs.Node = UnwrapDoc(rhs.Node)
@@ -85,8 +85,8 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	var results = list.New()
 
 	// shouldn't recurse arrays if appending
-	prefs := &RecursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
-		TraversePreferences: &TraversePreferences{FollowAlias: false}}
+	prefs := &recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
+		TraversePreferences: &traversePreferences{FollowAlias: false}}
 	err := recursiveDecent(d, results, nodeToMap(rhs), prefs)
 	if err != nil {
 		return nil, err
@@ -112,14 +112,14 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
 
-	assignmentOp := &Operation{OperationType: AssignAttributes}
+	assignmentOp := &Operation{OperationType: assignAttributesOpType}
 	if rhs.Node.Kind == yaml.ScalarNode || rhs.Node.Kind == yaml.AliasNode {
-		assignmentOp.OperationType = Assign
+		assignmentOp.OperationType = assignOpType
 		assignmentOp.UpdateAssign = false
 	} else if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
-		assignmentOp.OperationType = AddAssign
+		assignmentOp.OperationType = addAssignOpType
 	}
-	rhsOp := &Operation{OperationType: ValueOp, CandidateNode: rhs}
+	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 
 	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &PathTreeNode{Operation: rhsOp}}
 

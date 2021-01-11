@@ -1,6 +1,6 @@
 package yqlib
 
-func Match(name string, pattern string) (matched bool) {
+func matchKey(name string, pattern string) (matched bool) {
 	if pattern == "" {
 		return name == pattern
 	}
