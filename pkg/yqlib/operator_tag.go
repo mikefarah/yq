@@ -41,7 +41,7 @@ func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 				tag = rhs.Front().Value.(*CandidateNode).Node.Value
 			}
 		}
-		candidate.Node.Tag = tag
+		UnwrapDoc(candidate.Node).Tag = tag
 	}
 
 	return matchingNodes, nil

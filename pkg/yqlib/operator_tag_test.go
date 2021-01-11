@@ -27,6 +27,14 @@ var tagOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `32`,
+		expression: `. tag= "!!str"`,
+		expected: []string{
+			"D0, P[], (doc)::\"32\"\n",
+		},
+	},
+	{
 		description: "Set custom tag",
 		document:    `{a: str}`,
 		expression:  `.a tag = "!!mikefarah"`,
