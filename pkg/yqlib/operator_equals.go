@@ -12,10 +12,13 @@ func equalsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pa
 func isEquals(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	value := false
 
-	if lhs.Node.Tag == "!!null" {
-		value = (rhs.Node.Tag == "!!null")
+	lhsNode := UnwrapDoc(lhs.Node)
+	rhsNode := UnwrapDoc(rhs.Node)
+
+	if lhsNode.Tag == "!!null" {
+		value = (rhsNode.Tag == "!!null")
 	} else {
-		value = matchKey(lhs.Node.Value, rhs.Node.Value)
+		value = matchKey(lhsNode.Value, rhsNode.Value)
 	}
 	log.Debugf("%v == %v ? %v", NodeToString(lhs), NodeToString(rhs), value)
 	return createBooleanCandidate(lhs, value), nil
