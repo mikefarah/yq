@@ -12,7 +12,7 @@ func skip(*lex.Scanner, *machines.Match) (interface{}, error) {
 	return nil, nil
 }
 
-type TokenType uint32
+type tokenType uint32
 
 const (
 	OperationToken = 1 << iota
@@ -25,15 +25,15 @@ const (
 	TraverseArrayCollect
 )
 
-type Token struct {
-	TokenType            TokenType
+type token struct {
+	TokenType            tokenType
 	Operation            *Operation
 	AssignOperation      *Operation // e.g. tag (GetTag) op becomes AssignTag if '=' follows it
 	CheckForPostTraverse bool       // e.g. [1]cat should really be [1].cat
 
 }
 
-func (t *Token) toString() string {
+func (t *token) toString() string {
 	if t.TokenType == OperationToken {
 		log.Debug("toString, its an op")
 		return t.Operation.toString()
@@ -66,7 +66,7 @@ func pathToken(wrapped bool) lex.Action {
 		}
 		log.Debug("PathToken %v", value)
 		op := &Operation{OperationType: TraversePath, Value: value, StringValue: value}
-		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
+		return &token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -80,7 +80,7 @@ func documentToken() lex.Action {
 		}
 		log.Debug("documentToken %v", string(m.Bytes))
 		op := &Operation{OperationType: DocumentFilter, Value: number, StringValue: numberString}
-		return &Token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
+		return &token{TokenType: OperationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
 
@@ -97,7 +97,7 @@ func assignOpToken(updateAssign bool) lex.Action {
 		log.Debug("assignOpToken %v", string(m.Bytes))
 		value := string(m.Bytes)
 		op := &Operation{OperationType: Assign, Value: Assign.Type, StringValue: value, UpdateAssign: updateAssign}
-		return &Token{TokenType: OperationToken, Operation: op}, nil
+		return &token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
@@ -110,7 +110,7 @@ func opTokenWithPrefs(op *OperationType, assignOpType *OperationType, preference
 		if assignOpType != nil {
 			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
 		}
-		return &Token{TokenType: OperationToken, Operation: op, AssignOperation: assign}, nil
+		return &token{TokenType: OperationToken, Operation: op, AssignOperation: assign}, nil
 	}
 }
 
@@ -125,13 +125,13 @@ func assignAllCommentsOp(updateAssign bool) lex.Action {
 			UpdateAssign:  updateAssign,
 			Preferences:   &CommentOpPreferences{LineComment: true, HeadComment: true, FootComment: true},
 		}
-		return &Token{TokenType: OperationToken, Operation: op}, nil
+		return &token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
-func literalToken(pType TokenType, checkForPost bool) lex.Action {
+func literalToken(pType tokenType, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: pType, CheckForPostTraverse: checkForPost}, nil
+		return &token{TokenType: pType, CheckForPostTraverse: checkForPost}, nil
 	}
 }
 
@@ -147,7 +147,7 @@ func numberValue() lex.Action {
 			return nil, errParsingInt
 		}
 
-		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
+		return &token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
 	}
 }
 
@@ -158,13 +158,13 @@ func floatValue() lex.Action {
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
-		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
+		return &token{TokenType: OperationToken, Operation: CreateValueOperation(number, numberString)}, nil
 	}
 }
 
 func booleanValue(val bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(val, string(m.Bytes))}, nil
+		return &token{TokenType: OperationToken, Operation: CreateValueOperation(val, string(m.Bytes))}, nil
 	}
 }
 
@@ -174,7 +174,7 @@ func stringValue(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
-		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(value, value)}, nil
+		return &token{TokenType: OperationToken, Operation: CreateValueOperation(value, value)}, nil
 	}
 }
 
@@ -196,20 +196,20 @@ func envOp(strenv bool) lex.Action {
 		envOperation.OperationType = EnvOp
 		envOperation.Preferences = preferences
 
-		return &Token{TokenType: OperationToken, Operation: envOperation}, nil
+		return &token{TokenType: OperationToken, Operation: envOperation}, nil
 	}
 }
 
 func nullValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &Token{TokenType: OperationToken, Operation: CreateValueOperation(nil, string(m.Bytes))}, nil
+		return &token{TokenType: OperationToken, Operation: CreateValueOperation(nil, string(m.Bytes))}, nil
 	}
 }
 
 func selfToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		op := &Operation{OperationType: SelfReference}
-		return &Token{TokenType: OperationToken, Operation: op}, nil
+		return &token{TokenType: OperationToken, Operation: op}, nil
 	}
 }
 
@@ -307,15 +307,15 @@ func initLexer() (*lex.Lexer, error) {
 	return lexer, nil
 }
 
-type PathTokeniser interface {
-	Tokenise(path string) ([]*Token, error)
+type pathTokeniserInterface interface {
+	Tokenise(path string) ([]*token, error)
 }
 
 type pathTokeniser struct {
 	lexer *lex.Lexer
 }
 
-func NewPathTokeniser() PathTokeniser {
+func newPathTokeniser() pathTokeniserInterface {
 	var lexer, err = initLexer()
 	if err != nil {
 		panic(err)
@@ -323,25 +323,25 @@ func NewPathTokeniser() PathTokeniser {
 	return &pathTokeniser{lexer}
 }
 
-func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
+func (p *pathTokeniser) Tokenise(path string) ([]*token, error) {
 	scanner, err := p.lexer.Scanner([]byte(path))
 
 	if err != nil {
 		return nil, fmt.Errorf("Parsing expression: %v", err)
 	}
-	var tokens []*Token
+	var tokens []*token
 	for tok, err, eof := scanner.Next(); !eof; tok, err, eof = scanner.Next() {
 
 		if tok != nil {
-			token := tok.(*Token)
-			log.Debugf("Tokenising %v", token.toString())
-			tokens = append(tokens, token)
+			currentToken := tok.(*token)
+			log.Debugf("Tokenising %v", currentToken.toString())
+			tokens = append(tokens, currentToken)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("Parsing expression: %v", err)
 		}
 	}
-	var postProcessedTokens = make([]*Token, 0)
+	var postProcessedTokens = make([]*token, 0)
 
 	skipNextToken := false
 
@@ -356,51 +356,51 @@ func (p *pathTokeniser) Tokenise(path string) ([]*Token, error) {
 	return postProcessedTokens, nil
 }
 
-func (p *pathTokeniser) handleToken(tokens []*Token, index int, postProcessedTokens []*Token) (tokensAccum []*Token, skipNextToken bool) {
+func (p *pathTokeniser) handleToken(tokens []*token, index int, postProcessedTokens []*token) (tokensAccum []*token, skipNextToken bool) {
 	skipNextToken = false
-	token := tokens[index]
+	currentToken := tokens[index]
 
-	if token.TokenType == TraverseArrayCollect {
-		//need to put a traverse array then a collect token
-		// do this by adding traverse then converting token to collect
+	if currentToken.TokenType == TraverseArrayCollect {
+		//need to put a traverse array then a collect currentToken
+		// do this by adding traverse then converting currentToken to collect
 
 		op := &Operation{OperationType: TraverseArray, StringValue: "TRAVERSE_ARRAY"}
-		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: OperationToken, Operation: op})
 
-		token = &Token{TokenType: OpenCollect}
+		currentToken = &token{TokenType: OpenCollect}
 
 	}
 
-	if index != len(tokens)-1 && token.AssignOperation != nil &&
+	if index != len(tokens)-1 && currentToken.AssignOperation != nil &&
 		tokens[index+1].TokenType == OperationToken &&
 		tokens[index+1].Operation.OperationType == Assign {
-		token.Operation = token.AssignOperation
-		token.Operation.UpdateAssign = tokens[index+1].Operation.UpdateAssign
+		currentToken.Operation = currentToken.AssignOperation
+		currentToken.Operation.UpdateAssign = tokens[index+1].Operation.UpdateAssign
 		skipNextToken = true
 	}
 
-	postProcessedTokens = append(postProcessedTokens, token)
+	postProcessedTokens = append(postProcessedTokens, currentToken)
 
-	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == OperationToken &&
 		tokens[index+1].Operation.OperationType == TraversePath {
 		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
-		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: OperationToken, Operation: op})
 	}
-	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == OpenCollect {
 
 		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
-		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: OperationToken, Operation: op})
 
 		op = &Operation{OperationType: TraverseArray}
-		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: OperationToken, Operation: op})
 	}
-	if index != len(tokens)-1 && token.CheckForPostTraverse &&
+	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == TraverseArrayCollect {
 
 		op := &Operation{OperationType: ShortPipe, Value: "PIPE"}
-		postProcessedTokens = append(postProcessedTokens, &Token{TokenType: OperationToken, Operation: op})
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: OperationToken, Operation: op})
 
 	}
 	return postProcessedTokens, skipNextToken
