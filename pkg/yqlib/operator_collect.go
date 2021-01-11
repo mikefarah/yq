@@ -29,7 +29,7 @@ func CollectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTr
 			path = candidate.Path[:len(candidate.Path)-1]
 			document = candidate.Document
 		}
-		node.Content = append(node.Content, candidate.Node)
+		node.Content = append(node.Content, UnwrapDoc(candidate.Node))
 	}
 
 	collectC := &CandidateNode{Node: node, Document: document, Path: path}
