@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 	"os"
 	"strings"
 
@@ -27,6 +28,8 @@ func EnvOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNo
 			Tag:   "!!str",
 			Value: rawValue,
 		}
+	} else if rawValue == "" {
+		return nil, fmt.Errorf("Value for env variable '%v' not provided in env()", envName)
 	} else {
 		var dataBucket yaml.Node
 		decoder := yaml.NewDecoder(strings.NewReader(rawValue))
