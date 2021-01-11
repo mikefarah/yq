@@ -6,6 +6,14 @@ import (
 
 var hasOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `a: hello`,
+		expression: `has("a")`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
 		description: "Has map key",
 		document: `- a: "yes"
 - a: ~
