@@ -6,15 +6,15 @@ import (
 	logging "gopkg.in/op/go-logging.v1"
 )
 
-type pathPostFixerInterface interface {
+type pathPostFixer interface {
 	ConvertToPostfix([]*token) ([]*Operation, error)
 }
 
-type pathPostFixer struct {
+type pathPostFixerImpl struct {
 }
 
-func newPathPostFixer() pathPostFixerInterface {
-	return &pathPostFixer{}
+func newPathPostFixer() pathPostFixer {
+	return &pathPostFixerImpl{}
 }
 
 func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operation) {
@@ -23,22 +23,22 @@ func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operatio
 	return opStack, append(result, newOp.Operation)
 }
 
-func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
+func (p *pathPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
 	var result []*Operation
 	// surround the whole thing with quotes
-	var opStack = []*token{&token{TokenType: OpenBracket}}
-	var tokens = append(infixTokens, &token{TokenType: CloseBracket})
+	var opStack = []*token{&token{TokenType: openBracket}}
+	var tokens = append(infixTokens, &token{TokenType: closeBracket})
 
 	for _, currentToken := range tokens {
 		log.Debugf("postfix processing currentToken %v, %v", currentToken.toString(), currentToken.Operation)
 		switch currentToken.TokenType {
-		case OpenBracket, OpenCollect, OpenCollectObject:
+		case openBracket, openCollect, openCollectObject:
 			opStack = append(opStack, currentToken)
-		case CloseCollect, CloseCollectObject:
-			var opener tokenType = OpenCollect
+		case closeCollect, closeCollectObject:
+			var opener tokenType = openCollect
 			var collectOperator *operationType = collectOpType
-			if currentToken.TokenType == CloseCollectObject {
-				opener = OpenCollectObject
+			if currentToken.TokenType == closeCollectObject {
+				opener = openCollectObject
 				collectOperator = collectObjectOpType
 			}
 			itemsInMiddle := false
@@ -56,10 +56,10 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, er
 			// now we should have [] as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 			//and append a collect to the opStack
-			opStack = append(opStack, &token{TokenType: OperationToken, Operation: &Operation{OperationType: shortPipeOpType}})
-			opStack = append(opStack, &token{TokenType: OperationToken, Operation: &Operation{OperationType: collectOperator}})
-		case CloseBracket:
-			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != OpenBracket {
+			opStack = append(opStack, &token{TokenType: operationToken, Operation: &Operation{OperationType: shortPipeOpType}})
+			opStack = append(opStack, &token{TokenType: operationToken, Operation: &Operation{OperationType: collectOperator}})
+		case closeBracket:
+			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != openBracket {
 				opStack, result = popOpToResult(opStack, result)
 			}
 			if len(opStack) == 0 {
@@ -72,7 +72,7 @@ func (p *pathPostFixer) ConvertToPostfix(infixTokens []*token) ([]*Operation, er
 			var currentPrecedence = currentToken.Operation.OperationType.Precedence
 			// pop off higher precedent operators onto the result
 			for len(opStack) > 0 &&
-				opStack[len(opStack)-1].TokenType == OperationToken &&
+				opStack[len(opStack)-1].TokenType == operationToken &&
 				opStack[len(opStack)-1].Operation.OperationType.Precedence >= currentPrecedence {
 				opStack, result = popOpToResult(opStack, result)
 			}

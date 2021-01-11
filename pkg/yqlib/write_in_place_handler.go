@@ -5,22 +5,22 @@ import (
 	"os"
 )
 
-type WriteInPlaceHandler interface {
+type writeInPlaceHandler interface {
 	CreateTempFile() (*os.File, error)
 	FinishWriteInPlace(evaluatedSuccessfully bool)
 }
 
-type writeInPlaceHandler struct {
+type writeInPlaceHandlerImpl struct {
 	inputFilename string
 	tempFile      *os.File
 }
 
-func NewWriteInPlaceHandler(inputFile string) WriteInPlaceHandler {
+func NewWriteInPlaceHandler(inputFile string) writeInPlaceHandler {
 
-	return &writeInPlaceHandler{inputFile, nil}
+	return &writeInPlaceHandlerImpl{inputFile, nil}
 }
 
-func (w *writeInPlaceHandler) CreateTempFile() (*os.File, error) {
+func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
 	info, err := os.Stat(w.inputFilename)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (w *writeInPlaceHandler) CreateTempFile() (*os.File, error) {
 	return file, err
 }
 
-func (w *writeInPlaceHandler) FinishWriteInPlace(evaluatedSuccessfully bool) {
+func (w *writeInPlaceHandlerImpl) FinishWriteInPlace(evaluatedSuccessfully bool) {
 	log.Debug("Going to write-inplace, evaluatedSuccessfully=%v, target=%v", evaluatedSuccessfully, w.inputFilename)
 	safelyCloseFile(w.tempFile)
 	if evaluatedSuccessfully {
