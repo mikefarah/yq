@@ -14,10 +14,10 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc: true,
-		document:    "{a: apple}\n---\n{b: frog}",
-		
-		expression:  `[.]`,
+		skipDoc:  true,
+		document: "{a: apple}\n---\n{b: frog}",
+
+		expression: `[.]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- {a: apple}\n- {b: frog}\n",
 		},
