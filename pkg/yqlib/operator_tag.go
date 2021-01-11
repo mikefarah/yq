@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignTagOperator: %v")
 	tag := ""
@@ -47,7 +47,7 @@ func AssignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	return matchingNodes, nil
 }
 
-func GetTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetTagOperator")
 
 	var results = list.New()

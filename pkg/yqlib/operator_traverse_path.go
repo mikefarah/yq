@@ -9,16 +9,16 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type TraversePreferences struct {
+type traversePreferences struct {
 	FollowAlias    bool
 	IncludeMapKeys bool
 }
 
-func Splat(d *dataTreeNavigator, matches *list.List, prefs *TraversePreferences) (*list.List, error) {
+func splat(d *dataTreeNavigator, matches *list.List, prefs *traversePreferences) (*list.List, error) {
 	return traverseNodesWithArrayIndices(matches, make([]*yaml.Node, 0), prefs)
 }
 
-func TraversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func traversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- Traversing")
 	var matchingNodeMap = list.New()
 
@@ -54,7 +54,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		prefs := &TraversePreferences{FollowAlias: true}
+		prefs := &traversePreferences{FollowAlias: true}
 		return traverseMap(matchingNode, operation.StringValue, prefs, false)
 
 	case yaml.SequenceNode:
@@ -77,7 +77,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	}
 }
 
-func TraverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func traverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
 	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
@@ -86,11 +86,11 @@ func TraverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, pathN
 	}
 
 	var indicesToTraverse = rhs.Front().Value.(*CandidateNode).Node.Content
-	prefs := &TraversePreferences{FollowAlias: true}
+	prefs := &traversePreferences{FollowAlias: true}
 	return traverseNodesWithArrayIndices(matchingNodes, indicesToTraverse, prefs)
 }
 
-func traverseNodesWithArrayIndices(matchingNodes *list.List, indicesToTraverse []*yaml.Node, prefs *TraversePreferences) (*list.List, error) {
+func traverseNodesWithArrayIndices(matchingNodes *list.List, indicesToTraverse []*yaml.Node, prefs *traversePreferences) (*list.List, error) {
 	var matchingNodeMap = list.New()
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -104,7 +104,7 @@ func traverseNodesWithArrayIndices(matchingNodes *list.List, indicesToTraverse [
 	return matchingNodeMap, nil
 }
 
-func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml.Node, prefs *TraversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse
+func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml.Node, prefs *traversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse
 	node := matchingNode.Node
 	if node.Tag == "!!null" {
 		log.Debugf("OperatorArrayTraverse got a null - turning it into an empty array")
@@ -131,7 +131,7 @@ func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml
 	return list.New(), nil
 }
 
-func traverseMapWithIndices(candidate *CandidateNode, indices []*yaml.Node, prefs *TraversePreferences) (*list.List, error) {
+func traverseMapWithIndices(candidate *CandidateNode, indices []*yaml.Node, prefs *traversePreferences) (*list.List, error) {
 	if len(indices) == 0 {
 		return traverseMap(candidate, "", prefs, true)
 	}
@@ -200,10 +200,10 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*
 }
 
 func keyMatches(key *yaml.Node, wantedKey string) bool {
-	return Match(key.Value, wantedKey)
+	return matchKey(key.Value, wantedKey)
 }
 
-func traverseMap(matchingNode *CandidateNode, key string, prefs *TraversePreferences, splat bool) (*list.List, error) {
+func traverseMap(matchingNode *CandidateNode, key string, prefs *traversePreferences, splat bool) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
 	err := doTraverseMap(newMatches, matchingNode, key, prefs, splat)
 
@@ -234,7 +234,7 @@ func traverseMap(matchingNode *CandidateNode, key string, prefs *TraversePrefere
 	return results, nil
 }
 
-func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, wantedKey string, prefs *TraversePreferences, splat bool) error {
+func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, wantedKey string, prefs *traversePreferences, splat bool) error {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indexes, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
@@ -277,7 +277,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string, prefs *TraversePreferences, splat bool) error {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string, prefs *traversePreferences, splat bool) error {
 	switch value.Kind {
 	case yaml.AliasNode:
 		candidateNode := &CandidateNode{

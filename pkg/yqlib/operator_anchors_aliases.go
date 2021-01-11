@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func AssignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignAlias operator!")
 
@@ -47,7 +47,7 @@ func AssignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func GetAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetAlias operator!")
 	var results = list.New()
 
@@ -60,7 +60,7 @@ func GetAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 	return results, nil
 }
 
-func AssignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignAnchor operator!")
 
@@ -102,7 +102,7 @@ func AssignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 	return matchingNodes, nil
 }
 
-func GetAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetAnchor operator!")
 	var results = list.New()
 
@@ -116,7 +116,7 @@ func GetAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	return results, nil
 }
 
-func ExplodeOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func explodeOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- ExplodeOperation")
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {

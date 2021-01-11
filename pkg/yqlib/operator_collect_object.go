@@ -17,7 +17,7 @@ import (
 ...
 */
 
-func CollectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("-- collectObjectOperation")
 
 	if matchMap.Len() == 0 {
@@ -68,8 +68,8 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
 
-	splatted, err := Splat(d, nodeToMap(candidate),
-		&TraversePreferences{FollowAlias: false, IncludeMapKeys: false})
+	splatted, err := splat(d, nodeToMap(candidate),
+		&traversePreferences{FollowAlias: false, IncludeMapKeys: false})
 
 	for splatEl := splatted.Front(); splatEl != nil; splatEl = splatEl.Next() {
 		splatEl.Value.(*CandidateNode).Path = nil
@@ -96,7 +96,7 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 
 			newCandidate.Path = nil
 
-			newCandidate, err = multiply(&MultiplyPreferences{AppendArrays: false})(d, newCandidate, splatCandidate)
+			newCandidate, err = multiply(&multiplyPreferences{AppendArrays: false})(d, newCandidate, splatCandidate)
 			if err != nil {
 				return nil, err
 			}

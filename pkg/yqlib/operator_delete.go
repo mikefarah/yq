@@ -7,7 +7,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	nodesToDelete, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
 
@@ -19,7 +19,7 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		candidate := el.Value.(*CandidateNode)
 
 		deleteImmediateChildOp := &Operation{
-			OperationType: DeleteImmediateChild,
+			OperationType: deleteImmediateChildOpType,
 			Value:         candidate.Path[len(candidate.Path)-1],
 		}
 
@@ -36,7 +36,7 @@ func DeleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func DeleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	parents, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
 
 	if err != nil {

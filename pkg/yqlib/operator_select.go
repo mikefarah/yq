@@ -4,7 +4,7 @@ import (
 	"container/list"
 )
 
-func SelectOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func selectOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("-- selectOperation")
 	var results = list.New()

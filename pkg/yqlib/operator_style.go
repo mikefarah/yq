@@ -26,7 +26,7 @@ func parseStyle(customStyle string) (yaml.Style, error) {
 	return 0, nil
 }
 
-func AssignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 
 	log.Debugf("AssignStyleOperator: %v")
 	var style yaml.Style
@@ -73,7 +73,7 @@ func AssignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func GetStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	log.Debugf("GetStyleOperator")
 
 	var results = list.New()
