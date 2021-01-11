@@ -86,7 +86,7 @@ type Operation struct {
 	StringValue   string
 	CandidateNode *CandidateNode // used for Value Path elements
 	Preferences   interface{}
-	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs (instead of matching nodes)
+	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs
 }
 
 func createValueOperation(value interface{}, stringValue string) *Operation {

@@ -50,7 +50,7 @@ func (ye *yamlEncoder) Encode(node *yaml.Node) error {
 	}
 
 	if ye.colorise {
-		return ColorizeAndPrint(tempBuffer.Bytes(), ye.destination)
+		return colorizeAndPrint(tempBuffer.Bytes(), ye.destination)
 	}
 	return nil
 }

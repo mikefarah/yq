@@ -17,8 +17,8 @@ func format(attr color.Attribute) string {
 	return fmt.Sprintf("%s[%dm", escape, attr)
 }
 
-func ColorizeAndPrint(bytes []byte, writer io.Writer) error {
-	tokens := lexer.Tokenize(string(bytes))
+func colorizeAndPrint(yamlBytes []byte, writer io.Writer) error {
+	tokens := lexer.Tokenize(string(yamlBytes))
 	var p printer.Printer
 	p.Bool = func() *printer.Property {
 		return &printer.Property{
