@@ -67,23 +67,19 @@ will output
 - 2
 ```
 
-## Add object to array
+## Add new object to array
 Given a sample.yml file of:
 ```yaml
 a:
-  - 1
-  - 2
-c:
-  cat: meow
+  - dog: woof
 ```
 then
 ```bash
-yq eval '.a + .c' sample.yml
+yq eval '.a + {"cat": "meow"}' sample.yml
 ```
 will output
 ```yaml
-- 1
-- 2
+- dog: woof
 - cat: meow
 ```
 
