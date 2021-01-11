@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-var myPathTokeniser = NewPathTokeniser()
-var myPathPostfixer = NewPathPostFixer()
+var myPathTokeniser = newPathTokeniser()
+var myPathPostfixer = newPathPostFixer()
 
 type PathTreeNode struct {
 	Operation *Operation

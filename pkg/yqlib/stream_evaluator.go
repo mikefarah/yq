@@ -8,6 +8,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+// A yaml expression evaluator that runs the expression multiple times for each given yaml document.
+// Uses less memory than loading all documents and running the expression once, but this cannot process
+// cross document expressions.
 type StreamEvaluator interface {
 	Evaluate(filename string, reader io.Reader, node *PathTreeNode, printer Printer) error
 	EvaluateFiles(expression string, filenames []string, printer Printer) error

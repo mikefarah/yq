@@ -164,8 +164,8 @@ var pathTests = []struct {
 	},
 }
 
-var tokeniser = NewPathTokeniser()
-var postFixer = NewPathPostFixer()
+var tokeniser = newPathTokeniser()
+var postFixer = newPathPostFixer()
 
 func TestPathParsing(t *testing.T) {
 	for _, tt := range pathTests {
