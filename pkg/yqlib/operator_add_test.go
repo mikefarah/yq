@@ -38,11 +38,11 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Add object to array",
-		document:    `{a: [1,2], c: {cat: meow}}`,
-		expression:  `.a + .c`,
+		description: "Add new object to array",
+		document:    `a: [{dog: woof}]`,
+		expression:  `.a + {"cat": "meow"}`,
 		expected: []string{
-			"D0, P[a], (!!seq)::[1, 2, {cat: meow}]\n",
+			"D0, P[a], (!!seq)::[{dog: woof}, {cat: meow}]\n",
 		},
 	},
 	{
