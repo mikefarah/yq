@@ -4,21 +4,22 @@ import (
 	"fmt"
 
 	"container/list"
+	"strconv"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-func createSelfAddOp(rhs *PathTreeNode) *PathTreeNode {
+func createAddOp(lhs *PathTreeNode, rhs *PathTreeNode) *PathTreeNode {
 	return &PathTreeNode{Operation: &Operation{OperationType: Add},
-		Lhs: &PathTreeNode{Operation: &Operation{OperationType: SelfReference}},
+		Lhs: lhs,
 		Rhs: rhs}
 }
 
 func AddAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
 	assignmentOp := &Operation{OperationType: Assign}
-	assignmentOp.UpdateAssign = true
+	assignmentOp.UpdateAssign = false
 
-	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createSelfAddOp(pathNode.Rhs)}
+	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createAddOp(pathNode.Lhs, pathNode.Rhs)}
 	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
 }
 
@@ -63,7 +64,48 @@ func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Candida
 		target.Node.Tag = "!!seq"
 		target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
 	case yaml.ScalarNode:
-		return nil, fmt.Errorf("Scalars not yet supported for addition")
+		if rhs.Node.Kind != yaml.ScalarNode {
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+		}
+		target.Node.Kind = yaml.ScalarNode
+		target.Node.Style = lhsNode.Style
+		return addScalars(target, lhsNode, rhs.Node)
+	}
+
+	return target, nil
+}
+
+func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
+
+	if lhs.Tag == "!!str" {
+		target.Node.Tag = "!!str"
+		target.Node.Value = lhs.Value + rhs.Value
+	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
+		lhsNum, err := strconv.Atoi(lhs.Value)
+		if err != nil {
+			return nil, err
+		}
+		rhsNum, err := strconv.Atoi(rhs.Value)
+		if err != nil {
+			return nil, err
+		}
+		sum := lhsNum + rhsNum
+		target.Node.Tag = "!!int"
+		target.Node.Value = fmt.Sprintf("%v", sum)
+	} else if (lhs.Tag == "!!int" || lhs.Tag == "!!float") && (rhs.Tag == "!!int" || rhs.Tag == "!!float") {
+		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+		if err != nil {
+			return nil, err
+		}
+		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+		if err != nil {
+			return nil, err
+		}
+		sum := lhsNum + rhsNum
+		target.Node.Tag = "!!float"
+		target.Node.Value = fmt.Sprintf("%v", sum)
+	} else {
+		return nil, fmt.Errorf("%v cannot be added to %v", lhs.Tag, rhs.Tag)
 	}
 
 	return target, nil

@@ -61,6 +61,48 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::{a: [1, 2, 3, 4], b: [3, 4]}\n",
 		},
 	},
+	{
+		description: "String concatenation",
+		document:    `{a: cat, b: meow}`,
+		expression:  `.a = .a + .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: catmeow, b: meow}\n",
+		},
+	},
+	{
+		description: "Relative string concatenation",
+		document:    `{a: cat, b: meow}`,
+		expression:  `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: catmeow, b: meow}\n",
+		},
+	},
+	{
+		description:    "Number addition - float",
+		subdescription: "If the lhs or rhs are floats then the expression will be calculated with floats.",
+		document:       `{a: 3, b: 4.9}`,
+		expression:     `.a = .a + .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: 7.9, b: 4.9}\n",
+		},
+	},
+	{
+		description:    "Number addition - int",
+		subdescription: "If both the lhs and rhs are ints then the expression will be calculated with ints.",
+		document:       `{a: 3, b: 4}`,
+		expression:     `.a = .a + .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: 7, b: 4}\n",
+		},
+	},
+	{
+		description: "Increment number",
+		document:    `{a: 3}`,
+		expression:  `.a += 1`,
+		expected: []string{
+			"D0, P[], (doc)::{a: 4}\n",
+		},
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {
