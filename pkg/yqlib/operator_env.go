@@ -38,7 +38,7 @@ func envOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNo
 			return nil, errorReading
 		}
 		//first node is a doc
-		node = UnwrapDoc(&dataBucket)
+		node = unwrapDoc(&dataBucket)
 	}
 	log.Debug("ENV tag", node.Tag)
 	log.Debug("ENV value", node.Value)

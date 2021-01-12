@@ -24,7 +24,7 @@ func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathT
 		candidate := el.Value.(*CandidateNode)
 
 		// grab the first value
-		candidateNode := UnwrapDoc(candidate.Node)
+		candidateNode := unwrapDoc(candidate.Node)
 		var contents = candidateNode.Content
 		switch candidateNode.Kind {
 		case yaml.MappingNode:

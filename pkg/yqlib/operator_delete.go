@@ -49,7 +49,7 @@ func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List
 
 	for el := parents.Front(); el != nil; el = el.Next() {
 		parent := el.Value.(*CandidateNode)
-		parentNode := UnwrapDoc(parent.Node)
+		parentNode := unwrapDoc(parent.Node)
 		if parentNode.Kind == yaml.MappingNode {
 			deleteFromMap(parent, childPath)
 		} else if parentNode.Kind == yaml.SequenceNode {
@@ -64,7 +64,7 @@ func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List
 
 func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromMap")
-	node := UnwrapDoc(candidate.Node)
+	node := unwrapDoc(candidate.Node)
 	contents := node.Content
 	newContents := make([]*yaml.Node, 0)
 
@@ -87,7 +87,7 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 
 func deleteFromArray(candidate *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromArray")
-	node := UnwrapDoc(candidate.Node)
+	node := unwrapDoc(candidate.Node)
 	contents := node.Content
 	newContents := make([]*yaml.Node, 0)
 

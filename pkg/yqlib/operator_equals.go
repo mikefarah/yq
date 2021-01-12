@@ -12,8 +12,8 @@ func equalsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pa
 func isEquals(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	value := false
 
-	lhsNode := UnwrapDoc(lhs.Node)
-	rhsNode := UnwrapDoc(rhs.Node)
+	lhsNode := unwrapDoc(lhs.Node)
+	rhsNode := unwrapDoc(rhs.Node)
 
 	if lhsNode.Tag == "!!null" {
 		value = (rhsNode.Tag == "!!null")

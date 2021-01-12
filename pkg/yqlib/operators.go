@@ -9,7 +9,7 @@ import (
 
 type operatorHandler func(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
 
-func UnwrapDoc(node *yaml.Node) *yaml.Node {
+func unwrapDoc(node *yaml.Node) *yaml.Node {
 	if node.Kind == yaml.DocumentNode {
 		return node.Content[0]
 	}

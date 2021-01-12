@@ -57,8 +57,8 @@ func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Pa
 			log.Debugf("LHS:", NodeToString(lhs))
 			log.Debugf("RHS:", NodeToString(rhs))
 			node.Content = []*yaml.Node{
-				UnwrapDoc(lhs.Node),
-				UnwrapDoc(rhs.Node),
+				unwrapDoc(lhs.Node),
+				unwrapDoc(rhs.Node),
 			}
 
 			return &CandidateNode{Node: &node, Document: document, Path: path}, nil

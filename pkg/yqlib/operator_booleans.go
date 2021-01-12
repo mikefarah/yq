@@ -7,7 +7,7 @@ import (
 )
 
 func isTruthy(c *CandidateNode) (bool, error) {
-	node := UnwrapDoc(c.Node)
+	node := unwrapDoc(c.Node)
 	value := true
 
 	if node.Tag == "!!null" {
@@ -27,8 +27,8 @@ type boolOp func(bool, bool) bool
 
 func performBoolOp(op boolOp) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		lhs.Node = UnwrapDoc(lhs.Node)
-		rhs.Node = UnwrapDoc(rhs.Node)
+		lhs.Node = unwrapDoc(lhs.Node)
+		rhs.Node = unwrapDoc(rhs.Node)
 
 		lhsTrue, errDecoding := isTruthy(lhs)
 		if errDecoding != nil {

@@ -27,7 +27,7 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidate.Node = UnwrapDoc(candidate.Node)
+		candidate.Node = unwrapDoc(candidate.Node)
 
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)

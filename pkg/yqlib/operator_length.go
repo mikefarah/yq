@@ -13,7 +13,7 @@ func lengthOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTre
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		targetNode := UnwrapDoc(candidate.Node)
+		targetNode := unwrapDoc(candidate.Node)
 		var length int
 		switch targetNode.Kind {
 		case yaml.ScalarNode:
