@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func collectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func collectOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- collectOperation")
 
 	if matchMap.Len() == 0 {

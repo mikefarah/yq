@@ -7,9 +7,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
-	nodesToDelete, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	nodesToDelete, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 			Value:         candidate.Path[len(candidate.Path)-1],
 		}
 
-		deleteImmediateChildOpNode := &PathTreeNode{
+		deleteImmediateChildOpNode := &ExpressionNode{
 			Operation: deleteImmediateChildOp,
 			Rhs:       createTraversalTree(candidate.Path[0 : len(candidate.Path)-1]),
 		}
@@ -36,14 +36,14 @@ func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	parents, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	parents, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 
 	if err != nil {
 		return nil, err
 	}
 
-	childPath := pathNode.Operation.Value
+	childPath := expressionNode.Operation.Value
 
 	log.Debug("childPath to remove %v", childPath)
 

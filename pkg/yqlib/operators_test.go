@@ -30,7 +30,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	var results *list.List
 	var err error
 
-	node, err := NewPathTreeCreator().ParsePath(s.expression)
+	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
 		return
@@ -110,7 +110,7 @@ func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
 	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
-	node, err := NewPathTreeCreator().ParsePath(".. style= \"\"")
+	node, err := NewExpressionParser().ParseExpression(".. style= \"\"")
 	if err != nil {
 		panic(err)
 	}
@@ -219,7 +219,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 	var err error
 	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
-	node, err := NewPathTreeCreator().ParsePath(s.expression)
+	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
 		return

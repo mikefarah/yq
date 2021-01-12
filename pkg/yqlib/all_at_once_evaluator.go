@@ -19,11 +19,11 @@ type Evaluator interface {
 
 type allAtOnceEvaluator struct {
 	treeNavigator DataTreeNavigator
-	treeCreator   PathTreeCreator
+	treeCreator   ExpressionParser
 }
 
 func NewAllAtOnceEvaluator() Evaluator {
-	return &allAtOnceEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewPathTreeCreator()}
+	return &allAtOnceEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewExpressionParser()}
 }
 
 func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error) {
@@ -35,7 +35,7 @@ func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*yaml.Nod
 }
 
 func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCandidates *list.List) (*list.List, error) {
-	node, err := e.treeCreator.ParsePath(expression)
+	node, err := e.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return nil, err
 	}

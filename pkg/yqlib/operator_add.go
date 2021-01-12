@@ -9,17 +9,17 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func createAddOp(lhs *PathTreeNode, rhs *PathTreeNode) *PathTreeNode {
-	return &PathTreeNode{Operation: &Operation{OperationType: addOpType},
+func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
+	return &ExpressionNode{Operation: &Operation{OperationType: addOpType},
 		Lhs: lhs,
 		Rhs: rhs}
 }
 
-func addAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func addAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	assignmentOp := &Operation{OperationType: assignOpType}
 	assignmentOp.UpdateAssign = false
 
-	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: pathNode.Lhs, Rhs: createAddOp(pathNode.Lhs, pathNode.Rhs)}
+	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: expressionNode.Lhs, Rhs: createAddOp(expressionNode.Lhs, expressionNode.Rhs)}
 	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
 }
 
@@ -37,10 +37,10 @@ func toNodes(candidate *CandidateNode) []*yaml.Node {
 
 }
 
-func addOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func addOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("Add operator")
 
-	return crossFunction(d, matchingNodes, pathNode, add)
+	return crossFunction(d, matchingNodes, expressionNode, add)
 }
 
 func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

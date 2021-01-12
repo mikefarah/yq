@@ -5,29 +5,28 @@ import (
 	"strings"
 )
 
-var myPathTokeniser = newPathTokeniser()
-var myPathPostfixer = newPathPostFixer()
+var myPathTokeniser = newExpressionTokeniser()
+var myPathPostfixer = newExpressionPostFixer()
 
-type PathTreeNode struct {
+type ExpressionNode struct {
 	Operation *Operation
-	Lhs       *PathTreeNode
-	Rhs       *PathTreeNode
+	Lhs       *ExpressionNode
+	Rhs       *ExpressionNode
 }
 
-type PathTreeCreator interface {
-	ParsePath(path string) (*PathTreeNode, error)
-	CreatePathTree(postFixPath []*Operation) (*PathTreeNode, error)
+type ExpressionParser interface {
+	ParseExpression(expression string) (*ExpressionNode, error)
 }
 
-type pathTreeCreator struct {
+type expressionParserImpl struct {
 }
 
-func NewPathTreeCreator() PathTreeCreator {
-	return &pathTreeCreator{}
+func NewExpressionParser() ExpressionParser {
+	return &expressionParserImpl{}
 }
 
-func (p *pathTreeCreator) ParsePath(path string) (*PathTreeNode, error) {
-	tokens, err := myPathTokeniser.Tokenise(path)
+func (p *expressionParserImpl) ParseExpression(expression string) (*ExpressionNode, error) {
+	tokens, err := myPathTokeniser.Tokenise(expression)
 	if err != nil {
 		return nil, err
 	}
@@ -36,18 +35,18 @@ func (p *pathTreeCreator) ParsePath(path string) (*PathTreeNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return p.CreatePathTree(Operations)
+	return p.createExpressionTree(Operations)
 }
 
-func (p *pathTreeCreator) CreatePathTree(postFixPath []*Operation) (*PathTreeNode, error) {
-	var stack = make([]*PathTreeNode, 0)
+func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*ExpressionNode, error) {
+	var stack = make([]*ExpressionNode, 0)
 
 	if len(postFixPath) == 0 {
 		return nil, nil
 	}
 
 	for _, Operation := range postFixPath {
-		var newNode = PathTreeNode{Operation: Operation}
+		var newNode = ExpressionNode{Operation: Operation}
 		log.Debugf("pathTree %v ", Operation.toString())
 		if Operation.OperationType.NumArgs > 0 {
 			numArgs := Operation.OperationType.NumArgs

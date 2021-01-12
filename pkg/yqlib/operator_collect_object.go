@@ -17,7 +17,7 @@ import (
 ...
 */
 
-func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- collectObjectOperation")
 
 	if matchMap.Len() == 0 {

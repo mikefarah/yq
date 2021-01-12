@@ -6,13 +6,13 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("AssignAlias operator!")
 
 	aliasName := ""
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 		if err != nil {
 			return nil, err
 		}
@@ -21,7 +21,7 @@ func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 
 	if err != nil {
 		return nil, err
@@ -31,8 +31,8 @@ func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting aliasName : %v", candidate.GetKey())
 
-		if pathNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
@@ -47,7 +47,7 @@ func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("GetAlias operator!")
 	var results = list.New()
 
@@ -60,13 +60,13 @@ func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 	return results, nil
 }
 
-func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("AssignAnchor operator!")
 
 	anchorName := ""
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +76,7 @@ func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 
 	if err != nil {
 		return nil, err
@@ -86,8 +86,8 @@ func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting anchorName of : %v", candidate.GetKey())
 
-		if pathNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
@@ -102,7 +102,7 @@ func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 	return matchingNodes, nil
 }
 
-func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("GetAnchor operator!")
 	var results = list.New()
 
@@ -116,13 +116,13 @@ func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	return results, nil
 }
 
-func explodeOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func explodeOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- ExplodeOperation")
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 
 		if err != nil {
 			return nil, err

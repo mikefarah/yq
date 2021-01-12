@@ -2,12 +2,12 @@ package yqlib
 
 import "container/list"
 
-func unionOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+func unionOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 	if err != nil {
 		return nil, err
 	}

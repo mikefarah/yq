@@ -7,9 +7,9 @@ import (
 // corssFunction no matches
 // can boolean use crossfunction
 
-func alternativeOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func alternativeOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- alternative")
-	return crossFunction(d, matchingNodes, pathNode, alternativeFunc)
+	return crossFunction(d, matchingNodes, expressionNode, alternativeFunc)
 }
 
 func alternativeFunc(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

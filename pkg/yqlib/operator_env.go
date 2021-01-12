@@ -13,13 +13,13 @@ type envOpPreferences struct {
 	StringValue bool
 }
 
-func envOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	envName := pathNode.Operation.CandidateNode.Node.Value
+func envOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	envName := expressionNode.Operation.CandidateNode.Node.Value
 	log.Debug("EnvOperator, env name:", envName)
 
 	rawValue := os.Getenv(envName)
 
-	preferences := pathNode.Operation.Preferences.(*envOpPreferences)
+	preferences := expressionNode.Operation.Preferences.(*envOpPreferences)
 
 	var node *yaml.Node
 	if preferences.StringValue {

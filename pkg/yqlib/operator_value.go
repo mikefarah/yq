@@ -2,7 +2,7 @@ package yqlib
 
 import "container/list"
 
-func valueOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	log.Debug("value = %v", pathNode.Operation.CandidateNode.Node.Value)
-	return nodeToMap(pathNode.Operation.CandidateNode), nil
+func valueOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	log.Debug("value = %v", expressionNode.Operation.CandidateNode.Node.Value)
+	return nodeToMap(expressionNode.Operation.CandidateNode), nil
 }

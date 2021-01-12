@@ -44,23 +44,23 @@ func performBoolOp(op boolOp) func(d *dataTreeNavigator, lhs *CandidateNode, rhs
 	}
 }
 
-func orOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func orOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- orOp")
-	return crossFunction(d, matchingNodes, pathNode, performBoolOp(
+	return crossFunction(d, matchingNodes, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 || b2
 		}))
 }
 
-func andOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func andOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- AndOp")
-	return crossFunction(d, matchingNodes, pathNode, performBoolOp(
+	return crossFunction(d, matchingNodes, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 && b2
 		}))
 }
 
-func notOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func notOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- notOperation")
 	var results = list.New()
 

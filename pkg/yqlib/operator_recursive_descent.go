@@ -11,10 +11,10 @@ type recursiveDescentPreferences struct {
 	RecurseArray        bool
 }
 
-func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	var results = list.New()
 
-	preferences := pathNode.Operation.Preferences.(*recursiveDescentPreferences)
+	preferences := expressionNode.Operation.Preferences.(*recursiveDescentPreferences)
 	err := recursiveDecent(d, results, matchMap, preferences)
 	if err != nil {
 		return nil, err

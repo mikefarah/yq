@@ -13,21 +13,21 @@ type commentOpPreferences struct {
 	FootComment bool
 }
 
-func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("AssignComments operator!")
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 
 	if err != nil {
 		return nil, err
 	}
 
-	preferences := pathNode.Operation.Preferences.(*commentOpPreferences)
+	preferences := expressionNode.Operation.Preferences.(*commentOpPreferences)
 
 	comment := ""
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 		if err != nil {
 			return nil, err
 		}
@@ -40,8 +40,8 @@ func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		if pathNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
@@ -66,8 +66,8 @@ func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, path
 	return matchingNodes, nil
 }
 
-func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	preferences := pathNode.Operation.Preferences.(*commentOpPreferences)
+func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	preferences := expressionNode.Operation.Preferences.(*commentOpPreferences)
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 
