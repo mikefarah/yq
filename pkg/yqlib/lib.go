@@ -1,3 +1,5 @@
+// Use the top level Evaluator or StreamEvaluator to evaluate expressions and return matches.
+//
 package yqlib
 
 import (
@@ -164,24 +166,6 @@ func NodeToString(node *CandidateNode) string {
 		tag = "alias"
 	}
 	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())
-}
-
-// EvaluateNodes takes an expression and one or more yaml nodes, returning a list of matching candidate nodes
-func EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error) {
-	inputCandidates := list.New()
-	for _, node := range nodes {
-		inputCandidates.PushBack(&CandidateNode{Node: node})
-	}
-	return EvaluateCandidateNodes(expression, inputCandidates)
-}
-
-// EvaluateCandidateNodes takes an expression and list of candidate nodes, returning a list of matching candidate nodes
-func EvaluateCandidateNodes(expression string, inputCandidates *list.List) (*list.List, error) {
-	node, err := treeCreator.ParsePath(expression)
-	if err != nil {
-		return nil, err
-	}
-	return treeNavigator.GetMatchingNodes(inputCandidates, node)
 }
 
 func KindString(kind yaml.Kind) string {

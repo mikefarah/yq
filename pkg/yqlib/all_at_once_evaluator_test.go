@@ -30,10 +30,11 @@ var evaluateNodesScenario = []expressionScenario{
 	},
 }
 
-func TestEvaluateNodesScenarios(t *testing.T) {
+func TestAllAtOnceEvaluateNodes(t *testing.T) {
+	var evaluator = NewAllAtOnceEvaluator()
 	for _, tt := range evaluateNodesScenario {
 		node := test.ParseData(tt.document)
-		list, _ := EvaluateNodes(tt.expression, &node)
+		list, _ := evaluator.EvaluateNodes(tt.expression, &node)
 		test.AssertResultComplex(t, tt.expected, resultsToString(list))
 	}
 }

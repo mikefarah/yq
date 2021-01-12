@@ -1,14 +1,20 @@
 package yqlib
 
-import "container/list"
+import (
+	"container/list"
+
+	yaml "gopkg.in/yaml.v3"
+)
 
 // A yaml expression evaluator that runs the expression once against all files/nodes in memory.
 type Evaluator interface {
 	EvaluateFiles(expression string, filenames []string, printer Printer) error
 
-	// Runs the expression once against the list of candidate nodes, returns the
-	// resulting nodes.
-	EvaluateNodes(expression string, inputCandidateNodes *list.List) (*list.List, error)
+	// EvaluateNodes takes an expression and one or more yaml nodes, returning a list of matching candidate nodes
+	EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error)
+
+	// EvaluateCandidateNodes takes an expression and list of candidate nodes, returning a list of matching candidate nodes
+	EvaluateCandidateNodes(expression string, inputCandidateNodes *list.List) (*list.List, error)
 }
 
 type allAtOnceEvaluator struct {
@@ -20,7 +26,15 @@ func NewAllAtOnceEvaluator() Evaluator {
 	return &allAtOnceEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewPathTreeCreator()}
 }
 
-func (e *allAtOnceEvaluator) EvaluateNodes(expression string, inputCandidates *list.List) (*list.List, error) {
+func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error) {
+	inputCandidates := list.New()
+	for _, node := range nodes {
+		inputCandidates.PushBack(&CandidateNode{Node: node})
+	}
+	return e.EvaluateCandidateNodes(expression, inputCandidates)
+}
+
+func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCandidates *list.List) (*list.List, error) {
 	node, err := treeCreator.ParsePath(expression)
 	if err != nil {
 		return nil, err
@@ -44,7 +58,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 		allDocuments.PushBackList(fileDocuments)
 		fileIndex = fileIndex + 1
 	}
-	matches, err := e.EvaluateNodes(expression, allDocuments)
+	matches, err := e.EvaluateCandidateNodes(expression, allDocuments)
 	if err != nil {
 		return err
 	}
