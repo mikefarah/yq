@@ -31,8 +31,8 @@ func getPathOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *P
 			content[pathIndex] = createPathNodeFor(path)
 		}
 		node.Content = content
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil

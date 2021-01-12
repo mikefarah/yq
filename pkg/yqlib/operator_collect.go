@@ -18,21 +18,22 @@ func collectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTr
 	var results = list.New()
 
 	node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-
-	var document uint = 0
-	var path []interface{}
+	var collectC *CandidateNode
+	if matchMap.Front() != nil {
+		collectC = matchMap.Front().Value.(*CandidateNode).CreateChild(nil, node)
+		if len(collectC.Path) > 0 {
+			collectC.Path = collectC.Path[:len(collectC.Path)-1]
+		}
+	} else {
+		collectC = &CandidateNode{Node: node}
+	}
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Collecting %v", NodeToString(candidate))
-		if path == nil && candidate.Path != nil && len(candidate.Path) > 1 {
-			path = candidate.Path[:len(candidate.Path)-1]
-			document = candidate.Document
-		}
 		node.Content = append(node.Content, UnwrapDoc(candidate.Node))
 	}
 
-	collectC := &CandidateNode{Node: node, Document: document, Path: path}
 	results.PushBack(collectC)
 
 	return results, nil

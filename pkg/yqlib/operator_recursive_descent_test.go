@@ -68,7 +68,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:       `{a: {name: frog, b: {name: blog, age: 12}}}`,
 		expression:     `[.. | select(has("name"))]`,
 		expected: []string{
-			"D0, P[a], (!!seq)::- {name: frog, b: {name: blog, age: 12}}\n- {name: blog, age: 12}\n",
+			"D0, P[], (!!seq)::- {name: frog, b: {name: blog, age: 12}}\n- {name: blog, age: 12}\n",
 		},
 	},
 	{
@@ -165,7 +165,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:    `{a: &cat {c: frog}, b: *cat}`,
 		expression:  `[..]`,
 		expected: []string{
-			"D0, P[a], (!!seq)::- {a: &cat {c: frog}, b: *cat}\n- &cat {c: frog}\n- frog\n- *cat\n",
+			"D0, P[], (!!seq)::- {a: &cat {c: frog}, b: *cat}\n- &cat {c: frog}\n- frog\n- *cat\n",
 		},
 	},
 	{
@@ -187,7 +187,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:    mergeDocSample,
 		expression:  `.foobar | [..]`,
 		expected: []string{
-			"D0, P[foobar], (!!seq)::- c: foobar_c\n  !!merge <<: *foo\n  thing: foobar_thing\n- foobar_c\n- *foo\n- foobar_thing\n",
+			"D0, P[], (!!seq)::- c: foobar_c\n  !!merge <<: *foo\n  thing: foobar_thing\n- foobar_c\n- *foo\n- foobar_thing\n",
 		},
 	},
 	{
@@ -195,7 +195,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   mergeDocSample,
 		expression: `.foobar | [...]`,
 		expected: []string{
-			"D0, P[foobar], (!!seq)::- c: foobar_c\n  !!merge <<: *foo\n  thing: foobar_thing\n- c\n- foobar_c\n- !!merge <<\n- *foo\n- thing\n- foobar_thing\n",
+			"D0, P[], (!!seq)::- c: foobar_c\n  !!merge <<: *foo\n  thing: foobar_thing\n- c\n- foobar_c\n- !!merge <<\n- *foo\n- thing\n- foobar_thing\n",
 		},
 	},
 	{

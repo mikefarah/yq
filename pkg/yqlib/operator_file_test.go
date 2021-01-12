@@ -29,6 +29,14 @@ var fileOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!int)::0\n",
 		},
 	},
+	{
+		skipDoc:    true,
+		document:   "a: cat\nb: dog",
+		expression: `.. lineComment |= filename`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat # sample.yml\nb: dog # sample.yml\n",
+		},
+	},
 }
 
 func TestFileOperatorsScenarios(t *testing.T) {

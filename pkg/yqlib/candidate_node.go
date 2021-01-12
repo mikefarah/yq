@@ -21,7 +21,23 @@ func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v - %v", n.Document, n.Path)
 }
 
-func (n *CandidateNode) CreateChildPath(path interface{}) []interface{} {
+func (n *CandidateNode) CreateChild(path interface{}, node *yaml.Node) *CandidateNode {
+	return &CandidateNode{
+		Node:      node,
+		Path:      n.createChildPath(path),
+		Document:  n.Document,
+		Filename:  n.Filename,
+		FileIndex: n.FileIndex,
+	}
+}
+
+func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
+	if path == nil {
+		newPath := make([]interface{}, len(n.Path))
+		copy(newPath, n.Path)
+		return newPath
+	}
+
 	//don't use append as they may actually modify the path of the orignal node!
 	newPath := make([]interface{}, len(n.Path)+1)
 	copy(newPath, n.Path)

@@ -55,8 +55,8 @@ func getTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *Pa
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: UnwrapDoc(candidate.Node).Tag, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil

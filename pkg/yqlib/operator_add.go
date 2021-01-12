@@ -47,12 +47,7 @@ func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Candida
 	lhs.Node = UnwrapDoc(lhs.Node)
 	rhs.Node = UnwrapDoc(rhs.Node)
 
-	target := &CandidateNode{
-		Path:     lhs.Path,
-		Document: lhs.Document,
-		Filename: lhs.Filename,
-		Node:     &yaml.Node{},
-	}
+	target := lhs.CreateChild(nil, &yaml.Node{})
 	lhsNode := lhs.Node
 
 	switch lhsNode.Kind {

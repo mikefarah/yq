@@ -54,8 +54,8 @@ func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Node.Value, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 	return results, nil
 }
@@ -110,8 +110,8 @@ func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 		candidate := el.Value.(*CandidateNode)
 		anchor := candidate.Node.Anchor
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: anchor, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 	return results, nil
 }

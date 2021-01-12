@@ -100,8 +100,8 @@ func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 			style = "<unknown>"
 		}
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: style, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil
