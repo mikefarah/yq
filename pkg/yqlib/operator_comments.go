@@ -84,8 +84,8 @@ func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		comment = strings.Replace(comment, "# ", "", 1)
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 	return results, nil
 }

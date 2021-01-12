@@ -35,7 +35,7 @@ func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
 		for i := 0; i < len(first.Node.Content); i++ {
-			rotated[i].PushBack(createChildCandidate(candidateNode, i))
+			rotated[i].PushBack(candidateNode.CreateChild(i, candidateNode.Node.Content[i]))
 		}
 	}
 
@@ -50,15 +50,6 @@ func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *
 
 	return newObject, nil
 
-}
-
-func createChildCandidate(candidate *CandidateNode, index int) *CandidateNode {
-	return &CandidateNode{
-		Document: candidate.Document,
-		Path:     candidate.CreateChildPath(index),
-		Filename: candidate.Filename,
-		Node:     candidate.Node.Content[index],
-	}
 }
 
 func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.List) (*list.List, error) {

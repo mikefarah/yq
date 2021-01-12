@@ -44,12 +44,7 @@ func envOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNo
 	log.Debug("ENV value", node.Value)
 	log.Debug("ENV Kind", node.Kind)
 
-	target := &CandidateNode{
-		Path:     make([]interface{}, 0),
-		Document: 0,
-		Filename: "",
-		Node:     node,
-	}
+	target := &CandidateNode{Node: node}
 
 	return nodeToMap(target), nil
 }

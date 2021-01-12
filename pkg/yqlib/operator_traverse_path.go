@@ -67,11 +67,8 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 		return traverse(d, matchingNode, operation)
 	case yaml.DocumentNode:
 		log.Debug("digging into doc node")
-		return traverse(d, &CandidateNode{
-			Node:      matchingNode.Node.Content[0],
-			Filename:  matchingNode.Filename,
-			FileIndex: matchingNode.FileIndex,
-			Document:  matchingNode.Document}, operation)
+
+		return traverse(d, matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), operation)
 	default:
 		return list.New(), nil
 	}
@@ -121,11 +118,7 @@ func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml
 	} else if node.Kind == yaml.MappingNode {
 		return traverseMapWithIndices(matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.DocumentNode {
-		return traverseArrayIndices(&CandidateNode{
-			Node:      matchingNode.Node.Content[0],
-			Filename:  matchingNode.Filename,
-			FileIndex: matchingNode.FileIndex,
-			Document:  matchingNode.Document}, indicesToTraverse, prefs)
+		return traverseArrayIndices(matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), indicesToTraverse, prefs)
 	}
 	log.Debugf("OperatorArrayTraverse skipping %v as its a %v", matchingNode, node.Tag)
 	return list.New(), nil
@@ -159,11 +152,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*
 		var index int64
 		for index = 0; index < int64(len(node.Content)); index = index + 1 {
 
-			newMatches.PushBack(&CandidateNode{
-				Document: candidate.Document,
-				Path:     candidate.CreateChildPath(index),
-				Node:     node.Content[index],
-			})
+			newMatches.PushBack(candidate.CreateChild(index, node.Content[index]))
 		}
 		return newMatches, nil
 
@@ -190,11 +179,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*
 			return nil, fmt.Errorf("Index [%v] out of range, array size is %v", index, contentLength)
 		}
 
-		newMatches.PushBack(&CandidateNode{
-			Node:     node.Content[indexToUse],
-			Document: candidate.Document,
-			Path:     candidate.CreateChildPath(index),
-		})
+		newMatches.PushBack(candidate.CreateChild(index, node.Content[indexToUse]))
 	}
 	return newMatches, nil
 }
@@ -216,13 +201,8 @@ func traverseMap(matchingNode *CandidateNode, key string, prefs *traversePrefere
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 		node := matchingNode.Node
 		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: key}, valueNode)
-		candidateNode := &CandidateNode{
-			Node:     valueNode,
-			Path:     append(matchingNode.Path, key),
-			Document: matchingNode.Document,
-		}
+		candidateNode := matchingNode.CreateChild(key, valueNode)
 		newMatches.Set(candidateNode.GetKey(), candidateNode)
-
 	}
 
 	results := list.New()
@@ -258,18 +238,10 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 		} else if splat || keyMatches(key, wantedKey) {
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
-				candidateNode := &CandidateNode{
-					Node:     key,
-					Path:     candidate.CreateChildPath(key.Value),
-					Document: candidate.Document,
-				}
+				candidateNode := candidate.CreateChild(key.Value, key)
 				newMatches.Set(fmt.Sprintf("keyOf-%v", candidateNode.GetKey()), candidateNode)
 			}
-			candidateNode := &CandidateNode{
-				Node:     value,
-				Path:     candidate.CreateChildPath(key.Value),
-				Document: candidate.Document,
-			}
+			candidateNode := candidate.CreateChild(key.Value, value)
 			newMatches.Set(candidateNode.GetKey(), candidateNode)
 		}
 	}
@@ -280,11 +252,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string, prefs *traversePreferences, splat bool) error {
 	switch value.Kind {
 	case yaml.AliasNode:
-		candidateNode := &CandidateNode{
-			Node:     value.Alias,
-			Path:     originalCandidate.Path,
-			Document: originalCandidate.Document,
-		}
+		candidateNode := originalCandidate.CreateChild(nil, value.Alias)
 		return doTraverseMap(newMatches, candidateNode, wantedKey, prefs, splat)
 	case yaml.SequenceNode:
 		for _, childValue := range value.Content {

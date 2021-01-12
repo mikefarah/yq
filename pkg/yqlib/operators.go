@@ -26,7 +26,7 @@ func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
 		valString = "false"
 	}
 	node := &yaml.Node{Kind: yaml.ScalarNode, Value: valString, Tag: "!!bool"}
-	return &CandidateNode{Node: node, Document: owner.Document, Path: owner.Path}
+	return owner.CreateChild(nil, node)
 }
 
 func nodeToMap(candidate *CandidateNode) *list.List {

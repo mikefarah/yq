@@ -13,7 +13,7 @@ func getDocumentIndexOperator(d *dataTreeNavigator, matchingNodes *list.List, pa
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", candidate.Document), Tag: "!!int"}
-		scalar := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
+		scalar := candidate.CreateChild(nil, node)
 		results.PushBack(scalar)
 	}
 	return results, nil

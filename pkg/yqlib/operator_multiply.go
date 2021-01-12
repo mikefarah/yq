@@ -64,12 +64,7 @@ func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
-			var newBlank = &CandidateNode{
-				Path:     lhs.Path,
-				Document: lhs.Document,
-				Filename: lhs.Filename,
-				Node:     &yaml.Node{},
-			}
+			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
 			var newThing, err = mergeObjects(d, newBlank, lhs, false)
 			if err != nil {
 				return nil, err

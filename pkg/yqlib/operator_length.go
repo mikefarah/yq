@@ -27,8 +27,8 @@ func lengthOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTre
 		}
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil

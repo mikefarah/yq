@@ -15,8 +15,8 @@ func getFilenameOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Filename, Tag: "!!str"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil
@@ -30,8 +30,8 @@ func getFileIndexOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", candidate.FileIndex), Tag: "!!int"}
-		lengthCand := &CandidateNode{Node: node, Document: candidate.Document, Path: candidate.Path}
-		results.PushBack(lengthCand)
+		result := candidate.CreateChild(nil, node)
+		results.PushBack(result)
 	}
 
 	return results, nil
