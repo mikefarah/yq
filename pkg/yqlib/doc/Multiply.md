@@ -180,7 +180,7 @@ g: thongs
 f: *cat
 ```
 
-## Merge does not copy anchor names
+## Merge copies anchor names
 Given a sample.yml file of:
 ```yaml
 a:
@@ -197,7 +197,7 @@ yq eval '.c * .a' sample.yml
 will output
 ```yaml
 g: thongs
-c: frog
+c: &cat frog
 ```
 
 ## Merge with merge anchors
