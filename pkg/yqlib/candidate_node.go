@@ -61,6 +61,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value
 	n.Node.Alias = other.Node.Alias
+	n.Node.Anchor = other.Node.Anchor
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {

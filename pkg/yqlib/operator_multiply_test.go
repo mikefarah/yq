@@ -132,11 +132,11 @@ b:
 		},
 	},
 	{
-		description: "Merge does not copy anchor names",
+		description: "Merge copies anchor names",
 		document:    `{a: {c: &cat frog}, b: {f: *cat}, c: {g: thongs}}`,
 		expression:  `.c * .a`,
 		expected: []string{
-			"D0, P[c], (!!map)::{g: thongs, c: frog}\n",
+			"D0, P[c], (!!map)::{g: thongs, c: &cat frog}\n",
 		},
 	},
 	{
