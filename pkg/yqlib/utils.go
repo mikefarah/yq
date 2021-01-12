@@ -9,9 +9,6 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var treeNavigator = NewDataTreeNavigator()
-var treeCreator = NewPathTreeCreator()
-
 func readStream(filename string) (io.Reader, error) {
 	if filename == "-" {
 		return bufio.NewReader(os.Stdin), nil

@@ -30,7 +30,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	var results *list.List
 	var err error
 
-	node, err := treeCreator.ParsePath(s.expression)
+	node, err := NewPathTreeCreator().ParsePath(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
 		return
@@ -66,7 +66,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		os.Setenv("myenv", s.environmentVariable)
 	}
 
-	results, err = treeNavigator.GetMatchingNodes(inputs, node)
+	results, err = NewDataTreeNavigator().GetMatchingNodes(inputs, node)
 
 	if err != nil {
 		t.Error(fmt.Errorf("%v: %v", err, s.expression))
@@ -110,7 +110,7 @@ func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
 	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
-	node, err := treeCreator.ParsePath(".. style= \"\"")
+	node, err := NewPathTreeCreator().ParsePath(".. style= \"\"")
 	if err != nil {
 		panic(err)
 	}
@@ -219,7 +219,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 	var err error
 	printer := NewPrinter(bufio.NewWriter(&output), false, true, false, 2, true)
 
-	node, err := treeCreator.ParsePath(s.expression)
+	node, err := NewPathTreeCreator().ParsePath(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
 		return
@@ -252,7 +252,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 	}
 
-	results, err := treeNavigator.GetMatchingNodes(inputs, node)
+	results, err := NewDataTreeNavigator().GetMatchingNodes(inputs, node)
 	if err != nil {
 		t.Error(err, s.expression)
 	}
