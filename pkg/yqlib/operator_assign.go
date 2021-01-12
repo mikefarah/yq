@@ -28,7 +28,7 @@ func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 
 		if first != nil {
 			rhsCandidate := first.Value.(*CandidateNode)
-			rhsCandidate.Node = UnwrapDoc(rhsCandidate.Node)
+			rhsCandidate.Node = unwrapDoc(rhsCandidate.Node)
 			candidate.UpdateFrom(rhsCandidate)
 		}
 	}

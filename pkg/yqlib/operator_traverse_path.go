@@ -146,7 +146,7 @@ func traverseMapWithIndices(candidate *CandidateNode, indices []*yaml.Node, pref
 func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*list.List, error) {
 	log.Debug("traverseArrayWithIndices")
 	var newMatches = list.New()
-	node := UnwrapDoc(candidate.Node)
+	node := unwrapDoc(candidate.Node)
 	if len(indices) == 0 {
 		log.Debug("splatting")
 		var index int64

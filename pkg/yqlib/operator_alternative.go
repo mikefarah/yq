@@ -13,8 +13,8 @@ func alternativeOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 }
 
 func alternativeFunc(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs.Node = UnwrapDoc(lhs.Node)
-	rhs.Node = UnwrapDoc(rhs.Node)
+	lhs.Node = unwrapDoc(lhs.Node)
+	rhs.Node = unwrapDoc(rhs.Node)
 	log.Debugf("Alternative LHS: %v", lhs.Node.Tag)
 	log.Debugf("-          RHS: %v", rhs.Node.Tag)
 

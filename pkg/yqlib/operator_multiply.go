@@ -54,8 +54,8 @@ func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 
 func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		lhs.Node = UnwrapDoc(lhs.Node)
-		rhs.Node = UnwrapDoc(rhs.Node)
+		lhs.Node = unwrapDoc(lhs.Node)
+		rhs.Node = unwrapDoc(rhs.Node)
 		log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
 		log.Debugf("-          RHS: %v", rhs.Node.Tag)
 

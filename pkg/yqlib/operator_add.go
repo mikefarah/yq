@@ -44,8 +44,8 @@ func addOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathT
 }
 
 func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs.Node = UnwrapDoc(lhs.Node)
-	rhs.Node = UnwrapDoc(rhs.Node)
+	lhs.Node = unwrapDoc(lhs.Node)
+	rhs.Node = unwrapDoc(rhs.Node)
 
 	target := lhs.CreateChild(nil, &yaml.Node{})
 	lhsNode := lhs.Node

@@ -31,7 +31,7 @@ func collectOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTr
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Collecting %v", NodeToString(candidate))
-		node.Content = append(node.Content, UnwrapDoc(candidate.Node))
+		node.Content = append(node.Content, unwrapDoc(candidate.Node))
 	}
 
 	results.PushBack(collectC)

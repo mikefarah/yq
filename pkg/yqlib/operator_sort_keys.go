@@ -17,7 +17,7 @@ func sortKeysOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *
 		}
 
 		for childEl := rhs.Front(); childEl != nil; childEl = childEl.Next() {
-			node := UnwrapDoc(childEl.Value.(*CandidateNode).Node)
+			node := unwrapDoc(childEl.Value.(*CandidateNode).Node)
 			if node.Kind == yaml.MappingNode {
 				sortKeys(node)
 			}
