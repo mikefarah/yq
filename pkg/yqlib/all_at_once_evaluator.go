@@ -35,11 +35,11 @@ func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*yaml.Nod
 }
 
 func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCandidates *list.List) (*list.List, error) {
-	node, err := treeCreator.ParsePath(expression)
+	node, err := e.treeCreator.ParsePath(expression)
 	if err != nil {
 		return nil, err
 	}
-	return treeNavigator.GetMatchingNodes(inputCandidates, node)
+	return e.treeNavigator.GetMatchingNodes(inputCandidates, node)
 }
 
 func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {

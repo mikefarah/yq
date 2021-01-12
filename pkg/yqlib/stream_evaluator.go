@@ -28,7 +28,7 @@ func NewStreamEvaluator() StreamEvaluator {
 }
 
 func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {
-	node, err := treeCreator.ParsePath(expression)
+	node, err := s.treeCreator.ParsePath(expression)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
 
-	matches, errorParsing := treeNavigator.GetMatchingNodes(inputList, node)
+	matches, errorParsing := s.treeNavigator.GetMatchingNodes(inputList, node)
 	if errorParsing != nil {
 		return errorParsing
 	}
@@ -50,7 +50,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
 
-	node, err := treeCreator.ParsePath(expression)
+	node, err := s.treeCreator.ParsePath(expression)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Path
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 
-		matches, errorParsing := treeNavigator.GetMatchingNodes(inputList, node)
+		matches, errorParsing := s.treeNavigator.GetMatchingNodes(inputList, node)
 		if errorParsing != nil {
 			return errorParsing
 		}

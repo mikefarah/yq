@@ -24,6 +24,7 @@ type resultsPrinter struct {
 	previousDocIndex   uint
 	previousFileIndex  int
 	printedMatches     bool
+	treeNavigator      DataTreeNavigator
 }
 
 func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -35,6 +36,7 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		indent:             indent,
 		printDocSeparators: printDocSeparators,
 		firstTimePrinting:  true,
+		treeNavigator:      NewDataTreeNavigator(),
 	}
 }
 
@@ -76,7 +78,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: explodeOpType}
 		explodeNode := PathTreeNode{Operation: &explodeOp}
-		matchingNodes, err = treeNavigator.GetMatchingNodes(matchingNodes, &explodeNode)
+		matchingNodes, err = p.treeNavigator.GetMatchingNodes(matchingNodes, &explodeNode)
 		if err != nil {
 			return err
 		}
