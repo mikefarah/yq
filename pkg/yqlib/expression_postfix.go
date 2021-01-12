@@ -6,15 +6,15 @@ import (
 	logging "gopkg.in/op/go-logging.v1"
 )
 
-type pathPostFixer interface {
+type expressionPostFixer interface {
 	ConvertToPostfix([]*token) ([]*Operation, error)
 }
 
-type pathPostFixerImpl struct {
+type expressionPostFixerImpl struct {
 }
 
-func newPathPostFixer() pathPostFixer {
-	return &pathPostFixerImpl{}
+func newExpressionPostFixer() expressionPostFixer {
+	return &expressionPostFixerImpl{}
 }
 
 func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operation) {
@@ -23,7 +23,7 @@ func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operatio
 	return opStack, append(result, newOp.Operation)
 }
 
-func (p *pathPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
+func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
 	var result []*Operation
 	// surround the whole thing with quotes
 	var opStack = []*token{&token{TokenType: openBracket}}

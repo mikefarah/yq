@@ -307,24 +307,24 @@ func initLexer() (*lex.Lexer, error) {
 	return lexer, nil
 }
 
-type pathTokeniser interface {
-	Tokenise(path string) ([]*token, error)
+type expressionTokeniser interface {
+	Tokenise(expression string) ([]*token, error)
 }
 
-type pathTokeniserImpl struct {
+type expressionTokeniserImpl struct {
 	lexer *lex.Lexer
 }
 
-func newPathTokeniser() pathTokeniser {
+func newExpressionTokeniser() expressionTokeniser {
 	var lexer, err = initLexer()
 	if err != nil {
 		panic(err)
 	}
-	return &pathTokeniserImpl{lexer}
+	return &expressionTokeniserImpl{lexer}
 }
 
-func (p *pathTokeniserImpl) Tokenise(path string) ([]*token, error) {
-	scanner, err := p.lexer.Scanner([]byte(path))
+func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) {
+	scanner, err := p.lexer.Scanner([]byte(expression))
 
 	if err != nil {
 		return nil, fmt.Errorf("Parsing expression: %v", err)
@@ -356,7 +356,7 @@ func (p *pathTokeniserImpl) Tokenise(path string) ([]*token, error) {
 	return postProcessedTokens, nil
 }
 
-func (p *pathTokeniserImpl) handleToken(tokens []*token, index int, postProcessedTokens []*token) (tokensAccum []*token, skipNextToken bool) {
+func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postProcessedTokens []*token) (tokensAccum []*token, skipNextToken bool) {
 	skipNextToken = false
 	currentToken := tokens[index]
 

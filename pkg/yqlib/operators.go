@@ -7,7 +7,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type operatorHandler func(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
+type operatorHandler func(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error)
 
 func unwrapDoc(node *yaml.Node) *yaml.Node {
 	if node.Kind == yaml.DocumentNode {
@@ -16,7 +16,7 @@ func unwrapDoc(node *yaml.Node) *yaml.Node {
 	return node
 }
 
-func emptyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func emptyOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	return list.New(), nil
 }
 
@@ -35,13 +35,13 @@ func nodeToMap(candidate *CandidateNode) *list.List {
 	return elMap
 }
 
-func createTraversalTree(path []interface{}) *PathTreeNode {
+func createTraversalTree(path []interface{}) *ExpressionNode {
 	if len(path) == 0 {
-		return &PathTreeNode{Operation: &Operation{OperationType: selfReferenceOpType}}
+		return &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
 	} else if len(path) == 1 {
-		return &PathTreeNode{Operation: &Operation{OperationType: traversePathOpType, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
+		return &ExpressionNode{Operation: &Operation{OperationType: traversePathOpType, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
 	}
-	return &PathTreeNode{
+	return &ExpressionNode{
 		Operation: &Operation{OperationType: shortPipeOpType},
 		Lhs:       createTraversalTree(path[0:1]),
 		Rhs:       createTraversalTree(path[1:])}

@@ -77,7 +77,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	var err error
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: explodeOpType}
-		explodeNode := PathTreeNode{Operation: &explodeOp}
+		explodeNode := ExpressionNode{Operation: &explodeOp}
 		matchingNodes, err = p.treeNavigator.GetMatchingNodes(matchingNodes, &explodeNode)
 		if err != nil {
 			return err

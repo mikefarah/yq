@@ -26,12 +26,12 @@ func parseStyle(customStyle string) (yaml.Style, error) {
 	return 0, nil
 }
 
-func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("AssignStyleOperator: %v")
 	var style yaml.Style
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +44,7 @@ func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 
 	if err != nil {
 		return nil, err
@@ -53,8 +53,8 @@ func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting style of : %v", candidate.GetKey())
-		if pathNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
@@ -73,7 +73,7 @@ func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNod
 	return matchingNodes, nil
 }
 
-func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("GetStyleOperator")
 
 	var results = list.New()

@@ -4,9 +4,9 @@ import (
 	"container/list"
 )
 
-func equalsOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func equalsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- equalsOperation")
-	return crossFunction(d, matchingNodes, pathNode, isEquals)
+	return crossFunction(d, matchingNodes, expressionNode, isEquals)
 }
 
 func isEquals(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

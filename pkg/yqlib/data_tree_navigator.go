@@ -9,10 +9,10 @@ import (
 )
 
 type DataTreeNavigator interface {
-	// given a list of CandidateEntities and a pathNode,
-	// this will process the list against the given pathNode and return
+	// given a list of CandidateEntities and a expressionNode,
+	// this will process the list against the given expressionNode and return
 	// a new list of matching candidates
-	GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error)
+	GetMatchingNodes(matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error)
 }
 
 type dataTreeNavigator struct {
@@ -22,22 +22,22 @@ func NewDataTreeNavigator() DataTreeNavigator {
 	return &dataTreeNavigator{}
 }
 
-func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	if pathNode == nil {
+func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	if expressionNode == nil {
 		log.Debugf("getMatchingNodes - nothing to do")
 		return matchingNodes, nil
 	}
-	log.Debugf("Processing Op: %v", pathNode.Operation.toString())
+	log.Debugf("Processing Op: %v", expressionNode.Operation.toString())
 	if log.IsEnabledFor(logging.DEBUG) {
 		for el := matchingNodes.Front(); el != nil; el = el.Next() {
 			log.Debug(NodeToString(el.Value.(*CandidateNode)))
 		}
 	}
 	log.Debug(">>")
-	handler := pathNode.Operation.OperationType.Handler
+	handler := expressionNode.Operation.OperationType.Handler
 	if handler != nil {
-		return handler(d, matchingNodes, pathNode)
+		return handler(d, matchingNodes, expressionNode)
 	}
-	return nil, fmt.Errorf("Unknown operator %v", pathNode.Operation.OperationType)
+	return nil, fmt.Errorf("Unknown operator %v", expressionNode.Operation.OperationType)
 
 }

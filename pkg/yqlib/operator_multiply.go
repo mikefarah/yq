@@ -10,14 +10,14 @@ import (
 
 type crossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode, calculation crossFunctionCalculation) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 	log.Debugf("crossFunction LHS len: %v", lhs.Len())
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 
 	if err != nil {
 		return nil, err
@@ -47,9 +47,9 @@ type multiplyPreferences struct {
 	AppendArrays bool
 }
 
-func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- MultiplyOperator")
-	return crossFunction(d, matchingNodes, pathNode, multiply(pathNode.Operation.Preferences.(*multiplyPreferences)))
+	return crossFunction(d, matchingNodes, expressionNode, multiply(expressionNode.Operation.Preferences.(*multiplyPreferences)))
 }
 
 func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
@@ -116,7 +116,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 
-	assignmentOpNode := &PathTreeNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &PathTreeNode{Operation: rhsOp}}
+	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &ExpressionNode{Operation: rhsOp}}
 
 	_, err := d.GetMatchingNodes(nodeToMap(lhs), assignmentOpNode)
 

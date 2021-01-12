@@ -18,12 +18,12 @@ func splat(d *dataTreeNavigator, matches *list.List, prefs *traversePreferences)
 	return traverseNodesWithArrayIndices(matches, make([]*yaml.Node, 0), prefs)
 }
 
-func traversePathOperator(d *dataTreeNavigator, matchMap *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func traversePathOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- Traversing")
 	var matchingNodeMap = list.New()
 
 	for el := matchMap.Front(); el != nil; el = el.Next() {
-		newNodes, err := traverse(d, el.Value.(*CandidateNode), pathNode.Operation)
+		newNodes, err := traverse(d, el.Value.(*CandidateNode), expressionNode.Operation)
 		if err != nil {
 			return nil, err
 		}
@@ -74,10 +74,10 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	}
 }
 
-func traverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func traverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 	if err != nil {
 		return nil, err
 	}

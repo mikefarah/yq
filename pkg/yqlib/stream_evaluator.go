@@ -12,23 +12,23 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *PathTreeNode, printer Printer) error
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) error
 	EvaluateFiles(expression string, filenames []string, printer Printer) error
 	EvaluateNew(expression string, printer Printer) error
 }
 
 type streamEvaluator struct {
 	treeNavigator DataTreeNavigator
-	treeCreator   PathTreeCreator
+	treeCreator   ExpressionParser
 	fileIndex     int
 }
 
 func NewStreamEvaluator() StreamEvaluator {
-	return &streamEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewPathTreeCreator()}
+	return &streamEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewExpressionParser()}
 }
 
 func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {
-	node, err := s.treeCreator.ParsePath(expression)
+	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
 
-	node, err := s.treeCreator.ParsePath(expression)
+	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *PathTreeNode, printer Printer) error {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) error {
 
 	var currentIndex uint
 

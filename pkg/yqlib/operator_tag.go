@@ -6,13 +6,13 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("AssignTagOperator: %v")
 	tag := ""
 
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 		if err != nil {
 			return nil, err
 		}
@@ -22,7 +22,7 @@ func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 
 	if err != nil {
 		return nil, err
@@ -31,8 +31,8 @@ func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting tag of : %v", candidate.GetKey())
-		if pathNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 			if err != nil {
 				return nil, err
 			}
@@ -47,7 +47,7 @@ func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 	return matchingNodes, nil
 }
 
-func getTagOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func getTagOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("GetTagOperator")
 
 	var results = list.New()

@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- createMapOperation")
 
 	//each matchingNodes entry should turn into a sequence of keys to create.
@@ -22,14 +22,14 @@ func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 
 		for matchingNodeEl := matchingNodes.Front(); matchingNodeEl != nil; matchingNodeEl = matchingNodeEl.Next() {
 			matchingNode := matchingNodeEl.Value.(*CandidateNode)
-			sequenceNode, err := sequenceFor(d, matchingNode, pathNode)
+			sequenceNode, err := sequenceFor(d, matchingNode, expressionNode)
 			if err != nil {
 				return nil, err
 			}
 			sequences.PushBack(sequenceNode)
 		}
 	} else {
-		sequenceNode, err := sequenceFor(d, nil, pathNode)
+		sequenceNode, err := sequenceFor(d, nil, expressionNode)
 		if err != nil {
 			return nil, err
 		}
@@ -40,7 +40,7 @@ func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode 
 
 }
 
-func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *PathTreeNode) (*CandidateNode, error) {
+func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
 	var path []interface{}
 	var document uint = 0
 	var matches = list.New()
@@ -51,7 +51,7 @@ func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, pathNode *Pa
 		matches = nodeToMap(matchingNode)
 	}
 
-	mapPairs, err := crossFunction(d, matches, pathNode,
+	mapPairs, err := crossFunction(d, matches, expressionNode,
 		func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 			log.Debugf("LHS:", NodeToString(lhs))

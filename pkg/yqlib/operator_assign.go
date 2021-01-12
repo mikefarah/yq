@@ -2,21 +2,21 @@ package yqlib
 
 import "container/list"
 
-func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 	var rhs *list.List
-	if !pathNode.Operation.UpdateAssign {
-		rhs, err = d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	if !expressionNode.Operation.UpdateAssign {
+		rhs, err = d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 	}
 
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		if pathNode.Operation.UpdateAssign {
-			rhs, err = d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		if expressionNode.Operation.UpdateAssign {
+			rhs, err = d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 		}
 
 		if err != nil {
@@ -37,15 +37,15 @@ func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNo
 }
 
 // does not update content or values
-func assignAttributesOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Lhs)
+func assignAttributesOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
 	if err != nil {
 		return nil, err
 	}
 	for el := lhs.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), pathNode.Rhs)
+		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
 
 		if err != nil {
 			return nil, err

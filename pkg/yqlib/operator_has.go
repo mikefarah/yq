@@ -7,12 +7,12 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, pathNode *PathTreeNode) (*list.List, error) {
+func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 
 	log.Debugf("-- hasOperation")
 	var results = list.New()
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, pathNode.Rhs)
+	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
 	wanted := rhs.Front().Value.(*CandidateNode).Node
 	wantedKey := wanted.Value
 
