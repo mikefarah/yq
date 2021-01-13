@@ -78,17 +78,22 @@ b: dog # leave this
 ```
 
 ## Remove all comments
+Note the use of `...` to ensure key nodes are included.
+
 Given a sample.yml file of:
 ```yaml
 a: cat # comment
+# great
+b: # key comment
 ```
 then
 ```bash
-yq eval '.. comments=""' sample.yml
+yq eval '... comments=""' sample.yml
 ```
 will output
 ```yaml
 a: cat
+b:
 ```
 
 ## Get line comment

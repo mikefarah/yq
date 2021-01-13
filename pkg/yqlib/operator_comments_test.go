@@ -71,11 +71,12 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Remove all comments",
-		document:    "# hi\n\na: cat # comment\n\n# great\n",
-		expression:  `.. comments=""`,
+		description:    "Remove all comments",
+		subdescription: "Note the use of `...` to ensure key nodes are included.",
+		document:       "# hi\n\na: cat # comment\n\n# great\n\nb: # key comment",
+		expression:     `... comments=""`,
 		expected: []string{
-			"D0, P[], (!!map)::a: cat\n",
+			"D0, P[], (!!map)::a: cat\nb:\n",
 		},
 	},
 	{
