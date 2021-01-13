@@ -23,7 +23,7 @@ func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expr
 		return nil, err
 	}
 
-	preferences := expressionNode.Operation.Preferences.(*commentOpPreferences)
+	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
 
 	comment := ""
 	if !expressionNode.Operation.UpdateAssign {
@@ -67,7 +67,7 @@ func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expr
 }
 
 func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
-	preferences := expressionNode.Operation.Preferences.(*commentOpPreferences)
+	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 

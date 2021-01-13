@@ -125,7 +125,7 @@ func assignAllCommentsOp(updateAssign bool) lex.Action {
 			Value:         assignCommentOpType.Type,
 			StringValue:   value,
 			UpdateAssign:  updateAssign,
-			Preferences:   &commentOpPreferences{LineComment: true, HeadComment: true, FootComment: true},
+			Preferences:   commentOpPreferences{LineComment: true, HeadComment: true, FootComment: true},
 		}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
@@ -252,11 +252,11 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`fi`), opToken(getFileIndexOpType))
 	lexer.Add([]byte(`path`), opToken(getPathOpType))
 
-	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, &commentOpPreferences{LineComment: true}))
+	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
 
-	lexer.Add([]byte(`headComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, &commentOpPreferences{HeadComment: true}))
+	lexer.Add([]byte(`headComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{HeadComment: true}))
 
-	lexer.Add([]byte(`footComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, &commentOpPreferences{FootComment: true}))
+	lexer.Add([]byte(`footComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{FootComment: true}))
 
 	lexer.Add([]byte(`comments\s*=`), assignAllCommentsOp(false))
 	lexer.Add([]byte(`comments\s*\|=`), assignAllCommentsOp(true))
