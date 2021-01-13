@@ -44,7 +44,8 @@ func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNod
 }
 
 type multiplyPreferences struct {
-	AppendArrays bool
+	AppendArrays  bool
+	TraversePrefs traversePreferences
 }
 
 func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
@@ -59,29 +60,28 @@ func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *
 		log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
 		log.Debugf("-          RHS: %v", rhs.Node.Tag)
 
-		shouldAppendArrays := preferences.AppendArrays
-
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
-			var newThing, err = mergeObjects(d, newBlank, lhs, false)
+			var newThing, err = mergeObjects(d, newBlank, lhs, &multiplyPreferences{})
 			if err != nil {
 				return nil, err
 			}
-			return mergeObjects(d, newThing, rhs, shouldAppendArrays)
+			return mergeObjects(d, newThing, rhs, preferences)
 
 		}
 		return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
 	}
 }
 
-func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, shouldAppendArrays bool) (*CandidateNode, error) {
+func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, preferences *multiplyPreferences) (*CandidateNode, error) {
+	shouldAppendArrays := preferences.AppendArrays
 	var results = list.New()
 
 	// shouldn't recurse arrays if appending
 	prefs := &recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
-		TraversePreferences: &traversePreferences{FollowAlias: false}}
+		TraversePreferences: traversePreferences{DontFollowAlias: true}}
 	err := recursiveDecent(d, results, nodeToMap(rhs), prefs)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	}
 
 	for el := results.Front(); el != nil; el = el.Next() {
-		err := applyAssignment(d, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode), shouldAppendArrays)
+		err := applyAssignment(d, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode), preferences)
 		if err != nil {
 			return nil, err
 		}
@@ -101,8 +101,8 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	return lhs, nil
 }
 
-func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, shouldAppendArrays bool) error {
-
+func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences *multiplyPreferences) error {
+	shouldAppendArrays := preferences.AppendArrays
 	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
 
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
@@ -116,7 +116,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 
-	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath), Rhs: &ExpressionNode{Operation: rhsOp}}
+	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs), Rhs: &ExpressionNode{Operation: rhsOp}}
 
 	_, err := d.GetMatchingNodes(nodeToMap(lhs), assignmentOpNode)
 

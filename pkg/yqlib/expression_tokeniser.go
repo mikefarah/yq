@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	lex "github.com/timtadh/lexmachine"
 	"github.com/timtadh/lexmachine/machines"
@@ -65,21 +66,7 @@ func pathToken(wrapped bool) lex.Action {
 			value = unwrap(value)
 		}
 		log.Debug("PathToken %v", value)
-		op := &Operation{OperationType: traversePathOpType, Value: value, StringValue: value}
-		return &token{TokenType: operationToken, Operation: op, CheckForPostTraverse: true}, nil
-	}
-}
-
-func documentToken() lex.Action {
-	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var numberString = string(m.Bytes)
-		numberString = numberString[1:]
-		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
-		if errParsingInt != nil {
-			return nil, errParsingInt
-		}
-		log.Debug("documentToken %v", string(m.Bytes))
-		op := &Operation{OperationType: documentFilterOpType, Value: number, StringValue: numberString}
+		op := &Operation{OperationType: traversePathOpType, Value: value, StringValue: value, Preferences: traversePreferences{}}
 		return &token{TokenType: operationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
@@ -97,6 +84,21 @@ func assignOpToken(updateAssign bool) lex.Action {
 		log.Debug("assignOpToken %v", string(m.Bytes))
 		value := string(m.Bytes)
 		op := &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, UpdateAssign: updateAssign}
+		return &token{TokenType: operationToken, Operation: op}, nil
+	}
+}
+
+func multiplyWithPrefs() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		prefs := multiplyPreferences{}
+		options := string(m.Bytes)
+		if strings.Contains(options, "+") {
+			prefs.AppendArrays = true
+		}
+		if strings.Contains(options, "?") {
+			prefs.TraversePrefs = traversePreferences{DontAutoCreate: true}
+		}
+		op := &Operation{OperationType: multiplyOpType, Value: multiplyOpType.Type, StringValue: options, Preferences: &prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
@@ -220,10 +222,10 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\.\[`), literalToken(traverseArrayCollect, false))
 	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, &recursiveDescentPreferences{RecurseArray: true,
-		TraversePreferences: &traversePreferences{FollowAlias: false, IncludeMapKeys: false}}))
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: false}}))
 
 	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, &recursiveDescentPreferences{RecurseArray: true,
-		TraversePreferences: &traversePreferences{FollowAlias: false, IncludeMapKeys: true}}))
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}))
 
 	lexer.Add([]byte(`,`), opToken(unionOpType))
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
@@ -270,7 +272,6 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
-	lexer.Add([]byte(`d[0-9]+`), documentToken())
 	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
 	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=]+`), pathToken(false))
 	lexer.Add([]byte(`\.`), selfToken())
@@ -296,7 +297,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(closeCollectObject, true))
 	lexer.Add([]byte(`\*`), opTokenWithPrefs(multiplyOpType, nil, &multiplyPreferences{AppendArrays: false}))
-	lexer.Add([]byte(`\*\+`), opTokenWithPrefs(multiplyOpType, nil, &multiplyPreferences{AppendArrays: true}))
+	lexer.Add([]byte(`\*[\+|\?]*`), multiplyWithPrefs())
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
 

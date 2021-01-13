@@ -108,11 +108,35 @@ b:
 		},
 	},
 	{
+		description: "Merge, only existing fields",
+		document:    `{a: {thing: one, cat: frog}, b: {missing: two, thing: two}}`,
+		expression:  `.a *? .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{thing: two, cat: frog}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [{thing: one}], b: [{missing: two, thing: two}]}`,
+		expression: `.a *? .b`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[{thing: two}]\n",
+		},
+	},
+	{
 		description: "Merge, appending arrays",
 		document:    `{a: {array: [1, 2, animal: dog], value: coconut}, b: {array: [3, 4, animal: cat], value: banana}}`,
 		expression:  `.a *+ .b`,
 		expected: []string{
 			"D0, P[a], (!!map)::{array: [1, 2, {animal: dog}, 3, 4, {animal: cat}], value: banana}\n",
+		},
+	},
+	{
+		description: "Merge, only existing fields, appending arrays",
+		document:    `{a: {thing: [1,2]}, b: {thing: [3,4], another: [1]}}`,
+		expression:  `.a *?+ .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{thing: [1, 2, 3, 4]}\n",
 		},
 	},
 	{

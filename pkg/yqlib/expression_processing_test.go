@@ -53,11 +53,6 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "SHORT_PIPE"),
 	},
 	{
-		`d0.a`,
-		append(make([]interface{}, 0), "d0", "SHORT_PIPE", "a"),
-		append(make([]interface{}, 0), "d0", "a", "SHORT_PIPE"),
-	},
-	{
 		`.a | .[].b == "apple"`,
 		append(make([]interface{}, 0), "a", "PIPE", "TRAVERSE_ARRAY", "[", "]", "SHORT_PIPE", "b", "EQUALS", "apple (string)"),
 		append(make([]interface{}, 0), "a", "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY", "b", "SHORT_PIPE", "apple (string)", "EQUALS", "PIPE"),

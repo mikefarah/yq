@@ -7,7 +7,7 @@ import (
 )
 
 type recursiveDescentPreferences struct {
-	TraversePreferences *traversePreferences
+	TraversePreferences traversePreferences
 	RecurseArray        bool
 }
 

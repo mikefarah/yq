@@ -35,14 +35,16 @@ func nodeToMap(candidate *CandidateNode) *list.List {
 	return elMap
 }
 
-func createTraversalTree(path []interface{}) *ExpressionNode {
+func createTraversalTree(path []interface{}, traversePrefs traversePreferences) *ExpressionNode {
 	if len(path) == 0 {
 		return &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
 	} else if len(path) == 1 {
-		return &ExpressionNode{Operation: &Operation{OperationType: traversePathOpType, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
+		return &ExpressionNode{Operation: &Operation{OperationType: traversePathOpType, Preferences: traversePrefs, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
 	}
+
 	return &ExpressionNode{
 		Operation: &Operation{OperationType: shortPipeOpType},
-		Lhs:       createTraversalTree(path[0:1]),
-		Rhs:       createTraversalTree(path[1:])}
+		Lhs:       createTraversalTree(path[0:1], traversePrefs),
+		Rhs:       createTraversalTree(path[1:], traversePrefs),
+	}
 }
