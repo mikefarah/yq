@@ -68,7 +68,6 @@ var collectObjectOpType = &operationType{Type: "COLLECT_OBJECT", NumArgs: 0, Pre
 var traversePathOpType = &operationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: traversePathOperator}
 var traverseArrayOpType = &operationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedence: 50, Handler: traverseArrayOperator}
 
-var documentFilterOpType = &operationType{Type: "DOCUMENT_FILTER", NumArgs: 0, Precedence: 50, Handler: traversePathOperator}
 var selfReferenceOpType = &operationType{Type: "SELF", NumArgs: 0, Precedence: 50, Handler: selfOperator}
 var valueOpType = &operationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: valueOperator}
 var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: envOperator}
@@ -120,8 +119,6 @@ func createValueOperation(value interface{}, stringValue string) *Operation {
 func (p *Operation) toString() string {
 	if p.OperationType == traversePathOpType {
 		return fmt.Sprintf("%v", p.Value)
-	} else if p.OperationType == documentFilterOpType {
-		return fmt.Sprintf("d%v", p.Value)
 	} else if p.OperationType == selfReferenceOpType {
 		return "SELF"
 	} else if p.OperationType == valueOpType {

@@ -60,7 +60,7 @@ func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
 
 	splatted, err := splat(d, nodeToMap(candidate),
-		&traversePreferences{FollowAlias: false, IncludeMapKeys: false})
+		traversePreferences{DontFollowAlias: true, IncludeMapKeys: false})
 
 	for splatEl := splatted.Front(); splatEl != nil; splatEl = splatEl.Next() {
 		splatEl.Value.(*CandidateNode).Path = nil

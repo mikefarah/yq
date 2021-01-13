@@ -111,6 +111,26 @@ b:
   - 5
 ```
 
+## Merge, only existing fields
+Given a sample.yml file of:
+```yaml
+a:
+  thing: one
+  cat: frog
+b:
+  missing: two
+  thing: two
+```
+then
+```bash
+yq eval '.a *? .b' sample.yml
+```
+will output
+```yaml
+thing: two
+cat: frog
+```
+
 ## Merge, appending arrays
 Given a sample.yml file of:
 ```yaml
@@ -141,6 +161,33 @@ array:
   - 4
   - animal: cat
 value: banana
+```
+
+## Merge, only existing fields, appending arrays
+Given a sample.yml file of:
+```yaml
+a:
+  thing:
+    - 1
+    - 2
+b:
+  thing:
+    - 3
+    - 4
+  another:
+    - 1
+```
+then
+```bash
+yq eval '.a *?+ .b' sample.yml
+```
+will output
+```yaml
+thing:
+  - 1
+  - 2
+  - 3
+  - 4
 ```
 
 ## Merge to prefix an element
