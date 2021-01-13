@@ -50,10 +50,10 @@ type multiplyPreferences struct {
 
 func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	log.Debugf("-- MultiplyOperator")
-	return crossFunction(d, matchingNodes, expressionNode, multiply(expressionNode.Operation.Preferences.(*multiplyPreferences)))
+	return crossFunction(d, matchingNodes, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)))
 }
 
-func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		lhs.Node = unwrapDoc(lhs.Node)
 		rhs.Node = unwrapDoc(rhs.Node)
@@ -64,7 +64,7 @@ func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
-			var newThing, err = mergeObjects(d, newBlank, lhs, &multiplyPreferences{})
+			var newThing, err = mergeObjects(d, newBlank, lhs, multiplyPreferences{})
 			if err != nil {
 				return nil, err
 			}
@@ -75,7 +75,7 @@ func multiply(preferences *multiplyPreferences) func(d *dataTreeNavigator, lhs *
 	}
 }
 
-func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, preferences *multiplyPreferences) (*CandidateNode, error) {
+func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {
 	shouldAppendArrays := preferences.AppendArrays
 	var results = list.New()
 
@@ -101,7 +101,7 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	return lhs, nil
 }
 
-func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences *multiplyPreferences) error {
+func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
 	shouldAppendArrays := preferences.AppendArrays
 	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
 
