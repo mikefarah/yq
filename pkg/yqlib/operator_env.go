@@ -19,7 +19,7 @@ func envOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *Expr
 
 	rawValue := os.Getenv(envName)
 
-	preferences := expressionNode.Operation.Preferences.(*envOpPreferences)
+	preferences := expressionNode.Operation.Preferences.(envOpPreferences)
 
 	var node *yaml.Node
 	if preferences.StringValue {

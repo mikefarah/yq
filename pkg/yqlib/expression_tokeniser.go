@@ -183,7 +183,7 @@ func stringValue(wrapped bool) lex.Action {
 func envOp(strenv bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		preferences := &envOpPreferences{}
+		preferences := envOpPreferences{}
 
 		if strenv {
 			// strenv( )
