@@ -80,7 +80,7 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	var results = list.New()
 
 	// shouldn't recurse arrays if appending
-	prefs := &recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
+	prefs := recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
 		TraversePreferences: traversePreferences{DontFollowAlias: true}}
 	err := recursiveDecent(d, results, nodeToMap(rhs), prefs)
 	if err != nil {

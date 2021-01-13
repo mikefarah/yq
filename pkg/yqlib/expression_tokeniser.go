@@ -221,10 +221,10 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\)`), literalToken(closeBracket, true))
 
 	lexer.Add([]byte(`\.\[`), literalToken(traverseArrayCollect, false))
-	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, &recursiveDescentPreferences{RecurseArray: true,
+	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{RecurseArray: true,
 		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: false}}))
 
-	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, &recursiveDescentPreferences{RecurseArray: true,
+	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{RecurseArray: true,
 		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}))
 
 	lexer.Add([]byte(`,`), opToken(unionOpType))

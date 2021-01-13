@@ -14,7 +14,7 @@ type recursiveDescentPreferences struct {
 func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
 	var results = list.New()
 
-	preferences := expressionNode.Operation.Preferences.(*recursiveDescentPreferences)
+	preferences := expressionNode.Operation.Preferences.(recursiveDescentPreferences)
 	err := recursiveDecent(d, results, matchMap, preferences)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, express
 	return results, nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences *recursiveDescentPreferences) error {
+func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences recursiveDescentPreferences) error {
 	for el := matchMap.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
