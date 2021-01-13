@@ -98,7 +98,7 @@ func multiplyWithPrefs() lex.Action {
 		if strings.Contains(options, "?") {
 			prefs.TraversePrefs = traversePreferences{DontAutoCreate: true}
 		}
-		op := &Operation{OperationType: multiplyOpType, Value: multiplyOpType.Type, StringValue: options, Preferences: &prefs}
+		op := &Operation{OperationType: multiplyOpType, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
@@ -296,7 +296,6 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\]`), literalToken(closeCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(closeCollectObject, true))
-	lexer.Add([]byte(`\*`), opTokenWithPrefs(multiplyOpType, nil, &multiplyPreferences{AppendArrays: false}))
 	lexer.Add([]byte(`\*[\+|\?]*`), multiplyWithPrefs())
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
