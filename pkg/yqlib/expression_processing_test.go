@@ -53,6 +53,21 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "3 (int64)", "COLLECT", "SHORT_PIPE"),
 	},
 	{
+		`.key.array + .key.array2`,
+		append(make([]interface{}, 0), "key", "SHORT_PIPE", "array", "ADD", "key", "SHORT_PIPE", "array2"),
+		append(make([]interface{}, 0), "key", "array", "SHORT_PIPE", "key", "array2", "SHORT_PIPE", "ADD"),
+	},
+	{
+		`.key.array * .key.array2`,
+		append(make([]interface{}, 0), "key", "SHORT_PIPE", "array", "MULTIPLY", "key", "SHORT_PIPE", "array2"),
+		append(make([]interface{}, 0), "key", "array", "SHORT_PIPE", "key", "array2", "SHORT_PIPE", "MULTIPLY"),
+	},
+	{
+		`.key.array // .key.array2`,
+		append(make([]interface{}, 0), "key", "SHORT_PIPE", "array", "ALTERNATIVE", "key", "SHORT_PIPE", "array2"),
+		append(make([]interface{}, 0), "key", "array", "SHORT_PIPE", "key", "array2", "SHORT_PIPE", "ALTERNATIVE"),
+	},
+	{
 		`.a | .[].b == "apple"`,
 		append(make([]interface{}, 0), "a", "PIPE", "TRAVERSE_ARRAY", "[", "]", "SHORT_PIPE", "b", "EQUALS", "apple (string)"),
 		append(make([]interface{}, 0), "a", "EMPTY", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY", "b", "SHORT_PIPE", "apple (string)", "EQUALS", "PIPE"),
