@@ -48,3 +48,49 @@ func join(content []*yaml.Node, joinStr string) *yaml.Node {
 
 	return &yaml.Node{Kind: yaml.ScalarNode, Value: strings.Join(stringsToJoin, joinStr), Tag: "!!str"}
 }
+
+func splitStringOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+	log.Debugf("-- splitStringOperator")
+	splitStr := ""
+
+	rhs, err := d.GetMatchingNodes(matchMap, expressionNode.Rhs)
+	if err != nil {
+		return nil, err
+	}
+	if rhs.Front() != nil {
+		splitStr = rhs.Front().Value.(*CandidateNode).Node.Value
+	}
+
+	var results = list.New()
+
+	for el := matchMap.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		node := unwrapDoc(candidate.Node)
+		if node.Tag == "!!null" {
+			continue
+		}
+		if node.Tag != "!!str" {
+			return nil, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
+		}
+		targetNode := split(node.Value, splitStr)
+		result := candidate.CreateChild(nil, targetNode)
+		results.PushBack(result)
+	}
+
+	return results, nil
+}
+
+func split(value string, spltStr string) *yaml.Node {
+	var contents []*yaml.Node
+
+	if value != "" {
+		var newStrings = strings.Split(value, spltStr)
+		contents = make([]*yaml.Node, len(newStrings))
+
+		for index, str := range newStrings {
+			contents[index] = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: str}
+		}
+	}
+
+	return &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Content: contents}
+}

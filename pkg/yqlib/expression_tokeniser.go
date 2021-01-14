@@ -244,6 +244,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`splitDoc`), opToken(splitDocumentOpType))
 
 	lexer.Add([]byte(`join`), opToken(joinStringOpType))
+	lexer.Add([]byte(`split`), opToken(splitStringOpType))
 
 	lexer.Add([]byte(`style`), opAssignableToken(getStyleOpType, assignStyleOpType))
 
