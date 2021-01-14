@@ -55,7 +55,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		candidateNode := &CandidateNode{
 			Document:  0,
 			Filename:  "",
-			Node:      &yaml.Node{Tag: "!!null"},
+			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
 			FileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
@@ -245,7 +245,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 		candidateNode := &CandidateNode{
 			Document:  0,
 			Filename:  "",
-			Node:      &yaml.Node{Tag: "!!null"},
+			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
 			FileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
