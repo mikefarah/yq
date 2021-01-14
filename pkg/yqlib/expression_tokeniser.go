@@ -243,6 +243,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`di`), opToken(getDocumentIndexOpType))
 	lexer.Add([]byte(`splitDoc`), opToken(splitDocumentOpType))
 
+	lexer.Add([]byte(`join`), opToken(joinStringOpType))
+
 	lexer.Add([]byte(`style`), opAssignableToken(getStyleOpType, assignStyleOpType))
 
 	lexer.Add([]byte(`tag`), opAssignableToken(getTagOpType, assignTagOpType))
