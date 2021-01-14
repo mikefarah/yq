@@ -90,7 +90,7 @@ docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression 
 #### Run commands interactively:
 
 ```bash
-docker run --rm -it -v "${PWD}":/workdir mikefarah/yq sh
+docker run --rm -it -v "${PWD}":/workdir --entrypoint sh mikefarah/yq
 ```
 
 It can be useful to have a bash function to avoid typing the whole docker command:
