@@ -35,7 +35,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	candidateNode := &CandidateNode{
 		Document:  0,
 		Filename:  "",
-		Node:      &yaml.Node{Tag: "!!null"},
+		Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
 		FileIndex: 0,
 	}
 	inputList := list.New()
