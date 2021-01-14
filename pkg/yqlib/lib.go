@@ -67,6 +67,8 @@ var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 5
 var joinStringOpType = &operationType{Type: "JOIN", NumArgs: 1, Precedence: 50, Handler: joinStringOperator}
 var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
 
+var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 50, Handler: keysOperator}
+
 var collectObjectOpType = &operationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: collectObjectOperator}
 var traversePathOpType = &operationType{Type: "TRAVERSE_PATH", NumArgs: 0, Precedence: 50, Handler: traversePathOperator}
 var traverseArrayOpType = &operationType{Type: "TRAVERSE_ARRAY", NumArgs: 1, Precedence: 50, Handler: traverseArrayOperator}
