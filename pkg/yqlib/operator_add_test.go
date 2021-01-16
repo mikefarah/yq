@@ -6,6 +6,15 @@ import (
 
 var addOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `[{a: foo, b: bar}, {a: 1, b: 2}]`,
+		expression: ".[] | .a + .b",
+		expected: []string{
+			"D0, P[0 a], (!!str)::foobar\n",
+			"D0, P[1 a], (!!int)::3\n",
+		},
+	},
+	{
 		description: "Concatenate and assign arrays",
 		document:    `{a: {val: thing, b: [cat,dog]}}`,
 		expression:  ".a.b += [\"cow\"]",
