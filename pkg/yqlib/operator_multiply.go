@@ -74,9 +74,10 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, lhs *C
 				return nil, err
 			}
 			return mergeObjects(d, newThing, rhs, preferences)
-		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
-			return lhs.CreateChild(nil, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "12"}), nil
 		}
+		// else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
+		// 	return lhs.CreateChild(nil, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "12"}), nil
+		// }
 		return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
 	}
 }
