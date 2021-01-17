@@ -76,6 +76,8 @@ func mapKeysToStrings(node *yaml.Node) {
 
 func NewJsonEncoder(destination io.Writer, indent int) Encoder {
 	var encoder = json.NewEncoder(destination)
+	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
+
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
@@ -153,11 +155,15 @@ func (o *orderedMap) UnmarshalJSON(data []byte) error {
 }
 
 func (o orderedMap) MarshalJSON() ([]byte, error) {
-	if o.kv == nil {
-		return json.Marshal(o.altVal)
-	}
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
+	enc.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
+	if o.kv == nil {
+		if err := enc.Encode(o.altVal); err != nil {
+			return nil, err
+		}
+		return buf.Bytes(), nil
+	}
 	buf.WriteByte('{')
 	for idx, el := range o.kv {
 		if err := enc.Encode(el.K); err != nil {
