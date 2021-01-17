@@ -12,6 +12,8 @@ import (
 // d0a d1a d0b d1b
 // run it for (d0a d1a) x (d0b d1b) - noting that we dont do (d0a x d1a) nor (d0b d1b)
 // I think this will work for eval-all correctly then..
+
+//alternative, like jq, eval-all puts all docs in an single array.
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
@@ -25,7 +27,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:    true,
 		document:   `a: {also: [1]}`,
 		document2:  `b: {also: me}`,
-		expression: `. * {"a" : .b}`,
+		expression: `.a * .b`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {also: me}, b: {also: me}}\n",
 		},

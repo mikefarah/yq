@@ -36,10 +36,11 @@ func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List
 			return nil, errorReading
 		}
 		candidateNode := &CandidateNode{
-			Document:  currentIndex,
-			Filename:  filename,
-			Node:      &dataBucket,
-			FileIndex: fileIndex,
+			Document:         currentIndex,
+			Filename:         filename,
+			Node:             &dataBucket,
+			FileIndex:        fileIndex,
+			EvaluateTogether: true,
 		}
 
 		inputList.PushBack(candidateNode)

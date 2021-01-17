@@ -15,6 +15,9 @@ type CandidateNode struct {
 	Document  uint          // the document index of this node
 	Filename  string
 	FileIndex int
+	// when performing op against all nodes given, this will treat all the nodes as one
+	// (e.g. top level cross document merge). This property does not propegate to child nodes.
+	EvaluateTogether bool
 }
 
 func (n *CandidateNode) GetKey() string {
