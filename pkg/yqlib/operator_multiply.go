@@ -10,38 +10,49 @@ import (
 
 type crossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
+func doCrossFunc(d *dataTreeNavigator, contextList *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
+	var results = list.New()
+	lhs, err := d.GetMatchingNodes(contextList, expressionNode.Lhs)
+	if err != nil {
+		return nil, err
+	}
+	log.Debugf("crossFunction LHS len: %v", lhs.Len())
 
+	rhs, err := d.GetMatchingNodes(contextList, expressionNode.Rhs)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for el := lhs.Front(); el != nil; el = el.Next() {
+		lhsCandidate := el.Value.(*CandidateNode)
+
+		for rightEl := rhs.Front(); rightEl != nil; rightEl = rightEl.Next() {
+			log.Debugf("Applying calc")
+			rhsCandidate := rightEl.Value.(*CandidateNode)
+			resultCandidate, err := calculation(d, lhsCandidate, rhsCandidate)
+			if err != nil {
+				return nil, err
+			}
+			results.PushBack(resultCandidate)
+		}
+
+	}
+	return results, nil
+}
+
+func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
 	var results = list.New()
 	for matchEl := matchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
 		contextList := nodeToMap(matchEl.Value.(*CandidateNode))
 
-		lhs, err := d.GetMatchingNodes(contextList, expressionNode.Lhs)
-		if err != nil {
-			return nil, err
-		}
-		log.Debugf("crossFunction LHS len: %v", lhs.Len())
-
-		rhs, err := d.GetMatchingNodes(contextList, expressionNode.Rhs)
+		innerResults, err := doCrossFunc(d, contextList, expressionNode, calculation)
 
 		if err != nil {
 			return nil, err
 		}
 
-		for el := lhs.Front(); el != nil; el = el.Next() {
-			lhsCandidate := el.Value.(*CandidateNode)
-
-			for rightEl := rhs.Front(); rightEl != nil; rightEl = rightEl.Next() {
-				log.Debugf("Applying calc")
-				rhsCandidate := rightEl.Value.(*CandidateNode)
-				resultCandidate, err := calculation(d, lhsCandidate, rhsCandidate)
-				if err != nil {
-					return nil, err
-				}
-				results.PushBack(resultCandidate)
-			}
-
-		}
+		results.PushBackList(innerResults)
 
 	}
 
