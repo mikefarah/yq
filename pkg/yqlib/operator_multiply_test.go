@@ -145,6 +145,14 @@ b:
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{a: {array: [1]}, b: {}}`,
+		expression: `.b *+ .a`,
+		expected: []string{
+			"D0, P[b], (!!map)::{array: [1]}\n",
+		},
+	},
+	{
 		description: "Merge, appending arrays",
 		document:    `{a: {array: [1, 2, animal: dog], value: coconut}, b: {array: [3, 4, animal: cat], value: banana}}`,
 		expression:  `.a *+ .b`,

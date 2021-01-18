@@ -112,6 +112,14 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::{a: 4}\n",
 		},
 	},
+	{
+		description:    "Add to null",
+		subdescription: "Adding to null simply returns the rhs",
+		expression:     `null + "cat"`,
+		expected: []string{
+			"D0, P[], (!!str)::cat\n",
+		},
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {
