@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"fmt"
+	"strconv"
 
 	"container/list"
 
@@ -43,17 +44,25 @@ func doCrossFunc(d *dataTreeNavigator, contextList *list.List, expressionNode *E
 
 func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
 	var results = list.New()
+
+	var evaluateAllTogether = true
+	for matchEl := matchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
+		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
+		if !evaluateAllTogether {
+			break
+		}
+	}
+	if evaluateAllTogether {
+		return doCrossFunc(d, matchingNodes, expressionNode, calculation)
+	}
+
 	for matchEl := matchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
 		contextList := nodeToMap(matchEl.Value.(*CandidateNode))
-
 		innerResults, err := doCrossFunc(d, contextList, expressionNode, calculation)
-
 		if err != nil {
 			return nil, err
 		}
-
 		results.PushBackList(innerResults)
-
 	}
 
 	return results, nil
@@ -85,12 +94,29 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, lhs *C
 				return nil, err
 			}
 			return mergeObjects(d, newThing, rhs, preferences)
+		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
+			return multiplyIntegers(lhs, rhs)
 		}
-		// else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
-		// 	return lhs.CreateChild(nil, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "12"}), nil
-		// }
 		return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
 	}
+}
+
+func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	target := lhs.CreateChild(nil, &yaml.Node{})
+	target.Node.Kind = yaml.ScalarNode
+	target.Node.Style = lhs.Node.Style
+	target.Node.Tag = "!!int"
+
+	lhsNum, err := strconv.Atoi(lhs.Node.Value)
+	if err != nil {
+		return nil, err
+	}
+	rhsNum, err := strconv.Atoi(rhs.Node.Value)
+	if err != nil {
+		return nil, err
+	}
+	target.Node.Value = fmt.Sprintf("%v", lhsNum*rhsNum)
+	return target, nil
 }
 
 func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {

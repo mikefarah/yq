@@ -4,16 +4,6 @@ import (
 	"testing"
 )
 
-// crossfunction:
-// normal single document, treat each match separately: eval
-// multiple documents, how do you do things between docs??? eval-all
-// alternative
-// collect and filter matches according to doc before running expression
-// d0a d1a d0b d1b
-// run it for (d0a d1a) x (d0b d1b) - noting that we dont do (d0a x d1a) nor (d0b d1b)
-// I think this will work for eval-all correctly then..
-
-//alternative, like jq, eval-all puts all docs in an single array.
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
@@ -25,11 +15,23 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		document:   `a: {also: [1]}`,
-		document2:  `b: {also: me}`,
+		document:   `{a: 2, b: 5}`,
+		document2:  `{a: 3, b: 10}`,
 		expression: `.a * .b`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: {also: me}, b: {also: me}}\n",
+			"D0, P[a], (!!int)::10\n",
+			"D0, P[a], (!!int)::20\n",
+			"D0, P[a], (!!int)::15\n",
+			"D0, P[a], (!!int)::30\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: 2}`,
+		document2:  `{b: 10}`,
+		expression: `select(fi ==0) * select(fi==1)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 2, b: 10}\n",
 		},
 	},
 	{
