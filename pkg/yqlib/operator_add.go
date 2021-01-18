@@ -47,8 +47,13 @@ func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*Candida
 	lhs.Node = unwrapDoc(lhs.Node)
 	rhs.Node = unwrapDoc(rhs.Node)
 
-	target := lhs.CreateChild(nil, &yaml.Node{})
 	lhsNode := lhs.Node
+
+	if lhsNode.Tag == "!!null" {
+		return lhs.CreateChild(nil, rhs.Node), nil
+	}
+
+	target := lhs.CreateChild(nil, &yaml.Node{})
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:

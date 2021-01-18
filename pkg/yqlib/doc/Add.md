@@ -209,3 +209,15 @@ will output
 a: 4
 ```
 
+## Add to null
+Adding to null simply returns the rhs
+
+Running
+```bash
+yq eval --null-input 'null + "cat"'
+```
+will output
+```yaml
+cat
+```
+
