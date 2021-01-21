@@ -3,7 +3,6 @@ on:
   push:
     tags:
       - 'v*'
-      - 'dockerfix'
 
 jobs:
   publishGitRelease:
@@ -41,17 +40,7 @@ jobs:
       IMAGE_NAME: mikefarah/yq
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest release tag      
-        uses: oprypin/find-latest-tag@v1
-        with:
-          repository: mikefarah/yq  # The repository to scan.
-          releases-only: true  # We know that all relevant tags have a GitHub release for them.
-        id: yq  
-        
-      - name: Clone source code
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ steps.yq.outputs.tag }}
+      - uses: actions/checkout@v2
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
