@@ -17,7 +17,11 @@ func lengthOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *E
 		var length int
 		switch targetNode.Kind {
 		case yaml.ScalarNode:
-			length = len(targetNode.Value)
+			if targetNode.Tag == "!!null" {
+				length = 0
+			} else {
+				length = len(targetNode.Value)
+			}
 		case yaml.MappingNode:
 			length = len(targetNode.Content) / 2
 		case yaml.SequenceNode:
