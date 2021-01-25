@@ -16,6 +16,20 @@ will output
 3
 ```
 
+## null length
+Given a sample.yml file of:
+```yaml
+a: null
+```
+then
+```bash
+yq eval '.a | length' sample.yml
+```
+will output
+```yaml
+0
+```
+
 ## Map length
 returns number of entries
 

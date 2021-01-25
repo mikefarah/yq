@@ -15,6 +15,30 @@ var lengthOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "null length",
+		document:    `{a: null}`,
+		expression:  `.a | length`,
+		expected: []string{
+			"D0, P[a], (!!int)::0\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: ~}`,
+		expression: `.a | length`,
+		expected: []string{
+			"D0, P[a], (!!int)::0\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: key no exist}`,
+		expression: `.b | length`,
+		expected: []string{
+			"D0, P[b], (!!int)::0\n",
+		},
+	},
+	{
 		description:    "Map length",
 		subdescription: "returns number of entries",
 		document:       `{a: cat, c: dog}`,
