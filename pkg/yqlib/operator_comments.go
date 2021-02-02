@@ -13,41 +13,41 @@ type commentOpPreferences struct {
 	FootComment bool
 }
 
-func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignComments operator!")
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
 
 	comment := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
-		if rhs.Front() != nil {
-			comment = rhs.Front().Value.(*CandidateNode).Node.Value
+		if rhs.MatchingNodes.Front() != nil {
+			comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 		}
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 
-			if rhs.Front() != nil {
-				comment = rhs.Front().Value.(*CandidateNode).Node.Value
+			if rhs.MatchingNodes.Front() != nil {
+				comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 			}
 		}
 
@@ -63,15 +63,15 @@ func assignCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expr
 		}
 
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
-func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		comment := ""
 		if preferences.LineComment {
@@ -87,5 +87,5 @@ func getCommentsOperator(d *dataTreeNavigator, matchingNodes *list.List, express
 		result := candidate.CreateChild(nil, node)
 		results.PushBack(result)
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }

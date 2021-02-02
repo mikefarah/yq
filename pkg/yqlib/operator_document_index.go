@@ -7,14 +7,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func getDocumentIndexOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getDocumentIndexOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", candidate.Document), Tag: "!!int"}
 		scalar := candidate.CreateChild(nil, node)
 		results.PushBack(scalar)
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }

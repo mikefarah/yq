@@ -1,8 +1,6 @@
 package yqlib
 
-import "container/list"
-
-func valueOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func valueOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debug("value = %v", expressionNode.Operation.CandidateNode.Node.Value)
-	return nodeToMap(expressionNode.Operation.CandidateNode), nil
+	return context.SingleChildContext(expressionNode.Operation.CandidateNode), nil
 }

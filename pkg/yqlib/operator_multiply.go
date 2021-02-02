@@ -9,77 +9,18 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type crossFunctionCalculation func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
-
-func doCrossFunc(d *dataTreeNavigator, contextList *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
-	var results = list.New()
-	lhs, err := d.GetMatchingNodes(contextList, expressionNode.Lhs)
-	if err != nil {
-		return nil, err
-	}
-	log.Debugf("crossFunction LHS len: %v", lhs.Len())
-
-	rhs, err := d.GetMatchingNodes(contextList, expressionNode.Rhs)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for el := lhs.Front(); el != nil; el = el.Next() {
-		lhsCandidate := el.Value.(*CandidateNode)
-
-		for rightEl := rhs.Front(); rightEl != nil; rightEl = rightEl.Next() {
-			log.Debugf("Applying calc")
-			rhsCandidate := rightEl.Value.(*CandidateNode)
-			resultCandidate, err := calculation(d, lhsCandidate, rhsCandidate)
-			if err != nil {
-				return nil, err
-			}
-			results.PushBack(resultCandidate)
-		}
-
-	}
-	return results, nil
-}
-
-func crossFunction(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode, calculation crossFunctionCalculation) (*list.List, error) {
-	var results = list.New()
-
-	var evaluateAllTogether = true
-	for matchEl := matchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
-		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
-		if !evaluateAllTogether {
-			break
-		}
-	}
-	if evaluateAllTogether {
-		return doCrossFunc(d, matchingNodes, expressionNode, calculation)
-	}
-
-	for matchEl := matchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
-		contextList := nodeToMap(matchEl.Value.(*CandidateNode))
-		innerResults, err := doCrossFunc(d, contextList, expressionNode, calculation)
-		if err != nil {
-			return nil, err
-		}
-		results.PushBackList(innerResults)
-	}
-
-	return results, nil
-}
-
 type multiplyPreferences struct {
 	AppendArrays  bool
 	TraversePrefs traversePreferences
 }
 
-func multiplyOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- MultiplyOperator")
-	return crossFunction(d, matchingNodes, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)))
+	return crossFunction(d, context, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)))
 }
 
-func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		lhs.Node = unwrapDoc(lhs.Node)
 		rhs.Node = unwrapDoc(rhs.Node)
 		log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
@@ -89,11 +30,11 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, lhs *C
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
-			var newThing, err = mergeObjects(d, newBlank, lhs, multiplyPreferences{})
+			var newThing, err = mergeObjects(d, context, newBlank, lhs, multiplyPreferences{})
 			if err != nil {
 				return nil, err
 			}
-			return mergeObjects(d, newThing, rhs, preferences)
+			return mergeObjects(d, context, newThing, rhs, preferences)
 		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
 			return multiplyIntegers(lhs, rhs)
 		}
@@ -119,14 +60,14 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 	return target, nil
 }
 
-func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {
+func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {
 	shouldAppendArrays := preferences.AppendArrays
 	var results = list.New()
 
 	// shouldn't recurse arrays if appending
 	prefs := recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
 		TraversePreferences: traversePreferences{DontFollowAlias: true}}
-	err := recursiveDecent(d, results, nodeToMap(rhs), prefs)
+	err := recursiveDecent(d, results, context.SingleChildContext(rhs), prefs)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +78,7 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	}
 
 	for el := results.Front(); el != nil; el = el.Next() {
-		err := applyAssignment(d, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode), preferences)
+		err := applyAssignment(d, context, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode), preferences)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +86,7 @@ func mergeObjects(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode, 
 	return lhs, nil
 }
 
-func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
+func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
 	shouldAppendArrays := preferences.AppendArrays
 	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
 
@@ -162,7 +103,7 @@ func applyAssignment(d *dataTreeNavigator, pathIndexToStartFrom int, lhs *Candid
 
 	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs), Rhs: &ExpressionNode{Operation: rhsOp}}
 
-	_, err := d.GetMatchingNodes(nodeToMap(lhs), assignmentOpNode)
+	_, err := d.GetMatchingNodes(context.SingleChildContext(lhs), assignmentOpNode)
 
 	return err
 }

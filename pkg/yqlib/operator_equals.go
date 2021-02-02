@@ -1,15 +1,11 @@
 package yqlib
 
-import (
-	"container/list"
-)
-
-func equalsOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
-	return crossFunction(d, matchingNodes, expressionNode, isEquals)
+	return crossFunction(d, context, expressionNode, isEquals)
 }
 
-func isEquals(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func isEquals(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	value := false
 
 	lhsNode := unwrapDoc(lhs.Node)

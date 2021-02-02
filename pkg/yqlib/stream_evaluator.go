@@ -41,11 +41,11 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
 
-	matches, errorParsing := s.treeNavigator.GetMatchingNodes(inputList, node)
+	result, errorParsing := s.treeNavigator.GetMatchingNodes(Context{MatchingNodes: inputList}, node)
 	if errorParsing != nil {
 		return errorParsing
 	}
-	return printer.PrintResults(matches)
+	return printer.PrintResults(result.MatchingNodes)
 }
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
@@ -97,11 +97,11 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 
-		matches, errorParsing := s.treeNavigator.GetMatchingNodes(inputList, node)
+		result, errorParsing := s.treeNavigator.GetMatchingNodes(Context{MatchingNodes: inputList}, node)
 		if errorParsing != nil {
 			return errorParsing
 		}
-		err := printer.PrintResults(matches)
+		err := printer.PrintResults(result.MatchingNodes)
 		if err != nil {
 			return err
 		}

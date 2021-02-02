@@ -27,7 +27,6 @@ type expressionScenario struct {
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
-	var results *list.List
 	var err error
 
 	node, err := NewExpressionParser().ParseExpression(s.expression)
@@ -66,13 +65,13 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		os.Setenv("myenv", s.environmentVariable)
 	}
 
-	results, err = NewDataTreeNavigator().GetMatchingNodes(inputs, node)
+	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 
 	if err != nil {
 		t.Error(fmt.Errorf("%v: %v", err, s.expression))
 		return
 	}
-	test.AssertResultComplexWithContext(t, s.expected, resultsToString(results), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
+	test.AssertResultComplexWithContext(t, s.expected, resultsToString(context.MatchingNodes), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
 }
 
 func resultsToString(results *list.List) []string {
@@ -252,12 +251,12 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 	}
 
-	results, err := NewDataTreeNavigator().GetMatchingNodes(inputs, node)
+	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 	if err != nil {
 		t.Error(err, s.expression)
 	}
 
-	err = printer.PrintResults(results)
+	err = printer.PrintResults(context.MatchingNodes)
 	if err != nil {
 		t.Error(err, s.expression)
 	}

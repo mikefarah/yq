@@ -17,22 +17,22 @@ import (
 ...
 */
 
-func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func collectObjectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- collectObjectOperation")
 
-	if matchMap.Len() == 0 {
+	if context.MatchingNodes.Len() == 0 {
 		node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Value: "{}"}
 		candidate := &CandidateNode{Node: node}
-		return nodeToMap(candidate), nil
+		return context.SingleChildContext(candidate), nil
 	}
-	first := matchMap.Front().Value.(*CandidateNode)
+	first := context.MatchingNodes.Front().Value.(*CandidateNode)
 	var rotated []*list.List = make([]*list.List, len(first.Node.Content))
 
 	for i := 0; i < len(first.Node.Content); i++ {
 		rotated[i] = list.New()
 	}
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
 		for i := 0; i < len(first.Node.Content); i++ {
 			rotated[i].PushBack(candidateNode.CreateChild(i, candidateNode.Node.Content[i]))
@@ -41,59 +41,59 @@ func collectObjectOperator(d *dataTreeNavigator, matchMap *list.List, expression
 
 	newObject := list.New()
 	for i := 0; i < len(first.Node.Content); i++ {
-		additions, err := collect(d, list.New(), rotated[i])
+		additions, err := collect(d, context.ChildContext(list.New()), rotated[i])
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
-		newObject.PushBackList(additions)
+		newObject.PushBackList(additions.MatchingNodes)
 	}
 
-	return newObject, nil
+	return context.ChildContext(newObject), nil
 
 }
 
-func collect(d *dataTreeNavigator, aggregate *list.List, remainingMatches *list.List) (*list.List, error) {
+func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List) (Context, error) {
 	if remainingMatches.Len() == 0 {
-		return aggregate, nil
+		return context, nil
 	}
 
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
 
-	splatted, err := splat(d, nodeToMap(candidate),
+	splatted, err := splat(d, context.SingleChildContext(candidate),
 		traversePreferences{DontFollowAlias: true, IncludeMapKeys: false})
 
-	for splatEl := splatted.Front(); splatEl != nil; splatEl = splatEl.Next() {
+	for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
 		splatEl.Value.(*CandidateNode).Path = nil
 	}
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	if aggregate.Len() == 0 {
+	if context.MatchingNodes.Len() == 0 {
 		return collect(d, splatted, remainingMatches)
 	}
 
 	newAgg := list.New()
 
-	for el := aggregate.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		aggCandidate := el.Value.(*CandidateNode)
-		for splatEl := splatted.Front(); splatEl != nil; splatEl = splatEl.Next() {
+		for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
 			splatCandidate := splatEl.Value.(*CandidateNode)
 			newCandidate, err := aggCandidate.Copy()
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 
 			newCandidate.Path = nil
 
-			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, newCandidate, splatCandidate)
+			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, context, newCandidate, splatCandidate)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 			newAgg.PushBack(newCandidate)
 		}
 	}
-	return collect(d, newAgg, remainingMatches)
+	return collect(d, context.ChildContext(newAgg), remainingMatches)
 
 }

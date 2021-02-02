@@ -16,12 +16,12 @@ func createPathNodeFor(pathElement interface{}) *yaml.Node {
 	}
 }
 
-func getPathOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getPathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetPath")
 
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 
@@ -35,5 +35,5 @@ func getPathOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionN
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }

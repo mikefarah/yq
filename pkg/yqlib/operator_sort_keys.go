@@ -1,33 +1,32 @@
 package yqlib
 
 import (
-	"container/list"
 	"sort"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-func sortKeysOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func sortKeysOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
-		for childEl := rhs.Front(); childEl != nil; childEl = childEl.Next() {
+		for childEl := rhs.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
 			node := unwrapDoc(childEl.Value.(*CandidateNode).Node)
 			if node.Kind == yaml.MappingNode {
 				sortKeys(node)
 			}
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 		}
 
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
 func sortKeys(node *yaml.Node) {

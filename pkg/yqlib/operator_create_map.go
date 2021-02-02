@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- createMapOperation")
 
 	//each matchingNodes entry should turn into a sequence of keys to create.
@@ -18,29 +18,29 @@ func createMapOperator(d *dataTreeNavigator, matchingNodes *list.List, expressio
 
 	sequences := list.New()
 
-	if matchingNodes.Len() > 0 {
+	if context.MatchingNodes.Len() > 0 {
 
-		for matchingNodeEl := matchingNodes.Front(); matchingNodeEl != nil; matchingNodeEl = matchingNodeEl.Next() {
+		for matchingNodeEl := context.MatchingNodes.Front(); matchingNodeEl != nil; matchingNodeEl = matchingNodeEl.Next() {
 			matchingNode := matchingNodeEl.Value.(*CandidateNode)
-			sequenceNode, err := sequenceFor(d, matchingNode, expressionNode)
+			sequenceNode, err := sequenceFor(d, context, matchingNode, expressionNode)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 			sequences.PushBack(sequenceNode)
 		}
 	} else {
-		sequenceNode, err := sequenceFor(d, nil, expressionNode)
+		sequenceNode, err := sequenceFor(d, context, nil, expressionNode)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 		sequences.PushBack(sequenceNode)
 	}
 
-	return nodeToMap(&CandidateNode{Node: listToNodeSeq(sequences), Document: document, Path: path}), nil
+	return context.SingleChildContext(&CandidateNode{Node: listToNodeSeq(sequences), Document: document, Path: path}), nil
 
 }
 
-func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
+func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
 	var path []interface{}
 	var document uint = 0
 	var matches = list.New()
@@ -48,11 +48,11 @@ func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, expressionNo
 	if matchingNode != nil {
 		path = matchingNode.Path
 		document = matchingNode.Document
-		matches = nodeToMap(matchingNode)
+		matches.PushBack(matchingNode)
 	}
 
-	mapPairs, err := crossFunction(d, matches, expressionNode,
-		func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	mapPairs, err := crossFunction(d, context.ChildContext(matches), expressionNode,
+		func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 			log.Debugf("LHS:", NodeToString(lhs))
 			log.Debugf("RHS:", NodeToString(rhs))
@@ -67,7 +67,7 @@ func sequenceFor(d *dataTreeNavigator, matchingNode *CandidateNode, expressionNo
 	if err != nil {
 		return nil, err
 	}
-	innerList := listToNodeSeq(mapPairs)
+	innerList := listToNodeSeq(mapPairs.MatchingNodes)
 	innerList.Style = yaml.FlowStyle
 	return &CandidateNode{Node: innerList, Document: document, Path: path}, nil
 }

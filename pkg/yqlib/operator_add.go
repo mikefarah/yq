@@ -3,7 +3,6 @@ package yqlib
 import (
 	"fmt"
 
-	"container/list"
 	"strconv"
 
 	yaml "gopkg.in/yaml.v3"
@@ -15,12 +14,12 @@ func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 		Rhs: rhs}
 }
 
-func addAssignOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	assignmentOp := &Operation{OperationType: assignOpType}
 	assignmentOp.UpdateAssign = false
 
 	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: expressionNode.Lhs, Rhs: createAddOp(expressionNode.Lhs, expressionNode.Rhs)}
-	return d.GetMatchingNodes(matchingNodes, assignmentOpNode)
+	return d.GetMatchingNodes(context, assignmentOpNode)
 }
 
 func toNodes(candidate *CandidateNode) []*yaml.Node {
@@ -37,13 +36,13 @@ func toNodes(candidate *CandidateNode) []*yaml.Node {
 
 }
 
-func addOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func addOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("Add operator")
 
-	return crossFunction(d, matchingNodes, expressionNode, add)
+	return crossFunction(d, context, expressionNode, add)
 }
 
-func add(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhs.Node = unwrapDoc(lhs.Node)
 	rhs.Node = unwrapDoc(rhs.Node)
 

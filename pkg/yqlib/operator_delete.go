@@ -1,21 +1,20 @@
 package yqlib
 
 import (
-	"container/list"
 	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
-	nodesToDelete, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+	nodesToDelete, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := nodesToDelete.Front(); el != nil; el = el.Next() {
+	for el := nodesToDelete.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
 		deleteImmediateChildOp := &Operation{
@@ -28,26 +27,26 @@ func deleteChildOperator(d *dataTreeNavigator, matchingNodes *list.List, express
 			Rhs:       createTraversalTree(candidate.Path[0:len(candidate.Path)-1], traversePreferences{}),
 		}
 
-		_, err := d.GetMatchingNodes(matchingNodes, deleteImmediateChildOpNode)
+		_, err := d.GetMatchingNodes(context, deleteImmediateChildOpNode)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
-func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
-	parents, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+func deleteImmediateChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	parents, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
 	childPath := expressionNode.Operation.Value
 
 	log.Debug("childPath to remove %v", childPath)
 
-	for el := parents.Front(); el != nil; el = el.Next() {
+	for el := parents.MatchingNodes.Front(); el != nil; el = el.Next() {
 		parent := el.Value.(*CandidateNode)
 		parentNode := unwrapDoc(parent.Node)
 		if parentNode.Kind == yaml.MappingNode {
@@ -55,11 +54,11 @@ func deleteImmediateChildOperator(d *dataTreeNavigator, matchingNodes *list.List
 		} else if parentNode.Kind == yaml.SequenceNode {
 			deleteFromArray(parent, childPath)
 		} else {
-			return nil, fmt.Errorf("Cannot delete nodes from parent of tag %v", parentNode.Tag)
+			return Context{}, fmt.Errorf("Cannot delete nodes from parent of tag %v", parentNode.Tag)
 		}
 
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
 func deleteFromMap(candidate *CandidateNode, childPath interface{}) {

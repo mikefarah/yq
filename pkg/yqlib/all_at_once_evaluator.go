@@ -39,7 +39,11 @@ func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCand
 	if err != nil {
 		return nil, err
 	}
-	return e.treeNavigator.GetMatchingNodes(inputCandidates, node)
+	context, err := e.treeNavigator.GetMatchingNodes(Context{MatchingNodes: inputCandidates}, node)
+	if err != nil {
+		return nil, err
+	}
+	return context.MatchingNodes, nil
 }
 
 func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {

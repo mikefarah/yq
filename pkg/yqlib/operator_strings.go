@@ -8,32 +8,32 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func joinStringOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- joinStringOperator")
 	joinStr := ""
 
-	rhs, err := d.GetMatchingNodes(matchMap, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	if rhs.Front() != nil {
-		joinStr = rhs.Front().Value.(*CandidateNode).Node.Value
+	if rhs.MatchingNodes.Front() != nil {
+		joinStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 
 	var results = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		if node.Kind != yaml.SequenceNode {
-			return nil, fmt.Errorf("Cannot join with %v, can only join arrays of scalars", node.Tag)
+			return Context{}, fmt.Errorf("Cannot join with %v, can only join arrays of scalars", node.Tag)
 		}
 		targetNode := join(node.Content, joinStr)
 		result := candidate.CreateChild(nil, targetNode)
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
 func join(content []*yaml.Node, joinStr string) *yaml.Node {
@@ -49,35 +49,35 @@ func join(content []*yaml.Node, joinStr string) *yaml.Node {
 	return &yaml.Node{Kind: yaml.ScalarNode, Value: strings.Join(stringsToJoin, joinStr), Tag: "!!str"}
 }
 
-func splitStringOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- splitStringOperator")
 	splitStr := ""
 
-	rhs, err := d.GetMatchingNodes(matchMap, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	if rhs.Front() != nil {
-		splitStr = rhs.Front().Value.(*CandidateNode).Node.Value
+	if rhs.MatchingNodes.Front() != nil {
+		splitStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 
 	var results = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		if node.Tag == "!!null" {
 			continue
 		}
 		if node.Tag != "!!str" {
-			return nil, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
+			return Context{}, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
 		}
 		targetNode := split(node.Value, splitStr)
 		result := candidate.CreateChild(nil, targetNode)
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
 func split(value string, spltStr string) *yaml.Node {

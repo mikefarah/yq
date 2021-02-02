@@ -11,20 +11,20 @@ type recursiveDescentPreferences struct {
 	RecurseArray        bool
 }
 
-func recursiveDescentOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
 
 	preferences := expressionNode.Operation.Preferences.(recursiveDescentPreferences)
-	err := recursiveDecent(d, results, matchMap, preferences)
+	err := recursiveDecent(d, results, context, preferences)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.List, preferences recursiveDescentPreferences) error {
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+func recursiveDecent(d *dataTreeNavigator, results *list.List, context Context, preferences recursiveDescentPreferences) error {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
 		candidate.Node = unwrapDoc(candidate.Node)
@@ -35,7 +35,7 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, matchMap *list.Li
 		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 &&
 			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
 
-			children, err := splat(d, nodeToMap(candidate), preferences.TraversePreferences)
+			children, err := splat(d, context.SingleChildContext(candidate), preferences.TraversePreferences)
 
 			if err != nil {
 				return err
