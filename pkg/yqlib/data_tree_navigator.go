@@ -3,16 +3,14 @@ package yqlib
 import (
 	"fmt"
 
-	"container/list"
-
 	logging "gopkg.in/op/go-logging.v1"
 )
 
 type DataTreeNavigator interface {
-	// given a list of CandidateEntities and a expressionNode,
-	// this will process the list against the given expressionNode and return
-	// a new list of matching candidates
-	GetMatchingNodes(matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error)
+	// given the context and a expressionNode,
+	// this will process the against the given expressionNode and return
+	// a new context of matching candidates
+	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
 }
 
 type dataTreeNavigator struct {
@@ -22,22 +20,22 @@ func NewDataTreeNavigator() DataTreeNavigator {
 	return &dataTreeNavigator{}
 }
 
-func (d *dataTreeNavigator) GetMatchingNodes(matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error) {
 	if expressionNode == nil {
 		log.Debugf("getMatchingNodes - nothing to do")
-		return matchingNodes, nil
+		return context, nil
 	}
 	log.Debugf("Processing Op: %v", expressionNode.Operation.toString())
 	if log.IsEnabledFor(logging.DEBUG) {
-		for el := matchingNodes.Front(); el != nil; el = el.Next() {
+		for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 			log.Debug(NodeToString(el.Value.(*CandidateNode)))
 		}
 	}
 	log.Debug(">>")
 	handler := expressionNode.Operation.OperationType.Handler
 	if handler != nil {
-		return handler(d, matchingNodes, expressionNode)
+		return handler(d, context, expressionNode)
 	}
-	return nil, fmt.Errorf("Unknown operator %v", expressionNode.Operation.OperationType)
+	return Context{}, fmt.Errorf("Unknown operator %v", expressionNode.Operation.OperationType)
 
 }

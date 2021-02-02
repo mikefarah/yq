@@ -15,23 +15,23 @@ type traversePreferences struct {
 	DontAutoCreate  bool // by default, we automatically create entries on the fly.
 }
 
-func splat(d *dataTreeNavigator, matches *list.List, prefs traversePreferences) (*list.List, error) {
-	return traverseNodesWithArrayIndices(matches, make([]*yaml.Node, 0), prefs)
+func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Context, error) {
+	return traverseNodesWithArrayIndices(context, make([]*yaml.Node, 0), prefs)
 }
 
-func traversePathOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- Traversing")
-	var matchingNodeMap = list.New()
+	var matches = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		newNodes, err := traverse(d, el.Value.(*CandidateNode), expressionNode.Operation)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
-		matchingNodeMap.PushBackList(newNodes)
+		matches.PushBackList(newNodes)
 	}
 
-	return matchingNodeMap, nil
+	return context.ChildContext(matches), nil
 }
 
 func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
@@ -74,30 +74,30 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	}
 }
 
-func traverseArrayOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	var indicesToTraverse = rhs.Front().Value.(*CandidateNode).Node.Content
-	return traverseNodesWithArrayIndices(matchingNodes, indicesToTraverse, traversePreferences{})
+	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
+	return traverseNodesWithArrayIndices(context, indicesToTraverse, traversePreferences{})
 }
 
-func traverseNodesWithArrayIndices(matchingNodes *list.List, indicesToTraverse []*yaml.Node, prefs traversePreferences) (*list.List, error) {
+func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*yaml.Node, prefs traversePreferences) (Context, error) {
 	var matchingNodeMap = list.New()
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		newNodes, err := traverseArrayIndices(candidate, indicesToTraverse, prefs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 		matchingNodeMap.PushBackList(newNodes)
 	}
 
-	return matchingNodeMap, nil
+	return context.ChildContext(matchingNodeMap), nil
 }
 
 func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml.Node, prefs traversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse

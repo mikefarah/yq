@@ -74,14 +74,14 @@ func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
-	var err error
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: explodeOpType}
 		explodeNode := ExpressionNode{Operation: &explodeOp}
-		matchingNodes, err = p.treeNavigator.GetMatchingNodes(matchingNodes, &explodeNode)
+		context, err := p.treeNavigator.GetMatchingNodes(Context{MatchingNodes: matchingNodes}, &explodeNode)
 		if err != nil {
 			return err
 		}
+		matchingNodes = context.MatchingNodes
 	}
 
 	bufferedWriter := bufio.NewWriter(p.writer)

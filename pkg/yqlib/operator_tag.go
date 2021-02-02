@@ -6,58 +6,58 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func assignTagOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignTagOperator: %v")
 	tag := ""
 
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
-		if rhs.Front() != nil {
-			tag = rhs.Front().Value.(*CandidateNode).Node.Value
+		if rhs.MatchingNodes.Front() != nil {
+			tag = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting tag of : %v", candidate.GetKey())
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 
-			if rhs.Front() != nil {
-				tag = rhs.Front().Value.(*CandidateNode).Node.Value
+			if rhs.MatchingNodes.Front() != nil {
+				tag = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 			}
 		}
 		unwrapDoc(candidate.Node).Tag = tag
 	}
 
-	return matchingNodes, nil
+	return context, nil
 }
 
-func getTagOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getTagOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetTagOperator")
 
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: unwrapDoc(candidate.Node).Tag, Tag: "!!str"}
 		result := candidate.CreateChild(nil, node)
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }

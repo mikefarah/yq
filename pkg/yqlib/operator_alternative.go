@@ -1,18 +1,14 @@
 package yqlib
 
-import (
-	"container/list"
-)
-
 // corssFunction no matches
 // can boolean use crossfunction
 
-func alternativeOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func alternativeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- alternative")
-	return crossFunction(d, matchingNodes, expressionNode, alternativeFunc)
+	return crossFunction(d, context, expressionNode, alternativeFunc)
 }
 
-func alternativeFunc(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func alternativeFunc(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhs.Node = unwrapDoc(lhs.Node)
 	rhs.Node = unwrapDoc(rhs.Node)
 	log.Debugf("Alternative LHS: %v", lhs.Node.Tag)

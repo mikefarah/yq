@@ -1,30 +1,28 @@
 package yqlib
 
-import "container/list"
-
-func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	var rhs *list.List
+	var rhs Context
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err = d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err = d.GetMatchingNodes(context, expressionNode.Rhs)
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err = d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err = d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 		}
 
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
 		// grab the first value
-		first := rhs.Front()
+		first := rhs.MatchingNodes.Front()
 
 		if first != nil {
 			rhsCandidate := first.Value.(*CandidateNode)
@@ -33,30 +31,30 @@ func assignUpdateOperator(d *dataTreeNavigator, matchingNodes *list.List, expres
 		}
 	}
 
-	return matchingNodes, nil
+	return context, nil
 }
 
 // does not update content or values
-func assignAttributesOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
 		// grab the first value
-		first := rhs.Front()
+		first := rhs.MatchingNodes.Front()
 
 		if first != nil {
 			candidate.UpdateAttributesFrom(first.Value.(*CandidateNode))
 		}
 	}
-	return matchingNodes, nil
+	return context, nil
 }

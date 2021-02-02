@@ -1,19 +1,17 @@
 package yqlib
 
-import "container/list"
-
-func unionOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+func unionOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
-	for el := rhs.Front(); el != nil; el = el.Next() {
+	for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
-		lhs.PushBack(node)
+		lhs.MatchingNodes.PushBack(node)
 	}
 	return lhs, nil
 }

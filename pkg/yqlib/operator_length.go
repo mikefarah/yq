@@ -7,11 +7,11 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func lengthOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- lengthOperation")
 	var results = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		targetNode := unwrapDoc(candidate.Node)
 		var length int
@@ -35,5 +35,5 @@ func lengthOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *E
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }

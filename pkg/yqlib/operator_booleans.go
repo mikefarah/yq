@@ -25,8 +25,8 @@ func isTruthy(c *CandidateNode) (bool, error) {
 
 type boolOp func(bool, bool) bool
 
-func performBoolOp(op boolOp) func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	return func(d *dataTreeNavigator, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func performBoolOp(op boolOp) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		lhs.Node = unwrapDoc(lhs.Node)
 		rhs.Node = unwrapDoc(rhs.Node)
 
@@ -44,35 +44,35 @@ func performBoolOp(op boolOp) func(d *dataTreeNavigator, lhs *CandidateNode, rhs
 	}
 }
 
-func orOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func orOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- orOp")
-	return crossFunction(d, matchingNodes, expressionNode, performBoolOp(
+	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 || b2
 		}))
 }
 
-func andOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func andOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- AndOp")
-	return crossFunction(d, matchingNodes, expressionNode, performBoolOp(
+	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 && b2
 		}))
 }
 
-func notOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- notOperation")
 	var results = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debug("notOperation checking %v", candidate)
 		truthy, errDecoding := isTruthy(candidate)
 		if errDecoding != nil {
-			return nil, errDecoding
+			return Context{}, errDecoding
 		}
 		result := createBooleanCandidate(candidate, !truthy)
 		results.PushBack(result)
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }

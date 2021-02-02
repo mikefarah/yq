@@ -6,146 +6,146 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func assignAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignAlias operator!")
 
 	aliasName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
-		if rhs.Front() != nil {
-			aliasName = rhs.Front().Value.(*CandidateNode).Node.Value
+		if rhs.MatchingNodes.Front() != nil {
+			aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting aliasName : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
-			if rhs.Front() != nil {
-				aliasName = rhs.Front().Value.(*CandidateNode).Node.Value
+			if rhs.MatchingNodes.Front() != nil {
+				aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 			}
 		}
 
 		candidate.Node.Kind = yaml.AliasNode
 		candidate.Node.Value = aliasName
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
-func getAliasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetAlias operator!")
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Node.Value, Tag: "!!str"}
 		result := candidate.CreateChild(nil, node)
 		results.PushBack(result)
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
-func assignAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignAnchor operator!")
 
 	anchorName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
-		if rhs.Front() != nil {
-			anchorName = rhs.Front().Value.(*CandidateNode).Node.Value
+		if rhs.MatchingNodes.Front() != nil {
+			anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting anchorName of : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 
-			if rhs.Front() != nil {
-				anchorName = rhs.Front().Value.(*CandidateNode).Node.Value
+			if rhs.MatchingNodes.Front() != nil {
+				anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 			}
 		}
 
 		candidate.Node.Anchor = anchorName
 	}
-	return matchingNodes, nil
+	return context, nil
 }
 
-func getAnchorOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetAnchor operator!")
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		anchor := candidate.Node.Anchor
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: anchor, Tag: "!!str"}
 		result := candidate.CreateChild(nil, node)
 		results.PushBack(result)
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
-func explodeOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- ExplodeOperation")
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
-		for childEl := rhs.Front(); childEl != nil; childEl = childEl.Next() {
-			err = explodeNode(childEl.Value.(*CandidateNode).Node)
+		for childEl := rhs.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
+			err = explodeNode(childEl.Value.(*CandidateNode).Node, context)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 		}
 
 	}
 
-	return matchMap, nil
+	return context, nil
 }
 
-func explodeNode(node *yaml.Node) error {
+func explodeNode(node *yaml.Node, context Context) error {
 	node.Anchor = ""
 	switch node.Kind {
 	case yaml.SequenceNode, yaml.DocumentNode:
 		for index, contentNode := range node.Content {
 			log.Debugf("exploding index %v", index)
-			errorInContent := explodeNode(contentNode)
+			errorInContent := explodeNode(contentNode, context)
 			if errorInContent != nil {
 				return errorInContent
 			}
@@ -169,7 +169,7 @@ func explodeNode(node *yaml.Node) error {
 			valueNode := node.Content[index+1]
 			log.Debugf("traversing %v", keyNode.Value)
 			if keyNode.Value != "<<" {
-				err := overrideEntry(node, keyNode, valueNode, index, newContent)
+				err := overrideEntry(node, keyNode, valueNode, index, context.ChildContext(newContent))
 				if err != nil {
 					return err
 				}
@@ -178,14 +178,14 @@ func explodeNode(node *yaml.Node) error {
 					log.Debugf("an alias merge list!")
 					for index := 0; index < len(valueNode.Content); index = index + 1 {
 						aliasNode := valueNode.Content[index]
-						err := applyAlias(node, aliasNode.Alias, index, newContent)
+						err := applyAlias(node, aliasNode.Alias, index, context.ChildContext(newContent))
 						if err != nil {
 							return err
 						}
 					}
 				} else {
 					log.Debugf("an alias merge!")
-					err := applyAlias(node, valueNode.Alias, index, newContent)
+					err := applyAlias(node, valueNode.Alias, index, context.ChildContext(newContent))
 					if err != nil {
 						return err
 					}
@@ -205,7 +205,7 @@ func explodeNode(node *yaml.Node) error {
 	}
 }
 
-func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent *list.List) error {
+func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent Context) error {
 	if alias == nil {
 		return nil
 	}
@@ -221,15 +221,15 @@ func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent *l
 	return nil
 }
 
-func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex int, newContent *list.List) error {
+func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex int, newContent Context) error {
 
-	err := explodeNode(value)
+	err := explodeNode(value, newContent)
 
 	if err != nil {
 		return err
 	}
 
-	for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
+	for newEl := newContent.MatchingNodes.Front(); newEl != nil; newEl = newEl.Next() {
 		valueEl := newEl.Next() // move forward twice
 		keyNode := newEl.Value.(*yaml.Node)
 		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*yaml.Node).Value)
@@ -250,12 +250,12 @@ func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex
 		}
 	}
 
-	err = explodeNode(key)
+	err = explodeNode(key, newContent)
 	if err != nil {
 		return err
 	}
 	log.Debugf("adding %v:%v", key.Value, value.Value)
-	newContent.PushBack(key)
-	newContent.PushBack(value)
+	newContent.MatchingNodes.PushBack(key)
+	newContent.MatchingNodes.PushBack(value)
 	return nil
 }

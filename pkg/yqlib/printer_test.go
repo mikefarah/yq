@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
+	"container/list"
 	"strings"
 	"testing"
 
@@ -16,6 +17,12 @@ a: apple
 a: coconut
 `
 
+func nodeToList(candidate *CandidateNode) *list.List {
+	elMap := list.New()
+	elMap.PushBack(candidate)
+	return elMap
+}
+
 func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
@@ -27,13 +34,13 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	}
 
 	el := inputs.Front()
-	sample1 := nodeToMap(el.Value.(*CandidateNode))
+	sample1 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	sample2 := nodeToMap(el.Value.(*CandidateNode))
+	sample2 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	sample3 := nodeToMap(el.Value.(*CandidateNode))
+	sample3 := nodeToList(el.Value.(*CandidateNode))
 
 	err = printer.PrintResults(sample1)
 	if err != nil {
@@ -68,19 +75,19 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	elNode := el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 0
-	sample1 := nodeToMap(elNode)
+	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 1
-	sample2 := nodeToMap(elNode)
+	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 2
-	sample3 := nodeToMap(elNode)
+	sample3 := nodeToList(elNode)
 
 	err = printer.PrintResults(sample1)
 	if err != nil {

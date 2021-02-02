@@ -7,20 +7,20 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func hasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("-- hasOperation")
 	var results = list.New()
 
-	rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
-	wanted := rhs.Front().Value.(*CandidateNode).Node
+	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	wanted := rhs.MatchingNodes.Front().Value.(*CandidateNode).Node
 	wantedKey := wanted.Value
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
 		// grab the first value
@@ -41,7 +41,7 @@ func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode 
 			if wanted.Tag == "!!int" {
 				var number, errParsingInt = strconv.ParseInt(wantedKey, 10, 64) // nolint
 				if errParsingInt != nil {
-					return nil, errParsingInt
+					return Context{}, errParsingInt
 				}
 				candidateHasKey = int64(len(contents)) > number
 			}
@@ -50,5 +50,5 @@ func hasOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode 
 			results.PushBack(createBooleanCandidate(candidate, false))
 		}
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }

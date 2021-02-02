@@ -4,28 +4,28 @@ import (
 	"container/list"
 )
 
-func selectOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func selectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("-- selectOperation")
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
 		// grab the first value
-		first := rhs.Front()
+		first := rhs.MatchingNodes.Front()
 
 		if first != nil {
 			result := first.Value.(*CandidateNode)
 			includeResult, errDecoding := isTruthy(result)
 			if errDecoding != nil {
-				return nil, errDecoding
+				return Context{}, errDecoding
 			}
 
 			if includeResult {
@@ -33,5 +33,5 @@ func selectOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNo
 			}
 		}
 	}
-	return results, nil
+	return context.ChildContext(results), nil
 }

@@ -26,43 +26,43 @@ func parseStyle(customStyle string) (yaml.Style, error) {
 	return 0, nil
 }
 
-func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignStyleOperator: %v")
 	var style yaml.Style
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 		if err != nil {
-			return nil, err
+			return Context{}, err
 		}
 
-		if rhs.Front() != nil {
-			style, err = parseStyle(rhs.Front().Value.(*CandidateNode).Node.Value)
+		if rhs.MatchingNodes.Front() != nil {
+			style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(matchingNodes, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 
 	if err != nil {
-		return nil, err
+		return Context{}, err
 	}
 
-	for el := lhs.Front(); el != nil; el = el.Next() {
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting style of : %v", candidate.GetKey())
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(nodeToMap(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
-				return nil, err
+				return Context{}, err
 			}
 
-			if rhs.Front() != nil {
-				style, err = parseStyle(rhs.Front().Value.(*CandidateNode).Node.Value)
+			if rhs.MatchingNodes.Front() != nil {
+				style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
 				if err != nil {
-					return nil, err
+					return Context{}, err
 				}
 			}
 		}
@@ -70,15 +70,15 @@ func assignStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, express
 		candidate.Node.Style = style
 	}
 
-	return matchingNodes, nil
+	return context, nil
 }
 
-func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func getStyleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetStyleOperator")
 
 	var results = list.New()
 
-	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		var style string
 		switch candidate.Node.Style {
@@ -104,5 +104,5 @@ func getStyleOperator(d *dataTreeNavigator, matchingNodes *list.List, expression
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }

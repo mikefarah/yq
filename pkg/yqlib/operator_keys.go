@@ -7,12 +7,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func keysOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *ExpressionNode) (*list.List, error) {
+func keysOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- keysOperator")
 
 	var results = list.New()
 
-	for el := matchMap.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		var targetNode *yaml.Node
@@ -21,14 +21,14 @@ func keysOperator(d *dataTreeNavigator, matchMap *list.List, expressionNode *Exp
 		} else if node.Kind == yaml.SequenceNode {
 			targetNode = getIndicies(node)
 		} else {
-			return nil, fmt.Errorf("Cannot get keys of %v, keys only works for maps and arrays", node.Tag)
+			return Context{}, fmt.Errorf("Cannot get keys of %v, keys only works for maps and arrays", node.Tag)
 		}
 
 		result := candidate.CreateChild(nil, targetNode)
 		results.PushBack(result)
 	}
 
-	return results, nil
+	return context.ChildContext(results), nil
 }
 
 func getMapKeys(node *yaml.Node) *yaml.Node {
