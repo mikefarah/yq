@@ -26,7 +26,7 @@ func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operatio
 func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
 	var result []*Operation
 	// surround the whole thing with quotes
-	var opStack = []*token{&token{TokenType: openBracket}}
+	var opStack = []*token{{TokenType: openBracket}}
 	var tokens = append(infixTokens, &token{TokenType: closeBracket})
 
 	for _, currentToken := range tokens {

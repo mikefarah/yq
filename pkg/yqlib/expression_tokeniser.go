@@ -180,6 +180,19 @@ func stringValue(wrapped bool) lex.Action {
 	}
 }
 
+func getVariableOpToken() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+
+		value = value[1 : len(value)-1]
+
+		getVarOperation := createValueOperation(value, value)
+		getVarOperation.OperationType = getVariableOpType
+
+		return &token{TokenType: operationToken, Operation: getVarOperation, CheckForPostTraverse: true}, nil
+	}
+}
+
 func envOp(strenv bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
@@ -304,6 +317,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\*[\+|\?]*`), multiplyWithPrefs())
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
+	lexer.Add([]byte(`\$[a-zA-Z_-0-9]+`), getVariableOpToken())
+	lexer.Add([]byte(`as`), opToken(assignVariableOpType))
 
 	err := lexer.Compile()
 	if err != nil {
@@ -369,6 +384,12 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 		//need to put a traverse array then a collect currentToken
 		// do this by adding traverse then converting currentToken to collect
 
+		if index == 0 || tokens[index-1].TokenType != operationToken ||
+			tokens[index-1].Operation.OperationType != traversePathOpType {
+			op := &Operation{OperationType: selfReferenceOpType, StringValue: "SELF"}
+			postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
+		}
+
 		op := &Operation{OperationType: traverseArrayOpType, StringValue: "TRAVERSE_ARRAY"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 
@@ -395,18 +416,8 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == openCollect {
 
-		op := &Operation{OperationType: shortPipeOpType, Value: "PIPE"}
+		op := &Operation{OperationType: traverseArrayOpType}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
-
-		op = &Operation{OperationType: traverseArrayOpType}
-		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
-	}
-	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
-		tokens[index+1].TokenType == traverseArrayCollect {
-
-		op := &Operation{OperationType: shortPipeOpType, Value: "PIPE"}
-		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
-
 	}
 	return postProcessedTokens, skipNextToken
 }
