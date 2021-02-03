@@ -79,14 +79,3 @@ then
 yq eval '.a.[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
 ```
 will output
-```yaml
-- path:
-    - a
-    - 1
-  value: dog
-- path:
-    - a
-    - 2
-  value: frog
-```
-

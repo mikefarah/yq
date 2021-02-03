@@ -34,9 +34,11 @@ type token struct {
 
 }
 
-func (t *token) toString() string {
+func (t *token) toString(detail bool) string {
 	if t.TokenType == operationToken {
-		log.Debug("toString, its an op")
+		if detail {
+			return fmt.Sprintf("%v (%v)", t.Operation.toString(), t.Operation.OperationType.Precedence)
+		}
 		return t.Operation.toString()
 	} else if t.TokenType == openBracket {
 		return "("
@@ -354,7 +356,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 
 		if tok != nil {
 			currentToken := tok.(*token)
-			log.Debugf("Tokenising %v", currentToken.toString())
+			log.Debugf("Tokenising %v", currentToken.toString(true))
 			tokens = append(tokens, currentToken)
 		}
 		if err != nil {
