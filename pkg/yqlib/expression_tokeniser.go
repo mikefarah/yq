@@ -409,6 +409,14 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 
 	postProcessedTokens = append(postProcessedTokens, currentToken)
 
+	if index != len(tokens)-1 &&
+		((currentToken.TokenType == openCollect && tokens[index+1].TokenType == closeCollect) ||
+			(currentToken.TokenType == openCollectObject && tokens[index+1].TokenType == closeCollectObject)) {
+
+		op := &Operation{OperationType: emptyOpType, StringValue: "EMPTY"}
+		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
+	}
+
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == operationToken &&
 		tokens[index+1].Operation.OperationType == traversePathOpType {

@@ -43,15 +43,9 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 				opener = openCollectObject
 				collectOperator = collectObjectOpType
 			}
-			itemsInMiddle := false
+
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != opener {
 				opStack, result = popOpToResult(opStack, result)
-				itemsInMiddle = true
-			}
-			if !itemsInMiddle {
-				// must be an empty collection, add the empty object as a LHS parameter
-				result = append(result, &Operation{OperationType: emptyOpType})
-				log.Debugf("put EMPTY onto the result")
 			}
 			if len(opStack) == 0 {
 				return nil, errors.New("Bad path expression, got close collect brackets without matching opening bracket")
@@ -61,16 +55,11 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			log.Debugf("deleteing open bracket from opstack")
 
 			//and append a collect to the opStack
-			//WHY AM I NOT PUTTING THIS STRAIGHT ONTO THE RESULT LIKE EMPTY?
 			result = append(result, &Operation{OperationType: collectOperator})
 			log.Debugf("put collect onto the result")
 			result = append(result, &Operation{OperationType: shortPipeOpType})
 			log.Debugf("put shortpipe onto the result")
 
-			// opStack = append(opStack, &token{TokenType: operationToken, Operation: &Operation{OperationType: shortPipeOpType}})
-			// log.Debugf("put shortPipe onto the opstack")
-			// opStack = append(opStack, &token{TokenType: operationToken, Operation: &Operation{OperationType: collectOperator}})
-			// log.Debugf("put collect onto the opstack")
 		case closeBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != openBracket {
 				opStack, result = popOpToResult(opStack, result)
