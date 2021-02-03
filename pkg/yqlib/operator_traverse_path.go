@@ -20,7 +20,7 @@ func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Co
 }
 
 func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- Traversing")
+	log.Debugf("-- traversePathOperator")
 	var matches = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
@@ -75,6 +75,16 @@ func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode
 }
 
 func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	//lhs may update the variable context, we should pass that into the RHS
+	// BUT we still return the original context back (see jq)
+	// https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...
+
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	if err != nil {
+		return Context{}, err
+	}
+
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
 	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
@@ -83,7 +93,13 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	}
 
 	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
-	return traverseNodesWithArrayIndices(context, indicesToTraverse, traversePreferences{})
+
+	//now we traverse the result of the lhs against the indices we found
+	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, traversePreferences{})
+	if err != nil {
+		return Context{}, err
+	}
+	return context.ChildContext(result.MatchingNodes), nil
 }
 
 func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*yaml.Node, prefs traversePreferences) (Context, error) {

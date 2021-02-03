@@ -64,6 +64,14 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{b: apple, fruit: {apple: yum, banana: smooth}}`,
+		expression: `.fruit[.b]`,
+		expected: []string{
+			"D0, P[fruit apple], (!!str)::yum\n",
+		},
+	},
+	{
 		description:    "Children don't exist",
 		subdescription: "Nodes are added dynamically while traversing",
 		document:       `{c: banana}`,
@@ -83,7 +91,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: `.a.[1]`,
+		expression: `.a[1]`,
 		expected: []string{
 			"D0, P[a 1], (!!null)::null\n",
 		},
@@ -154,7 +162,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: &cat {c: frog}, b: *cat}`,
-		expression: `.b.[]`,
+		expression: `.b[]`,
 		expected: []string{
 			"D0, P[b c], (!!str)::frog\n",
 		},
@@ -236,7 +244,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   mergeDocSample,
-		expression: `.foobar.[]`,
+		expression: `.foobar[]`,
 		expected: []string{
 			"D0, P[foobar c], (!!str)::foo_c\n",
 			"D0, P[foobar a], (!!str)::foo_a\n",
@@ -298,7 +306,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   mergeDocSample,
-		expression: `.foobarList.[]`,
+		expression: `.foobarList[]`,
 		expected: []string{
 			"D0, P[foobarList b], (!!str)::bar_b\n",
 			"D0, P[foobarList a], (!!str)::foo_a\n",
@@ -344,7 +352,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: [a,b,c]}`,
-		expression: `.a.[0, 2]`,
+		expression: `.a[0, 2]`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::a\n",
 			"D0, P[a 2], (!!str)::c\n",
@@ -361,7 +369,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: [a,b,c]}`,
-		expression: `.a.[-1]`,
+		expression: `.a[-1]`,
 		expected: []string{
 			"D0, P[a -1], (!!str)::c\n",
 		},
@@ -377,7 +385,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: [a,b,c]}`,
-		expression: `.a.[-2]`,
+		expression: `.a[-2]`,
 		expected: []string{
 			"D0, P[a -2], (!!str)::b\n",
 		},
@@ -395,7 +403,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: [a,b,c]}`,
-		expression: `.a.[]`,
+		expression: `.a[]`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::a\n",
 			"D0, P[a 1], (!!str)::b\n",

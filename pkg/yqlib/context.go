@@ -18,6 +18,20 @@ func (n *Context) SingleChildContext(candidate *CandidateNode) Context {
 	return n.ChildContext(list)
 }
 
+func (n *Context) GetVariable(name string) *list.List {
+	if n.Variables == nil {
+		return nil
+	}
+	return n.Variables[name]
+}
+
+func (n *Context) SetVariable(name string, value *list.List) {
+	if n.Variables == nil {
+		n.Variables = make(map[string]*list.List)
+	}
+	n.Variables[name] = value
+}
+
 func (n *Context) ChildContext(results *list.List) Context {
 	clone := Context{}
 	err := copier.Copy(&clone, n)
