@@ -70,7 +70,7 @@ func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*
 		stack = append(stack, &newNode)
 	}
 	if len(stack) != 1 {
-		return nil, fmt.Errorf("expected end of expression but found '%v', please check expression syntax", strings.TrimSpace(stack[1].Operation.StringValue))
+		return nil, fmt.Errorf("Bad expression, please check expression syntax")
 	}
 	return stack[0], nil
 }

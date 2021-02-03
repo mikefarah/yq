@@ -38,5 +38,5 @@ func TestPathTreeOneArgForOneArgOp(t *testing.T) {
 
 func TestPathTreeExtraArgs(t *testing.T) {
 	_, err := NewExpressionParser().ParseExpression("sortKeys(.) explode(.)")
-	test.AssertResultComplex(t, "expected end of expression but found 'explode', please check expression syntax", err.Error())
+	test.AssertResultComplex(t, "Bad expression, please check expression syntax", err.Error())
 }
