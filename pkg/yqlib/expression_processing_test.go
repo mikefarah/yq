@@ -13,6 +13,11 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
+		`.a | .b | .c`,
+		append(make([]interface{}, 0), "a", "PIPE", "b", "PIPE", "c"),
+		append(make([]interface{}, 0), "a", "b", "c", "PIPE", "PIPE"),
+	},
+	{
 		`[]`,
 		append(make([]interface{}, 0), "[", "]"),
 		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE"),
@@ -190,7 +195,7 @@ func TestPathParsing(t *testing.T) {
 		}
 		var tokenValues []interface{}
 		for _, token := range tokens {
-			tokenValues = append(tokenValues, token.toString())
+			tokenValues = append(tokenValues, token.toString(false))
 		}
 		test.AssertResultComplexWithContext(t, tt.expectedTokens, tokenValues, fmt.Sprintf("tokenise: %v", tt.path))
 
