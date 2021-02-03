@@ -24,7 +24,7 @@ func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode 
 	var matches = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		newNodes, err := traverse(d, el.Value.(*CandidateNode), expressionNode.Operation)
+		newNodes, err := traverse(d, context, el.Value.(*CandidateNode), expressionNode.Operation)
 		if err != nil {
 			return Context{}, err
 		}
@@ -34,7 +34,7 @@ func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode 
 	return context.ChildContext(matches), nil
 }
 
-func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
+func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
@@ -55,7 +55,7 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		return traverseMap(matchingNode, operation.StringValue, operation.Preferences.(traversePreferences), false)
+		return traverseMap(context, matchingNode, operation.StringValue, operation.Preferences.(traversePreferences), false)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
@@ -64,11 +64,11 @@ func traverse(d *dataTreeNavigator, matchingNode *CandidateNode, operation *Oper
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		matchingNode.Node = matchingNode.Node.Alias
-		return traverse(d, matchingNode, operation)
+		return traverse(d, context, matchingNode, operation)
 	case yaml.DocumentNode:
 		log.Debug("digging into doc node")
 
-		return traverse(d, matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), operation)
+		return traverse(d, context, matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), operation)
 	default:
 		return list.New(), nil
 	}
@@ -90,7 +90,7 @@ func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*yaml.No
 	var matchingNodeMap = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		newNodes, err := traverseArrayIndices(candidate, indicesToTraverse, prefs)
+		newNodes, err := traverseArrayIndices(context, candidate, indicesToTraverse, prefs)
 		if err != nil {
 			return Context{}, err
 		}
@@ -100,7 +100,7 @@ func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*yaml.No
 	return context.ChildContext(matchingNodeMap), nil
 }
 
-func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml.Node, prefs traversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse
+func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesToTraverse []*yaml.Node, prefs traversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse
 	node := matchingNode.Node
 	if node.Tag == "!!null" {
 		log.Debugf("OperatorArrayTraverse got a null - turning it into an empty array")
@@ -111,28 +111,28 @@ func traverseArrayIndices(matchingNode *CandidateNode, indicesToTraverse []*yaml
 
 	if node.Kind == yaml.AliasNode {
 		matchingNode.Node = node.Alias
-		return traverseArrayIndices(matchingNode, indicesToTraverse, prefs)
+		return traverseArrayIndices(context, matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.SequenceNode {
 		return traverseArrayWithIndices(matchingNode, indicesToTraverse)
 	} else if node.Kind == yaml.MappingNode {
-		return traverseMapWithIndices(matchingNode, indicesToTraverse, prefs)
+		return traverseMapWithIndices(context, matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.DocumentNode {
-		return traverseArrayIndices(matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), indicesToTraverse, prefs)
+		return traverseArrayIndices(context, matchingNode.CreateChild(nil, matchingNode.Node.Content[0]), indicesToTraverse, prefs)
 	}
 	log.Debugf("OperatorArrayTraverse skipping %v as its a %v", matchingNode, node.Tag)
 	return list.New(), nil
 }
 
-func traverseMapWithIndices(candidate *CandidateNode, indices []*yaml.Node, prefs traversePreferences) (*list.List, error) {
+func traverseMapWithIndices(context Context, candidate *CandidateNode, indices []*yaml.Node, prefs traversePreferences) (*list.List, error) {
 	if len(indices) == 0 {
-		return traverseMap(candidate, "", prefs, true)
+		return traverseMap(context, candidate, "", prefs, true)
 	}
 
 	var matchingNodeMap = list.New()
 
 	for _, indexNode := range indices {
 		log.Debug("traverseMapWithIndices: %v", indexNode.Value)
-		newNodes, err := traverseMap(candidate, indexNode.Value, prefs, false)
+		newNodes, err := traverseMap(context, candidate, indexNode.Value, prefs, false)
 		if err != nil {
 			return nil, err
 		}
@@ -187,7 +187,7 @@ func keyMatches(key *yaml.Node, wantedKey string) bool {
 	return matchKey(key.Value, wantedKey)
 }
 
-func traverseMap(matchingNode *CandidateNode, key string, prefs traversePreferences, splat bool) (*list.List, error) {
+func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs traversePreferences, splat bool) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
 	err := doTraverseMap(newMatches, matchingNode, key, prefs, splat)
 
@@ -195,7 +195,7 @@ func traverseMap(matchingNode *CandidateNode, key string, prefs traversePreferen
 		return nil, err
 	}
 
-	if !prefs.DontAutoCreate && newMatches.Len() == 0 {
+	if !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
 		//no matches, create one automagically
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 		node := matchingNode.Node
