@@ -46,6 +46,7 @@ var addOpType = &operationType{Type: "ADD", NumArgs: 2, Precedence: 42, Handler:
 var alternativeOpType = &operationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 42, Handler: alternativeOperator}
 
 var equalsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: equalsOperator}
+var notEqualsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: notEqualsOperator}
 var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: createMapOperator}
 
 var shortPipeOpType = &operationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: pipeOperator}
