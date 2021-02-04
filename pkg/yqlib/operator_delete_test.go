@@ -38,6 +38,22 @@ var deleteOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `a: [1,2,3]`,
+		expression: `del(.a[])`,
+		expected: []string{
+			"D0, P[], (doc)::a: []\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: [10,x,10, 10, x, 10]`,
+		expression: `del(.a[] | select(. == 10))`,
+		expected: []string{
+			"D0, P[], (doc)::a: [x, x]\n",
+		},
+	},
+	{
 		description: "Delete nested entry in array",
 		document:    `[{a: cat, b: dog}]`,
 		expression:  `del(.[0].a)`,
