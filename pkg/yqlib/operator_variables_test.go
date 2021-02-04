@@ -22,6 +22,18 @@ var variableOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!str)::dog\n",
 		},
 	},
+	{
+		description: "Using variables as a lookup",
+		document: `{"posts": [{"title": "Frist psot", "author": "anon"},
+		{"title": "A well-written article", "author": "person1"}],
+"realnames": {"anon": "Anonymous Coward",
+				"person1": "Person McPherson"}}`,
+		expression: `.realnames as $names | .posts[] | {"title":.title, "author": $names[.author]}`,
+		expected: []string{
+			"D0, P[], (!!map)::title: \"Frist psot\"\nauthor: \"Anonymous Coward\"\n",
+			"D0, P[], (!!map)::title: \"A well-written article\"\nauthor: \"Person McPherson\"\n",
+		},
+	},
 }
 
 func TestVariableOperatorScenarios(t *testing.T) {
