@@ -13,8 +13,8 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 	if err != nil {
 		return Context{}, err
 	}
-
-	for el := nodesToDelete.MatchingNodes.Front(); el != nil; el = el.Next() {
+	//need to iterate backwards to ensure correct indices when deleting multiple
+	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
 		deleteImmediateChildOp := &Operation{
