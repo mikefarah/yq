@@ -15,6 +15,14 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   "{a: { b: {things: \"\"}, f: [1], g: [] }}",
+		expression: ".. | select(. == \"\")",
+		expected: []string{
+			"D0, P[a b things], (!!str)::\"\"\n",
+		},
+	},
+	{
 		description: "Match string",
 		document:    `[cat,goat,dog]`,
 		expression:  `.[] | (. == "*at")`,
