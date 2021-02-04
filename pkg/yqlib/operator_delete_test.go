@@ -54,6 +54,22 @@ var deleteOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
+		expression: `del(..)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
+		expression: `del(.. | select(tag == "!!map") | (.b.thing1,.thing2))`,
+		expected: []string{
+			"D0, P[], (!!map)::a: {thing1: yep, thing3: hi, b: {great: huh}}\n",
+		},
+	},
+	{
 		description: "Delete nested entry in array",
 		document:    `[{a: cat, b: dog}]`,
 		expression:  `del(.[0].a)`,

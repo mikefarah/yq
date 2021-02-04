@@ -7,8 +7,9 @@ import (
 )
 
 func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	nodesToDelete, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	contextToUse := context.Clone()
+	contextToUse.DontAutoCreate = true
+	nodesToDelete, err := d.GetMatchingNodes(contextToUse, expressionNode.Rhs)
 
 	if err != nil {
 		return Context{}, err
@@ -17,19 +18,21 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
-		deleteImmediateChildOp := &Operation{
-			OperationType: deleteImmediateChildOpType,
-			Value:         candidate.Path[len(candidate.Path)-1],
-		}
+		if len(candidate.Path) > 0 {
+			deleteImmediateChildOp := &Operation{
+				OperationType: deleteImmediateChildOpType,
+				Value:         candidate.Path[len(candidate.Path)-1],
+			}
 
-		deleteImmediateChildOpNode := &ExpressionNode{
-			Operation: deleteImmediateChildOp,
-			Rhs:       createTraversalTree(candidate.Path[0:len(candidate.Path)-1], traversePreferences{}),
-		}
+			deleteImmediateChildOpNode := &ExpressionNode{
+				Operation: deleteImmediateChildOp,
+				Rhs:       createTraversalTree(candidate.Path[0:len(candidate.Path)-1], traversePreferences{}),
+			}
 
-		_, err := d.GetMatchingNodes(context, deleteImmediateChildOpNode)
-		if err != nil {
-			return Context{}, err
+			_, err := d.GetMatchingNodes(contextToUse, deleteImmediateChildOpNode)
+			if err != nil {
+				return Context{}, err
+			}
 		}
 	}
 	return context, nil
