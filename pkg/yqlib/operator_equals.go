@@ -1,5 +1,7 @@
 package yqlib
 
+import "gopkg.in/yaml.v3"
+
 func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
 	return crossFunction(d, context, expressionNode, isEquals)
@@ -13,7 +15,7 @@ func isEquals(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 
 	if lhsNode.Tag == "!!null" {
 		value = (rhsNode.Tag == "!!null")
-	} else {
+	} else if lhsNode.Kind == yaml.ScalarNode && rhsNode.Kind == yaml.ScalarNode {
 		value = matchKey(lhsNode.Value, rhsNode.Value)
 	}
 	log.Debugf("%v == %v ? %v", NodeToString(lhs), NodeToString(rhs), value)
