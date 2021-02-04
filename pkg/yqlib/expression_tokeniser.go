@@ -284,6 +284,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`collect`), opToken(collectOpType))
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(equalsOpType))
+	lexer.Add([]byte(`\s*!=\s*`), opToken(notEqualsOpType))
 	lexer.Add([]byte(`\s*=\s*`), assignOpToken(false))
 
 	lexer.Add([]byte(`del`), opToken(deleteChildOpType))

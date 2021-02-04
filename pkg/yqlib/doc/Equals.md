@@ -29,6 +29,24 @@ true
 false
 ```
 
+## Don't match string
+Given a sample.yml file of:
+```yaml
+- cat
+- goat
+- dog
+```
+then
+```bash
+yq eval '.[] | (. != "*at")' sample.yml
+```
+will output
+```yaml
+false
+false
+true
+```
+
 ## Match number
 Given a sample.yml file of:
 ```yaml
@@ -45,6 +63,24 @@ will output
 false
 true
 false
+```
+
+## Dont match number
+Given a sample.yml file of:
+```yaml
+- 3
+- 4
+- 5
+```
+then
+```bash
+yq eval '.[] | (. != 4)' sample.yml
+```
+will output
+```yaml
+true
+false
+true
 ```
 
 ## Match nulls

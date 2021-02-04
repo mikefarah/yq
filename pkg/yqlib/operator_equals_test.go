@@ -31,7 +31,18 @@ var equalsOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!bool)::true\n",
 			"D0, P[2], (!!bool)::false\n",
 		},
-	}, {
+	},
+	{
+		description: "Don't match string",
+		document:    `[cat,goat,dog]`,
+		expression:  `.[] | (. != "*at")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::false\n",
+			"D0, P[1], (!!bool)::false\n",
+			"D0, P[2], (!!bool)::true\n",
+		},
+	},
+	{
 		description: "Match number",
 		document:    `[3, 4, 5]`,
 		expression:  `.[] | (. == 4)`,
@@ -40,7 +51,18 @@ var equalsOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!bool)::true\n",
 			"D0, P[2], (!!bool)::false\n",
 		},
-	}, {
+	},
+	{
+		description: "Dont match number",
+		document:    `[3, 4, 5]`,
+		expression:  `.[] | (. != 4)`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::false\n",
+			"D0, P[2], (!!bool)::true\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `a: { cat: {b: apple, c: whatever}, pat: {b: banana} }`,
 		expression: `.a | (.[].b == "apple")`,
