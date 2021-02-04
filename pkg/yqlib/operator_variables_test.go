@@ -23,7 +23,8 @@ var variableOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Using variables as a lookup",
+		description:    "Using variables as a lookup",
+		subdescription: "Example taken from [jq](https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...)",
 		document: `{"posts": [{"title": "Frist psot", "author": "anon"},
 		{"title": "A well-written article", "author": "person1"}],
 "realnames": {"anon": "Anonymous Coward",
@@ -40,4 +41,5 @@ func TestVariableOperatorScenarios(t *testing.T) {
 	for _, tt := range variableOperatorScenarios {
 		testScenario(t, &tt)
 	}
+	documentScenarios(t, "Variable Operators", variableOperatorScenarios)
 }
