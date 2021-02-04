@@ -28,9 +28,14 @@ var pathTests = []struct {
 		append(make([]interface{}, 0), "EMPTY", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
 	{
-		`[{}]`, // [{}]
+		`[{}]`,
 		append(make([]interface{}, 0), "[", "{", "EMPTY", "}", "]"),
 		append(make([]interface{}, 0), "EMPTY", "COLLECT_OBJECT", "SHORT_PIPE", "COLLECT", "SHORT_PIPE"),
+	},
+	{
+		`.realnames as $names | $names["anon"]`,
+		append(make([]interface{}, 0), "realnames", "ASSIGN_VARIABLE", "GET_VARIABLE", "PIPE", "GET_VARIABLE", "TRAVERSE_ARRAY", "[", "anon (string)", "]"),
+		append(make([]interface{}, 0), "realnames", "GET_VARIABLE", "ASSIGN_VARIABLE", "GET_VARIABLE", "anon (string)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY", "PIPE"),
 	},
 	{
 		`.b[.a]`,
