@@ -42,3 +42,13 @@ func (n *Context) ChildContext(results *list.List) Context {
 	clone.MatchingNodes = results
 	return clone
 }
+
+func (n *Context) Clone() Context {
+	clone := Context{}
+	err := copier.Copy(&clone, n)
+	if err != nil {
+		log.Error("Error cloning context :(")
+		panic(err)
+	}
+	return clone
+}
