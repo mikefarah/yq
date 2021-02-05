@@ -63,8 +63,6 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
 	n.UpdateAttributesFrom(other)
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value
-	n.Node.Alias = other.Node.Alias
-	n.Node.Anchor = other.Node.Anchor
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
@@ -76,6 +74,8 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	}
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
+	n.Node.Alias = other.Node.Alias
+	n.Node.Anchor = other.Node.Anchor
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes
