@@ -15,6 +15,14 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `{a: &a { b: &b { c: &c cat } } }`,
+		expression: `{} * .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: &a {b: &b {c: &c cat}}}\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `{a: 2, b: 5}`,
 		document2:  `{a: 3, b: 10}`,
 		expression: `.a * .b`,
