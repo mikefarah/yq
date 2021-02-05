@@ -33,7 +33,7 @@ c: banana
 ```
 
 ## Special characters
-Use quotes around path elements with special characters
+Use quotes with brackets around path elements with special characters
 
 Given a sample.yml file of:
 ```yaml
@@ -41,7 +41,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '."{}"' sample.yml
+yq eval '.["{}"]' sample.yml
 ```
 will output
 ```yaml

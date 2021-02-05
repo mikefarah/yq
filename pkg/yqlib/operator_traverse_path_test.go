@@ -47,11 +47,19 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Special characters",
-		subdescription: "Use quotes around path elements with special characters",
+		subdescription: "Use quotes with brackets around path elements with special characters",
 		document:       `{"{}": frog}`,
-		expression:     `."{}"`,
+		expression:     `.["{}"]`,
 		expected: []string{
 			"D0, P[{}], (!!str)::frog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{"flying fox": frog}`,
+		expression: `.["flying fox"]`,
+		expected: []string{
+			"D0, P[flying fox], (!!str)::frog\n",
 		},
 	},
 	{
