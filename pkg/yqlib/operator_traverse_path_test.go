@@ -434,5 +434,5 @@ func TestTraversePathOperatorScenarios(t *testing.T) {
 	for _, tt := range traversePathOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Traverse", traversePathOperatorScenarios)
+	documentScenarios(t, "Traverse (Read)", traversePathOperatorScenarios)
 }
