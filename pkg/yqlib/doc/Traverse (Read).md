@@ -48,6 +48,22 @@ will output
 frog
 ```
 
+## Keys with spaces
+Use quotes with brackets around path elements with special characters
+
+Given a sample.yml file of:
+```yaml
+"red rabbit": frog
+```
+then
+```bash
+yq eval '.["red rabbit"]' sample.yml
+```
+will output
+```yaml
+frog
+```
+
 ## Dynamic keys
 Expressions within [] can be used to dynamically lookup / calculate keys
 
