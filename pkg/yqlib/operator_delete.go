@@ -26,7 +26,7 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 			deleteImmediateChildOpNode := &ExpressionNode{
 				Operation: deleteImmediateChildOp,
-				Rhs:       createTraversalTree(candidate.Path[0:len(candidate.Path)-1], traversePreferences{}),
+				Rhs:       createTraversalTree(candidate.Path[0:len(candidate.Path)-1], traversePreferences{}, false),
 			}
 
 			_, err := d.GetMatchingNodes(contextToUse, deleteImmediateChildOpNode)

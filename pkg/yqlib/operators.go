@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 
+	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v3"
 )
 
@@ -88,16 +89,25 @@ func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
 	return owner.CreateChild(nil, node)
 }
 
-func createTraversalTree(path []interface{}, traversePrefs traversePreferences) *ExpressionNode {
+func createTraversalTree(path []interface{}, traversePrefs traversePreferences, targetKey bool) *ExpressionNode {
 	if len(path) == 0 {
 		return &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
 	} else if len(path) == 1 {
-		return &ExpressionNode{Operation: &Operation{OperationType: traversePathOpType, Preferences: traversePrefs, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
+		lastPrefs := traversePrefs
+		if targetKey {
+			err := copier.Copy(&lastPrefs, traversePrefs)
+			if err != nil {
+				panic(err)
+			}
+			lastPrefs.IncludeMapKeys = true
+			lastPrefs.DontIncludeMapValues = true
+		}
+		return &ExpressionNode{Operation: &Operation{OperationType: traversePathOpType, Preferences: lastPrefs, Value: path[0], StringValue: fmt.Sprintf("%v", path[0])}}
 	}
 
 	return &ExpressionNode{
 		Operation: &Operation{OperationType: shortPipeOpType},
-		Lhs:       createTraversalTree(path[0:1], traversePrefs),
-		Rhs:       createTraversalTree(path[1:], traversePrefs),
+		Lhs:       createTraversalTree(path[0:1], traversePrefs, false),
+		Rhs:       createTraversalTree(path[1:], traversePrefs, targetKey),
 	}
 }

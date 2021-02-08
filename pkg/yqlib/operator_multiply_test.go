@@ -15,6 +15,22 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   "# b\nb:\n  # a\n  a: cat",
+		expression: "{} * .",
+		expected: []string{
+			"D0, P[], (!!map)::# b\nb:\n    # a\n    a: cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "# b\nb:\n  # a\n  a: cat",
+		expression: ". * {}",
+		expected: []string{
+			"D0, P[], (!!map)::# b\nb:\n    # a\n    a: cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `{a: &a { b: &b { c: &c cat } } }`,
 		expression: `{} * .`,
 		expected: []string{
@@ -100,7 +116,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: {things: great}, b: {also: me}}`,
-		expression: `. * {"a":.b}`,
+		expression: `. * {"a": .b}`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {things: great, also: me}, b: {also: me}}\n",
 		},
@@ -108,16 +124,10 @@ var multiplyOperatorScenarios = []expressionScenario{
 	{
 		description:           "Merge keeps style of LHS",
 		dontFormatInputForDoc: true,
-		document: `a: {things: great}
-b:
-  also: "me"
-`,
-		expression: `. * {"a":.b}`,
+		document:              "a: {things: great}\nb:\n  also: \"me\"",
+		expression:            `. * {"a":.b}`,
 		expected: []string{
-			`D0, P[], (!!map)::a: {things: great, also: "me"}
-b:
-    also: "me"
-`,
+			"D0, P[], (!!map)::a: {things: great, also: \"me\"}\nb:\n    also: \"me\"\n",
 		},
 	},
 	{

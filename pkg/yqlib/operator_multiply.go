@@ -66,7 +66,7 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 
 	// shouldn't recurse arrays if appending
 	prefs := recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
-		TraversePreferences: traversePreferences{DontFollowAlias: true}}
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}
 	err := recursiveDecent(d, results, context.SingleChildContext(rhs), prefs)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,12 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 	}
 
 	for el := results.Front(); el != nil; el = el.Next() {
-		err := applyAssignment(d, context, pathIndexToStartFrom, lhs, el.Value.(*CandidateNode), preferences)
+		candidate := el.Value.(*CandidateNode)
+		if candidate.Node.Tag == "!!merge" {
+			continue
+		}
+
+		err := applyAssignment(d, context, pathIndexToStartFrom, lhs, candidate, preferences)
 		if err != nil {
 			return nil, err
 		}
@@ -88,7 +93,7 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 
 func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
 	shouldAppendArrays := preferences.AppendArrays
-	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", NodeToString(lhs), NodeToString(rhs))
+	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", lhs.GetKey(), rhs.GetKey())
 
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
 
@@ -101,7 +106,7 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 
-	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs), Rhs: &ExpressionNode{Operation: rhsOp}}
+	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey), Rhs: &ExpressionNode{Operation: rhsOp}}
 
 	_, err := d.GetMatchingNodes(context.SingleChildContext(lhs), assignmentOpNode)
 
