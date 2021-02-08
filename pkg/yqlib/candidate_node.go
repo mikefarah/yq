@@ -2,8 +2,6 @@ package yqlib
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
@@ -18,10 +16,15 @@ type CandidateNode struct {
 	// when performing op against all nodes given, this will treat all the nodes as one
 	// (e.g. top level cross document merge). This property does not propegate to child nodes.
 	EvaluateTogether bool
+	IsMapKey         bool
 }
 
 func (n *CandidateNode) GetKey() string {
-	return fmt.Sprintf("%v - %v", n.Document, n.Path)
+	keyPrefix := ""
+	if n.IsMapKey {
+		keyPrefix = "key-"
+	}
+	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
 }
 
 func (n *CandidateNode) CreateChild(path interface{}, node *yaml.Node) *CandidateNode {
@@ -66,6 +69,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
+	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.GetKey(), other.GetKey())
 	if n.Node.Kind != other.Node.Kind {
 		// clear out the contents when switching to a different type
 		// e.g. map to array
@@ -85,47 +89,4 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	n.Node.FootComment = n.Node.FootComment + other.Node.FootComment
 	n.Node.HeadComment = n.Node.HeadComment + other.Node.HeadComment
 	n.Node.LineComment = n.Node.LineComment + other.Node.LineComment
-}
-
-func (n *CandidateNode) PathStackToString() string {
-	return mergePathStackToString(n.Path)
-}
-
-func mergePathStackToString(pathStack []interface{}) string {
-	var sb strings.Builder
-	for index, path := range pathStack {
-		switch path.(type) {
-		case int, int64:
-			// if arrayMergeStrategy == AppendArrayMergeStrategy {
-			// sb.WriteString("[+]")
-			// } else {
-			sb.WriteString(fmt.Sprintf("[%v]", path))
-			// }
-
-		default:
-			s := fmt.Sprintf("%v", path)
-			var _, errParsingInt = strconv.ParseInt(s, 10, 64) // nolint
-
-			hasSpecial := strings.Contains(s, ".") || strings.Contains(s, "[") || strings.Contains(s, "]") || strings.Contains(s, "\"")
-			hasDoubleQuotes := strings.Contains(s, "\"")
-			wrappingCharacterStart := "\""
-			wrappingCharacterEnd := "\""
-			if hasDoubleQuotes {
-				wrappingCharacterStart = "("
-				wrappingCharacterEnd = ")"
-			}
-			if hasSpecial || errParsingInt == nil {
-				sb.WriteString(wrappingCharacterStart)
-			}
-			sb.WriteString(s)
-			if hasSpecial || errParsingInt == nil {
-				sb.WriteString(wrappingCharacterEnd)
-			}
-		}
-
-		if index < len(pathStack)-1 {
-			sb.WriteString(".")
-		}
-	}
-	return sb.String()
 }

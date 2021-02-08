@@ -10,9 +10,10 @@ import (
 )
 
 type traversePreferences struct {
-	DontFollowAlias bool
-	IncludeMapKeys  bool
-	DontAutoCreate  bool // by default, we automatically create entries on the fly.
+	DontFollowAlias      bool
+	IncludeMapKeys       bool
+	DontAutoCreate       bool // by default, we automatically create entries on the fly.
+	DontIncludeMapValues bool
 }
 
 func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Context, error) {
@@ -214,10 +215,21 @@ func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs
 	if !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
 		//no matches, create one automagically
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
+		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: key}
 		node := matchingNode.Node
-		node.Content = append(node.Content, &yaml.Node{Kind: yaml.ScalarNode, Value: key}, valueNode)
-		candidateNode := matchingNode.CreateChild(key, valueNode)
-		newMatches.Set(candidateNode.GetKey(), candidateNode)
+		node.Content = append(node.Content, keyNode, valueNode)
+
+		if prefs.IncludeMapKeys {
+			log.Debug("including key")
+			candidateNode := matchingNode.CreateChild(key, keyNode)
+			candidateNode.IsMapKey = true
+			newMatches.Set(fmt.Sprintf("keyOf-%v", candidateNode.GetKey()), candidateNode)
+		}
+		if !prefs.DontIncludeMapValues {
+			log.Debug("including value")
+			candidateNode := matchingNode.CreateChild(key, valueNode)
+			newMatches.Set(candidateNode.GetKey(), candidateNode)
+		}
 	}
 
 	results := list.New()
@@ -253,11 +265,16 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 		} else if splat || keyMatches(key, wantedKey) {
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
+				log.Debug("including key")
 				candidateNode := candidate.CreateChild(key.Value, key)
+				candidateNode.IsMapKey = true
 				newMatches.Set(fmt.Sprintf("keyOf-%v", candidateNode.GetKey()), candidateNode)
 			}
-			candidateNode := candidate.CreateChild(key.Value, value)
-			newMatches.Set(candidateNode.GetKey(), candidateNode)
+			if !prefs.DontIncludeMapValues {
+				log.Debug("including value")
+				candidateNode := candidate.CreateChild(key.Value, value)
+				newMatches.Set(candidateNode.GetKey(), candidateNode)
+			}
 		}
 	}
 

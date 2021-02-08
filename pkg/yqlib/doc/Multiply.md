@@ -71,7 +71,6 @@ Given a sample.yml file of:
 a: {things: great}
 b:
   also: "me"
-
 ```
 then
 ```bash

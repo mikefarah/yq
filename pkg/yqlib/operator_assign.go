@@ -36,6 +36,7 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 // does not update content or values
 func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	log.Debug("getting lhs matching nodes for update")
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 	if err != nil {
 		return Context{}, err
