@@ -62,14 +62,21 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		colorsEnabled = true
 	}
 
-	if writeInplace && len(args) < 2 {
+	firstFileIndex := -1
+	if !nullInput && len(args) == 1 {
+		firstFileIndex = 0
+	} else if len(args) > 1 {
+		firstFileIndex = 1
+	}
+
+	if writeInplace && (firstFileIndex == -1) {
 		return fmt.Errorf("Write inplace flag only applicable when giving an expression and at least one file")
 	}
 
 	if writeInplace {
 		// only use colors if its forced
 		colorsEnabled = forceColor
-		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[1])
+		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[firstFileIndex])
 		out, err = writeInPlaceHandler.CreateTempFile()
 		if err != nil {
 			return err
