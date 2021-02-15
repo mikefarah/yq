@@ -26,7 +26,7 @@ var reduceOperatorScenarios = []expressionScenario{
 		subdescription: "The _$context_ variable set by reduce lets you access the data outside the reduce block.",
 		document:       `a: cat`,
 		document2:      `b: dog`,
-		expression:     `fileIndex as $item ireduce ({}; . * ($context | select(fileIndex==$item)) )`,
+		expression:     `fi as $item ireduce ({}; . * ($context | select(fileIndex==$item)) )`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb: dog\n",
 		},
