@@ -186,7 +186,7 @@ func getVariableOpToken() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
 
-		value = value[1 : len(value)-1]
+		value = value[1:]
 
 		getVarOperation := createValueOperation(value, value)
 		getVarOperation.OperationType = getVariableOpType

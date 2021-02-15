@@ -22,6 +22,16 @@ var fileOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Get file indices of multiple documents",
+		document:    `{a: cat}`,
+		document2:   `{a: cat}`,
+		expression:  `fileIndex`,
+		expected: []string{
+			"D0, P[], (!!int)::0\n",
+			"D0, P[], (!!int)::1\n",
+		},
+	},
+	{
 		description: "Get file index alias",
 		document:    `{a: cat}`,
 		expression:  `fi`,

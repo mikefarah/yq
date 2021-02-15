@@ -35,6 +35,26 @@ will output
 0
 ```
 
+## Get file indices of multiple documents
+Given a sample.yml file of:
+```yaml
+a: cat
+```
+And another sample another.yml file of:
+```yaml
+a: cat
+```
+then
+```bash
+yq eval-all 'fileIndex' sample.yml another.yml
+```
+will output
+```yaml
+0
+---
+1
+```
+
 ## Get file index alias
 Given a sample.yml file of:
 ```yaml

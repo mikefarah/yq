@@ -25,7 +25,7 @@ type operationType struct {
 
 var orOpType = &operationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: orOperator}
 var andOpType = &operationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: andOperator}
-var reduceOpType = &operationType{Type: "REDUCE", NumArgs: 2, Precedence: 5, Handler: reduceOperator}
+var reduceOpType = &operationType{Type: "REDUCE", NumArgs: 2, Precedence: 35, Handler: reduceOperator}
 
 var blockOpType = &operationType{Type: "BLOCK", Precedence: 10, NumArgs: 2, Handler: emptyOperator}
 
