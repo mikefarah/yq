@@ -13,7 +13,7 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
-		`.a as $item reduce (0; . + $item)`, // note - add code to shuffle reduce to this position for postfix
+		`.a as $item ireduce (0; . + $item)`, // note - add code to shuffle reduce to this position for postfix
 		append(make([]interface{}, 0), "a", "ASSIGN_VARIABLE", "GET_VARIABLE", "REDUCE", "(", "0 (int64)", "BLOCK", "SELF", "ADD", "GET_VARIABLE", ")"),
 		append(make([]interface{}, 0), "a", "GET_VARIABLE", "ASSIGN_VARIABLE", "0 (int64)", "SELF", "GET_VARIABLE", "ADD", "BLOCK", "REDUCE"),
 	},

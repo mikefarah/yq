@@ -252,7 +252,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`or`), opToken(orOpType))
 	lexer.Add([]byte(`and`), opToken(andOpType))
 	lexer.Add([]byte(`not`), opToken(notOpType))
-	lexer.Add([]byte(`reduce`), opToken(reduceOpType))
+	lexer.Add([]byte(`ireduce`), opToken(reduceOpType))
 	lexer.Add([]byte(`;`), opToken(blockOpType))
 	lexer.Add([]byte(`\/\/`), opToken(alternativeOpType))
 
