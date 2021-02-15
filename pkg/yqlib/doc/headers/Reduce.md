@@ -5,39 +5,3 @@ Reduce syntax in `yq` is a little different from `jq` - as `yq` (currently) isn'
 
 To that end, the reduce operator is called `ireduce` for backwards compatability if a prefix version of `reduce` is ever added.
 
-
-## Sum numbers
-Given a sample.yml file of:
-```yaml
-- 10
-- 2
-- 5
-- 3
-```
-then
-```bash
-yq eval '.[] as $item ireduce (0; . + $item)' sample.yml
-```
-will output
-```yaml
-20
-```
-
-## Convert an array to an object
-Given a sample.yml file of:
-```yaml
-- name: Cathy
-  has: apples
-- name: Bob
-  has: bananas
-```
-then
-```bash
-yq eval '.[] as $item ireduce ({}; .[$item | .name] = ($item | .has) )' sample.yml
-```
-will output
-```yaml
-Cathy: apples
-Bob: bananas
-```
-
