@@ -39,8 +39,6 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		return Context{}, err
 	}
 
-	accum.SetVariable("context", context.MatchingNodes)
-
 	log.Debugf("with variable %v", variableName)
 
 	blockExp := expressionNode.Rhs.Rhs
