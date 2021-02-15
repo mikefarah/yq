@@ -25,6 +25,9 @@ type operationType struct {
 
 var orOpType = &operationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: orOperator}
 var andOpType = &operationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: andOperator}
+var reduceOpType = &operationType{Type: "REDUCE", NumArgs: 2, Precedence: 5, Handler: reduceOperator}
+
+var blockOpType = &operationType{Type: "BLOCK", Precedence: 10, NumArgs: 2, Handler: emptyOperator}
 
 var unionOpType = &operationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: unionOperator}
 
@@ -80,7 +83,7 @@ var selfReferenceOpType = &operationType{Type: "SELF", NumArgs: 0, Precedence: 5
 var valueOpType = &operationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: valueOperator}
 var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: envOperator}
 var notOpType = &operationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: notOperator}
-var emptyOpType = &operationType{Type: "EMPTY", NumArgs: 50, Handler: emptyOperator}
+var emptyOpType = &operationType{Type: "EMPTY", Precedence: 50, Handler: emptyOperator}
 
 var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: recursiveDescentOperator}
 
