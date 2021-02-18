@@ -1,13 +1,18 @@
-Like the multiple operator in jq, depending on the operands, this multiply operator will do different things. Currently only objects are supported, which have the effect of merging the RHS into the LHS.
+Like the multiple operator in jq, depending on the operands, this multiply operator will do different things. Currently numbers, arrays and objects are supported.
 
-To concatenate arrays when merging objects, use the *+ form (see examples below). This will recursively merge objects, appending arrays when it encounters them.
+## Objects and arrays - merging
+Objects are merged deeply matching on matching keys. By default, array values override and are not deeply merged.
 
-To merge only existing fields, use the *? form. Note that this can be used with the concatenate arrays too *+?.
 Note that when merging objects, this operator returns the merged object (not the parent). This will be clearer in the examples below.
 
-Multiplication of strings and numbers are not yet supported.
+### Merge Flags
+You can control how objects are merged by using one or more of the following flags. Multiple flags can be used together, e.g. `.a *+? .b`.  See examples below
 
-## Merging files
+- `+` to append arrays
+- `?` to only merge existing fields
+- `d` to deeply merge arrays
+
+### Merging files
 Note the use of `eval-all` to ensure all documents are loaded into memory.
 
 ```bash

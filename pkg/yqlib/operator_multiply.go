@@ -10,8 +10,9 @@ import (
 )
 
 type multiplyPreferences struct {
-	AppendArrays  bool
-	TraversePrefs traversePreferences
+	AppendArrays    bool
+	DeepMergeArrays bool
+	TraversePrefs   traversePreferences
 }
 
 func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -37,9 +38,29 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			return mergeObjects(d, context, newThing, rhs, preferences)
 		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
 			return multiplyIntegers(lhs, rhs)
+		} else if (lhs.Node.Tag == "!!int" || lhs.Node.Tag == "!!float") && (rhs.Node.Tag == "!!int" || rhs.Node.Tag == "!!float") {
+			return multiplyFloats(lhs, rhs)
 		}
 		return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
 	}
+}
+
+func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	target := lhs.CreateChild(nil, &yaml.Node{})
+	target.Node.Kind = yaml.ScalarNode
+	target.Node.Style = lhs.Node.Style
+	target.Node.Tag = "!!float"
+
+	lhsNum, err := strconv.ParseFloat(lhs.Node.Value, 64)
+	if err != nil {
+		return nil, err
+	}
+	rhsNum, err := strconv.ParseFloat(rhs.Node.Value, 64)
+	if err != nil {
+		return nil, err
+	}
+	target.Node.Value = fmt.Sprintf("%v", lhsNum*rhsNum)
+	return target, nil
 }
 
 func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
@@ -98,11 +119,12 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
 
 	assignmentOp := &Operation{OperationType: assignAttributesOpType}
-	if rhs.Node.Kind == yaml.ScalarNode || rhs.Node.Kind == yaml.AliasNode {
+	if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
+		assignmentOp.OperationType = addAssignOpType
+	} else if !preferences.DeepMergeArrays && rhs.Node.Kind == yaml.SequenceNode ||
+		(rhs.Node.Kind == yaml.ScalarNode || rhs.Node.Kind == yaml.AliasNode) {
 		assignmentOp.OperationType = assignOpType
 		assignmentOp.UpdateAssign = false
-	} else if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
-		assignmentOp.OperationType = addAssignOpType
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 

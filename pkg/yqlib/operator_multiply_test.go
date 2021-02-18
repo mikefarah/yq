@@ -6,6 +6,27 @@ import (
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
+		description: "Multiply integers",
+		expression:  `3 * 4`,
+		expected: []string{
+			"D0, P[], (!!int)::12\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `3 * 4.5`,
+		expected: []string{
+			"D0, P[], (!!float)::13.5\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `4.5 * 3`,
+		expected: []string{
+			"D0, P[], (!!float)::13.5\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: me}}`,
 		expression: `. * {"a" : .b}`,
@@ -157,7 +178,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: [{thing: one}], b: [{missing: two, thing: two}]}`,
-		expression: `.a *? .b`,
+		expression: `.a *?d .b`,
 		expected: []string{
 			"D0, P[a], (!!seq)::[{thing: two}]\n",
 		},
@@ -184,6 +205,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression:  `.a *?+ .b`,
 		expected: []string{
 			"D0, P[a], (!!map)::{thing: [1, 2, 3, 4]}\n",
+		},
+	},
+	{
+		description:    "Merge, deeply merging arrays",
+		subdescription: "Merging arrays deeply means arrays are merge like objects, with indexes as their key. In this case, we merge the first item in the array, and do nothing with the second.",
+		document:       `{a: [{name: fred, age: 12}, {name: bob, age: 32}], b: [{name: fred, age: 34}]}`,
+		expression:     `.a *d .b`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[{name: fred, age: 34}, {name: bob, age: 32}]\n",
 		},
 	},
 	{
