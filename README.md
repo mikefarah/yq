@@ -164,6 +164,7 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
 - [General shell completion scripts (bash/zsh/fish/powershell)](https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
+- [Reduce](https://mikefarah.gitbook.io/yq/operators/reduce) to merge multiple files or sum an array or other fancy things.
 
 ## [Usage](https://mikefarah.gitbook.io/yq/)
 
