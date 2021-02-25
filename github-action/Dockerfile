@@ -1,4 +1,4 @@
-FROM mikefarah/yq:4.6.0
+FROM mikefarah/yq:4.6.1
 
 COPY entrypoint.sh /entrypoint.sh
 
