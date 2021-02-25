@@ -5,9 +5,6 @@ import (
 	"strings"
 )
 
-var myPathTokeniser = newExpressionTokeniser()
-var myPathPostfixer = newExpressionPostFixer()
-
 type ExpressionNode struct {
 	Operation *Operation
 	Lhs       *ExpressionNode
@@ -19,19 +16,21 @@ type ExpressionParser interface {
 }
 
 type expressionParserImpl struct {
+	pathTokeniser expressionTokeniser
+	pathPostFixer expressionPostFixer
 }
 
 func NewExpressionParser() ExpressionParser {
-	return &expressionParserImpl{}
+	return &expressionParserImpl{newExpressionTokeniser(), newExpressionPostFixer()}
 }
 
 func (p *expressionParserImpl) ParseExpression(expression string) (*ExpressionNode, error) {
-	tokens, err := myPathTokeniser.Tokenise(expression)
+	tokens, err := p.pathTokeniser.Tokenise(expression)
 	if err != nil {
 		return nil, err
 	}
 	var Operations []*Operation
-	Operations, err = myPathPostfixer.ConvertToPostfix(tokens)
+	Operations, err = p.pathPostFixer.ConvertToPostfix(tokens)
 	if err != nil {
 		return nil, err
 	}
