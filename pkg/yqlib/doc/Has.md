@@ -19,6 +19,29 @@ true
 false
 ```
 
+## Select, checking for existence of deep paths
+Simply pipe in parent expressions into `has`
+
+Given a sample.yml file of:
+```yaml
+- a:
+    b:
+      c: cat
+- a:
+    b:
+      d: dog
+```
+then
+```bash
+yq eval '.[] | select(.a.b | has("c"))' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
 ## Has array index
 Given a sample.yml file of:
 ```yaml

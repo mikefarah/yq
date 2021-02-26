@@ -29,6 +29,15 @@ var hasOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Select, checking for existence of deep paths",
+		subdescription: "Simply pipe in parent expressions into `has`",
+		document:       "- {a: {b: {c: cat}}}\n- {a: {b: {d: dog}}}",
+		expression:     `.[] | select(.a.b | has("c"))`,
+		expected: []string{
+			"D0, P[0], (!!map)::{a: {b: {c: cat}}}\n",
+		},
+	},
+	{
 		dontFormatInputForDoc: true,
 		description:           "Has array index",
 		document: `- []
