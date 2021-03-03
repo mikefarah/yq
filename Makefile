@@ -17,6 +17,7 @@ help:
 	@echo '    make vendor          Install dependencies to vendor directory.'
 	@echo '    make format          Run code formatter.'
 	@echo '    make check           Run static code analysis (lint).'
+	@echo '    make secure          Run gosec.'
 	@echo '    make test            Run tests on project.'
 	@echo '    make cover           Run tests and capture code coverage metrics on project.'
 	@echo '    make clean           Clean the directory tree of produced artifacts.'
@@ -48,7 +49,7 @@ tmp/dev_image_id: Dockerfile.dev scripts/devtools.sh
 # ----------------------------------------------
 # build
 .PHONY: build
-build: build/dev
+build: build/dev secure
 
 .PHONY: build/dev
 build/dev: test *.go
@@ -84,6 +85,10 @@ format: vendor
 check: format
 	${DOCKRUN} bash ./scripts/check.sh
 
+.PHONY: secure
+secure: 
+	${DOCKRUN} bash ./scripts/secure.sh
+
 .PHONY: test
 test: check
 	${DOCKRUN} bash ./scripts/test.sh
@@ -96,11 +101,6 @@ cover: check
 	@find cover -type d -exec chmod 755 {} \; || :
 	@find cover -type f -exec chmod 644 {} \; || :
 
-.PHONY: build-docs
-build-docs: prepare mkdocs.yml mkdocs/*
-	${DOCKRUN} mkdocs build
-	@find docs -type d -exec chmod 755 {} \; || :
-	@find docs -type f -exec chmod 644 {} \; || :
 
 .PHONY: release
 release: xcompile

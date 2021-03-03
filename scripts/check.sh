@@ -10,12 +10,3 @@ else
   ./bin/golangci-lint run --timeout=5m
 fi
 
-# ./bin/golangci-lint \
-#   --tests \
-#   --vendor \
-#   --disable=aligncheck \
-#   --disable=gotype \
-#   --disable=goconst \
-#   --disable=gocyclo \
-#   --deadline=300s \
-#   ./...
