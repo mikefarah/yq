@@ -50,7 +50,9 @@ var alternativeOpType = &operationType{Type: "ALTERNATIVE", NumArgs: 2, Preceden
 
 var equalsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: equalsOperator}
 var notEqualsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: notEqualsOperator}
-var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 40, Handler: createMapOperator}
+
+//createmap needs to be above union, as we use union to build the components of the objects
+var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 15, Handler: createMapOperator}
 
 var shortPipeOpType = &operationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: pipeOperator}
 
