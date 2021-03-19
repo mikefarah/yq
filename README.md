@@ -151,15 +151,16 @@ sudo apt install yq -y
 Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ## Features
+- [Detailed documentation with many examples](https://mikefarah.gitbook.io/yq/)
 - Written in portable go, so you can download a lovely dependency free binary
 - Uses similar syntax as `jq` but works with YAML and JSON files
 - Fully supports multi document yaml files
 - Colorized yaml output
-- [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/v/v4.x/traverse)
-- [Sort yaml by keys](https://mikefarah.gitbook.io/yq/v/v4.x/sort-keys)
-- Manipulate yaml [comments](https://mikefarah.gitbook.io/yq/comment-operators), [styling](https://mikefarah.gitbook.io/yq/style), [tags](https://mikefarah.gitbook.io/yq/tag) and [anchors and aliases](https://mikefarah.gitbook.io/yq/anchor-and-alias-operators).
+- [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/operators/traverse-read)
+- [Sort yaml by keys](https://mikefarah.gitbook.io/yq/operators/sort-keys)
+- Manipulate yaml [comments](https://mikefarah.gitbook.io/yq/operators/comment-operators), [styling](https://mikefarah.gitbook.io/yq/operators/style), [tags](https://mikefarah.gitbook.io/yq/operators/tag) and [anchors and aliases](https://mikefarah.gitbook.io/yq/operators/anchor-and-alias-operators).
 - [Update yaml inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
-- [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/v/v4.x/select#select-and-update-matching-values-in-map)
+- [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/operators/select#select-and-update-matching-values-in-map)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
 - [Convert to/from json to yaml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
