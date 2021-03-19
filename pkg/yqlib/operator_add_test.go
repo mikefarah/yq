@@ -63,7 +63,7 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Update array (append)",
+		description: "Append to array",
 		document:    `{a: [1,2], b: [3,4]}`,
 		expression:  `.a = .a + .b`,
 		expected: []string{
@@ -71,17 +71,17 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "String concatenation",
-		document:    `{a: cat, b: meow}`,
-		expression:  `.a = .a + .b`,
+		description: "Relative append",
+		document:    `a: { a1: {b: [cat]}, a2: {b: [dog]}, a3: {} }`,
+		expression:  `.a[].b += ["mouse"]`,
 		expected: []string{
-			"D0, P[], (doc)::{a: catmeow, b: meow}\n",
+			"D0, P[], (doc)::a: {a1: {b: [cat, mouse]}, a2: {b: [dog, mouse]}, a3: {b: [mouse]}}\n",
 		},
 	},
 	{
-		description: "Relative string concatenation",
+		description: "String concatenation",
 		document:    `{a: cat, b: meow}`,
-		expression:  `.a += .b`,
+		expression:  `.a = .a + .b`,
 		expected: []string{
 			"D0, P[], (doc)::{a: catmeow, b: meow}\n",
 		},
@@ -105,11 +105,11 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Increment number",
-		document:    `{a: 3}`,
-		expression:  `.a += 1`,
+		description: "Increment numbers",
+		document:    `{a: 3, b: 5}`,
+		expression:  `.[] += 1`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 4}\n",
+			"D0, P[], (doc)::{a: 4, b: 6}\n",
 		},
 	},
 	{

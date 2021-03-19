@@ -101,7 +101,7 @@ will output
 - hello
 ```
 
-## Update array (append)
+## Append to array
 Given a sample.yml file of:
 ```yaml
 a:
@@ -125,6 +125,36 @@ a:
 b:
   - 3
   - 4
+```
+
+## Relative append
+Given a sample.yml file of:
+```yaml
+a:
+  a1:
+    b:
+      - cat
+  a2:
+    b:
+      - dog
+  a3: {}
+```
+then
+```bash
+yq eval '.a[].b += ["mouse"]' sample.yml
+```
+will output
+```yaml
+a:
+  a1:
+    b:
+      - cat
+      - mouse
+  a2:
+    b:
+      - dog
+      - mouse
+  a3: {b: [mouse]}
 ```
 
 ## String concatenation
@@ -136,22 +166,6 @@ b: meow
 then
 ```bash
 yq eval '.a = .a + .b' sample.yml
-```
-will output
-```yaml
-a: catmeow
-b: meow
-```
-
-## Relative string concatenation
-Given a sample.yml file of:
-```yaml
-a: cat
-b: meow
-```
-then
-```bash
-yq eval '.a += .b' sample.yml
 ```
 will output
 ```yaml
@@ -195,18 +209,20 @@ a: 7
 b: 4
 ```
 
-## Increment number
+## Increment numbers
 Given a sample.yml file of:
 ```yaml
 a: 3
+b: 5
 ```
 then
 ```bash
-yq eval '.a += 1' sample.yml
+yq eval '.[] += 1' sample.yml
 ```
 will output
 ```yaml
 a: 4
+b: 6
 ```
 
 ## Add to null

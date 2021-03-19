@@ -13,17 +13,17 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
-		`[]|join(".")`, 
+		`[]|join(".")`,
 		append(make([]interface{}, 0), "[", "EMPTY", "]", "PIPE", "JOIN", "(", ". (string)", ")"),
-		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE", ". (string)", "JOIN", "PIPE" ),
+		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE", ". (string)", "JOIN", "PIPE"),
 	},
 	{
-		`{"cool": .b or .c}`, 
+		`{"cool": .b or .c}`,
 		append(make([]interface{}, 0), "{", "cool (string)", "CREATE_MAP", "b", "OR", "c", "}"),
 		append(make([]interface{}, 0), "cool (string)", "b", "c", "OR", "CREATE_MAP", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
 	{
-		`{"cool": []|join(".")}`, 
+		`{"cool": []|join(".")}`,
 		append(make([]interface{}, 0), "{", "cool (string)", "CREATE_MAP", "[", "EMPTY", "]", "PIPE", "JOIN", "(", ". (string)", ")", "}"),
 		append(make([]interface{}, 0), "cool (string)", "EMPTY", "COLLECT", "SHORT_PIPE", ". (string)", "JOIN", "PIPE", "CREATE_MAP", "COLLECT_OBJECT", "SHORT_PIPE"),
 	},
