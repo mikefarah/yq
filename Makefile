@@ -49,7 +49,7 @@ tmp/dev_image_id: Dockerfile.dev scripts/devtools.sh
 # ----------------------------------------------
 # build
 .PHONY: build
-build: build/dev secure
+build: build/dev
 
 .PHONY: build/dev
 build/dev: test *.go
