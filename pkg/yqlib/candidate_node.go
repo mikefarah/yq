@@ -86,7 +86,14 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	if n.Node.Style == 0 {
 		n.Node.Style = other.Node.Style
 	}
-	n.Node.FootComment = n.Node.FootComment + other.Node.FootComment
-	n.Node.HeadComment = n.Node.HeadComment + other.Node.HeadComment
-	n.Node.LineComment = n.Node.LineComment + other.Node.LineComment
+
+	if other.Node.FootComment != "" {
+		n.Node.FootComment = other.Node.FootComment
+	}
+	if other.Node.HeadComment != "" {
+		n.Node.HeadComment = other.Node.HeadComment
+	}
+	if other.Node.LineComment != "" {
+		n.Node.LineComment = other.Node.LineComment
+	}
 }

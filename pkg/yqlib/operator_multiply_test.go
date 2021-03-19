@@ -4,12 +4,41 @@ import (
 	"testing"
 )
 
+var doc1 = `list:
+# Hi this is a comment.
+# Hello this is another comment.
+- "abc"`
+
+var doc2 = `list2:
+# This is yet another comment.
+# Indeed this is yet another comment.
+- "123"`
+
+var docExpected = `D0, P[], (!!map)::list:
+    # Hi this is a comment.
+    # Hello this is another comment.
+    - "abc"
+list2:
+    # This is yet another comment.
+    # Indeed this is yet another comment.
+    - "123"
+`
+
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		description: "Multiply integers",
 		expression:  `3 * 4`,
 		expected: []string{
 			"D0, P[], (!!int)::12\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   doc1,
+		document2:  doc2,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			docExpected,
 		},
 	},
 	{

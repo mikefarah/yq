@@ -31,6 +31,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
+
 			var newThing, err = mergeObjects(d, context, newBlank, lhs, multiplyPreferences{})
 			if err != nil {
 				return nil, err
