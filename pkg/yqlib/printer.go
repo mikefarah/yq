@@ -34,7 +34,7 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		unwrapScalar:       unwrapScalar,
 		colorsEnabled:      colorsEnabled,
 		indent:             indent,
-		printDocSeparators: printDocSeparators,
+		printDocSeparators: !outputToJSON && printDocSeparators,
 		firstTimePrinting:  true,
 		treeNavigator:      NewDataTreeNavigator(),
 	}
