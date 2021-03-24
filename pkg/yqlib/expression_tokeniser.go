@@ -325,6 +325,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\*[\+|\?d]*`), multiplyWithPrefs())
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
+	lexer.Add([]byte(`\-`), opToken(subtractOpType))
+	lexer.Add([]byte(`\-=`), opToken(subtractAssignOpType))
 	lexer.Add([]byte(`\$[a-zA-Z_-0-9]+`), getVariableOpToken())
 	lexer.Add([]byte(`as`), opToken(assignVariableOpType))
 
