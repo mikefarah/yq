@@ -62,7 +62,7 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 			}
 
 			return &CandidateNode{Node: &node, Document: document, Path: path}, nil
-		})
+		}, false)
 
 	if err != nil {
 		return nil, err

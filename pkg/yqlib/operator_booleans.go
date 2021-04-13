@@ -49,7 +49,7 @@ func orOperator(d *dataTreeNavigator, context Context, expressionNode *Expressio
 	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 || b2
-		}))
+		}), false)
 }
 
 func andOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -57,7 +57,7 @@ func andOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 && b2
-		}))
+		}), false)
 }
 
 func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

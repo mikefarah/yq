@@ -1,14 +1,14 @@
 package yqlib
 
-// corssFunction no matches
-// can boolean use crossfunction
-
 func alternativeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- alternative")
-	return crossFunction(d, context, expressionNode, alternativeFunc)
+	return crossFunction(d, context, expressionNode, alternativeFunc, true)
 }
 
 func alternativeFunc(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	if lhs == nil {
+		return rhs, nil
+	}
 	lhs.Node = unwrapDoc(lhs.Node)
 	rhs.Node = unwrapDoc(rhs.Node)
 	log.Debugf("Alternative LHS: %v", lhs.Node.Tag)

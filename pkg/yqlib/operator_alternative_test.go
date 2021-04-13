@@ -14,6 +14,14 @@ var alternativeOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		expression: `select(tag == "seq") // "cat"`,
+		skipDoc:    true,
+		document:   `a: frog`,
+		expected: []string{
+			"D0, P[], (!!str)::cat\n",
+		},
+	},
+	{
 		description: "LHS is not defined",
 		expression:  `.a // "hello"`,
 		document:    `{}`,
