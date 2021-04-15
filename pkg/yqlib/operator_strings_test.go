@@ -14,6 +14,24 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Substitute / Replace string",
+		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)",
+		document:       `a: dogs are great`,
+		expression:     `.a |= sub("dogs", "cats")`,
+		expected: []string{
+			"D0, P[], (doc)::a: cats are great\n",
+		},
+	},
+	{
+		description:    "Substitute / Replace string with regex",
+		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)",
+		document:       "a: cat\nb: heat",
+		expression:     `.[] |= sub("([a])", "${1}r")`,
+		expected: []string{
+			"D0, P[], (doc)::a: cart\nb: heart\n",
+		},
+	},
+	{
 		description: "Split strings",
 		document:    `"cat; meow; 1; ; true"`,
 		expression:  `split("; ")`,

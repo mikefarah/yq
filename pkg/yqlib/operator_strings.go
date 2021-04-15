@@ -3,10 +3,76 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
+
+func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, context Context) (string, string, error) {
+	regEx := ""
+	replacementText := ""
+
+	regExNodes, err := d.GetMatchingNodes(context, block.Lhs)
+	if err != nil {
+		return "", "", err
+	}
+	if regExNodes.MatchingNodes.Front() != nil {
+		regEx = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+	}
+
+	log.Debug("regEx %v", regEx)
+
+	replacementNodes, err := d.GetMatchingNodes(context, block.Rhs)
+	if err != nil {
+		return "", "", err
+	}
+	if replacementNodes.MatchingNodes.Front() != nil {
+		replacementText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+	}
+
+	return regEx, replacementText, nil
+}
+
+func substitute(original string, regex *regexp.Regexp, replacement string) *yaml.Node {
+	replacedString := regex.ReplaceAllString(original, replacement)
+	return &yaml.Node{Kind: yaml.ScalarNode, Value: replacedString, Tag: "!!str"}
+}
+
+func substituteStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	//rhs  block operator
+	//lhs of block = regex
+	//rhs of block = replacement expression
+	block := expressionNode.Rhs
+
+	regExStr, replacementText, err := getSubstituteParameters(d, block, context)
+
+	if err != nil {
+		return Context{}, err
+	}
+
+	regEx, err := regexp.Compile(regExStr)
+	if err != nil {
+		return Context{}, err
+	}
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		node := unwrapDoc(candidate.Node)
+		if node.Tag != "!!str" {
+			return Context{}, fmt.Errorf("cannot sustitute with %v, can only substitute strings", node.Tag)
+		}
+
+		targetNode := substitute(node.Value, regEx, replacementText)
+		result := candidate.CreateChild(nil, targetNode)
+		results.PushBack(result)
+	}
+
+	return context.ChildContext(results), nil
+
+}
 
 func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- joinStringOperator")
@@ -26,7 +92,7 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		if node.Kind != yaml.SequenceNode {
-			return Context{}, fmt.Errorf("Cannot join with %v, can only join arrays of scalars", node.Tag)
+			return Context{}, fmt.Errorf("cannot join with %v, can only join arrays of scalars", node.Tag)
 		}
 		targetNode := join(node.Content, joinStr)
 		result := candidate.CreateChild(nil, targetNode)
