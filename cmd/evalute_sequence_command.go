@@ -21,6 +21,9 @@ yq e '.a.b | length' f1.yml f2.yml
 # prints out the file
 yq e sample.yaml 
 
+# use '-' as a filename to read from STDIN
+cat file2.yml | yq e '.a.b' file1.yml - file3.yml
+
 # prints a new yaml document
 yq e -n '.a.b.c = "cat"' 
 

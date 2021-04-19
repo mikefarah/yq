@@ -17,6 +17,9 @@ func createEvaluateAllCommand() *cobra.Command {
 		Example: `
 # merges f2.yml into f1.yml (inplace)
 yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml		
+
+# use '-' as a filename to read from STDIN
+cat file2.yml | yq ea '.a.b' file1.yml - file3.yml
 `,
 		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval",
 		RunE: evaluateAll,
