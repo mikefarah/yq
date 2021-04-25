@@ -8,9 +8,10 @@ import (
 )
 
 type CandidateNode struct {
-	Node      *yaml.Node    // the actual node
-	Path      []interface{} /// the path we took to get to this node
-	Document  uint          // the document index of this node
+	Node      *yaml.Node     // the actual node
+	Parent    *CandidateNode // parent node
+	Path      []interface{}  /// the path we took to get to this node
+	Document  uint           // the document index of this node
 	Filename  string
 	FileIndex int
 	// when performing op against all nodes given, this will treat all the nodes as one
@@ -31,6 +32,7 @@ func (n *CandidateNode) CreateChild(path interface{}, node *yaml.Node) *Candidat
 	return &CandidateNode{
 		Node:      node,
 		Path:      n.createChildPath(path),
+		Parent:    n,
 		Document:  n.Document,
 		Filename:  n.Filename,
 		FileIndex: n.FileIndex,

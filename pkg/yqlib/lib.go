@@ -95,7 +95,6 @@ var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 
 var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: selectOperator}
 var hasOpType = &operationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: hasOperator}
 var deleteChildOpType = &operationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: deleteChildOperator}
-var deleteImmediateChildOpType = &operationType{Type: "DELETE_IMMEDIATE_CHILD", NumArgs: 1, Precedence: 40, Handler: deleteImmediateChildOperator}
 
 type Operation struct {
 	OperationType *operationType

@@ -24,6 +24,70 @@ var deleteOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{a: {a1: fred, a2: frood}}`,
+		expression: `.a | del(.a1)`,
+		expected: []string{
+			"D0, P[a], (!!map)::{a2: frood}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: [1,2,3]`,
+		expression: `.a | del(.[1])`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[1, 3]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[0, {a: cat, b: dog}]`,
+		expression: `.[1] | del(.a)`,
+		expected: []string{
+			"D0, P[1], (!!map)::{b: dog}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{a: cat, b: dog}]`,
+		expression: `.[0] | del(.a)`,
+		expected: []string{
+			"D0, P[0], (!!map)::{b: dog}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{a: {b: thing, c: frog}}]`,
+		expression: `.[0].a | del(.b)`,
+		expected: []string{
+			"D0, P[0 a], (!!map)::{c: frog}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{a: {b: thing, c: frog}}]`,
+		expression: `.[0] | del(.a.b)`,
+		expected: []string{
+			"D0, P[0], (!!map)::{a: {c: frog}}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [0, {b: thing, c: frog}]}`,
+		expression: `.a[1] | del(.b)`,
+		expected: []string{
+			"D0, P[a 1], (!!map)::{c: frog}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [0, {b: thing, c: frog}]}`,
+		expression: `.a | del(.[1].b)`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[0, {c: frog}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: {a1: fred, a2: frood}}`,
 		expression: `del(.. | select(.=="frood"))`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {a1: fred}}\n",
