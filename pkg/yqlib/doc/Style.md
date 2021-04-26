@@ -1,4 +1,42 @@
 The style operator can be used to get or set the style of nodes (e.g. string style, yaml style)
+## Update and set style of a particular node (simple)
+Given a sample.yml file of:
+```yaml
+a:
+  b: thing
+  c: something
+```
+then
+```bash
+yq eval '.a.b = "new" | .a.b style="double"' sample.yml
+```
+will output
+```yaml
+a:
+  b: "new"
+  c: something
+```
+
+## Update and set style of a particular node using path variables
+You can use a variable to re-use a path
+
+Given a sample.yml file of:
+```yaml
+a:
+  b: thing
+  c: something
+```
+then
+```bash
+yq eval '.a.b as $x | $x = "new" | $x style="double"' sample.yml
+```
+will output
+```yaml
+a:
+  b: "new"
+  c: something
+```
+
 ## Set tagged style
 Given a sample.yml file of:
 ```yaml

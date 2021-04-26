@@ -6,6 +6,23 @@ import (
 
 var styleOperatorScenarios = []expressionScenario{
 	{
+		description: "Update and set style of a particular node (simple)",
+		document:    `a: {b: thing, c: something}`,
+		expression:  `.a.b = "new" | .a.b style="double"`,
+		expected: []string{
+			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+		},
+	},
+	{
+		description:    "Update and set style of a particular node using path variables",
+		subdescription: "You can use a variable to re-use a path",
+		document:       `a: {b: thing, c: something}`,
+		expression:     `.a.b as $x | $x = "new" | $x style="double"`,
+		expected: []string{
+			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+		},
+	},
+	{
 		description: "Set tagged style",
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="tagged"`,
