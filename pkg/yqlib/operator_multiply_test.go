@@ -24,6 +24,12 @@ list2:
     - "123"
 `
 
+var mergeArraysObjectKeysText = `It's a complex command, the trickyness comes from needing to have the right context in the expressions.
+First we save the second array into a variable '$two' which lets us reference it later.
+We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
+We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
+`
+
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		description: "Multiply integers",
@@ -121,6 +127,16 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression: `. * {"a":.b}`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {also: [1]}, b: {also: [1]}}\n",
+		},
+	},
+	{
+		description:    "Merge arrays of objects together, matching on a key",
+		subdescription: mergeArraysObjectKeysText,
+		document:       `[{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}]`,
+		document2:      `[{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
+		expression:     `(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))`,
+		expected: []string{
+			"D0, P[], (doc)::[{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}]\n",
 		},
 	},
 	{
