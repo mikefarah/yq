@@ -71,7 +71,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Remove all comments",
+		description:    "Remove (strip) all comments",
 		subdescription: "Note the use of `...` to ensure key nodes are included.",
 		document:       "# hi\n\na: cat # comment\n\n# great\n\nb: # key comment",
 		expression:     `... comments=""`,

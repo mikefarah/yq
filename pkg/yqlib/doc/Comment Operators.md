@@ -88,7 +88,7 @@ a: cat
 b: dog # leave this
 ```
 
-## Remove all comments
+## Remove (strip) all comments
 Note the use of `...` to ensure key nodes are included.
 
 Given a sample.yml file of:
