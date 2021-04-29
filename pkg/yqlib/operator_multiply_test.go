@@ -130,16 +130,6 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Merge arrays of objects together, matching on a key",
-		subdescription: mergeArraysObjectKeysText,
-		document:       `[{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}]`,
-		document2:      `[{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
-		expression:     `(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))`,
-		expected: []string{
-			"D0, P[], (doc)::[{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}]\n",
-		},
-	},
-	{
 		description: "Merge objects together, returning merged result only",
 		document:    `{a: {field: me, fieldA: cat}, b: {field: {g: wizz}, fieldB: dog}}`,
 		expression:  `.a * .b`,
@@ -259,6 +249,16 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression:     `.a *d .b`,
 		expected: []string{
 			"D0, P[a], (!!seq)::[{name: fred, age: 34}, {name: bob, age: 32}]\n",
+		},
+	},
+	{
+		description:    "Merge arrays of objects together, matching on a key",
+		subdescription: mergeArraysObjectKeysText,
+		document:       `[{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}]`,
+		document2:      `[{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
+		expression:     `(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))`,
+		expected: []string{
+			"D0, P[], (doc)::[{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}]\n",
 		},
 	},
 	{

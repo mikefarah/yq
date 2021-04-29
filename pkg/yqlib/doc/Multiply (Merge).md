@@ -29,46 +29,6 @@ will output
 12
 ```
 
-## Merge arrays of objects together, matching on a key
-It's a complex command, the trickyness comes from needing to have the right context in the expressions.
-First we save the second array into a variable '$two' which lets us reference it later.
-We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
-We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
-
-
-Given a sample.yml file of:
-```yaml
-- a: apple
-  b: appleB
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
-```
-And another sample another.yml file of:
-```yaml
-- a: banana
-  c: bananaC
-- a: apple
-  b: appleB2
-- a: dingo
-  c: dingoC
-```
-then
-```bash
-yq eval-all '(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))' sample.yml another.yml
-```
-will output
-```yaml
-- a: apple
-  b: appleB2
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
-  c: bananaC
-```
-
 ## Merge objects together, returning merged result only
 Given a sample.yml file of:
 ```yaml
@@ -269,6 +229,46 @@ will output
   age: 34
 - name: bob
   age: 32
+```
+
+## Merge arrays of objects together, matching on a key
+It's a complex command, the trickyness comes from needing to have the right context in the expressions.
+First we save the second array into a variable '$two' which lets us reference it later.
+We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
+We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
+
+
+Given a sample.yml file of:
+```yaml
+- a: apple
+  b: appleB
+- a: kiwi
+  b: kiwiB
+- a: banana
+  b: bananaB
+```
+And another sample another.yml file of:
+```yaml
+- a: banana
+  c: bananaC
+- a: apple
+  b: appleB2
+- a: dingo
+  c: dingoC
+```
+then
+```bash
+yq eval-all '(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))' sample.yml another.yml
+```
+will output
+```yaml
+- a: apple
+  b: appleB2
+- a: kiwi
+  b: kiwiB
+- a: banana
+  b: bananaB
+  c: bananaC
 ```
 
 ## Merge to prefix an element
