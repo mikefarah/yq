@@ -4,7 +4,7 @@ In `yq` expressions are made up of operators and pipes. A context of nodes is pa
 
 Lets look at a couple of examples.
 
-## Example 1 - simple example
+## Example with a simple operator
 
 Given a document like:
 
@@ -37,10 +37,45 @@ This being the last operation in the expression, the results will be printed out
 3
 ```
 
-# Example 2 - operators with arguments.
+# Example with an operator that takes arguments.
 
+Given a document like:
 
-The `=` operator takes two arguments, a `lhs` expression and `rhs` expression. It runs the 'matching' nodes context against the `lhs` expression to find the nodes to update, lets call it `lhsNodes`, and then runs the matching nodes against the `rhs` to find the new values, lets call that `rhsNodes`. It updates the `lhsNodes` values with the `rhsNodes` values and _returns the original matching nodes_. This is important, where length changed the matching nodes to be new nodes with the length values, `=` returns the original matching nodes, albeit with some of the nodes values updated. So `.a = 3` will still return the parent matching node, but with the matching child updated.
+```yaml
+a: cat
+b: dog
+```
 
-Please see the individual operator docs for more information and examples.
+with an expression:
 
+```
+.a = .b
+```
+
+The `=` operator takes two arguments, a `lhs` expression, which in this case is `.a` and `rhs` expression which is `.b`. 
+
+It pipes the current, lets call it 'root' context through the `lhs` expression of `.a` to return the node 
+
+```yaml
+cat
+```
+
+Note that this node holds not only its value 'cat', but comments and metadata too, including path and parent information.
+
+The `=` operator then pipes the 'root' context through the `rhs` expression of `.b` to retun the node
+
+```yaml
+dog
+```
+
+Both sides have now been evaluated, so the operator performs its actual operation of assignment, and copies across the value from the RHS to the value on the LHS, and it returns the now updated 'root' context:
+
+```yaml
+a: cat
+b: dog
+```
+
+# Relative update (e.g. `|=`)
+There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key differnce when evaluating the RHS expression.
+
+In the plain form, we pass in the 'root' level context to the RHS expresssion. In relative form, we pass in each result of the LHS to the RHS expression. Let's go through an example.
