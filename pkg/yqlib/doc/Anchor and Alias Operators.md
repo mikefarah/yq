@@ -3,6 +3,97 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 `yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
 
 
+## Merge one map
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<: *CENTER
+  r: 10
+```
+then
+```bash
+yq eval '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+x: 1
+y: 2
+r: 10
+```
+
+## Merge multiple maps
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
+```
+then
+```bash
+yq eval '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+x: 1
+y: 2
+```
+
+## Override
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
+```
+then
+```bash
+yq eval '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+x: 1
+y: 2
+```
+
 ## Get anchor
 Given a sample.yml file of:
 ```yaml
@@ -183,9 +274,9 @@ bar:
   c: bar_c
 foobarList:
   b: bar_b
-  a: foo_a
-  thing: bar_thing
+  thing: foo_thing
   c: foobarList_c
+  a: foo_a
 foobar:
   c: foo_c
   a: foo_a

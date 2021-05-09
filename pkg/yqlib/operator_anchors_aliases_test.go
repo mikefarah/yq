@@ -4,7 +4,36 @@ import (
 	"testing"
 )
 
+var specDocument = `- &CENTER { x: 1, y: 2 }
+- &LEFT { x: 0, y: 2 }
+- &BIG { r: 10 }
+- &SMALL { r: 1 }
+`
+
+var expectedSpecResult = "D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"
+
 var anchorOperatorScenarios = []expressionScenario{
+	{
+		description:    "Merge one map",
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : *CENTER\n  r: 10\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{expectedSpecResult},
+	},
+	{
+		description:    "Merge multiple maps",
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+	},
+	{
+		description:    "Override",
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+	},
 	{
 		description: "Get anchor",
 		document:    `a: &billyBob cat`,
@@ -91,9 +120,9 @@ bar:
     c: bar_c
 foobarList:
     b: bar_b
-    a: foo_a
-    thing: bar_thing
+    thing: foo_thing
     c: foobarList_c
+    a: foo_a
 foobar:
     c: foo_c
     a: foo_a
@@ -106,7 +135,7 @@ foobar:
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, a: foo_a, thing: bar_thing, c: foobarList_c}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
@@ -116,7 +145,7 @@ foobar:
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, a: foo_a, thing: bar_thing, c: foobarList_c}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},

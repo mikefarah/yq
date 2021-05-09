@@ -71,7 +71,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		t.Error(fmt.Errorf("%v: %v", err, s.expression))
 		return
 	}
-	test.AssertResultComplexWithContext(t, s.expected, resultsToString(context.MatchingNodes), fmt.Sprintf("exp: %v\ndoc: %v", s.expression, s.document))
+	test.AssertResultComplexWithContext(t, s.expected, resultsToString(context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
 }
 
 func resultsToString(results *list.List) []string {

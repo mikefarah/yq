@@ -176,7 +176,7 @@ func explodeNode(node *yaml.Node, context Context) error {
 			} else {
 				if valueNode.Kind == yaml.SequenceNode {
 					log.Debugf("an alias merge list!")
-					for index := 0; index < len(valueNode.Content); index = index + 1 {
+					for index := len(valueNode.Content) - 1; index >= 0; index = index - 1 {
 						aliasNode := valueNode.Content[index]
 						err := applyAlias(node, aliasNode.Alias, index, context.ChildContext(newContent))
 						if err != nil {
