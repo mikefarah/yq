@@ -29,8 +29,9 @@ const (
 type token struct {
 	TokenType            tokenType
 	Operation            *Operation
-	AssignOperation      *Operation // e.g. tag (GetTag) op becomes AssignTag if '=' follows it
-	CheckForPostTraverse bool       // e.g. [1]cat should really be [1].cat
+	AssignOperation      *Operation      // e.g. tag (GetTag) op becomes AssignTag if '=' follows it
+	CheckForPostTraverse bool            // e.g. [1]cat should really be [1].cat
+	Match                *machines.Match // match that created this token
 
 }
 
@@ -145,7 +146,7 @@ func assignAllCommentsOp(updateAssign bool) lex.Action {
 
 func literalToken(pType tokenType, checkForPost bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		return &token{TokenType: pType, CheckForPostTraverse: checkForPost}, nil
+		return &token{TokenType: pType, CheckForPostTraverse: checkForPost, Match: m}, nil
 	}
 }
 
@@ -331,7 +332,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`env\([^\)]+\)`), envOp(false))
 
 	lexer.Add([]byte(`\[`), literalToken(openCollect, false))
-	lexer.Add([]byte(`\]`), literalToken(closeCollect, true))
+	lexer.Add([]byte(`\]\??`), literalToken(closeCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(closeCollectObject, true))
 	lexer.Add([]byte(`\*[\+|\?d]*`), multiplyWithPrefs())

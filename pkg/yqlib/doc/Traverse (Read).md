@@ -32,6 +32,21 @@ b: apple
 c: banana
 ```
 
+## Optional Splat
+Just like splat, but won't error if you run it against scalars
+
+Given a sample.yml file of:
+```yaml
+cat
+```
+then
+```bash
+yq eval '.[]' sample.yml
+```
+will output
+```yaml
+```
+
 ## Special characters
 Use quotes with brackets around path elements with special characters
 

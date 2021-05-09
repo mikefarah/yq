@@ -45,14 +45,13 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!map)::{c: banana}\n",
 		},
 	},
-	// {
-	// 	description:    "Optional Splat",
-	// 	subdescription: "Just like splat, but won't error if you run it against scalars",
-	// 	document:       `"cat"`,
-	// 	expression:     `.[]?`,
-	// 	expected: []string{
-	// 	},
-	// },
+	{
+		description:    "Optional Splat",
+		subdescription: "Just like splat, but won't error if you run it against scalars",
+		document:       `"cat"`,
+		expression:     `.[]`,
+		expected:       []string{},
+	},
 	{
 		description:    "Special characters",
 		subdescription: "Use quotes with brackets around path elements with special characters",
@@ -112,13 +111,12 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expression:     `.a?`,
 		expected:       []string{},
 	},
-	// {
-	// 	skipDoc: true,
-	// 	document:       `[1,2,3]`,
-	// 	expression:     `.["a"]?`,
-	// 	expected: []string{
-	// 	},
-	// },
+	{
+		skipDoc:    true,
+		document:   `[[1,2,3], {a: frog}]`,
+		expression: `.[] | .["a"]?`,
+		expected:   []string{"D0, P[1 a], (!!str)::frog\n"},
+	},
 	{
 		skipDoc:    true,
 		document:   ``,

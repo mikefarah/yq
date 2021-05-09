@@ -90,14 +90,19 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
 	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+
 	if err != nil {
 		return Context{}, err
 	}
+	prefs := traversePreferences{}
 
+	if expressionNode.Rhs.Rhs != nil && expressionNode.Rhs.Rhs.Operation.Preferences != nil {
+		prefs = expressionNode.Rhs.Rhs.Operation.Preferences.(traversePreferences)
+	}
 	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
 
 	//now we traverse the result of the lhs against the indices we found
-	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, traversePreferences{})
+	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, prefs)
 	if err != nil {
 		return Context{}, err
 	}

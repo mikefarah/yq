@@ -55,7 +55,15 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			log.Debugf("deleteing open bracket from opstack")
 
 			//and append a collect to the opStack
-			result = append(result, &Operation{OperationType: collectOperator})
+			// hack - see if there's the optional traverse flag
+			// on the close op - move it to the collect op.
+			// allows for .["cat"]?
+			prefs := traversePreferences{}
+			closeTokenMatch := string(currentToken.Match.Bytes)
+			if closeTokenMatch[len(closeTokenMatch)-1:] == "?" {
+				prefs.OptionalTraverse = true
+			}
+			result = append(result, &Operation{OperationType: collectOperator, Preferences: prefs})
 			log.Debugf("put collect onto the result")
 			result = append(result, &Operation{OperationType: shortPipeOpType})
 			log.Debugf("put shortpipe onto the result")
