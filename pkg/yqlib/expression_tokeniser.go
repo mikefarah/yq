@@ -279,6 +279,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`fi`), opToken(getFileIndexOpType))
 	lexer.Add([]byte(`path`), opToken(getPathOpType))
 	lexer.Add([]byte(`to_entries`), opToken(toEntriesOpType))
+	lexer.Add([]byte(`from_entries`), opToken(fromEntriesOpType))
 
 	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
 

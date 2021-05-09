@@ -21,6 +21,23 @@ var entriesOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::- key: 0\n  value: a\n- key: 1\n  value: b\n",
 		},
 	},
+	{
+		description: "from_entries map",
+		document:   `{a: 1, b: 2}`,
+		expression: `to_entries | from_entries`,
+		expected: []string{
+			"D0, P[], (!!map)::a: 1\nb: 2\n",
+		},
+	},
+	{
+		description: "from_entries with numeric key indexes",
+		subdescription: "from_entries always creates a map, even for numeric keys",
+		document:   `[a,b]`,
+		expression: `to_entries | from_entries`,
+		expected: []string{
+			"D0, P[], (!!map)::0: a\n1: b\n",
+		},
+	},
 }
 
 func TestEntriesOperatorScenarios(t *testing.T) {

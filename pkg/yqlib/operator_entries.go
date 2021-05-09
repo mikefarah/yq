@@ -63,5 +63,66 @@ func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	}
 
 	return context.ChildContext(results), nil
+}
 
+func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Node, *yaml.Node, error) {
+	prefs := traversePreferences{DontAutoCreate: true}
+	candidateNode := &CandidateNode{Node: entry}
+
+	keyResults, err := traverseMap(Context{}, candidateNode, "key", prefs, false)
+
+	if err != nil {
+		return nil, nil, err
+	} else if keyResults.Len() != 1 {
+		return nil, nil, fmt.Errorf("Expected to find one 'key' entry but found %v in position %v", keyResults.Len(), position)
+	}
+
+	valueResults, err := traverseMap(Context{}, candidateNode, "value", prefs, false)
+
+	if err != nil {
+		return nil, nil, err
+	} else if valueResults.Len() != 1 {
+		return nil, nil, fmt.Errorf("Expected to find one 'value' entry but found %v in position %v", valueResults.Len(), position)
+	}
+
+	return keyResults.Front().Value.(*CandidateNode).Node, valueResults.Front().Value.(*CandidateNode).Node, nil
+
+}
+
+func fromEntries(d *dataTreeNavigator, candidateNode * CandidateNode) (*CandidateNode, error) {
+	var node = &yaml.Node{Kind:  yaml.MappingNode, Tag: "!!map"}
+	var mapCandidateNode = candidateNode.CreateChild(nil, node)
+
+	var contents = unwrapDoc(candidateNode.Node).Content
+
+	for index := 0; index < len(contents); index = index + 1 {
+		key, value, err := parseEntry(d, contents[index], index)
+		if err != nil {
+			return nil, err
+		}
+
+		node.Content = append(node.Content, key, value)
+	}
+	return mapCandidateNode, nil
+}
+
+func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	var results = list.New()
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		candidateNode := unwrapDoc(candidate.Node)
+
+		switch candidateNode.Kind {
+		case yaml.SequenceNode:
+			mapResult, err :=fromEntries(d, candidate) 
+			if err != nil {
+				return Context{}, err
+			}
+			results.PushBack(mapResult)
+		default:
+			return Context{}, fmt.Errorf("from entries only runs against arrays")
+		}
+	}
+
+	return context.ChildContext(results), nil
 }
