@@ -45,6 +45,14 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!map)::{c: banana}\n",
 		},
 	},
+	// {
+	// 	description:    "Optional Splat",
+	// 	subdescription: "Just like splat, but won't error if you run it against scalars",
+	// 	document:       `"cat"`,
+	// 	expression:     `.[]?`,
+	// 	expected: []string{
+	// 	},
+	// },
 	{
 		description:    "Special characters",
 		subdescription: "Use quotes with brackets around path elements with special characters",
@@ -97,6 +105,20 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a b], (!!null)::null\n",
 		},
 	},
+	{
+		description:    "Optional identifier",
+		subdescription: "Like jq, does not output an error when the yaml is not an array or object as expected",
+		document:       `[1,2,3]`,
+		expression:     `.a?`,
+		expected:       []string{},
+	},
+	// {
+	// 	skipDoc: true,
+	// 	document:       `[1,2,3]`,
+	// 	expression:     `.["a"]?`,
+	// 	expected: []string{
+	// 	},
+	// },
 	{
 		skipDoc:    true,
 		document:   ``,

@@ -63,12 +63,19 @@ func (t *token) toString(detail bool) string {
 func pathToken(wrapped bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
+		prefs := traversePreferences{}
+
+		if value[len(value)-1:] == "?" {
+			prefs.OptionalTraverse = true
+			value = value[:len(value)-1]
+		}
+
 		value = value[1:]
 		if wrapped {
 			value = unwrap(value)
 		}
 		log.Debug("PathToken %v", value)
-		op := &Operation{OperationType: traversePathOpType, Value: value, StringValue: value, Preferences: traversePreferences{}}
+		op := &Operation{OperationType: traversePathOpType, Value: value, StringValue: value, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
 }
@@ -280,6 +287,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`path`), opToken(getPathOpType))
 	lexer.Add([]byte(`to_entries`), opToken(toEntriesOpType))
 	lexer.Add([]byte(`from_entries`), opToken(fromEntriesOpType))
+	lexer.Add([]byte(`with_entries`), opToken(withEntriesOpType))
 
 	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
 
@@ -302,8 +310,8 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
-	lexer.Add([]byte(`\."[^ "]+"`), pathToken(true))
-	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=]+`), pathToken(false))
+	lexer.Add([]byte(`\."[^ "]+"\??`), pathToken(true))
+	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=]+\??`), pathToken(false))
 	lexer.Add([]byte(`\.`), selfToken())
 
 	lexer.Add([]byte(`\|`), opToken(pipeOpType))

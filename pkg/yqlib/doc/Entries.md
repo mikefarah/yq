@@ -1,4 +1,4 @@
-
+Similar to the same named functions in `jq` these functions convert to/from an object and an array of key-value pairs. This is most useful for performing operations on keys of maps.
 ## to_entries Map
 Given a sample.yml file of:
 ```yaml
@@ -67,5 +67,21 @@ will output
 ```yaml
 0: a
 1: b
+```
+
+## Use with_entries to update keys
+Given a sample.yml file of:
+```yaml
+a: 1
+b: 2
+```
+then
+```bash
+yq eval 'with_entries(.key |= "KEY_" + .)' sample.yml
+```
+will output
+```yaml
+KEY_a: 1
+KEY_b: 2
 ```
 

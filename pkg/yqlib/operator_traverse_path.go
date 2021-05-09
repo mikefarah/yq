@@ -14,6 +14,7 @@ type traversePreferences struct {
 	IncludeMapKeys       bool
 	DontAutoCreate       bool // by default, we automatically create entries on the fly.
 	DontIncludeMapValues bool
+	OptionalTraverse     bool // e.g. .adf?
 }
 
 func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Context, error) {
@@ -60,7 +61,7 @@ func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
-		return traverseArray(matchingNode, operation)
+		return traverseArray(matchingNode, operation, operation.Preferences.(traversePreferences))
 
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
@@ -130,7 +131,7 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 		matchingNode.Node = node.Alias
 		return traverseArrayIndices(context, matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.SequenceNode {
-		return traverseArrayWithIndices(matchingNode, indicesToTraverse)
+		return traverseArrayWithIndices(matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.MappingNode {
 		return traverseMapWithIndices(context, matchingNode, indicesToTraverse, prefs)
 	} else if node.Kind == yaml.DocumentNode {
@@ -159,7 +160,7 @@ func traverseMapWithIndices(context Context, candidate *CandidateNode, indices [
 	return matchingNodeMap, nil
 }
 
-func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*list.List, error) {
+func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, prefs traversePreferences) (*list.List, error) {
 	log.Debug("traverseArrayWithIndices")
 	var newMatches = list.New()
 	node := unwrapDoc(candidate.Node)
@@ -177,6 +178,9 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node) (*
 	for _, indexNode := range indices {
 		log.Debug("traverseArrayWithIndices: '%v'", indexNode.Value)
 		index, err := strconv.ParseInt(indexNode.Value, 10, 64)
+		if err != nil && prefs.OptionalTraverse {
+			continue
+		}
 		if err != nil {
 			return nil, fmt.Errorf("Cannot index array with '%v' (%v)", indexNode.Value, err)
 		}
@@ -297,8 +301,8 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 	return nil
 }
 
-func traverseArray(candidate *CandidateNode, operation *Operation) (*list.List, error) {
+func traverseArray(candidate *CandidateNode, operation *Operation, prefs traversePreferences) (*list.List, error) {
 	log.Debug("operation Value %v", operation.Value)
 	indices := []*yaml.Node{&yaml.Node{Value: operation.StringValue}}
-	return traverseArrayWithIndices(candidate, indices)
+	return traverseArrayWithIndices(candidate, indices, prefs)
 }

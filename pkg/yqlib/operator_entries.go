@@ -3,22 +3,23 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+
 	yaml "gopkg.in/yaml.v3"
 )
 
 func entrySeqFor(key *yaml.Node, value *yaml.Node) *yaml.Node {
-	var keyKey = &yaml.Node{Kind:  yaml.ScalarNode, Tag: "!!str", Value: "key"}
-	var valueKey = &yaml.Node{Kind:  yaml.ScalarNode, Tag: "!!str", Value: "value"}
+	var keyKey = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "key"}
+	var valueKey = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "value"}
 
 	return &yaml.Node{
-		Kind:  yaml.MappingNode, 
-		Tag: "!!map", 
+		Kind:    yaml.MappingNode,
+		Tag:     "!!map",
 		Content: []*yaml.Node{keyKey, key, valueKey, value},
 	}
 }
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = &yaml.Node{Kind:  yaml.SequenceNode, Tag: "!!seq"}
+	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	var entriesNode = candidateNode.CreateChild(nil, sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
@@ -32,7 +33,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 }
 
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = &yaml.Node{Kind:  yaml.SequenceNode, Tag: "!!seq"}
+	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	var entriesNode = candidateNode.CreateChild(nil, sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
@@ -89,8 +90,8 @@ func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Nod
 
 }
 
-func fromEntries(d *dataTreeNavigator, candidateNode * CandidateNode) (*CandidateNode, error) {
-	var node = &yaml.Node{Kind:  yaml.MappingNode, Tag: "!!map"}
+func fromEntries(d *dataTreeNavigator, candidateNode *CandidateNode) (*CandidateNode, error) {
+	var node = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	var mapCandidateNode = candidateNode.CreateChild(nil, node)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
@@ -114,7 +115,7 @@ func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 		switch candidateNode.Kind {
 		case yaml.SequenceNode:
-			mapResult, err :=fromEntries(d, candidate) 
+			mapResult, err := fromEntries(d, candidate)
 			if err != nil {
 				return Context{}, err
 			}
@@ -125,4 +126,35 @@ func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 	}
 
 	return context.ChildContext(results), nil
+}
+
+func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	//to_entries on the context
+	toEntries, err := toEntriesOperator(d, context, expressionNode)
+	if err != nil {
+		return Context{}, nil
+	}
+
+	//run expression against entries
+	// splat toEntries and pipe it into Rhs
+	splatted, err := splat(d, toEntries, traversePreferences{})
+	if err != nil {
+		return Context{}, nil
+	}
+
+	result, err := d.GetMatchingNodes(splatted, expressionNode.Rhs)
+	log.Debug("expressionNode.Rhs %v", expressionNode.Rhs.Operation.OperationType)
+	log.Debug("result %v", result)
+	if err != nil {
+		return Context{}, nil
+	}
+
+	collected, err := collectOperator(d, result, expressionNode)
+	if err != nil {
+		return Context{}, nil
+	}
+
+	//from_entries on the result
+	return fromEntriesOperator(d, collected, expressionNode)
 }

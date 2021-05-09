@@ -98,6 +98,23 @@ will output
 null
 ```
 
+## Optional identifier
+Like jq, does not output an error when the yaml is not an array or object as expected
+
+Given a sample.yml file of:
+```yaml
+- 1
+- 2
+- 3
+```
+then
+```bash
+yq eval '.a?' sample.yml
+```
+will output
+```yaml
+```
+
 ## Wildcard matching
 Given a sample.yml file of:
 ```yaml
