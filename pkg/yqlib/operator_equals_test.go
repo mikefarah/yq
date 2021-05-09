@@ -87,6 +87,22 @@ var equalsOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!bool)::true\n",
 		},
 	},
+	{
+		description: "Non exisitant key doesn't equal a value",
+		document:    "a: frog",
+		expression:  `select(.b != "thing")`,
+		expected: []string{
+			"D0, P[], (doc)::a: frog\n",
+		},
+	},
+	{
+		description: "Two non existant keys are equal",
+		document:    "a: frog",
+		expression:  `select(.b == .c)`,
+		expected: []string{
+			"D0, P[], (doc)::a: frog\n",
+		},
+	},
 }
 
 func TestEqualOperatorScenarios(t *testing.T) {

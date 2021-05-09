@@ -4,12 +4,21 @@ import "gopkg.in/yaml.v3"
 
 func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
-	return crossFunction(d, context, expressionNode, isEquals(false), false)
+	return crossFunction(d, context, expressionNode, isEquals(false), true)
 }
 
 func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		value := false
+
+		if lhs == nil && rhs == nil {
+			owner := &CandidateNode{}
+			return createBooleanCandidate(owner, !flip), nil
+		} else if lhs == nil {
+			return createBooleanCandidate(rhs, flip), nil
+		} else if rhs == nil {
+			return createBooleanCandidate(lhs, flip), nil
+		}
 
 		lhsNode := unwrapDoc(lhs.Node)
 		rhsNode := unwrapDoc(rhs.Node)
@@ -29,5 +38,5 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 
 func notEqualsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
-	return crossFunction(d, context, expressionNode, isEquals(true), false)
+	return crossFunction(d, context, expressionNode, isEquals(true), true)
 }

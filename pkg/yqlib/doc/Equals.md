@@ -93,3 +93,31 @@ will output
 true
 ```
 
+## Non exisitant key doesn't equal a value
+Given a sample.yml file of:
+```yaml
+a: frog
+```
+then
+```bash
+yq eval 'select(.b != "thing")' sample.yml
+```
+will output
+```yaml
+a: frog
+```
+
+## Two non existant keys are equal
+Given a sample.yml file of:
+```yaml
+a: frog
+```
+then
+```bash
+yq eval 'select(.b == .c)' sample.yml
+```
+will output
+```yaml
+a: frog
+```
+

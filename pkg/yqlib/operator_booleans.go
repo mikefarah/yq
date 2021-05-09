@@ -27,20 +27,37 @@ type boolOp func(bool, bool) bool
 
 func performBoolOp(op boolOp) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		lhs.Node = unwrapDoc(lhs.Node)
-		rhs.Node = unwrapDoc(rhs.Node)
+		owner := lhs
 
-		lhsTrue, errDecoding := isTruthy(lhs)
-		if errDecoding != nil {
-			return nil, errDecoding
+		if lhs == nil && rhs == nil {
+			owner = &CandidateNode{}
+		} else if lhs == nil {
+			owner = rhs
 		}
 
-		rhsTrue, errDecoding := isTruthy(rhs)
-		if errDecoding != nil {
-			return nil, errDecoding
-		}
+		var errDecoding error
+		lhsTrue := false
+		if lhs != nil {
+			lhs.Node = unwrapDoc(lhs.Node)
+			lhsTrue, errDecoding = isTruthy(lhs)
 
-		return createBooleanCandidate(lhs, op(lhsTrue, rhsTrue)), nil
+			if errDecoding != nil {
+				return nil, errDecoding
+			}
+		}
+		log.Debugf("-- lhsTrue", lhsTrue)
+
+		rhsTrue := false
+		if rhs != nil {
+			rhs.Node = unwrapDoc(rhs.Node)
+			rhsTrue, errDecoding = isTruthy(rhs)
+			if errDecoding != nil {
+				return nil, errDecoding
+			}
+		}
+		log.Debugf("-- rhsTrue", rhsTrue)
+
+		return createBooleanCandidate(owner, op(lhsTrue, rhsTrue)), nil
 	}
 }
 
@@ -48,8 +65,9 @@ func orOperator(d *dataTreeNavigator, context Context, expressionNode *Expressio
 	log.Debugf("-- orOp")
 	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
+			log.Debugf("-- peformingOrOp with %v and %v", b1, b2)
 			return b1 || b2
-		}), false)
+		}), true)
 }
 
 func andOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -57,7 +75,7 @@ func andOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	return crossFunction(d, context, expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 && b2
-		}), false)
+		}), true)
 }
 
 func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

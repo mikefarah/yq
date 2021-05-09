@@ -16,6 +16,16 @@ var selectOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   "a: hello",
+		document2:  "b: world",
+		expression: `select(.a == "hello" or .b == "world")`,
+		expected: []string{
+			"D0, P[], (doc)::a: hello\n",
+			"D0, P[], (doc)::b: world\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[{animal: cat, legs: {cool: true}}, {animal: fish}]`,
 		expression: `(.[] | select(.legs.cool == true).canWalk) = true | (.[] | .alive.things) = "yes"`,
 		expected: []string{
