@@ -22,6 +22,13 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "to_entries null",
+		document:    `null`,
+		expression:  `to_entries`,
+		expected: []string{
+		},
+	},
+	{
 		description: "from_entries map",
 		document:    `{a: 1, b: 2}`,
 		expression:  `to_entries | from_entries`,

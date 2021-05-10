@@ -59,7 +59,9 @@ func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 		case yaml.SequenceNode:
 			results.PushBack(toEntriesfromSeq(candidate))
 		default:
-			return Context{}, fmt.Errorf("%v has no keys", candidate.Node.Tag)
+			if candidateNode.Tag != "!!null" {
+				return Context{}, fmt.Errorf("%v has no keys", candidate.Node.Tag)
+			}
 		}
 	}
 
@@ -133,26 +135,26 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 	//to_entries on the context
 	toEntries, err := toEntriesOperator(d, context, expressionNode)
 	if err != nil {
-		return Context{}, nil
+		return Context{}, err
 	}
 
 	//run expression against entries
 	// splat toEntries and pipe it into Rhs
 	splatted, err := splat(d, toEntries, traversePreferences{})
 	if err != nil {
-		return Context{}, nil
+		return Context{}, err
 	}
 
 	result, err := d.GetMatchingNodes(splatted, expressionNode.Rhs)
 	log.Debug("expressionNode.Rhs %v", expressionNode.Rhs.Operation.OperationType)
 	log.Debug("result %v", result)
 	if err != nil {
-		return Context{}, nil
+		return Context{}, err
 	}
 
 	collected, err := collectOperator(d, result, expressionNode)
 	if err != nil {
-		return Context{}, nil
+		return Context{}, err
 	}
 
 	//from_entries on the result

@@ -35,6 +35,19 @@ will output
   value: b
 ```
 
+## to_entries null
+Given a sample.yml file of:
+```yaml
+null
+```
+then
+```bash
+yq eval 'to_entries' sample.yml
+```
+will output
+```yaml
+```
+
 ## from_entries map
 Given a sample.yml file of:
 ```yaml
