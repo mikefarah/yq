@@ -62,13 +62,13 @@ cat
 
 Note that this node holds not only its value 'cat', but comments and metadata too, including path and parent information.
 
-The `=` operator then pipes the 'root' context through the `rhs` expression of `.b` to retun the node
+The `=` operator then pipes the 'root' context through the `rhs` expression of `.b` to return the node
 
 ```yaml
 dog
 ```
 
-Both sides have now been evaluated, so the operator performs its actual operation of assignment, and copies across the value from the RHS to the value on the LHS, and it returns the now updated 'root' context:
+Both sides have now been evaluated, so now the operator copies across the value from the RHS to the value on the LHS, and it returns the now updated context:
 
 ```yaml
 a: cat
@@ -76,6 +76,41 @@ b: dog
 ```
 
 # Relative update (e.g. `|=`)
-There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key differnce when evaluating the RHS expression.
+There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key difference when evaluating the RHS expression.
 
-In the plain form, we pass in the 'root' level context to the RHS expresssion. In relative form, we pass in each result of the LHS to the RHS expression. Let's go through an example.
+In the plain form, we pass in the 'root' level context to the RHS expression. In relative form, we pass in _each result of the LHS_ to the RHS expression. Let's go through an example.
+
+Given a document like:
+
+```yaml
+a: 1
+b: thing
+```
+
+with an expression:
+
+```
+.a |= . + 1
+```
+
+Similar to the `=` operator, `|=` takes two operands, the LHS and RHS.
+
+It pipes the current context (the whole document) through the LHS expression  of `.a` to get the node value:
+
+```
+1
+```
+
+Now it pipes _that LHS context_ into the RHS expression `. + 1` (whereas in the `=` plain form it piped the original document context into the RHS) to yield:
+
+
+```
+2
+```
+
+The assignment operator then copies across the value from the RHS to the value on the LHS, and it returns the now updated 'root' context:
+
+```yaml
+a: 2
+b: thing
+```
