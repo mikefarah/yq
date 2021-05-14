@@ -1,10 +1,11 @@
 package yqlib
 
 import (
-	"github.com/elliotchance/orderedmap"
 	"container/list"
-	yaml "gopkg.in/yaml.v3"
 	"fmt"
+
+	"github.com/elliotchance/orderedmap"
+	yaml "gopkg.in/yaml.v3"
 )
 
 func unique(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -19,7 +20,6 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 	log.Debugf("-- uniqueBy Operator")
 	var results = list.New()
 
-
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		candidateNode := unwrapDoc(candidate.Node)
@@ -27,7 +27,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 		if candidateNode.Kind != yaml.SequenceNode {
 			return Context{}, fmt.Errorf("Only arrays are supported for unique")
 		}
-		
+
 		var newMatches = orderedmap.NewOrderedMap()
 		for _, node := range candidateNode.Content {
 			child := &CandidateNode{Node: node}

@@ -3,10 +3,11 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+
 	yaml "gopkg.in/yaml.v3"
 )
 
-func isTruthyNode(node * yaml.Node) (bool, error) {
+func isTruthyNode(node *yaml.Node) (bool, error) {
 	value := true
 	if node.Tag == "!!null" {
 		return false, nil
@@ -64,8 +65,23 @@ func performBoolOp(op boolOp) func(d *dataTreeNavigator, context Context, lhs *C
 	}
 }
 
-func findBoolean(wantBool bool, sequenceNode * yaml.Node) (bool, error) {
+func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, sequenceNode *yaml.Node) (bool, error) {
 	for _, node := range sequenceNode.Content {
+
+		if expressionNode != nil {
+			//need to evaluate the expression against the node
+			candidate := &CandidateNode{Node: node}
+			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode)
+			if err != nil {
+				return false, err
+			}
+			if rhs.MatchingNodes.Len() > 0 {
+				node = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node
+			} else {
+				// no results found, ignore this entry
+				continue
+			}
+		}
 
 		truthy, err := isTruthyNode(node)
 		if err != nil {
@@ -87,7 +103,7 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if candidateNode.Kind != yaml.SequenceNode {
 			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
 		}
-		booleanResult, err := findBoolean(false, candidateNode)
+		booleanResult, err := findBoolean(false, d, context, expressionNode.Rhs, candidateNode)
 		if err != nil {
 			return Context{}, err
 		}
@@ -106,7 +122,7 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if candidateNode.Kind != yaml.SequenceNode {
 			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
 		}
-		booleanResult, err := findBoolean(true, candidateNode)
+		booleanResult, err := findBoolean(true, d, context, expressionNode.Rhs, candidateNode)
 		if err != nil {
 			return Context{}, err
 		}

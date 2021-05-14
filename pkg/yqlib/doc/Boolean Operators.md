@@ -4,8 +4,11 @@ The `or` and `and` operators take two parameters and return a boolean result.
 
 `any` will return `true` if there are any `true` values in a array sequence, and `all` will return true if _all_ elements in an array are true.
 
+`any_c(condition)` and `all_c(condition)` are like `any` and `all` but they take a condition expression that is used against each element to determine if it's `true`. Note: in `jq` you can simply pass a condition to `any` or `all` and it simply works - `yq` isn't that clever..yet
+
 These are most commonly used with the `select` operator to filter particular nodes.
-## OR example
+
+## `or` example
 Running
 ```bash
 yq eval --null-input 'true or false'
@@ -15,7 +18,7 @@ will output
 true
 ```
 
-## AND example
+## `and` example
 Running
 ```bash
 yq eval --null-input 'true and false'
@@ -47,7 +50,7 @@ will output
   b: fly
 ```
 
-## ANY returns true if any boolean in a given array is true
+## `any` returns true if any boolean in a given array is true
 Given a sample.yml file of:
 ```yaml
 - false
@@ -62,22 +65,7 @@ will output
 true
 ```
 
-## ANY returns true if any boolean in a given array is true
-Given a sample.yml file of:
-```yaml
-- false
-- true
-```
-then
-```bash
-yq eval 'any' sample.yml
-```
-will output
-```yaml
-true
-```
-
-## ANY returns false for an empty array
+## `any` returns false for an empty array
 Given a sample.yml file of:
 ```yaml
 []
@@ -91,7 +79,27 @@ will output
 false
 ```
 
-## ALL returns true if all booleans in a given array are true
+## `any_c` returns true if any element in the array is true for the given condition.
+Given a sample.yml file of:
+```yaml
+a:
+  - rad
+  - awesome
+b:
+  - meh
+  - whatever
+```
+then
+```bash
+yq eval '.[] |= any_c(. == "awesome")' sample.yml
+```
+will output
+```yaml
+a: true
+b: false
+```
+
+## `all` returns true if all booleans in a given array are true
 Given a sample.yml file of:
 ```yaml
 - true
@@ -106,7 +114,7 @@ will output
 true
 ```
 
-## ANY returns true for an empty array
+## `all` returns true for an empty array
 Given a sample.yml file of:
 ```yaml
 []
@@ -118,6 +126,26 @@ yq eval 'all' sample.yml
 will output
 ```yaml
 true
+```
+
+## `all_c` returns true if all elements in the array are true for the given condition.
+Given a sample.yml file of:
+```yaml
+a:
+  - rad
+  - awesome
+b:
+  - meh
+  - 12
+```
+then
+```bash
+yq eval '.[] |= all_c(tag == "!!str")' sample.yml
+```
+will output
+```yaml
+a: true
+b: false
 ```
 
 ## Not true is false

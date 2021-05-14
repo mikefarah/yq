@@ -63,6 +63,8 @@ var collectOpType = &operationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, 
 
 var anyOpType = &operationType{Type: "ANY", NumArgs: 0, Precedence: 50, Handler: anyOperator}
 var allOpType = &operationType{Type: "ALL", NumArgs: 0, Precedence: 50, Handler: allOperator}
+var anyConditionOpType = &operationType{Type: "ANY_CONDITION", NumArgs: 1, Precedence: 50, Handler: anyOperator}
+var allConditionOpType = &operationType{Type: "ALL_CONDITION", NumArgs: 1, Precedence: 50, Handler: allOperator}
 
 var toEntriesOpType = &operationType{Type: "TO_ENTRIES", NumArgs: 0, Precedence: 50, Handler: toEntriesOperator}
 var fromEntriesOpType = &operationType{Type: "FROM_ENTRIES", NumArgs: 0, Precedence: 50, Handler: fromEntriesOperator}

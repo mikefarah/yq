@@ -6,7 +6,7 @@ import (
 
 var booleanOperatorScenarios = []expressionScenario{
 	{
-		description: "OR example",
+		description: "`or` example",
 		expression:  `true or false`,
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
@@ -29,7 +29,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "AND example",
+		description: "`and` example",
 		expression:  `true and false`,
 		expected: []string{
 			"D0, P[], (!!bool)::false\n",
@@ -44,59 +44,67 @@ var booleanOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "ANY returns true if any boolean in a given array is true",
-		document: `[false, true]`,
-		expression: "any",
+		description: "`any` returns true if any boolean in a given array is true",
+		document:    `[false, true]`,
+		expression:  "any",
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
 		},
 	},
 	{
-		description: "ANY returns true if any boolean in a given array is true",
-		document: `[false, true]`,
-		expression: "any",
+		description: "`any` returns false for an empty array",
+		document:    `[]`,
+		expression:  "any",
 		expected: []string{
-			"D0, P[], (!!bool)::true\n",
+			"D0, P[], (!!bool)::false\n",
 		},
 	},
 	{
-		description: "ANY returns false for an empty array",
-		document: `[]`,
+		description: "`any_c` returns true if any element in the array is true for the given condition.",
+		document:    "a: [rad, awesome]\nb: [meh, whatever]",
+		expression:  `.[] |= any_c(. == "awesome")`,
+		expected: []string{
+			"D0, P[], (doc)::a: true\nb: false\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[false, false]`,
 		expression: "any",
 		expected: []string{
 			"D0, P[], (!!bool)::false\n",
 		},
 	},
 	{
-		skipDoc: true,
-		document: `[false, false]`,
-		expression: "any",
-		expected: []string{
-			"D0, P[], (!!bool)::false\n",
-		},
-	},
-	{
-		description: "ALL returns true if all booleans in a given array are true",
-		document: `[true, true]`,
-		expression: "all",
+		description: "`all` returns true if all booleans in a given array are true",
+		document:    `[true, true]`,
+		expression:  "all",
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
 		},
 	},
 	{
-		skipDoc: true,
-		document: `[false, true]`,
+		skipDoc:    true,
+		document:   `[false, true]`,
 		expression: "all",
 		expected: []string{
 			"D0, P[], (!!bool)::false\n",
 		},
 	},
 	{
-		description: "ANY returns true for an empty array",
-		document: `[]`,
-		expression: "all",
+		description: "`all` returns true for an empty array",
+		document:    `[]`,
+		expression:  "all",
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		description: "`all_c` returns true if all elements in the array are true for the given condition.",
+		document:    "a: [rad, awesome]\nb: [meh, 12]",
+		expression:  `.[] |= all_c(tag == "!!str")`,
+		expected: []string{
+			"D0, P[], (doc)::a: true\nb: false\n",
 		},
 	},
 	{
