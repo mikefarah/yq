@@ -2,14 +2,12 @@ package yqlib
 
 import (
 	"container/list"
-
+	"fmt"
 	yaml "gopkg.in/yaml.v3"
 )
 
-func isTruthy(c *CandidateNode) (bool, error) {
-	node := unwrapDoc(c.Node)
+func isTruthyNode(node * yaml.Node) (bool, error) {
 	value := true
-
 	if node.Tag == "!!null" {
 		return false, nil
 	}
@@ -21,6 +19,11 @@ func isTruthy(c *CandidateNode) (bool, error) {
 
 	}
 	return value, nil
+}
+
+func isTruthy(c *CandidateNode) (bool, error) {
+	node := unwrapDoc(c.Node)
+	return isTruthyNode(node)
 }
 
 type boolOp func(bool, bool) bool
@@ -59,6 +62,58 @@ func performBoolOp(op boolOp) func(d *dataTreeNavigator, context Context, lhs *C
 
 		return createBooleanCandidate(owner, op(lhsTrue, rhsTrue)), nil
 	}
+}
+
+func findBoolean(wantBool bool, sequenceNode * yaml.Node) (bool, error) {
+	for _, node := range sequenceNode.Content {
+
+		truthy, err := isTruthyNode(node)
+		if err != nil {
+			return false, err
+		}
+		if truthy == wantBool {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func allOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		candidateNode := unwrapDoc(candidate.Node)
+		if candidateNode.Kind != yaml.SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		}
+		booleanResult, err := findBoolean(false, candidateNode)
+		if err != nil {
+			return Context{}, err
+		}
+		result := createBooleanCandidate(candidate, !booleanResult)
+		results.PushBack(result)
+	}
+	return context.ChildContext(results), nil
+}
+
+func anyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		candidateNode := unwrapDoc(candidate.Node)
+		if candidateNode.Kind != yaml.SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		}
+		booleanResult, err := findBoolean(true, candidateNode)
+		if err != nil {
+			return Context{}, err
+		}
+		result := createBooleanCandidate(candidate, booleanResult)
+		results.PushBack(result)
+	}
+	return context.ChildContext(results), nil
 }
 
 func orOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

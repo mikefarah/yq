@@ -44,6 +44,62 @@ var booleanOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "ANY returns true if any boolean in a given array is true",
+		document: `[false, true]`,
+		expression: "any",
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		description: "ANY returns true if any boolean in a given array is true",
+		document: `[false, true]`,
+		expression: "any",
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		description: "ANY returns false for an empty array",
+		document: `[]`,
+		expression: "any",
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc: true,
+		document: `[false, false]`,
+		expression: "any",
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		description: "ALL returns true if all booleans in a given array are true",
+		document: `[true, true]`,
+		expression: "all",
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc: true,
+		document: `[false, true]`,
+		expression: "all",
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		description: "ANY returns true for an empty array",
+		document: `[]`,
+		expression: "all",
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `false or false`,
 		expected: []string{

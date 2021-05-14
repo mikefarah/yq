@@ -276,6 +276,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`join`), opToken(joinStringOpType))
 	lexer.Add([]byte(`sub`), opToken(subStringOpType))
 
+	lexer.Add([]byte(`any`), opToken(anyOpType))
+	lexer.Add([]byte(`all`), opToken(allOpType))
+
 	lexer.Add([]byte(`split`), opToken(splitStringOpType))
 	lexer.Add([]byte(`keys`), opToken(keysOpType))
 
