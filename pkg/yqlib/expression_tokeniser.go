@@ -189,6 +189,7 @@ func stringValue(wrapped bool) lex.Action {
 		if wrapped {
 			value = unwrap(value)
 		}
+		value = strings.ReplaceAll(value, "\\\"", "\"")
 		return &token{TokenType: operationToken, Operation: createValueOperation(value, value)}, nil
 	}
 }
@@ -334,7 +335,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`[Nn][Uu][Ll][Ll]`), nullValue())
 	lexer.Add([]byte(`~`), nullValue())
 
-	lexer.Add([]byte(`"[^"]*"`), stringValue(true))
+	lexer.Add([]byte(`"([^"\\]*(\\.[^"\\]*)*)"`), stringValue(true))
 	lexer.Add([]byte(`strenv\([^\)]+\)`), envOp(true))
 	lexer.Add([]byte(`env\([^\)]+\)`), envOp(false))
 

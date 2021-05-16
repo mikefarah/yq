@@ -13,6 +13,11 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
+		`"\""`,
+		append(make([]interface{}, 0), "\" (string)"),
+		append(make([]interface{}, 0), "\" (string)"),
+	},
+	{
 		`[]|join(".")`,
 		append(make([]interface{}, 0), "[", "EMPTY", "]", "PIPE", "JOIN", "(", ". (string)", ")"),
 		append(make([]interface{}, 0), "EMPTY", "COLLECT", "SHORT_PIPE", ". (string)", "JOIN", "PIPE"),
