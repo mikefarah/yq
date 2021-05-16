@@ -24,7 +24,17 @@ func emptyOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 
 type crossFunctionCalculation func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *CandidateNode, rhs Context, calculation crossFunctionCalculation, results *list.List) error {
+func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *CandidateNode, rhs Context, calculation crossFunctionCalculation, results *list.List, calcWhenEmpty bool) error {
+
+	if calcWhenEmpty && rhs.MatchingNodes.Len() == 0 {
+		resultCandidate, err := calculation(d, context, lhsCandidate, nil)
+		if err != nil {
+			return err
+		}
+		results.PushBack(resultCandidate)
+		return nil
+	}
+
 	for rightEl := rhs.MatchingNodes.Front(); rightEl != nil; rightEl = rightEl.Next() {
 		log.Debugf("Applying calc")
 		rhsCandidate := rightEl.Value.(*CandidateNode)
@@ -52,14 +62,7 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	}
 
 	if calcWhenEmpty && lhs.MatchingNodes.Len() == 0 {
-		if rhs.MatchingNodes.Len() == 0 {
-			resultCandidate, err := calculation(d, context, nil, nil)
-			if err != nil {
-				return Context{}, err
-			}
-			results.PushBack(resultCandidate)
-		}
-		err := resultsForRhs(d, context, nil, rhs, calculation, results)
+		err := resultsForRhs(d, context, nil, rhs, calculation, results, calcWhenEmpty)
 		if err != nil {
 			return Context{}, err
 		}
@@ -68,7 +71,7 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		lhsCandidate := el.Value.(*CandidateNode)
 
-		err := resultsForRhs(d, context, lhsCandidate, rhs, calculation, results)
+		err := resultsForRhs(d, context, lhsCandidate, rhs, calculation, results, calcWhenEmpty)
 		if err != nil {
 			return Context{}, err
 		}

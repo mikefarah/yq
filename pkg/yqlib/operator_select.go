@@ -24,7 +24,9 @@ func selectOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		if first != nil {
 			result := first.Value.(*CandidateNode)
+			log.Debugf("result %v", NodeToString(result))
 			includeResult, errDecoding := isTruthy(result)
+			log.Debugf("isTruthy %v", includeResult)
 			if errDecoding != nil {
 				return Context{}, errDecoding
 			}
