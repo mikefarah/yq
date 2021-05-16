@@ -69,6 +69,22 @@ var booleanOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `[{pet: cat}]`,
+		expression: `any_c(.name == "harry") as $c`,
+		expected: []string{
+			"D0, P[], (doc)::[{pet: cat}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{pet: cat}]`,
+		expression: `all_c(.name == "harry") as $c`,
+		expected: []string{
+			"D0, P[], (doc)::[{pet: cat}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[false, false]`,
 		expression: "any",
 		expected: []string{

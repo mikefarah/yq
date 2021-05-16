@@ -14,6 +14,14 @@ var sortKeysOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{c: frog}`,
+		expression: `sortKeys(.d)`,
+		expected: []string{
+			"D0, P[], (doc)::{c: frog}\n",
+		},
+	},
+	{
 		description:    "Sort keys recursively",
 		subdescription: "Note the array elements are left unsorted, but maps inside arrays are sorted",
 		document:       `{bParent: {c: dog, array: [3,1,2]}, aParent: {z: donkey, x: [{c: yum, b: delish}, {b: ew, a: apple}]}}`,

@@ -31,15 +31,20 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 		var newMatches = orderedmap.NewOrderedMap()
 		for _, node := range candidateNode.Content {
 			child := &CandidateNode{Node: node}
-			rhs, err := d.GetMatchingNodes(context.SingleChildContext(child), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.Rhs)
 
 			if err != nil {
 				return Context{}, err
 			}
 
-			first := rhs.MatchingNodes.Front()
-			keyCandidate := first.Value.(*CandidateNode)
-			keyValue := keyCandidate.Node.Value
+			keyValue := "null"
+
+			if rhs.MatchingNodes.Len() > 0 {
+				first := rhs.MatchingNodes.Front()
+				keyCandidate := first.Value.(*CandidateNode)
+				keyValue = keyCandidate.Node.Value
+			}
+
 			_, exists := newMatches.Get(keyValue)
 
 			if !exists {

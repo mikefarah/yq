@@ -14,6 +14,22 @@ var hasOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `a: hello`,
+		expression: `has(.b) as $c`,
+		expected: []string{
+			"D0, P[], (doc)::a: hello\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: hello`,
+		expression: `has(.b)`,
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
 		description: "Has map key",
 		document: `- a: "yes"
 - a: ~

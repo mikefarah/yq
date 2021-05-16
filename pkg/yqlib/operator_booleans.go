@@ -71,7 +71,7 @@ func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressio
 		if expressionNode != nil {
 			//need to evaluate the expression against the node
 			candidate := &CandidateNode{Node: node}
-			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode)
 			if err != nil {
 				return false, err
 			}

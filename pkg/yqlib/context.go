@@ -12,6 +12,14 @@ type Context struct {
 	DontAutoCreate bool
 }
 
+func (n *Context) SingleReadonlyChildContext(candidate *CandidateNode) Context {
+	list := list.New()
+	list.PushBack(candidate)
+	newContext := n.ChildContext(list)
+	newContext.DontAutoCreate = true
+	return newContext
+}
+
 func (n *Context) SingleChildContext(candidate *CandidateNode) Context {
 	list := list.New()
 	list.PushBack(candidate)

@@ -12,12 +12,19 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	log.Debugf("-- hasOperation")
 	var results = list.New()
 
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
-	wanted := rhs.MatchingNodes.Front().Value.(*CandidateNode).Node
-	wantedKey := wanted.Value
+	readonlyContext := context.Clone()
+	readonlyContext.DontAutoCreate = true
+	rhs, err := d.GetMatchingNodes(readonlyContext, expressionNode.Rhs)
 
 	if err != nil {
 		return Context{}, err
+	}
+
+	wantedKey := "null"
+	wanted := &yaml.Node{Tag: "!!null"}
+	if rhs.MatchingNodes.Len() != 0 {
+		wanted = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node
+		wantedKey = wanted.Value
 	}
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

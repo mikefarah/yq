@@ -13,7 +13,9 @@ func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, contex
 	regEx := ""
 	replacementText := ""
 
-	regExNodes, err := d.GetMatchingNodes(context, block.Lhs)
+	readonlyContext := context.Clone()
+	readonlyContext.DontAutoCreate = true
+	regExNodes, err := d.GetMatchingNodes(readonlyContext, block.Lhs)
 	if err != nil {
 		return "", "", err
 	}
@@ -78,7 +80,9 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	log.Debugf("-- joinStringOperator")
 	joinStr := ""
 
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	readonlyContext := context.Clone()
+	readonlyContext.DontAutoCreate = true
+	rhs, err := d.GetMatchingNodes(readonlyContext, expressionNode.Rhs)
 	if err != nil {
 		return Context{}, err
 	}
@@ -119,7 +123,9 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 	log.Debugf("-- splitStringOperator")
 	splitStr := ""
 
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	readonlyContext := context.Clone()
+	readonlyContext.DontAutoCreate = true
+	rhs, err := d.GetMatchingNodes(readonlyContext, expressionNode.Rhs)
 	if err != nil {
 		return Context{}, err
 	}

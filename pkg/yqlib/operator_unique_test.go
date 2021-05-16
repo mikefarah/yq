@@ -39,6 +39,22 @@ var uniqueOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::- {name: harry, pet: cat}\n- {name: billy, pet: dog}\n",
 		},
 	},
+	{
+		skipDoc:    true,
+		document:   `[{name: harry, pet: cat}, {pet: fish}, {name: harry, pet: dog}]`,
+		expression: `unique_by(.name)`,
+		expected: []string{
+			"D0, P[], (!!seq)::- {name: harry, pet: cat}\n- {pet: fish}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{name: harry, pet: cat}, {pet: fish}, {name: harry, pet: dog}]`,
+		expression: `unique_by(.cat.dog)`,
+		expected: []string{
+			"D0, P[], (!!seq)::- {name: harry, pet: cat}\n",
+		},
+	},
 }
 
 func TestUniqueOperatorScenarios(t *testing.T) {

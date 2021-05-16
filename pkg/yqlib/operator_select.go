@@ -11,9 +11,7 @@ func selectOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		childContext := context.SingleChildContext(candidate)
-		childContext.DontAutoCreate = true
-		rhs, err := d.GetMatchingNodes(childContext, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
 
 		if err != nil {
 			return Context{}, err
