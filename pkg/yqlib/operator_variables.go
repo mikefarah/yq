@@ -16,7 +16,7 @@ func getVariableOperator(d *dataTreeNavigator, context Context, expressionNode *
 }
 
 func assignVariableOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Lhs)
 	if err != nil {
 		return Context{}, nil
 	}

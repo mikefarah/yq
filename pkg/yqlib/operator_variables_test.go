@@ -6,6 +6,14 @@ import (
 
 var variableOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: `.a.b as $foo`,
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
 		description: "Single value variable",
 		document:    `a: cat`,
 		expression:  `.a as $foo | $foo`,

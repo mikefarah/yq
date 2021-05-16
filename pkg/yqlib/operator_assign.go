@@ -7,7 +7,7 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 	}
 	var rhs Context
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err = d.GetMatchingNodes(context, expressionNode.Rhs)
+		rhs, err = d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 	}
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
@@ -44,7 +44,7 @@ func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionN
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
 
 		if err != nil {
 			return Context{}, err

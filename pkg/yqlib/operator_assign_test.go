@@ -13,6 +13,22 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: `.a |= .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: null}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: `.a = .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: null}\n",
+		},
+	},
+	{
 		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,
