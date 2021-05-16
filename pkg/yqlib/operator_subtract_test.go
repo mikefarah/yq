@@ -6,6 +6,14 @@ import (
 
 var subtractOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: "(.a - .b) as $x",
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
 		description:    "Number subtraction - float",
 		subdescription: "If the lhs or rhs are floats then the expression will be calculated with floats.",
 		document:       `{a: 3, b: 4.5}`,

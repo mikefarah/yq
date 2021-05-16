@@ -16,6 +16,38 @@ var equalsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   "{}",
+		expression: "(.a == .b) as $x",
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: ".a == .b",
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: "(.a != .b) as $x",
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: ".a != .b",
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "{a: {b: 10}}",
 		expression: "select(.c != null)",
 		expected:   []string{},

@@ -79,6 +79,14 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `c: dog`,
+		expression: `.[.a.b] as $x`,
+		expected: []string{
+			"D0, P[], (doc)::c: dog\n",
+		},
+	},
+	{
 		description:    "Dynamic keys",
 		subdescription: `Expressions within [] can be used to dynamically lookup / calculate keys`,
 		document:       `{b: apple, apple: crispy yum, banana: soft yum}`,

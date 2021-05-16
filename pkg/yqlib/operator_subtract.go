@@ -25,7 +25,7 @@ func subtractAssignOperator(d *dataTreeNavigator, context Context, expressionNod
 func subtractOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("Subtract operator")
 
-	return crossFunction(d, context, expressionNode, subtract, false)
+	return crossFunction(d, context.ReadOnlyClone(), expressionNode, subtract, false)
 }
 
 func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

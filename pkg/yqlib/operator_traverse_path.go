@@ -89,7 +89,7 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 
 	// rhs is a collect expression that will yield indexes to retreive of the arrays
 
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 
 	if err != nil {
 		return Context{}, err

@@ -2,7 +2,7 @@ package yqlib
 
 func alternativeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- alternative")
-	return crossFunction(d, context, expressionNode, alternativeFunc, true)
+	return crossFunction(d, context.ReadOnlyClone(), expressionNode, alternativeFunc, true)
 }
 
 func alternativeFunc(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

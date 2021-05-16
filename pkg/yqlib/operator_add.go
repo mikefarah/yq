@@ -39,7 +39,7 @@ func toNodes(candidate *CandidateNode) []*yaml.Node {
 func addOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("Add operator")
 
-	return crossFunction(d, context, expressionNode, add, false)
+	return crossFunction(d, context.ReadOnlyClone(), expressionNode, add, false)
 }
 
 func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

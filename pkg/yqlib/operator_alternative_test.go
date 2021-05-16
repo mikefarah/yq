@@ -6,6 +6,14 @@ import (
 
 var alternativeOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		expression: `(.b // "hello") as $x`,
+		document:   `a: bridge`,
+		expected: []string{
+			"D0, P[], (doc)::a: bridge\n",
+		},
+	},
+	{
 		description: "LHS is defined",
 		expression:  `.a // "hello"`,
 		document:    `{a: bridge}`,

@@ -15,6 +15,22 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: "(.a + .b) as $x",
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: 0`,
+		expression: ".a += .b.c",
+		expected: []string{
+			"D0, P[], (doc)::a: 0\n",
+		},
+	},
+	{
 		description: "Concatenate and assign arrays",
 		document:    `{a: {val: thing, b: [cat,dog]}}`,
 		expression:  ".a.b += [\"cow\"]",
