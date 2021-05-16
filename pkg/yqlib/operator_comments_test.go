@@ -63,6 +63,22 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `a: cat`,
+		expression: `. footComment=.b.d`,
+		expected: []string{
+			"D0, P[], (doc)::a: cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: cat`,
+		expression: `. footComment|=.b.d`,
+		expected: []string{
+			"D0, P[], (doc)::a: cat\n",
+		},
+	},
+	{
 		description: "Remove comment",
 		document:    "a: cat # comment\nb: dog # leave this",
 		expression:  `.a lineComment=""`,

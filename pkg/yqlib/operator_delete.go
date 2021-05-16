@@ -7,9 +7,7 @@ import (
 )
 
 func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	contextToUse := context.Clone()
-	contextToUse.DontAutoCreate = true
-	nodesToDelete, err := d.GetMatchingNodes(contextToUse, expressionNode.Rhs)
+	nodesToDelete, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 
 	if err != nil {
 		return Context{}, err

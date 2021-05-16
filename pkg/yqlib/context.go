@@ -60,3 +60,9 @@ func (n *Context) Clone() Context {
 	}
 	return clone
 }
+
+func (n *Context) ReadOnlyClone() Context {
+	clone := n.Clone()
+	clone.DontAutoCreate = true
+	return clone
+}

@@ -142,6 +142,22 @@ var booleanOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: `(.a.b or .c) as $x`,
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: `(.a.b and .c) as $x`,
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
 		description: "Not true is false",
 		expression:  `true | not`,
 		expected: []string{

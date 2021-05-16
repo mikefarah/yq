@@ -12,9 +12,7 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	log.Debugf("-- hasOperation")
 	var results = list.New()
 
-	readonlyContext := context.Clone()
-	readonlyContext.DontAutoCreate = true
-	rhs, err := d.GetMatchingNodes(readonlyContext, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 
 	if err != nil {
 		return Context{}, err

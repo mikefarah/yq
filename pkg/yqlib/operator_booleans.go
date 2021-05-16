@@ -134,7 +134,7 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 func orOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- orOp")
-	return crossFunction(d, context, expressionNode, performBoolOp(
+	return crossFunction(d, context.ReadOnlyClone(), expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			log.Debugf("-- peformingOrOp with %v and %v", b1, b2)
 			return b1 || b2
@@ -143,7 +143,7 @@ func orOperator(d *dataTreeNavigator, context Context, expressionNode *Expressio
 
 func andOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- AndOp")
-	return crossFunction(d, context, expressionNode, performBoolOp(
+	return crossFunction(d, context.ReadOnlyClone(), expressionNode, performBoolOp(
 		func(b1 bool, b2 bool) bool {
 			return b1 && b2
 		}), true)

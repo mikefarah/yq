@@ -59,6 +59,22 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `a: {c: cat}`,
+		expression: `.a anchor |= .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: {c: cat}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: {c: cat}`,
+		expression: `.a anchor = .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: {c: cat}\n",
+		},
+	},
+	{
 		description: "Get alias",
 		document:    `{b: &billyBob meow, a: *billyBob}`,
 		expression:  `.a | alias`,
@@ -72,6 +88,22 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression:  `.a alias = "meow"`,
 		expected: []string{
 			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{b: &meow purr, a: cat}`,
+		expression: `.a alias = .c`,
+		expected: []string{
+			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{b: &meow purr, a: cat}`,
+		expression: `.a alias |= .c`,
+		expected: []string{
+			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
 		},
 	},
 	{
@@ -159,7 +191,7 @@ foobar:
 	},
 }
 
-func TestAnchorAliaseOperatorScenarios(t *testing.T) {
+func TestAnchorAliasOperatorScenarios(t *testing.T) {
 	for _, tt := range anchorOperatorScenarios {
 		testScenario(t, &tt)
 	}

@@ -12,7 +12,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 	aliasName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 		if err != nil {
 			return Context{}, err
 		}
@@ -32,7 +32,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 		log.Debugf("Setting aliasName : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
 				return Context{}, err
 			}
@@ -41,8 +41,10 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 			}
 		}
 
-		candidate.Node.Kind = yaml.AliasNode
-		candidate.Node.Value = aliasName
+		if aliasName != "" {
+			candidate.Node.Kind = yaml.AliasNode
+			candidate.Node.Value = aliasName
+		}
 	}
 	return context, nil
 }
@@ -66,7 +68,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 	anchorName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 		if err != nil {
 			return Context{}, err
 		}
@@ -87,7 +89,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 		log.Debugf("Setting anchorName of : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
 			if err != nil {
 				return Context{}, err
 			}
