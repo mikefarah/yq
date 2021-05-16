@@ -91,6 +91,14 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Set alias to blank does nothing",
+		document:    `{b: &meow purr, a: cat}`,
+		expression:  `.a alias = ""`,
+		expected: []string{
+			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{b: &meow purr, a: cat}`,
 		expression: `.a alias = .c`,

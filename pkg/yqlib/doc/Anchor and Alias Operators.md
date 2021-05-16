@@ -169,6 +169,22 @@ b: &meow purr
 a: *meow
 ```
 
+## Set alias to blank does nothing
+Given a sample.yml file of:
+```yaml
+b: &meow purr
+a: cat
+```
+then
+```bash
+yq eval '.a alias = ""' sample.yml
+```
+will output
+```yaml
+b: &meow purr
+a: cat
+```
+
 ## Set alias relatively using assign-update
 Given a sample.yml file of:
 ```yaml
