@@ -6,6 +6,30 @@ import (
 
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   "a: []",
+		expression: `.a += [{"key": "att2", "value": "val2"}]`,
+		expected: []string{
+			"D0, P[], (doc)::a: [{key: att2, value: val2}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "",
+		expression: `.a += {"key": "att2", "value": "val2"}`,
+		expected: []string{
+			"D0, P[], ()::a:\n    key: att2\n    value: val2\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "",
+		expression: `.a += [0]`,
+		expected: []string{
+			"D0, P[], ()::a:\n    - 0\n",
+		},
+	},
+	{
 		description: `Collect empty object`,
 		document:    ``,
 		expression:  `{}`,

@@ -17,8 +17,11 @@ import (
 ...
 */
 
-func collectObjectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- collectObjectOperation")
+
+	context := originalContext.Clone()
+	context.DontAutoCreate = false
 
 	if context.MatchingNodes.Len() == 0 {
 		node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Value: "{}"}

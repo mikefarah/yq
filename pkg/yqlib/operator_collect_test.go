@@ -6,6 +6,14 @@ import (
 
 var collectOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   ``,
+		expression: `.a += [0]`,
+		expected: []string{
+			"D0, P[], ()::a:\n    - 0\n",
+		},
+	},
+	{
 		description: "Collect empty",
 		document:    ``,
 		expression:  `[]`,
