@@ -28,6 +28,22 @@ foobar:
 
 var traversePathOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `[[1]]`,
+		expression: `.[0][0]`,
+		expected: []string{
+			"D0, P[0 0], (!!int)::1\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[[[1]]]`,
+		expression: `.[0][0][0]`,
+		expected: []string{
+			"D0, P[0 0 0], (!!int)::1\n",
+		},
+	},
+	{
 		description: "Simple map navigation",
 		document:    `{a: {b: apple}}`,
 		expression:  `.a`,

@@ -13,6 +13,16 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
+		`.[0]`,
+		append(make([]interface{}, 0), "SELF", "TRAVERSE_ARRAY", "[", "0 (int64)", "]"),
+		append(make([]interface{}, 0), "SELF", "0 (int64)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
+	},
+	{
+		`.[0][1]`,
+		append(make([]interface{}, 0), "SELF", "TRAVERSE_ARRAY", "[", "0 (int64)", "]", "TRAVERSE_ARRAY", "[", "1 (int64)", "]"),
+		append(make([]interface{}, 0), "SELF", "0 (int64)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY", "1 (int64)", "COLLECT", "SHORT_PIPE", "TRAVERSE_ARRAY"),
+	},
+	{
 		`"\""`,
 		append(make([]interface{}, 0), "\" (string)"),
 		append(make([]interface{}, 0), "\" (string)"),

@@ -411,16 +411,19 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 	skipNextToken = false
 	currentToken := tokens[index]
 
+	log.Debug("processing %v", currentToken.toString(true))
+
 	if currentToken.TokenType == traverseArrayCollect {
 		//need to put a traverse array then a collect currentToken
 		// do this by adding traverse then converting currentToken to collect
 
 		if index == 0 || tokens[index-1].TokenType != operationToken ||
 			tokens[index-1].Operation.OperationType != traversePathOpType {
+			log.Debug("  adding self")
 			op := &Operation{OperationType: selfReferenceOpType, StringValue: "SELF"}
 			postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 		}
-
+		log.Debug("  adding traverse array")
 		op := &Operation{OperationType: traverseArrayOpType, StringValue: "TRAVERSE_ARRAY"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 
@@ -431,17 +434,19 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 	if index != len(tokens)-1 && currentToken.AssignOperation != nil &&
 		tokens[index+1].TokenType == operationToken &&
 		tokens[index+1].Operation.OperationType == assignOpType {
+		log.Debug("  its an update assign")
 		currentToken.Operation = currentToken.AssignOperation
 		currentToken.Operation.UpdateAssign = tokens[index+1].Operation.UpdateAssign
 		skipNextToken = true
 	}
 
+	log.Debug("  adding token to the fixed list")
 	postProcessedTokens = append(postProcessedTokens, currentToken)
 
 	if index != len(tokens)-1 &&
 		((currentToken.TokenType == openCollect && tokens[index+1].TokenType == closeCollect) ||
 			(currentToken.TokenType == openCollectObject && tokens[index+1].TokenType == closeCollectObject)) {
-
+		log.Debug("  adding empty")
 		op := &Operation{OperationType: emptyOpType, StringValue: "EMPTY"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}
@@ -449,12 +454,19 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == operationToken &&
 		tokens[index+1].Operation.OperationType == traversePathOpType {
+		log.Debug("  adding pipe because the next thing is traverse")
 		op := &Operation{OperationType: shortPipeOpType, Value: "PIPE"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == openCollect {
 
+		// if tokens[index].TokenType == closeCollect {
+		// 	log.Debug("  adding pipe because next is opencollect")
+		// 	op := &Operation{OperationType: shortPipeOpType, Value: "PIPE"}
+		// 	postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
+		// }
+		log.Debug("  adding traverArray because next is opencollect")
 		op := &Operation{OperationType: traverseArrayOpType}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}
