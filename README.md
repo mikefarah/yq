@@ -50,6 +50,12 @@ brew install yq@3
 
 Note that for v3, as it is a versioned brew it will not add the `yq` command to your path automatically. Please follow the instructions given by brew upon installation.
 
+### MacOS via MacPorts:
+Using [MacPorts](https://www.macports.org/)
+```
+sudo port install yq
+```
+
 ### Linux via snap:
 ```
 snap install yq
