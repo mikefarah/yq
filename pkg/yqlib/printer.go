@@ -24,7 +24,7 @@ type resultsPrinter struct {
 	previousDocIndex   uint
 	previousFileIndex  int
 	printedMatches     bool
-	treeNavigator      DataTreeNavigator
+	treeNavigator      dataTreeNavigator
 }
 
 func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -36,7 +36,7 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		indent:             indent,
 		printDocSeparators: !outputToJSON && printDocSeparators,
 		firstTimePrinting:  true,
-		treeNavigator:      NewDataTreeNavigator(),
+		treeNavigator:      newDataTreeNavigator(),
 	}
 }
 
@@ -48,14 +48,14 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 	p.printedMatches = p.printedMatches || (node.Tag != "!!null" &&
 		(node.Tag != "!!bool" || node.Value != "false"))
 
-	var encoder Encoder
+	var encoder encoder
 	if node.Kind == yaml.ScalarNode && p.unwrapScalar && !p.outputToJSON {
 		return p.writeString(writer, node.Value+"\n")
 	}
 	if p.outputToJSON {
-		encoder = NewJsonEncoder(writer, p.indent)
+		encoder = newJsonEncoder(writer, p.indent)
 	} else {
-		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
+		encoder = newYamlEncoder(writer, p.indent, p.colorsEnabled)
 	}
 	return encoder.Encode(node)
 }
