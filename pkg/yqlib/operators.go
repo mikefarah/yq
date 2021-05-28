@@ -31,7 +31,9 @@ func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 		if err != nil {
 			return err
 		}
-		results.PushBack(resultCandidate)
+		if resultCandidate != nil {
+			results.PushBack(resultCandidate)
+		}
 		return nil
 	}
 
@@ -42,7 +44,9 @@ func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 		if err != nil {
 			return err
 		}
-		results.PushBack(resultCandidate)
+		if resultCandidate != nil {
+			results.PushBack(resultCandidate)
+		}
 	}
 	return nil
 }

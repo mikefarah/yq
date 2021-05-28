@@ -7,6 +7,12 @@ import (
 var alternativeOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		expression: `.b // .c`,
+		document:   `a: bridge`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
 		expression: `(.b // "hello") as $x`,
 		document:   `a: bridge`,
 		expected: []string{
