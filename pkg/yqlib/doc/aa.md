@@ -71,7 +71,7 @@ dog
 Both sides have now been evaluated, so now the operator copies across the value from the RHS to the value on the LHS, and it returns the now updated context:
 
 ```yaml
-a: cat
+a: dog
 b: dog
 ```
 
