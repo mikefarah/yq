@@ -308,6 +308,6 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *C
 
 func traverseArray(candidate *CandidateNode, operation *Operation, prefs traversePreferences) (*list.List, error) {
 	log.Debug("operation Value %v", operation.Value)
-	indices := []*yaml.Node{&yaml.Node{Value: operation.StringValue}}
+	indices := []*yaml.Node{{Value: operation.StringValue}}
 	return traverseArrayWithIndices(candidate, indices, prefs)
 }
