@@ -98,3 +98,19 @@ KEY_a: 1
 KEY_b: 2
 ```
 
+Using with_entries is also useful whe you want to filter a map. Given a sample.yml file of:
+```yaml
+a:
+  b: bird
+c:
+  d: dog
+```
+then
+```bash
+yq eval 'with_entries(select(.value | has("b")))' sample.yml
+```
+will output
+```yaml
+a:
+  b: bird
+```

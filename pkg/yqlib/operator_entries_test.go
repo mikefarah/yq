@@ -52,6 +52,14 @@ var entriesOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::KEY_a: 1\nKEY_b: 2\n",
 		},
 	},
+	{
+		description: "Use with_entries to filter keys",
+		document:    `{a: b: "bird", c: d: "dog"}`,
+		expression:  `with_entries(.value | has("b"))`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n  b: \"bird\"\n",
+		},
+	},
 }
 
 func TestEntriesOperatorScenarios(t *testing.T) {
