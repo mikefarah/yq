@@ -98,7 +98,8 @@ KEY_a: 1
 KEY_b: 2
 ```
 
-Using with_entries is also useful whe you want to filter a map. Given a sample.yml file of:
+## Use with_entries to filter the map
+Given a sample.yml file of:
 ```yaml
 a:
   b: bird
@@ -114,3 +115,4 @@ will output
 a:
   b: bird
 ```
+

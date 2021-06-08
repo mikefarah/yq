@@ -53,11 +53,11 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Use with_entries to filter keys",
-		document:    `{a: b: "bird", c: d: "dog"}`,
-		expression:  `with_entries(.value | has("b"))`,
+		description: "Use with_entries to filter the map",
+		document:    `{a: { b: bird }, c: { d: dog }}`,
+		expression:  `with_entries(select(.value | has("b")))`,
 		expected: []string{
-			"D0, P[], (!!map)::a:\n  b: \"bird\"\n",
+			"D0, P[], (!!map)::a: {b: bird}\n",
 		},
 	},
 }
