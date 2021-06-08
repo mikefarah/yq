@@ -1,11 +1,15 @@
 name: 'yq - portable yaml processor'
 description: 'create, read, update, delete, merge, validate and do more with yaml'
-icon: command
-color: gray-dark
+branding:
+  icon: command
+  color: gray-dark
 inputs:
   cmd:
     description: 'The Command which should be run'
     required: true
+outputs:
+  result:
+    description: "The complete result from the yq command being run"
 runs:
   using: 'docker'
   image: 'github-action/Dockerfile'
