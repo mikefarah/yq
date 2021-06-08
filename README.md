@@ -168,6 +168,7 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
 - [General shell completion scripts (bash/zsh/fish/powershell)](https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
 - [Reduce](https://mikefarah.gitbook.io/yq/operators/reduce) to merge multiple files or sum an array or other fancy things.
+- [Github Action](https://mikefarah.gitbook.io/yq/usage/github-action) to use in your automated pipeline (thanks @devorbitus)
 
 ## [Usage](https://mikefarah.gitbook.io/yq/)
 
@@ -209,28 +210,3 @@ yq e '.a.b | length' f1.yml f2.yml
 
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
-
-## GitHub Action
-
-If we want to use the yq action to look up a value from within a YAML file inside the repo, we can do this:
-
-```yml
-      - uses: actions/checkout@v2
-      - name: Get SDK Version from config
-        id: lookupSdkVersion
-        uses: mikefarah/yq@master
-        with:
-          cmd: yq eval '.renutil.version' 'config.yml'
-      - name: Restore Cache
-        id: restore-cache
-        uses: actions/cache@v2
-        with:
-          path: ../renpy
-          key:  ${{ runner.os }}-sdk-${{ steps.lookupSdkVersion.outputs.result }}
-          restore-keys: |
-            ${{ runner.os }}-sdk
-      # ... more
-```
-You can even lookup how the GitHub action [itself is configured](https://github.com/mikefarah/yq/issues/844#issuecomment-856700574)
-
-If you [enable step debug logging](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging#enabling-step-debug-logging), you can see additional information about the exact command sent as well as the response returned within the GitHub Action logs.
