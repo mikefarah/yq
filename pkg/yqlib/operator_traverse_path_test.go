@@ -78,6 +78,14 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Multiple special characters",
+		document:    `a: {"key.withdots": {"another.key": apple}}`,
+		expression:  `.a["key.withdots"]["another.key"]`,
+		expected: []string{
+			"D0, P[a key.withdots another.key], (!!str)::apple\n",
+		},
+	},
+	{
 		description:    "Keys with spaces",
 		subdescription: "Use quotes with brackets around path elements with special characters",
 		document:       `{"red rabbit": frog}`,
@@ -242,6 +250,14 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expression:  `.[0]`,
 		expected: []string{
 			"D0, P[0], (!!int)::1\n",
+		},
+	},
+	{
+		description: "Traversing nested arrays by index",
+		document:    `[[], [cat]]`,
+		expression:  `.[1][0]`,
+		expected: []string{
+			"D0, P[1 0], (!!str)::cat\n",
 		},
 	},
 	{

@@ -63,6 +63,22 @@ will output
 frog
 ```
 
+## Multiple special characters
+Given a sample.yml file of:
+```yaml
+a:
+  "key.withdots":
+    "another.key": apple
+```
+then
+```bash
+yq eval '.a["key.withdots"]["another.key"]' sample.yml
+```
+will output
+```yaml
+apple
+```
+
 ## Keys with spaces
 Use quotes with brackets around path elements with special characters
 
@@ -209,6 +225,21 @@ yq eval '.[0]' sample.yml
 will output
 ```yaml
 1
+```
+
+## Traversing nested arrays by index
+Given a sample.yml file of:
+```yaml
+- []
+- - cat
+```
+then
+```bash
+yq eval '.[1][0]' sample.yml
+```
+will output
+```yaml
+cat
 ```
 
 ## Maps with numeric keys
