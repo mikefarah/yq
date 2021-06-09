@@ -78,7 +78,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Multiple special characters",
+		description: "Nested special characters",
 		document:    `a: {"key.withdots": {"another.key": apple}}`,
 		expression:  `.a["key.withdots"]["another.key"]`,
 		expected: []string{
@@ -253,9 +253,10 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Traversing nested arrays by index",
-		document:    `[[], [cat]]`,
-		expression:  `.[1][0]`,
+		description:           "Traversing nested arrays by index",
+		dontFormatInputForDoc: true,
+		document:              `[[], [cat]]`,
+		expression:            `.[1][0]`,
 		expected: []string{
 			"D0, P[1 0], (!!str)::cat\n",
 		},

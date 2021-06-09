@@ -1,4 +1,4 @@
-This is the simplest (and perhaps most used) operator, it is used to navigate deeply into yaml structurse.
+This is the simplest (and perhaps most used) operator, it is used to navigate deeply into yaml structures.
 ## Simple map navigation
 Given a sample.yml file of:
 ```yaml
@@ -63,7 +63,7 @@ will output
 frog
 ```
 
-## Multiple special characters
+## Nested special characters
 Given a sample.yml file of:
 ```yaml
 a:
@@ -230,8 +230,7 @@ will output
 ## Traversing nested arrays by index
 Given a sample.yml file of:
 ```yaml
-- []
-- - cat
+[[], [cat]]
 ```
 then
 ```bash
