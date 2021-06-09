@@ -1,6 +1,1 @@
-a:
-  key1: "value1"
-  key2: 2.6
-  ab:
-    key1: 6
-    key2: "h"
+{"a":{"b":1}}
