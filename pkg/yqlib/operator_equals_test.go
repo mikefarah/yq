@@ -14,6 +14,22 @@ var equalsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document: `a: cat`,
+		expression: ".a == .b",
+		expected: []string{
+			"D0, P[a], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document: `a: cat`,
+		expression: ".b == .a",
+		expected: []string{
+			"D0, P[a], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "cat",
 		document2:  "dog",
 		expression: "select(fi==0) == select(fi==1)",

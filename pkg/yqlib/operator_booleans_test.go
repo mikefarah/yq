@@ -22,6 +22,14 @@ var booleanOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   "b: false",
+		expression: `.b or .c`,
+		expected: []string{
+			"D0, P[b], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "b: hi",
 		expression: `select(.a or .b)`,
 		expected: []string{
