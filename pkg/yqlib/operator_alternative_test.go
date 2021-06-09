@@ -20,6 +20,14 @@ var alternativeOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `.a // .b`,
+		document:   `a: 2`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+		},
+	},
+	{
 		description: "LHS is defined",
 		expression:  `.a // "hello"`,
 		document:    `{a: bridge}`,

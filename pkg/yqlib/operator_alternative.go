@@ -9,6 +9,9 @@ func alternativeFunc(d *dataTreeNavigator, context Context, lhs *CandidateNode, 
 	if lhs == nil {
 		return rhs, nil
 	}
+	if rhs == nil {
+		return lhs, nil
+	}
 	lhs.Node = unwrapDoc(lhs.Node)
 	rhs.Node = unwrapDoc(rhs.Node)
 	log.Debugf("Alternative LHS: %v", lhs.Node.Tag)
