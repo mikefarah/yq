@@ -44,6 +44,13 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `.["cat"] = "thing"`,
+		expected: []string{
+			"D0, P[], ()::cat: thing\n",
+		},
+	},
+	{
 		description: "Simple map navigation",
 		document:    `{a: {b: apple}}`,
 		expression:  `.a`,
