@@ -7,11 +7,24 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
+var variableWithNewLine = `"cat
+"`
+
 var pathTests = []struct {
 	path            string
 	expectedTokens  []interface{}
 	expectedPostFix []interface{}
 }{
+	{
+		".a\n",
+		append(make([]interface{}, 0), "a"),
+		append(make([]interface{}, 0), "a"),
+	},
+	{
+		variableWithNewLine,
+		append(make([]interface{}, 0), "cat\n (string)"),
+		append(make([]interface{}, 0), "cat\n (string)"),
+	},
 	{
 		`.[0]`,
 		append(make([]interface{}, 0), "SELF", "TRAVERSE_ARRAY", "[", "0 (int64)", "]"),
