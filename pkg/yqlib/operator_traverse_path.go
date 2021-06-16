@@ -127,9 +127,16 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 	node := matchingNode.Node
 	if node.Tag == "!!null" {
 		log.Debugf("OperatorArrayTraverse got a null - turning it into an empty array")
-		// auto vivification, make it into an empty array
+		// auto vivification
 		node.Tag = ""
 		node.Kind = yaml.SequenceNode
+		//check that the indices are numeric, if not, then we should create an object
+		if len(indicesToTraverse) != 0 {
+			_, err := strconv.ParseInt(indicesToTraverse[0].Value, 10, 64)
+			if err != nil {
+				node.Kind = yaml.MappingNode
+			}
+		}
 	}
 
 	if node.Kind == yaml.AliasNode {
