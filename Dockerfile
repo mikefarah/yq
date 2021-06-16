@@ -14,11 +14,18 @@ RUN CGO_ENABLED=0 make local build
 # CI tools expect an interactive shell inside the container
 FROM alpine:3.13.5 as production
 
+RUN mkdir /home/yq/
+RUN addgroup -g 1000 yq && \
+    adduser -u 1000 -G yq -s /bin/bash -h /home/yq -D yq
+RUN chown -R yq:yq /home/yq/
+
 COPY --from=builder /go/src/mikefarah/yq/yq /usr/bin/yq
 RUN chmod +x /usr/bin/yq
 
 ARG VERSION=none
 LABEL version=${VERSION}
+
+USER yq
 
 WORKDIR /workdir
 
