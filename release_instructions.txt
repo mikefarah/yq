@@ -12,6 +12,7 @@
 
 - snapcraft
   - will auto create a candidate, test it works then promote
+  - !! need to update v4/stable as well as latest
   
   sudo snap remove yq
   sudo snap install --edge yq
