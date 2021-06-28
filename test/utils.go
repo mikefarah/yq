@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -81,7 +82,7 @@ func WriteTempYamlFile(content string) string {
 }
 
 func ReadTempYamlFile(name string) string {
-	content, _ := ioutil.ReadFile(name)
+	content, _ := ioutil.ReadFile(filepath.Clean(name))
 	return string(content)
 }
 

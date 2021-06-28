@@ -3,6 +3,7 @@ package yqlib
 import (
 	"io"
 	"os"
+	"path/filepath"
 )
 
 func safelyRenameFile(from string, to string) {
@@ -25,7 +26,7 @@ func safelyRenameFile(from string, to string) {
 
 // thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
 func copyFileContents(src, dst string) (err error) {
-	in, err := os.Open(src) // nolint gosec
+	in, err := os.Open(filepath.Clean(src)) // nolint gosec
 	if err != nil {
 		return err
 	}
