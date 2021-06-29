@@ -54,6 +54,9 @@ func (w *writeInPlaceHandlerImpl) FinishWriteInPlace(evaluatedSuccessfully bool)
 		safelyRenameFile(w.tempFile.Name(), w.inputFilename)
 	} else {
 		log.Debug("removed temp file")
-		os.Remove(w.tempFile.Name())
+		removeErr := os.Remove(w.tempFile.Name())
+		if removeErr != nil {
+			log.Errorf("failed removing temp file: %s", w.tempFile.Name())
+		}
 	}
 }

@@ -179,7 +179,10 @@ func NodeToString(node *CandidateNode) string {
 	if errorEncoding != nil {
 		log.Error("Error debugging node, %v", errorEncoding.Error())
 	}
-	encoder.Close()
+	errorClosingEncoder := encoder.Close()
+	if errorClosingEncoder != nil {
+		log.Error("Error closing encoder: ", errorClosingEncoder.Error())
+	}
 	tag := value.Tag
 	if value.Kind == yaml.DocumentNode {
 		tag = "doc"
