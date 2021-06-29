@@ -8,7 +8,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/timtadh/data-structures v0.5.3 // indirect
 	github.com/timtadh/lexmachine v0.2.2
-	golang.org/x/sys v0.0.0-20210317225723-c4fcb01b228e // indirect
+	golang.org/x/sys v0.0.0-20210510120138-977fb7262007 // indirect
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 )
