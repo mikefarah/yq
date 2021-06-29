@@ -17,7 +17,7 @@
 PROJECT := yq
 OWNER := mikefarah
 REPO := github.com
-GOVERSION := 1.13
+GOVERSION := 1.15
 
 export DH_OPTIONS
 export DH_GOPKG := ${REPO}/${OWNER}/${PROJECT}
@@ -34,7 +34,7 @@ BINDIR := /usr/bin
 ASSETSDIR := /usr/share/${PROJECT}
 
 %:
-	dh $@ --builddirectory=${GOPATH} --buildsystem=golang
+	dh $@
 
 override_dh_auto_build:
 	mkdir -p ${SRCDIR}
