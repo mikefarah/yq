@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type Encoder interface {
+type encoder interface {
 	Encode(node *yaml.Node) error
 }
 
@@ -20,7 +20,7 @@ type yamlEncoder struct {
 	firstDoc    bool
 }
 
-func NewYamlEncoder(destination io.Writer, indent int, colorise bool) Encoder {
+func newYamlEncoder(destination io.Writer, indent int, colorise bool) encoder {
 	if indent < 0 {
 		indent = 0
 	}
@@ -74,7 +74,7 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJsonEncoder(destination io.Writer, indent int) Encoder {
+func newJsonEncoder(destination io.Writer, indent int) encoder {
 	var encoder = json.NewEncoder(destination)
 	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 

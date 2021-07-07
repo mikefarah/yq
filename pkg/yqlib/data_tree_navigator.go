@@ -6,21 +6,21 @@ import (
 	logging "gopkg.in/op/go-logging.v1"
 )
 
-type DataTreeNavigator interface {
+type dataTreeNavigator interface {
 	// given the context and a expressionNode,
 	// this will process the against the given expressionNode and return
 	// a new context of matching candidates
 	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
 }
 
-type dataTreeNavigator struct {
+type dataTreeNavigatorImpl struct {
 }
 
-func NewDataTreeNavigator() DataTreeNavigator {
-	return &dataTreeNavigator{}
+func newDataTreeNavigator() dataTreeNavigator {
+	return &dataTreeNavigatorImpl{}
 }
 
-func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error) {
+func (d *dataTreeNavigatorImpl) GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error) {
 	if expressionNode == nil {
 		log.Debugf("getMatchingNodes - nothing to do")
 		return context, nil

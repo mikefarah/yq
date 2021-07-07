@@ -18,13 +18,13 @@ type StreamEvaluator interface {
 }
 
 type streamEvaluator struct {
-	treeNavigator DataTreeNavigator
+	treeNavigator dataTreeNavigator
 	treeCreator   ExpressionParser
 	fileIndex     int
 }
 
 func NewStreamEvaluator() StreamEvaluator {
-	return &streamEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewExpressionParser()}
+	return &streamEvaluator{treeNavigator: newDataTreeNavigator(), treeCreator: NewExpressionParser()}
 }
 
 func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {

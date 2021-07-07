@@ -65,7 +65,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		os.Setenv("myenv", s.environmentVariable)
 	}
 
-	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
+	context, err := newDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 
 	if err != nil {
 		t.Error(fmt.Errorf("%v: %v", err, s.expression))
@@ -251,7 +251,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 	}
 
-	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
+	context, err := newDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 	if err != nil {
 		t.Error(err, s.expression)
 	}
