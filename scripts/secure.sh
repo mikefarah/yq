@@ -5,7 +5,7 @@ set -o pipefail
 
 if command -v gosec &> /dev/null
 then
-    gosec ${PWD}
+    gosec ${PWD} ./...
 else
-  ./bin/gosec ${PWD}
+  ./bin/gosec ${PWD} ./...
 fi
