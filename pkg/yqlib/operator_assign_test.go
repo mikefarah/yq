@@ -37,6 +37,14 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Double elements in an array",
+		document:    `[1,2,3]`,
+		expression:  `.[] |= . * 2`,
+		expected: []string{
+			"D0, P[], (doc)::[2, 4, 6]\n",
+		},
+	},
+	{
 		description:    "Update node from another file",
 		subdescription: "Note this will also work when the second file is a scalar (string/number)",
 		document:       `{a: apples}`,
@@ -57,7 +65,7 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Updated multiple paths",
 		document:    `{a: fieldA, b: fieldB, c: fieldC}`,
-		expression:  `(.a, .c) |= "potatoe"`,
+		expression:  `(.a, .c) = "potatoe"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: potatoe, b: fieldB, c: potatoe}\n",
 		},

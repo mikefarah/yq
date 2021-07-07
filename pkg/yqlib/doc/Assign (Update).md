@@ -28,6 +28,24 @@ a:
   g: foof
 ```
 
+## Double elements in an array
+Given a sample.yml file of:
+```yaml
+- 1
+- 2
+- 3
+```
+then
+```bash
+yq eval '.[] |= . * 2' sample.yml
+```
+will output
+```yaml
+- 2
+- 4
+- 6
+```
+
 ## Update node from another file
 Note this will also work when the second file is a scalar (string/number)
 
@@ -75,7 +93,7 @@ c: fieldC
 ```
 then
 ```bash
-yq eval '(.a, .c) |= "potatoe"' sample.yml
+yq eval '(.a, .c) = "potatoe"' sample.yml
 ```
 will output
 ```yaml
