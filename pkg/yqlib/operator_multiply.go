@@ -32,11 +32,11 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
 
-			var newThing, err = mergeObjects(d, context, newBlank, lhs, multiplyPreferences{})
+			var newThing, err = mergeObjects(d, context.WritableClone(), newBlank, lhs, multiplyPreferences{})
 			if err != nil {
 				return nil, err
 			}
-			return mergeObjects(d, context, newThing, rhs, preferences)
+			return mergeObjects(d, context.WritableClone(), newThing, rhs, preferences)
 		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
 			return multiplyIntegers(lhs, rhs)
 		} else if (lhs.Node.Tag == "!!int" || lhs.Node.Tag == "!!float") && (rhs.Node.Tag == "!!int" || rhs.Node.Tag == "!!float") {

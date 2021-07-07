@@ -66,3 +66,9 @@ func (n *Context) ReadOnlyClone() Context {
 	clone.DontAutoCreate = true
 	return clone
 }
+
+func (n *Context) WritableClone() Context {
+	clone := n.Clone()
+	clone.DontAutoCreate = false
+	return clone
+}

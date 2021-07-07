@@ -49,6 +49,20 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		expression: `.x =  {"things": "whatever"} * {}`,
+		expected: []string{
+			"D0, P[], ()::x:\n    things: whatever\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `.x = {} * {"things": "whatever"}`,
+		expected: []string{
+			"D0, P[], ()::x:\n    things: whatever\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		expression: `3 * 4.5`,
 		expected: []string{
 			"D0, P[], (!!float)::13.5\n",
