@@ -10,6 +10,32 @@ import (
 
 type operatorHandler func(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error)
 
+type compoundCalculation func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode
+
+func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation compoundCalculation) (Context, error) {
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	if err != nil {
+		return Context{}, err
+	}
+
+	assignmentOp := &Operation{OperationType: assignOpType}
+	valueOp := &Operation{OperationType: valueOpType}
+
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		valueOp.CandidateNode = candidate
+		valueExpression := &ExpressionNode{Operation: valueOp}
+
+		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: valueExpression, Rhs: calculation(valueExpression, expressionNode.Rhs)}
+
+		_, err = d.GetMatchingNodes(context, assignmentOpNode)
+		if err != nil {
+			return Context{}, err
+		}
+	}
+	return context, nil
+}
+
 func unwrapDoc(node *yaml.Node) *yaml.Node {
 	if node.Kind == yaml.DocumentNode {
 		return node.Content[0]

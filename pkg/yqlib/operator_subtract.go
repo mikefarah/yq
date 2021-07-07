@@ -15,11 +15,7 @@ func createSubtractOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode 
 }
 
 func subtractAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	assignmentOp := &Operation{OperationType: assignOpType}
-	assignmentOp.UpdateAssign = true
-	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: expressionNode.Lhs, Rhs: createSubtractOp(selfExpression, expressionNode.Rhs)}
-	return d.GetMatchingNodes(context, assignmentOpNode)
+	return compoundAssignFunction(d, context, expressionNode, createSubtractOp)
 }
 
 func subtractOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
