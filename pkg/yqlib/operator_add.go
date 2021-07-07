@@ -15,11 +15,27 @@ func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 }
 
 func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	if err != nil {
+		return Context{}, err
+	}
+
 	assignmentOp := &Operation{OperationType: assignOpType}
-	assignmentOp.UpdateAssign = true
-	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: expressionNode.Lhs, Rhs: createAddOp(selfExpression, expressionNode.Rhs)}
-	return d.GetMatchingNodes(context, assignmentOpNode)
+	valueOp := &Operation{OperationType: valueOpType}
+
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		valueOp.CandidateNode = candidate
+		valueExpression := &ExpressionNode{Operation: valueOp}
+
+		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: valueExpression, Rhs: createAddOp(valueExpression, expressionNode.Rhs)}
+
+		_, err = d.GetMatchingNodes(context, assignmentOpNode)
+		if err != nil {
+			return Context{}, err
+		}
+	}
+	return context, nil
 }
 
 func toNodes(candidate *CandidateNode) []*yaml.Node {

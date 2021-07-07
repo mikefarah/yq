@@ -8,6 +8,9 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 	var rhs Context
 	if !expressionNode.Operation.UpdateAssign {
 		rhs, err = d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		if err != nil {
+			return Context{}, err
+		}
 	}
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
