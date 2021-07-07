@@ -12,6 +12,29 @@ var specDocument = `- &CENTER { x: 1, y: 2 }
 
 var expectedSpecResult = "D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"
 
+var simpleArrayRef = `
+item_value: &item_value
+  value: true
+
+thingOne:
+  name: item_1
+  <<: *item_value
+
+thingTwo:
+  name: item_2
+  <<: *item_value
+`
+
+var expectedUpdatedArrayRef = `D0, P[], (doc)::item_value: &item_value
+    value: true
+thingOne:
+    name: item_1
+    value: false
+thingTwo:
+    name: item_2
+    !!merge <<: *item_value
+`
+
 var anchorOperatorScenarios = []expressionScenario{
 	{
 		description:    "Merge one map",
@@ -196,6 +219,13 @@ foobar:
 		expected: []string{
 			"D0, P[], (doc)::{f: {a: cat, b: {f: cat}, cat: {f: cat}}}\n",
 		},
+	},
+	{
+		description:    "Dereference and update a field",
+		subdescription: "`Use explode with multiply to dereference an object",
+		document:       simpleArrayRef,
+		expression:     `.thingOne |= explode(.) * {"value": false}`,
+		expected:       []string{expectedUpdatedArrayRef},
 	},
 }
 

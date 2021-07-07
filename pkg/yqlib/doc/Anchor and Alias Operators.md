@@ -299,3 +299,33 @@ foobar:
   thing: foobar_thing
 ```
 
+## Dereference and update a field
+`Use explode with multiply to dereference an object
+
+Given a sample.yml file of:
+```yaml
+item_value: &item_value
+  value: true
+thingOne:
+  name: item_1
+  !!merge <<: *item_value
+thingTwo:
+  name: item_2
+  !!merge <<: *item_value
+```
+then
+```bash
+yq eval '.thingOne |= explode(.) * {"value": false}' sample.yml
+```
+will output
+```yaml
+item_value: &item_value
+  value: true
+thingOne:
+  name: item_1
+  value: false
+thingTwo:
+  name: item_2
+  !!merge <<: *item_value
+```
+

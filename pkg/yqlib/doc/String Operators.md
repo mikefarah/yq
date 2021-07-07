@@ -1,88 +1,56 @@
 # String Operators
 
-## Join strings
+## Match string
 Given a sample.yml file of:
 ```yaml
-- cat
-- meow
-- 1
-- null
-- true
+cat
 ```
 then
 ```bash
-yq eval 'join("; ")' sample.yml
+yq eval 'match("at")' sample.yml
 ```
 will output
 ```yaml
-cat; meow; 1; ; true
+string: at
+offset: 1
+length: 2
+captures: []
 ```
 
-## Substitute / Replace string
-This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)
-Note the use of `|=` to run in context of the current string value.
-
+## Match string, case insensitive
 Given a sample.yml file of:
 ```yaml
-a: dogs are great
+cAt
 ```
 then
 ```bash
-yq eval '.a |= sub("dogs", "cats")' sample.yml
+yq eval 'match("(?i)at")' sample.yml
 ```
 will output
 ```yaml
-a: cats are great
+string: At
+offset: 1
+length: 2
+captures: []
 ```
 
-## Substitute / Replace string with regex
-This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)
-Note the use of `|=` to run in context of the current string value.
-
+## Match with capture groups
 Given a sample.yml file of:
 ```yaml
-a: cat
-b: heat
+a cat
 ```
 then
 ```bash
-yq eval '.[] |= sub("(a)", "${1}r")' sample.yml
+yq eval 'match("c(.t)")' sample.yml
 ```
 will output
 ```yaml
-a: cart
-b: heart
-```
-
-## Split strings
-Given a sample.yml file of:
-```yaml
-cat; meow; 1; ; true
-```
-then
-```bash
-yq eval 'split("; ")' sample.yml
-```
-will output
-```yaml
-- cat
-- meow
-- "1"
-- ""
-- "true"
-```
-
-## Split strings one match
-Given a sample.yml file of:
-```yaml
-word
-```
-then
-```bash
-yq eval 'split("; ")' sample.yml
-```
-will output
-```yaml
-- word
+string: cat
+offset: 2
+length: 3
+captures:
+  - string: at
+    offset: 3
+    length: 2
 ```
 
