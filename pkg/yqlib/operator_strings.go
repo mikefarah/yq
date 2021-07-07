@@ -74,24 +74,29 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 
 }
 
-func addMatch(original []*yaml.Node, match string, offset int) []*yaml.Node {
-	return append(original,
+func addMatch(original []*yaml.Node, match string, offset int, name string) []*yaml.Node {
+	newContent := append(original,
 		createScalarNode("string", "string"),
 		createScalarNode(match, match),
 		createScalarNode("offset", "offset"),
 		createScalarNode(offset, fmt.Sprintf("%v", offset)),
 		createScalarNode("length", "length"),
 		createScalarNode(len(match), fmt.Sprintf("%v", len(match))))
+
+	if name != "" {
+		newContent = append(newContent,
+			createScalarNode("name", "name"),
+			createScalarNode(name, name),
+		)
+	}
+	return newContent
 }
 
 func match(regEx *regexp.Regexp, candidate *CandidateNode, value string, results *list.List) {
-	// captures = FindAllStringSubmatch
-	// FindAllStringSubmatchIndex = offset?
 
-	//string array
-	// subNames := regEx.SubexpNames()
+	subNames := regEx.SubexpNames()
+	log.Debugf("subNames %v", subNames)
 
-	//array of arrays
 	allMatches := regEx.FindAllStringSubmatch(value, -1)
 	allIndices := regEx.FindAllStringSubmatchIndex(value, -1)
 
@@ -100,12 +105,12 @@ func match(regEx *regexp.Regexp, candidate *CandidateNode, value string, results
 		match, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
 			captureNode := &yaml.Node{Kind: yaml.MappingNode}
-			captureNode.Content = addMatch(capturesNode.Content, submatch, allIndices[i][2+j*2])
+			captureNode.Content = addMatch(capturesNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1])
 			capturesNode.Content = append(capturesNode.Content, captureNode)
 		}
 
 		node := &yaml.Node{Kind: yaml.MappingNode}
-		node.Content = addMatch(node.Content, match, allIndices[i][0])
+		node.Content = addMatch(node.Content, match, allIndices[i][0], "")
 		node.Content = append(node.Content,
 			createScalarNode("captures", "captures"),
 			capturesNode,

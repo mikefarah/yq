@@ -13,28 +13,36 @@ var stringsOperatorScenarios = []expressionScenario{
 	// 		"D0, P[], (!!str)::cat; meow; 1; ; true\n",
 	// 	},
 	// },
+	// {
+	// 	description: "Match string",
+	// 	document:    `cat`,
+	// 	expression:  `match("at")`,
+	// 	expected: []string{
+	// 		"D0, P[], ()::string: at\noffset: 1\nlength: 2\ncaptures: []\n",
+	// 	},
+	// },
+	// {
+	// 	description: "Match string, case insensitive",
+	// 	document:    `cAt`,
+	// 	expression:  `match("(?i)at")`,
+	// 	expected: []string{
+	// 		"D0, P[], ()::string: At\noffset: 1\nlength: 2\ncaptures: []\n",
+	// 	},
+	// },
+	// {
+	// 	description: "Match with capture groups",
+	// 	document:    `a cat`,
+	// 	expression:  `match("c(.t)")`,
+	// 	expected: []string{
+	// 		"D0, P[], ()::string: cat\noffset: 2\nlength: 3\ncaptures:\n    - string: at\n      offset: 3\n      length: 2\n",
+	// 	},
+	// },
 	{
-		description: "Match string",
-		document:    `cat`,
-		expression:  `match("at")`,
-		expected: []string{
-			"D0, P[], ()::string: at\noffset: 1\nlength: 2\ncaptures: []\n",
-		},
-	},
-	{
-		description: "Match string, case insensitive",
-		document:    `cAt`,
-		expression:  `match("(?i)at")`,
-		expected: []string{
-			"D0, P[], ()::string: At\noffset: 1\nlength: 2\ncaptures: []\n",
-		},
-	},
-	{
-		description: "Match with capture groups",
+		description: "Match with names capture groups",
 		document:    `a cat`,
-		expression:  `match("c(.t)")`,
+		expression:  `match("c(?P<cool>.t)")`,
 		expected: []string{
-			"D0, P[], ()::string: cat\noffset: 2\nlength: 3\ncaptures:\n    - string: at\n      offset: 3\n      length: 2\n",
+			"D0, P[], ()::string: cat\noffset: 2\nlength: 3\ncaptures:\n    - string: at\n      offset: 3\n      length: 2\n      name: cool\n",
 		},
 	},
 	// {
