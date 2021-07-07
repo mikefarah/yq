@@ -16,14 +16,6 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		document:   "array: [1]\narray2: [2]",
-		expression: ".array += .array2",
-		expected: []string{
-			"D0, P[], (doc)::array: [1, 2]\narray2: [2]\n",
-		},
-	},
-	{
-		skipDoc:    true,
 		document:   `{}`,
 		expression: "(.a + .b) as $x",
 		expected: []string{
@@ -90,6 +82,14 @@ var addOperatorScenarios = []expressionScenario{
 		description: "Append to array",
 		document:    `{a: [1,2], b: [3,4]}`,
 		expression:  `.a = .a + .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: [1, 2, 3, 4], b: [3, 4]}\n",
+		},
+	},
+	{
+		description: "Append another array using +=",
+		document:    `{a: [1,2], b: [3,4]}`,
+		expression:  `.a += .b`,
 		expected: []string{
 			"D0, P[], (doc)::{a: [1, 2, 3, 4], b: [3, 4]}\n",
 		},

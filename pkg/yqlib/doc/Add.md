@@ -127,6 +127,32 @@ b:
   - 4
 ```
 
+## Append another array using +=
+Given a sample.yml file of:
+```yaml
+a:
+  - 1
+  - 2
+b:
+  - 3
+  - 4
+```
+then
+```bash
+yq eval '.a += .b' sample.yml
+```
+will output
+```yaml
+a:
+  - 1
+  - 2
+  - 3
+  - 4
+b:
+  - 3
+  - 4
+```
+
 ## Relative append
 Given a sample.yml file of:
 ```yaml
