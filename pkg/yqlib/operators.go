@@ -95,8 +95,11 @@ func crossFunction(d *dataTreeNavigator, context Context, expressionNode *Expres
 		}
 	}
 	if evaluateAllTogether {
+		log.Debug("crossFunction evaluateAllTogether!")
 		return doCrossFunc(d, context, expressionNode, calculation, calcWhenEmpty)
 	}
+
+	log.Debug("crossFunction evaluate apart!")
 
 	for matchEl := context.MatchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
 		innerResults, err := doCrossFunc(d, context.SingleChildContext(matchEl.Value.(*CandidateNode)), expressionNode, calculation, calcWhenEmpty)
