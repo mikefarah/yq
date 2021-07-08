@@ -5,7 +5,6 @@ import (
 	"container/list"
 	"io"
 	"os"
-	"path/filepath"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -14,7 +13,7 @@ func readStream(filename string) (io.Reader, error) {
 	if filename == "-" {
 		return bufio.NewReader(os.Stdin), nil
 	} else {
-		return os.Open(filepath.Clean(filename))
+		return os.Open(filename) // nolint gosec
 	}
 }
 
