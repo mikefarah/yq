@@ -81,7 +81,9 @@ func WriteTempYamlFile(content string) string {
 }
 
 func ReadTempYamlFile(name string) string {
-	content, _ := ioutil.ReadFile(name)
+	// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
+	// and ensuring that it's not possible to give a path to a file outside thar directory.
+	content, _ := ioutil.ReadFile(name) // #nosec
 	return string(content)
 }
 
