@@ -1,5 +1,5 @@
 name: yq
-version: '4.9.7'
+version: '4.9.8'
 summary: A lightweight and portable command-line YAML processor
 description: |
   The aim of the project is to be the jq or sed of yaml files.
