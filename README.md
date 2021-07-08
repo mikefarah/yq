@@ -101,6 +101,25 @@ yq() {
 }
 ```
 
+#### Running as root:
+
+`yq`'s docker image no longer runs under root (https://github.com/mikefarah/yq/pull/860) - so if you'd like to install more things in the docker image you'll need to either:
+
+
+```
+docker run --user="root" -it --entrypoint sh mikefarah/yq
+```
+
+Or, in your docker file:
+
+```
+FROM mikefarah/yq
+
+USER root
+RUN apk add bash
+USER yq
+```
+
 ### Go Get:
 ```
 GO111MODULE=on go get github.com/mikefarah/yq/v4
