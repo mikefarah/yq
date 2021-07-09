@@ -92,6 +92,16 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `["cat*", "cat*", "cat"]`,
+		expression: `.[] | test("cat\*")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::true\n",
+			"D0, P[2], (!!bool)::false\n",
+		},
+	},
+	{
 		description:    "Substitute / Replace string",
 		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)\nNote the use of `|=` to run in context of the current string value.",
 		document:       `a: dogs are great`,
