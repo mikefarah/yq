@@ -92,13 +92,25 @@ func addMatch(original []*yaml.Node, match string, offset int, name string) []*y
 	return newContent
 }
 
-func match(regEx *regexp.Regexp, candidate *CandidateNode, value string, results *list.List) {
+type matchPreferences struct {
+	Global bool
+}
+
+func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *CandidateNode, value string, results *list.List) {
 
 	subNames := regEx.SubexpNames()
 	log.Debugf("subNames %v", subNames)
 
-	allMatches := regEx.FindAllStringSubmatch(value, -1)
-	allIndices := regEx.FindAllStringSubmatchIndex(value, -1)
+	var allMatches [][]string
+	var allIndices [][]int
+
+	if matchPrefs.Global {
+		allMatches = regEx.FindAllStringSubmatch(value, -1)
+		allIndices = regEx.FindAllStringSubmatchIndex(value, -1)
+	} else {
+		allMatches = [][]string{regEx.FindStringSubmatch(value)}
+		allIndices = [][]int{regEx.FindStringSubmatchIndex(value)}
+	}
 
 	for i, matches := range allMatches {
 		capturesNode := &yaml.Node{Kind: yaml.SequenceNode}
@@ -121,13 +133,38 @@ func match(regEx *regexp.Regexp, candidate *CandidateNode, value string, results
 
 }
 
-func matchOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	//rhs  block operator
-	//lhs of block = regex
+func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (string, matchPreferences, error) {
+	regExExpNode := expressionNode.Rhs
 
-	regExNodes, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+	matchPrefs := matchPreferences{}
+
+	// we got given parameters e.g. match(exp; params)
+	if expressionNode.Rhs.Operation.OperationType == blockOpType {
+		block := expressionNode.Rhs
+		regExExpNode = block.Lhs
+		replacementNodes, err := d.GetMatchingNodes(context, block.Rhs)
+		if err != nil {
+			return "", matchPrefs, err
+		}
+		paramText := ""
+		if replacementNodes.MatchingNodes.Front() != nil {
+			paramText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		}
+		if strings.Contains(paramText, "g") {
+			paramText = strings.ReplaceAll(paramText, "g", "")
+			matchPrefs.Global = true
+		}
+		if strings.Contains(paramText, "i") {
+			return "", matchPrefs, fmt.Errorf(`'i' is not a valid option for match. To ignore case, use an expression like match("(?i)cat")`)
+		}
+		if len(paramText) > 0 {
+			return "", matchPrefs, fmt.Errorf(`Unrecognised match params '%v', please see docs at https://mikefarah.gitbook.io/yq/operators/string-operators`, paramText)
+		}
+	}
+
+	regExNodes, err := d.GetMatchingNodes(context.ReadOnlyClone(), regExExpNode)
 	if err != nil {
-		return Context{}, err
+		return "", matchPrefs, err
 	}
 	log.Debug(NodesToString(regExNodes.MatchingNodes))
 	regExStr := ""
@@ -135,6 +172,14 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 		regExStr = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 	log.Debug("regEx %v", regExStr)
+	return regExStr, matchPrefs, nil
+}
+
+func matchOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	regExStr, matchPrefs, err := extractMatchArguments(d, context, expressionNode)
+	if err != nil {
+		return Context{}, err
+	}
 
 	regEx, err := regexp.Compile(regExStr)
 	if err != nil {
@@ -147,10 +192,10 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		if node.Tag != "!!str" {
-			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation.", node.Tag)
+			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		match(regEx, candidate, node.Value, results)
+		match(matchPrefs, regEx, candidate, node.Value, results)
 	}
 
 	return context.ChildContext(results), nil
