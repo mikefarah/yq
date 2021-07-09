@@ -15,13 +15,27 @@ func createEvaluateAllCommand() *cobra.Command {
 		Aliases: []string{"ea"},
 		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
 		Example: `
-# merges f2.yml into f1.yml (inplace)
-yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml		
+# Merge f2.yml into f1.yml (inplace)
+yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml
+## the same command and expression using shortened names:
+yq ea -i 'select(fi == 0) * select(fi == 1)' f1.yml f2.yml
 
-# use '-' as a filename to read from STDIN
+
+# Merge all given files
+yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
+
+# Read from STDIN
+## use '-' as a filename to read from STDIN
 cat file2.yml | yq ea '.a.b' file1.yml - file3.yml
 `,
-		Long: "Evaluate All:\nUseful when you need to run an expression across several yaml documents or files. Consumes more memory than eval",
+		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
+
+## Evaluate All ##
+This command loads _all_ yaml documents of _all_ yaml files and runs expression once
+Useful when you need to run an expression across several yaml documents or files (like merge).
+Note that it consumes more memory than eval.
+`,
 		RunE: evaluateAll,
 	}
 	return cmdEvalAll

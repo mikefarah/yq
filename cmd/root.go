@@ -11,7 +11,8 @@ func New() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "yq",
 		Short: "yq is a lightweight and portable command-line YAML processor.",
-		Long:  `yq is a lightweight and portable command-line YAML processor. It aims to be the jq or sed of yaml files.`,
+		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if version {
 				cmd.Print(GetVersionDisplay())

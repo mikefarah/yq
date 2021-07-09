@@ -25,7 +25,7 @@ const ProductName = "yq"
 // GetVersionDisplay composes the parts of the version in a way that's suitable
 // for displaying to humans.
 func GetVersionDisplay() string {
-	return fmt.Sprintf("%s version %s\n", ProductName, getHumanVersion())
+	return fmt.Sprintf("yq (https://github.com/mikefarah/yq/) version %s\n", getHumanVersion())
 }
 
 func getHumanVersion() string {

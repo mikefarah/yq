@@ -13,25 +13,31 @@ func createEvaluateSequenceCommand() *cobra.Command {
 	var cmdEvalSequence = &cobra.Command{
 		Use:     "eval [expression] [yaml_file1]...",
 		Aliases: []string{"e"},
-		Short:   "Apply expression to each document in each yaml file given in sequence",
+		Short:   "Apply the expression to each document in each yaml file in sequence",
 		Example: `
-# runs the expression against each file, in series
-yq e '.a.b | length' f1.yml f2.yml 
+# Reads field under the given path for each file
+yq e '.a.b' f1.yml f2.yml 
 
-# prints out the file
+# Prints out the file
 yq e sample.yaml 
 
-# use '-' as a filename to read from STDIN
+# Read from STDIN
+## use '-' as a filename to read from STDIN
 cat file2.yml | yq e '.a.b' file1.yml - file3.yml
 
-# prints a new yaml document
+# Creates a new yaml document
+## Note that editing an empty file does not work.
 yq e -n '.a.b.c = "cat"' 
 
-
-# updates file.yaml directly
+# Update a file inplace
 yq e '.a.b = "cool"' -i file.yaml 
 `,
-		Long: "Evaluate Sequence:\nIterate over each yaml document, apply the expression and print the results, in sequence.",
+		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
+
+## Evaluate Sequence ##
+This command iterates over each yaml document from each given file, applies the 
+expression and prints the result in sequence.`,
 		RunE: evaluateSequence,
 	}
 	return cmdEvalSequence
