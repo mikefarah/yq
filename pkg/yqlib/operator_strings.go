@@ -112,6 +112,14 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 		allIndices = [][]int{regEx.FindStringSubmatchIndex(value)}
 	}
 
+	log.Debug("allMatches, %v", allMatches)
+
+	// if all matches just has an empty array in it,
+	// then nothing matched
+	if len(allMatches) > 0 && len(allMatches[0]) == 0 {
+		return
+	}
+
 	for i, matches := range allMatches {
 		capturesNode := &yaml.Node{Kind: yaml.SequenceNode}
 		match, submatches := matches[0], matches[1:]
@@ -133,7 +141,7 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 
 }
 
-func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (string, matchPreferences, error) {
+func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (*regexp.Regexp, matchPreferences, error) {
 	regExExpNode := expressionNode.Rhs
 
 	matchPrefs := matchPreferences{}
@@ -144,7 +152,7 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 		regExExpNode = block.Lhs
 		replacementNodes, err := d.GetMatchingNodes(context, block.Rhs)
 		if err != nil {
-			return "", matchPrefs, err
+			return nil, matchPrefs, err
 		}
 		paramText := ""
 		if replacementNodes.MatchingNodes.Front() != nil {
@@ -155,16 +163,16 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 			matchPrefs.Global = true
 		}
 		if strings.Contains(paramText, "i") {
-			return "", matchPrefs, fmt.Errorf(`'i' is not a valid option for match. To ignore case, use an expression like match("(?i)cat")`)
+			return nil, matchPrefs, fmt.Errorf(`'i' is not a valid option for match. To ignore case, use an expression like match("(?i)cat")`)
 		}
 		if len(paramText) > 0 {
-			return "", matchPrefs, fmt.Errorf(`Unrecognised match params '%v', please see docs at https://mikefarah.gitbook.io/yq/operators/string-operators`, paramText)
+			return nil, matchPrefs, fmt.Errorf(`Unrecognised match params '%v', please see docs at https://mikefarah.gitbook.io/yq/operators/string-operators`, paramText)
 		}
 	}
 
 	regExNodes, err := d.GetMatchingNodes(context.ReadOnlyClone(), regExExpNode)
 	if err != nil {
-		return "", matchPrefs, err
+		return nil, matchPrefs, err
 	}
 	log.Debug(NodesToString(regExNodes.MatchingNodes))
 	regExStr := ""
@@ -172,16 +180,12 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 		regExStr = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 	log.Debug("regEx %v", regExStr)
-	return regExStr, matchPrefs, nil
+	regEx, err := regexp.Compile(regExStr)
+	return regEx, matchPrefs, err
 }
 
 func matchOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	regExStr, matchPrefs, err := extractMatchArguments(d, context, expressionNode)
-	if err != nil {
-		return Context{}, err
-	}
-
-	regEx, err := regexp.Compile(regExStr)
+	regEx, matchPrefs, err := extractMatchArguments(d, context, expressionNode)
 	if err != nil {
 		return Context{}, err
 	}
@@ -196,6 +200,28 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 		}
 
 		match(matchPrefs, regEx, candidate, node.Value, results)
+	}
+
+	return context.ChildContext(results), nil
+}
+
+func testOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	regEx, _, err := extractMatchArguments(d, context, expressionNode)
+	if err != nil {
+		return Context{}, err
+	}
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		node := unwrapDoc(candidate.Node)
+		if node.Tag != "!!str" {
+			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
+		}
+		matches := regEx.FindStringSubmatch(node.Value)
+		results.PushBack(createBooleanCandidate(candidate, len(matches) > 0))
+
 	}
 
 	return context.ChildContext(results), nil

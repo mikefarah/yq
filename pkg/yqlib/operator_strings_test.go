@@ -63,6 +63,35 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "No match",
+		document:    `dog`,
+		expression:  `match("cat"; "g")`,
+		expected:    []string{},
+	},
+	{
+		skipDoc:     true,
+		description: "No match",
+		expression:  `"dog" | match("cat", "g")`,
+		expected:    []string{},
+	},
+	{
+		skipDoc:     true,
+		description: "No match",
+		expression:  `"dog" | match("cat")`,
+		expected:    []string{},
+	},
+	{
+		description:    "Test using regex",
+		subdescription: "Like jq'q equivalant, this works like match but only returns true/false instead of full match details",
+		document:       `["cat", "dog"]`,
+		expression:     `.[] | test("at")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::false\n",
+		},
+	},
+	{
 		description:    "Substitute / Replace string",
 		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)\nNote the use of `|=` to run in context of the current string value.",
 		document:       `a: dogs are great`,

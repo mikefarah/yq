@@ -84,6 +84,7 @@ var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 5
 var joinStringOpType = &operationType{Type: "JOIN", NumArgs: 1, Precedence: 50, Handler: joinStringOperator}
 var subStringOpType = &operationType{Type: "SUBSTR", NumArgs: 1, Precedence: 50, Handler: substituteStringOperator}
 var matchOpType = &operationType{Type: "MATCH", NumArgs: 1, Precedence: 50, Handler: matchOperator}
+var testOpType = &operationType{Type: "MATCH", NumArgs: 1, Precedence: 50, Handler: testOperator}
 var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
 
 var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 50, Handler: keysOperator}

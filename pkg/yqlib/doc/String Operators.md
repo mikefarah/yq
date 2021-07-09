@@ -134,6 +134,24 @@ length: 3
 captures: []
 ```
 
+## Test using regex
+Like jq'q equivalant, this works like match but only returns true/false instead of full match details
+
+Given a sample.yml file of:
+```yaml
+- cat
+- dog
+```
+then
+```bash
+yq eval '.[] | test("at")' sample.yml
+```
+will output
+```yaml
+true
+false
+```
+
 ## Substitute / Replace string
 This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)
 Note the use of `|=` to run in context of the current string value.
