@@ -15,34 +15,54 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Match string",
-		document:    `cat`,
-		expression:  `match("at")`,
+		document:    `foo bar foo`,
+		expression:  `match("foo")`,
 		expected: []string{
-			"D0, P[], ()::string: at\noffset: 1\nlength: 2\ncaptures: []\n",
+			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
 		},
 	},
 	{
 		description: "Match string, case insensitive",
-		document:    `cAt`,
-		expression:  `match("(?i)at")`,
+		document:    `foo bar FOO`,
+		expression:  `match("(?i)foo"; "g")`,
 		expected: []string{
-			"D0, P[], ()::string: At\noffset: 1\nlength: 2\ncaptures: []\n",
+			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
+			"D0, P[], ()::string: FOO\noffset: 8\nlength: 3\ncaptures: []\n",
 		},
 	},
 	{
 		description: "Match with capture groups",
-		document:    `a cat`,
-		expression:  `match("c(.t)")`,
+		document:    `abc abc`,
+		expression:  `match("(abc)+"; "g")`,
 		expected: []string{
-			"D0, P[], ()::string: cat\noffset: 2\nlength: 3\ncaptures:\n    - string: at\n      offset: 3\n      length: 2\n",
+			"D0, P[], ()::string: abc\noffset: 0\nlength: 3\ncaptures:\n    - string: abc\n      offset: 0\n      length: 3\n",
+			"D0, P[], ()::string: abc\noffset: 4\nlength: 3\ncaptures:\n    - string: abc\n      offset: 4\n      length: 3\n",
 		},
 	},
 	{
 		description: "Match with named capture groups",
-		document:    `a cat`,
-		expression:  `match("c(?P<cool>.t)")`,
+		document:    `foo bar foo foo  foo`,
+		expression:  `match("foo (?P<bar123>bar)? foo"; "g")`,
 		expected: []string{
-			"D0, P[], ()::string: cat\noffset: 2\nlength: 3\ncaptures:\n    - string: at\n      offset: 3\n      length: 2\n      name: cool\n",
+			"D0, P[], ()::string: foo bar foo\noffset: 0\nlength: 11\ncaptures:\n    - string: bar\n      offset: 4\n      length: 3\n      name: bar123\n",
+			"D0, P[], ()::string: foo  foo\noffset: 12\nlength: 8\ncaptures:\n    - string: null\n      offset: -1\n      length: 0\n      name: bar123\n",
+		},
+	},
+	{
+		description: "Capture named groups into a map",
+		document:    `xyzzy-14`,
+		expression:  `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")`,
+		expected: []string{
+			"D0, P[], ()::a: xyzzy\nn: \"14\"\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Capture named groups into a map, with null",
+		document:    `xyzzy-14`,
+		expression:  `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)(?P<bar123>bar)?")`,
+		expected: []string{
+			"D0, P[], ()::a: xyzzy\nn: \"14\"\nbar123: null\n",
 		},
 	},
 	{

@@ -24,76 +24,110 @@ cat; meow; 1; ; true
 ## Match string
 Given a sample.yml file of:
 ```yaml
-cat
+foo bar foo
 ```
 then
 ```bash
-yq eval 'match("at")' sample.yml
+yq eval 'match("foo")' sample.yml
 ```
 will output
 ```yaml
-string: at
-offset: 1
-length: 2
+string: foo
+offset: 0
+length: 3
 captures: []
 ```
 
 ## Match string, case insensitive
 Given a sample.yml file of:
 ```yaml
-cAt
+foo bar FOO
 ```
 then
 ```bash
-yq eval 'match("(?i)at")' sample.yml
+yq eval 'match("(?i)foo"; "g")' sample.yml
 ```
 will output
 ```yaml
-string: At
-offset: 1
-length: 2
+string: foo
+offset: 0
+length: 3
+captures: []
+string: FOO
+offset: 8
+length: 3
 captures: []
 ```
 
 ## Match with capture groups
 Given a sample.yml file of:
 ```yaml
-a cat
+abc abc
 ```
 then
 ```bash
-yq eval 'match("c(.t)")' sample.yml
+yq eval 'match("(abc)+"; "g")' sample.yml
 ```
 will output
 ```yaml
-string: cat
-offset: 2
+string: abc
+offset: 0
 length: 3
 captures:
-  - string: at
-    offset: 3
-    length: 2
+  - string: abc
+    offset: 0
+    length: 3
+string: abc
+offset: 4
+length: 3
+captures:
+  - string: abc
+    offset: 4
+    length: 3
 ```
 
 ## Match with named capture groups
 Given a sample.yml file of:
 ```yaml
-a cat
+foo bar foo foo  foo
 ```
 then
 ```bash
-yq eval 'match("c(?P<cool>.t)")' sample.yml
+yq eval 'match("foo (?P<bar123>bar)? foo"; "g")' sample.yml
 ```
 will output
 ```yaml
-string: cat
-offset: 2
-length: 3
+string: foo bar foo
+offset: 0
+length: 11
 captures:
-  - string: at
-    offset: 3
-    length: 2
-    name: cool
+  - string: bar
+    offset: 4
+    length: 3
+    name: bar123
+string: foo  foo
+offset: 12
+length: 8
+captures:
+  - string: null
+    offset: -1
+    length: 0
+    name: bar123
+```
+
+## Capture named groups into a map
+Given a sample.yml file of:
+```yaml
+xyzzy-14
+```
+then
+```bash
+yq eval 'capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")' sample.yml
+```
+will output
+```yaml
+a: xyzzy
+n: "14"
 ```
 
 ## Match without global flag
