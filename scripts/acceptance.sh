@@ -55,6 +55,64 @@ if [[ $? != 1 ]]; then
   exit 1
 fi
 
+# Test leading seperator logic
+expected=$(cat examples/leading-seperator.yaml)
+
+X=$(cat examples/leading-seperator.yaml | ./yq e '.' -)
+if [[ $X != $expected ]]; then
+  echo "Pipe into e"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+X=$(./yq e '.' examples/leading-seperator.yaml)
+expected=$(cat examples/leading-seperator.yaml)
+if [[ $X != $expected ]]; then
+  echo "read given file e"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+X=$(cat examples/leading-seperator.yaml | ./yq ea '.' -)
+if [[ $X != $expected ]]; then
+  echo "Pipe into e"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+X=$(./yq ea '.' examples/leading-seperator.yaml)
+expected=$(cat examples/leading-seperator.yaml)
+if [[ $X != $expected ]]; then
+  echo "read given file e"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+# multidoc
+read -r -d '' expected << EOM
+---
+a: test
+---
+version: 3
+application: MyApp
+EOM
+
+X=$(./yq e '.' examples/leading-seperator.yaml examples/order.yaml)
+
+if [[ $X != $expected ]]; then
+  echo "Multidoc with leading seperator"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+X=$(./yq ea '.' examples/leading-seperator.yaml examples/order.yaml)
+
+if [[ $X != $expected ]]; then
+  echo "Multidoc with leading seperator"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
 echo "--success"
 
 set -e

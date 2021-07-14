@@ -55,8 +55,11 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 		return err
 	}
 
-	for _, filename := range filenames {
-		reader, err := readStream(filename)
+	for index, filename := range filenames {
+		reader, leadingSeperator, err := readStream(filename)
+		if index == 0 && leadingSeperator {
+			printer.SetPrintLeadingSeperator(leadingSeperator)
+		}
 		if err != nil {
 			return err
 		}

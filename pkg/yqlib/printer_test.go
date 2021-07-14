@@ -17,10 +17,34 @@ a: apple
 a: coconut
 `
 
+var leadingSeperatorSample = `---
+a: good doc
+`
+
 func nodeToList(candidate *CandidateNode) *list.List {
 	elMap := list.New()
 	elMap.PushBack(candidate)
 	return elMap
+}
+
+func TestPrinterWithLeadingSeperator(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewPrinter(writer, false, true, false, 2, true)
+
+	inputs, err := readDocuments(strings.NewReader(leadingSeperatorSample), "sample.yml", 0)
+	if err != nil {
+		panic(err)
+	}
+	printer.SetPrintLeadingSeperator(true)
+
+	err = printer.PrintResults(inputs)
+	if err != nil {
+		panic(err)
+	}
+
+	writer.Flush()
+	test.AssertResult(t, leadingSeperatorSample, output.String())
 }
 
 func TestPrinterMultipleDocsInSequence(t *testing.T) {

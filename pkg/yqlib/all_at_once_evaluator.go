@@ -48,13 +48,19 @@ func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCand
 
 func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
 	fileIndex := 0
+	firstFileLeadingSeperator := false
 
 	var allDocuments *list.List = list.New()
 	for _, filename := range filenames {
-		reader, err := readStream(filename)
+		reader, leadingSeperator, err := readStream(filename)
 		if err != nil {
 			return err
 		}
+
+		if fileIndex == 0 && leadingSeperator {
+			firstFileLeadingSeperator = leadingSeperator
+		}
+
 		fileDocuments, err := readDocuments(reader, filename, fileIndex)
 		if err != nil {
 			return err
@@ -66,5 +72,6 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 	if err != nil {
 		return err
 	}
+	printer.SetPrintLeadingSeperator(firstFileLeadingSeperator)
 	return printer.PrintResults(matches)
 }

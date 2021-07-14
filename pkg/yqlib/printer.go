@@ -11,6 +11,7 @@ import (
 type Printer interface {
 	PrintResults(matchingNodes *list.List) error
 	PrintedAnything() bool
+	SetPrintLeadingSeperator(bool)
 }
 
 type resultsPrinter struct {
@@ -37,6 +38,13 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		printDocSeparators: !outputToJSON && printDocSeparators,
 		firstTimePrinting:  true,
 		treeNavigator:      NewDataTreeNavigator(),
+	}
+}
+
+func (p *resultsPrinter) SetPrintLeadingSeperator(printLeadingSeperator bool) {
+	if printLeadingSeperator {
+		p.firstTimePrinting = false
+		p.previousFileIndex = -1
 	}
 }
 
