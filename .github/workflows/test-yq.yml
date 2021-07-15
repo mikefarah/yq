@@ -1,0 +1,19 @@
+name: Test Yq Action
+on: [push]
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get test
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval '.a' examples/data1.yaml
+      - name: Write inplace test
+        id: lookupSdkVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq eval -i '.a.b = 5' examples/data1.yaml
