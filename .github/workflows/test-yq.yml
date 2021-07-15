@@ -15,5 +15,6 @@ jobs:
       - name: Write inplace test
         id: lookupSdkVersion
         uses: mikefarah/yq@master
+        options: --user 1001
         with:
           cmd: yq eval -i '.a.b = 5' examples/data1.yaml
