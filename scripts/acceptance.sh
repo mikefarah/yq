@@ -113,6 +113,20 @@ if [[ $X != $expected ]]; then
   exit 1
 fi
 
+# handle empty files
+./yq e '.' examples/empty.yaml
+if [[ $? != 0 ]]; then
+  echo "Expected no error when processing empty file but got one"
+  exit 1
+fi
+
+cat examples/empty.yaml | ./yq e '.' -
+if [[ $? != 0 ]]; then
+  echo "Expected no error when processing empty stdin but got one"
+  exit 1
+fi
+
+
 echo "--success"
 
 set -e

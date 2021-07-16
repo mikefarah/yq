@@ -15,6 +15,12 @@ func readStream(filename string) (io.Reader, bool, error) {
 		reader := bufio.NewReader(os.Stdin)
 
 		seperatorBytes, err := reader.Peek(3)
+
+		if err == io.EOF {
+			// EOF are handled else where..
+			return reader, false, nil
+		}
+
 		return reader, string(seperatorBytes) == "---", err
 	} else {
 		// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
@@ -25,7 +31,10 @@ func readStream(filename string) (io.Reader, bool, error) {
 		}
 		seperatorBytes := make([]byte, 3)
 		_, err = reader.Read(seperatorBytes)
-		if err != nil {
+		if err == io.EOF {
+			// EOF are handled else where..
+			return reader, false, nil
+		} else if err != nil {
 			return nil, false, err
 		}
 		_, err = reader.Seek(0, 0)
