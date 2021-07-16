@@ -55,7 +55,7 @@ if [[ $? != 1 ]]; then
   exit 1
 fi
 
-# Test leading seperator logic
+echo "Test: leading seperator logic"
 expected=$(cat examples/leading-seperator.yaml)
 
 X=$(cat examples/leading-seperator.yaml | ./yq e '.' -)
@@ -113,7 +113,7 @@ if [[ $X != $expected ]]; then
   exit 1
 fi
 
-# handle empty files
+echo "Test: handle empty files"
 ./yq e '.' examples/empty.yaml
 if [[ $? != 0 ]]; then
   echo "Expected no error when processing empty file but got one"
@@ -126,6 +126,29 @@ if [[ $? != 0 ]]; then
   exit 1
 fi
 
+# run expression against empty file
+touch temp.yaml
+expected="apple: tree"
+
+./yq e '.apple = "tree"' temp.yaml -i
+X=$(cat temp.yaml)
+rm temp.yaml
+if [[ $X != $expected ]]; then
+  echo "Write empty doc"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+touch temp.yaml
+
+./yq ea '.apple = "tree"' temp.yaml -i
+X=$(cat temp.yaml)
+rm temp.yaml
+if [[ $X != $expected ]]; then
+  echo "Write all empty doc"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
 
 echo "--success"
 

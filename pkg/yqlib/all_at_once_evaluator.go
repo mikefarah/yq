@@ -68,6 +68,17 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 		allDocuments.PushBackList(fileDocuments)
 		fileIndex = fileIndex + 1
 	}
+
+	if allDocuments.Len() == 0 {
+		candidateNode := &CandidateNode{
+			Document:  0,
+			Filename:  "",
+			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
+			FileIndex: 0,
+		}
+		allDocuments.PushBack(candidateNode)
+	}
+
 	matches, err := e.EvaluateCandidateNodes(expression, allDocuments)
 	if err != nil {
 		return err

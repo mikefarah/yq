@@ -12,7 +12,7 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) error
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) (uint, error)
 	EvaluateFiles(expression string, filenames []string, printer Printer) error
 	EvaluateNew(expression string, printer Printer) error
 }
@@ -49,7 +49,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 }
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
-
+	var totalProcessDocs uint = 0
 	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return err
@@ -63,23 +63,28 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 		if err != nil {
 			return err
 		}
-		err = s.Evaluate(filename, reader, node, printer)
+		processedDocs, err := s.Evaluate(filename, reader, node, printer)
 		if err != nil {
 			return err
 		}
+		totalProcessDocs = totalProcessDocs + processedDocs
 
 		switch reader := reader.(type) {
 		case *os.File:
 			safelyCloseFile(reader)
 		}
 	}
+
+	if totalProcessDocs == 0 {
+		return s.EvaluateNew(expression, printer)
+	}
+
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) error {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) (uint, error) {
 
 	var currentIndex uint
-
 	decoder := yaml.NewDecoder(reader)
 	for {
 		var dataBucket yaml.Node
@@ -87,9 +92,9 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 
 		if errorReading == io.EOF {
 			s.fileIndex = s.fileIndex + 1
-			return nil
+			return currentIndex, nil
 		} else if errorReading != nil {
-			return errorReading
+			return currentIndex, errorReading
 		}
 		candidateNode := &CandidateNode{
 			Document:  currentIndex,
@@ -102,11 +107,11 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 
 		result, errorParsing := s.treeNavigator.GetMatchingNodes(Context{MatchingNodes: inputList}, node)
 		if errorParsing != nil {
-			return errorParsing
+			return currentIndex, errorParsing
 		}
 		err := printer.PrintResults(result.MatchingNodes)
 		if err != nil {
-			return err
+			return currentIndex, err
 		}
 		currentIndex = currentIndex + 1
 	}
