@@ -12,6 +12,9 @@ type Printer interface {
 	PrintResults(matchingNodes *list.List) error
 	PrintedAnything() bool
 	SetPrintLeadingSeperator(bool)
+
+	// preamble yaml content
+	SetPreamble(reader io.Reader)
 }
 
 type resultsPrinter struct {
@@ -26,6 +29,7 @@ type resultsPrinter struct {
 	previousFileIndex  int
 	printedMatches     bool
 	treeNavigator      DataTreeNavigator
+	preambleReader     io.Reader
 }
 
 func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -46,6 +50,10 @@ func (p *resultsPrinter) SetPrintLeadingSeperator(printLeadingSeperator bool) {
 		p.firstTimePrinting = false
 		p.previousFileIndex = -1
 	}
+}
+
+func (p *resultsPrinter) SetPreamble(reader io.Reader) {
+	p.preambleReader = reader
 }
 
 func (p *resultsPrinter) PrintedAnything() bool {
@@ -94,6 +102,14 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 
 	bufferedWriter := bufio.NewWriter(p.writer)
 	defer p.safelyFlush(bufferedWriter)
+
+	if p.preambleReader != nil && !p.outputToJSON {
+		log.Debug("Piping preamble reader...")
+		_, err := io.Copy(bufferedWriter, p.preambleReader)
+		if err != nil {
+			return err
+		}
+	}
 
 	if matchingNodes.Len() == 0 {
 		log.Debug("no matching results, nothing to print")

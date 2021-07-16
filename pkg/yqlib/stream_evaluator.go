@@ -76,6 +76,19 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	if totalProcessDocs == 0 {
+
+		if len(filenames) > 0 {
+			reader, _, err := readStream(filenames[0])
+			if err != nil {
+				return err
+			}
+			switch reader := reader.(type) {
+			case *os.File:
+				defer safelyCloseFile(reader)
+			}
+			printer.SetPreamble(reader)
+		}
+
 		return s.EvaluateNew(expression, printer)
 	}
 

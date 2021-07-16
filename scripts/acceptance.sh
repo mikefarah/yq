@@ -150,6 +150,33 @@ if [[ $X != $expected ]]; then
   exit 1
 fi
 
+echo "Test: handle empty files with just comments"
+echo "# comment" > temp.yaml
+read -r -d '' expected << EOM
+# comment
+apple: tree
+EOM
+
+./yq e '.apple = "tree"' temp.yaml -i
+X=$(cat temp.yaml)
+rm temp.yaml
+if [[ $X != $expected ]]; then
+  echo "Write empty doc"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+echo "# comment" > temp.yaml
+
+./yq ea '.apple = "tree"' temp.yaml -i
+X=$(cat temp.yaml)
+rm temp.yaml
+if [[ $X != $expected ]]; then
+  echo "Write all empty doc"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
 echo "--success"
 
 set -e

@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"os"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -77,6 +78,18 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 			FileIndex: 0,
 		}
 		allDocuments.PushBack(candidateNode)
+
+		if len(filenames) > 0 {
+			reader, _, err := readStream(filenames[0])
+			if err != nil {
+				return err
+			}
+			switch reader := reader.(type) {
+			case *os.File:
+				defer safelyCloseFile(reader)
+			}
+			printer.SetPreamble(reader)
+		}
 	}
 
 	matches, err := e.EvaluateCandidateNodes(expression, allDocuments)
