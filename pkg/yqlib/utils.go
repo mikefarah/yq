@@ -19,7 +19,7 @@ func readStream(filename string) (io.Reader, bool, error) {
 	} else {
 		// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
 		// and ensuring that it's not possible to give a path to a file outside thar directory.
-		reader, err := os.Open(filename)
+		reader, err := os.Open(filename) // #nosec
 		if err != nil {
 			return nil, false, err
 		}
