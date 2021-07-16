@@ -24,28 +24,25 @@ var stringsOperatorScenarios = []expressionScenario{
 	{
 		description: "Match string, case insensitive",
 		document:    `foo bar FOO`,
-		expression:  `match("(?i)foo"; "g")`,
+		expression:  `[match("(?i)foo"; "g")]`,
 		expected: []string{
-			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
-			"D0, P[], ()::string: FOO\noffset: 8\nlength: 3\ncaptures: []\n",
+			"D0, P[], (!!seq)::- string: foo\n  offset: 0\n  length: 3\n  captures: []\n- string: FOO\n  offset: 8\n  length: 3\n  captures: []\n",
 		},
 	},
 	{
 		description: "Match with capture groups",
 		document:    `abc abc`,
-		expression:  `match("(abc)+"; "g")`,
+		expression:  `[match("(abc)+"; "g")]`,
 		expected: []string{
-			"D0, P[], ()::string: abc\noffset: 0\nlength: 3\ncaptures:\n    - string: abc\n      offset: 0\n      length: 3\n",
-			"D0, P[], ()::string: abc\noffset: 4\nlength: 3\ncaptures:\n    - string: abc\n      offset: 4\n      length: 3\n",
+			"D0, P[], (!!seq)::- string: abc\n  offset: 0\n  length: 3\n  captures:\n    - string: abc\n      offset: 0\n      length: 3\n- string: abc\n  offset: 4\n  length: 3\n  captures:\n    - string: abc\n      offset: 4\n      length: 3\n",
 		},
 	},
 	{
 		description: "Match with named capture groups",
 		document:    `foo bar foo foo  foo`,
-		expression:  `match("foo (?P<bar123>bar)? foo"; "g")`,
+		expression:  `[match("foo (?P<bar123>bar)? foo"; "g")]`,
 		expected: []string{
-			"D0, P[], ()::string: foo bar foo\noffset: 0\nlength: 11\ncaptures:\n    - string: bar\n      offset: 4\n      length: 3\n      name: bar123\n",
-			"D0, P[], ()::string: foo  foo\noffset: 12\nlength: 8\ncaptures:\n    - string: null\n      offset: -1\n      length: 0\n      name: bar123\n",
+			"D0, P[], (!!seq)::- string: foo bar foo\n  offset: 0\n  length: 11\n  captures:\n    - string: bar\n      offset: 4\n      length: 3\n      name: bar123\n- string: foo  foo\n  offset: 12\n  length: 8\n  captures:\n    - string: null\n      offset: -1\n      length: 0\n      name: bar123\n",
 		},
 	},
 	{
@@ -76,10 +73,9 @@ var stringsOperatorScenarios = []expressionScenario{
 	{
 		description: "Match with global flag",
 		document:    `cat cat`,
-		expression:  `match("cat"; "g")`,
+		expression:  `[match("cat"; "g")]`,
 		expected: []string{
-			"D0, P[], ()::string: cat\noffset: 0\nlength: 3\ncaptures: []\n",
-			"D0, P[], ()::string: cat\noffset: 4\nlength: 3\ncaptures: []\n",
+			"D0, P[], (!!seq)::- string: cat\n  offset: 0\n  length: 3\n  captures: []\n- string: cat\n  offset: 4\n  length: 3\n  captures: []\n",
 		},
 	},
 	{

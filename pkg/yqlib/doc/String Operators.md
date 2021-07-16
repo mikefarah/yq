@@ -45,18 +45,18 @@ foo bar FOO
 ```
 then
 ```bash
-yq eval 'match("(?i)foo"; "g")' sample.yml
+yq eval '[match("(?i)foo"; "g")]' sample.yml
 ```
 will output
 ```yaml
-string: foo
-offset: 0
-length: 3
-captures: []
-string: FOO
-offset: 8
-length: 3
-captures: []
+- string: foo
+  offset: 0
+  length: 3
+  captures: []
+- string: FOO
+  offset: 8
+  length: 3
+  captures: []
 ```
 
 ## Match with capture groups
@@ -66,24 +66,24 @@ abc abc
 ```
 then
 ```bash
-yq eval 'match("(abc)+"; "g")' sample.yml
+yq eval '[match("(abc)+"; "g")]' sample.yml
 ```
 will output
 ```yaml
-string: abc
-offset: 0
-length: 3
-captures:
-  - string: abc
-    offset: 0
-    length: 3
-string: abc
-offset: 4
-length: 3
-captures:
-  - string: abc
-    offset: 4
-    length: 3
+- string: abc
+  offset: 0
+  length: 3
+  captures:
+    - string: abc
+      offset: 0
+      length: 3
+- string: abc
+  offset: 4
+  length: 3
+  captures:
+    - string: abc
+      offset: 4
+      length: 3
 ```
 
 ## Match with named capture groups
@@ -93,26 +93,26 @@ foo bar foo foo  foo
 ```
 then
 ```bash
-yq eval 'match("foo (?P<bar123>bar)? foo"; "g")' sample.yml
+yq eval '[match("foo (?P<bar123>bar)? foo"; "g")]' sample.yml
 ```
 will output
 ```yaml
-string: foo bar foo
-offset: 0
-length: 11
-captures:
-  - string: bar
-    offset: 4
-    length: 3
-    name: bar123
-string: foo  foo
-offset: 12
-length: 8
-captures:
-  - string: null
-    offset: -1
-    length: 0
-    name: bar123
+- string: foo bar foo
+  offset: 0
+  length: 11
+  captures:
+    - string: bar
+      offset: 4
+      length: 3
+      name: bar123
+- string: foo  foo
+  offset: 12
+  length: 8
+  captures:
+    - string: null
+      offset: -1
+      length: 0
+      name: bar123
 ```
 
 ## Capture named groups into a map
@@ -154,18 +154,18 @@ cat cat
 ```
 then
 ```bash
-yq eval 'match("cat"; "g")' sample.yml
+yq eval '[match("cat"; "g")]' sample.yml
 ```
 will output
 ```yaml
-string: cat
-offset: 0
-length: 3
-captures: []
-string: cat
-offset: 4
-length: 3
-captures: []
+- string: cat
+  offset: 0
+  length: 3
+  captures: []
+- string: cat
+  offset: 4
+  length: 3
+  captures: []
 ```
 
 ## Test using regex
