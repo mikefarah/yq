@@ -103,7 +103,7 @@ yq() {
 
 #### Running as root:
 
-`yq`'s docker image no longer runs under root (https://github.com/mikefarah/yq/pull/860) - so if you'd like to install more things in the docker image you'll need to either:
+`yq`'s docker image no longer runs under root (https://github.com/mikefarah/yq/pull/860). If you'd like to install more things in the docker image, or you're having permissions issues when attempting to read/write files you'll need to either:
 
 
 ```
@@ -230,3 +230,6 @@ yq e '.a.b | length' f1.yml f2.yml
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
 - Powershell has its own...opinions: https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell
+- Running expressions against blank files does not work, because the file is empty, there are no matches for yq to run through the expression pipeline and so nothing happens. Instead, you can do something like `yq e -n '.someNew="content"' > newfile.yml` to create a new file.
+
+See [tips and tricks](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks) for more common problems and solutions.
