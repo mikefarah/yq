@@ -54,6 +54,7 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 
 	rootCmd.PersistentFlags().BoolVarP(&forceColor, "colors", "C", false, "force print with colors")
 	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
+	rootCmd.PersistentFlags().StringVarP(&frontMatter, "front-matter", "f", "", "(extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data in-tact")
 	rootCmd.AddCommand(
 		createEvaluateSequenceCommand(),
 		createEvaluateAllCommand(),

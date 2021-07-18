@@ -16,4 +16,7 @@ var verbose = false
 var version = false
 var prettyPrint = false
 
+// can be either "" (off), "extract" or "process"
+var frontMatter = ""
+
 var completedSuccessfully = false

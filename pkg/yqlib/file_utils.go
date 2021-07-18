@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 )
 
@@ -20,6 +21,14 @@ func safelyRenameFile(from string, to string) {
 				log.Errorf("failed removing original file: %s", from)
 			}
 		}
+	}
+}
+
+func tryRemoveFile(filename string) {
+	log.Debug("Removing temp file: %v", filename)
+	removeErr := os.Remove(filename)
+	if removeErr != nil {
+		log.Errorf("Failed to remove temp file: %v", filename)
 	}
 }
 
@@ -44,10 +53,36 @@ func copyFileContents(src, dst string) (err error) {
 	return out.Sync()
 }
 
+func SafelyCloseReader(reader io.Reader) {
+	switch reader := reader.(type) {
+	case *os.File:
+		safelyCloseFile(reader)
+	}
+}
+
 func safelyCloseFile(file *os.File) {
 	err := file.Close()
 	if err != nil {
 		log.Error("Error closing file!")
 		log.Error(err.Error())
 	}
+}
+
+func createTempFile() (*os.File, error) {
+	_, err := os.Stat(os.TempDir())
+	if os.IsNotExist(err) {
+		err = os.Mkdir(os.TempDir(), 0700)
+		if err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	file, err := ioutil.TempFile("", "temp")
+	if err != nil {
+		return nil, err
+	}
+
+	return file, err
 }

@@ -103,6 +103,26 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		return errors.New("Cannot pass files in when using null-input flag")
 	}
 
+	if frontMatter != "" {
+		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])
+		err = frontMatterHandler.Split()
+		if err != nil {
+			return err
+		}
+		args[firstFileIndex] = frontMatterHandler.GetYamlFrontMatterFilename()
+
+		if frontMatter == "process" {
+			reader, err := os.Open(frontMatterHandler.GetContentFilename()) // #nosec
+			if err != nil {
+				return err
+			}
+			printer.SetAppendix(reader)
+			defer yqlib.SafelyCloseReader(reader)
+		}
+		defer frontMatterHandler.CleanUp()
+
+	}
+
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
