@@ -176,6 +176,7 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - Written in portable go, so you can download a lovely dependency free binary
 - Uses similar syntax as `jq` but works with YAML and JSON files
 - Fully supports multi document yaml files
+- Supports yaml [front matter](https://mikefarah.gitbook.io/yq/usage/front-matter) blocks (e.g. jekyll/assemble)
 - Colorized yaml output
 - [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/operators/traverse-read)
 - [Sort yaml by keys](https://mikefarah.gitbook.io/yq/operators/sort-keys)
@@ -199,24 +200,26 @@ Usage:
   yq [command]
 
 Available Commands:
-  eval             Apply expression to each document in each yaml file given in sequence
+  eval             Apply the expression to each document in each yaml file in sequence
   eval-all         Loads _all_ yaml documents of _all_ yaml files and runs expression once
   help             Help about any command
   shell-completion Generate completion script
 
 Flags:
-  -C, --colors        force print with colors
-  -e, --exit-status   set exit status if there are no matches or null or false is returned
-  -h, --help          help for yq
-  -I, --indent int    sets indent level for output (default 2)
-  -i, --inplace       update the yaml file inplace of first yaml file given.
-  -M, --no-colors     force print with no colors
-  -N, --no-doc        Don't print document separators (---)
-  -n, --null-input    Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.
-  -P, --prettyPrint    pretty print, shorthand for '... style = ""' 
-  -j, --tojson        output as json. Set indent to 0 to print json in one line.
-  -v, --verbose       verbose mode
-  -V, --version       Print version information and quit
+  -C, --colors                force print with colors
+  -e, --exit-status           set exit status if there are no matches or null or false is returned
+  -f, --front-matter string   (extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact
+  -h, --help                  help for yq
+  -I, --indent int            sets indent level for output (default 2)
+  -i, --inplace               update the yaml file inplace of first yaml file given.
+  -M, --no-colors             force print with no colors
+  -N, --no-doc                Don't print document separators (---)
+  -n, --null-input            Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.
+  -P, --prettyPrint           pretty print, shorthand for '... style = ""'
+  -j, --tojson                output as json. Set indent to 0 to print json in one line.
+      --unwrapScalar          unwrap scalar, print the value with no quotes, colors or comments (default true)
+  -v, --verbose               verbose mode
+  -V, --version               Print version information and quit
 
 Use "yq [command] --help" for more information about a command.
 ```

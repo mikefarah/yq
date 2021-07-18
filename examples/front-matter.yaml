@@ -1,5 +1,5 @@
 ---
-a: fruit
-b: banana
+a: apple
+b: bannana
 ---
-content: cool
+<h1>I like {{a}} and {{b}} </h1>
