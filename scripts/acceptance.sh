@@ -127,12 +127,13 @@ if [[ $? != 0 ]]; then
 fi
 
 # run expression against empty file
+rm -f temp.yaml
 touch temp.yaml
 expected="apple: tree"
 
 ./yq e '.apple = "tree"' temp.yaml -i
 X=$(cat temp.yaml)
-rm temp.yaml
+rm -f temp.yaml
 if [[ $X != $expected ]]; then
   echo "Write empty doc"
   echo "Expected $expected but was $X"
@@ -143,7 +144,7 @@ touch temp.yaml
 
 ./yq ea '.apple = "tree"' temp.yaml -i
 X=$(cat temp.yaml)
-rm temp.yaml
+rm -f temp.yaml
 if [[ $X != $expected ]]; then
   echo "Write all empty doc"
   echo "Expected $expected but was $X"
@@ -151,6 +152,7 @@ if [[ $X != $expected ]]; then
 fi
 
 echo "Test: handle empty files with just comments"
+rm -f temp.yaml
 echo "# comment" > temp.yaml
 read -r -d '' expected << EOM
 # comment
@@ -159,7 +161,7 @@ EOM
 
 ./yq e '.apple = "tree"' temp.yaml -i
 X=$(cat temp.yaml)
-rm temp.yaml
+rm -f temp.yaml
 if [[ $X != $expected ]]; then
   echo "Write empty doc"
   echo "Expected $expected but was $X"
@@ -170,9 +172,91 @@ echo "# comment" > temp.yaml
 
 ./yq ea '.apple = "tree"' temp.yaml -i
 X=$(cat temp.yaml)
-rm temp.yaml
+rm -f temp.yaml
 if [[ $X != $expected ]]; then
   echo "Write all empty doc"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+echo "Test: eval front matter process"
+
+cat >temp.yaml <<EOL
+---
+a: apple
+b: cat
+---
+not yaml
+c: at
+EOL
+
+read -r -d '' expected << EOM
+---
+a: apple
+b: dog
+---
+not yaml
+c: at
+EOM
+
+./yq e --front-matter="process" '.b = "dog"' temp.yaml -i
+X=$(cat temp.yaml)
+rm -f temp.yaml
+if [[ $X != $expected ]]; then
+  echo "eval fail"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+echo "Test: eval front matter extract"
+
+cat >temp.yaml <<EOL
+a: apple
+b: cat
+---
+not yaml
+c: at
+EOL
+
+read -r -d '' expected << EOM
+a: apple
+b: dog
+EOM
+
+./yq e --front-matter="extract" '.b = "dog"' temp.yaml -i
+X=$(cat temp.yaml)
+rm -f temp.yaml
+if [[ $X != $expected ]]; then
+  echo "eval fail"
+  echo "Expected $expected but was $X"
+  exit 1
+fi
+
+echo "Test: eval-all front matter process"
+
+cat >temp.yaml <<EOL
+---
+a: apple
+b: cat
+---
+not yaml
+c: at
+EOL
+
+read -r -d '' expected << EOM
+---
+a: apple
+b: dog
+---
+not yaml
+c: at
+EOM
+
+./yq ea --front-matter="process" '.b = "dog"' temp.yaml -i
+X=$(cat temp.yaml)
+rm -f temp.yaml
+if [[ $X != $expected ]]; then
+  echo "eval fail"
   echo "Expected $expected but was $X"
   exit 1
 fi

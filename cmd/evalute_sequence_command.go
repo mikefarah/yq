@@ -120,7 +120,6 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 			defer yqlib.SafelyCloseReader(reader)
 		}
 		defer frontMatterHandler.CleanUp()
-
 	}
 
 	switch len(args) {

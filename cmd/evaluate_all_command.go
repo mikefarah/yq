@@ -89,6 +89,25 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 
 	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
+	if frontMatter != "" {
+		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])
+		err = frontMatterHandler.Split()
+		if err != nil {
+			return err
+		}
+		args[firstFileIndex] = frontMatterHandler.GetYamlFrontMatterFilename()
+
+		if frontMatter == "process" {
+			reader, err := os.Open(frontMatterHandler.GetContentFilename()) // #nosec
+			if err != nil {
+				return err
+			}
+			printer.SetAppendix(reader)
+			defer yqlib.SafelyCloseReader(reader)
+		}
+		defer frontMatterHandler.CleanUp()
+	}
+
 	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
 	switch len(args) {
 	case 0:
