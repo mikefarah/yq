@@ -38,3 +38,4 @@ parts/
 prime/
 .snapcraft/
 yq*.snap
+test.yml
