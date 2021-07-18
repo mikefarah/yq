@@ -12,7 +12,7 @@ testEmptyEval() {
 }
 
 testEmptyEvalPipe() {
-  X=$(cat test.yml | ./yq e -)
+  X=$(./yq e - < test.yml)
   assertEquals 0 $?
 }
 

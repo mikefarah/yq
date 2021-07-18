@@ -8,7 +8,7 @@ EOL
 }
 
 testLeadingSeperatorPipeIntoEvalSeq() {
-  X=$(cat test.yml | ./yq e -)
+  X=$(./yq e - < test.yml)
   expected=$(cat test.yml)
   assertEquals "$expected" "$X"
 }
@@ -21,7 +21,7 @@ testLeadingSeperatorEvalSeq() {
 }
 
 testLeadingSeperatorPipeIntoEvalAll() {
-  X=$(cat test.yml | ./yq ea -)
+  X=$(./yq ea - < test.yml)
   expected=$(cat test.yml)
   assertEquals "$expected" "$X"
 }
