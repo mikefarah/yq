@@ -17,34 +17,18 @@ a: apple
 a: coconut
 `
 
-var leadingSeperatorSample = `---
-a: good doc
-`
-
 func nodeToList(candidate *CandidateNode) *list.List {
 	elMap := list.New()
 	elMap.PushBack(candidate)
 	return elMap
 }
 
-func TestPrinterWithLeadingSeperator(t *testing.T) {
-	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
-	printer := NewPrinter(writer, false, true, false, 2, true)
+func TestPrinterWithLeadingContentEvalStyle(t *testing.T) {
+	test.AssertResult(t, "todo", "")
+}
 
-	inputs, err := readDocuments(strings.NewReader(leadingSeperatorSample), "sample.yml", 0)
-	if err != nil {
-		panic(err)
-	}
-	printer.SetPrintLeadingSeperator(true)
-
-	err = printer.PrintResults(inputs)
-	if err != nil {
-		panic(err)
-	}
-
-	writer.Flush()
-	test.AssertResult(t, leadingSeperatorSample, output.String())
+func TestPrinterWithLeadingContentEvalAllStyle(t *testing.T) {
+	test.AssertResult(t, "todo", "")
 }
 
 func TestPrinterMultipleDocsInSequence(t *testing.T) {
@@ -66,17 +50,17 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	el = el.Next()
 	sample3 := nodeToList(el.Value.(*CandidateNode))
 
-	err = printer.PrintResults(sample1)
+	err = printer.PrintResults(sample1, "")
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2)
+	err = printer.PrintResults(sample2, "")
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3)
+	err = printer.PrintResults(sample3, "")
 	if err != nil {
 		panic(err)
 	}
@@ -113,17 +97,17 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	elNode.FileIndex = 2
 	sample3 := nodeToList(elNode)
 
-	err = printer.PrintResults(sample1)
+	err = printer.PrintResults(sample1, "")
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2)
+	err = printer.PrintResults(sample2, "")
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3)
+	err = printer.PrintResults(sample3, "")
 	if err != nil {
 		panic(err)
 	}
@@ -142,7 +126,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs)
+	err = printer.PrintResults(inputs, "")
 	if err != nil {
 		panic(err)
 	}
@@ -163,7 +147,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs)
+	err = printer.PrintResults(inputs, "")
 	if err != nil {
 		panic(err)
 	}

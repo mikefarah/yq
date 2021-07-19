@@ -101,7 +101,9 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent s
 	defer p.safelyFlush(bufferedWriter)
 
 	if matchingNodes.Len() == 0 {
-		p.writeString(bufferedWriter, leadingContent)
+		if err := p.writeString(bufferedWriter, leadingContent); err != nil {
+			return err
+		}
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
@@ -127,7 +129,9 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent s
 
 		if !printedLead {
 			// we want to print this after the seperator logic
-			p.writeString(bufferedWriter, leadingContent)
+			if err := p.writeString(bufferedWriter, leadingContent); err != nil {
+				return err
+			}
 			printedLead = true
 		}
 

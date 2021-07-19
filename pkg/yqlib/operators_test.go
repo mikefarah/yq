@@ -114,7 +114,7 @@ func formatYaml(yaml string, filename string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer)
+	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, "")
 	if err != nil {
 		panic(err)
 	}
