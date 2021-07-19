@@ -40,4 +40,33 @@ testBasicExitStatus() {
   assertEquals 1 "$?"
 }
 
+testBasicExtractFieldWithSeperator() {
+    cat >test.yml <<EOL
+---
+name: chart-name
+version: 1.2.3
+EOL
+  X=$(./yq e '.name' test.yml)
+  assertEquals "chart-name" "$X"
+}
+
+testBasicExtractMultipleFieldWithSeperator() {
+    cat >test.yml <<EOL
+---
+name: chart-name
+version: 1.2.3
+---
+name: thing
+version: 1.2.3
+EOL
+
+read -r -d '' expected << EOM
+chart-name
+---
+thing
+EOM
+  X=$(./yq e '.name' test.yml)
+  assertEquals "$expected" "$X"
+}
+
 source ./scripts/shunit2

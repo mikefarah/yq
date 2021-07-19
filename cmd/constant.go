@@ -1,5 +1,6 @@
 package cmd
 
+var leadingContentPreProcessing = true
 var unwrapScalar = true
 
 var writeInplace = false

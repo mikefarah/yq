@@ -276,6 +276,31 @@ a: coconut
 	test.AssertResult(t, expected, output.String())
 }
 
+func TestPrinterScalarWithLeadingCont(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewPrinter(writer, false, true, false, 2, true)
+
+	node, err := NewExpressionParser().ParseExpression(".a")
+	if err != nil {
+		panic(err)
+	}
+	streamEvaluator := NewStreamEvaluator()
+	_, err = streamEvaluator.Evaluate("sample", strings.NewReader(multiDocSample), node, printer, "# blah\n")
+	if err != nil {
+		panic(err)
+	}
+
+	writer.Flush()
+	expected := `banana
+---
+apple
+---
+coconut
+`
+	test.AssertResult(t, expected, output.String())
+}
+
 func TestPrinterMultipleDocsJson(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
@@ -288,7 +313,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs, "")
+	err = printer.PrintResults(inputs, "# ignore this")
 	if err != nil {
 		panic(err)
 	}

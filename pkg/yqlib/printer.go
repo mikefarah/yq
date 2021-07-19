@@ -128,9 +128,14 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent s
 		}
 
 		if !printedLead {
-			// we want to print this after the seperator logic
-			if err := p.writeString(bufferedWriter, leadingContent); err != nil {
-				return err
+			// dont print leading comments and seperator if:
+			// - we are print json; or
+			// - we are printing an unwrapped scalar node
+			if !p.outputToJSON && (mappedDoc.Node.Kind != yaml.ScalarNode || !p.unwrapScalar) {
+				// we want to print this after the seperator logic
+				if err := p.writeString(bufferedWriter, leadingContent); err != nil {
+					return err
+				}
 			}
 			printedLead = true
 		}

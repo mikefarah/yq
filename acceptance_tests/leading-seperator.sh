@@ -229,6 +229,116 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testLeadingSeperatorMultiDocEvalCommentsStripComments() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+---
+# this is another doc
+# great
+b: sane
+EOL
+
+  # it will be hard to remove that top level separator
+  read -r -d '' expected << EOM
+a: test
+---
+b: sane
+EOM
+
+
+  X=$(./yq e --header-preprocess=false '... comments=""'  test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalCommentsLeadingSepNoDocFlag() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+---
+# this is another doc
+# great
+b: sane
+EOL
+
+  # it will be hard to remove that top level separator
+  read -r -d '' expected << EOM
+---
+# hi peeps
+# cool
+a: test
+# this is another doc
+# great
+b: sane
+EOM
+
+
+  X=$(./yq e '.' --no-doc test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalJsonFlag() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+EOL
+
+cat >test2.yml <<EOL
+---
+# this is another doc
+# great
+b: sane
+EOL
+
+  read -r -d '' expected << EOM
+{
+  "a": "test"
+}
+{
+  "b": "sane"
+}
+EOM
+
+
+  X=$(./yq e '.' -j test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalAllJsonFlag() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+EOL
+
+cat >test2.yml <<EOL
+---
+# this is another doc
+# great
+b: sane
+EOL
+
+  read -r -d '' expected << EOM
+{
+  "a": "test"
+}
+{
+  "b": "sane"
+}
+EOM
+
+
+  X=$(./yq ea '.' -j test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
 testLeadingSeperatorMultiDocEvalAll() {
   read -r -d '' expected << EOM
 ---

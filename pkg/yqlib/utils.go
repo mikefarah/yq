@@ -11,7 +11,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func readStream(filename string) (io.Reader, string, error) {
+func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, string, error) {
 	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
 	var reader *bufio.Reader
 	if filename == "-" {
@@ -26,6 +26,10 @@ func readStream(filename string) (io.Reader, string, error) {
 		reader = bufio.NewReader(file)
 	}
 	var sb strings.Builder
+
+	if !leadingContentPreProcessing {
+		return reader, "", nil
+	}
 
 	for {
 		peekBytes, err := reader.Peek(3)
