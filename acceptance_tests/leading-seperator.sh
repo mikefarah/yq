@@ -13,6 +13,8 @@ testLeadingSeperatorWithDoc() {
 # cool
 ---
 a: test
+---
+b: cool
 EOL
 
   read -r -d '' expected << EOM
@@ -20,9 +22,11 @@ EOL
 # cool
 ---
 a: thing
+---
+b: cool
 EOM
 
-  X=$(./yq e '.a = "thing"' - < test.yml)
+  X=$(./yq e '(select(di == 0) | .a) = "thing"' - < test.yml)
   assertEquals "$expected" "$X"
 }
 
@@ -80,6 +84,20 @@ EOL
   assertEquals "$expected" "$X"
 }
 
+testLeadingSeperatorMultiDocInOneFileEvalAll() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+---
+b: things
+EOL
+  expected=$(cat test.yml)
+  X=$(./yq ea '.' test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testLeadingSeperatorMultiDocEvalComments() {
   cat >test.yml <<EOL
 # hi peeps
@@ -133,6 +151,46 @@ a: test
 # great
 ---
 b: sane
+EOM
+
+
+  X=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiMultiDocEvalCommentsTrailingSep() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+---
+a: test
+---
+a1: test2
+EOL
+
+cat >test2.yml <<EOL
+# this is another doc
+# great
+---
+b: sane
+---
+b2: cool
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+---
+a: test
+---
+a1: test2
+---
+# this is another doc
+# great
+---
+b: sane
+---
+b2: cool
 EOM
 
 
