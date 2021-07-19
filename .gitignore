@@ -39,3 +39,4 @@ prime/
 .snapcraft/
 yq*.snap
 test.yml
+test2.yml

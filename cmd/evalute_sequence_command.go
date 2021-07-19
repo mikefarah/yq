@@ -132,7 +132,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		}
 	case 1:
 		if nullInput {
-			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer)
+			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer, "")
 		} else {
 			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer)
 		}

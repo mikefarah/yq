@@ -7,6 +7,25 @@ a: test
 EOL
 }
 
+testLeadingSeperatorWithDoc() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+---
+a: test
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+---
+a: thing
+EOM
+
+  X=$(./yq e '.a = "thing"' - < test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testLeadingSeperatorPipeIntoEvalSeq() {
   X=$(./yq e - < test.yml)
   expected=$(cat test.yml)
@@ -33,7 +52,7 @@ testLeadingSeperatorEvalAll() {
   assertEquals "$expected" "$X"
 }
 
-testLeadingSeperatorMultiDocEval() {
+testLeadingSeperatorMultiDocEvalSimple() {
   read -r -d '' expected << EOM
 ---
 a: test
@@ -44,6 +63,111 @@ EOM
 
 
   X=$(./yq e '.' test.yml examples/order.yaml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocInOneFile() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+---
+b: things
+EOL
+  expected=$(cat test.yml)
+  X=$(./yq e '.' test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalComments() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+a: test
+EOL
+
+cat >test2.yml <<EOL
+# this is another doc
+# great
+b: sane
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+a: test
+---
+# this is another doc
+# great
+b: sane
+EOM
+
+
+  X=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalCommentsTrailingSep() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+---
+a: test
+EOL
+
+cat >test2.yml <<EOL
+# this is another doc
+# great
+---
+b: sane
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+---
+a: test
+---
+# this is another doc
+# great
+---
+b: sane
+EOM
+
+
+  X=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorMultiDocEvalCommentsLeadingSep() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+EOL
+
+cat >test2.yml <<EOL
+---
+# this is another doc
+# great
+b: sane
+EOL
+
+  read -r -d '' expected << EOM
+---
+# hi peeps
+# cool
+a: test
+---
+# this is another doc
+# great
+b: sane
+EOM
+
+
+  X=$(./yq e '.' test.yml test2.yml)
   assertEquals "$expected" "$X"
 }
 

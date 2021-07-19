@@ -4,17 +4,14 @@ import (
 	"bufio"
 	"container/list"
 	"io"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type Printer interface {
-	PrintResults(matchingNodes *list.List) error
+	PrintResults(matchingNodes *list.List, leadingContent string) error
 	PrintedAnything() bool
-	SetPrintLeadingSeperator(bool)
-
-	SetPreamble(reader io.Reader)
-
 	//e.g. when given a front-matter doc, like jekyll
 	SetAppendix(reader io.Reader)
 }
@@ -45,13 +42,6 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		printDocSeparators: !outputToJSON && printDocSeparators,
 		firstTimePrinting:  true,
 		treeNavigator:      NewDataTreeNavigator(),
-	}
-}
-
-func (p *resultsPrinter) SetPrintLeadingSeperator(printLeadingSeperator bool) {
-	if printLeadingSeperator {
-		p.firstTimePrinting = false
-		p.previousFileIndex = -1
 	}
 }
 
@@ -95,7 +85,7 @@ func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
 	}
 }
 
-func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
+func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent string) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: explodeOpType}
@@ -110,15 +100,8 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	bufferedWriter := bufio.NewWriter(p.writer)
 	defer p.safelyFlush(bufferedWriter)
 
-	if p.preambleReader != nil && !p.outputToJSON {
-		log.Debug("Piping preamble reader...")
-		_, err := io.Copy(bufferedWriter, p.preambleReader)
-		if err != nil {
-			return err
-		}
-	}
-
 	if matchingNodes.Len() == 0 {
+		p.writeString(bufferedWriter, leadingContent)
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
@@ -129,14 +112,23 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		p.firstTimePrinting = false
 	}
 
+	printedLead := false
+
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
-		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators {
+		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators &&
+			(printedLead || !strings.HasPrefix(leadingContent, "---")) {
 			log.Debug("-- writing doc sep")
 			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
 				return err
 			}
+		}
+
+		if !printedLead {
+			// we want to print this after the seperator logic
+			p.writeString(bufferedWriter, leadingContent)
+			printedLead = true
 		}
 
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {

@@ -12,9 +12,9 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) (uint, error)
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error)
 	EvaluateFiles(expression string, filenames []string, printer Printer) error
-	EvaluateNew(expression string, printer Printer) error
+	EvaluateNew(expression string, printer Printer, leadingContent string) error
 }
 
 type streamEvaluator struct {
@@ -27,7 +27,7 @@ func NewStreamEvaluator() StreamEvaluator {
 	return &streamEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewExpressionParser()}
 }
 
-func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {
+func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadingContent string) error {
 	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	if errorParsing != nil {
 		return errorParsing
 	}
-	return printer.PrintResults(result.MatchingNodes)
+	return printer.PrintResults(result.MatchingNodes, leadingContent)
 }
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
@@ -55,15 +55,19 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 		return err
 	}
 
+	var firstFileLeadingContent string
+
 	for index, filename := range filenames {
-		reader, leadingSeperator, err := readStream(filename)
-		if index == 0 && leadingSeperator {
-			printer.SetPrintLeadingSeperator(leadingSeperator)
+		reader, leadingContent, err := readStream(filename)
+
+		if index == 0 {
+			firstFileLeadingContent = leadingContent
 		}
+
 		if err != nil {
 			return err
 		}
-		processedDocs, err := s.Evaluate(filename, reader, node, printer)
+		processedDocs, err := s.Evaluate(filename, reader, node, printer, leadingContent)
 		if err != nil {
 			return err
 		}
@@ -76,26 +80,13 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	if totalProcessDocs == 0 {
-
-		if len(filenames) > 0 {
-			reader, _, err := readStream(filenames[0])
-			if err != nil {
-				return err
-			}
-			switch reader := reader.(type) {
-			case *os.File:
-				defer safelyCloseFile(reader)
-			}
-			printer.SetPreamble(reader)
-		}
-
-		return s.EvaluateNew(expression, printer)
+		return s.EvaluateNew(expression, printer, firstFileLeadingContent)
 	}
 
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer) (uint, error) {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error) {
 
 	var currentIndex uint
 	decoder := yaml.NewDecoder(reader)
@@ -122,7 +113,13 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		if errorParsing != nil {
 			return currentIndex, errorParsing
 		}
-		err := printer.PrintResults(result.MatchingNodes)
+		var err error
+		if currentIndex == 0 {
+			err = printer.PrintResults(result.MatchingNodes, leadingContent)
+		} else {
+			err = printer.PrintResults(result.MatchingNodes, "")
+		}
+
 		if err != nil {
 			return currentIndex, err
 		}

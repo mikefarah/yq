@@ -5,42 +5,49 @@ import (
 	"container/list"
 	"io"
 	"os"
+	"regexp"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-func readStream(filename string) (io.Reader, bool, error) {
-
+func readStream(filename string) (io.Reader, string, error) {
+	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+	var reader *bufio.Reader
 	if filename == "-" {
-		reader := bufio.NewReader(os.Stdin)
-
-		seperatorBytes, err := reader.Peek(3)
-
-		if err == io.EOF {
-			// EOF are handled else where..
-			return reader, false, nil
-		}
-
-		return reader, string(seperatorBytes) == "---", err
+		reader = bufio.NewReader(os.Stdin)
 	} else {
 		// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
 		// and ensuring that it's not possible to give a path to a file outside thar directory.
-		reader, err := os.Open(filename) // #nosec
+		file, err := os.Open(filename) // #nosec
 		if err != nil {
-			return nil, false, err
+			return nil, "", err
 		}
-		seperatorBytes := make([]byte, 3)
-		_, err = reader.Read(seperatorBytes)
+		reader = bufio.NewReader(file)
+	}
+	var sb strings.Builder
+
+	for {
+		peekBytes, err := reader.Peek(3)
+
 		if err == io.EOF {
 			// EOF are handled else where..
-			return reader, false, nil
+			return reader, sb.String(), nil
 		} else if err != nil {
-			return nil, false, err
+			return reader, sb.String(), err
+		} else if string(peekBytes) == "---" || commentLineRegEx.MatchString(string(peekBytes)) {
+			line, err := reader.ReadString('\n')
+			sb.WriteString(line)
+			if err == io.EOF {
+				return reader, sb.String(), nil
+			} else if err != nil {
+				return reader, sb.String(), err
+			}
+		} else {
+			return reader, sb.String(), nil
 		}
-		_, err = reader.Seek(0, 0)
-
-		return reader, string(seperatorBytes) == "---", err
 	}
+
 }
 
 func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List, error) {

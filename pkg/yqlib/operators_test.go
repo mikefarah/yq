@@ -256,7 +256,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 		t.Error(err, s.expression)
 	}
 
-	err = printer.PrintResults(context.MatchingNodes)
+	err = printer.PrintResults(context.MatchingNodes, "")
 	if err != nil {
 		t.Error(err, s.expression)
 	}
