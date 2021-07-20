@@ -36,6 +36,33 @@ testLeadingSeperatorPipeIntoEvalSeq() {
   assertEquals "$expected" "$X"
 }
 
+testLeadingSeperatorExtractField() {
+  X=$(./yq e '.a' - < test.yml)
+  assertEquals "test" "$X"
+}
+
+testLeadingSeperatorExtractFieldWithCommentsAfterSep() {
+  cat >test.yml <<EOL
+---
+# hi peeps
+# cool
+a: test
+EOL
+  X=$(./yq e '.a' test.yml)
+  assertEquals "test" "$X"
+}
+
+testLeadingSeperatorExtractFieldWithCommentsBeforeSep() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+---
+a: test
+EOL
+  X=$(./yq e '.a' test.yml)
+  assertEquals "test" "$X"
+}
+
 
 testLeadingSeperatorEvalSeq() {
   X=$(./yq e test.yml)
