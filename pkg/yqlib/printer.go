@@ -147,6 +147,12 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 				}
 
 				if errReading == io.EOF {
+					if readline != "" {
+						// the last comment we read didn't have a new line, put one in
+						if err := p.writeString(bufferedWriter, "\n"); err != nil {
+							return err
+						}
+					}
 					break
 				}
 			}

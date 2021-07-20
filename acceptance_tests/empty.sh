@@ -8,7 +8,27 @@ EOL
 
 testEmptyEval() {
   X=$(./yq e test.yml)
+  expected=$(cat test.yml)
   assertEquals 0 $?
+  assertEquals "$expected" "$X"
+}
+
+testEmptyEvalNoNewLine() {
+  echo -n "#comment" >test.yml
+  X=$(./yq e test.yml)
+  expected=$(cat test.yml)
+  assertEquals 0 $?
+  assertEquals "$expected" "$X"
+}
+
+testEmptyEvalNoNewLineWithExpression() {
+  echo -n "# comment" >test.yml
+  X=$(./yq e '.apple = "tree"' test.yml)
+  read -r -d '' expected << EOM
+# comment
+apple: tree
+EOM
+  assertEquals "$expected" "$X"
 }
 
 testEmptyEvalPipe() {
