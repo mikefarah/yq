@@ -10,7 +10,7 @@ import (
 )
 
 type Printer interface {
-	PrintResults(matchingNodes *list.List, leadingContent string) error
+	PrintResults(matchingNodes *list.List) error
 	PrintedAnything() bool
 	//e.g. when given a front-matter doc, like jekyll
 	SetAppendix(reader io.Reader)
@@ -85,7 +85,7 @@ func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
 	}
 }
 
-func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent string) error {
+func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
 	if p.outputToJSON {
 		explodeOp := Operation{OperationType: explodeOpType}
@@ -101,9 +101,6 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent s
 	defer p.safelyFlush(bufferedWriter)
 
 	if matchingNodes.Len() == 0 {
-		if err := p.writeString(bufferedWriter, leadingContent); err != nil {
-			return err
-		}
 		log.Debug("no matching results, nothing to print")
 		return nil
 	}
@@ -114,32 +111,52 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List, leadingContent s
 		p.firstTimePrinting = false
 	}
 
-	printedLead := false
-
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
-		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators &&
-			(printedLead || !strings.HasPrefix(leadingContent, "---")) {
+
+		commentStartsWithSeparator := strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$\n$yqDocSeperator$")
+
+		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators && !commentStartsWithSeparator {
 			log.Debug("-- writing doc sep")
 			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
 				return err
 			}
 		}
 
-		if !printedLead {
-			// dont print leading comments and seperator if:
-			// - we are print json; or
-			// - we are printing an unwrapped scalar node
-			if !p.outputToJSON && (mappedDoc.Node.Kind != yaml.ScalarNode || !p.unwrapScalar) {
-				// we want to print this after the seperator logic
-				if err := p.writeString(bufferedWriter, leadingContent); err != nil {
-					return err
+		if strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$") {
+			log.Debug("headcommentwas %v", mappedDoc.Node.HeadComment)
+			log.Debug("finished headcomment")
+			reader := bufio.NewReader(strings.NewReader(mappedDoc.Node.HeadComment))
+			mappedDoc.Node.HeadComment = ""
+
+			for {
+
+				readline, errReading := reader.ReadString('\n')
+				if errReading != nil && errReading != io.EOF {
+					return errReading
+				}
+				if strings.Contains(readline, "$yqLeadingContent$") {
+					// skip this
+
+				} else if strings.Contains(readline, "$yqDocSeperator$") {
+					if p.printDocSeparators {
+						if err := p.writeString(bufferedWriter, "---\n"); err != nil {
+							return err
+						}
+					}
+				} else if !p.outputToJSON {
+					if err := p.writeString(bufferedWriter, readline); err != nil {
+						return err
+					}
+				}
+
+				if errReading == io.EOF {
+					break
 				}
 			}
-			printedLead = true
-		}
 
+		}
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {
 			return err
 		}

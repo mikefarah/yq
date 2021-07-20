@@ -52,17 +52,17 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	el = el.Next()
 	sample3 := nodeToList(el.Value.(*CandidateNode))
 
-	err = printer.PrintResults(sample1, "")
+	err = printer.PrintResults(sample1)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2, "")
+	err = printer.PrintResults(sample2)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3, "")
+	err = printer.PrintResults(sample3)
 	if err != nil {
 		panic(err)
 	}
@@ -82,25 +82,28 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	}
 
 	el := inputs.Front()
+	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
 	sample1 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
+	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
 	sample2 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
+	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
 	sample3 := nodeToList(el.Value.(*CandidateNode))
 
-	err = printer.PrintResults(sample1, "# go cats\n---\n")
+	err = printer.PrintResults(sample1)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2, "---\n")
+	err = printer.PrintResults(sample2)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3, "---\n# cool\n")
+	err = printer.PrintResults(sample3)
 	if err != nil {
 		panic(err)
 	}
@@ -138,17 +141,17 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	elNode.FileIndex = 2
 	sample3 := nodeToList(elNode)
 
-	err = printer.PrintResults(sample1, "")
+	err = printer.PrintResults(sample1)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2, "")
+	err = printer.PrintResults(sample2)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3, "")
+	err = printer.PrintResults(sample3)
 	if err != nil {
 		panic(err)
 	}
@@ -171,31 +174,34 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	elNode := el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 0
+	elNode.Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
 	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 1
+	elNode.Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
 	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 2
+	elNode.Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
 	sample3 := nodeToList(elNode)
 
-	err = printer.PrintResults(sample1, "# go cats\n---\n")
+	err = printer.PrintResults(sample1)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample2, "---\n")
+	err = printer.PrintResults(sample2)
 	if err != nil {
 		panic(err)
 	}
 
-	err = printer.PrintResults(sample3, "---\n# cool\n")
+	err = printer.PrintResults(sample3)
 	if err != nil {
 		panic(err)
 	}
@@ -214,7 +220,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs, "")
+	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
 	}
@@ -233,7 +239,9 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs, "# go cats\n---\n")
+	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
+
+	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
 	}
@@ -259,8 +267,8 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-
-	err = printer.PrintResults(inputs, "---\n")
+	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
+	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
 	}
@@ -313,7 +321,9 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 		panic(err)
 	}
 
-	err = printer.PrintResults(inputs, "# ignore this")
+	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# ignore this\n"
+
+	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
 	}

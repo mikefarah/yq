@@ -73,15 +73,17 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 		candidateNode := &CandidateNode{
 			Document:  0,
 			Filename:  "",
-			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
+			Node:      &yaml.Node{Kind: yaml.DocumentNode, HeadComment: firstFileLeadingContent, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
 			FileIndex: 0,
 		}
 		allDocuments.PushBack(candidateNode)
+	} else {
+		allDocuments.Front().Value.(*CandidateNode).Node.HeadComment = firstFileLeadingContent
 	}
 
 	matches, err := e.EvaluateCandidateNodes(expression, allDocuments)
 	if err != nil {
 		return err
 	}
-	return printer.PrintResults(matches, firstFileLeadingContent)
+	return printer.PrintResults(matches)
 }

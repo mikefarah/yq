@@ -12,7 +12,6 @@ import (
 )
 
 func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, string, error) {
-	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
 	var reader *bufio.Reader
 	if filename == "-" {
 		reader = bufio.NewReader(os.Stdin)
@@ -25,21 +24,33 @@ func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, s
 		}
 		reader = bufio.NewReader(file)
 	}
-	var sb strings.Builder
 
 	if !leadingContentPreProcessing {
 		return reader, "", nil
 	}
+	return processReadStream(reader)
+}
 
+func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
+	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+	var sb strings.Builder
+	sb.WriteString("$yqLeadingContent$\n")
 	for {
 		peekBytes, err := reader.Peek(3)
-
 		if err == io.EOF {
 			// EOF are handled else where..
 			return reader, sb.String(), nil
 		} else if err != nil {
 			return reader, sb.String(), err
-		} else if string(peekBytes) == "---" || commentLineRegEx.MatchString(string(peekBytes)) {
+		} else if string(peekBytes) == "---" {
+			_, err := reader.ReadString('\n')
+			sb.WriteString("$yqDocSeperator$\n")
+			if err == io.EOF {
+				return reader, sb.String(), nil
+			} else if err != nil {
+				return reader, sb.String(), err
+			}
+		} else if commentLineRegEx.MatchString(string(peekBytes)) {
 			line, err := reader.ReadString('\n')
 			sb.WriteString(line)
 			if err == io.EOF {
@@ -51,7 +62,6 @@ func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, s
 			return reader, sb.String(), nil
 		}
 	}
-
 }
 
 func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List, error) {

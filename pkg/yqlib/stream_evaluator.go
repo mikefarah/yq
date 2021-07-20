@@ -35,7 +35,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	candidateNode := &CandidateNode{
 		Document:  0,
 		Filename:  "",
-		Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
+		Node:      &yaml.Node{Kind: yaml.DocumentNode, HeadComment: leadingContent, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
 		FileIndex: 0,
 	}
 	inputList := list.New()
@@ -45,7 +45,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	if errorParsing != nil {
 		return errorParsing
 	}
-	return printer.PrintResults(result.MatchingNodes, leadingContent)
+	return printer.PrintResults(result.MatchingNodes)
 }
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error {
@@ -100,6 +100,9 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, errorReading
 		}
+		if currentIndex == 0 {
+			dataBucket.HeadComment = leadingContent
+		}
 		candidateNode := &CandidateNode{
 			Document:  currentIndex,
 			Filename:  filename,
@@ -113,12 +116,7 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		if errorParsing != nil {
 			return currentIndex, errorParsing
 		}
-		var err error
-		if currentIndex == 0 {
-			err = printer.PrintResults(result.MatchingNodes, leadingContent)
-		} else {
-			err = printer.PrintResults(result.MatchingNodes, "")
-		}
+		err := printer.PrintResults(result.MatchingNodes)
 
 		if err != nil {
 			return currentIndex, err

@@ -248,8 +248,7 @@ a: test
 b: sane
 EOM
 
-
-  X=$(./yq e --header-preprocess=false '... comments=""'  test.yml)
+  X=$(./yq e '... comments=""'  test.yml)
   assertEquals "$expected" "$X"
 }
 
@@ -265,9 +264,7 @@ a: test
 b: sane
 EOL
 
-  # it will be hard to remove that top level separator
   read -r -d '' expected << EOM
----
 # hi peeps
 # cool
 a: test
