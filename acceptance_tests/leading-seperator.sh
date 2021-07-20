@@ -64,6 +64,46 @@ EOL
 }
 
 
+testLeadingSeperatorExtractFieldMultiDoc() {
+  cat >test.yml <<EOL
+---
+a: test
+---
+a: test2
+EOL
+
+  read -r -d '' expected << EOM
+test
+---
+test2
+EOM
+  X=$(./yq e '.a' test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorExtractFieldMultiDocWithComments() {
+  cat >test.yml <<EOL
+# here
+---
+# there
+a: test
+# whereever
+---
+# you are
+a: test2
+# woop
+EOL
+
+  read -r -d '' expected << EOM
+test
+---
+test2
+EOM
+  X=$(./yq e '.a' test.yml)
+  assertEquals "$expected" "$X"
+}
+
+
 testLeadingSeperatorEvalSeq() {
   X=$(./yq e test.yml)
   expected=$(cat test.yml)
