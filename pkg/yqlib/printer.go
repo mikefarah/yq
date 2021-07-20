@@ -28,7 +28,6 @@ type resultsPrinter struct {
 	previousFileIndex  int
 	printedMatches     bool
 	treeNavigator      DataTreeNavigator
-	preambleReader     io.Reader
 	appendixReader     io.Reader
 }
 
@@ -43,10 +42,6 @@ func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEn
 		firstTimePrinting:  true,
 		treeNavigator:      NewDataTreeNavigator(),
 	}
-}
-
-func (p *resultsPrinter) SetPreamble(reader io.Reader) {
-	p.preambleReader = reader
 }
 
 func (p *resultsPrinter) SetAppendix(reader io.Reader) {

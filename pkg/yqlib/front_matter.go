@@ -9,47 +9,48 @@ import (
 type frontMatterHandler interface {
 	Split() error
 	GetYamlFrontMatterFilename() string
-	GetContentFilename() string
+	GetContentReader() io.Reader
 	CleanUp()
 }
 
 type frontMatterHandlerImpl struct {
 	originalFilename        string
 	yamlFrontMatterFilename string
-	contentFilename         string
+	contentReader           io.Reader
 }
 
 func NewFrontMatterHandler(originalFilename string) frontMatterHandler {
-	return &frontMatterHandlerImpl{originalFilename, "", ""}
+	return &frontMatterHandlerImpl{originalFilename, "", nil}
 }
 
 func (f *frontMatterHandlerImpl) GetYamlFrontMatterFilename() string {
 	return f.yamlFrontMatterFilename
 }
 
-func (f *frontMatterHandlerImpl) GetContentFilename() string {
-	return f.contentFilename
+func (f *frontMatterHandlerImpl) GetContentReader() io.Reader {
+	return f.contentReader
 }
 
 func (f *frontMatterHandlerImpl) CleanUp() {
 	tryRemoveFile(f.yamlFrontMatterFilename)
-	tryRemoveFile(f.contentFilename)
 }
 
 // Splits the given file by yaml front matter
 // yaml content will be saved to first temporary file
 // remaining content will be saved to second temporary file
 func (f *frontMatterHandlerImpl) Split() error {
-	var reader io.Reader
+	var reader *bufio.Reader
 	var err error
 	if f.originalFilename == "-" {
 		reader = bufio.NewReader(os.Stdin)
 	} else {
-		reader, err = os.Open(f.originalFilename) // #nosec
+		file, err := os.Open(f.originalFilename) // #nosec
 		if err != nil {
 			return err
 		}
+		reader = bufio.NewReader(file)
 	}
+	f.contentReader = reader
 
 	yamlTempFile, err := createTempFile()
 	if err != nil {
@@ -58,39 +59,35 @@ func (f *frontMatterHandlerImpl) Split() error {
 	f.yamlFrontMatterFilename = yamlTempFile.Name()
 	log.Debug("yamlTempFile: %v", yamlTempFile.Name())
 
-	contentTempFile, err := createTempFile()
-	if err != nil {
-		return err
-	}
-	f.contentFilename = contentTempFile.Name()
-	log.Debug("contentTempFile: %v", contentTempFile.Name())
-
-	scanner := bufio.NewScanner(reader)
-
 	lineCount := 0
-	yamlContentBlock := true
 
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		if lineCount > 0 && line == "---" {
-			//we've finished reading the yaml content
-			yamlContentBlock = false
-		}
-		if yamlContentBlock {
-			_, err = yamlTempFile.Write([]byte(line + "\n"))
-		} else {
-			_, err = contentTempFile.Write([]byte(line + "\n"))
-		}
-		if err != nil {
+	for {
+		peekBytes, err := reader.Peek(3)
+		if err == io.EOF {
+			// we've finished reading the yaml content..I guess
+			break
+		} else if err != nil {
 			return err
 		}
+		if lineCount > 0 && string(peekBytes) == "---" {
+			// we've finished reading the yaml content..
+			break
+		}
+		line, errReading := reader.ReadString('\n')
 		lineCount = lineCount + 1
+		if errReading != nil && errReading != io.EOF {
+			return errReading
+		}
+
+		_, errWriting := yamlTempFile.Write([]byte(line))
+
+		if errWriting != nil {
+			return errWriting
+		}
 	}
 
 	safelyCloseFile(yamlTempFile)
-	safelyCloseFile(contentTempFile)
 
-	return scanner.Err()
+	return nil
 
 }

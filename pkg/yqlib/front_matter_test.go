@@ -60,8 +60,11 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	content := readFile(fmHandler.GetContentFilename())
-	test.AssertResult(t, expectedContent, content)
+	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	if err != nil {
+		panic(err)
+	}
+	test.AssertResult(t, expectedContent, string(contentBytes))
 
 	tryRemoveFile(file)
 	fmHandler.CleanUp()
@@ -94,8 +97,11 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	content := readFile(fmHandler.GetContentFilename())
-	test.AssertResult(t, expectedContent, content)
+	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	if err != nil {
+		panic(err)
+	}
+	test.AssertResult(t, expectedContent, string(contentBytes))
 
 	tryRemoveFile(file)
 	fmHandler.CleanUp()
@@ -125,8 +131,11 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	content := readFile(fmHandler.GetContentFilename())
-	test.AssertResult(t, expectedContent, content)
+	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	if err != nil {
+		panic(err)
+	}
+	test.AssertResult(t, expectedContent, string(contentBytes))
 
 	tryRemoveFile(file)
 	fmHandler.CleanUp()

@@ -98,10 +98,7 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		args[firstFileIndex] = frontMatterHandler.GetYamlFrontMatterFilename()
 
 		if frontMatter == "process" {
-			reader, err := os.Open(frontMatterHandler.GetContentFilename()) // #nosec
-			if err != nil {
-				return err
-			}
+			reader := frontMatterHandler.GetContentReader()
 			printer.SetAppendix(reader)
 			defer yqlib.SafelyCloseReader(reader)
 		}
