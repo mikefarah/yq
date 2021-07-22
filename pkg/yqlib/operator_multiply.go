@@ -31,7 +31,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
 			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
-
+			log.Debugf("merge - merge lhs into blank")
 			var newThing, err = mergeObjects(d, context.WritableClone(), newBlank, lhs, multiplyPreferences{})
 			if err != nil {
 				return nil, err
@@ -83,12 +83,13 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 }
 
 func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {
-	shouldAppendArrays := preferences.AppendArrays
 	var results = list.New()
 
-	// shouldn't recurse arrays if appending
-	prefs := recursiveDescentPreferences{RecurseArray: !shouldAppendArrays,
+	// only need to recurse the array if we are doing a deep merge
+	prefs := recursiveDescentPreferences{RecurseArray: preferences.DeepMergeArrays,
 		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}
+	log.Debugf("merge - preferences.DeepMergeArrays %v", preferences.DeepMergeArrays)
+	log.Debugf("merge - preferences.AppendArrays %v", preferences.AppendArrays)
 	err := recursiveDecent(d, results, context.SingleChildContext(rhs), prefs)
 	if err != nil {
 		return nil, err
@@ -118,14 +119,22 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", lhs.GetKey(), rhs.GetKey())
 
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
+	log.Debugf("merge - lhsPath %v", lhsPath)
 
 	assignmentOp := &Operation{OperationType: assignAttributesOpType}
 	if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
 		assignmentOp.OperationType = addAssignOpType
+		log.Debugf("merge - assignmentOp.OperationType = addAssignOpType")
 	} else if !preferences.DeepMergeArrays && rhs.Node.Kind == yaml.SequenceNode ||
 		(rhs.Node.Kind == yaml.ScalarNode || rhs.Node.Kind == yaml.AliasNode) {
 		assignmentOp.OperationType = assignOpType
 		assignmentOp.UpdateAssign = false
+		log.Debugf("merge - rhs.Node.Kind == yaml.SequenceNode: %v", rhs.Node.Kind == yaml.SequenceNode)
+		log.Debugf("merge - rhs.Node.Kind == yaml.ScalarNode: %v", rhs.Node.Kind == yaml.ScalarNode)
+		log.Debugf("merge - rhs.Node.Kind == yaml.AliasNode: %v", rhs.Node.Kind == yaml.AliasNode)
+		log.Debugf("merge - assignmentOp.OperationType = assignOpType, no updateassign")
+	} else {
+		log.Debugf("merge - assignmentOp := &Operation{OperationType: assignAttributesOpType}")
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 

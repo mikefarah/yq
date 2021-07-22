@@ -24,6 +24,11 @@ list2:
     - "123"
 `
 
+var mergeArrayWithAnchors = `sample:
+- &a
+- <<: *a
+`
+
 var mergeArraysObjectKeysText = `It's a complex command, the trickyness comes from needing to have the right context in the expressions.
 First we save the second array into a variable '$two' which lets us reference it later.
 We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
@@ -31,6 +36,14 @@ We set the current element of the first array as $cur. Now we multiply (merge) $
 `
 
 var multiplyOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:    true,
+		document:   mergeArrayWithAnchors,
+		expression: `. * .`,
+		expected: []string{
+			"D0, P[], (!!map)::sample:\n    - &a\n    - !!merge <<: *a\n",
+		},
+	},
 	{
 		description: "Multiply integers",
 		expression:  `3 * 4`,
