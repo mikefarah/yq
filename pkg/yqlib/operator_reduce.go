@@ -24,7 +24,7 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	arrayExpNode := expressionNode.Lhs.Lhs
 	array, err := d.GetMatchingNodes(context, arrayExpNode)
 
-	log.Debugf("array of %v things", array.MatchingNodes.Len())
+	log.Debugf("reducing %v", NodesToString(array.MatchingNodes))
 
 	if err != nil {
 		return Context{}, err
@@ -38,6 +38,8 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	if err != nil {
 		return Context{}, err
 	}
+
+	log.Debugf("initialised with %v", NodesToString(accum.MatchingNodes))
 
 	log.Debugf("with variable %v", variableName)
 

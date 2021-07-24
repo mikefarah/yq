@@ -9,48 +9,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func createEvaluateAllCommand() *cobra.Command {
-	var cmdEvalAll = &cobra.Command{
-		Use:     "eval-all [expression] [yaml_file1]...",
-		Aliases: []string{"ea"},
-		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
+func createEvaluateReduceCommand() *cobra.Command {
+	var cmdEvalReduce = &cobra.Command{
+		Use:     "eval-reduce [reduce expression] [yaml_file1]...",
+		Aliases: []string{"er"},
+		Short:   "Runs a reduce expression sequentially against each document of each file given. More memory efficient than using eval-all if you can get away with it.",
 		Example: `
 # Merge f2.yml into f1.yml (inplace)
-yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml
-## the same command and expression using shortened names:
-yq ea -i 'select(fi == 0) * select(fi == 1)' f1.yml f2.yml
-
-
-# Merge all given files
-yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
-
-# Read from STDIN
-## use '-' as a filename to read from STDIN
-cat file2.yml | yq ea '.a.b' file1.yml - file3.yml
+yq eval-reduce --inplace '{} ; . * $doc' f1.yml f2.yml
 `,
 		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
 
-## Evaluate All ##
-This command loads _all_ yaml documents of _all_ yaml files and runs expression once
-Useful when you need to run an expression across several yaml documents or files (like merge).
-If you're just merging entire multiple files together, you may want to consider eval-reduce as it's faster.
-Note that it consumes more memory than eval and eval-reduce.
+## Evaluate Reduce ##
+This command runs the reduce expression against each document of each file given, accumulating the results.
+It is most useful when merging multiple files (but isn't as flexible as using eval-all with ireduce, as you
+can only merge the top level nodes).
 `,
-		RunE: evaluateAll,
+		RunE: evaluateReduce,
 	}
-	return cmdEvalAll
+	return cmdEvalReduce
 }
-func evaluateAll(cmd *cobra.Command, args []string) error {
+func evaluateReduce(cmd *cobra.Command, args []string) error {
 	cmd.SilenceUsage = true
-	// 0 args, read std in
-	// 1 arg, null input, process expression
-	// 1 arg, read file in sequence
 	// 2+ args, [0] = expression, file the rest
 
 	var err error
-	stat, _ := os.Stdin.Stat()
-	pipingStdIn := (stat.Mode() & os.ModeCharDevice) == 0
 
 	out := cmd.OutOrStdout()
 
@@ -106,23 +90,16 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		defer frontMatterHandler.CleanUp()
 	}
 
-	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
+	reduceEvaluator := yqlib.NewReduceEvaluator()
 	switch len(args) {
 	case 0:
-		if pipingStdIn {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer, leadingContentPreProcessing)
-		} else {
-			cmd.Println(cmd.UsageString())
-			return nil
-		}
+		cmd.Println(cmd.UsageString())
+		return nil
 	case 1:
-		if nullInput {
-			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(args[0]), printer, "")
-		} else {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing)
-		}
+		cmd.Println(cmd.UsageString())
+		return nil
 	default:
-		err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing)
+		err = reduceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing)
 	}
 
 	completedSuccessfully = err == nil

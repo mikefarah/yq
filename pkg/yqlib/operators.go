@@ -23,7 +23,9 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		valueOp.CandidateNode = candidate
+		valueNodes := list.New()
+		valueNodes.PushBack(candidate)
+		valueOp.ValueNodes = valueNodes
 		valueExpression := &ExpressionNode{Operation: valueOp}
 
 		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: valueExpression, Rhs: calculation(valueExpression, expressionNode.Rhs)}
@@ -83,7 +85,7 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	if err != nil {
 		return Context{}, err
 	}
-	log.Debugf("crossFunction LHS len: %v", lhs.MatchingNodes.Len())
+	log.Debugf("crossFunction LHS %v", NodesToString(lhs.MatchingNodes))
 
 	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
 

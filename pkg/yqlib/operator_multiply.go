@@ -136,7 +136,9 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	} else {
 		log.Debugf("merge - assignmentOp := &Operation{OperationType: assignAttributesOpType}")
 	}
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
+	valueNodes := list.New()
+	valueNodes.PushBack(rhs)
+	rhsOp := &Operation{OperationType: valueOpType, ValueNodes: valueNodes}
 
 	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey), Rhs: &ExpressionNode{Operation: rhsOp}}
 

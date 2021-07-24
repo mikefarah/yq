@@ -30,6 +30,7 @@ func (n *Context) GetVariable(name string) *list.List {
 	if n.Variables == nil {
 		return nil
 	}
+	log.Debug("GetVariable - %v to %v", name, NodesToString(n.Variables[name]))
 	return n.Variables[name]
 }
 
@@ -37,6 +38,7 @@ func (n *Context) SetVariable(name string, value *list.List) {
 	if n.Variables == nil {
 		n.Variables = make(map[string]*list.List)
 	}
+	log.Debug("SetVariable - %v to %v", name, NodesToString(value))
 	n.Variables[name] = value
 }
 

@@ -1,7 +1,1 @@
-a: other # better than the original
-b: [3, 4]
-c:
-  toast: leave
-  test: 1
-  tell: 1
-  tasty.taco: cool
+b: doc2

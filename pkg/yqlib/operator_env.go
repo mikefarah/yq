@@ -13,7 +13,8 @@ type envOpPreferences struct {
 }
 
 func envOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	envName := expressionNode.Operation.CandidateNode.Node.Value
+	envNameNode := expressionNode.Operation.ValueNodes.Front().Value.(*CandidateNode)
+	envName := envNameNode.Node.Value
 	log.Debug("EnvOperator, env name:", envName)
 
 	rawValue := os.Getenv(envName)

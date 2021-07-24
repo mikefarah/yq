@@ -112,7 +112,7 @@ type Operation struct {
 	OperationType *operationType
 	Value         interface{}
 	StringValue   string
-	CandidateNode *CandidateNode // used for Value Path elements
+	ValueNodes    *list.List // used for Value Path elements
 	Preferences   interface{}
 	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs
 }
@@ -138,12 +138,13 @@ func createScalarNode(value interface{}, stringValue string) *yaml.Node {
 
 func createValueOperation(value interface{}, stringValue string) *Operation {
 	var node *yaml.Node = createScalarNode(value, stringValue)
-
+	list := list.New()
+	list.PushBack(&CandidateNode{Node: node})
 	return &Operation{
 		OperationType: valueOpType,
 		Value:         value,
 		StringValue:   stringValue,
-		CandidateNode: &CandidateNode{Node: node},
+		ValueNodes:    list,
 	}
 }
 

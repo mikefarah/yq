@@ -59,6 +59,7 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 	rootCmd.AddCommand(
 		createEvaluateSequenceCommand(),
 		createEvaluateAllCommand(),
+		createEvaluateReduceCommand(),
 		completionCmd,
 	)
 	return rootCmd
