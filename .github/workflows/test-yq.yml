@@ -11,7 +11,7 @@ jobs:
       - name: Get test
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.a' examples/bad-nono.yaml
+          cmd: yq eval '.a' examples/data1.yaml
       - name: Write inplace test
         id: lookupSdkVersion
         uses: mikefarah/yq@master
