@@ -86,8 +86,17 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 	if nullInput && len(args) > 1 {
 		return errors.New("Cannot pass files in when using null-input flag")
 	}
+	// backwards compatibilty
+	if outputToJSON {
+		outputFormat = "json"
+	}
 
-	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
+	format, err := yqlib.OutputFormatFromString(outputFormat)
+	if err != nil {
+		return err
+	}
+
+	printer := yqlib.NewPrinter(out, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	if frontMatter != "" {
 		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])

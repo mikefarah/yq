@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"container/list"
+	"fmt"
 	"io"
 	"strings"
 
@@ -16,8 +17,29 @@ type Printer interface {
 	SetAppendix(reader io.Reader)
 }
 
+type PrinterOutputFormat uint32
+
+const (
+	YamlOutputFormat = 1 << iota
+	JsonOutputFormat
+	PropsOutputFormat
+)
+
+func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
+	switch format {
+	case "yaml":
+		return YamlOutputFormat, nil
+	case "json":
+		return JsonOutputFormat, nil
+	case "props":
+		return PropsOutputFormat, nil
+	default:
+		return 0, fmt.Errorf("Unknown fromat '%v' please use [yaml|json|props]", format)
+	}
+}
+
 type resultsPrinter struct {
-	outputToJSON       bool
+	outputFormat       PrinterOutputFormat
 	unwrapScalar       bool
 	colorsEnabled      bool
 	indent             int
@@ -31,14 +53,14 @@ type resultsPrinter struct {
 	appendixReader     io.Reader
 }
 
-func NewPrinter(writer io.Writer, outputToJSON bool, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+func NewPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
 	return &resultsPrinter{
 		writer:             writer,
-		outputToJSON:       outputToJSON,
+		outputFormat:       outputFormat,
 		unwrapScalar:       unwrapScalar,
 		colorsEnabled:      colorsEnabled,
 		indent:             indent,
-		printDocSeparators: !outputToJSON && printDocSeparators,
+		printDocSeparators: outputFormat == YamlOutputFormat && printDocSeparators,
 		firstTimePrinting:  true,
 		treeNavigator:      NewDataTreeNavigator(),
 	}
@@ -57,11 +79,14 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 		(node.Tag != "!!bool" || node.Value != "false"))
 
 	var encoder Encoder
-	if node.Kind == yaml.ScalarNode && p.unwrapScalar && !p.outputToJSON {
+	if node.Kind == yaml.ScalarNode && p.unwrapScalar && p.outputFormat == YamlOutputFormat {
 		return p.writeString(writer, node.Value+"\n")
 	}
-	if p.outputToJSON {
+
+	if p.outputFormat == JsonOutputFormat {
 		encoder = NewJsonEncoder(writer, p.indent)
+	} else if p.outputFormat == PropsOutputFormat {
+		encoder = NewPropertiesEncoder(writer)
 	} else {
 		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
 	}
@@ -82,7 +107,7 @@ func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
-	if p.outputToJSON {
+	if p.outputFormat != YamlOutputFormat {
 		explodeOp := Operation{OperationType: explodeOpType}
 		explodeNode := ExpressionNode{Operation: &explodeOp}
 		context, err := p.treeNavigator.GetMatchingNodes(Context{MatchingNodes: matchingNodes}, &explodeNode)
@@ -140,7 +165,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 							return err
 						}
 					}
-				} else if !p.outputToJSON {
+				} else if p.outputFormat == YamlOutputFormat {
 					if err := p.writeString(bufferedWriter, readline); err != nil {
 						return err
 					}
@@ -158,6 +183,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			}
 
 		}
+
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {
 			return err
 		}
@@ -165,7 +191,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		p.previousDocIndex = mappedDoc.Document
 	}
 
-	if p.appendixReader != nil && !p.outputToJSON {
+	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
 		log.Debug("Piping appendix reader...")
 		betterReader := bufio.NewReader(p.appendixReader)
 		_, err := io.Copy(bufferedWriter, betterReader)

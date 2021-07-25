@@ -19,8 +19,6 @@ func NewPropertiesEncoder(destination io.Writer) Encoder {
 func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
 	mapKeysToStrings(node)
 	p := properties.NewProperties()
-	// p.SetComment("a", "hi")
-	// p.Set("a", "hi")
 	err := pe.doEncode(p, node, "")
 	if err != nil {
 		return err
@@ -34,8 +32,8 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node,
 	p.SetComment(path, node.HeadComment+node.LineComment)
 	switch node.Kind {
 	case yaml.ScalarNode:
-		p.Set(path, node.Value)
-		return nil
+		_, _, err := p.Set(path, node.Value)
+		return err
 	case yaml.DocumentNode:
 		return pe.doEncode(p, node.Content[0], path)
 	case yaml.SequenceNode:

@@ -41,7 +41,14 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
-	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "output as json. Set indent to 0 to print json in one line.")
+
+	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "(deprecated) output as json. Set indent to 0 to print json in one line.")
+	err := rootCmd.PersistentFlags().MarkDeprecated("tojson", "please use -t=json instead")
+	if err != nil {
+		panic(err)
+	}
+
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "to-type", "t", "yaml", "[yaml|json|props] output format type.")
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")
 

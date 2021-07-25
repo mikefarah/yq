@@ -95,7 +95,17 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
 	}
 
-	printer := yqlib.NewPrinter(out, outputToJSON, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
+	// backwards compatibilty
+	if outputToJSON {
+		outputFormat = "json"
+	}
+
+	format, err := yqlib.OutputFormatFromString(outputFormat)
+	if err != nil {
+		return err
+	}
+
+	printer := yqlib.NewPrinter(out, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	streamEvaluator := yqlib.NewStreamEvaluator()
 
