@@ -5,6 +5,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/goccy/go-yaml v1.8.9
 	github.com/jinzhu/copier v0.2.8
+	github.com/magiconair/properties v1.8.5
 	github.com/spf13/cobra v1.1.3
 	github.com/timtadh/data-structures v0.5.3 // indirect
 	github.com/timtadh/lexmachine v0.2.2
