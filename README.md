@@ -7,12 +7,39 @@ a lightweight and portable command-line YAML processor. `yq` uses [jq](https://g
 
 yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as docker, all listed below.
 
-## V4 released!
-V4 is now officially released, it's quite different from V3 (sorry for the migration), however it is much more similar to ```jq```, using a similar expression syntax and therefore support much more complex functionality! 
+## Quick Usage Guide
 
-If you've been using v3 and want/need to upgrade, checkout the [upgrade guide](https://mikefarah.gitbook.io/yq/v/v4.x/upgrading-from-v3).
+Read a value:
 
-Support for v3 will cease August 2021, until then, critical bug and security fixes will still get applied if required.
+```bash
+yq e '.a.b[0].c' file.yaml
+```
+
+Update a yaml file, inplace
+```bash
+yq e -i '.a.b[0].c = "cool"' file.yaml
+```
+
+Update using environment variables
+```bash
+NAME=mike yq e -i '.a.b[0].c = strenv(NAME)' file.yaml
+```
+
+Merge multiple files
+```
+yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
+```
+
+Multiple updates to a yaml file
+```bash
+yq e -i '
+  .a.b[0].c = "cool" |
+  .x.y.z = "foobar" |
+  .person.name = strenv(NAME)
+' file.yaml
+```
+
+See the [documentation](https://mikefarah.gitbook.io/yq/) for more.
 
 ## Install
 
