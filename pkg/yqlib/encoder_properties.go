@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/magiconair/properties"
 	yaml "gopkg.in/yaml.v3"
@@ -29,7 +30,9 @@ func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
 }
 
 func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node, path string) error {
-	p.SetComment(path, node.HeadComment+node.LineComment)
+	p.SetComment(path,
+		strings.Replace(node.HeadComment, "#", "", 1)+
+			strings.Replace(node.LineComment, "#", "", 1))
 	switch node.Kind {
 	case yaml.ScalarNode:
 		_, _, err := p.Set(path, node.Value)
