@@ -1,4 +1,2 @@
----
-# hi peeps
-# cool
-a: test
+- ["oy", "yo", "ohno", "nom", "y", "Y", "n", "yes", "no", "on", "off", "true", "false", "apples"]
+- [y, n, yes, no, on, off, true, false]
