@@ -114,6 +114,14 @@ rm /etc/myfile.tmp
 docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
 
+#### Pipe in via STDIN:
+
+You'll need to pass the `-i\--interactive` flag to docker:
+
+```bash
+cat myfile.yml | docker run -i --rm mikefarah/yq e . -
+```
+
 #### Run commands interactively:
 
 ```bash
@@ -127,6 +135,7 @@ yq() {
   docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
 }
 ```
+
 
 #### Running as root:
 
