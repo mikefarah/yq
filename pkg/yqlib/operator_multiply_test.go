@@ -35,6 +35,31 @@ We then need to update the first array. We will use the relative update (|=) bec
 We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
 `
 
+var docWithHeader = `
+# here
+
+a: apple
+`
+
+var nodeWithHeader = `
+# here
+a: apple
+`
+
+var docNoComments = `
+b: banana
+`
+
+var docWithFooter = `
+a: apple
+
+# footer
+`
+
+var nodeWithFooter = `
+a: apple
+# footer`
+
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
@@ -42,6 +67,69 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression: `. * .`,
 		expected: []string{
 			"D0, P[], (!!map)::sample:\n    - &a\n    - !!merge <<: *a\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   docWithHeader,
+		document2:  docNoComments,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::# here\na: apple\nb: banana\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   nodeWithHeader,
+		document2:  docNoComments,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::# here\na: apple\nb: banana\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   docNoComments,
+		document2:  docWithHeader,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::# here\nb: banana\na: apple\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   docNoComments,
+		document2:  nodeWithHeader,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::b: banana\n# here\na: apple\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   docWithFooter,
+		document2:  docNoComments,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::a: apple\nb: banana\n\n# footer\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   nodeWithFooter,
+		document2:  docNoComments,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{ // not sure why there's an extra newline *shrug*
+			"D0, P[], (!!map)::a: apple\n# footer\n\nb: banana\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   docNoComments,
+		document2:  docWithFooter,
+		expression: `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::b: banana\na: apple\n\n# footer\n",
 		},
 	},
 	{

@@ -20,8 +20,29 @@ func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	return crossFunction(d, context, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)), false)
 }
 
+func getNewBlankNode(lhs *yaml.Node, rhs *yaml.Node) *yaml.Node {
+
+	blankNode := &yaml.Node{}
+
+	if lhs.HeadComment != "" {
+		blankNode.HeadComment = lhs.HeadComment
+	} else if rhs.HeadComment != "" {
+		blankNode.HeadComment = rhs.HeadComment
+	}
+
+	if lhs.FootComment != "" {
+		blankNode.FootComment = lhs.FootComment
+	} else if rhs.FootComment != "" {
+		blankNode.FootComment = rhs.FootComment
+	}
+
+	return blankNode
+}
+
 func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+		// need to do this before unWrapping the potential document node
+		newBlankNode := getNewBlankNode(lhs.Node, rhs.Node)
 		lhs.Node = unwrapDoc(lhs.Node)
 		rhs.Node = unwrapDoc(rhs.Node)
 		log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
@@ -30,7 +51,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
 
-			var newBlank = lhs.CreateChild(nil, &yaml.Node{})
+			var newBlank = lhs.CreateChild(nil, newBlankNode)
 			log.Debugf("merge - merge lhs into blank")
 			var newThing, err = mergeObjects(d, context.WritableClone(), newBlank, lhs, multiplyPreferences{})
 			if err != nil {
