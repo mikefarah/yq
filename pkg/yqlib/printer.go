@@ -27,11 +27,11 @@ const (
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 	switch format {
-	case "yaml":
+	case "yaml", "y":
 		return YamlOutputFormat, nil
-	case "json":
+	case "json", "j":
 		return JsonOutputFormat, nil
-	case "props":
+	case "props", "p":
 		return PropsOutputFormat, nil
 	default:
 		return 0, fmt.Errorf("Unknown fromat '%v' please use [yaml|json|props]", format)
