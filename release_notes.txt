@@ -1,0 +1,4 @@
+4.12.0:
+- Can now convert yaml to properties properties format (`-o=props`), See [] for more info.
+- Fixed document header/footer comment handling when merging (https://github.com/mikefarah/yq/issues/919)
+- pretty print yaml 1.1 compatibility  (https://github.com/mikefarah/yq/issues/914)
