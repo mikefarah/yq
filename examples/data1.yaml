@@ -1,2 +1,4 @@
-- ["oy", "yo", "ohno", "nom", "y", "Y", "n", "yes", "no", "on", "off", "true", "false", "apples"]
-- [y, n, yes, no, on, off, true, false]
+a: simple # just the best
+b: [1, 2]
+c:
+  test: 1
