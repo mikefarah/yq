@@ -296,6 +296,35 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+# https://github.com/mikefarah/yq/issues/919
+testLeadingSeparatorDoesNotBreakCommentsOnOtherFiles() {
+  cat >test.yml <<EOL
+# a1
+a: 1
+# a2
+EOL
+
+cat >test2.yml <<EOL
+# b1
+b: 2
+# b2
+EOL
+
+  read -r -d '' expected << EOM
+# a1
+a: 1
+# a2
+
+# b1
+b: 2
+# b2
+EOM
+
+
+  X=$(./yq ea 'select(fi == 0) * select(fi == 1)' test.yml test2.yml)
+  assertEquals "$expected" "$X"
+}
+
 testLeadingSeperatorMultiDocEvalCommentsStripComments() {
   cat >test.yml <<EOL
 ---

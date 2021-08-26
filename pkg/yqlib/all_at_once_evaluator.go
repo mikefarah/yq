@@ -52,7 +52,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 
 	var allDocuments *list.List = list.New()
 	for _, filename := range filenames {
-		reader, leadingContent, err := readStream(filename, leadingContentPreProcessing)
+		reader, leadingContent, err := readStream(filename, fileIndex == 0 && leadingContentPreProcessing)
 		if err != nil {
 			return err
 		}
