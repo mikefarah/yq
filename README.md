@@ -27,7 +27,7 @@ NAME=mike yq e -i '.a.b[0].c = strenv(NAME)' file.yaml
 
 Merge multiple files
 ```
-yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
+yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
 ```
 
 Multiple updates to a yaml file
