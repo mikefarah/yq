@@ -6,10 +6,13 @@ import (
 
 var alternativeOperatorScenarios = []expressionScenario{
 	{
+		// to match jq - we do not use a readonly clone context on the LHS.
 		skipDoc:    true,
 		expression: `.b // .c`,
 		document:   `a: bridge`,
-		expected:   []string{},
+		expected: []string{
+			"D0, P[c], (!!null)::null\n",
+		},
 	},
 	{
 		skipDoc:    true,
