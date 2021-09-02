@@ -91,15 +91,15 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 	target.Node.Style = lhs.Node.Style
 	target.Node.Tag = "!!int"
 
-	lhsNum, err := strconv.Atoi(lhs.Node.Value)
+	format, lhsNum, err := parseInt(lhs.Node.Value)
 	if err != nil {
 		return nil, err
 	}
-	rhsNum, err := strconv.Atoi(rhs.Node.Value)
+	_, rhsNum, err := parseInt(rhs.Node.Value)
 	if err != nil {
 		return nil, err
 	}
-	target.Node.Value = fmt.Sprintf("%v", lhsNum*rhsNum)
+	target.Node.Value = fmt.Sprintf(format, lhsNum*rhsNum)
 	return target, nil
 }
 

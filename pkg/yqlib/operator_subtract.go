@@ -62,17 +62,17 @@ func subtractScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Ca
 	if lhs.Tag == "!!str" {
 		return nil, fmt.Errorf("strings cannot be subtracted")
 	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
-		lhsNum, err := strconv.Atoi(lhs.Value)
+		format, lhsNum, err := parseInt(lhs.Value)
 		if err != nil {
 			return nil, err
 		}
-		rhsNum, err := strconv.Atoi(rhs.Value)
+		_, rhsNum, err := parseInt(rhs.Value)
 		if err != nil {
 			return nil, err
 		}
 		result := lhsNum - rhsNum
 		target.Node.Tag = "!!int"
-		target.Node.Value = fmt.Sprintf("%v", result)
+		target.Node.Value = fmt.Sprintf(format, result)
 	} else if (lhs.Tag == "!!int" || lhs.Tag == "!!float") && (rhs.Tag == "!!int" || rhs.Tag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {

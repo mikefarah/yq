@@ -166,6 +166,20 @@ func numberValue() lex.Action {
 	}
 }
 
+func hexValue() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		var originalString = string(m.Bytes)
+		var numberString = originalString[2:]
+		log.Debugf("numberString: %v", numberString)
+		var number, errParsingInt = strconv.ParseInt(numberString, 16, 64) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+
+		return &token{TokenType: operationToken, Operation: createValueOperation(number, originalString)}, nil
+	}
+}
+
 func floatValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
@@ -328,6 +342,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\|`), opToken(pipeOpType))
 
+	lexer.Add([]byte(`0[xX][0-9A-Fa-f]+`), hexValue())
 	lexer.Add([]byte(`-?\d+(\.\d+)`), floatValue())
 	lexer.Add([]byte(`-?[1-9](\.\d+)?[Ee][-+]?\d+`), floatValue())
 	lexer.Add([]byte(`-?\d+`), numberValue())
