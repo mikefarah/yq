@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"errors"
+	"fmt"
 
 	logging "gopkg.in/op/go-logging.v1"
 )
@@ -22,6 +23,17 @@ func popOpToResult(opStack []*token, result []*Operation) ([]*token, []*Operatio
 	opStack, newOp = opStack[0:len(opStack)-1], opStack[len(opStack)-1]
 	log.Debugf("popped %v from opstack to results", newOp.toString(true))
 	return opStack, append(result, newOp.Operation)
+}
+
+func validateNoOpenTokens(token *token) error {
+	if token.TokenType == openCollect {
+		return fmt.Errorf(("Bad expression, could not find matching `]`"))
+	} else if token.TokenType == openCollectObject {
+		return fmt.Errorf(("Bad expression, could not find matching `}`"))
+	} else if token.TokenType == openBracket {
+		return fmt.Errorf(("Bad expression, could not find matching `)`"))
+	}
+	return nil
 }
 
 func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
@@ -45,6 +57,10 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			}
 
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != opener {
+				missingClosingTokenErr := validateNoOpenTokens(opStack[len(opStack)-1])
+				if missingClosingTokenErr != nil {
+					return nil, missingClosingTokenErr
+				}
 				opStack, result = popOpToResult(opStack, result)
 			}
 			if len(opStack) == 0 {
@@ -76,6 +92,11 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 
 		case closeBracket:
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != openBracket {
+				missingClosingTokenErr := validateNoOpenTokens(opStack[len(opStack)-1])
+				if missingClosingTokenErr != nil {
+					return nil, missingClosingTokenErr
+				}
+
 				opStack, result = popOpToResult(opStack, result)
 			}
 			if len(opStack) == 0 {
@@ -97,6 +118,8 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			log.Debugf("put %v onto the opstack", currentToken.toString(true))
 		}
 	}
+
+	log.Debugf("opstackLen: %v", len(opStack))
 
 	if log.IsEnabledFor(logging.DEBUG) {
 		log.Debugf("PostFix Result:")

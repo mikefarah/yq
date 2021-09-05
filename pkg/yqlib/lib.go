@@ -162,6 +162,9 @@ func createValueOperation(value interface{}, stringValue string) *Operation {
 
 // debugging purposes only
 func (p *Operation) toString() string {
+	if p == nil {
+		return "OP IS NIL"
+	}
 	if p.OperationType == traversePathOpType {
 		return fmt.Sprintf("%v", p.Value)
 	} else if p.OperationType == selfReferenceOpType {
