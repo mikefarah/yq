@@ -2,8 +2,10 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 
 	"github.com/jinzhu/copier"
+	logging "gopkg.in/op/go-logging.v1"
 )
 
 type Context struct {
@@ -49,6 +51,14 @@ func (n *Context) ChildContext(results *list.List) Context {
 	}
 	clone.MatchingNodes = results
 	return clone
+}
+
+func (n *Context) ToString() string {
+	if !log.IsEnabledFor(logging.DEBUG) {
+		return ""
+	}
+	result := fmt.Sprintf("Context\nDontAutoCreate: %v\n", n.DontAutoCreate)
+	return result + NodesToString(n.MatchingNodes)
 }
 
 func (n *Context) Clone() Context {

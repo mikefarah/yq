@@ -179,7 +179,7 @@ func NodesToString(collection *list.List) string {
 		return ""
 	}
 
-	result := ""
+	result := fmt.Sprintf("%v results\n", collection.Len())
 	for el := collection.Front(); el != nil; el = el.Next() {
 		result = result + "\n" + NodeToString(el.Value.(*CandidateNode))
 	}

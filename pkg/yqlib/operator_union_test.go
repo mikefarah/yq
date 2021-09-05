@@ -5,20 +5,21 @@ import (
 )
 
 var unionOperatorScenarios = []expressionScenario{
-	// {
-	// 	skipDoc:    true,
-	// 	document:   "{}",
-	// 	expression: `(.a, .b.c) as $x`,
-	// 	expected: []string{
-	// 		"D0, P[], (doc)::{}\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	document:   "{}",
-	// 	expression: `(.a, .b.c)`,
-	// 	expected:   []string{},
-	// },
+	{
+		skipDoc:    true,
+		document:   "{}",
+		expression: `(.a, .b.c) as $x`,
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `(.foo = "bar"), (.toe = "jam")`,
+		expected: []string{
+			"D0, P[], ()::foo: bar\ntoe: jam\n",
+		},
+	},
 	{
 		description: "Combine scalars",
 		expression:  `1, true, "cat"`,
