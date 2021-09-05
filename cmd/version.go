@@ -11,7 +11,7 @@ var (
 	GitDescribe string
 
 	// Version is main version number that is being run at the moment.
-	Version = "4.12.1"
+	Version = "4.12.2"
 
 	// VersionPrerelease is a pre-release marker for the version. If this is "" (empty string)
 	// then it means that it is a final release. Otherwise, this is a pre-release

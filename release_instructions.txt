@@ -1,3 +1,4 @@
+- update release notes
 - increment version in version.go
 - increment version in snapcraft.yaml
 - increment version in github-action/Dockerfile

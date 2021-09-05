@@ -1,3 +1,10 @@
+4.12.2:
+- Fix processing of hex numbers #929
+- Fixed alternative and union operator issues #930
+
+4.12.1:
+ - Merge comment fix #919
+
 4.12.0:
 - Can now convert yaml to properties properties format (`-o=props`), See [docs](https://mikefarah.gitbook.io/yq/v/v4.x/usage/properties) for more info.
 - Fixed document header/footer comment handling when merging (https://github.com/mikefarah/yq/issues/919)
