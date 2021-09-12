@@ -1,3 +1,18 @@
+4.13.0:
+
+BREAKING CHANGE - the `as` variable operator (e.g. `.a as $x`) now makes a _copy_ of the node(s) at the 
+path rather than a reference. This is in order to make it work more like the `jq` equivalent. 
+
+This means any updates made to that variable do not update the original.
+
+There's a new operator `ref` that will make a reference (and allow multiple updates to the original path by referencing the variable).
+
+Sorry for any inconvenience caused!.
+
+- Fixed Swapping values using variables #934
+- Github Action now properly supports multiline output #936, thanks @pjxiao
+- Fixed missing closing bracket validation #932
+
 4.12.2:
 - Fix processing of hex numbers #929
 - Fixed alternative and union operator issues #930
