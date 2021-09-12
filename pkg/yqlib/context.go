@@ -61,9 +61,31 @@ func (n *Context) ToString() string {
 	return result + NodesToString(n.MatchingNodes)
 }
 
+func (n *Context) DeepClone() Context {
+	clone := Context{}
+	err := copier.Copy(&clone, n)
+	// copier doesn't do lists properly for some reason
+	clone.MatchingNodes = list.New()
+	for el := n.MatchingNodes.Front(); el != nil; el = el.Next() {
+		clonedNode, err := el.Value.(*CandidateNode).Copy()
+		if err != nil {
+			log.Error("Error cloning context :(")
+			panic(err)
+		}
+		clone.MatchingNodes.PushBack(clonedNode)
+	}
+
+	if err != nil {
+		log.Error("Error cloning context :(")
+		panic(err)
+	}
+	return clone
+}
+
 func (n *Context) Clone() Context {
 	clone := Context{}
 	err := copier.Copy(&clone, n)
+
 	if err != nil {
 		log.Error("Error cloning context :(")
 		panic(err)

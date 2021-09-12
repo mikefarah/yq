@@ -367,7 +367,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\-`), opToken(subtractOpType))
 	lexer.Add([]byte(`\-=`), opToken(subtractAssignOpType))
 	lexer.Add([]byte(`\$[a-zA-Z_-0-9]+`), getVariableOpToken())
-	lexer.Add([]byte(`as`), opToken(assignVariableOpType))
+	lexer.Add([]byte(`as`), opTokenWithPrefs(assignVariableOpType, nil, assignVarPreferences{}))
+	lexer.Add([]byte(`ref`), opTokenWithPrefs(assignVariableOpType, nil, assignVarPreferences{IsReference: true}))
 
 	err := lexer.CompileNFA()
 	if err != nil {

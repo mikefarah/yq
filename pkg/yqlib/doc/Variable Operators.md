@@ -1,4 +1,6 @@
-For more complex scenarios, variables can be used to hold values of expression to be used in other expressions.
+Like the `jq` equivalents, variables are sometimes required for the more complex expressions (or swapping values between fields).
+
+Note that there is also an additional `ref` operator that holds a reference (instead of a copy) of the path, allowing you to make multiple changes to the same path.
 
 ## Single value variable
 Given a sample.yml file of:
@@ -54,5 +56,39 @@ title: Frist psot
 author: Anonymous Coward
 title: A well-written article
 author: Person McPherson
+```
+
+## Using variables to swap values
+Given a sample.yml file of:
+```yaml
+a: a_value
+b: b_value
+```
+then
+```bash
+yq eval '.a as $x  | .b as $y | .b = $x | .a = $y' sample.yml
+```
+will output
+```yaml
+a: b_value
+b: a_value
+```
+
+## Use ref to reference a path repeatedly
+Given a sample.yml file of:
+```yaml
+a:
+  b: thing
+  c: something
+```
+then
+```bash
+yq eval '.a.b ref $x | $x = "new" | $x style="double"' sample.yml
+```
+will output
+```yaml
+a:
+  b: "new"
+  c: something
 ```
 

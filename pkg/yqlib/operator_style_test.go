@@ -15,9 +15,9 @@ var styleOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Update and set style of a particular node using path variables",
-		subdescription: "You can use a variable to re-use a path",
+		subdescription: "You can use a variable reference to re-use a path",
 		document:       `a: {b: thing, c: something}`,
-		expression:     `.a.b as $x | $x = "new" | $x style="double"`,
+		expression:     `.a.b ref $x | $x = "new" | $x style="double"`,
 		expected: []string{
 			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
 		},
