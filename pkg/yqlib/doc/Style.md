@@ -18,8 +18,6 @@ a:
 ```
 
 ## Update and set style of a particular node using path variables
-You can use a variable reference to re-use a path
-
 Given a sample.yml file of:
 ```yaml
 a:
@@ -28,7 +26,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b ref $x | $x = "new" | $x style="double"' sample.yml
+yq eval 'with(.a.b ; . = "new" | . style="double")' sample.yml
 ```
 will output
 ```yaml

@@ -75,6 +75,8 @@ b: a_value
 ```
 
 ## Use ref to reference a path repeatedly
+Note: You may find the `with` operator more useful.
+
 Given a sample.yml file of:
 ```yaml
 a:

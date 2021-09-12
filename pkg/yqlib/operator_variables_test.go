@@ -52,9 +52,10 @@ var variableOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Use ref to reference a path repeatedly",
-		document:    `a: {b: thing, c: something}`,
-		expression:  `.a.b ref $x | $x = "new" | $x style="double"`,
+		description:    "Use ref to reference a path repeatedly",
+		subdescription: "Note: You may find the `with` operator more useful.",
+		document:       `a: {b: thing, c: something}`,
+		expression:     `.a.b ref $x | $x = "new" | $x style="double"`,
 		expected: []string{
 			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
 		},

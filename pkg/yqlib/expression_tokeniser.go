@@ -315,6 +315,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`from_entries`), opToken(fromEntriesOpType))
 	lexer.Add([]byte(`with_entries`), opToken(withEntriesOpType))
 
+	lexer.Add([]byte(`with`), opToken(withOpType))
+
 	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
 
 	lexer.Add([]byte(`headComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{HeadComment: true}))

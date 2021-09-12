@@ -1,3 +1,5 @@
-# a1
-a: 1
-# a2
+Resources:
+  S3Bucket:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      BucketName: !Ref MyBucketNameA
