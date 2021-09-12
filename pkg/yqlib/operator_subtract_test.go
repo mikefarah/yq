@@ -14,6 +14,51 @@ var subtractOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Array subtraction",
+		expression:  `[1,2] - [2,3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `[2,1,2,2] - [2,3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n",
+		},
+	},
+	{
+		description: "Array subtraction with nested array",
+		expression:  `[[1], 1, 2] - [[1], 3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n- 2\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `[[1], 1, [[[2]]]] - [[1], [[[3]]]]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n- - - - 2\n",
+		},
+	},
+	{
+		description:    "Array subtraction with nested object",
+		subdescription: `Note that order of the keys does not matter`,
+		document:       `[{a: b, c: d}, {a: b}]`,
+		expression:     `. - [{"c": "d", "a": "b"}]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: b}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{a: [1], c: d}, {a: [2], c: d}, {a: b}]`,
+		expression: `. - [{"c": "d", "a": [1]}]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: [2], c: d}, {a: b}]\n",
+		},
+	},
+	{
 		description:    "Number subtraction - float",
 		subdescription: "If the lhs or rhs are floats then the expression will be calculated with floats.",
 		document:       `{a: 3, b: 4.5}`,
