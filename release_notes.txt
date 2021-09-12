@@ -6,9 +6,10 @@ path rather than a reference. This is in order to make it work more like the `jq
 This means any updates made to that variable do not update the original.
 
 There's a new operator `ref` that will make a reference (and allow multiple updates to the original path by referencing the variable).
-
 Sorry for any inconvenience caused!.
 
+
+- New `with` operator for making multiple changes to a given path
 - Fixed Swapping values using variables #934
 - Github Action now properly supports multiline output #936, thanks @pjxiao
 - Fixed missing closing bracket validation #932
