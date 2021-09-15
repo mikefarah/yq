@@ -9,7 +9,7 @@ a:
 ```
 then
 ```bash
-yq eval 'with(.a.deeply.nested ; . = "newValue" | . style="single")' sample.yml
+yq eval 'with(.a.deeply.nested; . = "newValue" | . style="single")' sample.yml
 ```
 will output
 ```yaml
@@ -28,7 +28,7 @@ a:
 ```
 then
 ```bash
-yq eval 'with(.a.deeply ; .nested = "newValue" | .other= "newThing")' sample.yml
+yq eval 'with(.a.deeply; .nested = "newValue" | .other= "newThing")' sample.yml
 ```
 will output
 ```yaml
@@ -47,7 +47,7 @@ myArray:
 ```
 then
 ```bash
-yq eval 'with(.myArray[] ; .b = .a + " yum")' sample.yml
+yq eval 'with(.myArray[]; .b = .a + " yum")' sample.yml
 ```
 will output
 ```yaml

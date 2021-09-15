@@ -6,7 +6,7 @@ var withOperatorScenarios = []expressionScenario{
 	{
 		description: "Update and style",
 		document:    `a: {deeply: {nested: value}}`,
-		expression:  `with(.a.deeply.nested ; . = "newValue" | . style="single")`,
+		expression:  `with(.a.deeply.nested; . = "newValue" | . style="single")`,
 		expected: []string{
 			"D0, P[], (doc)::a: {deeply: {nested: 'newValue'}}\n",
 		},
@@ -14,7 +14,7 @@ var withOperatorScenarios = []expressionScenario{
 	{
 		description: "Update multiple deeply nested properties",
 		document:    `a: {deeply: {nested: value, other: thing}}`,
-		expression:  `with(.a.deeply ; .nested = "newValue" | .other= "newThing")`,
+		expression:  `with(.a.deeply; .nested = "newValue" | .other= "newThing")`,
 		expected: []string{
 			"D0, P[], (doc)::a: {deeply: {nested: newValue, other: newThing}}\n",
 		},
@@ -22,7 +22,7 @@ var withOperatorScenarios = []expressionScenario{
 	{
 		description: "Update array elements relatively",
 		document:    `myArray: [{a: apple},{a: banana}]`,
-		expression:  `with(.myArray[] ; .b = .a + " yum")`,
+		expression:  `with(.myArray[]; .b = .a + " yum")`,
 		expected: []string{
 			"D0, P[], (doc)::myArray: [{a: apple, b: apple yum}, {a: banana, b: banana yum}]\n",
 		},

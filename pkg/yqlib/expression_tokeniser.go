@@ -340,7 +340,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte("( |\t|\n|\r)+"), skip)
 
 	lexer.Add([]byte(`\."[^ "]+"\??`), pathToken(true))
-	lexer.Add([]byte(`\.[^ \}\{\:\[\],\|\.\[\(\)=\n]+\??`), pathToken(false))
+	lexer.Add([]byte(`\.[^ ;\}\{\:\[\],\|\.\[\(\)=\n]+\??`), pathToken(false))
 	lexer.Add([]byte(`\.`), selfToken())
 
 	lexer.Add([]byte(`\|`), opToken(pipeOpType))

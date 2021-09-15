@@ -16,6 +16,11 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
+		"with(.a;.=3)",
+		append(make([]interface{}, 0), "WITH", "(", "a", "BLOCK", "SELF", "ASSIGN", "3 (int64)", ")"),
+		append(make([]interface{}, 0), "a", "SELF", "3 (int64)", "ASSIGN", "BLOCK", "WITH"),
+	},
+	{
 		"0x12",
 		append(make([]interface{}, 0), "18 (int64)"),
 		append(make([]interface{}, 0), "18 (int64)"),
