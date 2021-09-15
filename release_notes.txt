@@ -10,6 +10,7 @@ Sorry for any inconvenience caused!.
 
 
 - New `with` operator for making multiple changes to a given path
+- New `contains` operator, works like the `jq` equivalent
 - Subtract operator now supports subtracting elements from arrays!
 - Fixed Swapping values using variables #934
 - Github Action now properly supports multiline output #936, thanks @pjxiao
