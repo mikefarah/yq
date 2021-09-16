@@ -1,3 +1,19 @@
+yq (4.13.0) focal; urgency=medium
+
+  * New `with` operator for making multiple changes to a given path
+  * New `contains` operator, works like the `jq` equivalent
+  * Subtract operator now supports subtracting elements from arrays!
+  * Fixed Swapping values using variables #934
+  * Github Action now properly supports multiline output #936, thanks @pjxiao
+  * Fixed missing closing bracket validation #932
+  * Fix processing of hex numbers #929
+  * Fixed alternative and union operator issues #930
+  * Can now convert yaml to properties properties format (`-o=props`), See [docs](https://mikefarah.gitbook.io/yq/v/v4.x/usage/properties) for more info.
+  * Fixed document header/footer comment handling when merging (https://github.com/mikefarah/yq/issues/919)
+  * pretty print yaml 1.1 compatibility  (https://github.com/mikefarah/yq/issues/914)
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Thu, 16 Sep 2021 20:58:30 +0200
+
 yq (4.9.6) focal; urgency=medium
 
   * Added darwin/arm64 build, thanks @alecthomas
