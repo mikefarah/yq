@@ -20,9 +20,10 @@ var withOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Update array elements relatively",
-		document:    `myArray: [{a: apple},{a: banana}]`,
-		expression:  `with(.myArray[]; .b = .a + " yum")`,
+		description:    "Update array elements relatively",
+		subdescription: "The second expression runs with each element of the array as it's contextual root. This allows you to make updates relative to the element.",
+		document:       `myArray: [{a: apple},{a: banana}]`,
+		expression:     `with(.myArray[]; .b = .a + " yum")`,
 		expected: []string{
 			"D0, P[], (doc)::myArray: [{a: apple, b: apple yum}, {a: banana, b: banana yum}]\n",
 		},
