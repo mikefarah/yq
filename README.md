@@ -12,7 +12,8 @@ yq is written in go - so you can download a dependency free binary for your plat
 Read a value:
 
 ```bash
-# use '-' as the filename to read from STDIN
+yq e '.a.b[0].c' file.yaml
+# alternatively, use '-' as the filename to read from STDIN
 cat file.yaml | yq e '.a.b[0].c' -
 ```
 
