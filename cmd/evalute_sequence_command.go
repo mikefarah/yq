@@ -21,8 +21,8 @@ yq e '.a.b' f1.yml f2.yml
 # Prints out the file
 yq e sample.yaml 
 
-# Read from STDIN
-## use '-' as a filename to read from STDIN
+# Pipe from STDIN
+## use '-' as a filename to pipe from STDIN
 cat file2.yml | yq e '.a.b' file1.yml - file3.yml
 
 # Creates a new yaml document

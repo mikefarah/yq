@@ -24,8 +24,8 @@ yq ea -i 'select(fi == 0) * select(fi == 1)' f1.yml f2.yml
 # Merge all given files
 yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
 
-# Read from STDIN
-## use '-' as a filename to read from STDIN
+# Pipe from STDIN
+## use '-' as a filename to pipe from STDIN
 cat file2.yml | yq ea '.a.b' file1.yml - file3.yml
 `,
 		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
