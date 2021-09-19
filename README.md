@@ -10,10 +10,12 @@ yq is written in go - so you can download a dependency free binary for your plat
 ## Quick Usage Guide
 
 Read a value:
-
 ```bash
 yq e '.a.b[0].c' file.yaml
-# alternatively, use '-' as the filename to read from STDIN
+```
+
+Pipe from STDIN:
+```bash
 cat file.yaml | yq e '.a.b[0].c' -
 ```
 
