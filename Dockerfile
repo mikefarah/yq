@@ -2,13 +2,11 @@ FROM golang:1.15 as builder
 
 WORKDIR /go/src/mikefarah/yq
 
-# cache devtools
-COPY ./scripts/devtools.sh /go/src/mikefarah/yq/scripts/devtools.sh
-RUN ./scripts/devtools.sh
-
 COPY . /go/src/mikefarah/yq
 
-RUN CGO_ENABLED=0 make local build
+RUN CGO_ENABLED=0 go build .
+RUN ./scripts/test.sh
+RUN ./scripts/acceptance.sh
 
 # Choose alpine as a base image to make this useful for CI, as many
 # CI tools expect an interactive shell inside the container
