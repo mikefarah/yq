@@ -1,3 +1,7 @@
+4.13.3:
+
+- Updated go compiler to 1.17 to fix CVE (#944)
+
 4.13.2:
 
 - Fixing Docker build timeout issues when attempting to release
