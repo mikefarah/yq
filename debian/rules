@@ -45,7 +45,9 @@ override_dh_auto_build:
 	(cd ${SRCDIR} && go install -buildmode=pie ./...)
 	
 override_dh_auto_test:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	(cd ${SRCDIR} && go test -v ./...)
+endif
 
 override_dh_auto_install:
 	cp ${GOBIN}/yq ${DESTDIR}/${BINDIR}
