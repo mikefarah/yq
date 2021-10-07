@@ -6,6 +6,28 @@ import (
 
 var selectOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   `cat`,
+		expression: `select(false, true)`,
+		expected: []string{
+			"D0, P[], (doc)::cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `cat`,
+		expression: `select(true, false)`,
+		expected: []string{
+			"D0, P[], (doc)::cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `cat`,
+		expression: `select(false)`,
+		expected:   []string{},
+	},
+	{
 		description: "Select elements from array",
 		document:    `[cat,goat,dog]`,
 		expression:  `.[] | select(. == "*at")`,
