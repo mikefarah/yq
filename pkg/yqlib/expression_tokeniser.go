@@ -111,6 +111,7 @@ func multiplyWithPrefs() lex.Action {
 		if strings.Contains(options, "d") {
 			prefs.DeepMergeArrays = true
 		}
+		prefs.TraversePrefs.DontFollowAlias = true
 		op := &Operation{OperationType: multiplyOpType, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}

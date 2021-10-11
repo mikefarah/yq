@@ -60,6 +60,13 @@ var nodeWithFooter = `
 a: apple
 # footer`
 
+var document = `
+a: &cat {name: cat}
+b: {name: dog}
+c: 
+  <<: *cat
+`
+
 var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
@@ -405,7 +412,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:    mergeDocSample,
 		expression:  `.foobar * .foobarList`,
 		expected: []string{
-			"D0, P[foobar], (!!map)::c: foobarList_c\n<<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
+			"D0, P[foobar], (!!map)::c: foobarList_c\n!!merge <<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   document,
+		expression: `.b * .c`,
+		expected: []string{
+			"D0, P[b], (!!map)::{name: dog, <<: *cat}\n",
 		},
 	},
 }

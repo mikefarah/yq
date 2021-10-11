@@ -6,6 +6,7 @@ import (
 
 	"container/list"
 
+	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -50,14 +51,21 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
-
-			var newBlank = lhs.CreateChild(nil, newBlankNode)
-			log.Debugf("merge - merge lhs into blank")
-			var newThing, err = mergeObjects(d, context.WritableClone(), newBlank, lhs, multiplyPreferences{})
+			var newBlank = CandidateNode{}
+			err := copier.CopyWithOption(&newBlank, lhs, copier.Option{IgnoreEmpty: true, DeepCopy: true})
 			if err != nil {
 				return nil, err
 			}
-			return mergeObjects(d, context.WritableClone(), newThing, rhs, preferences)
+			newBlank.Node.HeadComment = newBlankNode.HeadComment
+			newBlank.Node.FootComment = newBlankNode.FootComment
+
+			// var newBlank = lhs.CreateChild(nil, newBlankNode)
+			// log.Debugf("merge - merge lhs into blank")
+			// var newThing, err = mergeObjects(d, context.WritableClone(), newBlank, lhs, multiplyPreferences{})
+			// if err != nil {
+			// 	return nil, err
+			// }
+			return mergeObjects(d, context.WritableClone(), &newBlank, rhs, preferences)
 		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
 			return multiplyIntegers(lhs, rhs)
 		} else if (lhs.Node.Tag == "!!int" || lhs.Node.Tag == "!!float") && (rhs.Node.Tag == "!!int" || rhs.Node.Tag == "!!float") {

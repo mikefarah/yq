@@ -357,7 +357,7 @@ yq eval '.foobar * .foobarList' sample.yml
 will output
 ```yaml
 c: foobarList_c
-<<:
+!!merge <<:
   - *foo
   - *bar
 thing: foobar_thing
