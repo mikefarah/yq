@@ -1,3 +1,8 @@
+4.13.4:
+  - Fixed select bug (#958)
+  - Improved performance of `explode` (this will also speed up json conversion)
+  - Improved performance of `merge` (significantly if your merging a small file into a big one)
+
 4.13.3:
 
 - Updated go compiler to 1.17 to fix CVE (#944)
