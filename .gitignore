@@ -40,3 +40,8 @@ prime/
 yq*.snap
 test.yml
 test2.yml
+
+
+# man page
+man.md
+yq.1
