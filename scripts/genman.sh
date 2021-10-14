@@ -18,4 +18,4 @@ for f in ./pkg/yqlib/doc/*.md; do
   
 done
 
-pandoc --variable=title:"yq" --variable=author:"Mike Farah" --standalone --to man man.md -o yq.1
+pandoc --variable=title:"yq" --variable=section:"1" --variable=author:"Mike Farah" --standalone --to man man.md -o yq.1

@@ -1,8 +1,10 @@
 # NAME
-  *yq* - Command-line yaml processor
+  *yq* is a portable command-line YAML processor (https://github.com/mikefarah/yq/)
 
 # SYNOPSIS 
 a lightweight and portable command-line YAML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
+
+This documentation is also available at https://mikefarah.gitbook.io/yq/.
 
 # QUICK GUIDE 
 
