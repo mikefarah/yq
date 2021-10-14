@@ -260,7 +260,6 @@ Flags:
   -C, --colors                force print with colors
   -e, --exit-status           set exit status if there are no matches or null or false is returned
   -f, --front-matter string   (extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact
-      --header-preprocess     Slurp any header comments and seperators before processing expression. This is a workaround for go-yaml to persist header content. This flag will be removed once this feature has been out in the wild for a while. (default true)
   -h, --help                  help for yq
   -I, --indent int            sets indent level for output (default 2)
   -i, --inplace               update the yaml file inplace of first yaml file given.

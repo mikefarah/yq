@@ -13,7 +13,7 @@ import (
 // cross document expressions.
 type StreamEvaluator interface {
 	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error)
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error
+	EvaluateFiles(expression string, filenames []string, printer Printer) error
 	EvaluateNew(expression string, printer Printer, leadingContent string) error
 }
 
@@ -48,7 +48,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	return printer.PrintResults(result.MatchingNodes)
 }
 
-func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error {
+func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer) error {
 	var totalProcessDocs uint = 0
 	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
@@ -58,7 +58,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	var firstFileLeadingContent string
 
 	for index, filename := range filenames {
-		reader, leadingContent, err := readStream(filename, leadingContentPreProcessing)
+		reader, leadingContent, err := readStream(filename, true)
 
 		if index == 0 {
 			firstFileLeadingContent = leadingContent
