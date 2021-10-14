@@ -1,11 +1,19 @@
 # NAME
-  *yq* is a portable command-line YAML processor (https://github.com/mikefarah/yq/)
+  *yq* is a portable command-line YAML processor
 
 # SYNOPSIS 
+
+yq [eval/eval-all] [expression] files..
+
+eval/e  - Apply the expression to each document in each yaml file in sequence
+
+eval-all/ea - Loads all yaml documents of all yaml files and runs expression once
+
+# DESCRIPTION
+
 a lightweight and portable command-line YAML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
-This documentation is also available at https://mikefarah.gitbook.io/yq/.
-
+This documentation is also available at https://mikefarah.gitbook.io/yq/
 # QUICK GUIDE 
 
 ## Read a value:
@@ -48,3 +56,6 @@ See the [documentation](https://mikefarah.gitbook.io/yq/) for more.
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
 - Powershell has its own...opinions: https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell
 
+# BUGS / ISSUES / FEATURE REQUESTS
+
+Please visit the GitHub page https://github.com/mikefarah/yq/.
