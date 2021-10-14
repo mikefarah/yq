@@ -9,26 +9,50 @@ func matchKey(name string, pattern string) (matched bool) {
 		log.Debug("wild!")
 		return true
 	}
-	return deepMatch([]rune(name), []rune(pattern))
+	return deepMatch(name, pattern)
 }
 
-func deepMatch(str, pattern []rune) bool {
-	for len(pattern) > 0 {
-		switch pattern[0] {
-		default:
-			if len(str) == 0 || str[0] != pattern[0] {
-				return false
+// deepMatch reports whether the name matches the pattern in linear time.
+// Source https://research.swtch.com/glob
+func deepMatch(name, pattern string) bool {
+	px := 0
+	nx := 0
+	nextPx := 0
+	nextNx := 0
+	for px < len(pattern) || nx < len(name) {
+		if px < len(pattern) {
+			c := pattern[px]
+			switch c {
+			default: // ordinary character
+				if nx < len(name) && name[nx] == c {
+					px++
+					nx++
+					continue
+				}
+			case '?': // single-character wildcard
+				if nx < len(name) {
+					px++
+					nx++
+					continue
+				}
+			case '*': // zero-or-more-character wildcard
+				// Try to match at nx.
+				// If that doesn't work out,
+				// restart at nx+1 next.
+				nextPx = px
+				nextNx = nx + 1
+				px++
+				continue
 			}
-		case '?':
-			if len(str) == 0 {
-				return false
-			}
-		case '*':
-			return deepMatch(str, pattern[1:]) ||
-				(len(str) > 0 && deepMatch(str[1:], pattern))
 		}
-		str = str[1:]
-		pattern = pattern[1:]
+		// Mismatch. Maybe restart.
+		if 0 < nextNx && nextNx <= len(name) {
+			px = nextPx
+			nx = nextNx
+			continue
+		}
+		return false
 	}
-	return len(str) == 0 && len(pattern) == 0
+	// Matched all of pattern to all of name. Success.
+	return true
 }
