@@ -133,7 +133,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer)
+			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer, leadingContentPreProcessing)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
@@ -142,10 +142,10 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		if nullInput {
 			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer, "")
 		} else {
-			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer)
+			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing)
 		}
 	default:
-		err = streamEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer)
+		err = streamEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing)
 	}
 	completedSuccessfully = err == nil
 
