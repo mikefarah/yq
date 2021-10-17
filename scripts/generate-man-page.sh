@@ -25,4 +25,4 @@ pandoc \
   --variable=section:"1" \
   --variable=author:"Mike Farah" \
   --variable=header:"${header}" \
-  --standalone --to man man.md -o yq.1
+  --standalone --to man man.md -o build/yq.1

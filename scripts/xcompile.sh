@@ -6,9 +6,12 @@ set -e
 
 CGO_ENABLED=0 gox -ldflags "${LDFLAGS}" -output="build/yq_{{.OS}}_{{.Arch}}" --osarch="darwin/amd64 darwin/arm64 freebsd/386 freebsd/amd64 freebsd/arm linux/386 linux/amd64 linux/arm linux/arm64 linux/mips linux/mips64 linux/mips64le linux/mipsle linux/ppc64 linux/ppc64le linux/s390x netbsd/386 netbsd/amd64 netbsd/arm openbsd/386 openbsd/amd64 windows/386 windows/amd64"
 
+./scripts/generate-man-page.sh
+
 cd build
 
-find . -executable -type f | xargs -I {} tar czvf {}.tar.gz {}
+find . -executable -type f | xargs -I {} tar czvf {}.tar.gz {} yq.1 -C ../scripts install-man-page.sh
+tar czvf yq_man_page_only.tar.gz yq.1 -C ../scripts install-man-page.sh
 
 rhash -r -a . -o checksums
 
@@ -17,6 +20,7 @@ rhash --list-hashes > checksums_hashes_order
 # just in case find thinks this is executable...
 rm -f checksums_hashes_order.tar.gz 
 rm -f checksums.tar.gz
+rm yq.1 
 
 rm yq_windows_386.exe.tar.gz
 rm yq_windows_amd64.exe.tar.gz
