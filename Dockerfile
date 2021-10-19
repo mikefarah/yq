@@ -10,7 +10,7 @@ RUN ./scripts/acceptance.sh
 
 # Choose alpine as a base image to make this useful for CI, as many
 # CI tools expect an interactive shell inside the container
-FROM alpine:3.13.5 as production
+FROM alpine:3 as production
 
 RUN mkdir /home/yq/
 RUN addgroup -g 1000 yq && \
