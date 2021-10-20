@@ -19,17 +19,17 @@ jobs:
           echo "::set-output name=man-page-md::man.md"
 
       - name: Generate man page
-        uses: docker://pandoc/latex:2.9
+        uses: docker://pandoc/core:2.14.2
         id: gen-man-page
         env:
-          MAN_HEADER: yq (https://github.com/mikefarah/yq/) version ${{ github.ref }}
+          MAN_HEADER: yq (https://github.com/mikefarah/yq/) version ${{ GITHUB_REF##*/ }}
         with:
           args: >-
             --standalone
             --to man
             --variable=title:"YQ"
             --variable=section:"1"
-            --variable=header:"${MAN_HEADER}"
+            --variable=header:"${{MAN_HEADER}}"
             --variable=author:"Mike Farah"
             --output=yq.1
             ${{ steps.gen-man-page-md.outputs.man-page-md }}
@@ -39,8 +39,6 @@ jobs:
           sudo apt-get install rhash -y
           go get github.com/mitchellh/gox
           mkdir -p build
-          pwd
-          ls 
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh
 
