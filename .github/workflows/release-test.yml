@@ -23,9 +23,6 @@ jobs:
         id: gen-man-page
         env:
           MAN_HEADER: yq (https://github.com/mikefarah/yq/) version ${{ github.ref }}
-        outputs:
-          manpage: 
-            value: yq.1
         with:
           args: >-
             --standalone
@@ -42,24 +39,26 @@ jobs:
           sudo apt-get install rhash -y
           go get github.com/mitchellh/gox
           mkdir -p build
-          cp ${{ steps.gen-man-page.outputs.manpage }} build/yq.1
+          pwd
+          ls 
+          cp yq.1 build/yq.1
           ./scripts/xcompile.sh
 
-  #     - name: Create Release
-  #       id: create_release
-  #       uses: actions/create-release@v1.0.0
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ github.ref }}
-  #         release_name: TEST ${{ github.ref }}
-  #         draft: true
-  #         prerelease: false
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: TEST ${{ github.ref }}
+          draft: true
+          prerelease: false
 
-  #     - uses: shogo82148/actions-upload-release-asset@v1
-  #       with:
-  #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-  #         asset_path: build/*
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/*
 
   # publishDocker:
   #   environment: dockerhub
