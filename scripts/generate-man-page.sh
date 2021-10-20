@@ -3,26 +3,9 @@ set -e
 
 # note that this reqires pandoc to be installed.
 
-cat ./pkg/yqlib/doc/headers/Main.md > man.md
-printf "\n# HOW IT WORKS\n" >> man.md
-cat ./pkg/yqlib/doc/aa.md >> man.md
-
-for f in ./pkg/yqlib/doc/*.md; do 
-  docNameWithExt="${f##*/}"
-  docName="${docNameWithExt%.*}"
-  docNameCap=$(echo $docName | tr [a-z] [A-Z])
-  if [ "$docName" != "aa" ]; then
-    printf "\n\n# ${docNameCap}\n" >> man.md
-    cat "$f" >> man.md
-  fi
-  
-done
-
-header=$(./yq --version)
-
 pandoc \
   --variable=title:"YQ" \
   --variable=section:"1" \
   --variable=author:"Mike Farah" \
-  --variable=header:"${header}" \
-  --standalone --to man man.md -o build/yq.1
+  --variable=header:"${MAN_HEADER}" \
+  --standalone --to man man.md -o yq.1

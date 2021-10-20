@@ -6,8 +6,6 @@ set -e
 
 CGO_ENABLED=0 gox -ldflags "${LDFLAGS}" -output="build/yq_{{.OS}}_{{.Arch}}" --osarch="darwin/amd64 darwin/arm64 freebsd/386 freebsd/amd64 freebsd/arm linux/386 linux/amd64 linux/arm linux/arm64 linux/mips linux/mips64 linux/mips64le linux/mipsle linux/ppc64 linux/ppc64le linux/s390x netbsd/386 netbsd/amd64 netbsd/arm openbsd/386 openbsd/amd64 windows/386 windows/amd64"
 
-./scripts/generate-man-page.sh
-
 cd build
 
 find . -executable -type f | xargs -I {} tar czvf {}.tar.gz {} yq.1 -C ../scripts install-man-page.sh
