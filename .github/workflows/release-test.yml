@@ -1,0 +1,68 @@
+name: Test Release YQ
+on:
+  push:
+    tags:
+      - 'releaseTest-*'
+
+jobs:
+  publishGitRelease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17.2'
+      - name: Cross compile
+        run: |
+          sudo apt-get install rhash -y
+          go get github.com/mitchellh/gox
+          ./scripts/xcompile.sh
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: TEST ${{ github.ref }}
+          draft: true
+          prerelease: false
+
+      - uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/*
+
+  publishDocker:
+    environment: dockerhub
+    env:
+      IMAGE_NAME: mikefarah/yq
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: all
+  
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
+
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }} && docker version
+ 
+      - name: Build image
+        run: |
+          IMAGE_V_VERSION="$(git describe --tags --abbrev=0)"
+          IMAGE_VERSION=${IMAGE_V_VERSION:1}
+
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"
+          echo "Building version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
+          docker buildx build --platform "${PLATFORMS}" .
+    
