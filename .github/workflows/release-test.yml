@@ -18,18 +18,20 @@ jobs:
           ./scripts/generate-man-page-md.sh
           echo "::set-output name=man-page-md::man.md"
 
+      - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF##*/}
+
       - name: Generate man page
         uses: docker://pandoc/core:2.14.2
         id: gen-man-page
-        env:
-          MAN_HEADER: yq (https://github.com/mikefarah/yq/) version ${{ GITHUB_REF##*/ }}
         with:
           args: >-
             --standalone
             --to man
             --variable=title:"YQ"
             --variable=section:"1"
-            --variable=header:"${{MAN_HEADER}}"
+            --variable=header:"yq (https://github.com/mikefarah/yq/) version ${{ steps.get_version.outputs.VERSION }}"
             --variable=author:"Mike Farah"
             --output=yq.1
             ${{ steps.gen-man-page-md.outputs.man-page-md }}
