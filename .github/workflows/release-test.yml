@@ -27,7 +27,7 @@ jobs:
             --to man
             --variable=title:"YQ"
             --variable=section:"1"
-            --variable=header:"yq (https://github.com/mikefarah/yq/) version ${GITHUB_REF/refs\/tags\//}"
+            --variable=header:"yq (https://github.com/mikefarah/yq/) version ${GITHUB_REF##*/}"
             --variable=author:"Mike Farah"
             --output=yq.1
             ${{ steps.gen-man-page-md.outputs.man-page-md }}
@@ -37,6 +37,7 @@ jobs:
           sudo apt-get install rhash -y
           go get github.com/mitchellh/gox
           mkdir -p build
+          cat yq.1
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh
 
