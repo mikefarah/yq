@@ -32,7 +32,7 @@ jobs:
             --to man
             --variable=title:"YQ"
             --variable=section:"1"
-            --variable=header:"${{MAN_HEADER}}"
+            --variable=header:"${MAN_HEADER}"
             --variable=author:"Mike Farah"
             --output=yq.1
             ${{ steps.gen-man-page-md.outputs.man-page-md }}
