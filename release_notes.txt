@@ -1,3 +1,11 @@
+4.13.5:
+  - Performance improvement for deepMatch (thanks @pmatseykanets)
+  - Added manpage, included in tar.gz downloads as well as a separate tar.gz (#961)
+  - Fixed expression parsing bug #970
+  - Rebuild fixes CVE (#964)
+  - Bumped docker alpine version
+
+
 4.13.4:
   - Fixed select bug (#958)
   - Improved performance of `explode` (this will also speed up json conversion)
