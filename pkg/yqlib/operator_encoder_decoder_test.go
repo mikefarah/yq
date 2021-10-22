@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var encoderOperatorScenarios = []expressionScenario{
+var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
 		description: "Encode value as yaml string",
 		document:    `{a: {cool: "thing"}}`,
@@ -42,11 +42,28 @@ var encoderOperatorScenarios = []expressionScenario{
 `,
 		},
 	},
+	{
+		description: "Decode a yaml encoded string",
+		document:    `a: "foo: bar"`,
+		expression:  `.b = (.a | from_yaml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: \"foo: bar\"\nb:\n    foo: bar\n",
+		},
+	},
+	{
+		description:           "Update an encoded yaml string",
+		dontFormatInputForDoc: true,
+		document:              "a: |\n  foo: bar",
+		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: |\n    foo: cat\n",
+		},
+	},
 }
 
-func TestEncoderOperatorScenarios(t *testing.T) {
-	for _, tt := range encoderOperatorScenarios {
+func TestEncoderDecoderOperatorScenarios(t *testing.T) {
+	for _, tt := range encoderDecoderOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Encoder", encoderOperatorScenarios)
+	documentScenarios(t, "Encoder and Decoder", encoderDecoderOperatorScenarios)
 }

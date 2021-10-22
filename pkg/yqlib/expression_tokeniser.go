@@ -281,6 +281,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat}))
 	lexer.Add([]byte(`to_props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat}))
 
+	lexer.Add([]byte(`fromyaml`), opToken(decodeOpType))
+	lexer.Add([]byte(`fromjson`), opToken(decodeOpType))
+
+	lexer.Add([]byte(`from_yaml`), opToken(decodeOpType))
+	lexer.Add([]byte(`from_json`), opToken(decodeOpType))
+
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
 	lexer.Add([]byte(`select`), opToken(selectOpType))
 	lexer.Add([]byte(`has`), opToken(hasOpType))
