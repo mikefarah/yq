@@ -272,6 +272,15 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`,`), opToken(unionOpType))
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
 	lexer.Add([]byte(`length`), opToken(lengthOpType))
+
+	lexer.Add([]byte(`toyaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat}))
+	lexer.Add([]byte(`tojson`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat}))
+	lexer.Add([]byte(`toprops`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat}))
+
+	lexer.Add([]byte(`to_yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat}))
+	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat}))
+	lexer.Add([]byte(`to_props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat}))
+
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
 	lexer.Add([]byte(`select`), opToken(selectOpType))
 	lexer.Add([]byte(`has`), opToken(hasOpType))

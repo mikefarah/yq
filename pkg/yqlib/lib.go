@@ -59,6 +59,7 @@ var shortPipeOpType = &operationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence:
 
 var lengthOpType = &operationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Handler: lengthOperator}
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 0, Precedence: 50, Handler: collectOperator}
+var encodeOpType = &operationType{Type: "TO_YAML", NumArgs: 0, Precedence: 50, Handler: encodeOperator}
 
 var anyOpType = &operationType{Type: "ANY", NumArgs: 0, Precedence: 50, Handler: anyOperator}
 var allOpType = &operationType{Type: "ALL", NumArgs: 0, Precedence: 50, Handler: allOperator}
