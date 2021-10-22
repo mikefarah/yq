@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"container/list"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -12,9 +13,7 @@ import (
 func yamlToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
 	printer := NewPrinter(bufio.NewWriter(&output), prefs.format, true, false, 2, true)
-	elMap := list.New()
-	elMap.PushBack(candidate)
-	err := printer.PrintResults(elMap)
+	err := printer.PrintResults(candidate.AsList())
 	return output.String(), err
 }
 
@@ -27,11 +26,28 @@ type encoderPreferences struct {
 func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(encoderPreferences)
 	var results = list.New()
+
+	hasOnlyOneNewLine := regexp.MustCompile("[^\n].*\n$")
+	chomper := regexp.MustCompile("\n+$")
+
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		stringValue, err := yamlToString(candidate, preferences)
+
 		if err != nil {
 			return Context{}, err
+		}
+
+		// remove trailing newlines if needed.
+		// check if we originally decoded this path, and the original thing had a single line.
+		originalList := context.GetVariable("decoded: " + candidate.GetKey())
+		if originalList != nil && originalList.Len() > 0 && hasOnlyOneNewLine.MatchString(stringValue) {
+
+			original := originalList.Front().Value.(*CandidateNode)
+			if unwrapDoc(original.Node).Style == yaml.SingleQuotedStyle ||
+				unwrapDoc(original.Node).Style == yaml.DoubleQuotedStyle {
+				stringValue = chomper.ReplaceAllString(stringValue, "")
+			}
 		}
 
 		stringContentNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: stringValue}
@@ -46,6 +62,9 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		context.SetVariable("decoded: "+candidate.GetKey(), candidate.AsList())
+
 		var dataBucket yaml.Node
 		log.Debugf("got: [%v]", candidate.Node.Value)
 		decoder := yaml.NewDecoder(strings.NewReader(unwrapDoc(candidate.Node).Value))

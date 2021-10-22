@@ -92,11 +92,12 @@ b:
   foo: bar
 ```
 
-## Update an encoded yaml string
+## Update a multiline encoded yaml string
 Given a sample.yml file of:
 ```yaml
 a: |
   foo: bar
+  baz: dog
 ```
 then
 ```bash
@@ -106,5 +107,20 @@ will output
 ```yaml
 a: |
   foo: cat
+  baz: dog
+```
+
+## Update a single line encoded yaml string
+Given a sample.yml file of:
+```yaml
+a: 'foo: bar'
+```
+then
+```bash
+yq eval '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
+```
+will output
+```yaml
+a: 'foo: cat'
 ```
 

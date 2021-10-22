@@ -51,12 +51,30 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:           "Update an encoded yaml string",
+		description:           "Update a multiline encoded yaml string",
 		dontFormatInputForDoc: true,
-		document:              "a: |\n  foo: bar",
+		document:              "a: |\n  foo: bar\n  baz: dog",
 		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: |\n    foo: cat\n",
+			"D0, P[], (doc)::a: |\n    foo: cat\n    baz: dog\n",
+		},
+	},
+	{
+		description:           "Update a single line encoded yaml string",
+		dontFormatInputForDoc: true,
+		document:              "a: 'foo: bar'",
+		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: 'foo: cat'\n",
+		},
+	},
+	{
+		skipDoc:               true,
+		dontFormatInputForDoc: true,
+		document:              "a: \"foo: bar\"",
+		expression:            `.a |= (from_yaml | .foo = {"a": "frog"} | to_yaml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: \"foo:\\n  a: frog\"\n",
 		},
 	},
 }

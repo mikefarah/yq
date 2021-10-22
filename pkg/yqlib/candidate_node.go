@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 
 	"github.com/jinzhu/copier"
@@ -26,6 +27,12 @@ func (n *CandidateNode) GetKey() string {
 		keyPrefix = "key-"
 	}
 	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
+}
+
+func (n *CandidateNode) AsList() *list.List {
+	elMap := list.New()
+	elMap.PushBack(n)
+	return elMap
 }
 
 func (n *CandidateNode) CreateChild(path interface{}, node *yaml.Node) *CandidateNode {
