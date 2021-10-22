@@ -53,10 +53,19 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
 		description:           "Update a multiline encoded yaml string",
 		dontFormatInputForDoc: true,
-		document:              "a: |\n  foo: bar\n  baz: dog",
+		document:              "a: |\n  foo: bar\n  baz: dog\n",
 		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
 		expected: []string{
 			"D0, P[], (doc)::a: |\n    foo: cat\n    baz: dog\n",
+		},
+	},
+	{
+		skipDoc:               true,
+		dontFormatInputForDoc: true,
+		document:              "a: |-\n  foo: bar\n  baz: dog\n",
+		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: |-\n    foo: cat\n    baz: dog\n",
 		},
 	},
 	{

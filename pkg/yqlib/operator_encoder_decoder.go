@@ -28,6 +28,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	var results = list.New()
 
 	hasOnlyOneNewLine := regexp.MustCompile("[^\n].*\n$")
+	endWithNewLine := regexp.MustCompile(".*\n$")
 	chomper := regexp.MustCompile("\n+$")
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
@@ -44,8 +45,9 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		if originalList != nil && originalList.Len() > 0 && hasOnlyOneNewLine.MatchString(stringValue) {
 
 			original := originalList.Front().Value.(*CandidateNode)
-			if unwrapDoc(original.Node).Style == yaml.SingleQuotedStyle ||
-				unwrapDoc(original.Node).Style == yaml.DoubleQuotedStyle {
+			originalNode := unwrapDoc(original.Node)
+			// original block did not have a new line at the end, get rid of this one too
+			if !endWithNewLine.MatchString(originalNode.Value) {
 				stringValue = chomper.ReplaceAllString(stringValue, "")
 			}
 		}
