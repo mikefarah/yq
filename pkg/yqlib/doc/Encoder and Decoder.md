@@ -2,10 +2,13 @@ Encode operators will take the piped in object structure and encode it as a stri
 
 These operators are useful to process yaml documents that have stringified embeded yaml/json/props in them.
 ## Encode value as yaml string
+Indent defaults to 2
+
 Given a sample.yml file of:
 ```yaml
 a:
-  cool: thing
+  cool:
+    bob: dylan
 ```
 then
 ```bash
@@ -14,9 +17,34 @@ yq eval '.b = (.a | to_yaml)' sample.yml
 will output
 ```yaml
 a:
-  cool: thing
+  cool:
+    bob: dylan
 b: |
-  cool: thing
+  cool:
+    bob: dylan
+```
+
+## Encode value as yaml string, with custom indentation
+You can specify the indentation level as the first parameter.
+
+Given a sample.yml file of:
+```yaml
+a:
+  cool:
+    bob: dylan
+```
+then
+```bash
+yq eval '.b = (.a | to_yaml(8))' sample.yml
+```
+will output
+```yaml
+a:
+  cool:
+    bob: dylan
+b: |
+  cool:
+          bob: dylan
 ```
 
 ## Encode value as yaml string, using toyaml
@@ -57,6 +85,25 @@ b: |
   {
     "cool": "thing"
   }
+```
+
+## Encode value as json string, on one line
+Pass in a 0 indent to print json on a single line.
+
+Given a sample.yml file of:
+```yaml
+a:
+  cool: thing
+```
+then
+```bash
+yq eval '.b = (.a | to_json(0))' sample.yml
+```
+will output
+```yaml
+a:
+  cool: thing
+b: '{"cool":"thing"}'
 ```
 
 ## Encode value as props string

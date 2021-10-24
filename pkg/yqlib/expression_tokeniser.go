@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -127,6 +128,24 @@ func opTokenWithPrefs(op *operationType, assignOpType *operationType, preference
 			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
 		}
 		return &token{TokenType: operationToken, Operation: op, AssignOperation: assign}, nil
+	}
+}
+
+func encodeWithIndent(outputFormat PrinterOutputFormat) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+
+		parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
+		value := string(m.Bytes)
+		matches := parameterParser.FindStringSubmatch(value)
+
+		var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32) // nolint
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+
+		prefs := encoderPreferences{format: outputFormat, indent: int(indent)}
+		op := &Operation{OperationType: encodeOpType, Value: encodeOpType.Type, StringValue: value + "i " + matches[1], Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
 
@@ -273,13 +292,19 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
 	lexer.Add([]byte(`length`), opToken(lengthOpType))
 
-	lexer.Add([]byte(`toyaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat}))
-	lexer.Add([]byte(`tojson`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat}))
-	lexer.Add([]byte(`toprops`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat}))
+	lexer.Add([]byte(`toyaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
+	lexer.Add([]byte(`to_yaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 
-	lexer.Add([]byte(`to_yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat}))
-	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat}))
-	lexer.Add([]byte(`to_props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat}))
+	lexer.Add([]byte(`tojson\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
+	lexer.Add([]byte(`to_json\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
+
+	lexer.Add([]byte(`toyaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
+	lexer.Add([]byte(`tojson`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))
+	lexer.Add([]byte(`toprops`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
+
+	lexer.Add([]byte(`to_yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
+	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))
+	lexer.Add([]byte(`to_props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
 
 	lexer.Add([]byte(`fromyaml`), opToken(decodeOpType))
 	lexer.Add([]byte(`fromjson`), opToken(decodeOpType))

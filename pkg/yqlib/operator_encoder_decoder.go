@@ -12,13 +12,15 @@ import (
 
 func yamlToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
-	printer := NewPrinter(bufio.NewWriter(&output), prefs.format, true, false, 2, true)
+	log.Debug("printing with indent: %v", prefs.indent)
+	printer := NewPrinter(bufio.NewWriter(&output), prefs.format, true, false, prefs.indent, true)
 	err := printer.PrintResults(candidate.AsList())
 	return output.String(), err
 }
 
 type encoderPreferences struct {
 	format PrinterOutputFormat
+	indent int
 }
 
 /* encodes object as yaml string */
@@ -50,6 +52,11 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			if !endWithNewLine.MatchString(originalNode.Value) {
 				stringValue = chomper.ReplaceAllString(stringValue, "")
 			}
+		}
+
+		// dont print a new line when printing json on a single line.
+		if preferences.format == JsonOutputFormat && preferences.indent == 0 {
+			stringValue = chomper.ReplaceAllString(stringValue, "")
 		}
 
 		stringContentNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: stringValue}

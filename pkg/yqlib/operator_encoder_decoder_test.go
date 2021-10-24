@@ -4,14 +4,25 @@ import (
 	"testing"
 )
 
+var prefix = "D0, P[], (doc)::a:\n    cool:\n        bob: dylan\n"
+
 var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
-		description: "Encode value as yaml string",
-		document:    `{a: {cool: "thing"}}`,
-		expression:  `.b = (.a | to_yaml)`,
+		description:    "Encode value as yaml string",
+		subdescription: "Indent defaults to 2",
+		document:       "a:\n  cool:\n    bob: dylan",
+		expression:     `.b = (.a | to_yaml)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{cool: \"thing\"}\n"}
-`,
+			prefix + "b: |\n    cool:\n      bob: dylan\n",
+		},
+	},
+	{
+		description:    "Encode value as yaml string, with custom indentation",
+		subdescription: "You can specify the indentation level as the first parameter.",
+		document:       "a:\n  cool:\n    bob: dylan",
+		expression:     `.b = (.a | to_yaml(8))`,
+		expected: []string{
+			prefix + "b: |\n    cool:\n            bob: dylan\n",
 		},
 	},
 	{
@@ -30,6 +41,16 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		expression:  `.b = (.a | to_json)`,
 		expected: []string{
 			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{\n  \"cool\": \"thing\"\n}\n"}
+`,
+		},
+	},
+	{
+		description:    "Encode value as json string, on one line",
+		subdescription: "Pass in a 0 indent to print json on a single line.",
+		document:       `{a: {cool: "thing"}}`,
+		expression:     `.b = (.a | to_json(0))`,
+		expected: []string{
+			`D0, P[], (doc)::{a: {cool: "thing"}, b: '{"cool":"thing"}'}
 `,
 		},
 	},
