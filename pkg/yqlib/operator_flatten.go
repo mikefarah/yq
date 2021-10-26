@@ -42,7 +42,7 @@ func flattenOp(d *dataTreeNavigator, context Context, expressionNode *Expression
 		candidate := el.Value.(*CandidateNode)
 		candidateNode := unwrapDoc(candidate.Node)
 		if candidateNode.Kind != yaml.SequenceNode {
-			return Context{}, fmt.Errorf("Only arrays are supported for group by")
+			return Context{}, fmt.Errorf("Only arrays are supported for flatten")
 		}
 
 		flatten(candidateNode, depth)
