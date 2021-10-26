@@ -131,20 +131,40 @@ func opTokenWithPrefs(op *operationType, assignOpType *operationType, preference
 	}
 }
 
-func encodeWithIndent(outputFormat PrinterOutputFormat) lex.Action {
+func extractNumberParamter(value string) (int, error) {
+	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
+	matches := parameterParser.FindStringSubmatch(value)
+	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32) // nolint
+	if errParsingInt != nil {
+		return 0, errParsingInt
+	}
+	return int(indent), nil
+}
+
+func flattenWithDepth() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-
-		parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
 		value := string(m.Bytes)
-		matches := parameterParser.FindStringSubmatch(value)
-
-		var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32) // nolint
+		var depth, errParsingInt = extractNumberParamter(value)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
 
-		prefs := encoderPreferences{format: outputFormat, indent: int(indent)}
-		op := &Operation{OperationType: encodeOpType, Value: encodeOpType.Type, StringValue: value + "i " + matches[1], Preferences: prefs}
+		prefs := flattenPreferences{depth: depth}
+		op := &Operation{OperationType: flattenOpType, Value: flattenOpType.Type, StringValue: value, Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: op}, nil
+	}
+}
+
+func encodeWithIndent(outputFormat PrinterOutputFormat) lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+		var indent, errParsingInt = extractNumberParamter(value)
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+
+		prefs := encoderPreferences{format: outputFormat, indent: indent}
+		op := &Operation{OperationType: encodeOpType, Value: encodeOpType.Type, StringValue: value, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
@@ -291,6 +311,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`,`), opToken(unionOpType))
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
 	lexer.Add([]byte(`length`), opToken(lengthOpType))
+
+	lexer.Add([]byte(`flatten\([0-9]+\)`), flattenWithDepth())
+	lexer.Add([]byte(`flatten`), opTokenWithPrefs(flattenOpType, nil, flattenPreferences{depth: -1}))
 
 	lexer.Add([]byte(`toyaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 	lexer.Add([]byte(`to_yaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))

@@ -1,3 +1,8 @@
+4.14.1:
+  - Added group_by operator
+  - Added encode/decode operators (toyaml, fromjson etc)
+  - Added flatten operator
+
 4.13.5:
   - Performance improvement for deepMatch (thanks @pmatseykanets)
   - Added manpage, included in tar.gz downloads as well as a separate tar.gz (#961)
