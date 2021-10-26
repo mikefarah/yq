@@ -317,6 +317,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`has`), opToken(hasOpType))
 	lexer.Add([]byte(`unique`), opToken(uniqueOpType))
 	lexer.Add([]byte(`unique_by`), opToken(uniqueByOpType))
+	lexer.Add([]byte(`group_by`), opToken(groupByOpType))
 	lexer.Add([]byte(`explode`), opToken(explodeOpType))
 	lexer.Add([]byte(`or`), opToken(orOpType))
 	lexer.Add([]byte(`and`), opToken(andOpType))
