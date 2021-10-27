@@ -136,7 +136,9 @@ a:
   b: frog
 ```
 
-## Update selected results
+## Update deeply selected results
+Note that the LHS is wrapped in brackets! This is to ensure we dont first filter out the yaml and then update the snippet.
+
 Given a sample.yml file of:
 ```yaml
 a:
