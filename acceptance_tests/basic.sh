@@ -1,7 +1,7 @@
 #!/bin/bash
 
 setUp() {
-  rm -f test.yml
+  rm test*.yml || true
 }
 
 testBasicEvalRoundTrip() {
