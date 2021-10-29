@@ -13,7 +13,8 @@ import (
 func yamlToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
 	log.Debug("printing with indent: %v", prefs.indent)
-	printer := NewPrinter(bufio.NewWriter(&output), prefs.format, true, false, prefs.indent, true)
+
+	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), prefs.format, true, false, prefs.indent, true)
 	err := printer.PrintResults(candidate.AsList())
 	return output.String(), err
 }

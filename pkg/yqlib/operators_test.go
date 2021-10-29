@@ -107,7 +107,7 @@ func copyFromHeader(title string, out *os.File) error {
 
 func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
-	printer := NewPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(".. style= \"\"")
 	if err != nil {
@@ -216,7 +216,7 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formattedDoc string, formattedDoc2 string) {
 	var output bytes.Buffer
 	var err error
-	printer := NewPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {

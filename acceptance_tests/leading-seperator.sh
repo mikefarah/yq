@@ -1,6 +1,7 @@
 #!/bin/bash
 
 setUp() {
+  rm test*.yml || true
   cat >test.yml <<EOL
 ---
 a: test

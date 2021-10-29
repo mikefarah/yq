@@ -1,5 +1,8 @@
 #!/bin/bash
 
+setUp() {
+  rm test*.yml || true
+}
 
 testPrettyPrintWithBooleans() {
   cat >test.yml <<EOL
