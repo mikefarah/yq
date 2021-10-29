@@ -70,6 +70,10 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Write inplace flag only applicable when giving an expression and at least one file")
 	}
 
+	if writeInplace && splitFileExp != "" {
+		return fmt.Errorf("Write inplace cannot be used with split file")
+	}
+
 	if writeInplace {
 		// only use colors if its forced
 		colorsEnabled = forceColor
@@ -96,7 +100,24 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printer := yqlib.NewPrinter(out, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
+	var printerWriter yqlib.PrinterWriter
+
+	if splitFileExp == "i" {
+		colorsEnabled = forceColor
+		printerWriter = yqlib.NewMultiPrinterWriter(nil, format)
+
+	} else if splitFileExp != "" {
+		colorsEnabled = forceColor
+		splitExp, err := yqlib.NewExpressionParser().ParseExpression(splitFileExp)
+		if err != nil {
+			return nil
+		}
+		printerWriter = yqlib.NewMultiPrinterWriter(splitExp, format)
+	} else {
+		printerWriter = yqlib.NewSinglePrinterWriter(out)
+	}
+
+	printer := yqlib.NewPrinter(printerWriter, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	if frontMatter != "" {
 		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])

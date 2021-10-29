@@ -44,7 +44,7 @@ type resultsPrinter struct {
 	colorsEnabled      bool
 	indent             int
 	printDocSeparators bool
-	printerWriter      printerWriter
+	printerWriter      PrinterWriter
 	firstTimePrinting  bool
 	previousDocIndex   uint
 	previousFileIndex  int
@@ -53,7 +53,11 @@ type resultsPrinter struct {
 	appendixReader     io.Reader
 }
 
-func NewPrinter(printerWriter printerWriter, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+func NewPrinterWithSingleWriter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+	return NewPrinter(NewSinglePrinterWriter(writer), outputFormat, unwrapScalar, colorsEnabled, indent, printDocSeparators)
+}
+
+func NewPrinter(printerWriter PrinterWriter, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
 	return &resultsPrinter{
 		printerWriter:      printerWriter,
 		outputFormat:       outputFormat,
@@ -212,10 +216,14 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	}
 
 	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
-		writer := p.printerWriter.GetWriter(nil, index)
+		writer, err := p.printerWriter.GetWriter(nil, index)
+		if err != nil {
+			return err
+		}
+
 		log.Debug("Piping appendix reader...")
 		betterReader := bufio.NewReader(p.appendixReader)
-		_, err := io.Copy(writer, betterReader)
+		_, err = io.Copy(writer, betterReader)
 		if err != nil {
 			return err
 		}

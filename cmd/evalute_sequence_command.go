@@ -106,7 +106,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printer := yqlib.NewPrinter(out, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
+	printer := yqlib.NewPrinter(yqlib.NewSinglePrinterWriter(out), format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
 	streamEvaluator := yqlib.NewStreamEvaluator()
 

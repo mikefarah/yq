@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 )
 
-type printerWriter interface {
+type PrinterWriter interface {
 	GetWriter(node *CandidateNode, index int) (*bufio.Writer, error)
 }
 
@@ -14,7 +15,7 @@ type singlePrinterWriter struct {
 	bufferedWriter *bufio.Writer
 }
 
-func NewSinglePrinterWriter(writer io.Writer) printerWriter {
+func NewSinglePrinterWriter(writer io.Writer) PrinterWriter {
 	return &singlePrinterWriter{
 		bufferedWriter: bufio.NewWriter(writer),
 	}
@@ -28,6 +29,23 @@ type multiPrintWriter struct {
 	treeNavigator  DataTreeNavigator
 	nameExpression *ExpressionNode
 	extension      string
+}
+
+func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputFormat) PrinterWriter {
+	extension := "yml"
+
+	switch format {
+	case JsonOutputFormat:
+		extension = "json"
+	case PropsOutputFormat:
+		extension = "properties"
+	}
+
+	return &multiPrintWriter{
+		nameExpression: expression,
+		extension:      extension,
+		treeNavigator:  NewDataTreeNavigator(),
+	}
 }
 
 func (sp *multiPrintWriter) GetWriter(node *CandidateNode, index int) (*bufio.Writer, error) {
@@ -48,5 +66,13 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode, index int) (*bufio.Wr
 	} else {
 		name = fmt.Sprintf("%v.%v", name, sp.extension)
 	}
+
+	f, err := os.Create(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bufio.NewWriter(f), nil
 
 }

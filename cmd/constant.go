@@ -21,4 +21,6 @@ var prettyPrint = false
 // can be either "" (off), "extract" or "process"
 var frontMatter = ""
 
+var splitFileExp = ""
+
 var completedSuccessfully = false
