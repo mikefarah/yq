@@ -100,22 +100,7 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var printerWriter yqlib.PrinterWriter
-
-	if splitFileExp == "i" {
-		colorsEnabled = forceColor
-		printerWriter = yqlib.NewMultiPrinterWriter(nil, format)
-
-	} else if splitFileExp != "" {
-		colorsEnabled = forceColor
-		splitExp, err := yqlib.NewExpressionParser().ParseExpression(splitFileExp)
-		if err != nil {
-			return nil
-		}
-		printerWriter = yqlib.NewMultiPrinterWriter(splitExp, format)
-	} else {
-		printerWriter = yqlib.NewSinglePrinterWriter(out)
-	}
+	printerWriter := configurePrinterWriter(format, out)
 
 	printer := yqlib.NewPrinter(printerWriter, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
 
