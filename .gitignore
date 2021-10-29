@@ -38,8 +38,12 @@ parts/
 prime/
 .snapcraft/
 yq*.snap
+
 test.yml
-test2.yml
+test*.yml
+0.yml
+1.yml
+2.yml
 
 
 # man page

@@ -102,13 +102,6 @@ func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
-func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
-	if err := writer.Flush(); err != nil {
-		log.Error("Error flushing writer!")
-		log.Error(err.Error())
-	}
-}
-
 func (p *resultsPrinter) processLeadingContent(mappedDoc *CandidateNode, writer io.Writer) error {
 	if strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$") {
 		log.Debug("headcommentwas %v", mappedDoc.Node.HeadComment)
@@ -177,14 +170,12 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		p.firstTimePrinting = false
 	}
 
-	index := 0
-
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
 
-		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc, index)
+		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc)
 		if errorWriting != nil {
 			return errorWriting
 		}
@@ -210,13 +201,10 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		if err := writer.Flush(); err != nil {
 			return err
 		}
-
-		index++
-
 	}
 
 	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
-		writer, err := p.printerWriter.GetWriter(nil, index)
+		writer, err := p.printerWriter.GetWriter(nil)
 		if err != nil {
 			return err
 		}
@@ -225,6 +213,9 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		betterReader := bufio.NewReader(p.appendixReader)
 		_, err = io.Copy(writer, betterReader)
 		if err != nil {
+			return err
+		}
+		if err := writer.Flush(); err != nil {
 			return err
 		}
 	}

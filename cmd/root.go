@@ -64,7 +64,7 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 	rootCmd.PersistentFlags().StringVarP(&frontMatter, "front-matter", "f", "", "(extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact")
 	rootCmd.PersistentFlags().BoolVarP(&leadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression. This is a workaround for go-yaml to persist header content properly.")
 
-	rootCmd.PersistentFlags().StringVarP(&splitFileExp, "split-exp", "s", "", "print each result (or doc) into a file named (exp). Set to 'i' if you'd like to have numbered output.")
+	rootCmd.PersistentFlags().StringVarP(&splitFileExp, "split-exp", "s", "", "print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter.")
 
 	rootCmd.AddCommand(
 		createEvaluateSequenceCommand(),

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+setUp() {
+  rm test*.yml || true
+}
+
 testOutputJsonDeprecated() {
   cat >test.yml <<EOL
 a: {b: ["cat"]}

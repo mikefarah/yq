@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 type PrinterWriter interface {
-	GetWriter(node *CandidateNode, index int) (*bufio.Writer, error)
+	GetWriter(node *CandidateNode) (*bufio.Writer, error)
 }
 
 type singlePrinterWriter struct {
@@ -21,7 +23,7 @@ func NewSinglePrinterWriter(writer io.Writer) PrinterWriter {
 	}
 }
 
-func (sp *singlePrinterWriter) GetWriter(node *CandidateNode, i int) (*bufio.Writer, error) {
+func (sp *singlePrinterWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error) {
 	return sp.bufferedWriter, nil
 }
 
@@ -29,6 +31,7 @@ type multiPrintWriter struct {
 	treeNavigator  DataTreeNavigator
 	nameExpression *ExpressionNode
 	extension      string
+	index          int
 }
 
 func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputFormat) PrinterWriter {
@@ -45,33 +48,33 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputForma
 		nameExpression: expression,
 		extension:      extension,
 		treeNavigator:  NewDataTreeNavigator(),
+		index:          0,
 	}
 }
 
-func (sp *multiPrintWriter) GetWriter(node *CandidateNode, index int) (*bufio.Writer, error) {
+func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error) {
 	name := ""
 
-	if sp.nameExpression != nil {
-		context := Context{MatchingNodes: node.AsList()}
-		result, err := sp.treeNavigator.GetMatchingNodes(context, sp.nameExpression)
-		if err != nil {
-			return nil, err
-		}
-		if result.MatchingNodes.Len() > 0 {
-			name = result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
-		}
+	indexVariableNode := yaml.Node{Kind: yaml.ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", sp.index)}
+	indexVariableCandidate := CandidateNode{Node: &indexVariableNode}
+
+	context := Context{MatchingNodes: node.AsList()}
+	context.SetVariable("index", indexVariableCandidate.AsList())
+	result, err := sp.treeNavigator.GetMatchingNodes(context, sp.nameExpression)
+	if err != nil {
+		return nil, err
 	}
-	if name == "" {
-		name = fmt.Sprintf("%v.%v", index, sp.extension)
-	} else {
-		name = fmt.Sprintf("%v.%v", name, sp.extension)
+	if result.MatchingNodes.Len() > 0 {
+		name = result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
+	name = fmt.Sprintf("%v.%v", name, sp.extension)
 
 	f, err := os.Create(name)
 
 	if err != nil {
 		return nil, err
 	}
+	sp.index = sp.index + 1
 
 	return bufio.NewWriter(f), nil
 
