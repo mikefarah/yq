@@ -44,7 +44,7 @@ type resultsPrinter struct {
 	colorsEnabled      bool
 	indent             int
 	printDocSeparators bool
-	writer             io.Writer
+	printerWriter      printerWriter
 	firstTimePrinting  bool
 	previousDocIndex   uint
 	previousFileIndex  int
@@ -53,9 +53,9 @@ type resultsPrinter struct {
 	appendixReader     io.Reader
 }
 
-func NewPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+func NewPrinter(printerWriter printerWriter, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
 	return &resultsPrinter{
-		writer:             writer,
+		printerWriter:      printerWriter,
 		outputFormat:       outputFormat,
 		unwrapScalar:       unwrapScalar,
 		colorsEnabled:      colorsEnabled,
@@ -150,6 +150,12 @@ func (p *resultsPrinter) processLeadingContent(mappedDoc *CandidateNode, writer 
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
+
+	if matchingNodes.Len() == 0 {
+		log.Debug("no matching results, nothing to print")
+		return nil
+	}
+
 	if p.outputFormat != YamlOutputFormat {
 		explodeOp := Operation{OperationType: explodeOpType}
 		explodeNode := ExpressionNode{Operation: &explodeOp}
@@ -160,10 +166,6 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		matchingNodes = context.MatchingNodes
 	}
 
-	if matchingNodes.Len() == 0 {
-		log.Debug("no matching results, nothing to print")
-		return nil
-	}
 	if p.firstTimePrinting {
 		node := matchingNodes.Front().Value.(*CandidateNode)
 		p.previousDocIndex = node.Document
@@ -171,37 +173,49 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		p.firstTimePrinting = false
 	}
 
-	bufferedWriter := bufio.NewWriter(p.writer)
-	defer p.safelyFlush(bufferedWriter)
+	index := 0
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
+
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v, printDocSeparators: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document, p.printDocSeparators)
+
+		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc, index)
+		if errorWriting != nil {
+			return errorWriting
+		}
 
 		commentStartsWithSeparator := strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$\n$yqDocSeperator$")
 
 		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators && !commentStartsWithSeparator {
 			log.Debug("-- writing doc sep")
-			if err := p.writeString(bufferedWriter, "---\n"); err != nil {
+			if err := p.writeString(writer, "---\n"); err != nil {
 				return err
 			}
 		}
 
-		if err := p.processLeadingContent(mappedDoc, bufferedWriter); err != nil {
+		if err := p.processLeadingContent(mappedDoc, writer); err != nil {
 			return err
 		}
 
-		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {
+		if err := p.printNode(mappedDoc.Node, writer); err != nil {
 			return err
 		}
 
 		p.previousDocIndex = mappedDoc.Document
+		if err := writer.Flush(); err != nil {
+			return err
+		}
+
+		index++
+
 	}
 
 	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
+		writer := p.printerWriter.GetWriter(nil, index)
 		log.Debug("Piping appendix reader...")
 		betterReader := bufio.NewReader(p.appendixReader)
-		_, err := io.Copy(bufferedWriter, betterReader)
+		_, err := io.Copy(writer, betterReader)
 		if err != nil {
 			return err
 		}
