@@ -105,6 +105,49 @@ func (p *resultsPrinter) safelyFlush(writer *bufio.Writer) {
 	}
 }
 
+func (p *resultsPrinter) processLeadingContent(mappedDoc *CandidateNode, writer io.Writer) error {
+	if strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$") {
+		log.Debug("headcommentwas %v", mappedDoc.Node.HeadComment)
+		log.Debug("finished headcomment")
+		reader := bufio.NewReader(strings.NewReader(mappedDoc.Node.HeadComment))
+		mappedDoc.Node.HeadComment = ""
+
+		for {
+
+			readline, errReading := reader.ReadString('\n')
+			if errReading != nil && errReading != io.EOF {
+				return errReading
+			}
+			if strings.Contains(readline, "$yqLeadingContent$") {
+				// skip this
+
+			} else if strings.Contains(readline, "$yqDocSeperator$") {
+				if p.printDocSeparators {
+					if err := p.writeString(writer, "---\n"); err != nil {
+						return err
+					}
+				}
+			} else if p.outputFormat == YamlOutputFormat {
+				if err := p.writeString(writer, readline); err != nil {
+					return err
+				}
+			}
+
+			if errReading == io.EOF {
+				if readline != "" {
+					// the last comment we read didn't have a new line, put one in
+					if err := p.writeString(writer, "\n"); err != nil {
+						return err
+					}
+				}
+				break
+			}
+		}
+
+	}
+	return nil
+}
+
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	log.Debug("PrintResults for %v matches", matchingNodes.Len())
 	if p.outputFormat != YamlOutputFormat {
@@ -117,9 +160,6 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		matchingNodes = context.MatchingNodes
 	}
 
-	bufferedWriter := bufio.NewWriter(p.writer)
-	defer p.safelyFlush(bufferedWriter)
-
 	if matchingNodes.Len() == 0 {
 		log.Debug("no matching results, nothing to print")
 		return nil
@@ -130,6 +170,9 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		p.previousFileIndex = node.FileIndex
 		p.firstTimePrinting = false
 	}
+
+	bufferedWriter := bufio.NewWriter(p.writer)
+	defer p.safelyFlush(bufferedWriter)
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 		mappedDoc := el.Value.(*CandidateNode)
@@ -144,44 +187,8 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			}
 		}
 
-		if strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$") {
-			log.Debug("headcommentwas %v", mappedDoc.Node.HeadComment)
-			log.Debug("finished headcomment")
-			reader := bufio.NewReader(strings.NewReader(mappedDoc.Node.HeadComment))
-			mappedDoc.Node.HeadComment = ""
-
-			for {
-
-				readline, errReading := reader.ReadString('\n')
-				if errReading != nil && errReading != io.EOF {
-					return errReading
-				}
-				if strings.Contains(readline, "$yqLeadingContent$") {
-					// skip this
-
-				} else if strings.Contains(readline, "$yqDocSeperator$") {
-					if p.printDocSeparators {
-						if err := p.writeString(bufferedWriter, "---\n"); err != nil {
-							return err
-						}
-					}
-				} else if p.outputFormat == YamlOutputFormat {
-					if err := p.writeString(bufferedWriter, readline); err != nil {
-						return err
-					}
-				}
-
-				if errReading == io.EOF {
-					if readline != "" {
-						// the last comment we read didn't have a new line, put one in
-						if err := p.writeString(bufferedWriter, "\n"); err != nil {
-							return err
-						}
-					}
-					break
-				}
-			}
-
+		if err := p.processLeadingContent(mappedDoc, bufferedWriter); err != nil {
+			return err
 		}
 
 		if err := p.printNode(mappedDoc.Node, bufferedWriter); err != nil {
