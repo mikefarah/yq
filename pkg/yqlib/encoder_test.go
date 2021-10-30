@@ -48,6 +48,24 @@ banana:
 	test.AssertResult(t, expectedJson, actualJson)
 }
 
+func TestJsonNullInArray(t *testing.T) {
+	var sampleYaml = `[null]`
+	var actualJson = yamlToJson(sampleYaml, 0)
+	test.AssertResult(t, sampleYaml, actualJson)
+}
+
+func TestJsonNull(t *testing.T) {
+	var sampleYaml = `null`
+	var actualJson = yamlToJson(sampleYaml, 0)
+	test.AssertResult(t, sampleYaml, actualJson)
+}
+
+func TestJsonNullInObject(t *testing.T) {
+	var sampleYaml = `{x: null}`
+	var actualJson = yamlToJson(sampleYaml, 0)
+	test.AssertResult(t, `{"x":null}`, actualJson)
+}
+
 func TestJsonEncoderDoesNotEscapeHTMLChars(t *testing.T) {
 	var sampleYaml = `build: "( ./lint && ./format && ./compile ) < src.code"`
 	var expectedJson = `{"build":"( ./lint && ./format && ./compile ) < src.code"}`

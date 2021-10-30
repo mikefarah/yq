@@ -211,7 +211,8 @@ func (o *orderedMap) UnmarshalYAML(node *yaml.Node) error {
 		}
 		return nil
 	case yaml.SequenceNode:
-		var res []orderedMap
+		// note that this has to be a pointer, so that nulls can be represented.
+		var res []*orderedMap
 		if err := node.Decode(&res); err != nil {
 			return err
 		}
