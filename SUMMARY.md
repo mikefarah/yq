@@ -23,6 +23,7 @@
   * [Create, Collect into Object](operators/create-collect-into-object.md)
   * [Delete](operators/delete.md)
   * [Document Index](operators/document-index.md)
+  * [Encode / Decode](operators/encode-decode.md)
   * [Entries](operators/entries.md)
   * [Env Variable Operators](operators/env-variable-operators.md)
   * [Equals](operators/equals.md)
