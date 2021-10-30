@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
@@ -41,38 +40,22 @@ Note that it consumes more memory than eval.
 	return cmdEvalAll
 }
 func evaluateAll(cmd *cobra.Command, args []string) error {
-	cmd.SilenceUsage = true
 	// 0 args, read std in
 	// 1 arg, null input, process expression
 	// 1 arg, read file in sequence
 	// 2+ args, [0] = expression, file the rest
 
 	var err error
+
+	firstFileIndex, err := initCommand(cmd, args)
+	if err != nil {
+		return err
+	}
+
 	stat, _ := os.Stdin.Stat()
 	pipingStdIn := (stat.Mode() & os.ModeCharDevice) == 0
 
 	out := cmd.OutOrStdout()
-
-	fileInfo, _ := os.Stdout.Stat()
-
-	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
-		colorsEnabled = true
-	}
-
-	firstFileIndex := -1
-	if !nullInput && len(args) == 1 {
-		firstFileIndex = 0
-	} else if len(args) > 1 {
-		firstFileIndex = 1
-	}
-
-	if writeInplace && (firstFileIndex == -1) {
-		return fmt.Errorf("Write inplace flag only applicable when giving an expression and at least one file")
-	}
-
-	if writeInplace && splitFileExp != "" {
-		return fmt.Errorf("Write inplace cannot be used with split file")
-	}
 
 	if writeInplace {
 		// only use colors if its forced
@@ -85,14 +68,6 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		// need to indirectly call the function so  that completedSuccessfully is
 		// passed when we finish execution as opposed to now
 		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
-	}
-
-	if nullInput && len(args) > 1 {
-		return errors.New("Cannot pass files in when using null-input flag")
-	}
-	// backwards compatibilty
-	if outputToJSON {
-		outputFormat = "json"
 	}
 
 	format, err := yqlib.OutputFormatFromString(outputFormat)
