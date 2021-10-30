@@ -53,11 +53,11 @@
 
 ## Usage
 
-* [Split into multiple files](usage/split-into-multiple-files.md)
 * [Output format](usage/output-format.md)
 * [Working with Properties](usage/properties.md)
 * [Working with JSON](usage/convert.md)
 * [Front Matter](usage/front-matter.md)
+* [Split into multiple files](usage/split-into-multiple-files.md)
 * [GitHub Action](usage/github-action.md)
 * [Tips, Tricks, Troubleshooting](usage/tips-and-tricks.md)
 
