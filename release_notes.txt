@@ -1,7 +1,9 @@
 4.14.1:
   - Added group_by operator
-  - Added encode/decode operators (toyaml, fromjson etc)
+  - Added encode/decode operators (toyaml, fromjson etc) (#974)
   - Added flatten operator
+  - Added --split-exp, for splitting results into multiple files (#966)
+  - Fixed json null array bug (#985)
 
 4.13.5:
   - Performance improvement for deepMatch (thanks @pmatseykanets)
