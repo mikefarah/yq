@@ -53,6 +53,7 @@
 
 ## Usage
 
+* [Split into multiple files](usage/split-into-multiple-files.md)
 * [Output format](usage/output-format.md)
 * [Working with Properties](usage/properties.md)
 * [Working with JSON](usage/convert.md)
