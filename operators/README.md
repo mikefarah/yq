@@ -1,12 +1,10 @@
-# Operators
-
-## Operators
+# How it works
 
 In `yq` expressions are made up of operators and pipes. A context of nodes is passed through the expression and each operation takes the context as input and returns a new context as output. That output is piped in as input for the next operation in the expression. To begin with, the context is set to the first yaml document of the first yaml file (if processing in sequence using eval).
 
 Lets look at a couple of examples.
 
-### Example with a simple operator
+## Example with a simple operator
 
 Given a document like:
 
@@ -54,9 +52,9 @@ with an expression:
 .a = .b
 ```
 
-The `=` operator takes two arguments, a `lhs` expression, which in this case is `.a` and `rhs` expression which is `.b`.
+The `=` operator takes two arguments, a `lhs` expression, which in this case is `.a` and `rhs` expression which is `.b`. 
 
-It pipes the current, lets call it 'root' context through the `lhs` expression of `.a` to return the node
+It pipes the current, lets call it 'root' context through the `lhs` expression of `.a` to return the node 
 
 ```yaml
 cat
@@ -78,7 +76,6 @@ b: dog
 ```
 
 ## Relative update (e.g. `|=`)
-
 There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key difference when evaluating the RHS expression.
 
 In the plain form, we pass in the 'root' level context to the RHS expression. In relative form, we pass in _each result of the LHS_ to the RHS expression. Let's go through an example.
@@ -105,6 +102,7 @@ It pipes the current context (the whole document) through the LHS expression of 
 ```
 
 Now it pipes _that LHS context_ into the RHS expression `. + 1` (whereas in the `=` plain form it piped the original document context into the RHS) to yield:
+
 
 ```
 2
