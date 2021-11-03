@@ -1,6 +1,7 @@
 # Table of contents
 
 * [yq](README.md)
+* [How It Works](how-it-works.md)
 * [Upgrading from V3](upgrading-from-v3.md)
 
 ## Commands
