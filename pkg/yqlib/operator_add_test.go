@@ -150,5 +150,5 @@ func TestAddOperatorScenarios(t *testing.T) {
 	for _, tt := range addOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Add", addOperatorScenarios)
+	documentScenarios(t, "add", addOperatorScenarios)
 }

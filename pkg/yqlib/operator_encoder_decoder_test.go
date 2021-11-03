@@ -113,5 +113,5 @@ func TestEncoderDecoderOperatorScenarios(t *testing.T) {
 	for _, tt := range encoderDecoderOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Encoder and Decoder", encoderDecoderOperatorScenarios)
+	documentScenarios(t, "encode-decode", encoderDecoderOperatorScenarios)
 }

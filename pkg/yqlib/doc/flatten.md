@@ -1,3 +1,4 @@
+# Flatten
 This recursively flattens arrays.
 
 ## Flatten
