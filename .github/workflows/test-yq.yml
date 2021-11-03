@@ -11,9 +11,9 @@ jobs:
       - name: Get test
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.a' examples/data1.yaml
+          cmd: yq eval '.a' examples/sample.yaml
       - name: Write inplace test
         id: lookupSdkVersion
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.a.b = 5' examples/data1.yaml
+          cmd: yq eval -i '.b.c = 5' examples/sample.yaml
