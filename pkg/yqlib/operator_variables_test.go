@@ -66,5 +66,5 @@ func TestVariableOperatorScenarios(t *testing.T) {
 	for _, tt := range variableOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Variable Operators", variableOperatorScenarios)
+	documentScenarios(t, "variable-operators", variableOperatorScenarios)
 }

@@ -229,5 +229,5 @@ func TestBooleanOperatorScenarios(t *testing.T) {
 	for _, tt := range booleanOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Boolean Operators", booleanOperatorScenarios)
+	documentScenarios(t, "boolean-operators", booleanOperatorScenarios)
 }

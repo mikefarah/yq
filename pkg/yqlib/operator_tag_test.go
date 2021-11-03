@@ -64,5 +64,5 @@ func TestTagOperatorScenarios(t *testing.T) {
 	for _, tt := range tagOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Tag", tagOperatorScenarios)
+	documentScenarios(t, "tag", tagOperatorScenarios)
 }

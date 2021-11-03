@@ -78,5 +78,5 @@ func TestContainsOperatorScenarios(t *testing.T) {
 	for _, tt := range containsOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Contains", containsOperatorScenarios)
+	documentScenarios(t, "contains", containsOperatorScenarios)
 }

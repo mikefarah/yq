@@ -104,17 +104,19 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Get head comment",
-		document:    "# welcome!\n\na: cat # meow\n\n# have a great day",
-		expression:  `. | headComment`,
+		description:           "Get head comment",
+		dontFormatInputForDoc: true,
+		document:              "# welcome!\n\na: cat # meow\n\n# have a great day",
+		expression:            `. | headComment`,
 		expected: []string{
 			"D0, P[], (!!str)::welcome!\n",
 		},
 	},
 	{
-		description: "Get foot comment",
-		document:    "# welcome!\n\na: cat # meow\n\n# have a great day",
-		expression:  `. | footComment`,
+		description:           "Get foot comment",
+		dontFormatInputForDoc: true,
+		document:              "# welcome!\n\na: cat # meow\n\n# have a great day",
+		expression:            `. | footComment`,
 		expected: []string{
 			"D0, P[], (!!str)::have a great day\n",
 		},
@@ -125,5 +127,5 @@ func TestCommentOperatorScenarios(t *testing.T) {
 	for _, tt := range commentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Comment Operators", commentOperatorScenarios)
+	documentScenarios(t, "comment-operators", commentOperatorScenarios)
 }

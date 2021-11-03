@@ -43,5 +43,5 @@ func TestKeysOperatorScenarios(t *testing.T) {
 	for _, tt := range keysOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Keys", keysOperatorScenarios)
+	documentScenarios(t, "keys", keysOperatorScenarios)
 }

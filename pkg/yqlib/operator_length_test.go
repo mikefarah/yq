@@ -62,5 +62,5 @@ func TestLengthOperatorScenarios(t *testing.T) {
 	for _, tt := range lengthOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Length", lengthOperatorScenarios)
+	documentScenarios(t, "length", lengthOperatorScenarios)
 }

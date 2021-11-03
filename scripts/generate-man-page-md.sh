@@ -8,9 +8,5 @@ printf "\n# HOW IT WORKS\n" >> man.md
 tail -n +2 how-it-works.md >> man.md
 
 for f in ./pkg/yqlib/doc/*.md; do 
-  docNameWithExt="${f##*/}"
-  docName="${docNameWithExt%.*}"
-  docNameCap=$(echo $docName | tr [a-z] [A-Z])
-  printf "\n\n# ${docNameCap}\n" >> man.md
-  tail -n +2 "$f" >> man.md
+  cat "$f" >> man.md
 done

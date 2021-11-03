@@ -53,5 +53,5 @@ func TestFileOperatorsScenarios(t *testing.T) {
 	for _, tt := range fileOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "File Operators", fileOperatorScenarios)
+	documentScenarios(t, "file-operators", fileOperatorScenarios)
 }

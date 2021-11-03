@@ -99,5 +99,5 @@ func TestSubtractOperatorScenarios(t *testing.T) {
 	for _, tt := range subtractOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Subtract", subtractOperatorScenarios)
+	documentScenarios(t, "subtract", subtractOperatorScenarios)
 }
