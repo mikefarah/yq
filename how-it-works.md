@@ -66,19 +66,27 @@ Lets say you had:
 Lets say you wanted to update the `sally` entry to have fruit: 'mango'. The _incorrect_ way to do that is:
 `.[] | select(.name == "sally") | .fruit = "mango"`.
 
-Becasue `|` has a low operator precedence, this will be evaluated (_incorrectly_) as : `(.[]) | (select(.name == "sally")) | (.fruit = "mango")`. What you'll see is only:
+Becasue `|` has a low operator precedence, this will be evaluated (_incorrectly_) as : `(.[]) | (select(.name == "sally")) | (.fruit = "mango")`. What you'll see is only the updated segment returned:
 
 ```yaml
 name: sally
 fruit: mango
 ```
 
-Returned :(
-
-
-In this case, you will need to use brackets (think BODMAS from maths) and wrap the entire LHS, so the _correct_ expression is:
+To properly update this yaml, you will need to use brackets (think BODMAS from maths) and wrap the entire LHS:
 `(.[] | select(.name == "sally") | .fruit) = "mango"`
 
+
+Now that entire LHS expression is passed to the 'assign' (`=`) operator, and the yaml is correctly updated and returned:
+
+
+```yaml
+- name: bob
+  fruit: apple
+- name: sally
+  fruit: mango
+
+```
 
 ## Relative update (e.g. `|=`)
 There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key difference when evaluating the RHS expression.
