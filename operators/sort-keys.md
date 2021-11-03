@@ -11,23 +11,17 @@ diff file1.yml file2.yml
 ```
 
 ## Sort keys of map
-
 Given a sample.yml file of:
-
 ```yaml
 c: frog
 a: blah
 b: bing
 ```
-
 then
-
 ```bash
 yq eval 'sortKeys(.)' sample.yml
 ```
-
 will output
-
 ```yaml
 a: blah
 b: bing
@@ -35,11 +29,9 @@ c: frog
 ```
 
 ## Sort keys recursively
-
 Note the array elements are left unsorted, but maps inside arrays are sorted
 
 Given a sample.yml file of:
-
 ```yaml
 bParent:
   c: dog
@@ -55,15 +47,11 @@ aParent:
     - b: ew
       a: apple
 ```
-
 then
-
 ```bash
 yq eval 'sortKeys(..)' sample.yml
 ```
-
 will output
-
 ```yaml
 aParent:
   x:
@@ -79,3 +67,4 @@ bParent:
     - 2
   c: dog
 ```
+

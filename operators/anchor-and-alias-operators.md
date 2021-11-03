@@ -4,12 +4,11 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 
 `yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
 
-## Merge one map
 
-see [https://yaml.org/type/merge.html](https://yaml.org/type/merge.html)
+## Merge one map
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
-
 ```yaml
 - &CENTER
   x: 1
@@ -24,15 +23,11 @@ Given a sample.yml file of:
 - !!merge <<: *CENTER
   r: 10
 ```
-
 then
-
 ```bash
 yq eval '.[4] | explode(.)' sample.yml
 ```
-
 will output
-
 ```yaml
 x: 1
 y: 2
@@ -40,11 +35,9 @@ r: 10
 ```
 
 ## Merge multiple maps
-
-see [https://yaml.org/type/merge.html](https://yaml.org/type/merge.html)
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
-
 ```yaml
 - &CENTER
   x: 1
@@ -60,15 +53,11 @@ Given a sample.yml file of:
     - *CENTER
     - *BIG
 ```
-
 then
-
 ```bash
 yq eval '.[4] | explode(.)' sample.yml
 ```
-
 will output
-
 ```yaml
 r: 10
 x: 1
@@ -76,11 +65,9 @@ y: 2
 ```
 
 ## Override
-
-see [https://yaml.org/type/merge.html](https://yaml.org/type/merge.html)
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
-
 ```yaml
 - &CENTER
   x: 1
@@ -98,15 +85,11 @@ Given a sample.yml file of:
     - *SMALL
   x: 1
 ```
-
 then
-
 ```bash
 yq eval '.[4] | explode(.)' sample.yml
 ```
-
 will output
-
 ```yaml
 r: 10
 x: 1
@@ -114,173 +97,125 @@ y: 2
 ```
 
 ## Get anchor
-
 Given a sample.yml file of:
-
 ```yaml
 a: &billyBob cat
 ```
-
 then
-
 ```bash
 yq eval '.a | anchor' sample.yml
 ```
-
 will output
-
 ```yaml
 billyBob
 ```
 
 ## Set anchor
-
 Given a sample.yml file of:
-
 ```yaml
 a: cat
 ```
-
 then
-
 ```bash
 yq eval '.a anchor = "foobar"' sample.yml
 ```
-
 will output
-
 ```yaml
 a: &foobar cat
 ```
 
 ## Set anchor relatively using assign-update
-
 Given a sample.yml file of:
-
 ```yaml
 a:
   b: cat
 ```
-
 then
-
 ```bash
 yq eval '.a anchor |= .b' sample.yml
 ```
-
 will output
-
 ```yaml
 a: &cat
   b: cat
 ```
 
 ## Get alias
-
 Given a sample.yml file of:
-
 ```yaml
 b: &billyBob meow
 a: *billyBob
 ```
-
 then
-
 ```bash
 yq eval '.a | alias' sample.yml
 ```
-
 will output
-
 ```yaml
 billyBob
 ```
 
 ## Set alias
-
 Given a sample.yml file of:
-
 ```yaml
 b: &meow purr
 a: cat
 ```
-
 then
-
 ```bash
 yq eval '.a alias = "meow"' sample.yml
 ```
-
 will output
-
 ```yaml
 b: &meow purr
 a: *meow
 ```
 
 ## Set alias to blank does nothing
-
 Given a sample.yml file of:
-
 ```yaml
 b: &meow purr
 a: cat
 ```
-
 then
-
 ```bash
 yq eval '.a alias = ""' sample.yml
 ```
-
 will output
-
 ```yaml
 b: &meow purr
 a: cat
 ```
 
 ## Set alias relatively using assign-update
-
 Given a sample.yml file of:
-
 ```yaml
 b: &meow purr
 a:
   f: meow
 ```
-
 then
-
 ```bash
 yq eval '.a alias |= .f' sample.yml
 ```
-
 will output
-
 ```yaml
 b: &meow purr
 a: *meow
 ```
 
 ## Explode alias and anchor
-
 Given a sample.yml file of:
-
 ```yaml
 f:
   a: &a cat
   b: *a
 ```
-
 then
-
 ```bash
 yq eval 'explode(.f)' sample.yml
 ```
-
 will output
-
 ```yaml
 f:
   a: cat
@@ -288,43 +223,31 @@ f:
 ```
 
 ## Explode with no aliases or anchors
-
 Given a sample.yml file of:
-
 ```yaml
 a: mike
 ```
-
 then
-
 ```bash
 yq eval 'explode(.a)' sample.yml
 ```
-
 will output
-
 ```yaml
 a: mike
 ```
 
 ## Explode with alias keys
-
 Given a sample.yml file of:
-
 ```yaml
 f:
   a: &a cat
   *a: b
 ```
-
 then
-
 ```bash
 yq eval 'explode(.f)' sample.yml
 ```
-
 will output
-
 ```yaml
 f:
   a: cat
@@ -332,9 +255,7 @@ f:
 ```
 
 ## Explode with merge anchors
-
 Given a sample.yml file of:
-
 ```yaml
 foo: &foo
   a: foo_a
@@ -355,15 +276,11 @@ foobar:
   !!merge <<: *foo
   thing: foobar_thing
 ```
-
 then
-
 ```bash
 yq eval 'explode(.)' sample.yml
 ```
-
 will output
-
 ```yaml
 foo:
   a: foo_a
@@ -385,11 +302,9 @@ foobar:
 ```
 
 ## Dereference and update a field
-
-\`Use explode with multiply to dereference an object
+`Use explode with multiply to dereference an object
 
 Given a sample.yml file of:
-
 ```yaml
 item_value: &item_value
   value: true
@@ -400,15 +315,11 @@ thingTwo:
   name: item_2
   !!merge <<: *item_value
 ```
-
 then
-
 ```bash
 yq eval '.thingOne |= explode(.) * {"value": false}' sample.yml
 ```
-
 will output
-
 ```yaml
 item_value: &item_value
   value: true
@@ -419,3 +330,4 @@ thingTwo:
   name: item_2
   !!merge <<: *item_value
 ```
+
