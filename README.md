@@ -73,23 +73,9 @@ Using [Homebrew](https://brew.sh/)
 brew install yq
 ```
 
-or, for the (deprecated) v3 version:
-
-```
-brew install yq@3
-```
-
-Note that for v3, as it is a versioned brew it will not add the `yq` command to your path automatically. Please follow the instructions given by brew upon installation.
-
 ### Linux via snap:
 ```
 snap install yq
-```
-
-or, for the (deprecated) v3 version:
-
-```
-snap install yq --channel=v3/stable
 ```
 
 #### Snap notes
@@ -277,6 +263,6 @@ Use "yq [command] --help" for more information about a command.
 ```
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
-- Powershell has its own...opinions: https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell
+- Powershell has its own...[opinions on quoting yq](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell)
 
 See [tips and tricks](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks) for more common problems and solutions.
