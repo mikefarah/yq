@@ -27,5 +27,5 @@ func TestGroupByOperatorScenarios(t *testing.T) {
 	for _, tt := range groupByOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Group By", groupByOperatorScenarios)
+	documentScenarios(t, "group-by", groupByOperatorScenarios)
 }

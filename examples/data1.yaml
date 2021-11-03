@@ -1,5 +1,4 @@
-Resources:
-  S3Bucket:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      BucketName: !Ref MyBucketNameA
+- name: bob
+  age: 23
+- name: tim
+  age: 17

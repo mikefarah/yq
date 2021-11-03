@@ -59,3 +59,4 @@ See the [documentation](https://mikefarah.gitbook.io/yq/) for more.
 # BUGS / ISSUES / FEATURE REQUESTS
 
 Please visit the GitHub page https://github.com/mikefarah/yq/.
+
