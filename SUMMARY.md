@@ -12,7 +12,7 @@
 
 ***
 
-* [Operators](operators/README.md)
+* Operators
   * [Add](operators/add.md)
   * [Alternative (Default value)](operators/alternative-default-value.md)
   * [Anchor and Alias Operators](operators/anchor-and-alias-operators.md)
