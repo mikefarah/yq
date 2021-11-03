@@ -171,5 +171,5 @@ func TestDeleteOperatorScenarios(t *testing.T) {
 	for _, tt := range deleteOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Delete", deleteOperatorScenarios)
+	documentScenarios(t, "delete", deleteOperatorScenarios)
 }

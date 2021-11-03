@@ -68,5 +68,5 @@ func TestEnvOperatorScenarios(t *testing.T) {
 	for _, tt := range envOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Env Variable Operators", envOperatorScenarios)
+	documentScenarios(t, "env-variable-operators", envOperatorScenarios)
 }

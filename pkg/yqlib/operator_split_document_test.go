@@ -28,5 +28,5 @@ func TestSplitDocOperatorScenarios(t *testing.T) {
 	for _, tt := range splitDocOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Split into Documents", splitDocOperatorScenarios)
+	documentScenarios(t, "split-into-documents", splitDocOperatorScenarios)
 }

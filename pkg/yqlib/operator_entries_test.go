@@ -66,5 +66,5 @@ func TestEntriesOperatorScenarios(t *testing.T) {
 	for _, tt := range entriesOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Entries", entriesOperatorScenarios)
+	documentScenarios(t, "entries", entriesOperatorScenarios)
 }

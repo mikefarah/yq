@@ -36,5 +36,5 @@ func TestSortKeysOperatorScenarios(t *testing.T) {
 	for _, tt := range sortKeysOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Sort Keys", sortKeysOperatorScenarios)
+	documentScenarios(t, "sort-keys", sortKeysOperatorScenarios)
 }

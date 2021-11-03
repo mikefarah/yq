@@ -61,5 +61,5 @@ func TestUniqueOperatorScenarios(t *testing.T) {
 	for _, tt := range uniqueOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "Unique", uniqueOperatorScenarios)
+	documentScenarios(t, "unique", uniqueOperatorScenarios)
 }
