@@ -3,7 +3,7 @@ module github.com/mikefarah/yq/v4
 require (
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/fatih/color v1.10.0
-	github.com/goccy/go-yaml v1.8.9
+	github.com/goccy/go-yaml v1.9.4
 	github.com/jinzhu/copier v0.2.8
 	github.com/magiconair/properties v1.8.5
 	github.com/spf13/cobra v1.1.3
