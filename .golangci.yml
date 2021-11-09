@@ -3,3 +3,4 @@ run:
 linters:
   enabled:
     - goimports
+    - gosec
