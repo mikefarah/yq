@@ -24,7 +24,7 @@ jobs:
             dep ensure
         fi
 
-    - name: Download deps
+    - name: Check the build
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
         scripts/devtools.sh
