@@ -3,7 +3,6 @@ package test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
@@ -68,25 +67,4 @@ func AssertResultWithContext(t *testing.T, expectedValue interface{}, actualValu
 		t.Error(context)
 		t.Error(": expected <", expectedValue, "> but got <", actualValue, ">")
 	}
-}
-
-func WriteTempYamlFile(content string) string {
-	tmpfile, _ := ioutil.TempFile("", "testyaml")
-	defer func() {
-		_ = tmpfile.Close()
-	}()
-
-	_, _ = tmpfile.Write([]byte(content))
-	return tmpfile.Name()
-}
-
-func ReadTempYamlFile(name string) string {
-	// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
-	// and ensuring that it's not possible to give a path to a file outside thar directory.
-	content, _ := ioutil.ReadFile(name) // #nosec
-	return string(content)
-}
-
-func RemoveTempYamlFile(name string) {
-	_ = os.Remove(name)
 }
