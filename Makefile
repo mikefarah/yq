@@ -81,13 +81,16 @@ vendor: tmp/dev_image_id
 format: vendor
 	${DOCKRUN} bash ./scripts/format.sh
 
-.PHONY: check
-check: format
-	${DOCKRUN} bash ./scripts/check.sh
 
 .PHONY: secure
-secure: 
+secure: format
 	${DOCKRUN} bash ./scripts/secure.sh
+
+.PHONY: check
+check: secure
+	${DOCKRUN} bash ./scripts/check.sh
+
+
 
 .PHONY: test
 test: check
