@@ -84,7 +84,7 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 
 	var encoder Encoder
 	if node.Kind == yaml.ScalarNode && p.unwrapScalar && p.outputFormat == YamlOutputFormat {
-		return p.writeString(writer, node.Value+"\n")
+		return writeString(writer, node.Value+"\n")
 	}
 
 	if p.outputFormat == JsonOutputFormat {
@@ -95,54 +95,6 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
 	}
 	return encoder.Encode(node)
-}
-
-func (p *resultsPrinter) writeString(writer io.Writer, txt string) error {
-	_, errorWriting := writer.Write([]byte(txt))
-	return errorWriting
-}
-
-func (p *resultsPrinter) processLeadingContent(mappedDoc *CandidateNode, writer io.Writer) error {
-	if strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$") {
-		log.Debug("headcommentwas %v", mappedDoc.Node.HeadComment)
-		log.Debug("finished headcomment")
-		reader := bufio.NewReader(strings.NewReader(mappedDoc.Node.HeadComment))
-		mappedDoc.Node.HeadComment = ""
-
-		for {
-
-			readline, errReading := reader.ReadString('\n')
-			if errReading != nil && errReading != io.EOF {
-				return errReading
-			}
-			if strings.Contains(readline, "$yqLeadingContent$") {
-				// skip this
-
-			} else if strings.Contains(readline, "$yqDocSeperator$") {
-				if p.printDocSeparators {
-					if err := p.writeString(writer, "---\n"); err != nil {
-						return err
-					}
-				}
-			} else if p.outputFormat == YamlOutputFormat {
-				if err := p.writeString(writer, readline); err != nil {
-					return err
-				}
-			}
-
-			if errReading == io.EOF {
-				if readline != "" {
-					// the last comment we read didn't have a new line, put one in
-					if err := p.writeString(writer, "\n"); err != nil {
-						return err
-					}
-				}
-				break
-			}
-		}
-
-	}
-	return nil
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
@@ -180,16 +132,16 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return errorWriting
 		}
 
-		commentStartsWithSeparator := strings.Contains(mappedDoc.Node.HeadComment, "$yqLeadingContent$\n$yqDocSeperator$")
+		commentStartsWithSeparator := strings.Contains(mappedDoc.LeadingContent, "$yqLeadingContent$\n$yqDocSeperator$")
 
 		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators && !commentStartsWithSeparator {
 			log.Debug("-- writing doc sep")
-			if err := p.writeString(writer, "---\n"); err != nil {
+			if err := writeString(writer, "---\n"); err != nil {
 				return err
 			}
 		}
 
-		if err := p.processLeadingContent(mappedDoc, writer); err != nil {
+		if err := processLeadingContent(mappedDoc, writer, p.printDocSeparators, p.outputFormat); err != nil {
 			return err
 		}
 

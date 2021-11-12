@@ -33,10 +33,11 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 		return err
 	}
 	candidateNode := &CandidateNode{
-		Document:  0,
-		Filename:  "",
-		Node:      &yaml.Node{Kind: yaml.DocumentNode, HeadComment: leadingContent, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
-		FileIndex: 0,
+		Document:       0,
+		Filename:       "",
+		Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		FileIndex:      0,
+		LeadingContent: leadingContent,
 	}
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
@@ -100,14 +101,15 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, errorReading
 		}
-		if currentIndex == 0 {
-			dataBucket.HeadComment = leadingContent
-		}
+
 		candidateNode := &CandidateNode{
 			Document:  currentIndex,
 			Filename:  filename,
 			Node:      &dataBucket,
 			FileIndex: s.fileIndex,
+		}
+		if currentIndex == 0 {
+			candidateNode.LeadingContent = leadingContent
 		}
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
