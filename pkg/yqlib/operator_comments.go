@@ -1,8 +1,12 @@
 package yqlib
 
 import (
+	// "bufio"
+	// "bytes"
+	"bufio"
+	"bytes"
 	"container/list"
-	"strings"
+	"regexp"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -57,6 +61,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		}
 		if preferences.HeadComment {
 			candidate.Node.HeadComment = comment
+			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
 		if preferences.FootComment {
 			candidate.Node.FootComment = comment
@@ -68,6 +73,9 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
+	var startCommentCharaterRegExp = regexp.MustCompile(`^# `)
+	var subsequentCommentCharaterRegExp = regexp.MustCompile(`\n# `)
+
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 
@@ -76,12 +84,25 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		comment := ""
 		if preferences.LineComment {
 			comment = candidate.Node.LineComment
+		} else if preferences.HeadComment && candidate.LeadingContent != "" {
+			var chompRegexp = regexp.MustCompile(`\n$`)
+			var output bytes.Buffer
+			var writer = bufio.NewWriter(&output)
+			if err := processLeadingContent(candidate, writer, false, YamlOutputFormat); err != nil {
+				return Context{}, err
+			}
+			if err := writer.Flush(); err != nil {
+				return Context{}, err
+			}
+			comment = output.String()
+			comment = chompRegexp.ReplaceAllString(comment, "")
 		} else if preferences.HeadComment {
 			comment = candidate.Node.HeadComment
 		} else if preferences.FootComment {
 			comment = candidate.Node.FootComment
 		}
-		comment = strings.Replace(comment, "# ", "", 1)
+		comment = startCommentCharaterRegExp.ReplaceAllString(comment, "")
+		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
 		result := candidate.CreateChild(nil, node)

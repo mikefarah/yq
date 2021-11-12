@@ -9,10 +9,13 @@ import (
 )
 
 type CandidateNode struct {
-	Node      *yaml.Node     // the actual node
-	Parent    *CandidateNode // parent node
-	Path      []interface{}  /// the path we took to get to this node
-	Document  uint           // the document index of this node
+	Node   *yaml.Node     // the actual node
+	Parent *CandidateNode // parent node
+
+	LeadingContent string
+
+	Path      []interface{} /// the path we took to get to this node
+	Document  uint          // the document index of this node
 	Filename  string
 	FileIndex int
 	// when performing op against all nodes given, this will treat all the nodes as one

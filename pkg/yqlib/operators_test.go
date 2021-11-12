@@ -26,6 +26,20 @@ type expressionScenario struct {
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 }
 
+func readDocumentWithLeadingContent(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
+	reader, firstFileLeadingContent, err := processReadStream(bufio.NewReader(strings.NewReader(content)))
+	if err != nil {
+		return nil, err
+	}
+
+	inputs, err := readDocuments(reader, fakefilename, fakeFileIndex)
+	if err != nil {
+		return nil, err
+	}
+	inputs.Front().Value.(*CandidateNode).LeadingContent = firstFileLeadingContent
+	return inputs, nil
+}
+
 func testScenario(t *testing.T, s *expressionScenario) {
 	var err error
 
@@ -37,15 +51,17 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	inputs := list.New()
 
 	if s.document != "" {
-		inputs, err = readDocuments(strings.NewReader(s.document), "sample.yml", 0)
+		inputs, err = readDocumentWithLeadingContent(s.document, "sample.yml", 0)
+
 		if err != nil {
 			t.Error(err, s.document, s.expression)
 			return
 		}
+
 		if s.document2 != "" {
-			moreInputs, err := readDocuments(strings.NewReader(s.document2), "another.yml", 1)
+			moreInputs, err := readDocumentWithLeadingContent(s.document2, "another.yml", 1)
 			if err != nil {
-				t.Error(err, s.document, s.expression)
+				t.Error(err, s.document2, s.expression)
 				return
 			}
 			inputs.PushBackList(moreInputs)
@@ -227,13 +243,14 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 	inputs := list.New()
 
 	if s.document != "" {
-		inputs, err = readDocuments(strings.NewReader(formattedDoc), "sample.yml", 0)
+
+		inputs, err = readDocumentWithLeadingContent(formattedDoc, "sample.yml", 0)
 		if err != nil {
 			t.Error(err, s.document, s.expression)
 			return
 		}
 		if s.document2 != "" {
-			moreInputs, err := readDocuments(strings.NewReader(formattedDoc2), "another.yml", 1)
+			moreInputs, err := readDocumentWithLeadingContent(formattedDoc2, "another.yml", 1)
 			if err != nil {
 				t.Error(err, s.document, s.expression)
 				return

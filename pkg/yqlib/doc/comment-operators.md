@@ -139,6 +139,26 @@ will output
 welcome!
 ```
 
+## 
+Given a sample.yml file of:
+```yaml
+# welcome!
+---
+# bob
+a: cat # meow
+
+# have a great day
+```
+then
+```bash
+yq eval 'headComment' sample.yml
+```
+will output
+```yaml
+welcome!
+bob
+```
+
 ## Get foot comment
 Given a sample.yml file of:
 ```yaml
@@ -147,6 +167,7 @@ Given a sample.yml file of:
 a: cat # meow
 
 # have a great day
+# no really
 ```
 then
 ```bash
@@ -155,5 +176,6 @@ yq eval '. | footComment' sample.yml
 will output
 ```yaml
 have a great day
+no really
 ```
 

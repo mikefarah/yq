@@ -113,12 +113,21 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:               false,
+		dontFormatInputForDoc: true,
+		document:              "# welcome!\n---\n# bob\na: cat # meow\n\n# have a great day",
+		expression:            `headComment`,
+		expected: []string{
+			"D0, P[], (!!str)::|-\n    welcome!\n    bob\n",
+		},
+	},
+	{
 		description:           "Get foot comment",
 		dontFormatInputForDoc: true,
-		document:              "# welcome!\n\na: cat # meow\n\n# have a great day",
+		document:              "# welcome!\n\na: cat # meow\n\n# have a great day\n# no really",
 		expression:            `. | footComment`,
 		expected: []string{
-			"D0, P[], (!!str)::have a great day\n",
+			"D0, P[], (!!str)::have a great day\nno really\n",
 		},
 	},
 }
