@@ -82,15 +82,15 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	}
 
 	el := inputs.Front()
-	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
+	el.Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
 	sample1 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
+	el.Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n$yqDocSeperator$\n"
 	sample2 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	el.Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
+	el.Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
 	sample3 := nodeToList(el.Value.(*CandidateNode))
 
 	err = printer.PrintResults(sample1)
@@ -174,21 +174,21 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	elNode := el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 0
-	elNode.Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
+	elNode.LeadingContent = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
 	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 1
-	elNode.Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
+	elNode.LeadingContent = "$yqLeadingContent$\n$yqDocSeperator$\n"
 	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.Document = 0
 	elNode.FileIndex = 2
-	elNode.Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
+	elNode.LeadingContent = "$yqLeadingContent$\n$yqDocSeperator$\n# cool\n"
 	sample3 := nodeToList(elNode)
 
 	err = printer.PrintResults(sample1)
@@ -239,7 +239,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 		panic(err)
 	}
 
-	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
+	inputs.Front().Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n# go cats\n$yqDocSeperator$\n"
 
 	err = printer.PrintResults(inputs)
 	if err != nil {
@@ -267,7 +267,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n$yqDocSeperator$\n"
+	inputs.Front().Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n$yqDocSeperator$\n"
 	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
@@ -321,7 +321,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 		panic(err)
 	}
 
-	inputs.Front().Value.(*CandidateNode).Node.HeadComment = "$yqLeadingContent$\n# ignore this\n"
+	inputs.Front().Value.(*CandidateNode).LeadingContent = "$yqLeadingContent$\n# ignore this\n"
 
 	err = printer.PrintResults(inputs)
 	if err != nil {
