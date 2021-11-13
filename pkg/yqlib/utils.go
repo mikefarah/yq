@@ -37,52 +37,46 @@ func writeString(writer io.Writer, txt string) error {
 }
 
 func processLeadingContent(mappedDoc *CandidateNode, writer io.Writer, printDocSeparators bool, outputFormat PrinterOutputFormat) error {
-	if strings.Contains(mappedDoc.LeadingContent, "$yqLeadingContent$") {
-		log.Debug("headcommentwas %v", mappedDoc.LeadingContent)
-		log.Debug("finished headcomment")
-		reader := bufio.NewReader(strings.NewReader(mappedDoc.LeadingContent))
-		mappedDoc.Node.HeadComment = ""
+	log.Debug("headcommentwas %v", mappedDoc.LeadingContent)
+	log.Debug("finished headcomment")
+	reader := bufio.NewReader(strings.NewReader(mappedDoc.LeadingContent))
+	mappedDoc.Node.HeadComment = ""
 
-		for {
+	for {
 
-			readline, errReading := reader.ReadString('\n')
-			if errReading != nil && errReading != io.EOF {
-				return errReading
-			}
-			if strings.Contains(readline, "$yqLeadingContent$") {
-				// skip this
-
-			} else if strings.Contains(readline, "$yqDocSeperator$") {
-				if printDocSeparators {
-					if err := writeString(writer, "---\n"); err != nil {
-						return err
-					}
-				}
-			} else if outputFormat == YamlOutputFormat {
-				if err := writeString(writer, readline); err != nil {
+		readline, errReading := reader.ReadString('\n')
+		if errReading != nil && errReading != io.EOF {
+			return errReading
+		}
+		if strings.Contains(readline, "$yqDocSeperator$") {
+			if printDocSeparators {
+				if err := writeString(writer, "---\n"); err != nil {
 					return err
 				}
 			}
-
-			if errReading == io.EOF {
-				if readline != "" {
-					// the last comment we read didn't have a new line, put one in
-					if err := writeString(writer, "\n"); err != nil {
-						return err
-					}
-				}
-				break
+		} else if outputFormat == YamlOutputFormat {
+			if err := writeString(writer, readline); err != nil {
+				return err
 			}
 		}
 
+		if errReading == io.EOF {
+			if readline != "" {
+				// the last comment we read didn't have a new line, put one in
+				if err := writeString(writer, "\n"); err != nil {
+					return err
+				}
+			}
+			break
+		}
 	}
+
 	return nil
 }
 
 func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
 	var sb strings.Builder
-	sb.WriteString("$yqLeadingContent$\n")
 	for {
 		peekBytes, err := reader.Peek(3)
 		if err == io.EOF {
