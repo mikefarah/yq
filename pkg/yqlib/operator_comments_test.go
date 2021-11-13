@@ -118,7 +118,7 @@ var commentOperatorScenarios = []expressionScenario{
 		document:              "# welcome!\n---\n# bob\na: cat # meow\n\n# have a great day",
 		expression:            `headComment`,
 		expected: []string{
-			"D0, P[], (!!str)::|-\n    welcome!\n    bob\n",
+			"D0, P[], (!!str)::welcome!\nbob\n",
 		},
 	},
 	{

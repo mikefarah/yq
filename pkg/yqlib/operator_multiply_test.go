@@ -35,33 +35,27 @@ We then need to update the first array. We will use the relative update (|=) bec
 We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
 `
 
-var docWithHeader = `
-# here
+var docWithHeader = `# here
 
 a: apple
 `
 
-var nodeWithHeader = `
-# here
+var nodeWithHeader = `# here
 a: apple
 `
 
-var docNoComments = `
-b: banana
+var docNoComments = `b: banana
 `
 
-var docWithFooter = `
-a: apple
+var docWithFooter = `a: apple
 
 # footer
 `
 
-var nodeWithFooter = `
-a: apple
+var nodeWithFooter = `a: apple
 # footer`
 
-var document = `
-a: &cat {name: cat}
+var document = `a: &cat {name: cat}
 b: {name: dog}
 c: 
   <<: *cat
