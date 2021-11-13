@@ -96,7 +96,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{a: { b: {things: \"\"}, f: [1], g: [] }}",
 		expression: ".. | select(. == \"\")",
 		expected: []string{
-			"D0, P[a b things], (!!str)::\"\"\n",
+			"D0, P[a b things], (!!str)::\n",
 		},
 	},
 	{

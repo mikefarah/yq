@@ -92,9 +92,20 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 func resultsToString(results *list.List) []string {
 	var pretty []string = make([]string, 0)
+
 	for el := results.Front(); el != nil; el = el.Next() {
 		n := el.Value.(*CandidateNode)
-		pretty = append(pretty, NodeToString(n))
+		var valueBuffer bytes.Buffer
+		printer := NewPrinterWithSingleWriter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
+		printer.PrintResults(n.AsList())
+		tag := n.Node.Tag
+		if n.Node.Kind == yaml.DocumentNode {
+			tag = "doc"
+		} else if n.Node.Kind == yaml.AliasNode {
+			tag = "alias"
+		}
+		output := fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.Document, n.Path, tag, valueBuffer.String())
+		pretty = append(pretty, output)
 	}
 	return pretty
 }
