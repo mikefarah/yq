@@ -142,8 +142,8 @@ e: >-
 		document:   `a: cat`,
 		expression: `.. | style`,
 		expected: []string{
-			"D0, P[], (!!str)::\"\"\n",
-			"D0, P[a], (!!str)::\"\"\n",
+			"D0, P[], (!!str)::\n",
+			"D0, P[a], (!!str)::\n",
 		},
 	},
 }

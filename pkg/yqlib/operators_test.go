@@ -87,17 +87,23 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		t.Error(fmt.Errorf("%v: %v", err, s.expression))
 		return
 	}
-	test.AssertResultComplexWithContext(t, s.expected, resultsToString(context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
+	test.AssertResultComplexWithContext(t, s.expected, resultsToString(t, context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
 }
 
-func resultsToString(results *list.List) []string {
+func resultsToString(t *testing.T, results *list.List) []string {
 	var pretty []string = make([]string, 0)
 
 	for el := results.Front(); el != nil; el = el.Next() {
 		n := el.Value.(*CandidateNode)
 		var valueBuffer bytes.Buffer
 		printer := NewPrinterWithSingleWriter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
-		printer.PrintResults(n.AsList())
+
+		err := printer.PrintResults(n.AsList())
+		if err != nil {
+			t.Error(err)
+			return nil
+		}
+
 		tag := n.Node.Tag
 		if n.Node.Kind == yaml.DocumentNode {
 			tag = "doc"

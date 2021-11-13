@@ -219,7 +219,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 			"D0, P[foobarList], (!!map)::b: foobarList_b\n!!merge <<: [*foo, *bar]\nc: foobarList_c\n",
 			"D0, P[foobarList b], (!!str)::b\n",
 			"D0, P[foobarList b], (!!str)::foobarList_b\n",
-			"D0, P[foobarList <<], (!!merge)::!!merge <<\n",
+			"D0, P[foobarList <<], (!!merge)::<<\n",
 			"D0, P[foobarList <<], (!!seq)::[*foo, *bar]\n",
 			"D0, P[foobarList << 0], (alias)::*foo\n",
 			"D0, P[foobarList << 1], (alias)::*bar\n",

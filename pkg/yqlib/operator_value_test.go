@@ -125,13 +125,13 @@ var valueOperatorScenarios = []expressionScenario{
 		document:   ``,
 		expression: `"1.3"`,
 		expected: []string{
-			"D0, P[], (!!str)::\"1.3\"\n",
+			"D0, P[], (!!str)::1.3\n",
 		},
 	}, {
 		document:   ``,
 		expression: `"true"`,
 		expected: []string{
-			"D0, P[], (!!str)::\"true\"\n",
+			"D0, P[], (!!str)::true\n",
 		},
 	}, {
 		document:   ``,

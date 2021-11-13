@@ -40,7 +40,6 @@ func processLeadingContent(mappedDoc *CandidateNode, writer io.Writer, printDocS
 	log.Debug("headcommentwas %v", mappedDoc.LeadingContent)
 	log.Debug("finished headcomment")
 	reader := bufio.NewReader(strings.NewReader(mappedDoc.LeadingContent))
-	mappedDoc.Node.HeadComment = ""
 
 	for {
 
