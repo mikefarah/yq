@@ -5,7 +5,7 @@ import (
 	"container/list"
 	"fmt"
 	"io"
-	"strings"
+	"regexp"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -132,7 +132,8 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return errorWriting
 		}
 
-		commentStartsWithSeparator := strings.Contains(mappedDoc.LeadingContent, "$yqLeadingContent$\n$yqDocSeperator$")
+		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeperator\$`)
+		commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
 
 		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators && !commentStartsWithSeparator {
 			log.Debug("-- writing doc sep")
