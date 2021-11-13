@@ -35,6 +35,6 @@ func TestAllAtOnceEvaluateNodes(t *testing.T) {
 	for _, tt := range evaluateNodesScenario {
 		node := test.ParseData(tt.document)
 		list, _ := evaluator.EvaluateNodes(tt.expression, &node)
-		test.AssertResultComplex(t, tt.expected, resultsToString(list))
+		test.AssertResultComplex(t, tt.expected, resultsToString(t, list))
 	}
 }

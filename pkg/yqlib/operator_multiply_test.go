@@ -40,8 +40,9 @@ var docWithHeader = `# here
 a: apple
 `
 
-var nodeWithHeader = `# here
-a: apple
+var nodeWithHeader = `node:
+  # here
+  a: apple
 `
 
 var docNoComments = `b: banana
@@ -83,9 +84,9 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:    true,
 		document:   nodeWithHeader,
 		document2:  docNoComments,
-		expression: `select(fi == 0) * select(fi == 1)`,
+		expression: `(select(fi == 0) | .node) * select(fi == 1)`,
 		expected: []string{
-			"D0, P[], (!!map)::# here\na: apple\nb: banana\n",
+			"D0, P[node], (!!map)::# here\na: apple\nb: banana\n",
 		},
 	},
 	{
@@ -101,7 +102,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:    true,
 		document:   docNoComments,
 		document2:  nodeWithHeader,
-		expression: `select(fi == 0) * select(fi == 1)`,
+		expression: `select(fi == 0) * (select(fi == 1) | .node)`,
 		expected: []string{
 			"D0, P[], (!!map)::b: banana\n# here\na: apple\n",
 		},
