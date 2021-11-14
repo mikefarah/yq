@@ -1,9 +1,9 @@
 - update release notes
+- check dependabot
 - increment version in version.go
 - increment version in snapcraft.yaml
 - increment version in github-action/Dockerfile
 - make sure local build passes
-- run ./scripts/secure.sh (manual because docker platforms)
 - run ./scripts/copy-docs.sh (and commit the changed in the yq-book branch)
 - commit version update changes
 - tag git with same version number

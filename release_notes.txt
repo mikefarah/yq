@@ -1,3 +1,7 @@
+4.14.2:
+  - Fixed header preprocessing issue (#1000)
+  - Bumped version dependencies
+
 4.14.1:
   - Added group_by operator
   - Added encode/decode operators (toyaml, fromjson etc) (#974)
