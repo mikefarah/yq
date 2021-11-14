@@ -1,0 +1,13 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - gosec
+issues:
+  exclude-rules:
+  - linters:
+    - gosec
+    text:  "Implicit memory aliasing in for loop."
+    path: _test\.go
