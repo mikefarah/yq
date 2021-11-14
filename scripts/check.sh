@@ -5,8 +5,8 @@ set -o pipefail
 
 if command -v golangci-lint &> /dev/null
 then
-    golangci-lint run --timeout=5m
+    golangci-lint run --verbose
 else
-  ./bin/golangci-lint run --timeout=5m
+  ./bin/golangci-lint run --verbose
 fi
 
