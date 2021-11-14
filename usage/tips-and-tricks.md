@@ -42,7 +42,7 @@ edit
 
 ## Set contents from another file
 
-Use an environment variable with the `strenv` operator to inject the contents from an environment variable.&#x20;
+Use an environment variable with the `strenv` operator to inject the contents from an environment variable.
 
 ```bash
 LICENSE=$(cat LICENSE) yq eval -n '.a = strenv(LICENSE)'
@@ -65,6 +65,8 @@ PS > yq e -n '.test = ""something""'
 test: something
 PS >
 ```
+
+See [https://github.com/mikefarah/yq/issues/747](https://github.com/mikefarah/yq/issues/747) for more trickery.
 
 ## Merge / combine all documents into one
 
@@ -116,7 +118,7 @@ In order to combine multiple yaml files into a single file (with `---` separator
 yq e '.' somewhere/*.yaml
 ```
 
-## &#x20;Multiple updates to the same path
+## Multiple updates to the same path
 
 You can use the [with](../operators/with.md) operator to set a nested context:
 
@@ -131,4 +133,3 @@ The first argument expression sets the root context, and the second expression r
 The merge functionality from yaml v1.1 (e.g. `<<:`has actually been removed in the 1.2 spec. Thankfully, `yq` underlying yaml parser still supports that tag - and it's extra nice in that it explicitly puts the `!!merge` tag on key of the map entry. This tag tells other yaml parsers that this entry is a merge entry, as opposed to a regular string key that happens to have a value of `<<:`. This is backwards compatible with the 1.1 spec of yaml, it's simply an explicit way of specifying the type (for instance, you can use a `!!str` tag to enforce a particular value to be a string.
 
 Although this does affect the readability of the yaml to humans, it still works and processes fine with various yaml processors.
-
