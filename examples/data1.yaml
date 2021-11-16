@@ -1,8 +1,2 @@
-# welcome! # cat
-# bob
----
-# bob
-
-a: cat # meow
-
-# have a great day
+a:
+  include: 'data2.yaml'
