@@ -79,7 +79,7 @@ func (f *frontMatterHandlerImpl) Split() error {
 			return errReading
 		}
 
-		_, errWriting := yamlTempFile.Write([]byte(line))
+		_, errWriting := yamlTempFile.WriteString(line)
 
 		if errWriting != nil {
 			return errWriting
