@@ -21,7 +21,7 @@ jobs:
       - name: Get the version
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF##*/}
-        
+
       - name: Generate man page
         uses: docker://pandoc/core:2.14.2
         id: gen-man-page
@@ -35,7 +35,7 @@ jobs:
             --variable=author:"Mike Farah"
             --output=yq.1
             ${{ steps.gen-man-page-md.outputs.man-page-md }}
-        
+
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
@@ -67,12 +67,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
           platforms: all
-  
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
@@ -81,16 +81,29 @@ jobs:
 
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }} && docker version
- 
+
       - name: Build and push image
         run: |
           IMAGE_V_VERSION="$(git describe --tags --abbrev=0)"
           IMAGE_VERSION=${IMAGE_V_VERSION:1}
-
-          SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"
+
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-          docker buildx build --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}"  -t "${IMAGE_NAME}:latest" -t "${IMAGE_NAME}:4" \
-            --push .
-    
+          echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
+          docker buildx build \
+            --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
+            --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
+            --label "org.opencontainers.image.description=yq is a portable command-line YAML processor" \
+            --label "org.opencontainers.image.documentation=https://mikefarah.gitbook.io/yq/" \
+            --label "org.opencontainers.image.licenses=MIT" \
+            --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" \
+            --label "org.opencontainers.image.source=https://github.com/mikefarah/yq" \
+            --label "org.opencontainers.image.title=yq" \
+            --label "org.opencontainers.image.url=https://mikefarah.gitbook.io/yq/" \
+            --label "org.opencontainers.image.version=${IMAGE_VERSION}" \
+            --platform "${PLATFORMS}" \
+            --push \
+            -t "${IMAGE_NAME}:${IMAGE_VERSION}" \
+            -t "${IMAGE_NAME}:4" \
+            -t "${IMAGE_NAME}:latest" \
+            .
