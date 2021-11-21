@@ -3,8 +3,8 @@
 my_path="$(command -v yq)"
 
 if [ -z "$my_path" ]; then
-  echo 'yq' wasn't found in your PATH, so we don't know where to put the man pages.
-  echo Please update your PATH and try again.
+  echo "'yq' wasn't found in your PATH, so we don't know where to put the man pages."
+  echo "Please update your PATH to include yq, and run this script again."
   exit 1
 fi
 
