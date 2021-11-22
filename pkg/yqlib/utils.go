@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"container/list"
+	"errors"
 	"io"
 	"os"
 	"regexp"
@@ -44,7 +45,7 @@ func processLeadingContent(mappedDoc *CandidateNode, writer io.Writer, printDocS
 	for {
 
 		readline, errReading := reader.ReadString('\n')
-		if errReading != nil && errReading != io.EOF {
+		if errReading != nil && !errors.Is(errReading, io.EOF) {
 			return errReading
 		}
 		if strings.Contains(readline, "$yqDocSeperator$") {
@@ -59,7 +60,7 @@ func processLeadingContent(mappedDoc *CandidateNode, writer io.Writer, printDocS
 			}
 		}
 
-		if errReading == io.EOF {
+		if errors.Is(errReading, io.EOF) {
 			if readline != "" {
 				// the last comment we read didn't have a new line, put one in
 				if err := writeString(writer, "\n"); err != nil {
@@ -78,7 +79,7 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 	var sb strings.Builder
 	for {
 		peekBytes, err := reader.Peek(3)
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			// EOF are handled else where..
 			return reader, sb.String(), nil
 		} else if err != nil {
@@ -86,7 +87,7 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 		} else if string(peekBytes) == "---" {
 			_, err := reader.ReadString('\n')
 			sb.WriteString("$yqDocSeperator$\n")
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return reader, sb.String(), nil
 			} else if err != nil {
 				return reader, sb.String(), err
@@ -94,7 +95,7 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 		} else if commentLineRegEx.MatchString(string(peekBytes)) {
 			line, err := reader.ReadString('\n')
 			sb.WriteString(line)
-			if err == io.EOF {
+			if errors.Is(err, io.EOF) {
 				return reader, sb.String(), nil
 			} else if err != nil {
 				return reader, sb.String(), err
@@ -114,7 +115,7 @@ func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List
 		var dataBucket yaml.Node
 		errorReading := decoder.Decode(&dataBucket)
 
-		if errorReading == io.EOF {
+		if errors.Is(errorReading, io.EOF) {
 			switch reader := reader.(type) {
 			case *os.File:
 				safelyCloseFile(reader)

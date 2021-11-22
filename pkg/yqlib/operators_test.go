@@ -45,7 +45,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {
-		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
+		t.Error(fmt.Errorf("Error parsing expression %v of %v: %w", s.expression, s.description, err))
 		return
 	}
 	inputs := list.New()
@@ -84,7 +84,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 
 	if err != nil {
-		t.Error(fmt.Errorf("%v: %v", err, s.expression))
+		t.Error(fmt.Errorf("%w: %v", err, s.expression))
 		return
 	}
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(t, context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
@@ -253,7 +253,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {
-		t.Error(fmt.Errorf("Error parsing expression %v of %v: %v", s.expression, s.description, err))
+		t.Error(fmt.Errorf("Error parsing expression %v of %v: %w", s.expression, s.description, err))
 		return
 	}
 

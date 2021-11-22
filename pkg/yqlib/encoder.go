@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -126,7 +127,7 @@ func (o *orderedMap) UnmarshalJSON(data []byte) error {
 
 		// cycle through k/v
 		var tok json.Token
-		for tok, err = dec.Token(); err != io.EOF; tok, err = dec.Token() {
+		for tok, err = dec.Token(); !errors.Is(err, io.EOF); tok, err = dec.Token() {
 			// we can expect two types: string or Delim. Delim automatically means
 			// that it is the closing bracket of the object, whereas string means
 			// that there is another key.
@@ -142,7 +143,7 @@ func (o *orderedMap) UnmarshalJSON(data []byte) error {
 			o.kv = append(o.kv, kv)
 		}
 		// unexpected error
-		if err != nil && err != io.EOF {
+		if err != nil && !errors.Is(err, io.EOF) {
 			return err
 		}
 		return nil

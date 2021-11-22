@@ -194,7 +194,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 			continue
 		}
 		if err != nil {
-			return nil, fmt.Errorf("Cannot index array with '%v' (%v)", indexNode.Value, err)
+			return nil, fmt.Errorf("Cannot index array with '%v' (%w)", indexNode.Value, err)
 		}
 		indexToUse := index
 		contentLength := int64(len(node.Content))

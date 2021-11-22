@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"errors" 
 	"io"
 	"os"
 
@@ -95,7 +96,7 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		var dataBucket yaml.Node
 		errorReading := decoder.Decode(&dataBucket)
 
-		if errorReading == io.EOF {
+		if errors.Is(errorReading, io.EOF) {
 			s.fileIndex = s.fileIndex + 1
 			return currentIndex, nil
 		} else if errorReading != nil {
