@@ -2,6 +2,7 @@ run:
   timeout: 5m
 linters:
   enable:
+    - errorlint
     - gofmt
     - goimports
     - gosec

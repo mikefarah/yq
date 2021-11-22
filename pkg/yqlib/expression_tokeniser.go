@@ -467,7 +467,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 	scanner, err := p.lexer.Scanner([]byte(expression))
 
 	if err != nil {
-		return nil, fmt.Errorf("Parsing expression: %v", err)
+		return nil, fmt.Errorf("Parsing expression: %w", err)
 	}
 	var tokens []*token
 	for tok, err, eof := scanner.Next(); !eof; tok, err, eof = scanner.Next() {
@@ -478,7 +478,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 			tokens = append(tokens, currentToken)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("Parsing expression: %v", err)
+			return nil, fmt.Errorf("Parsing expression: %w", err)
 		}
 	}
 	var postProcessedTokens = make([]*token, 0)
