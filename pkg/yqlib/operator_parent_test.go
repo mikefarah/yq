@@ -14,11 +14,11 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Show parent",
-		document:    `{a: {fruit: apple}, b: {fruit: banana}}`,
+		description: "Parent of nested matches",
+		document:    `{a: {fruit: apple, name: bob}, b: {fruit: banana, name: sam}}`,
 		expression:  `.. | select(. == "banana") | parent`,
 		expected: []string{
-			"D0, P[b], (!!map)::{fruit: banana}\n",
+			"D0, P[b], (!!map)::{fruit: banana, name: sam}\n",
 		},
 	},
 	{

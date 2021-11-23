@@ -113,7 +113,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:               false,
+		description:           "Head comment with document split",
 		dontFormatInputForDoc: true,
 		document:              "# welcome!\n---\n# bob\na: cat # meow\n\n# have a great day",
 		expression:            `headComment`,

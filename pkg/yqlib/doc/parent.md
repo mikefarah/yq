@@ -1,3 +1,6 @@
+# Parent
+
+Parent simply returns the parent nodes of the matching nodes.
 
 ## Simple example
 Given a sample.yml file of:
@@ -14,13 +17,15 @@ will output
 nested: cat
 ```
 
-## Show parent
+## Parent of nested matches
 Given a sample.yml file of:
 ```yaml
 a:
   fruit: apple
+  name: bob
 b:
   fruit: banana
+  name: sam
 ```
 then
 ```bash
@@ -29,6 +34,7 @@ yq eval '.. | select(. == "banana") | parent' sample.yml
 will output
 ```yaml
 fruit: banana
+name: sam
 ```
 
 ## No parent
