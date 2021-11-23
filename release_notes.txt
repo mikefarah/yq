@@ -1,3 +1,11 @@
+4.15.1:
+  - Added 'load/strload' operators for dynamically loading content from files
+  - Added 'key' operator
+  - Added 'parent' operator
+  - Smarter MAN page installation script (thanks @coolaj86)
+  - Dockerfile improvements (thanks @actualben)
+  - Error handling improvements (thanks @mmorel-35)
+
 4.14.2:
   - Fixed header preprocessing issue (#1000)
   - Bumped version dependencies
