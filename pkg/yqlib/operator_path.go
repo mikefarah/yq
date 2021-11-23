@@ -31,7 +31,7 @@ func getPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			content[pathIndex] = createPathNodeFor(path)
 		}
 		node.Content = content
-		result := candidate.CreateChild(nil, node)
+		result := candidate.CreateReplacement(node)
 		results.PushBack(result)
 	}
 

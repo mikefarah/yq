@@ -67,7 +67,7 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 			resultNode.Content = append(resultNode.Content, groupResultNode)
 		}
 
-		results.PushBack(candidate.CreateChild(nil, resultNode))
+		results.PushBack(candidate.CreateReplacement(resultNode))
 
 	}
 

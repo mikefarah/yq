@@ -45,10 +45,10 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	lhsNode := lhs.Node
 
 	if lhsNode.Tag == "!!null" {
-		return lhs.CreateChild(nil, rhs.Node), nil
+		return lhs.CreateReplacement(rhs.Node), nil
 	}
 
-	target := lhs.CreateChild(nil, &yaml.Node{})
+	target := lhs.CreateReplacement(&yaml.Node{})
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:
@@ -60,7 +60,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 		target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be added to a %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+			return nil, fmt.Errorf("%v (%v) cannot be added to a 2%v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
 		}
 		target.Node.Kind = yaml.ScalarNode
 		target.Node.Style = lhsNode.Style

@@ -37,6 +37,22 @@ var keysOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[]\n",
 		},
 	},
+	{
+		description: "Update map key",
+		document:    "a:\n  x: 3\n  y: 4",
+		expression:  `(.a.x | key) = "meow"`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    meow: 3\n    y: 4\n",
+		},
+	},
+	{
+		description: "Get comment from map key",
+		document:    "a: \n  # comment on key\n  x: 3\n  y: 4",
+		expression:  `.a.x | key | headComment`,
+		expected: []string{
+			"D0, P[a x], (!!str)::comment on key\n",
+		},
+	},
 }
 
 func TestKeysOperatorScenarios(t *testing.T) {

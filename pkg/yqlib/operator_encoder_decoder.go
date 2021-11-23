@@ -61,7 +61,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		stringContentNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: stringValue}
-		results.PushBack(candidate.CreateChild(nil, stringContentNode))
+		results.PushBack(candidate.CreateReplacement(stringContentNode))
 	}
 	return context.ChildContext(results), nil
 }
@@ -85,7 +85,7 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		//first node is a doc
 		node := unwrapDoc(&dataBucket)
 
-		results.PushBack(candidate.CreateChild(nil, node))
+		results.PushBack(candidate.CreateReplacement(node))
 	}
 	return context.ChildContext(results), nil
 }

@@ -31,7 +31,7 @@ func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
-		result := candidate.CreateChild(nil, node)
+		result := candidate.CreateReplacement(node)
 		results.PushBack(result)
 	}
 

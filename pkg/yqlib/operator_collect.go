@@ -20,7 +20,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	var collectC *CandidateNode
 	if context.MatchingNodes.Front() != nil {
-		collectC = context.MatchingNodes.Front().Value.(*CandidateNode).CreateChild(nil, node)
+		collectC = context.MatchingNodes.Front().Value.(*CandidateNode).CreateReplacement(node)
 		if len(collectC.Path) > 0 {
 			collectC.Path = collectC.Path[:len(collectC.Path)-1]
 		}

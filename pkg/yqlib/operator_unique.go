@@ -56,7 +56,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 			resultNode.Content = append(resultNode.Content, el.Value.(*yaml.Node))
 		}
 
-		results.PushBack(candidate.CreateChild(nil, resultNode))
+		results.PushBack(candidate.CreateReplacement(resultNode))
 	}
 
 	return context.ChildContext(results), nil

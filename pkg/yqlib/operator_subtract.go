@@ -49,10 +49,10 @@ func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 	lhsNode := lhs.Node
 
 	if lhsNode.Tag == "!!null" {
-		return lhs.CreateChild(nil, rhs.Node), nil
+		return lhs.CreateReplacement(rhs.Node), nil
 	}
 
-	target := lhs.CreateChild(nil, &yaml.Node{})
+	target := lhs.CreateReplacement(&yaml.Node{})
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:

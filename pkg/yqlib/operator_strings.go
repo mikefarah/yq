@@ -66,7 +66,7 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 		}
 
 		targetNode := substitute(node.Value, regEx, replacementText)
-		result := candidate.CreateChild(nil, targetNode)
+		result := candidate.CreateReplacement(targetNode)
 		results.PushBack(result)
 	}
 
@@ -150,7 +150,7 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 			createScalarNode("captures", "captures"),
 			capturesNode,
 		)
-		results.PushBack(candidate.CreateChild(nil, node))
+		results.PushBack(candidate.CreateReplacement(node))
 
 	}
 
@@ -187,7 +187,7 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 			}
 		}
 
-		results.PushBack(candidate.CreateChild(nil, capturesNode))
+		results.PushBack(candidate.CreateReplacement(capturesNode))
 
 	}
 
@@ -321,7 +321,7 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 			return Context{}, fmt.Errorf("cannot join with %v, can only join arrays of scalars", node.Tag)
 		}
 		targetNode := join(node.Content, joinStr)
-		result := candidate.CreateChild(nil, targetNode)
+		result := candidate.CreateReplacement(targetNode)
 		results.PushBack(result)
 	}
 
@@ -365,7 +365,7 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 			return Context{}, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
 		}
 		targetNode := split(node.Value, splitStr)
-		result := candidate.CreateChild(nil, targetNode)
+		result := candidate.CreateReplacement(targetNode)
 		results.PushBack(result)
 	}
 

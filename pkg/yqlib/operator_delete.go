@@ -47,7 +47,7 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 		key := contents[index]
 		value := contents[index+1]
 
-		childCandidate := candidate.CreateChild(key.Value, value)
+		childCandidate := candidate.CreateChildInMap(key, value)
 
 		shouldDelete := key.Value == childPath
 

@@ -34,3 +34,38 @@ will output
 - 1
 ```
 
+## Update map key
+Given a sample.yml file of:
+```yaml
+a:
+  x: 3
+  y: 4
+```
+then
+```bash
+yq eval '(.a.x | key) = "meow"' sample.yml
+```
+will output
+```yaml
+a:
+  meow: 3
+  y: 4
+```
+
+## Get comment from map key
+Given a sample.yml file of:
+```yaml
+a:
+  # comment on key
+  x: 3
+  y: 4
+```
+then
+```bash
+yq eval '.a.x | key | headComment' sample.yml
+```
+will output
+```yaml
+comment on key
+```
+

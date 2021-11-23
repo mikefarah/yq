@@ -144,7 +144,7 @@ func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
 		valString = "false"
 	}
 	node := &yaml.Node{Kind: yaml.ScalarNode, Value: valString, Tag: "!!bool"}
-	return owner.CreateChild(nil, node)
+	return owner.CreateReplacement(node)
 }
 
 func createTraversalTree(path []interface{}, traversePrefs traversePreferences, targetKey bool) *ExpressionNode {

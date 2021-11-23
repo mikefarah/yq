@@ -37,7 +37,7 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
 		for i := 0; i < len(first.Node.Content); i++ {
-			rotated[i].PushBack(candidateNode.CreateChild(i, candidateNode.Node.Content[i]))
+			rotated[i].PushBack(candidateNode.CreateChildInArray(i, candidateNode.Node.Content[i]))
 		}
 	}
 

@@ -100,7 +100,7 @@ func getStyleOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 			style = "<unknown>"
 		}
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: style, Tag: "!!str"}
-		result := candidate.CreateChild(nil, node)
+		result := candidate.CreateReplacement(node)
 		results.PushBack(result)
 	}
 

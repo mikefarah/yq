@@ -20,7 +20,7 @@ func entrySeqFor(key *yaml.Node, value *yaml.Node) *yaml.Node {
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateChild(nil, sequence)
+	var entriesNode = candidateNode.CreateReplacement(sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 2 {
@@ -34,7 +34,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateChild(nil, sequence)
+	var entriesNode = candidateNode.CreateReplacement(sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 1 {
@@ -94,7 +94,7 @@ func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Nod
 
 func fromEntries(d *dataTreeNavigator, candidateNode *CandidateNode) (*CandidateNode, error) {
 	var node = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-	var mapCandidateNode = candidateNode.CreateChild(nil, node)
+	var mapCandidateNode = candidateNode.CreateReplacement(node)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 

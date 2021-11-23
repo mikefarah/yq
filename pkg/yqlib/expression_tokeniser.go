@@ -368,6 +368,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`contains`), opToken(containsOpType))
 
 	lexer.Add([]byte(`split`), opToken(splitStringOpType))
+
+	lexer.Add([]byte(`key`), opToken(getKeyOpType))
 	lexer.Add([]byte(`keys`), opToken(keysOpType))
 
 	lexer.Add([]byte(`style`), opAssignableToken(getStyleOpType, assignStyleOpType))

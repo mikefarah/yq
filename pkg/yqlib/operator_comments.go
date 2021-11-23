@@ -105,7 +105,7 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
-		result := candidate.CreateChild(nil, node)
+		result := candidate.CreateReplacement(node)
 		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil

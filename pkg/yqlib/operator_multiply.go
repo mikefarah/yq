@@ -67,7 +67,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 }
 
 func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	target := lhs.CreateChild(nil, &yaml.Node{})
+	target := lhs.CreateReplacement(&yaml.Node{})
 	target.Node.Kind = yaml.ScalarNode
 	target.Node.Style = lhs.Node.Style
 	target.Node.Tag = "!!float"
@@ -85,7 +85,7 @@ func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, err
 }
 
 func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	target := lhs.CreateChild(nil, &yaml.Node{})
+	target := lhs.CreateReplacement(&yaml.Node{})
 	target.Node.Kind = yaml.ScalarNode
 	target.Node.Style = lhs.Node.Style
 	target.Node.Tag = "!!int"
