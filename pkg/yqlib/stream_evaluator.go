@@ -2,7 +2,7 @@ package yqlib
 
 import (
 	"container/list"
-	"errors" 
+	"errors"
 	"io"
 	"os"
 
