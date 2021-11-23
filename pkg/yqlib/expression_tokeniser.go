@@ -369,6 +369,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`split`), opToken(splitStringOpType))
 
+	lexer.Add([]byte(`parent`), opToken(getParentOpType))
 	lexer.Add([]byte(`key`), opToken(getKeyOpType))
 	lexer.Add([]byte(`keys`), opToken(keysOpType))
 

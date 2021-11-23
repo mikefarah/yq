@@ -34,6 +34,49 @@ will output
 - 1
 ```
 
+## Retrieve array key
+Given a sample.yml file of:
+```yaml
+- 1
+- 2
+- 3
+```
+then
+```bash
+yq eval '.[1] | key' sample.yml
+```
+will output
+```yaml
+1
+```
+
+## Retrieve map key
+Given a sample.yml file of:
+```yaml
+a: thing
+```
+then
+```bash
+yq eval '.a | key' sample.yml
+```
+will output
+```yaml
+a
+```
+
+## No key
+Given a sample.yml file of:
+```yaml
+{}
+```
+then
+```bash
+yq eval 'key' sample.yml
+```
+will output
+```yaml
+```
+
 ## Update map key
 Given a sample.yml file of:
 ```yaml

@@ -38,6 +38,28 @@ var keysOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Retrieve array key",
+		document:    "[1,2,3]",
+		expression:  `.[1] | key`,
+		expected: []string{
+			"D0, P[1], (!!int)::1\n",
+		},
+	},
+	{
+		description: "Retrieve map key",
+		document:    "a: thing",
+		expression:  `.a | key`,
+		expected: []string{
+			"D0, P[a], (!!str)::a\n",
+		},
+	},
+	{
+		description: "No key",
+		document:    "{}",
+		expression:  `key`,
+		expected:    []string{},
+	},
+	{
 		description: "Update map key",
 		document:    "a:\n  x: 3\n  y: 4",
 		expression:  `(.a.x | key) = "meow"`,
