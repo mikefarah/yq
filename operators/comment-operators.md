@@ -139,7 +139,7 @@ will output
 welcome!
 ```
 
-## 
+## Head comment with document split
 Given a sample.yml file of:
 ```yaml
 # welcome!
