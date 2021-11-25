@@ -11,7 +11,6 @@ func unionOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	log.Debug("rhs input: %v", NodesToString(context.MatchingNodes))
 	log.Debug("rhs: %v", expressionNode.Rhs.Operation.toString())
 	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -23,7 +22,6 @@ func unionOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	/// (.foo = "bar"), (.thing = "cat")
 
 	if rhs.MatchingNodes != lhs.MatchingNodes {
-
 		for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 			node := el.Value.(*CandidateNode)
 			log.Debug("processing %v", NodeToString(node))

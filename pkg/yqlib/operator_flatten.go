@@ -34,7 +34,6 @@ func flatten(node *yaml.Node, depth int) {
 }
 
 func flattenOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("-- flatten Operator")
 	depth := expressionNode.Operation.Preferences.(flattenPreferences).depth
 
@@ -50,5 +49,4 @@ func flattenOp(d *dataTreeNavigator, context Context, expressionNode *Expression
 	}
 
 	return context, nil
-
 }

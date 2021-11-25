@@ -51,7 +51,6 @@ func emptyOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 type crossFunctionCalculation func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
 func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *CandidateNode, rhs Context, calculation crossFunctionCalculation, results *list.List, calcWhenEmpty bool) error {
-
 	if calcWhenEmpty && rhs.MatchingNodes.Len() == 0 {
 		resultCandidate, err := calculation(d, context, lhsCandidate, nil)
 		if err != nil {
@@ -78,7 +77,7 @@ func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 }
 
 func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation crossFunctionCalculation, calcWhenEmpty bool) (Context, error) {
-	var results = list.New()
+	results := list.New()
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
 	if err != nil {
 		return Context{}, err
@@ -86,7 +85,6 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	log.Debugf("crossFunction LHS len: %v", lhs.MatchingNodes.Len())
 
 	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -111,9 +109,9 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func crossFunction(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation crossFunctionCalculation, calcWhenEmpty bool) (Context, error) {
-	var results = list.New()
+	results := list.New()
 
-	var evaluateAllTogether = true
+	evaluateAllTogether := true
 	for matchEl := context.MatchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
 		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
 		if !evaluateAllTogether {

@@ -2,16 +2,17 @@ package yqlib
 
 import (
 	"fmt"
-
 	"strconv"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
-	return &ExpressionNode{Operation: &Operation{OperationType: addOpType},
-		Lhs: lhs,
-		Rhs: rhs}
+	return &ExpressionNode{
+		Operation: &Operation{OperationType: addOpType},
+		Lhs:       lhs,
+		Rhs:       rhs,
+	}
 }
 
 func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -29,7 +30,6 @@ func toNodes(candidate *CandidateNode) []*yaml.Node {
 	default:
 		return []*yaml.Node{candidate.Node}
 	}
-
 }
 
 func addOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -71,7 +71,6 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 }
 
 func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
-
 	if lhs.Tag == "!!str" {
 		target.Node.Tag = "!!str"
 		target.Node.Value = lhs.Value + rhs.Value

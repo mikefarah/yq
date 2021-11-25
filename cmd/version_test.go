@@ -3,7 +3,7 @@ package cmd
 import "testing"
 
 func TestGetVersionDisplay(t *testing.T) {
-	var expectedVersion = ProductName + " (https://github.com/mikefarah/yq/) version " + Version
+	expectedVersion := ProductName + " (https://github.com/mikefarah/yq/) version " + Version
 	if VersionPrerelease != "" {
 		expectedVersion = expectedVersion + "-" + VersionPrerelease
 	}

@@ -11,8 +11,7 @@ type expressionPostFixer interface {
 	ConvertToPostfix([]*token) ([]*Operation, error)
 }
 
-type expressionPostFixerImpl struct {
-}
+type expressionPostFixerImpl struct{}
 
 func newExpressionPostFixer() expressionPostFixer {
 	return &expressionPostFixerImpl{}
@@ -39,8 +38,8 @@ func validateNoOpenTokens(token *token) error {
 func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Operation, error) {
 	var result []*Operation
 	// surround the whole thing with brackets
-	var opStack = []*token{{TokenType: openBracket}}
-	var tokens = append(infixTokens, &token{TokenType: closeBracket})
+	opStack := []*token{{TokenType: openBracket}}
+	tokens := append(infixTokens, &token{TokenType: closeBracket})
 
 	for _, currentToken := range tokens {
 		log.Debugf("postfix processing currentToken %v", currentToken.toString(true))
@@ -70,7 +69,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			opStack = opStack[0 : len(opStack)-1]
 			log.Debugf("deleting open bracket from opstack")
 
-			//and append a collect to the result
+			// and append a collect to the result
 			// hack - see if there's the optional traverse flag
 			// on the close op - move it to the collect op.
 			// allows for .["cat"]?
@@ -84,8 +83,8 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			result = append(result, &Operation{OperationType: shortPipeOpType})
 			log.Debugf("put shortpipe onto the result")
 
-			//traverseArrayCollect is a sneaky op that needs to be included too
-			//when closing a []
+			// traverseArrayCollect is a sneaky op that needs to be included too
+			// when closing a []
 			if len(opStack) > 0 && opStack[len(opStack)-1].Operation != nil && opStack[len(opStack)-1].Operation.OperationType == traverseArrayOpType {
 				opStack, result = popOpToResult(opStack, result)
 			}
@@ -106,7 +105,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			opStack = opStack[0 : len(opStack)-1]
 
 		default:
-			var currentPrecedence = currentToken.Operation.OperationType.Precedence
+			currentPrecedence := currentToken.Operation.OperationType.Precedence
 			// pop off higher precedent operators onto the result
 			for len(opStack) > 0 &&
 				opStack[len(opStack)-1].TokenType == operationToken &&

@@ -15,7 +15,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		return context.SingleChildContext(candidate), nil
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	var collectC *CandidateNode

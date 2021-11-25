@@ -28,7 +28,7 @@ type encoderPreferences struct {
 
 func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(encoderPreferences)
-	var results = list.New()
+	results := list.New()
 
 	hasOnlyOneNewLine := regexp.MustCompile("[^\n].*\n$")
 	endWithNewLine := regexp.MustCompile(".*\n$")
@@ -37,7 +37,6 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		stringValue, err := yamlToString(candidate, preferences)
-
 		if err != nil {
 			return Context{}, err
 		}
@@ -68,8 +67,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 /* takes a string and decodes it back into an object */
 func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	var results = list.New()
+	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
@@ -82,7 +80,7 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		if errorReading != nil {
 			return Context{}, errorReading
 		}
-		//first node is a doc
+		// first node is a doc
 		node := unwrapDoc(&dataBucket)
 
 		results.PushBack(candidate.CreateReplacement(node))

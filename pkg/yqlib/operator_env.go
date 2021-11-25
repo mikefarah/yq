@@ -36,7 +36,7 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if errorReading != nil {
 			return Context{}, errorReading
 		}
-		//first node is a doc
+		// first node is a doc
 		node = unwrapDoc(&dataBucket)
 	}
 	log.Debug("ENV tag", node.Tag)

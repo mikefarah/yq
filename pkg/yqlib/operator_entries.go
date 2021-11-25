@@ -8,8 +8,8 @@ import (
 )
 
 func entrySeqFor(key *yaml.Node, value *yaml.Node) *yaml.Node {
-	var keyKey = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "key"}
-	var valueKey = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "value"}
+	keyKey := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "key"}
+	valueKey := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "value"}
 
 	return &yaml.Node{
 		Kind:    yaml.MappingNode,
@@ -19,10 +19,10 @@ func entrySeqFor(key *yaml.Node, value *yaml.Node) *yaml.Node {
 }
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateReplacement(sequence)
+	sequence := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	entriesNode := candidateNode.CreateReplacement(sequence)
 
-	var contents = unwrapDoc(candidateNode.Node).Content
+	contents := unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
@@ -33,10 +33,10 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 }
 
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateReplacement(sequence)
+	sequence := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	entriesNode := candidateNode.CreateReplacement(sequence)
 
-	var contents = unwrapDoc(candidateNode.Node).Content
+	contents := unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 1 {
 		key := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", index)}
 		value := contents[index]
@@ -47,7 +47,7 @@ func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 }
 
 func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	var results = list.New()
+	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		candidateNode := unwrapDoc(candidate.Node)
@@ -89,14 +89,13 @@ func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Nod
 	}
 
 	return keyResults.Front().Value.(*CandidateNode).Node, valueResults.Front().Value.(*CandidateNode).Node, nil
-
 }
 
 func fromEntries(d *dataTreeNavigator, candidateNode *CandidateNode) (*CandidateNode, error) {
-	var node = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-	var mapCandidateNode = candidateNode.CreateReplacement(node)
+	node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+	mapCandidateNode := candidateNode.CreateReplacement(node)
 
-	var contents = unwrapDoc(candidateNode.Node).Content
+	contents := unwrapDoc(candidateNode.Node).Content
 
 	for index := 0; index < len(contents); index = index + 1 {
 		key, value, err := parseEntry(d, contents[index], index)
@@ -110,7 +109,7 @@ func fromEntries(d *dataTreeNavigator, candidateNode *CandidateNode) (*Candidate
 }
 
 func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	var results = list.New()
+	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		candidateNode := unwrapDoc(candidate.Node)
@@ -131,14 +130,13 @@ func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 }
 
 func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	//to_entries on the context
+	// to_entries on the context
 	toEntries, err := toEntriesOperator(d, context, expressionNode)
 	if err != nil {
 		return Context{}, err
 	}
 
-	//run expression against entries
+	// run expression against entries
 	// splat toEntries and pipe it into Rhs
 	splatted, err := splat(d, toEntries, traversePreferences{})
 	if err != nil {
@@ -157,6 +155,6 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 		return Context{}, err
 	}
 
-	//from_entries on the result
+	// from_entries on the result
 	return fromEntriesOperator(d, collected, expressionNode)
 }

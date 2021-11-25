@@ -12,7 +12,7 @@ type recursiveDescentPreferences struct {
 }
 
 func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	var results = list.New()
+	results := list.New()
 
 	preferences := expressionNode.Operation.Preferences.(recursiveDescentPreferences)
 	err := recursiveDecent(d, results, context, preferences)
@@ -36,7 +36,6 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, context Context, 
 			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
 
 			children, err := splat(d, context.SingleChildContext(candidate), preferences.TraversePreferences)
-
 			if err != nil {
 				return err
 			}

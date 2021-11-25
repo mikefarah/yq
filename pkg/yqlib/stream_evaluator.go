@@ -89,7 +89,6 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 }
 
 func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error) {
-
 	var currentIndex uint
 	decoder := yaml.NewDecoder(reader)
 	for {
@@ -120,7 +119,6 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 			return currentIndex, errorParsing
 		}
 		err := printer.PrintResults(result.MatchingNodes)
-
 		if err != nil {
 			return currentIndex, err
 		}

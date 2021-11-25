@@ -13,8 +13,7 @@ type DataTreeNavigator interface {
 	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
 }
 
-type dataTreeNavigator struct {
-}
+type dataTreeNavigator struct{}
 
 func NewDataTreeNavigator() DataTreeNavigator {
 	return &dataTreeNavigator{}
@@ -37,5 +36,4 @@ func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *Ex
 		return handler(d, context, expressionNode)
 	}
 	return Context{}, fmt.Errorf("Unknown operator %v", expressionNode.Operation.OperationType)
-
 }

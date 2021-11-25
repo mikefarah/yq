@@ -88,7 +88,6 @@ func (n *Context) DeepClone() Context {
 func (n *Context) Clone() Context {
 	clone := Context{}
 	err := copier.Copy(&clone, n)
-
 	if err != nil {
 		log.Error("Error cloning context :(")
 		panic(err)

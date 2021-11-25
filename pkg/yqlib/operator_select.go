@@ -5,14 +5,12 @@ import (
 )
 
 func selectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("-- selectOperation")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
-
 		if err != nil {
 			return Context{}, err
 		}

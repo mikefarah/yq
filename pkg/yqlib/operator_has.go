@@ -8,12 +8,10 @@ import (
 )
 
 func hasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("-- hasOperation")
-	var results = list.New()
+	results := list.New()
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -30,7 +28,7 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 		// grab the first value
 		candidateNode := unwrapDoc(candidate.Node)
-		var contents = candidateNode.Content
+		contents := candidateNode.Content
 		switch candidateNode.Kind {
 		case yaml.MappingNode:
 			candidateHasKey := false
@@ -44,7 +42,7 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		case yaml.SequenceNode:
 			candidateHasKey := false
 			if wanted.Tag == "!!int" {
-				var number, errParsingInt = strconv.ParseInt(wantedKey, 10, 64) // nolint
+				number, errParsingInt := strconv.ParseInt(wantedKey, 10, 64) // nolint
 				if errParsingInt != nil {
 					return Context{}, errParsingInt
 				}

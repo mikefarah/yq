@@ -90,5 +90,4 @@ func (f *frontMatterHandlerImpl) Split() error {
 	safelyCloseFile(yamlTempFile)
 
 	return nil
-
 }

@@ -35,7 +35,7 @@ func nodeToList(candidate *CandidateNode) *list.List {
 
 func TestPrinterMultipleDocsInSequence(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -73,7 +73,7 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 
 func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -115,7 +115,7 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 
 func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -162,7 +162,7 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 
 func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -212,7 +212,7 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 
 func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -231,7 +231,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -260,7 +260,7 @@ a: coconut
 
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0)
@@ -286,7 +286,7 @@ a: coconut
 
 func TestPrinterScalarWithLeadingCont(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(".a")
@@ -311,7 +311,7 @@ coconut
 
 func TestPrinterMultipleDocsJson(t *testing.T) {
 	var output bytes.Buffer
-	var writer = bufio.NewWriter(&output)
+	writer := bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
 	// when outputing JSON.
 	printer := NewPrinterWithSingleWriter(writer, JsonOutputFormat, true, false, 0, true)

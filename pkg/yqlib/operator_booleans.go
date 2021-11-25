@@ -69,7 +69,7 @@ func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressio
 	for _, node := range sequenceNode.Content {
 
 		if expressionNode != nil {
-			//need to evaluate the expression against the node
+			// need to evaluate the expression against the node
 			candidate := &CandidateNode{Node: node}
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode)
 			if err != nil {
@@ -95,7 +95,7 @@ func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressio
 }
 
 func allOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -114,7 +114,7 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func anyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -151,7 +151,7 @@ func andOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- notOperation")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

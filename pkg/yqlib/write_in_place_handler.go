@@ -15,13 +15,11 @@ type writeInPlaceHandlerImpl struct {
 }
 
 func NewWriteInPlaceHandler(inputFile string) writeInPlaceHandler {
-
 	return &writeInPlaceHandlerImpl{inputFile, nil}
 }
 
 func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
 	file, err := createTempFile()
-
 	if err != nil {
 		return nil, err
 	}

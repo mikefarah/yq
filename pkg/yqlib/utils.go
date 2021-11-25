@@ -75,7 +75,7 @@ func processLeadingContent(mappedDoc *CandidateNode, writer io.Writer, printDocS
 }
 
 func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
-	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+	commentLineRegEx := regexp.MustCompile(`^\s*#`)
 	var sb strings.Builder
 	for {
 		peekBytes, err := reader.Peek(3)

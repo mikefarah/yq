@@ -9,11 +9,10 @@ import (
 )
 
 func processIntoGroups(d *dataTreeNavigator, context Context, rhsExp *ExpressionNode, node *yaml.Node) (*orderedmap.OrderedMap, error) {
-	var newMatches = orderedmap.NewOrderedMap()
+	newMatches := orderedmap.NewOrderedMap()
 	for _, node := range node.Content {
 		child := &CandidateNode{Node: node}
 		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), rhsExp)
-
 		if err != nil {
 			return nil, err
 		}
@@ -38,9 +37,8 @@ func processIntoGroups(d *dataTreeNavigator, context Context, rhsExp *Expression
 }
 
 func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("-- groupBy Operator")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -51,7 +49,6 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 		}
 
 		newMatches, err := processIntoGroups(d, context, expressionNode.Rhs, candidateNode)
-
 		if err != nil {
 			return Context{}, err
 		}
@@ -72,5 +69,4 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 	}
 
 	return context.ChildContext(results), nil
-
 }

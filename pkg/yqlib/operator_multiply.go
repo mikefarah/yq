@@ -1,10 +1,9 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 	"strconv"
-
-	"container/list"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
@@ -47,7 +46,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
 			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
-			var newBlank = CandidateNode{}
+			newBlank := CandidateNode{}
 			err := copier.CopyWithOption(&newBlank, lhs, copier.Option{IgnoreEmpty: true, DeepCopy: true})
 			if err != nil {
 				return nil, err
@@ -103,11 +102,13 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 }
 
 func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) (*CandidateNode, error) {
-	var results = list.New()
+	results := list.New()
 
 	// only need to recurse the array if we are doing a deep merge
-	prefs := recursiveDescentPreferences{RecurseArray: preferences.DeepMergeArrays,
-		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}
+	prefs := recursiveDescentPreferences{
+		RecurseArray:        preferences.DeepMergeArrays,
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true},
+	}
 	log.Debugf("merge - preferences.DeepMergeArrays %v", preferences.DeepMergeArrays)
 	log.Debugf("merge - preferences.AppendArrays %v", preferences.AppendArrays)
 	err := recursiveDecent(d, results, context.SingleChildContext(rhs), prefs)

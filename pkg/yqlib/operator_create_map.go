@@ -9,8 +9,8 @@ import (
 func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- createMapOperation")
 
-	//each matchingNodes entry should turn into a sequence of keys to create.
-	//then collect object should do a cross function of the same index sequence for all matches.
+	// each matchingNodes entry should turn into a sequence of keys to create.
+	// then collect object should do a cross function of the same index sequence for all matches.
 
 	var path []interface{}
 
@@ -19,7 +19,6 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	sequences := list.New()
 
 	if context.MatchingNodes.Len() > 0 {
-
 		for matchingNodeEl := context.MatchingNodes.Front(); matchingNodeEl != nil; matchingNodeEl = matchingNodeEl.Next() {
 			matchingNode := matchingNodeEl.Value.(*CandidateNode)
 			sequenceNode, err := sequenceFor(d, context, matchingNode, expressionNode)
@@ -37,13 +36,12 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	}
 
 	return context.SingleChildContext(&CandidateNode{Node: listToNodeSeq(sequences), Document: document, Path: path}), nil
-
 }
 
 func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
 	var path []interface{}
 	var document uint = 0
-	var matches = list.New()
+	matches := list.New()
 
 	if matchingNode != nil {
 		path = matchingNode.Path
@@ -63,7 +61,6 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 
 			return &CandidateNode{Node: &node, Document: document, Path: path}, nil
 		}, false)
-
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +69,7 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 	return &CandidateNode{Node: innerList, Document: document, Path: path}, nil
 }
 
-//NOTE: here the document index gets dropped so we
+// NOTE: here the document index gets dropped so we
 // no longer know where the node originates from.
 func listToNodeSeq(list *list.List) *yaml.Node {
 	node := yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}

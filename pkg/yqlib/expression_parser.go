@@ -38,14 +38,14 @@ func (p *expressionParserImpl) ParseExpression(expression string) (*ExpressionNo
 }
 
 func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*ExpressionNode, error) {
-	var stack = make([]*ExpressionNode, 0)
+	stack := make([]*ExpressionNode, 0)
 
 	if len(postFixPath) == 0 {
 		return nil, nil
 	}
 
 	for _, Operation := range postFixPath {
-		var newNode = ExpressionNode{Operation: Operation}
+		newNode := ExpressionNode{Operation: Operation}
 		log.Debugf("pathTree %v ", Operation.toString())
 		if Operation.OperationType.NumArgs > 0 {
 			numArgs := Operation.OperationType.NumArgs

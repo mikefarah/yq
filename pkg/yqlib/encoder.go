@@ -29,14 +29,13 @@ func NewYamlEncoder(destination io.Writer, indent int, colorise bool) Encoder {
 }
 
 func (ye *yamlEncoder) Encode(node *yaml.Node) error {
-
 	destination := ye.destination
 	tempBuffer := bytes.NewBuffer(nil)
 	if ye.colorise {
 		destination = tempBuffer
 	}
 
-	var encoder = yaml.NewEncoder(destination)
+	encoder := yaml.NewEncoder(destination)
 
 	encoder.SetIndent(ye.indent)
 	// TODO: work out if the first doc had a separator or not.
@@ -61,7 +60,6 @@ type jsonEncoder struct {
 }
 
 func mapKeysToStrings(node *yaml.Node) {
-
 	if node.Kind == yaml.MappingNode {
 		for index, child := range node.Content {
 			if index%2 == 0 { // its a map key
@@ -76,10 +74,10 @@ func mapKeysToStrings(node *yaml.Node) {
 }
 
 func NewJsonEncoder(destination io.Writer, indent int) Encoder {
-	var encoder = json.NewEncoder(destination)
+	encoder := json.NewEncoder(destination)
 	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 
-	var indentString = ""
+	indentString := ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "

@@ -1,8 +1,6 @@
 package yqlib
 
 import (
-	// "bufio"
-	// "bytes"
 	"bufio"
 	"bytes"
 	"container/list"
@@ -18,11 +16,9 @@ type commentOpPreferences struct {
 }
 
 func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("AssignComments operator!")
 
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -73,11 +69,11 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
-	var startCommentCharaterRegExp = regexp.MustCompile(`^# `)
-	var subsequentCommentCharaterRegExp = regexp.MustCompile(`\n# `)
+	startCommentCharaterRegExp := regexp.MustCompile(`^# `)
+	subsequentCommentCharaterRegExp := regexp.MustCompile(`\n# `)
 
 	log.Debugf("GetComments operator!")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -85,9 +81,9 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		if preferences.LineComment {
 			comment = candidate.Node.LineComment
 		} else if preferences.HeadComment && candidate.LeadingContent != "" {
-			var chompRegexp = regexp.MustCompile(`\n$`)
+			chompRegexp := regexp.MustCompile(`\n$`)
 			var output bytes.Buffer
-			var writer = bufio.NewWriter(&output)
+			writer := bufio.NewWriter(&output)
 			if err := processLeadingContent(candidate, writer, false, YamlOutputFormat); err != nil {
 				return Context{}, err
 			}

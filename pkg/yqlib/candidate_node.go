@@ -87,7 +87,7 @@ func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
 		return newPath
 	}
 
-	//don't use append as they may actually modify the path of the orignal node!
+	// don't use append as they may actually modify the path of the orignal node!
 	newPath := make([]interface{}, len(n.Path)+1)
 	copy(newPath, n.Path)
 	newPath[len(n.Path)] = path
@@ -105,7 +105,6 @@ func (n *CandidateNode) Copy() (*CandidateNode, error) {
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
-
 	n.UpdateAttributesFrom(other)
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value

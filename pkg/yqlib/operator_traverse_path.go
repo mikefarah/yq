@@ -23,7 +23,7 @@ func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Co
 
 func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- traversePathOperator")
-	var matches = list.New()
+	matches := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		newNodes, err := traverse(d, context, el.Value.(*CandidateNode), expressionNode.Operation)
@@ -77,8 +77,7 @@ func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode
 }
 
 func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	//lhs may update the variable context, we should pass that into the RHS
+	// lhs may update the variable context, we should pass that into the RHS
 	// BUT we still return the original context back (see jq)
 	// https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...
 
@@ -90,7 +89,6 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	// rhs is a collect expression that will yield indexes to retrieve of the arrays
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -99,9 +97,9 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	if expressionNode.Rhs.Rhs != nil && expressionNode.Rhs.Rhs.Operation.Preferences != nil {
 		prefs = expressionNode.Rhs.Rhs.Operation.Preferences.(traversePreferences)
 	}
-	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
+	indicesToTraverse := rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
 
-	//now we traverse the result of the lhs against the indices we found
+	// now we traverse the result of the lhs against the indices we found
 	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, prefs)
 	if err != nil {
 		return Context{}, err
@@ -110,7 +108,7 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 }
 
 func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*yaml.Node, prefs traversePreferences) (Context, error) {
-	var matchingNodeMap = list.New()
+	matchingNodeMap := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		newNodes, err := traverseArrayIndices(context, candidate, indicesToTraverse, prefs)
@@ -130,7 +128,7 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 		// auto vivification
 		node.Tag = ""
 		node.Kind = yaml.SequenceNode
-		//check that the indices are numeric, if not, then we should create an object
+		// check that the indices are numeric, if not, then we should create an object
 		if len(indicesToTraverse) != 0 {
 			_, err := strconv.ParseInt(indicesToTraverse[0].Value, 10, 64)
 			if err != nil {
@@ -158,7 +156,7 @@ func traverseMapWithIndices(context Context, candidate *CandidateNode, indices [
 		return traverseMap(context, candidate, "", prefs, true)
 	}
 
-	var matchingNodeMap = list.New()
+	matchingNodeMap := list.New()
 
 	for _, indexNode := range indices {
 		log.Debug("traverseMapWithIndices: %v", indexNode.Value)
@@ -174,7 +172,7 @@ func traverseMapWithIndices(context Context, candidate *CandidateNode, indices [
 
 func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, prefs traversePreferences) (*list.List, error) {
 	log.Debug("traverseArrayWithIndices")
-	var newMatches = list.New()
+	newMatches := list.New()
 	node := unwrapDoc(candidate.Node)
 	if len(indices) == 0 {
 		log.Debug("splatting")
@@ -220,15 +218,14 @@ func keyMatches(key *yaml.Node, wantedKey string) bool {
 }
 
 func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs traversePreferences, splat bool) (*list.List, error) {
-	var newMatches = orderedmap.NewOrderedMap()
+	newMatches := orderedmap.NewOrderedMap()
 	err := doTraverseMap(newMatches, matchingNode, key, prefs, splat)
-
 	if err != nil {
 		return nil, err
 	}
 
 	if !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
-		//no matches, create one automagically
+		// no matches, create one automagically
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: key}
 		node := matchingNode.Node
@@ -264,13 +261,13 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 
 	node := candidate.Node
 
-	var contents = node.Content
+	contents := node.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
 
 		log.Debug("checking %v (%v)", key.Value, key.Tag)
-		//skip the 'merge' tag, find a direct match first
+		// skip the 'merge' tag, find a direct match first
 		if key.Tag == "!!merge" && !prefs.DontFollowAlias {
 			log.Debug("Merge anchor")
 			err := traverseMergeAnchor(newMatches, candidate, value, wantedKey, prefs, splat)

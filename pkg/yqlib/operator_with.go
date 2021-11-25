@@ -13,7 +13,6 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	pathExp := expressionNode.Rhs.Lhs
 
 	updateContext, err := d.GetMatchingNodes(context, pathExp)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -26,5 +25,4 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	}
 
 	return context, nil
-
 }

@@ -70,12 +70,10 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 	name = fmt.Sprintf("%v.%v", name, sp.extension)
 
 	f, err := os.Create(name)
-
 	if err != nil {
 		return nil, err
 	}
 	sp.index = sp.index + 1
 
 	return bufio.NewWriter(f), nil
-
 }

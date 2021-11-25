@@ -88,19 +88,22 @@ var valueOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!int)::-1\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `1.2`,
 		expected: []string{
 			"D0, P[], (!!float)::1.2\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `-5.2e11`,
 		expected: []string{
 			"D0, P[], (!!float)::-5.2e11\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `5e-10`,
 		expected: []string{
@@ -127,19 +130,22 @@ var valueOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::1.3\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `"true"`,
 		expected: []string{
 			"D0, P[], (!!str)::true\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `true`,
 		expected: []string{
 			"D0, P[], (!!bool)::true\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		expression: `false`,
 		expected: []string{

@@ -12,13 +12,11 @@ func unique(d *dataTreeNavigator, context Context, expressionNode *ExpressionNod
 	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
 	uniqueByExpression := &ExpressionNode{Operation: &Operation{OperationType: uniqueByOpType}, Rhs: selfExpression}
 	return uniqueBy(d, context, uniqueByExpression)
-
 }
 
 func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("-- uniqueBy Operator")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -28,11 +26,10 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 			return Context{}, fmt.Errorf("Only arrays are supported for unique")
 		}
 
-		var newMatches = orderedmap.NewOrderedMap()
+		newMatches := orderedmap.NewOrderedMap()
 		for _, node := range candidateNode.Content {
 			child := &CandidateNode{Node: node}
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.Rhs)
-
 			if err != nil {
 				return Context{}, err
 			}
@@ -60,5 +57,4 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 	}
 
 	return context.ChildContext(results), nil
-
 }

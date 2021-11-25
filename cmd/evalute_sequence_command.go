@@ -10,7 +10,7 @@ import (
 )
 
 func createEvaluateSequenceCommand() *cobra.Command {
-	var cmdEvalSequence = &cobra.Command{
+	cmdEvalSequence := &cobra.Command{
 		Use:     "eval [expression] [yaml_file1]...",
 		Aliases: []string{"e"},
 		Short:   "Apply the expression to each document in each yaml file in sequence",
@@ -44,7 +44,7 @@ expression and prints the result in sequence.`,
 }
 
 func processExpression(expression string) string {
-	var prettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
+	prettyPrintExp := `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
 	if prettyPrint && expression == "" {
 		return prettyPrintExp
 	} else if prettyPrint {

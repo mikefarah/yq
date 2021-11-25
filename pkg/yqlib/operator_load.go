@@ -27,7 +27,6 @@ func loadString(filename string) (*CandidateNode, error) {
 }
 
 func loadYaml(filename string) (*CandidateNode, error) {
-
 	file, err := os.Open(filename) // #nosec
 	if err != nil {
 		return nil, err
@@ -44,7 +43,6 @@ func loadYaml(filename string) (*CandidateNode, error) {
 		return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!null"}}, nil
 	} else if documents.Len() == 1 {
 		return documents.Front().Value.(*CandidateNode), nil
-
 	} else {
 		sequenceNode := &CandidateNode{Node: &yaml.Node{Kind: yaml.SequenceNode}}
 		for doc := documents.Front(); doc != nil; doc = doc.Next() {
@@ -62,7 +60,7 @@ func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	// need to evaluate the 1st parameter against the context
 	// and return the data accordingly.
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

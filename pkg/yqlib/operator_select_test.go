@@ -66,7 +66,8 @@ var selectOperatorScenarios = []expressionScenario{
 		expression: `.a.[] | select(. == "*at")`,
 		expected: []string{
 			"D0, P[a 0], (!!str)::cat\n",
-			"D0, P[a 1], (!!str)::goat\n"},
+			"D0, P[a 1], (!!str)::goat\n",
+		},
 	},
 	{
 		description: "Select and update matching values in map",

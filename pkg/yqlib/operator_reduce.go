@@ -13,8 +13,8 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	// '.' refers to the current accumulator, initialised to 0
 	// $var references a single element from the .a
 
-	//ensure lhs is actually an assignment
-	//and rhs is a block (empty)
+	// ensure lhs is actually an assignment
+	// and rhs is a block (empty)
 	if expressionNode.Lhs.Operation.OperationType != assignVariableOpType {
 		return Context{}, fmt.Errorf("reduce must be given a variables assignment, got %v instead", expressionNode.Lhs.Operation.OperationType.Type)
 	} else if expressionNode.Rhs.Operation.OperationType != blockOpType {

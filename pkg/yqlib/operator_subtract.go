@@ -2,16 +2,17 @@ package yqlib
 
 import (
 	"fmt"
-
 	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
 
 func createSubtractOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
-	return &ExpressionNode{Operation: &Operation{OperationType: subtractOpType},
-		Lhs: lhs,
-		Rhs: rhs}
+	return &ExpressionNode{
+		Operation: &Operation{OperationType: subtractOpType},
+		Lhs:       lhs,
+		Rhs:       rhs,
+	}
 }
 
 func subtractAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -75,7 +76,6 @@ func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 }
 
 func subtractScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
-
 	if lhs.Tag == "!!str" {
 		return nil, fmt.Errorf("strings cannot be subtracted")
 	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {

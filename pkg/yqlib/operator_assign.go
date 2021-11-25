@@ -22,7 +22,6 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 		candidate := el.Value.(*CandidateNode)
 
 		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
-
 		if err != nil {
 			return Context{}, err
 		}
@@ -51,7 +50,6 @@ func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionN
 		candidate := el.Value.(*CandidateNode)
 
 		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
-
 		if err != nil {
 			return Context{}, err
 		}

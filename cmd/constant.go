@@ -1,22 +1,28 @@
 package cmd
 
-var leadingContentPreProcessing = true
-var unwrapScalar = true
+var (
+	leadingContentPreProcessing = true
+	unwrapScalar                = true
+)
 
-var writeInplace = false
-var outputToJSON = false
-var outputFormat = "yaml"
+var (
+	writeInplace = false
+	outputToJSON = false
+	outputFormat = "yaml"
+)
 
-var exitStatus = false
-var forceColor = false
-var forceNoColor = false
-var colorsEnabled = false
-var indent = 2
-var noDocSeparators = false
-var nullInput = false
-var verbose = false
-var version = false
-var prettyPrint = false
+var (
+	exitStatus      = false
+	forceColor      = false
+	forceNoColor    = false
+	colorsEnabled   = false
+	indent          = 2
+	noDocSeparators = false
+	nullInput       = false
+	verbose         = false
+	version         = false
+	prettyPrint     = false
+)
 
 // can be either "" (off), "extract" or "process"
 var frontMatter = ""

@@ -40,13 +40,12 @@ func substitute(original string, regex *regexp.Regexp, replacement string) *yaml
 }
 
 func substituteStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	//rhs  block operator
-	//lhs of block = regex
-	//rhs of block = replacement expression
+	// rhs  block operator
+	// lhs of block = regex
+	// rhs of block = replacement expression
 	block := expressionNode.Rhs
 
 	regExStr, replacementText, err := getSubstituteParameters(d, block, context)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -56,7 +55,7 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 		return Context{}, err
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -71,11 +70,9 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 	}
 
 	return context.ChildContext(results), nil
-
 }
 
 func addMatch(original []*yaml.Node, match string, offset int, name string) []*yaml.Node {
-
 	newContent := append(original,
 		createScalarNode("string", "string"))
 
@@ -153,7 +150,6 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 		results.PushBack(candidate.CreateReplacement(node))
 
 	}
-
 }
 
 func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *CandidateNode, value string, results *list.List) {
@@ -190,7 +186,6 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 		results.PushBack(candidate.CreateReplacement(capturesNode))
 
 	}
-
 }
 
 func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (*regexp.Regexp, matchPreferences, error) {
@@ -242,7 +237,7 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 		return Context{}, err
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -263,7 +258,7 @@ func captureOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		return Context{}, err
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -284,7 +279,7 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		return Context{}, err
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -312,7 +307,7 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		joinStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -353,7 +348,7 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 		splitStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -376,7 +371,7 @@ func split(value string, spltStr string) *yaml.Node {
 	var contents []*yaml.Node
 
 	if value != "" {
-		var newStrings = strings.Split(value, spltStr)
+		newStrings := strings.Split(value, spltStr)
 		contents = make([]*yaml.Node, len(newStrings))
 
 		for index, str := range newStrings {

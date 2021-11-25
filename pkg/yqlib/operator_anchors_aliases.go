@@ -7,7 +7,6 @@ import (
 )
 
 func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("AssignAlias operator!")
 
 	aliasName := ""
@@ -22,7 +21,6 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 	}
 
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -51,7 +49,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 func getAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetAlias operator!")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -63,7 +61,6 @@ func getAliasOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 }
 
 func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("AssignAnchor operator!")
 
 	anchorName := ""
@@ -79,7 +76,6 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 	}
 
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -106,7 +102,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 func getAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetAnchor operator!")
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -125,7 +121,6 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		candidate := el.Value.(*CandidateNode)
 
 		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
-
 		if err != nil {
 			return Context{}, err
 		}
@@ -142,7 +137,7 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 }
 
 func reconstructAliasedMap(node *yaml.Node, context Context) error {
-	var newContent = list.New()
+	newContent := list.New()
 	// can I short cut here by prechecking if there's an anchor in the map?
 	// no it needs to recurse in overrideEntry.
 
@@ -258,9 +253,7 @@ func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent Co
 }
 
 func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex int, newContent Context) error {
-
 	err := explodeNode(value, newContent)
-
 	if err != nil {
 		return err
 	}

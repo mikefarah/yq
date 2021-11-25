@@ -9,7 +9,7 @@ import (
 )
 
 func createEvaluateAllCommand() *cobra.Command {
-	var cmdEvalAll = &cobra.Command{
+	cmdEvalAll := &cobra.Command{
 		Use:     "eval-all [expression] [yaml_file1]...",
 		Aliases: []string{"ea"},
 		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
@@ -39,6 +39,7 @@ Note that it consumes more memory than eval.
 	}
 	return cmdEvalAll
 }
+
 func evaluateAll(cmd *cobra.Command, args []string) error {
 	// 0 args, read std in
 	// 1 arg, null input, process expression

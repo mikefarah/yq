@@ -10,7 +10,7 @@ import (
 func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- getKeyOperator")
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -21,13 +21,12 @@ func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	}
 
 	return context.ChildContext(results), nil
-
 }
 
 func keysOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- keysOperator")
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -57,7 +56,7 @@ func getMapKeys(node *yaml.Node) *yaml.Node {
 }
 
 func getIndicies(node *yaml.Node) *yaml.Node {
-	var contents = make([]*yaml.Node, len(node.Content))
+	contents := make([]*yaml.Node, len(node.Content))
 
 	for index := range node.Content {
 		contents[index] = &yaml.Node{

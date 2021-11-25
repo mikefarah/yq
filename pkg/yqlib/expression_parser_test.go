@@ -10,6 +10,7 @@ func TestParserNoMatchingCloseCollect(t *testing.T) {
 	_, err := NewExpressionParser().ParseExpression("[1,2")
 	test.AssertResultComplex(t, "Bad expression, could not find matching `]`", err.Error())
 }
+
 func TestParserNoMatchingCloseObjectInCollect(t *testing.T) {
 	_, err := NewExpressionParser().ParseExpression(`[{"b": "c"]`)
 	test.AssertResultComplex(t, "Bad expression, could not find matching `}`", err.Error())

@@ -5,7 +5,7 @@ import "container/list"
 func getParentOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- getParentOperator")
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -15,5 +15,4 @@ func getParentOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	}
 
 	return context.ChildContext(results), nil
-
 }

@@ -82,7 +82,6 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
-
 	if err != nil {
 		t.Error(fmt.Errorf("%w: %v", err, s.expression))
 		return
@@ -156,7 +155,6 @@ func formatYaml(yaml string, filename string) string {
 
 func documentScenarios(t *testing.T, title string, scenarios []expressionScenario) {
 	f, err := os.Create(fmt.Sprintf("doc/%v.md", title))
-
 	if err != nil {
 		t.Error(err)
 		return

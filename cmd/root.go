@@ -8,7 +8,7 @@ import (
 )
 
 func New() *cobra.Command {
-	var rootCmd = &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:   "yq",
 		Short: "yq is a lightweight and portable command-line YAML processor.",
 		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
@@ -20,14 +20,13 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 			}
 			cmd.Println(cmd.UsageString())
 			return nil
-
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			cmd.SetOut(cmd.OutOrStdout())
-			var format = logging.MustStringFormatter(
+			format := logging.MustStringFormatter(
 				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
 			)
-			var backend = logging.AddModuleLevel(
+			backend := logging.AddModuleLevel(
 				logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
 
 			if verbose {

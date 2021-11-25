@@ -45,7 +45,8 @@ var collectOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::- cat\n",
 		},
-	}, {
+	},
+	{
 		document:   ``,
 		skipDoc:    true,
 		expression: `[true]`,

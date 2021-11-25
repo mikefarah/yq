@@ -56,6 +56,5 @@ $ yq shell-completion fish > ~/.config/fish/completions/yq.fish
 			err = cmd.Root().GenPowerShellCompletion(os.Stdout)
 		}
 		return err
-
 	},
 }

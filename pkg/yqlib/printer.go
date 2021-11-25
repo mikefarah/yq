@@ -13,7 +13,7 @@ import (
 type Printer interface {
 	PrintResults(matchingNodes *list.List) error
 	PrintedAnything() bool
-	//e.g. when given a front-matter doc, like jekyll
+	// e.g. when given a front-matter doc, like jekyll
 	SetAppendix(reader io.Reader)
 }
 

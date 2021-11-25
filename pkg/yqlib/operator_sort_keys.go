@@ -7,7 +7,6 @@ import (
 )
 
 func sortKeysOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
@@ -33,7 +32,7 @@ func sortKeys(node *yaml.Node) {
 	keys := make([]string, len(node.Content)/2)
 	keyBucket := map[string]*yaml.Node{}
 	valueBucket := map[string]*yaml.Node{}
-	var contents = node.Content
+	contents := node.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]

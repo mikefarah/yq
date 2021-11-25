@@ -7,7 +7,6 @@ import (
 )
 
 func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
 	log.Debugf("AssignTagOperator: %v")
 	tag := ""
 
@@ -23,7 +22,6 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	}
 
 	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -50,7 +48,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 func getTagOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("GetTagOperator")
 
-	var results = list.New()
+	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

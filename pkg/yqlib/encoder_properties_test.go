@@ -13,7 +13,7 @@ func yamlToProps(sampleYaml string) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var propsEncoder = NewPropertiesEncoder(writer)
+	propsEncoder := NewPropertiesEncoder(writer)
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0)
 	if err != nil {
 		panic(err)
@@ -29,50 +29,50 @@ func yamlToProps(sampleYaml string) string {
 }
 
 func TestPropertiesEncoderSimple(t *testing.T) {
-	var sampleYaml = `a: 'bob cool'`
+	sampleYaml := `a: 'bob cool'`
 
-	var expectedJson = `a = bob cool`
-	var actualProps = yamlToProps(sampleYaml)
+	expectedJson := `a = bob cool`
+	actualProps := yamlToProps(sampleYaml)
 	test.AssertResult(t, expectedJson, actualProps)
 }
 
 func TestPropertiesEncoderSimpleWithComments(t *testing.T) {
-	var sampleYaml = `a: 'bob cool' # line`
+	sampleYaml := `a: 'bob cool' # line`
 
-	var expectedJson = `# line
+	expectedJson := `# line
 a = bob cool`
-	var actualProps = yamlToProps(sampleYaml)
+	actualProps := yamlToProps(sampleYaml)
 	test.AssertResult(t, expectedJson, actualProps)
 }
 
 func TestPropertiesEncoderDeep(t *testing.T) {
-	var sampleYaml = `a: 
+	sampleYaml := `a: 
   b: "bob cool"
 `
 
-	var expectedJson = `a.b = bob cool`
-	var actualProps = yamlToProps(sampleYaml)
+	expectedJson := `a.b = bob cool`
+	actualProps := yamlToProps(sampleYaml)
 	test.AssertResult(t, expectedJson, actualProps)
 }
 
 func TestPropertiesEncoderDeepWithComments(t *testing.T) {
-	var sampleYaml = `a:  # a thing
+	sampleYaml := `a:  # a thing
   b: "bob cool" # b thing
 `
 
-	var expectedJson = `# b thing
+	expectedJson := `# b thing
 a.b = bob cool`
-	var actualProps = yamlToProps(sampleYaml)
+	actualProps := yamlToProps(sampleYaml)
 	test.AssertResult(t, expectedJson, actualProps)
 }
 
 func TestPropertiesEncoderArray(t *testing.T) {
-	var sampleYaml = `a: 
+	sampleYaml := `a: 
   b: [{c: dog}, {c: cat}]
 `
 
-	var expectedJson = `a.b.0.c = dog
+	expectedJson := `a.b.0.c = dog
 a.b.1.c = cat`
-	var actualProps = yamlToProps(sampleYaml)
+	actualProps := yamlToProps(sampleYaml)
 	test.AssertResult(t, expectedJson, actualProps)
 }

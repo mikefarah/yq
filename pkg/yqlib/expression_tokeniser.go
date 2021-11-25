@@ -56,7 +56,6 @@ func (t *token) toString(detail bool) string {
 		return "}"
 	} else if t.TokenType == traverseArrayCollect {
 		return ".["
-
 	} else {
 		return "NFI"
 	}
@@ -134,7 +133,7 @@ func opTokenWithPrefs(op *operationType, assignOpType *operationType, preference
 func extractNumberParamter(value string) (int, error) {
 	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
 	matches := parameterParser.FindStringSubmatch(value)
-	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32) // nolint
+	indent, errParsingInt := strconv.ParseInt(matches[1], 10, 32) // nolint
 	if errParsingInt != nil {
 		return 0, errParsingInt
 	}
@@ -144,7 +143,7 @@ func extractNumberParamter(value string) (int, error) {
 func flattenWithDepth() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		var depth, errParsingInt = extractNumberParamter(value)
+		depth, errParsingInt := extractNumberParamter(value)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -158,7 +157,7 @@ func flattenWithDepth() lex.Action {
 func encodeWithIndent(outputFormat PrinterOutputFormat) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		var indent, errParsingInt = extractNumberParamter(value)
+		indent, errParsingInt := extractNumberParamter(value)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -196,8 +195,8 @@ func unwrap(value string) string {
 
 func numberValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var numberString = string(m.Bytes)
-		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
+		numberString := string(m.Bytes)
+		number, errParsingInt := strconv.ParseInt(numberString, 10, 64) // nolint
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -208,10 +207,10 @@ func numberValue() lex.Action {
 
 func hexValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var originalString = string(m.Bytes)
-		var numberString = originalString[2:]
+		originalString := string(m.Bytes)
+		numberString := originalString[2:]
 		log.Debugf("numberString: %v", numberString)
-		var number, errParsingInt = strconv.ParseInt(numberString, 16, 64) // nolint
+		number, errParsingInt := strconv.ParseInt(numberString, 16, 64) // nolint
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -222,8 +221,8 @@ func hexValue() lex.Action {
 
 func floatValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
-		var numberString = string(m.Bytes)
-		var number, errParsingInt = strconv.ParseFloat(numberString, 64) // nolint
+		numberString := string(m.Bytes)
+		number, errParsingInt := strconv.ParseFloat(numberString, 64) // nolint
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -271,7 +270,7 @@ func envOp(strenv bool) lex.Action {
 			value = value[7 : len(value)-1]
 			preferences.StringValue = true
 		} else {
-			//env( )
+			// env( )
 			value = value[4 : len(value)-1]
 		}
 
@@ -302,11 +301,15 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\)`), literalToken(closeBracket, true))
 
 	lexer.Add([]byte(`\.\[`), literalToken(traverseArrayCollect, false))
-	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{RecurseArray: true,
-		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: false}}))
+	lexer.Add([]byte(`\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{
+		RecurseArray:        true,
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: false},
+	}))
 
-	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{RecurseArray: true,
-		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}))
+	lexer.Add([]byte(`\.\.\.`), opTokenWithPrefs(recursiveDescentOpType, nil, recursiveDescentPreferences{
+		RecurseArray:        true,
+		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true},
+	}))
 
 	lexer.Add([]byte(`,`), opToken(unionOpType))
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
@@ -459,7 +462,7 @@ type expressionTokeniserImpl struct {
 }
 
 func newExpressionTokeniser() expressionTokeniser {
-	var lexer, err = initLexer()
+	lexer, err := initLexer()
 	if err != nil {
 		panic(err)
 	}
@@ -468,7 +471,6 @@ func newExpressionTokeniser() expressionTokeniser {
 
 func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) {
 	scanner, err := p.lexer.Scanner([]byte(expression))
-
 	if err != nil {
 		return nil, fmt.Errorf("Parsing expression: %w", err)
 	}
@@ -484,7 +486,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 			return nil, fmt.Errorf("Parsing expression: %w", err)
 		}
 	}
-	var postProcessedTokens = make([]*token, 0)
+	postProcessedTokens := make([]*token, 0)
 
 	skipNextToken := false
 
@@ -507,7 +509,7 @@ func (p *expressionTokeniserImpl) handleToken(tokens []*token, index int, postPr
 
 	if currentToken.TokenType == traverseArrayCollect {
 		// `.[exp]`` works by creating a traversal array of [self, exp] and piping that into the traverse array operator
-		//need to put a traverse array then a collect currentToken
+		// need to put a traverse array then a collect currentToken
 		// do this by adding traverse then converting currentToken to collect
 
 		log.Debug("  adding self")

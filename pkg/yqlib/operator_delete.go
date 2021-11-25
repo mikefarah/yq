@@ -8,15 +8,14 @@ import (
 
 func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	nodesToDelete, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
-
 	if err != nil {
 		return Context{}, err
 	}
-	//need to iterate backwards to ensure correct indices when deleting multiple
+	// need to iterate backwards to ensure correct indices when deleting multiple
 	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
-		//problem: context may already be '.a' and then I pass in '.a.a2'.
+		// problem: context may already be '.a' and then I pass in '.a.a2'.
 		// should pass in .a2.
 		if candidate.Parent == nil {
 			log.Info("Could not find parent of %v", candidate.GetKey())

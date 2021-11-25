@@ -46,7 +46,6 @@ func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err err
 }
 
 func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) yqlib.PrinterWriter {
-
 	var printerWriter yqlib.PrinterWriter
 
 	if splitFileExp != "" {

@@ -51,7 +51,6 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 	}
 
 	return context.ChildContext(newObject), nil
-
 }
 
 func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List) (Context, error) {
@@ -97,5 +96,4 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 		}
 	}
 	return collect(d, context.ChildContext(newAgg), remainingMatches)
-
 }
