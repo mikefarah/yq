@@ -34,7 +34,7 @@ func tryRemoveFile(filename string) {
 
 // thanks https://stackoverflow.com/questions/21060945/simple-way-to-copy-a-file-in-golang
 func copyFileContents(src, dst string) (err error) {
-	// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
+	// ignore CWE-22 gosec issue - that's more targeted for http based apps that run in a public directory,
 	// and ensuring that it's not possible to give a path to a file outside thar directory.
 
 	in, err := os.Open(src) // #nosec

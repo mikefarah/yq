@@ -173,7 +173,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Two non existant keys are equal",
+		description: "Two non existent keys are equal",
 		document:    "a: frog",
 		expression:  `select(.b == .c)`,
 		expected: []string{

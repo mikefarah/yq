@@ -6,6 +6,7 @@ linters:
     - gofmt
     - goimports
     - gosec
+    - misspell
 issues:
   exclude-rules:
   - linters:
