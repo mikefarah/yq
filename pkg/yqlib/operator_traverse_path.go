@@ -42,7 +42,7 @@ func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode
 
 	if value.Tag == "!!null" && operation.Value != "[]" {
 		log.Debugf("Guessing kind")
-		// we must ahve added this automatically, lets guess what it should be now
+		// we must have added this automatically, lets guess what it should be now
 		switch operation.Value.(type) {
 		case int, int64:
 			log.Debugf("probably an array")
@@ -87,7 +87,7 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 		return Context{}, err
 	}
 
-	// rhs is a collect expression that will yield indexes to retreive of the arrays
+	// rhs is a collect expression that will yield indexes to retrieve of the arrays
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
 
