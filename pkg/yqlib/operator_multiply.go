@@ -1,10 +1,9 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 	"strconv"
-
-	"container/list"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"

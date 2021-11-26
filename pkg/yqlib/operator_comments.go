@@ -1,8 +1,6 @@
 package yqlib
 
 import (
-	// "bufio"
-	// "bytes"
 	"bufio"
 	"bytes"
 	"container/list"

@@ -3,6 +3,7 @@ run:
 linters:
   enable:
     - errorlint
+    - gci
     - gofmt
     - goimports
     - gosec

@@ -209,7 +209,7 @@ will output
 ```
 
 ## Test using regex
-Like jq'q equivalant, this works like match but only returns true/false instead of full match details
+Like jq'q equivalent, this works like match but only returns true/false instead of full match details
 
 Given a sample.yml file of:
 ```yaml
