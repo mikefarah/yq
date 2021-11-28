@@ -51,7 +51,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:
-		return nil, fmt.Errorf("Maps not yet supported for addition")
+		return nil, fmt.Errorf("maps not yet supported for addition")
 	case yaml.SequenceNode:
 		target.Node.Kind = yaml.SequenceNode
 		target.Node.Style = lhsNode.Style

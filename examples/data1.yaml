@@ -1,1 +1,15 @@
-["a a", "b		thing", 1, true]
+strings:
+  - a: banana
+  - a: cat
+  - a: apple
+
+numbers:
+  - a: 12
+  - a: 13
+  - a: 120
+
+
+obj:
+  - a: {cat: "adog"}
+  - a: {cat: "doga"}
+  - a: apple
