@@ -68,7 +68,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			}
 			// now we should have [ as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
-			log.Debugf("deleteing open bracket from opstack")
+			log.Debugf("deleting open bracket from opstack")
 
 			//and append a collect to the result
 			// hack - see if there's the optional traverse flag

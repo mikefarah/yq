@@ -25,7 +25,7 @@ func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err err
 		firstFileIndex = 1
 	}
 
-	// backwards compatibilty
+	// backwards compatibility
 	if outputToJSON {
 		outputFormat = "json"
 	}

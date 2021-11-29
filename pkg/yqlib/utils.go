@@ -17,7 +17,7 @@ func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, s
 	if filename == "-" {
 		reader = bufio.NewReader(os.Stdin)
 	} else {
-		// ignore CWE-22 gosec issue - that's more targetted for http based apps that run in a public directory,
+		// ignore CWE-22 gosec issue - that's more targeted for http based apps that run in a public directory,
 		// and ensuring that it's not possible to give a path to a file outside thar directory.
 		file, err := os.Open(filename) // #nosec
 		if err != nil {

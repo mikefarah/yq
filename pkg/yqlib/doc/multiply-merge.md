@@ -234,43 +234,60 @@ will output
 ```
 
 ## Merge arrays of objects together, matching on a key
-It's a complex command, the trickyness comes from needing to have the right context in the expressions.
-First we save the second array into a variable '$two' which lets us reference it later.
-We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
-We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
+There are several parts of the complex expression. 
+The first part is doing the hard work, it creates a map from the arrays keyed by '.a', so that there are no duplicates. 
+Then there's another reduce that converts that map back to an array.
+Finally, we set the result of the merged array back into the first doc.
+
+To use this, you will need to update '.myArray' to be the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
+
+Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 
 
 Given a sample.yml file of:
 ```yaml
-- a: apple
-  b: appleB
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
+myArray:
+  - a: apple
+    b: appleB
+  - a: kiwi
+    b: kiwiB
+  - a: banana
+    b: bananaB
+something: else
 ```
 And another sample another.yml file of:
 ```yaml
-- a: banana
-  c: bananaC
-- a: apple
-  b: appleB2
-- a: dingo
-  c: dingoC
+myArray:
+  - a: banana
+    c: bananaC
+  - a: apple
+    b: appleB2
+  - a: dingo
+    c: dingoC
 ```
 then
 ```bash
-yq eval-all '(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))' sample.yml another.yml
+yq eval-all '
+(
+  ((.myArray[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+  | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
+) as $mergedArray
+| select(fi == 0) | .myArray = $mergedArray
+' sample.yml another.yml
 ```
 will output
 ```yaml
-- a: apple
-  b: appleB2
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
-  c: bananaC
+myArray:
+  - a: apple
+    b: appleB2
+  - a: kiwi
+    b: kiwiB
+  - a: banana
+    b: bananaB
+    c: bananaC
+  - a: dingo
+    c: dingoC
+something: else
 ```
 
 ## Merge to prefix an element

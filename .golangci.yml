@@ -3,9 +3,11 @@ run:
 linters:
   enable:
     - errorlint
+    - gci
     - gofmt
     - goimports
     - gosec
+    - misspell
 issues:
   exclude-rules:
   - linters:

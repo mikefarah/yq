@@ -1,10 +1,9 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 	"strconv"
-
-	"container/list"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
@@ -42,7 +41,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 		leadingContent, headComment, footComment := getComments(lhs, rhs)
 		lhs.Node = unwrapDoc(lhs.Node)
 		rhs.Node = unwrapDoc(rhs.Node)
-		log.Debugf("Multipling LHS: %v", lhs.Node.Tag)
+		log.Debugf("Multiplying LHS: %v", lhs.Node.Tag)
 		log.Debugf("-          RHS: %v", rhs.Node.Tag)
 
 		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||

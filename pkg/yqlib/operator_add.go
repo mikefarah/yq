@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"fmt"
-
 	"strconv"
 
 	yaml "gopkg.in/yaml.v3"
