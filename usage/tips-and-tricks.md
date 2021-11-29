@@ -76,6 +76,10 @@ To merge all given yaml files into one, use the `reduce` operator with the `*` (
 yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
 ```
 
+# Merge an array of objects by key
+
+See [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays-of-objects-together-matching-on-a-key) for a working example.
+
 ## Creating a new file / working with blank documents
 
 To create a new `yaml` file simply:
