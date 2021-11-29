@@ -262,8 +262,9 @@ And another sample another.yml file of:
 ```
 then
 ```bash
-yq eval-all '((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
-| ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
+yq eval-all '
+  ((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+  | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 ' sample.yml another.yml
 ```
 will output

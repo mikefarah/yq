@@ -37,8 +37,9 @@ To use this, you will need to update '.[]' to be the expression to your array (e
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 `
 
-var mergeExpression = `((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
-| ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
+var mergeExpression = `
+  ((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+  | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 `
 
 var docWithHeader = `# here
