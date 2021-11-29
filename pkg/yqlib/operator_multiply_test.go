@@ -29,10 +29,12 @@ var mergeArrayWithAnchors = `sample:
 - <<: *a
 `
 
-var mergeArraysObjectKeysText = `It's a complex command, the trickyness comes from needing to have the right context in the expressions.
-First we save the second array into a variable '$two' which lets us reference it later.
-We then need to update the first array. We will use the relative update (|=) because we need to update relative to the current element of the array in the LHS in the RHS expression. 
-We set the current element of the first array as $cur. Now we multiply (merge) $cur with the matching entry in $two, by passing $two through a select filter.
+var mergeArraysObjectKeysText = `There are two parts of the complex expression. The first part is doing the hard work, it creates a map from the arrays keyed by '.a', 
+so that there are no duplicates. The second half converts that map back to an array.`
+
+var mergeExpression = `
+((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+| ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 `
 
 var docWithHeader = `# here
@@ -373,9 +375,9 @@ var multiplyOperatorScenarios = []expressionScenario{
 		subdescription: mergeArraysObjectKeysText,
 		document:       `[{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}]`,
 		document2:      `[{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
-		expression:     `(select(fi==1) | .[]) as $two | select(fi==0) | .[] |= (. as $cur |  $cur * ($two | select(.a == $cur.a)))`,
+		expression:     mergeExpression,
 		expected: []string{
-			"D0, P[], (doc)::[{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}]\n",
+			"D0, P[], (!!seq)::- {a: apple, b: appleB2}\n- {a: kiwi, b: kiwiB}\n- {a: banana, b: bananaB, c: bananaC}\n- {a: dingo, c: dingoC}\n",
 		},
 	},
 	{
