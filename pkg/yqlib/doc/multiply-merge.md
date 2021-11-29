@@ -237,6 +237,9 @@ will output
 There are two parts of the complex expression. The first part is doing the hard work, it creates a map from the arrays keyed by '.a', 
 so that there are no duplicates. The second half converts that map back to an array.
 
+To use this, you will need to update '.[]' to be the expression to your array (e.g. .my.array[]), and '.a' to be the key field of your array (e.g. '.name')
+
+
 Given a sample.yml file of:
 ```yaml
 - a: apple
@@ -257,8 +260,7 @@ And another sample another.yml file of:
 ```
 then
 ```bash
-yq eval-all '
-((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+yq eval-all '((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
 | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 ' sample.yml another.yml
 ```

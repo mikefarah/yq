@@ -30,10 +30,12 @@ var mergeArrayWithAnchors = `sample:
 `
 
 var mergeArraysObjectKeysText = `There are two parts of the complex expression. The first part is doing the hard work, it creates a map from the arrays keyed by '.a', 
-so that there are no duplicates. The second half converts that map back to an array.`
+so that there are no duplicates. The second half converts that map back to an array.
 
-var mergeExpression = `
-((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+To use this, you will need to update '.[]' to be the expression to your array (e.g. .my.array[]), and '.a' to be the key field of your array (e.g. '.name')
+`
+
+var mergeExpression = `((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
 | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 `
 
