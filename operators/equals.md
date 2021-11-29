@@ -108,7 +108,7 @@ will output
 a: frog
 ```
 
-## Two non existant keys are equal
+## Two non existent keys are equal
 Given a sample.yml file of:
 ```yaml
 a: frog
