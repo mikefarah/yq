@@ -234,50 +234,60 @@ will output
 ```
 
 ## Merge arrays of objects together, matching on a key
-There are two parts of the complex expression. The first part is doing the hard work, it creates a map from the arrays keyed by '.a', 
-so that there are no duplicates. The second half converts that map back to an array.
+There are several parts of the complex expression. 
+The first part is doing the hard work, it creates a map from the arrays keyed by '.a', so that there are no duplicates. 
+Then there's another reduce that converts that map back to an array.
+Finally, we set the result of the merged array back into the first doc.
 
-To use this, you will need to update '.[]' to be the expression to your array (e.g. .my.array[]), and '.a' to be the key field of your array (e.g. '.name')
+To use this, you will need to update '.myArray' to be the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
 
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 
 
 Given a sample.yml file of:
 ```yaml
-- a: apple
-  b: appleB
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
+myArray:
+  - a: apple
+    b: appleB
+  - a: kiwi
+    b: kiwiB
+  - a: banana
+    b: bananaB
+something: else
 ```
 And another sample another.yml file of:
 ```yaml
-- a: banana
-  c: bananaC
-- a: apple
-  b: appleB2
-- a: dingo
-  c: dingoC
+myArray:
+  - a: banana
+    c: bananaC
+  - a: apple
+    b: appleB2
+  - a: dingo
+    c: dingoC
 ```
 then
 ```bash
 yq eval-all '
-  ((.[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+(
+  ((.myArray[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
   | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
+) as $mergedArray
+| select(fi == 0) | .myArray = $mergedArray
 ' sample.yml another.yml
 ```
 will output
 ```yaml
-- a: apple
-  b: appleB2
-- a: kiwi
-  b: kiwiB
-- a: banana
-  b: bananaB
-  c: bananaC
-- a: dingo
-  c: dingoC
+myArray:
+  - a: apple
+    b: appleB2
+  - a: kiwi
+    b: kiwiB
+  - a: banana
+    b: bananaB
+    c: bananaC
+  - a: dingo
+    c: dingoC
+something: else
 ```
 
 ## Merge to prefix an element
