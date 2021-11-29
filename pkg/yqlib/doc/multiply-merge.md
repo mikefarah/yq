@@ -239,6 +239,8 @@ so that there are no duplicates. The second half converts that map back to an ar
 
 To use this, you will need to update '.[]' to be the expression to your array (e.g. .my.array[]), and '.a' to be the key field of your array (e.g. '.name')
 
+Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
+
 
 Given a sample.yml file of:
 ```yaml
