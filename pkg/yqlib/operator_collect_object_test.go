@@ -7,6 +7,15 @@ import (
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		document:   `[{name: cat}, {name: dog}]`,
+		expression: `.[] | {.name: "great"}`,
+		expected: []string{
+			"D0, P[], (!!map)::cat: great\n",
+			"D0, P[], (!!map)::dog: great\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "a: []",
 		expression: `.a += [{"key": "att2", "value": "val2"}]`,
 		expected: []string{
@@ -99,9 +108,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		document:   `{name: Mike, pets: {cows: [apl, bba]}}`,
 		expression: `{"a":.name, "b":.pets}`,
 		expected: []string{
-			`D0, P[], (!!map)::a: Mike
-b: {cows: [apl, bba]}
-`,
+			"D0, P[], (!!map)::a: Mike\nb: {cows: [apl, bba]}\n",
 		},
 	},
 	{
