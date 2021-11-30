@@ -47,8 +47,16 @@ var entriesOperatorScenarios = []expressionScenario{
 	{
 		description: "Use with_entries to update keys",
 		document:    `{a: 1, b: 2}`,
-		document2:   `{c: 1, d: 2}`,
 		expression:  `with_entries(.key |= "KEY_" + .)`,
+		expected: []string{
+			"D0, P[], (!!map)::KEY_a: 1\nKEY_b: 2\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: 1, b: 2}`,
+		document2:  `{c: 1, d: 2}`,
+		expression: `with_entries(.key |= "KEY_" + .)`,
 		expected: []string{
 			"D0, P[], (!!map)::KEY_a: 1\nKEY_b: 2\n",
 			"D0, P[], (!!map)::KEY_c: 1\nKEY_d: 2\n",
