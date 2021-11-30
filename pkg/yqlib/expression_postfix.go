@@ -71,15 +71,16 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			log.Debugf("deleting open bracket from opstack")
 
 			//and append a collect to the result
+
 			// hack - see if there's the optional traverse flag
-			// on the close op - move it to the collect op.
+			// on the close op - move it to the traverse array op
 			// allows for .["cat"]?
 			prefs := traversePreferences{}
 			closeTokenMatch := string(currentToken.Match.Bytes)
 			if closeTokenMatch[len(closeTokenMatch)-1:] == "?" {
 				prefs.OptionalTraverse = true
 			}
-			result = append(result, &Operation{OperationType: collectOperator, Preferences: prefs})
+			result = append(result, &Operation{OperationType: collectOperator})
 			log.Debugf("put collect onto the result")
 			if opener != openCollect {
 				result = append(result, &Operation{OperationType: shortPipeOpType})
@@ -87,9 +88,9 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			}
 
 			//traverseArrayCollect is a sneaky op that needs to be included too
-			//when closing a []
+			//when closing a ]
 			if len(opStack) > 0 && opStack[len(opStack)-1].Operation != nil && opStack[len(opStack)-1].Operation.OperationType == traverseArrayOpType {
-
+				opStack[len(opStack)-1].Operation.Preferences = prefs
 				opStack, result = popOpToResult(opStack, result)
 			}
 

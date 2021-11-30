@@ -96,11 +96,8 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	}
 	prefs := traversePreferences{}
 
-	// we could have .[blah]?
-	// and we sneakily put the traverse prefs on the RHS prefs
-	// dodgey :/
-	if expressionNode.Rhs != nil && expressionNode.Rhs.Operation.Preferences != nil {
-		prefs = expressionNode.Rhs.Operation.Preferences.(traversePreferences)
+	if expressionNode.Operation.Preferences != nil {
+		prefs = expressionNode.Operation.Preferences.(traversePreferences)
 	}
 	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
 
