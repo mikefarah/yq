@@ -29,7 +29,7 @@ endif
 
 DEV_IMAGE := ${PROJECT}_dev
 
-DOCKRUN := docker run --rm \
+ENGINERUN := ${ENGINE} run --rm \
 	-e LDFLAGS="${LDFLAGS}" \
 	-e GITHUB_TOKEN="${GITHUB_TOKEN}" \
 	-v ${ROOT}/vendor:/go/src \
