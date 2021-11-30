@@ -81,12 +81,15 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			}
 			result = append(result, &Operation{OperationType: collectOperator, Preferences: prefs})
 			log.Debugf("put collect onto the result")
-			result = append(result, &Operation{OperationType: shortPipeOpType})
-			log.Debugf("put shortpipe onto the result")
+			if opener != openCollect {
+				result = append(result, &Operation{OperationType: shortPipeOpType})
+				log.Debugf("put shortpipe onto the result")
+			}
 
 			//traverseArrayCollect is a sneaky op that needs to be included too
 			//when closing a []
 			if len(opStack) > 0 && opStack[len(opStack)-1].Operation != nil && opStack[len(opStack)-1].Operation.OperationType == traverseArrayOpType {
+
 				opStack, result = popOpToResult(opStack, result)
 			}
 

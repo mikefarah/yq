@@ -57,16 +57,11 @@ var pathOperatorScenarios = []expressionScenario{
 	{
 		description: "Print path and value",
 		document:    `{a: [cat, dog, frog]}`,
-		expression:  `.a.[] | select(. == "*og") | [{"path":path, "value":.}]`,
-		expected: []string{`D0, P[], (!!seq)::- path:
-    - a
-    - 1
-  value: dog
-- path:
-    - a
-    - 2
-  value: frog
-`},
+		expression:  `.a[] | select(. == "*og") | [{"path":path, "value":.}]`,
+		expected: []string{
+			"D0, P[a 1], (!!seq)::- path:\n    - a\n    - 1\n  value: dog\n",
+			"D0, P[a 2], (!!seq)::- path:\n    - a\n    - 2\n  value: frog\n",
+		},
 	},
 }
 

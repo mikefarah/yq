@@ -91,14 +91,21 @@ Given a sample.yml file of:
 a: 1
 b: 2
 ```
+And another sample another.yml file of:
+```yaml
+c: 1
+d: 2
+```
 then
 ```bash
-yq eval 'with_entries(.key |= "KEY_" + .)' sample.yml
+yq eval-all 'with_entries(.key |= "KEY_" + .)' sample.yml another.yml
 ```
 will output
 ```yaml
 KEY_a: 1
 KEY_b: 2
+KEY_c: 1
+KEY_d: 2
 ```
 
 ## Use with_entries to filter the map
