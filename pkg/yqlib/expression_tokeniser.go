@@ -312,6 +312,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
 	lexer.Add([]byte(`length`), opToken(lengthOpType))
 
+	lexer.Add([]byte(`map`), opToken(mapOpType))
+	lexer.Add([]byte(`map_values`), opToken(mapValuesOpType))
+
 	lexer.Add([]byte(`flatten\([0-9]+\)`), flattenWithDepth())
 	lexer.Add([]byte(`flatten`), opTokenWithPrefs(flattenOpType, nil, flattenPreferences{depth: -1}))
 
