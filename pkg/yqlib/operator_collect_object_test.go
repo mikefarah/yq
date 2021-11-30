@@ -56,6 +56,16 @@ var collectObjectOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   "{name: Mike}\n",
+		document2:  "{name: Bob}\n",
+		expression: `{"wrap": .}`,
+		expected: []string{
+			"D0, P[], (!!map)::wrap: {name: Mike}\n",
+			"D0, P[], (!!map)::wrap: {name: Bob}\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "{name: Mike}\n---\n{name: Bob}",
 		expression: `{"wrap": .}`,
 		expected: []string{
