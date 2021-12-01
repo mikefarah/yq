@@ -5,7 +5,7 @@
 
 a lightweight and portable command-line YAML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
-yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as docker, all listed below.
+yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
 
 ## Quick Usage Guide
 
@@ -96,12 +96,16 @@ sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
 
-### Run with Docker
+### Run with Docker or Podman
 
 #### Oneshot use:
 
 ```bash
 docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
+```
+
+```bash
+podman run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
 
 #### Pipe in via STDIN:
@@ -112,10 +116,18 @@ You'll need to pass the `-i\--interactive` flag to docker:
 cat myfile.yml | docker run -i --rm mikefarah/yq e . -
 ```
 
+```bash
+cat myfile.yml | podman run -i --rm mikefarah/yq e . -
+```
+
 #### Run commands interactively:
 
 ```bash
 docker run --rm -it -v "${PWD}":/workdir --entrypoint sh mikefarah/yq
+```
+
+```bash
+podman run --rm -it -v "${PWD}":/workdir --entrypoint sh mikefarah/yq
 ```
 
 It can be useful to have a bash function to avoid typing the whole docker command:
@@ -126,17 +138,27 @@ yq() {
 }
 ```
 
+```bash
+yq() {
+  podman run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+}
+```
+
 
 #### Running as root:
 
-`yq`'s docker image no longer runs under root (https://github.com/mikefarah/yq/pull/860). If you'd like to install more things in the docker image, or you're having permissions issues when attempting to read/write files you'll need to either:
+`yq`'s container image no longer runs under root (https://github.com/mikefarah/yq/pull/860). If you'd like to install more things in the container image, or you're having permissions issues when attempting to read/write files you'll need to either:
 
 
 ```
 docker run --user="root" -it --entrypoint sh mikefarah/yq
 ```
 
-Or, in your docker file:
+```
+podman run --user="root" -it --entrypoint sh mikefarah/yq
+```
+
+Or, in your Dockerfile:
 
 ```
 FROM mikefarah/yq
