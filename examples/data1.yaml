@@ -1,2 +1,1 @@
-a:
-  include: 'data2.yaml'
+["a a", "b		thing", 1, true]

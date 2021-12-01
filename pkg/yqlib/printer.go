@@ -23,6 +23,8 @@ const (
 	YamlOutputFormat = 1 << iota
 	JsonOutputFormat
 	PropsOutputFormat
+	CsvOutputFormat
+	TsvOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
@@ -33,8 +35,12 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 		return JsonOutputFormat, nil
 	case "props", "p":
 		return PropsOutputFormat, nil
+	case "csv", "c":
+		return CsvOutputFormat, nil
+	case "tsv", "t":
+		return TsvOutputFormat, nil
 	default:
-		return 0, fmt.Errorf("Unknown fromat '%v' please use [yaml|json|props]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv]", format)
 	}
 }
 
@@ -87,13 +93,19 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 		return writeString(writer, node.Value+"\n")
 	}
 
-	if p.outputFormat == JsonOutputFormat {
+	switch p.outputFormat {
+	case JsonOutputFormat:
 		encoder = NewJsonEncoder(writer, p.indent)
-	} else if p.outputFormat == PropsOutputFormat {
+	case PropsOutputFormat:
 		encoder = NewPropertiesEncoder(writer)
-	} else {
+	case CsvOutputFormat:
+		encoder = NewCsvEncoder(writer, ',')
+	case TsvOutputFormat:
+		encoder = NewCsvEncoder(writer, '\t')
+	case YamlOutputFormat:
 		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
 	}
+
 	return encoder.Encode(node)
 }
 

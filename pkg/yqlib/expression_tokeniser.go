@@ -325,11 +325,21 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_json\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
 
 	lexer.Add([]byte(`toyaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
+	lexer.Add([]byte(`@yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 0}))
+
 	lexer.Add([]byte(`tojson`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))
 	lexer.Add([]byte(`toprops`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
 
 	lexer.Add([]byte(`to_yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
 	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))
+	lexer.Add([]byte(`@json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 0}))
+
+	lexer.Add([]byte(`to_csv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: CsvOutputFormat}))
+	lexer.Add([]byte(`@csv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: CsvOutputFormat}))
+
+	lexer.Add([]byte(`to_tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
+	lexer.Add([]byte(`@tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
+
 	lexer.Add([]byte(`to_props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
 
 	lexer.Add([]byte(`fromyaml`), opToken(decodeOpType))
