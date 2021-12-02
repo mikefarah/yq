@@ -104,14 +104,14 @@ func (n *CandidateNode) Copy() (*CandidateNode, error) {
 }
 
 // updates this candidate from the given candidate node
-func (n *CandidateNode) UpdateFrom(other *CandidateNode) {
+func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences) {
 
-	n.UpdateAttributesFrom(other)
+	n.UpdateAttributesFrom(other, prefs)
 	n.Node.Content = other.Node.Content
 	n.Node.Value = other.Node.Value
 }
 
-func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
+func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
 	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.GetKey(), other.GetKey())
 	if n.Node.Kind != other.Node.Kind {
 		// clear out the contents when switching to a different type
@@ -122,7 +122,10 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode) {
 	n.Node.Kind = other.Node.Kind
 	n.Node.Tag = other.Node.Tag
 	n.Node.Alias = other.Node.Alias
-	n.Node.Anchor = other.Node.Anchor
+
+	if !prefs.DontOverWriteAnchor {
+		n.Node.Anchor = other.Node.Anchor
+	}
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes

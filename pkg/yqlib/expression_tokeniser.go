@@ -94,7 +94,8 @@ func assignOpToken(updateAssign bool) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		log.Debug("assignOpToken %v", string(m.Bytes))
 		value := string(m.Bytes)
-		op := &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, UpdateAssign: updateAssign}
+		prefs := assignPreferences{DontOverWriteAnchor: true}
+		op := &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, UpdateAssign: updateAssign, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }

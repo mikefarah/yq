@@ -196,6 +196,22 @@ will output
 {a: {b: bogs}}
 ```
 
+## Update node value that has an anchor
+Anchor will remaple
+
+Given a sample.yml file of:
+```yaml
+a: &cool cat
+```
+then
+```bash
+yq eval '.a = "dog"' sample.yml
+```
+will output
+```yaml
+a: &cool dog
+```
+
 ## Update empty object and array
 Given a sample.yml file of:
 ```yaml

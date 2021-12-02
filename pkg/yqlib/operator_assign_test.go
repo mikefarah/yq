@@ -146,6 +146,16 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:           "Update node value that has an anchor",
+		subdescription:        "Anchor will remaple",
+		dontFormatInputForDoc: true,
+		document:              `a: &cool cat`,
+		expression:            `.a = "dog"`,
+		expected: []string{
+			"D0, P[], (doc)::a: &cool dog\n",
+		},
+	},
+	{
 		description:           "Update empty object and array",
 		dontFormatInputForDoc: true,
 		document:              `{}`,
