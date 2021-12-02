@@ -5,3 +5,16 @@ Encode operators will take the piped in object structure and encode it as a stri
 Note that you can optionally pass an indent value to the encode functions (see below).
 
 These operators are useful to process yaml documents that have stringified embeded yaml/json/props in them.
+
+
+| Format | Decode (from string) | Encode (to string) |
+| --- | -- | --|
+| Yaml | from_yaml | to_yaml(i)/@yaml |
+| JSON | from_json | to_json(i)/@json |
+| Properties |  | to_props/@props |
+| CSV |  | to_csv/@csv |
+| TSV |  | to_tsv/@tsv |
+
+
+CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+

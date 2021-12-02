@@ -56,7 +56,9 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		// dont print a new line when printing json on a single line.
-		if preferences.format == JsonOutputFormat && preferences.indent == 0 {
+		if (preferences.format == JsonOutputFormat && preferences.indent == 0) ||
+			preferences.format == CsvOutputFormat ||
+			preferences.format == TsvOutputFormat {
 			stringValue = chomper.ReplaceAllString(stringValue, "")
 		}
 

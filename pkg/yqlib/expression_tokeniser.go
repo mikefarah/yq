@@ -325,10 +325,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_json\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
 
 	lexer.Add([]byte(`toyaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
-	lexer.Add([]byte(`@yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 0}))
+	// 0 indent doesn't work with yaml.
+	lexer.Add([]byte(`@yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
 
 	lexer.Add([]byte(`tojson`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))
 	lexer.Add([]byte(`toprops`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
+	lexer.Add([]byte(`@props`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: PropsOutputFormat, indent: 2}))
 
 	lexer.Add([]byte(`to_yaml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: YamlOutputFormat, indent: 2}))
 	lexer.Add([]byte(`to_json`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: JsonOutputFormat, indent: 2}))

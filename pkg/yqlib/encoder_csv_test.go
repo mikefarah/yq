@@ -31,10 +31,23 @@ func yamlToCsv(sampleYaml string, separator rune) string {
 var sampleYaml = `["apple", apple2, "comma, in, value", "new
 line", 3, 3.40, true, "tab	here"]`
 
+var sampleYamlArray = "[" + sampleYaml + ", [bob, cat, meow, puss]]"
+
+func TestCsvEncoderEmptyArray(t *testing.T) {
+	var actualCsv = yamlToCsv(`[]`, ',')
+	test.AssertResult(t, "", actualCsv)
+}
+
 func TestCsvEncoder(t *testing.T) {
 	var expectedCsv = `apple,apple2,"comma, in, value",new line,3,3.40,true,tab	here`
 
 	var actualCsv = yamlToCsv(sampleYaml, ',')
+	test.AssertResult(t, expectedCsv, actualCsv)
+}
+
+func TestCsvEncoderArrayOfArrays(t *testing.T) {
+	var actualCsv = yamlToCsv(sampleYamlArray, ',')
+	var expectedCsv = "apple,apple2,\"comma, in, value\",new line,3,3.40,true,tab	here\nbob,cat,meow,puss"
 	test.AssertResult(t, expectedCsv, actualCsv)
 }
 
