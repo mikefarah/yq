@@ -3,6 +3,7 @@
   - Added map, map_values operators
   - Fixed bug in collect
   - Fixed permissions issue in Dockerfile (#1014)
+  - Fixed assignment operator to no longer overwrite anchor (#1029)
 
 4.15.1:
   - Added 'load/strload' operators for dynamically loading content from files
