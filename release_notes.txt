@@ -1,3 +1,9 @@
+4.16.1:
+  - Added csv, tsv output formats
+  - Added map, map_values operators
+  - Fixed bug in collect
+  - Fixed permissions issue in Dockerfile (#1014)
+
 4.15.1:
   - Added 'load/strload' operators for dynamically loading content from files
   - Added 'key' operator
