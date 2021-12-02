@@ -20,6 +20,9 @@ WORKDIR /workdir
 RUN set -eux; \
   addgroup -g 1000 yq; \
   adduser -u 1000 -G yq -s /bin/sh -h /home/yq -D yq
+
+RUN chown -R yq:yq /workdir
+
 USER yq
 
 ENTRYPOINT ["/usr/bin/yq"]
