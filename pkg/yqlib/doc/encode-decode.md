@@ -157,26 +157,6 @@ b: |
           bob: dylan
 ```
 
-## Encode value as yaml string, using toyaml
-Does the same thing as to_yaml, matching jq naming convention.
-
-Given a sample.yml file of:
-```yaml
-a:
-  cool: thing
-```
-then
-```bash
-yq eval '.b = (.a | to_yaml)' sample.yml
-```
-will output
-```yaml
-a:
-  cool: thing
-b: |
-  cool: thing
-```
-
 ## Decode a yaml encoded string
 Given a sample.yml file of:
 ```yaml

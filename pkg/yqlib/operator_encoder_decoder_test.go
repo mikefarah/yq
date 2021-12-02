@@ -90,10 +90,9 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Encode value as yaml string, using toyaml",
-		subdescription: "Does the same thing as to_yaml, matching jq naming convention.",
-		document:       `{a: {cool: "thing"}}`,
-		expression:     `.b = (.a | to_yaml)`,
+		skipDoc:    true,
+		document:   `{a: {cool: "thing"}}`,
+		expression: `.b = (.a | to_yaml)`,
 		expected: []string{
 			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{cool: \"thing\"}\n"}
 `,
