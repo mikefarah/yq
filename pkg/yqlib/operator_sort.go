@@ -10,6 +10,12 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+func sortOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
+	expressionNode.Rhs = selfExpression
+	return sortByOperator(d, context, expressionNode)
+}
+
 // context represents the current matching nodes in the expression pipeline
 //expressionNode is your current expression (sort_by)
 func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -44,9 +50,13 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 			sortableArray[i] = sortableNode{Node: originalNode, NodeToCompare: nodeToCompare}
 
+			if nodeToCompare.Kind != yaml.ScalarNode {
+				return Context{}, fmt.Errorf("sort only works for scalars, got %v", nodeToCompare.Tag)
+			}
+
 		}
 
-		sort.Sort(sortableArray)
+		sort.Stable(sortableArray)
 
 		sortedList := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Style: candidateNode.Style}
 		sortedList.Content = make([]*yaml.Node, len(candidateNode.Content))
@@ -73,7 +83,27 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	lhs := a[i].NodeToCompare
 	rhs := a[j].NodeToCompare
 
-	if lhs.Tag != rhs.Tag || lhs.Tag == "!!str" {
+	if lhs.Tag == "!!null" && rhs.Tag != "!!null" {
+		return true
+	} else if lhs.Tag != "!!null" && rhs.Tag == "!!null" {
+		return false
+	} else if lhs.Tag == "!!bool" && rhs.Tag != "!!bool" {
+		return true
+	} else if lhs.Tag != "!!bool" && rhs.Tag == "!!bool" {
+		return false
+	} else if lhs.Tag == "!!bool" && rhs.Tag == "!!bool" {
+		lhsTruthy, err := isTruthyNode(lhs)
+		if err != nil {
+			panic(fmt.Errorf("could not parse %v as boolean: %w", lhs.Value, err))
+		}
+
+		rhsTruthy, err := isTruthyNode(rhs)
+		if err != nil {
+			panic(fmt.Errorf("could not parse %v as boolean: %w", rhs.Value, err))
+		}
+
+		return !lhsTruthy && rhsTruthy
+	} else if lhs.Tag != rhs.Tag || lhs.Tag == "!!str" {
 		return strings.Compare(lhs.Value, rhs.Value) < 0
 	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
 		_, lhsNum, err := parseInt(lhs.Value)

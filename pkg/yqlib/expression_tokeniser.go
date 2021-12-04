@@ -352,6 +352,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`from_json`), opToken(decodeOpType))
 
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
+	lexer.Add([]byte(`sort_keys`), opToken(sortKeysOpType))
+
 	lexer.Add([]byte(`load`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false}))
 	lexer.Add([]byte(`strload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))
 	lexer.Add([]byte(`select`), opToken(selectOpType))
@@ -377,6 +379,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`capture`), opToken(captureOpType))
 	lexer.Add([]byte(`test`), opToken(testOpType))
 
+	lexer.Add([]byte(`sort`), opToken(sortOpType))
 	lexer.Add([]byte(`sort_by`), opToken(sortByOpType))
 
 	lexer.Add([]byte(`any`), opToken(anyOpType))
