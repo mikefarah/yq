@@ -78,7 +78,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
+yq eval '.a[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
 ```
 will output
 ```yaml

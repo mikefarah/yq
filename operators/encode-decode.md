@@ -6,6 +6,111 @@ Note that you can optionally pass an indent value to the encode functions (see b
 
 These operators are useful to process yaml documents that have stringified embeded yaml/json/props in them.
 
+
+| Format | Decode (from string) | Encode (to string) |
+| --- | -- | --|
+| Yaml | from_yaml | to_yaml(i)/@yaml |
+| JSON | from_json | to_json(i)/@json |
+| Properties |  | to_props/@props |
+| CSV |  | to_csv/@csv |
+| TSV |  | to_tsv/@tsv |
+
+
+CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+
+
+## Encode value as json string
+Given a sample.yml file of:
+```yaml
+a:
+  cool: thing
+```
+then
+```bash
+yq eval '.b = (.a | to_json)' sample.yml
+```
+will output
+```yaml
+a:
+  cool: thing
+b: |
+  {
+    "cool": "thing"
+  }
+```
+
+## Encode value as json string, on one line
+Pass in a 0 indent to print json on a single line.
+
+Given a sample.yml file of:
+```yaml
+a:
+  cool: thing
+```
+then
+```bash
+yq eval '.b = (.a | to_json(0))' sample.yml
+```
+will output
+```yaml
+a:
+  cool: thing
+b: '{"cool":"thing"}'
+```
+
+## Encode value as json string, on one line shorthand
+Pass in a 0 indent to print json on a single line.
+
+Given a sample.yml file of:
+```yaml
+a:
+  cool: thing
+```
+then
+```bash
+yq eval '.b = (.a | @json)' sample.yml
+```
+will output
+```yaml
+a:
+  cool: thing
+b: '{"cool":"thing"}'
+```
+
+## Decode a json encoded string
+Keep in mind JSON is a subset of YAML. If you want idiomatic yaml, pipe through the style operator to clear out the JSON styling.
+
+Given a sample.yml file of:
+```yaml
+a: '{"cool":"thing"}'
+```
+then
+```bash
+yq eval '.a | from_json | ... style=""' sample.yml
+```
+will output
+```yaml
+cool: thing
+```
+
+## Encode value as props string
+Given a sample.yml file of:
+```yaml
+a:
+  cool: thing
+```
+then
+```bash
+yq eval '.b = (.a | @props)' sample.yml
+```
+will output
+```yaml
+a:
+  cool: thing
+b: |
+  cool = thing
+```
+
 ## Encode value as yaml string
 Indent defaults to 2
 
@@ -50,83 +155,6 @@ a:
 b: |
   cool:
           bob: dylan
-```
-
-## Encode value as yaml string, using toyaml
-Does the same thing as to_yaml, matching jq naming convention.
-
-Given a sample.yml file of:
-```yaml
-a:
-  cool: thing
-```
-then
-```bash
-yq eval '.b = (.a | to_yaml)' sample.yml
-```
-will output
-```yaml
-a:
-  cool: thing
-b: |
-  cool: thing
-```
-
-## Encode value as json string
-Given a sample.yml file of:
-```yaml
-a:
-  cool: thing
-```
-then
-```bash
-yq eval '.b = (.a | to_json)' sample.yml
-```
-will output
-```yaml
-a:
-  cool: thing
-b: |
-  {
-    "cool": "thing"
-  }
-```
-
-## Encode value as json string, on one line
-Pass in a 0 indent to print json on a single line.
-
-Given a sample.yml file of:
-```yaml
-a:
-  cool: thing
-```
-then
-```bash
-yq eval '.b = (.a | to_json(0))' sample.yml
-```
-will output
-```yaml
-a:
-  cool: thing
-b: '{"cool":"thing"}'
-```
-
-## Encode value as props string
-Given a sample.yml file of:
-```yaml
-a:
-  cool: thing
-```
-then
-```bash
-yq eval '.b = (.a | to_props)' sample.yml
-```
-will output
-```yaml
-a:
-  cool: thing
-b: |
-  cool = thing
 ```
 
 ## Decode a yaml encoded string
@@ -176,5 +204,70 @@ yq eval '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
 will output
 ```yaml
 a: 'foo: cat'
+```
+
+## Encode array of scalars as csv string
+Scalars are strings, numbers and booleans.
+
+Given a sample.yml file of:
+```yaml
+- cat
+- thing1,thing2
+- true
+- 3.40
+```
+then
+```bash
+yq eval '@csv' sample.yml
+```
+will output
+```yaml
+cat,"thing1,thing2",true,3.40
+```
+
+## Encode array of arrays as csv string
+Given a sample.yml file of:
+```yaml
+- - cat
+  - thing1,thing2
+  - true
+  - 3.40
+- - dog
+  - thing3
+  - false
+  - 12
+```
+then
+```bash
+yq eval '@csv' sample.yml
+```
+will output
+```yaml
+cat,"thing1,thing2",true,3.40
+dog,thing3,false,12
+```
+
+## Encode array of array scalars as tsv string
+Scalars are strings, numbers and booleans.
+
+Given a sample.yml file of:
+```yaml
+- - cat
+  - thing1,thing2
+  - true
+  - 3.40
+- - dog
+  - thing3
+  - false
+  - 12
+```
+then
+```bash
+yq eval '@tsv' sample.yml
+```
+will output
+```yaml
+cat	thing1,thing2	true	3.40
+dog	thing3	false	12
 ```
 

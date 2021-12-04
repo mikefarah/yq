@@ -35,6 +35,7 @@
   * [Keys](operators/keys.md)
   * [Length](operators/length.md)
   * [Load](operators/load.md)
+  * [Map](operators/map.md)
   * [Multiply (Merge)](operators/multiply-merge.md)
   * [Parent](operators/parent.md)
   * [Path](operators/path.md)
@@ -42,6 +43,7 @@
   * [Recursive Descent (Glob)](operators/recursive-descent-glob.md)
   * [Reduce](operators/reduce.md)
   * [Select](operators/select.md)
+  * [Sort](operators/sort.md)
   * [Sort Keys](operators/sort-keys.md)
   * [Split into Documents](operators/split-into-documents.md)
   * [String Operators](operators/string-operators.md)
@@ -58,6 +60,7 @@
 
 * [Output format](usage/output-format.md)
 * [Working with Properties](usage/properties.md)
+* [Working with CSV, TSV](usage/csv-tsv.md)
 * [Working with JSON](usage/convert.md)
 * [Front Matter](usage/front-matter.md)
 * [Split into multiple files](usage/split-into-multiple-files.md)
