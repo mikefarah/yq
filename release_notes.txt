@@ -1,6 +1,7 @@
 4.16.1:
   - Added csv, tsv output formats
   - Added map, map_values operators
+  - Added sort, sort_by operators (#947, #1024)
   - Fixed bug in collect
   - Fixed permissions issue in Dockerfile (#1014)
   - Fixed assignment operator to no longer overwrite anchor (#1029)
