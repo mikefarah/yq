@@ -12,6 +12,23 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Sort array in place",
+		document:    "cool: [{a: banana},{a: cat},{a: apple}]",
+		expression:  `.cool |= sort_by(.a)`,
+		expected: []string{
+			"D0, P[], (doc)::cool: [{a: apple}, {a: banana}, {a: cat}]\n",
+		},
+	},
+	{
+		description:    "Sort array of objects by key",
+		subdescription: "Note that you can give sort_by complex expressions, not just paths",
+		document:       "cool: [{b: banana},{a: banana},{c: banana}]",
+		expression:     `.cool |= sort_by(keys | .[0])`,
+		expected: []string{
+			"D0, P[], (doc)::cool: [{a: banana}, {b: banana}, {c: banana}]\n",
+		},
+	},
+	{
 		description:    "Sort is stable",
 		subdescription: "Note the order of the elements in unchanged when equal in sorting.",
 		document:       "[{a: banana, b: 1}, {a: banana, b: 2}, {a: banana, b: 3}, {a: banana, b: 4}]",

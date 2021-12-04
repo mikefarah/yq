@@ -28,7 +28,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		candidateNode := unwrapDoc(candidate.Node)
 
 		if candidateNode.Kind != yaml.SequenceNode {
-			return context, fmt.Errorf("%v is not an array", candidate.GetKey())
+			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
 		}
 
 		sortableArray := make(sortableNodeArray, len(candidateNode.Content))

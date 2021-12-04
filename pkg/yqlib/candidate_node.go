@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"strings"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
@@ -31,6 +32,21 @@ func (n *CandidateNode) GetKey() string {
 		keyPrefix = "key-"
 	}
 	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
+}
+
+func (n *CandidateNode) GetNiceTag() string {
+	return unwrapDoc(n.Node).Tag
+}
+
+func (n *CandidateNode) GetNicePath() string {
+	if n.Path != nil && len(n.Path) >= 0 {
+		pathStr := make([]string, len(n.Path))
+		for i, v := range n.Path {
+			pathStr[i] = fmt.Sprintf("%v", v)
+		}
+		return strings.Join(pathStr, ".")
+	}
+	return ""
 }
 
 func (n *CandidateNode) AsList() *list.List {

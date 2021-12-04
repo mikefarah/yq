@@ -1,6 +1,6 @@
 # Sort
 
-Sorts an array. Use `sort` to sort an array as is, or `sort_by` to sort by a particular subfield.
+Sorts an array. Use `sort` to sort an array as is, or `sort_by(exp)` to sort by a particular expression (e.g. subfield).
 
 Note that at this stage, `yq` only sorts scalar fields.
 
@@ -20,6 +20,48 @@ will output
 - a: apple
 - a: banana
 - a: cat
+```
+
+## Sort array in place
+Given a sample.yml file of:
+```yaml
+cool:
+  - a: banana
+  - a: cat
+  - a: apple
+```
+then
+```bash
+yq eval '.cool |= sort_by(.a)' sample.yml
+```
+will output
+```yaml
+cool:
+  - a: apple
+  - a: banana
+  - a: cat
+```
+
+## Sort array of objects by key
+Note that you can give sort_by complex expressions, not just paths
+
+Given a sample.yml file of:
+```yaml
+cool:
+  - b: banana
+  - a: banana
+  - c: banana
+```
+then
+```bash
+yq eval '.cool |= sort_by(keys | .[0])' sample.yml
+```
+will output
+```yaml
+cool:
+  - a: banana
+  - b: banana
+  - c: banana
 ```
 
 ## Sort is stable
