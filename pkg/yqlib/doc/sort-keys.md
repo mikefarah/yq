@@ -5,8 +5,8 @@ The Sort Keys operator sorts maps by their keys (based on their string value). T
 Sort is particularly useful for diffing two different yaml documents:
 
 ```bash
-yq eval -i 'sortKeys(..)' file1.yml
-yq eval -i 'sortKeys(..)' file2.yml
+yq eval -i -P 'sort_keys(..)' file1.yml
+yq eval -i -P 'sort_keys(..)' file2.yml
 diff file1.yml file2.yml
 ```
 
@@ -19,7 +19,7 @@ b: bing
 ```
 then
 ```bash
-yq eval 'sortKeys(.)' sample.yml
+yq eval 'sort_keys(.)' sample.yml
 ```
 will output
 ```yaml
@@ -49,7 +49,7 @@ aParent:
 ```
 then
 ```bash
-yq eval 'sortKeys(..)' sample.yml
+yq eval 'sort_keys(..)' sample.yml
 ```
 will output
 ```yaml
