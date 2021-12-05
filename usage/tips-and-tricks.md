@@ -95,7 +95,7 @@ yq e -n '.someNew="content"' > newfile.yml
 The best way to run a diff is to use `yq` to normalise the yaml files and then just use diff. Here is a simple example of using pretty print `-P` to normalise the styling and running diff:
 
 ```
-diff <(yq e -P 'sort_keys(..)' examples/data1.yaml) <(yq e -P 'sort_keys(..)' examples/data2.yaml)
+diff <(yq e -P 'sort_keys(..)' file1.yaml) <(yq e -P 'sort_keys(..)' file2.yaml)
 ```
 
 This way you can use the full power of `diff` and normalise the yaml files as you like.
