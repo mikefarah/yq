@@ -8,16 +8,18 @@ Yaml files can be surprisingly lenient in what can be parsed as a yaml file. A r
 yq e --exit-status 'tag == "!!map" or tag== "!!seq"' file.txt > /dev/null
 ```
 
-## Split expressions over multiple lines to improve readablity
+## Split expressions over multiple lines to improve readability
 
 Feel free to use multiple lines in your expression to improve readability.
 
+Use `with` if you need to make several updates to the same path.
+
 ```bash
 yq eval --inplace '
-  .a.b.c[0].frog = "thingo" |
-  .a.b.c[0].frog style= "double" |
-  .different.path.somehere = "foo" |
-  .different.path.somehere style= "folded"
+  with(.a.deeply.nested; 
+    . = "newValue" | . style="single") |
+  with(.b.another.nested; 
+    . = "cool" | . style="folded")
 ' my_file.yaml
 ```
 
@@ -93,10 +95,12 @@ yq e -n '.someNew="content"' > newfile.yml
 The best way to run a diff is to use `yq` to normalise the yaml files and then just use diff. Here is a simple example of using pretty print `-P` to normalise the styling and running diff:
 
 ```
-diff <(yq e -P examples/data1.yaml) <(yq e -P examples/data2.yaml)
+diff <(yq e -P 'sort_keys(..)' examples/data1.yaml) <(yq e -P 'sort_keys(..)' examples/data2.yaml)
 ```
 
-This way you can use the full power of `diff` and normalise the yaml files as you like - for instance you may also want to remove all comments using `... comments=""`
+This way you can use the full power of `diff` and normalise the yaml files as you like.
+
+You may also want to remove all comments using `... comments=""`
 
 ## Reading multiple streams (STDINs)
 
@@ -107,6 +111,7 @@ yq e '.apple' <(curl -s https://somewhere/data1.yaml) <(cat file.yml)
 ```
 
 ## Updating deeply selected paths
+### or why is yq only returning the updated yaml
 
 The most important thing to remember to do is to have brackets around the LHS expression - otherwise what `yq` will do is first filter by the selection, and then, separately, update the filtered result and return that subset.
 
