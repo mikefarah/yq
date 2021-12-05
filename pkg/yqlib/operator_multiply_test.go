@@ -29,12 +29,17 @@ var mergeArrayWithAnchors = `sample:
 - <<: *a
 `
 
-var mergeArraysObjectKeysText = `There are several parts of the complex expression. 
-The first part is doing the hard work, it creates a map from the arrays keyed by '.a', so that there are no duplicates. 
-Then there's another reduce that converts that map back to an array.
+var mergeArraysObjectKeysText = `The approach, at a high level, is to reduce into a merged map (keyed by the unique key)
+and then convert that back into an array.
+
+First the expression will create a map from the arrays keyed by '.a', the unique field we want to merge by.
+The reduce operator is merging '({}; . * $item )', so array elements with the matching key will be merged together.
+
+Next, we convert the map back to an array, using reduce again, concatenating all the map values together.
+
 Finally, we set the result of the merged array back into the first doc.
 
-To use this, you will need to update '.myArray' to be the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
+To use this, you will need to update '.myArray' in the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
 
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 `
