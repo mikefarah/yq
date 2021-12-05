@@ -50,6 +50,9 @@ Use an environment variable with the `strenv` operator to inject the contents fr
 LICENSE=$(cat LICENSE) yq eval -n '.a = strenv(LICENSE)'
 ```
 
+Note that `bash` substitution "$(..)" trims newlines, this will cause string blocks to start with `|-` instead of `|`. If you want to keep your nice trailing newline, read more [here](https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines)
+
+
 ## Special characters in strings
 
 The `strenv` operator is a great way to handle special characters in strings:
