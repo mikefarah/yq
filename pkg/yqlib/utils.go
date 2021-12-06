@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"container/list"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -122,7 +123,7 @@ func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List
 			}
 			return inputList, nil
 		} else if errorReading != nil {
-			return nil, errorReading
+			return nil, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
 		candidateNode := &CandidateNode{
 			Document:         currentIndex,

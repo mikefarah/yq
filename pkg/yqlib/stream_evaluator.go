@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -100,7 +101,7 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 			s.fileIndex = s.fileIndex + 1
 			return currentIndex, nil
 		} else if errorReading != nil {
-			return currentIndex, errorReading
+			return currentIndex, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
 
 		candidateNode := &CandidateNode{
