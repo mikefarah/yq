@@ -15,6 +15,8 @@ rhash -r -a . -o checksums
 
 rhash --list-hashes > checksums_hashes_order
 
+cp ../scripts/extract-checksum.sh .
+
 # just in case find thinks this is executable...
 rm -f checksums_hashes_order.tar.gz 
 rm -f checksums.tar.gz

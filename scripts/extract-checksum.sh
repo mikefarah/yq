@@ -5,17 +5,17 @@
 # <CHECKSUM> must match an entry in checksums_hashes_order.
 #
 # Usage: ./extract-checksum.sh <CHECKSUM> <FILE>
-# E.g: ./extract-checksum.sh SHA-256 yq_linux_amd64.tar
+# E.g: ./extract-checksum.sh SHA-256 yq_linux_amd64.tar.gz
 # Outputs: 
 # yq_linux_amd64.tar.gz	acebc9d07aa2d0e482969b2c080ee306e8f58efbd6f2d857eefbce6469da1473
 #
 # Usage with rhash:
-# ./extract-checksum.sh SHA-256 yq_linux_amd64.tar | rhash -c -
+# ./extract-checksum.sh SHA-256 yq_linux_amd64.tar.gz | rhash -c -
 #
 # Tip, if you want the checksum first then the filename  (e.g. for the md5sum command)
 # then you can pipe the output of this script into awk to switch the fields around:
 #
-# ./extract-checksum.sh MD5 yq_linux_amd64.tar | awk '{ print $2 " " $1}' | md5sum -c -
+# ./extract-checksum.sh MD5 yq_linux_amd64.tar.gz | awk '{ print $2 " " $1}' | md5sum -c -
 #
 #
 
@@ -25,13 +25,22 @@ if [ "$1" == "" ]; then
   exit 1
 fi
 
-if [ -z "checksums_hashes_order" ]; then
+if [ "$2" != "" ]; then
+  # so we dont match x.tar.gz when 'x' is given
+  file="$2\s"
+else 
+  file=""
+fi
+
+if [ ! -f "checksums_hashes_order" ]; then
   echo "This script requires checksums_hashes_order to run"
+  echo "Download the file from https://github.com/mikefarah/yq/releases/ for the version of yq you are trying to validate"
   exit 1
 fi
 
-if [ -z "checksums" ]; then
-  echo "This script requires checksums to run"
+if [ ! -f "checksums" ]; then
+  echo "This script requires the checksums file to run"
+  echo "Download the file from https://github.com/mikefarah/yq/releases/ for the version of yq you are trying to validate"
   exit 1
 fi
 
@@ -48,4 +57,4 @@ lineNumber=$(echo "$grepMatch" | cut -f1 -d:)
 
 realLineNumber="$(($lineNumber + 1))"
 
-grep "$2" checksums | sed 's/  /\t/g' | cut -f1,$realLineNumber
+grep "$file" checksums | sed 's/  /\t/g' | cut -f1,$realLineNumber
