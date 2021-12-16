@@ -1,6 +1,11 @@
   <?xml version="1.0" encoding="UTF-8"?>
+  <!-- osm-->
   <osm version="0.6" generator="CGImap 0.0.2">
-   <bounds minlat="54.0889580" minlon="12.2487570" maxlat="54.0913900" maxlon="12.2524800"/>
+  <!-- bounds-->
+   <bounds minlat="54.0889580" minlon="12.2487570" maxlat="54.0913900" maxlon="12.2524800">
+   <!-- great -->
+   cool
+   </bounds>
    <foo>bar</foo>
    <foo>bar23</foo>
   </osm>
