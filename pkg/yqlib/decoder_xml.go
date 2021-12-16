@@ -17,7 +17,10 @@ type xmlDecoder struct {
 }
 
 func NewXmlDecoder(reader io.Reader, attributePrefix string, contentPrefix string) Decoder {
-	return &xmlDecoder{reader: reader, attributePrefix: attributePrefix, contentPrefix: "c", finished: false}
+	if contentPrefix == "" {
+		contentPrefix = "content"
+	}
+	return &xmlDecoder{reader: reader, attributePrefix: attributePrefix, contentPrefix: contentPrefix, finished: false}
 }
 
 func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
