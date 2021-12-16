@@ -23,6 +23,7 @@ type streamEvaluator struct {
 	treeNavigator DataTreeNavigator
 	treeCreator   ExpressionParser
 	fileIndex     int
+	decoder       Decoder
 }
 
 func NewStreamEvaluator() StreamEvaluator {
@@ -92,7 +93,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error) {
 
 	var currentIndex uint
-	decoder := yaml.NewDecoder(reader)
+	decoder := NewXmlDecoder(reader, "+", "c")
 	for {
 		var dataBucket yaml.Node
 		errorReading := decoder.Decode(&dataBucket)
