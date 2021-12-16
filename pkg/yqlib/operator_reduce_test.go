@@ -36,5 +36,5 @@ func TestReduceOperatorScenarios(t *testing.T) {
 	for _, tt := range reduceOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "reduce", reduceOperatorScenarios)
+	documentOperatorScenarios(t, "reduce", reduceOperatorScenarios)
 }

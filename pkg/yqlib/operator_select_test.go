@@ -99,5 +99,5 @@ func TestSelectOperatorScenarios(t *testing.T) {
 	for _, tt := range selectOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "select", selectOperatorScenarios)
+	documentOperatorScenarios(t, "select", selectOperatorScenarios)
 }

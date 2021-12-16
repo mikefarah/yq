@@ -68,8 +68,22 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	return context.ChildContext(results), nil
 }
 
+type decoderPreferences struct {
+	format InputFormat
+}
+
 /* takes a string and decodes it back into an object */
 func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
+
+	var decoder Decoder
+	switch preferences.format {
+	case YamlInputFormat:
+		decoder = NewYamlDecoder()
+	case XmlInputFormat:
+		decoder = NewXmlDecoder("+a", "+content")
+	}
 
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
@@ -79,7 +93,9 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		var dataBucket yaml.Node
 		log.Debugf("got: [%v]", candidate.Node.Value)
-		decoder := yaml.NewDecoder(strings.NewReader(unwrapDoc(candidate.Node).Value))
+
+		decoder.Init(strings.NewReader(unwrapDoc(candidate.Node).Value))
+
 		errorReading := decoder.Decode(&dataBucket)
 		if errorReading != nil {
 			return Context{}, errorReading

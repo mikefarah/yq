@@ -75,6 +75,11 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	decoder, err := configureDecoder()
+	if err != nil {
+		return err
+	}
+
 	printerWriter := configurePrinterWriter(format, out)
 
 	printer := yqlib.NewPrinter(printerWriter, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
@@ -99,7 +104,7 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 	switch len(args) {
 	case 0:
 		if pipingStdIn {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer, leadingContentPreProcessing)
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{"-"}, printer, leadingContentPreProcessing, decoder)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
@@ -108,10 +113,10 @@ func evaluateAll(cmd *cobra.Command, args []string) error {
 		if nullInput {
 			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(args[0]), printer, "")
 		} else {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing)
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
 		}
 	default:
-		err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing)
+		err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
 	}
 
 	completedSuccessfully = err == nil

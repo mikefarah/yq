@@ -33,5 +33,5 @@ func TestParentOperatorScenarios(t *testing.T) {
 	for _, tt := range parentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "parent", parentOperatorScenarios)
+	documentOperatorScenarios(t, "parent", parentOperatorScenarios)
 }

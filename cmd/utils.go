@@ -45,6 +45,18 @@ func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err err
 	return firstFileIndex, nil
 }
 
+func configureDecoder() (yqlib.Decoder, error) {
+	yqlibInputFormat, err := yqlib.InputFormatFromString(inputFormat)
+	if err != nil {
+		return nil, err
+	}
+	switch yqlibInputFormat {
+	case yqlib.XmlInputFormat:
+		return yqlib.NewXmlDecoder(xmlAttributePrefix, xmlContentName), nil
+	}
+	return yqlib.NewYamlDecoder(), nil
+}
+
 func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) yqlib.PrinterWriter {
 
 	var printerWriter yqlib.PrinterWriter

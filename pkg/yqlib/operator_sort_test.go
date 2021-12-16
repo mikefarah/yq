@@ -76,5 +76,5 @@ func TestSortByOperatorScenarios(t *testing.T) {
 	for _, tt := range sortByOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "sort", sortByOperatorScenarios)
+	documentOperatorScenarios(t, "sort", sortByOperatorScenarios)
 }

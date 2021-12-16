@@ -6,6 +6,10 @@ var unwrapScalar = true
 var writeInplace = false
 var outputToJSON = false
 var outputFormat = "yaml"
+var inputFormat = "yaml"
+
+var xmlAttributePrefix = "+"
+var xmlContentName = "+content"
 
 var exitStatus = false
 var forceColor = false

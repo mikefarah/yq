@@ -27,5 +27,5 @@ func TestPipeOperatorScenarios(t *testing.T) {
 	for _, tt := range pipeOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "pipe", pipeOperatorScenarios)
+	documentOperatorScenarios(t, "pipe", pipeOperatorScenarios)
 }

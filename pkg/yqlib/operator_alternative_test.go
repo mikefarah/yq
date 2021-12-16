@@ -91,5 +91,5 @@ func TestAlternativeOperatorScenarios(t *testing.T) {
 	for _, tt := range alternativeOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "alternative-default-value", alternativeOperatorScenarios)
+	documentOperatorScenarios(t, "alternative-default-value", alternativeOperatorScenarios)
 }
