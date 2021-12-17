@@ -14,8 +14,8 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error)
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error)
+	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error
 	EvaluateNew(expression string, printer Printer, leadingContent string) error
 }
 
@@ -23,7 +23,6 @@ type streamEvaluator struct {
 	treeNavigator DataTreeNavigator
 	treeCreator   ExpressionParser
 	fileIndex     int
-	decoder       Decoder
 }
 
 func NewStreamEvaluator() StreamEvaluator {
@@ -52,7 +51,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	return printer.PrintResults(result.MatchingNodes)
 }
 
-func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error {
+func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
 	var totalProcessDocs uint
 	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
@@ -71,7 +70,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 		if err != nil {
 			return err
 		}
-		processedDocs, err := s.Evaluate(filename, reader, node, printer, leadingContent)
+		processedDocs, err := s.Evaluate(filename, reader, node, printer, leadingContent, decoder)
 		if err != nil {
 			return err
 		}
@@ -90,10 +89,10 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string) (uint, error) {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error) {
 
 	var currentIndex uint
-	decoder := NewXmlDecoder(reader, "+", "")
+	decoder.Init(reader)
 	for {
 		var dataBucket yaml.Node
 		errorReading := decoder.Decode(&dataBucket)

@@ -107,8 +107,8 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 	}
 }
 
-func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List, error) {
-	decoder := yaml.NewDecoder(reader)
+func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
+	decoder.Init(reader)
 	inputList := list.New()
 	var currentIndex uint
 

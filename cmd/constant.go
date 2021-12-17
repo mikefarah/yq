@@ -8,6 +8,9 @@ var outputToJSON = false
 var outputFormat = "yaml"
 var inputFormat = "yaml"
 
+var xmlAttributePrefix = "+"
+var xmlContentName = "+content"
+
 var exitStatus = false
 var forceColor = false
 var forceNoColor = false

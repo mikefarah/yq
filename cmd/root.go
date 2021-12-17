@@ -49,6 +49,11 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 	}
 
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "yaml", "[yaml|y|json|j|props|p] output format type.")
+	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "yaml", "[yaml|y|xml|x] input format type.")
+
+	rootCmd.PersistentFlags().StringVar(&xmlAttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
+	rootCmd.PersistentFlags().StringVar(&xmlContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
+
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")
 

@@ -32,7 +32,7 @@ func readDocumentWithLeadingContent(content string, fakefilename string, fakeFil
 		return nil, err
 	}
 
-	inputs, err := readDocuments(reader, fakefilename, fakeFileIndex)
+	inputs, err := readDocuments(reader, fakefilename, fakeFileIndex, NewYamlDecoder())
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func formatYaml(yaml string, filename string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, "")
+	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, "", NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}

@@ -2,12 +2,31 @@ package yqlib
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 	"unicode"
 
 	"golang.org/x/net/html/charset"
 	yaml "gopkg.in/yaml.v3"
 )
+
+type InputFormat uint
+
+const (
+	YamlInputFormat = 1 << iota
+	XmlInputFormat
+)
+
+func InputFormatFromString(format string) (InputFormat, error) {
+	switch format {
+	case "yaml", "y":
+		return YamlInputFormat, nil
+	case "xml", "x":
+		return XmlInputFormat, nil
+	default:
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml]", format)
+	}
+}
 
 type xmlDecoder struct {
 	reader          io.Reader
@@ -16,11 +35,16 @@ type xmlDecoder struct {
 	finished        bool
 }
 
-func NewXmlDecoder(reader io.Reader, attributePrefix string, contentPrefix string) Decoder {
+func NewXmlDecoder(attributePrefix string, contentPrefix string) Decoder {
 	if contentPrefix == "" {
 		contentPrefix = "content"
 	}
-	return &xmlDecoder{reader: reader, attributePrefix: attributePrefix, contentPrefix: contentPrefix, finished: false}
+	return &xmlDecoder{attributePrefix: attributePrefix, contentPrefix: contentPrefix, finished: false}
+}
+
+func (dec *xmlDecoder) Init(reader io.Reader) {
+	dec.reader = reader
+	dec.finished = false
 }
 
 func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
@@ -172,7 +196,7 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			}
 		case xml.CharData:
 			// Extract XML data (if any)
-			elem.n.Data = trimNonGraphic(string(xml.CharData(se)))
+			elem.n.Data = trimNonGraphic(string(se))
 		case xml.EndElement:
 			// And add it to its parent list
 			if elem.parent != nil {

@@ -8,7 +8,7 @@ import (
 
 // A yaml expression evaluator that runs the expression once against all files/nodes in memory.
 type Evaluator interface {
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error
+	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error
 
 	// EvaluateNodes takes an expression and one or more yaml nodes, returning a list of matching candidate nodes
 	EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error)
@@ -46,7 +46,7 @@ func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCand
 	return context.MatchingNodes, nil
 }
 
-func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error {
+func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
 	fileIndex := 0
 	firstFileLeadingContent := ""
 
@@ -61,7 +61,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 			firstFileLeadingContent = leadingContent
 		}
 
-		fileDocuments, err := readDocuments(reader, filename, fileIndex)
+		fileDocuments, err := readDocuments(reader, filename, fileIndex, decoder)
 		if err != nil {
 			return err
 		}
