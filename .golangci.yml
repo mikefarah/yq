@@ -2,6 +2,7 @@ run:
   timeout: 5m
 linters:
   enable:
+    - asciicheck
     - errorlint
     - gci
     - gochecknoinits
