@@ -62,7 +62,7 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
 		if node.Tag != "!!str" {
-			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation.", node.Tag)
+			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
 		targetNode := substitute(node.Value, regEx, replacementText)

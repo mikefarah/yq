@@ -56,7 +56,7 @@ func (n *CandidateNode) AsList() *list.List {
 }
 
 func (n *CandidateNode) CreateChildInMap(key *yaml.Node, node *yaml.Node) *CandidateNode {
-	var value interface{} = nil
+	var value interface{}
 	if key != nil {
 		value = key.Value
 	}

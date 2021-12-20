@@ -28,7 +28,7 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 		return context.SingleChildContext(candidate), nil
 	}
 	first := context.MatchingNodes.Front().Value.(*CandidateNode)
-	var rotated []*list.List = make([]*list.List, len(first.Node.Content))
+	var rotated = make([]*list.List, len(first.Node.Content))
 
 	for i := 0; i < len(first.Node.Content); i++ {
 		rotated[i] = list.New()

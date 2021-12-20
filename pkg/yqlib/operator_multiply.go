@@ -114,7 +114,7 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 		return nil, err
 	}
 
-	var pathIndexToStartFrom int = 0
+	var pathIndexToStartFrom int
 	if results.Front() != nil {
 		pathIndexToStartFrom = len(results.Front().Value.(*CandidateNode).Path)
 	}

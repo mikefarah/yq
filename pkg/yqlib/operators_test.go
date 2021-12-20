@@ -91,7 +91,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 }
 
 func resultsToString(t *testing.T, results *list.List) []string {
-	var pretty []string = make([]string, 0)
+	var pretty = make([]string, 0)
 
 	for el := results.Front(); el != nil; el = el.Next() {
 		n := el.Value.(*CandidateNode)
