@@ -15,12 +15,6 @@ jobs:
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-      
-    - name: Setup golangci-lint
-      uses: golangci/golangci-lint-action@v2
-      with:
-        version: latest
-        args: --verbose
        
     - name: Get dependencies
       run: |
