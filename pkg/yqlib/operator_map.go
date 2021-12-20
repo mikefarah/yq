@@ -10,7 +10,7 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 		candidate := el.Value.(*CandidateNode)
 		//run expression against entries
 		// splat toEntries and pipe it into Rhs
-		splatted, err := splat(d, context.SingleChildContext(candidate), traversePreferences{})
+		splatted, err := splat(context.SingleChildContext(candidate), traversePreferences{})
 		if err != nil {
 			return Context{}, err
 		}
@@ -37,7 +37,7 @@ func mapOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		candidate := el.Value.(*CandidateNode)
 		//run expression against entries
 		// splat toEntries and pipe it into Rhs
-		splatted, err := splat(d, context.SingleChildContext(candidate), traversePreferences{})
+		splatted, err := splat(context.SingleChildContext(candidate), traversePreferences{})
 		if err != nil {
 			return Context{}, err
 		}

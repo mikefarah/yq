@@ -15,7 +15,7 @@ func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionN
 	var results = list.New()
 
 	preferences := expressionNode.Operation.Preferences.(recursiveDescentPreferences)
-	err := recursiveDecent(d, results, context, preferences)
+	err := recursiveDecent(results, context, preferences)
 	if err != nil {
 		return Context{}, err
 	}
@@ -23,7 +23,7 @@ func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionN
 	return context.ChildContext(results), nil
 }
 
-func recursiveDecent(d *dataTreeNavigator, results *list.List, context Context, preferences recursiveDescentPreferences) error {
+func recursiveDecent(results *list.List, context Context, preferences recursiveDescentPreferences) error {
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
@@ -35,12 +35,12 @@ func recursiveDecent(d *dataTreeNavigator, results *list.List, context Context, 
 		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 &&
 			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
 
-			children, err := splat(d, context.SingleChildContext(candidate), preferences.TraversePreferences)
+			children, err := splat(context.SingleChildContext(candidate), preferences.TraversePreferences)
 
 			if err != nil {
 				return err
 			}
-			err = recursiveDecent(d, results, children, preferences)
+			err = recursiveDecent(results, children, preferences)
 			if err != nil {
 				return err
 			}

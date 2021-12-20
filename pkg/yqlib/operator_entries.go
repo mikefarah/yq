@@ -68,7 +68,7 @@ func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return context.ChildContext(results), nil
 }
 
-func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Node, *yaml.Node, error) {
+func parseEntry(entry *yaml.Node, position int) (*yaml.Node, *yaml.Node, error) {
 	prefs := traversePreferences{DontAutoCreate: true}
 	candidateNode := &CandidateNode{Node: entry}
 
@@ -92,14 +92,14 @@ func parseEntry(d *dataTreeNavigator, entry *yaml.Node, position int) (*yaml.Nod
 
 }
 
-func fromEntries(d *dataTreeNavigator, candidateNode *CandidateNode) (*CandidateNode, error) {
+func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
 	var node = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	var mapCandidateNode = candidateNode.CreateReplacement(node)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 
 	for index := 0; index < len(contents); index = index + 1 {
-		key, value, err := parseEntry(d, contents[index], index)
+		key, value, err := parseEntry(contents[index], index)
 		if err != nil {
 			return nil, err
 		}
@@ -117,7 +117,7 @@ func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 		switch candidateNode.Kind {
 		case yaml.SequenceNode:
-			mapResult, err := fromEntries(d, candidate)
+			mapResult, err := fromEntries(candidate)
 			if err != nil {
 				return Context{}, err
 			}
@@ -143,7 +143,7 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 	for el := toEntries.MatchingNodes.Front(); el != nil; el = el.Next() {
 		//run expression against entries
 		// splat toEntries and pipe it into Rhs
-		splatted, err := splat(d, context.SingleChildContext(el.Value.(*CandidateNode)), traversePreferences{})
+		splatted, err := splat(context.SingleChildContext(el.Value.(*CandidateNode)), traversePreferences{})
 		if err != nil {
 			return Context{}, err
 		}

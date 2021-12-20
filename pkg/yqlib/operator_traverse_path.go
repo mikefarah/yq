@@ -17,7 +17,7 @@ type traversePreferences struct {
 	OptionalTraverse     bool // e.g. .adf?
 }
 
-func splat(d *dataTreeNavigator, context Context, prefs traversePreferences) (Context, error) {
+func splat(context Context, prefs traversePreferences) (Context, error) {
 	return traverseNodesWithArrayIndices(context, make([]*yaml.Node, 0), prefs)
 }
 
@@ -26,7 +26,7 @@ func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode 
 	var matches = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		newNodes, err := traverse(d, context, el.Value.(*CandidateNode), expressionNode.Operation)
+		newNodes, err := traverse(context, el.Value.(*CandidateNode), expressionNode.Operation)
 		if err != nil {
 			return Context{}, err
 		}
@@ -36,7 +36,7 @@ func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode 
 	return context.ChildContext(matches), nil
 }
 
-func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
+func traverse(context Context, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
@@ -66,11 +66,11 @@ func traverse(d *dataTreeNavigator, context Context, matchingNode *CandidateNode
 	case yaml.AliasNode:
 		log.Debug("its an alias!")
 		matchingNode.Node = matchingNode.Node.Alias
-		return traverse(d, context, matchingNode, operation)
+		return traverse(context, matchingNode, operation)
 	case yaml.DocumentNode:
 		log.Debug("digging into doc node")
 
-		return traverse(d, context, matchingNode.CreateChildInMap(nil, matchingNode.Node.Content[0]), operation)
+		return traverse(context, matchingNode.CreateChildInMap(nil, matchingNode.Node.Content[0]), operation)
 	default:
 		return list.New(), nil
 	}
