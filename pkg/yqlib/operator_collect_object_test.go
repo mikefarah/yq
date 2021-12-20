@@ -160,5 +160,5 @@ func TestCollectObjectOperatorScenarios(t *testing.T) {
 	for _, tt := range collectObjectOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "create-collect-into-object", collectObjectOperatorScenarios)
+	documentOperatorScenarios(t, "create-collect-into-object", collectObjectOperatorScenarios)
 }

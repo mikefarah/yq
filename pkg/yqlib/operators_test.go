@@ -90,27 +90,32 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(t, context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
 }
 
+func resultToString(t *testing.T, n *CandidateNode) string {
+	var valueBuffer bytes.Buffer
+	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
+
+	err := printer.PrintResults(n.AsList())
+	if err != nil {
+		t.Error(err)
+		return ""
+	}
+
+	tag := n.Node.Tag
+	if n.Node.Kind == yaml.DocumentNode {
+		tag = "doc"
+	} else if n.Node.Kind == yaml.AliasNode {
+		tag = "alias"
+	}
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.Document, n.Path, tag, valueBuffer.String())
+}
+
 func resultsToString(t *testing.T, results *list.List) []string {
 	var pretty = make([]string, 0)
 
 	for el := results.Front(); el != nil; el = el.Next() {
 		n := el.Value.(*CandidateNode)
-		var valueBuffer bytes.Buffer
-		printer := NewPrinterWithSingleWriter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
 
-		err := printer.PrintResults(n.AsList())
-		if err != nil {
-			t.Error(err)
-			return nil
-		}
-
-		tag := n.Node.Tag
-		if n.Node.Kind == yaml.DocumentNode {
-			tag = "doc"
-		} else if n.Node.Kind == yaml.AliasNode {
-			tag = "alias"
-		}
-		output := fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.Document, n.Path, tag, valueBuffer.String())
+		output := resultToString(t, n)
 		pretty = append(pretty, output)
 	}
 	return pretty
@@ -123,8 +128,8 @@ func writeOrPanic(w *bufio.Writer, text string) {
 	}
 }
 
-func copyFromHeader(title string, out *os.File) error {
-	source := fmt.Sprintf("doc/headers/%v.md", title)
+func copyFromHeader(folder string, title string, out *os.File) error {
+	source := fmt.Sprintf("doc/%v/headers/%v.md", folder, title)
 	_, err := os.Stat(source)
 	if os.IsNotExist(err) {
 		return nil
@@ -154,8 +159,10 @@ func formatYaml(yaml string, filename string) string {
 	return output.String()
 }
 
-func documentScenarios(t *testing.T, title string, scenarios []expressionScenario) {
-	f, err := os.Create(fmt.Sprintf("doc/%v.md", title))
+type documentScenarioFunc func(t *testing.T, writer *bufio.Writer, scenario interface{})
+
+func documentScenarios(t *testing.T, folder string, title string, scenarios []interface{}, documentScenario documentScenarioFunc) {
+	f, err := os.Create(fmt.Sprintf("doc/%v/%v.md", folder, title))
 
 	if err != nil {
 		t.Error(err)
@@ -163,7 +170,7 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	}
 	defer f.Close()
 
-	err = copyFromHeader(title, f)
+	err = copyFromHeader(folder, title, f)
 	if err != nil {
 		t.Error(err)
 		return
@@ -173,14 +180,26 @@ func documentScenarios(t *testing.T, title string, scenarios []expressionScenari
 	writeOrPanic(w, "\n")
 
 	for _, s := range scenarios {
-		if !s.skipDoc {
-			documentScenario(t, w, s)
-		}
+		documentScenario(t, w, s)
 	}
 	w.Flush()
 }
 
-func documentScenario(t *testing.T, w *bufio.Writer, s expressionScenario) {
+func documentOperatorScenarios(t *testing.T, title string, scenarios []expressionScenario) {
+	genericScenarios := make([]interface{}, len(scenarios))
+	for i, s := range scenarios {
+		genericScenarios[i] = s
+	}
+
+	documentScenarios(t, "operators", title, genericScenarios, documentOperatorScenario)
+}
+
+func documentOperatorScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+	s := i.(expressionScenario)
+
+	if s.skipDoc {
+		return
+	}
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
