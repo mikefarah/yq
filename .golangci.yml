@@ -11,6 +11,7 @@ linters:
     - goimports
     - gosec
     - misspell
+    - nakedret
     - revive
     - unconvert
     - unparam
