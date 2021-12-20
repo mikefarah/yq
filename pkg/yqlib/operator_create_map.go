@@ -14,7 +14,7 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 
 	var path []interface{}
 
-	var document uint = 0
+	var document uint
 
 	sequences := list.New()
 
@@ -42,7 +42,7 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 
 func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
 	var path []interface{}
-	var document uint = 0
+	var document uint
 	var matches = list.New()
 
 	if matchingNode != nil {

@@ -23,7 +23,7 @@ func subtractOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, subtract, false)
 }
 
-func subtractArray(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	newLhsArray := make([]*yaml.Node, 0)
 
 	for lindex := 0; lindex < len(lhs.Node.Content); lindex = lindex + 1 {
@@ -60,7 +60,7 @@ func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 		if rhs.Node.Kind != yaml.SequenceNode {
 			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
 		}
-		return subtractArray(d, context, lhs, rhs)
+		return subtractArray(lhs, rhs)
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
 			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)

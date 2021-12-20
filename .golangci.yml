@@ -2,15 +2,31 @@ run:
   timeout: 5m
 linters:
   enable:
+    - asciicheck
+    - depguard
     - errorlint
     - gci
+    - gochecknoinits
     - gofmt
     - goimports
     - gosec
+    - megacheck
     - misspell
+    - nakedret
+    - nolintlint
+    - predeclared
+    - revive
+    - unconvert
+    - unparam
 issues:
   exclude-rules:
   - linters:
     - gosec
     text:  "Implicit memory aliasing in for loop."
     path: _test\.go
+  - linters:
+    - revive
+    text: "unexported-return"
+  - linters:
+    - revive
+    text: "var-naming"

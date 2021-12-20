@@ -220,22 +220,21 @@ func explodeNode(node *yaml.Node, context Context) error {
 		if hasAlias {
 			// this is a slow op, which is why we want to check before running it.
 			return reconstructAliasedMap(node, context)
-		} else {
-			// this map has no aliases, but it's kids might
-			for index := 0; index < len(node.Content); index = index + 2 {
-				keyNode := node.Content[index]
-				valueNode := node.Content[index+1]
-				err := explodeNode(keyNode, context)
-				if err != nil {
-					return err
-				}
-				err = explodeNode(valueNode, context)
-				if err != nil {
-					return err
-				}
-			}
-			return nil
 		}
+		// this map has no aliases, but it's kids might
+		for index := 0; index < len(node.Content); index = index + 2 {
+			keyNode := node.Content[index]
+			valueNode := node.Content[index+1]
+			err := explodeNode(keyNode, context)
+			if err != nil {
+				return err
+			}
+			err = explodeNode(valueNode, context)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	default:
 		return nil
 	}

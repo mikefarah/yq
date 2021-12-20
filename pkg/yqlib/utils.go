@@ -110,7 +110,7 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 func readDocuments(reader io.Reader, filename string, fileIndex int) (*list.List, error) {
 	decoder := yaml.NewDecoder(reader)
 	inputList := list.New()
-	var currentIndex uint = 0
+	var currentIndex uint
 
 	for {
 		var dataBucket yaml.Node

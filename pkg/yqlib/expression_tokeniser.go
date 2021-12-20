@@ -135,7 +135,7 @@ func opTokenWithPrefs(op *operationType, assignOpType *operationType, preference
 func extractNumberParamter(value string) (int, error) {
 	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
 	matches := parameterParser.FindStringSubmatch(value)
-	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32) // nolint
+	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32)
 	if errParsingInt != nil {
 		return 0, errParsingInt
 	}
@@ -198,7 +198,7 @@ func unwrap(value string) string {
 func numberValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
-		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64) // nolint
+		var number, errParsingInt = strconv.ParseInt(numberString, 10, 64)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -212,7 +212,7 @@ func hexValue() lex.Action {
 		var originalString = string(m.Bytes)
 		var numberString = originalString[2:]
 		log.Debugf("numberString: %v", numberString)
-		var number, errParsingInt = strconv.ParseInt(numberString, 16, 64) // nolint
+		var number, errParsingInt = strconv.ParseInt(numberString, 16, 64)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -224,7 +224,7 @@ func hexValue() lex.Action {
 func floatValue() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		var numberString = string(m.Bytes)
-		var number, errParsingInt = strconv.ParseFloat(numberString, 64) // nolint
+		var number, errParsingInt = strconv.ParseFloat(numberString, 64)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}

@@ -52,7 +52,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 }
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool) error {
-	var totalProcessDocs uint = 0
+	var totalProcessDocs uint
 	node, err := s.treeCreator.ParseExpression(expression)
 	if err != nil {
 		return err

@@ -91,7 +91,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 }
 
 func resultsToString(t *testing.T, results *list.List) []string {
-	var pretty []string = make([]string, 0)
+	var pretty = make([]string, 0)
 
 	for el := results.Front(); el != nil; el = el.Next() {
 		n := el.Value.(*CandidateNode)
@@ -129,7 +129,7 @@ func copyFromHeader(title string, out *os.File) error {
 	if os.IsNotExist(err) {
 		return nil
 	}
-	in, err := os.Open(source) // nolint gosec
+	in, err := os.Open(source)
 	if err != nil {
 		return err
 	}

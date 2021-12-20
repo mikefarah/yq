@@ -109,12 +109,12 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 		TraversePreferences: traversePreferences{DontFollowAlias: true, IncludeMapKeys: true}}
 	log.Debugf("merge - preferences.DeepMergeArrays %v", preferences.DeepMergeArrays)
 	log.Debugf("merge - preferences.AppendArrays %v", preferences.AppendArrays)
-	err := recursiveDecent(d, results, context.SingleChildContext(rhs), prefs)
+	err := recursiveDecent(results, context.SingleChildContext(rhs), prefs)
 	if err != nil {
 		return nil, err
 	}
 
-	var pathIndexToStartFrom int = 0
+	var pathIndexToStartFrom int
 	if results.Front() != nil {
 		pathIndexToStartFrom = len(results.Front().Value.(*CandidateNode).Path)
 	}
