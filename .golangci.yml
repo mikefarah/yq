@@ -4,6 +4,7 @@ linters:
   enable:
     - errorlint
     - gci
+    - gochecknoinits
     - gofmt
     - goimports
     - gosec
