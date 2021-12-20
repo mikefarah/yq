@@ -3,6 +3,7 @@ run:
 linters:
   enable:
     - asciicheck
+    - depguard
     - errorlint
     - gci
     - gochecknoinits
