@@ -10,6 +10,7 @@ linters:
     - gosec
     - misspell
     - revive
+    - unconvert
 issues:
   exclude-rules:
   - linters:
