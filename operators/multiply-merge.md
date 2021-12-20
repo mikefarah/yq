@@ -244,7 +244,7 @@ Next, we convert the map back to an array, using reduce again, concatenating all
 
 Finally, we set the result of the merged array back into the first doc.
 
-To use this, you will need to update '.myArray' to be the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
+To use this, you will need to update '.myArray' in the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
 
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 
