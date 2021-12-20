@@ -1,3 +1,9 @@
+4.16.2:
+  - Bumped go-lang compiler to fix CVE-2021-44717 (#1037)
+  - Dependency version bumps via dependabot
+  - Added extract-checksum.sh to make it easier to validate checksums (#1011)
+  - Report filename on parsing error (#1030)
+
 4.16.1:
   - Added csv, tsv output formats
   - Added map, map_values operators
