@@ -44,7 +44,7 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		case yaml.SequenceNode:
 			candidateHasKey := false
 			if wanted.Tag == "!!int" {
-				var number, errParsingInt = strconv.ParseInt(wantedKey, 10, 64) // nolint
+				var number, errParsingInt = strconv.ParseInt(wantedKey, 10, 64)
 				if errParsingInt != nil {
 					return Context{}, errParsingInt
 				}

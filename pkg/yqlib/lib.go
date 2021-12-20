@@ -203,10 +203,10 @@ func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 func parseInt(numberString string) (string, int64, error) {
 	if strings.HasPrefix(numberString, "0x") ||
 		strings.HasPrefix(numberString, "0X") {
-		num, err := strconv.ParseInt(numberString[2:], 16, 64) // nolint
+		num, err := strconv.ParseInt(numberString[2:], 16, 64)
 		return "0x%X", num, err
 	}
-	num, err := strconv.ParseInt(numberString, 10, 64) // nolint
+	num, err := strconv.ParseInt(numberString, 10, 64)
 	return "%v", num, err
 }
 

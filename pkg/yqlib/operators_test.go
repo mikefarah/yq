@@ -129,7 +129,7 @@ func copyFromHeader(title string, out *os.File) error {
 	if os.IsNotExist(err) {
 		return nil
 	}
-	in, err := os.Open(source) // nolint gosec
+	in, err := os.Open(source)
 	if err != nil {
 		return err
 	}
