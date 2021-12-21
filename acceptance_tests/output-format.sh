@@ -102,4 +102,44 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputXml() {
+  cat >test.yml <<EOL
+a: {b: {c: ["cat"]}}
+EOL
+
+  read -r -d '' expected << EOM
+<a>
+  <b>
+    <c>cat</c>
+  </b>
+</a>
+EOM
+
+  X=$(./yq e --output-format=xml test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=xml test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testOutputXmlShort() {
+  cat >test.yml <<EOL
+a: {b: {c: ["cat"]}}
+EOL
+
+  read -r -d '' expected << EOM
+<a>
+  <b>
+    <c>cat</c>
+  </b>
+</a>
+EOM
+
+  X=$(./yq e --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+}
+
 source ./scripts/shunit2

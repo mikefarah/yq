@@ -51,8 +51,8 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 		panic(err)
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "yaml", "[yaml|y|json|j|props|p] output format type.")
-	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "yaml", "[yaml|y|xml|x] input format type.")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "yaml", "[yaml|y|json|j|props|p|xml|x] output format type.")
+	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "yaml", "[yaml|y|xml|x] input format type. Note that json is a subset of yaml.")
 
 	rootCmd.PersistentFlags().StringVar(&xmlAttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
 	rootCmd.PersistentFlags().StringVar(&xmlContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
