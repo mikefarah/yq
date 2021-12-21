@@ -52,7 +52,7 @@ type xmlScenario struct {
 	encodeScenario bool
 }
 
-var yamlWithComments = `# above_cat
+var yamlWithComments = `need to fix leadingContent thing. This should fail.# above_cat
 cat: # inline_cat
   # above_array
   array: # inline_array
