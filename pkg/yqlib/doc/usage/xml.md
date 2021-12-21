@@ -19,7 +19,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e sample.xml
+yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -37,7 +37,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e sample.xml
+yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -58,7 +58,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e sample.xml
+yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -77,12 +77,46 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e sample.xml
+yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
 cat:
   +content: meow
   +legs: "4"
+```
+
+## Encode xml: simple
+Given a sample.yml file of:
+```yaml
+cat: purrs
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<cat>purrs</cat>
+```
+
+## Encode xml: array
+Given a sample.yml file of:
+```yaml
+pets:
+  cat:
+    - purrs
+    - meows
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<pets>
+  <cat>purrs</cat>
+  <cat>meows</cat>
+</pets>
 ```
 
