@@ -49,3 +49,7 @@ test*.yml
 # man page
 man.md
 yq.1
+
+# debian pkg
+_build
+debian/files
