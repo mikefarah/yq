@@ -173,7 +173,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
 		expression:  `.a | to_xml`,
 		expected: []string{
-			"D0, P[a], (!!str)::<cool id=\"hi\">\n  <foo>bar</foo>\n</cool>\n",
+			"D0, P[a], (!!str)::<cool id=\"hi\">\n  <foo>bar</foo>\n</cool>\n\n",
 		},
 	},
 	{
@@ -181,15 +181,15 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
 		expression:  `.a | @xml`,
 		expected: []string{
-			"D0, P[a], (!!str)::<cool id=\"hi\"><foo>bar</foo></cool>\n",
+			"D0, P[a], (!!str)::<cool id=\"hi\"><foo>bar</foo></cool>\n\n",
 		},
 	},
 	{
 		description: "Encode value as xml string with custom indentation",
 		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
-		expression:  `.a | to_xml(1)`,
+		expression:  `{"cat": .a | to_xml(1)}`,
 		expected: []string{
-			"D0, P[a], (!!str)::<cool id=\"hi\">\n <foo>bar</foo>\n</cool>\n",
+			"D0, P[], (!!map)::cat: |\n    <cool id=\"hi\">\n     <foo>bar</foo>\n    </cool>\n",
 		},
 	},
 	{

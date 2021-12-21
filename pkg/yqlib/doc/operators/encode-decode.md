@@ -291,6 +291,7 @@ will output
 <cool id="hi">
   <foo>bar</foo>
 </cool>
+
 ```
 
 ## Encode value as xml string on a single line
@@ -308,6 +309,7 @@ yq eval '.a | @xml' sample.yml
 will output
 ```yaml
 <cool id="hi"><foo>bar</foo></cool>
+
 ```
 
 ## Encode value as xml string with custom indentation
@@ -320,13 +322,14 @@ a:
 ```
 then
 ```bash
-yq eval '.a | to_xml(1)' sample.yml
+yq eval '{"cat": .a | to_xml(1)}' sample.yml
 ```
 will output
 ```yaml
-<cool id="hi">
- <foo>bar</foo>
-</cool>
+cat: |
+  <cool id="hi">
+   <foo>bar</foo>
+  </cool>
 ```
 
 ## Decode a xml encoded string
