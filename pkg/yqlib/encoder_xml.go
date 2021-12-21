@@ -12,9 +12,10 @@ import (
 type xmlEncoder struct {
 	xmlEncoder      *xml.Encoder
 	attributePrefix string
+	contentName     string
 }
 
-func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string) Encoder {
+func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string, contentName string) Encoder {
 	encoder := xml.NewEncoder(writer)
 	var indentString = ""
 
@@ -22,7 +23,7 @@ func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string) Encoder
 		indentString = indentString + " "
 	}
 	encoder.Indent("", indentString)
-	return &xmlEncoder{encoder, attributePrefix}
+	return &xmlEncoder{encoder, attributePrefix, contentName}
 }
 func (e *xmlEncoder) Encode(node *yaml.Node) error {
 	switch node.Kind {
@@ -92,7 +93,7 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		if strings.HasPrefix(key.Value, e.attributePrefix) {
+		if strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			if value.Kind == yaml.ScalarNode {
 				attributeName := strings.Replace(key.Value, e.attributePrefix, "", 1)
 				start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: attributeName}, Value: value.Value})
@@ -112,9 +113,16 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		if !strings.HasPrefix(key.Value, e.attributePrefix) {
+		if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
 			err := e.doEncode(value, start)
+			if err != nil {
+				return err
+			}
+		} else if key.Value == e.contentName {
+			// directly encode the contents
+			var charData xml.CharData = []byte(value.Value)
+			err = e.xmlEncoder.EncodeToken(charData)
 			if err != nil {
 				return err
 			}

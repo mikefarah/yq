@@ -28,7 +28,7 @@ func yamlToXml(sampleYaml string, indent int) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var encoder = NewXmlEncoder(writer, indent, "+")
+	var encoder = NewXmlEncoder(writer, indent, "+", "+content")
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
@@ -101,6 +101,13 @@ var xmlScenarios = []xmlScenario{
 		expected:       "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>",
 		encodeScenario: true,
 	},
+	{
+		description:    "Encode xml: attributes with content",
+		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
+		input:          "cat:\n  +name: tiger\n  +content: cool\n",
+		expected:       "<cat name=\"tiger\">cool</cat>",
+		encodeScenario: true,
+	},
 }
 
 //encode
@@ -121,7 +128,7 @@ func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	if s.encodeScenario {
-		documentXmlEncodeScenario(t, w, s)
+		documentXmlEncodeScenario(w, s)
 	} else {
 		documentXmlDecodeScenario(t, w, s)
 	}
@@ -157,7 +164,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 }
 
-func documentXmlEncodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
+func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {

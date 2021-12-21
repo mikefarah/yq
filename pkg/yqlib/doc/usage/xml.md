@@ -141,3 +141,22 @@ will output
 </cat>
 ```
 
+## Encode xml: attributes with content
+Fields with the matching xml-content-name is assumed to be content.
+
+Given a sample.yml file of:
+```yaml
+cat:
+  +name: tiger
+  +content: cool
+
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<cat name="tiger">cool</cat>
+```
+

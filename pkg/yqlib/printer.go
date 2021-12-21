@@ -25,6 +25,7 @@ const (
 	PropsOutputFormat
 	CsvOutputFormat
 	TsvOutputFormat
+	XmlOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
@@ -39,6 +40,8 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 		return CsvOutputFormat, nil
 	case "tsv", "t":
 		return TsvOutputFormat, nil
+	case "xml", "x":
+		return XmlOutputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv]", format)
 	}
@@ -104,6 +107,8 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 		encoder = NewCsvEncoder(writer, '\t')
 	case YamlOutputFormat:
 		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
+	case XmlOutputFormat:
+		encoder = NewXmlEncoder(writer, p.indent, "+", "+content")
 	}
 
 	return encoder.Encode(node)
