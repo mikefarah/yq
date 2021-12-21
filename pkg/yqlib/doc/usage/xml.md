@@ -4,7 +4,12 @@ At the moment, `yq` only supports decoding `xml` (into one of the other supporte
 
 As yaml does not have the concept of attributes, these are converted to regular fields with a prefix to prevent clobbering. Consecutive xml nodes with the same name are assumed to be arrays.
 
-All values in XML are assumed to be strings.
+All values in XML are assumed to be strings - but you can use `from_yaml` to parse them into their correct types:
+
+
+```
+yq e -p=xml '.myNumberField |= from_yaml' my.xml
+```
 
 ## Parse xml: simple
 Given a sample.xml file of:
@@ -27,7 +32,8 @@ Consecutive nodes with identical xml names are assumed to be arrays.
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<animal>1</animal><animal>2</animal>
+<animal>1</animal>
+<animal>2</animal>
 ```
 then
 ```bash
@@ -46,7 +52,9 @@ Attributes are converted to fields, with the attribute prefix.
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<cat legs="4"><legs>7</legs></cat>
+<cat legs="4">
+  <legs>7</legs>
+</cat>
 ```
 then
 ```bash

@@ -41,13 +41,13 @@ var xmlScenarios = []xmlScenario{
 	{
 		description:    "Parse xml: array",
 		subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
-		inputXml:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal><animal>2</animal>",
+		inputXml:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
 		expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
 	},
 	{
 		description:    "Parse xml: attributes",
 		subdescription: "Attributes are converted to fields, with the attribute prefix.",
-		inputXml:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\"><legs>7</legs></cat>",
+		inputXml:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
 	},
 	{
