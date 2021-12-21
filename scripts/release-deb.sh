@@ -1,4 +1,4 @@
-#!/bin/bash -eu
+#!/bin/bash -eux
 #
 # Copyright (C) 2021 Roberto Mier Escandón <rmescandon@gmail.com>
 #
@@ -11,7 +11,8 @@ OUTPUT=
 GOVERSION="1.17.4"
 KEYID=
 MAINTAINER=
-PPA=
+DO_PUBLISH=
+PPA="rmescandon/yq"
 VERSION=
 DISTRIBUTION=
 DO_SIGN=
@@ -34,8 +35,9 @@ show_help() {
   echo "    -m, --maintainer WHO        The maintainer used as author of the changelog. git.name and git.email (see git config) is"
   echo "                                  the considered format"
   echo "    -o DIR, --output DIR        The path where leaving the generated debian package. Default to a temporary folder if not set"
-  echo "    -p, --push PPA              Push resultant files to indicated ppa. This option should be given along with a signing key."
-  echo "                                  Otherwise, the server could reject the package building"
+  echo "    -p                          The resultant file is being published to ppa"
+  echo "    --ppa PPA                   Push resultant files to indicated ppa. This option should be given along with a signing key."
+  echo "                                  Otherwise, the server could reject the package building. Default is set to 'rmescandon/yq'"
   echo "    --passphrase PASSPHRASE     Passphrase to decrypt the signage key"
   exit 1
 }
@@ -69,8 +71,12 @@ while [ $# -ne 0 ]; do
       shift
       OUTPUT="$1"
       ;;
-    -p|--push)
+    -p)
+      DO_PUBLISH="y"
+      ;;
+    --ppa)
       shift
+      DO_PUBLISH="y"
       PPA="$1"
       ;;
     --passphrase)
@@ -97,17 +103,30 @@ else
   OUTPUT="$(mktemp -d)"
 fi 
 
-# Create temporary folder with all the artifacts to create and deploy the docker image
+# Define the folders with the source project and the build artifacts and files
 srcdir="$(realpath "$(dirname "$0")"/..)"
 blddir="$(cd "${srcdir}" && mkdir -p build && cd build && echo "$(pwd)")"
-
+# clean on exit
 cleanup() {
   rm -f "${blddir}/build.sh" || true
   rm -f "${blddir}/Dockerfile" || true
+  rm -f "${blddir}/dput.cf" || true
   docker rmi "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" -f > /dev/null 2>&1 || true
 }
 trap cleanup EXIT INT
 
+# configure the dput config in case publishing is requested
+lp_id="$(echo "$PPA" | cut -d'/' -f1)"
+ppa_id="$(echo "$PPA" | cut -d'/' -f2)"
+cat << EOF > ${blddir}/dput.cf
+[ppa]
+fqdn                    = ppa.launchpad.net
+method                  = ftp
+incoming                = ~${lp_id}/ubuntu/${ppa_id}
+login                   = anonymous
+EOF
+
+# create the main script
 cat << EOF > ${blddir}/build.sh
 #!/bin/bash 
 set -e -o pipefail
@@ -170,12 +189,13 @@ echo ""
 echo -e "\tfind resulting package at: "$OUTPUT""
 
 # publish to ppa whether given
-if [ -n "$PPA" ]; then
-  dput ppa:"$PPA" "$OUTPUT"/yq_*.changes
+if [ -n "$DO_PUBLISH" ]; then
+  dput -c /etc/dput.cf ppa /home/yq/output/yq_*.changes
 fi
 EOF
 chmod +x "${blddir}"/build.sh
 
+# build the docker image with all dependencies
 cat << EOF > ${blddir}/Dockerfile
 FROM bitnami/minideb:bullseye as base
 ENV LANG C.UTF-8
@@ -201,6 +221,7 @@ RUN apt-get -qq -y --no-install-recommends install \
     build-essential \
     debhelper \
     devscripts \
+    dput \
     fakeroot \
     git-buildpackage \
     gpg-agent \
@@ -218,6 +239,7 @@ RUN useradd -ms /bin/bash yq && \
   mkdir /home/yq/src && chown -R yq: /home/yq/src && \
   mkdir /home/yq/output && chown -R yq: /home/yq/output
 
+ADD ./build/dput.cf /etc/dput.cf
 ADD ./build/build.sh /usr/bin/build.sh
 RUN chmod +x /usr/bin/build.sh && chown -R yq: /usr/bin/build.sh
 
