@@ -108,5 +108,5 @@ func TestCollectOperatorScenarios(t *testing.T) {
 	for _, tt := range collectOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "collect-into-array", collectOperatorScenarios)
+	documentOperatorScenarios(t, "collect-into-array", collectOperatorScenarios)
 }

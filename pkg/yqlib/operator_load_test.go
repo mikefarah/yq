@@ -46,5 +46,5 @@ func TestLoadScenarios(t *testing.T) {
 	for _, tt := range loadScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "load", loadScenarios)
+	documentOperatorScenarios(t, "load", loadScenarios)
 }

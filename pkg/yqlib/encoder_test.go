@@ -14,7 +14,7 @@ func yamlToJson(sampleYaml string, indent int) string {
 	writer := bufio.NewWriter(&output)
 
 	var jsonEncoder = NewJsonEncoder(writer, indent)
-	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0)
+	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}

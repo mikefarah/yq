@@ -47,5 +47,5 @@ func TestMapOperatorScenarios(t *testing.T) {
 	for _, tt := range mapOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "map", mapOperatorScenarios)
+	documentOperatorScenarios(t, "map", mapOperatorScenarios)
 }

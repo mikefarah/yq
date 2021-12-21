@@ -44,5 +44,5 @@ func TestFlattenOperatorScenarios(t *testing.T) {
 	for _, tt := range flattenOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "flatten", flattenOperatorScenarios)
+	documentOperatorScenarios(t, "flatten", flattenOperatorScenarios)
 }

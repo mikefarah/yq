@@ -12,6 +12,7 @@ import (
 
 type loadPrefs struct {
 	loadAsString bool
+	decoder      Decoder
 }
 
 func loadString(filename string) (*CandidateNode, error) {
@@ -26,7 +27,7 @@ func loadString(filename string) (*CandidateNode, error) {
 	return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: string(filebytes)}}, nil
 }
 
-func loadYaml(filename string) (*CandidateNode, error) {
+func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 
 	file, err := os.Open(filename) // #nosec
 	if err != nil {
@@ -34,7 +35,7 @@ func loadYaml(filename string) (*CandidateNode, error) {
 	}
 	reader := bufio.NewReader(file)
 
-	documents, err := readDocuments(reader, filename, 0)
+	documents, err := readDocuments(reader, filename, 0, decoder)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +84,7 @@ func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 		if loadPrefs.loadAsString {
 			contentsCandidate, err = loadString(filename)
 		} else {
-			contentsCandidate, err = loadYaml(filename)
+			contentsCandidate, err = loadYaml(filename, loadPrefs.decoder)
 		}
 		if err != nil {
 			return Context{}, fmt.Errorf("Failed to load %v: %w", filename, err)

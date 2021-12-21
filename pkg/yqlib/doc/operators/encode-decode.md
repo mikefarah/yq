@@ -271,3 +271,19 @@ cat	thing1,thing2	true	3.40
 dog	thing3	false	12
 ```
 
+## Decode a xml encoded string
+Given a sample.yml file of:
+```yaml
+a: <foo>bar</foo>
+```
+then
+```bash
+yq eval '.b = (.a | from_xml)' sample.yml
+```
+will output
+```yaml
+a: <foo>bar</foo>
+b:
+  foo: bar
+```
+

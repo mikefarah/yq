@@ -14,7 +14,7 @@ func yamlToCsv(sampleYaml string, separator rune) string {
 	writer := bufio.NewWriter(&output)
 
 	var jsonEncoder = NewCsvEncoder(writer, separator)
-	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0)
+	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}

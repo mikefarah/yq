@@ -233,5 +233,5 @@ func TestRecursiveDescentOperatorScenarios(t *testing.T) {
 	for _, tt := range recursiveDescentOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "recursive-descent-glob", recursiveDescentOperatorScenarios)
+	documentOperatorScenarios(t, "recursive-descent-glob", recursiveDescentOperatorScenarios)
 }

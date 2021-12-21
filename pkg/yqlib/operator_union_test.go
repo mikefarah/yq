@@ -44,5 +44,5 @@ func TestUnionOperatorScenarios(t *testing.T) {
 	for _, tt := range unionOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "union", unionOperatorScenarios)
+	documentOperatorScenarios(t, "union", unionOperatorScenarios)
 }

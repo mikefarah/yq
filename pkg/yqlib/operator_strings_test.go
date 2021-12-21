@@ -170,5 +170,5 @@ func TestStringsOperatorScenarios(t *testing.T) {
 	for _, tt := range stringsOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "string-operators", stringsOperatorScenarios)
+	documentOperatorScenarios(t, "string-operators", stringsOperatorScenarios)
 }

@@ -152,5 +152,5 @@ func TestStyleOperatorScenarios(t *testing.T) {
 	for _, tt := range styleOperatorScenarios {
 		testScenario(t, &tt)
 	}
-	documentScenarios(t, "style", styleOperatorScenarios)
+	documentOperatorScenarios(t, "style", styleOperatorScenarios)
 }
