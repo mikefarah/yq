@@ -1,15 +1,8 @@
-strings:
-  - a: banana
-  - a: cat
-  - a: apple
-
-numbers:
-  - a: 12
-  - a: 13
-  - a: 120
-
-
-obj:
-  - a: {cat: "adog"}
-  - a: {cat: "doga"}
-  - a: apple
+# above_cat
+cat: # inline_cat
+  # above_array
+  array: # inline_array
+    - 3 # inline_3
+    # above_4
+    - 4 # inline_4
+# below_cat

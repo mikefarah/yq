@@ -32,14 +32,20 @@ func (e *xmlEncoder) Encode(node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
-		var charData xml.CharData = []byte("\n")
-		err = e.xmlEncoder.EncodeToken(charData)
+	case yaml.DocumentNode:
+		err := e.encodeComment(headAndLineComment(node))
 		if err != nil {
 			return err
 		}
-		return e.xmlEncoder.Flush()
-	case yaml.DocumentNode:
-		return e.Encode(unwrapDoc(node))
+
+		err = e.Encode(unwrapDoc(node))
+		if err != nil {
+			return err
+		}
+		err = e.encodeComment(footComment(node))
+		if err != nil {
+			return err
+		}
 	case yaml.ScalarNode:
 		var charData xml.CharData = []byte(node.Value)
 		err := e.xmlEncoder.EncodeToken(charData)
@@ -47,8 +53,12 @@ func (e *xmlEncoder) Encode(node *yaml.Node) error {
 			return err
 		}
 		return e.xmlEncoder.Flush()
+	default:
+		return fmt.Errorf("unsupported type %v", node.Tag)
 	}
-	return fmt.Errorf("unsupported type %v", node.Tag)
+	var charData xml.CharData = []byte("\n")
+	return e.xmlEncoder.EncodeToken(charData)
+
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(node *yaml.Node) error {
@@ -57,12 +67,37 @@ func (e *xmlEncoder) encodeTopLevelMap(node *yaml.Node) error {
 		value := node.Content[i+1]
 
 		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-		err := e.doEncode(value, start)
+		err := e.encodeComment(headAndLineComment(key))
+		if err != nil {
+			return err
+		}
+
+		err = e.doEncode(value, start)
+		if err != nil {
+			return err
+		}
+		err = e.encodeComment(footComment(key))
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (e *xmlEncoder) encodeStart(node *yaml.Node, start xml.StartElement) error {
+	err := e.xmlEncoder.EncodeToken(start)
+	if err != nil {
+		return err
+	}
+	return e.encodeComment(headAndLineComment(node))
+}
+
+func (e *xmlEncoder) encodeEnd(node *yaml.Node, start xml.StartElement) error {
+	err := e.xmlEncoder.EncodeToken(start.End())
+	if err != nil {
+		return err
+	}
+	return e.encodeComment(footComment(node))
 }
 
 func (e *xmlEncoder) doEncode(node *yaml.Node, start xml.StartElement) error {
@@ -72,20 +107,31 @@ func (e *xmlEncoder) doEncode(node *yaml.Node, start xml.StartElement) error {
 	case yaml.SequenceNode:
 		return e.encodeArray(node, start)
 	case yaml.ScalarNode:
-		err := e.xmlEncoder.EncodeToken(start)
+		err := e.encodeStart(node, start)
 		if err != nil {
 			return err
 		}
 
 		var charData xml.CharData = []byte(node.Value)
 		err = e.xmlEncoder.EncodeToken(charData)
-
 		if err != nil {
 			return err
 		}
-		return e.xmlEncoder.EncodeToken(start.End())
+
+		return e.encodeEnd(node, start)
 	}
 	return fmt.Errorf("unsupported type %v", node.Tag)
+}
+
+func (e *xmlEncoder) encodeComment(commentStr string) error {
+	if commentStr != "" {
+		var comment xml.Comment = []byte(commentStr)
+		err := e.xmlEncoder.EncodeToken(comment)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (e *xmlEncoder) encodeArray(node *yaml.Node, start xml.StartElement) error {
@@ -116,7 +162,7 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 		}
 	}
 
-	err := e.xmlEncoder.EncodeToken(start)
+	err := e.encodeStart(node, start)
 	if err != nil {
 		return err
 	}
@@ -125,6 +171,11 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 	for i := 0; i < len(node.Content); i += 2 {
 		key := node.Content[i]
 		value := node.Content[i+1]
+
+		err := e.encodeComment(headAndLineComment(key))
+		if err != nil {
+			return err
+		}
 
 		if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
@@ -140,7 +191,11 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 				return err
 			}
 		}
+		err = e.encodeComment(footComment(key))
+		if err != nil {
+			return err
+		}
 	}
 
-	return e.xmlEncoder.EncodeToken(start.End())
+	return e.encodeEnd(node, start)
 }

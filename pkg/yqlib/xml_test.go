@@ -52,6 +52,22 @@ type xmlScenario struct {
 	encodeScenario bool
 }
 
+var yamlWithComments = `# above_cat
+cat: # inline_cat
+  # above_array
+  array: # inline_array
+    - val1 # inline_val1
+    # above_val2
+    - val2 # inline_val2
+# below_cat
+`
+
+var expectedXmlWithComments = `<!-- above_cat inline_cat--><cat><!-- above_array inline_array-->
+  <array><!-- inline_val1-->val1</array>
+  <array><!-- above_val2 inline_val2-->val2</array>
+</cat><!-- below_cat-->
+`
+
 var xmlScenarios = []xmlScenario{
 	{
 		description: "Parse xml: simple",
@@ -79,33 +95,40 @@ var xmlScenarios = []xmlScenario{
 	{
 		description:    "Encode xml: simple",
 		input:          "cat: purrs",
-		expected:       "<cat>purrs</cat>",
+		expected:       "<cat>purrs</cat>\n",
 		encodeScenario: true,
 	},
 	{
 		description:    "Encode xml: array",
 		input:          "pets:\n  cat:\n    - purrs\n    - meows",
-		expected:       "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>",
+		expected:       "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
 		encodeScenario: true,
 	},
 	{
 		description:    "Encode xml: attributes",
 		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
 		input:          "cat:\n  +name: tiger\n  meows: true\n",
-		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>",
+		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		encodeScenario: true,
 	},
 	{
 		skipDoc:        true,
 		input:          "cat:\n  ++name: tiger\n  meows: true\n",
-		expected:       "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>",
+		expected:       "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		encodeScenario: true,
 	},
 	{
 		description:    "Encode xml: attributes with content",
 		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
 		input:          "cat:\n  +name: tiger\n  +content: cool\n",
-		expected:       "<cat name=\"tiger\">cool</cat>",
+		expected:       "<cat name=\"tiger\">cool</cat>\n",
+		encodeScenario: true,
+	},
+	{
+		description:    "Encode xml: comments",
+		subdescription: "A best attempt is made to copy comments to xml.",
+		input:          yamlWithComments,
+		expected:       expectedXmlWithComments,
 		encodeScenario: true,
 	},
 }

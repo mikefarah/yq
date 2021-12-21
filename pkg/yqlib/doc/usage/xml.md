@@ -108,7 +108,8 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat>purrs</cat>```
+<cat>purrs</cat>
+```
 
 ## Encode xml: array
 Given a sample.yml file of:
@@ -127,7 +128,8 @@ will output
 <pets>
   <cat>purrs</cat>
   <cat>meows</cat>
-</pets>```
+</pets>
+```
 
 ## Encode xml: attributes
 Fields with the matching xml-attribute-prefix are assumed to be attributes.
@@ -147,7 +149,8 @@ will output
 ```xml
 <cat name="tiger">
   <meows>true</meows>
-</cat>```
+</cat>
+```
 
 ## Encode xml: attributes with content
 Fields with the matching xml-content-name is assumed to be content.
@@ -165,5 +168,33 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat name="tiger">cool</cat>```
+<cat name="tiger">cool</cat>
+```
+
+## Encode xml: comments
+A best attempt is made to copy comments to xml.
+
+Given a sample.yml file of:
+```yaml
+# above_cat
+cat: # inline_cat
+  # above_array
+  array: # inline_array
+    - val1 # inline_val1
+    # above_val2
+    - val2 # inline_val2
+# below_cat
+
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<!-- above_cat inline_cat--><cat><!-- above_array inline_array-->
+  <array><!-- inline_val1-->val1</array>
+  <array><!-- above_val2 inline_val2-->val2</array>
+</cat><!-- below_cat-->
+```
 

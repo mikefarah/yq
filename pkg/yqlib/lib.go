@@ -236,6 +236,15 @@ func createScalarNode(value interface{}, stringValue string) *yaml.Node {
 	return node
 }
 
+func headAndLineComment(node *yaml.Node) string {
+	return strings.Replace(node.HeadComment, "#", "", 1) +
+		strings.Replace(node.LineComment, "#", "", 1)
+}
+
+func footComment(node *yaml.Node) string {
+	return strings.Replace(node.FootComment, "#", "", 1)
+}
+
 func createValueOperation(value interface{}, stringValue string) *Operation {
 	var node *yaml.Node = createScalarNode(value, stringValue)
 
