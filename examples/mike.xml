@@ -1,4 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<cat>3f</cat>
-<dog>meow:as</dog>
-<dog3>true</dog3>
+<cat legs="4">BiBi</cat>

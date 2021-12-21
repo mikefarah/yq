@@ -14,10 +14,12 @@ These operators are useful to process yaml documents that have stringified embed
 | Properties |  | to_props/@props |
 | CSV |  | to_csv/@csv |
 | TSV |  | to_tsv/@tsv |
-| XML | from_xml |  |
+| XML | from_xml | to_xml(i)/@xml |
 
 
 CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+
+XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 
 
 ## Encode value as json string
@@ -270,6 +272,61 @@ will output
 ```yaml
 cat	thing1,thing2	true	3.40
 dog	thing3	false	12
+```
+
+## Encode value as xml string
+Given a sample.yml file of:
+```yaml
+a:
+  cool:
+    foo: bar
+    +id: hi
+```
+then
+```bash
+yq eval '.a | to_xml' sample.yml
+```
+will output
+```yaml
+<cool id="hi">
+  <foo>bar</foo>
+</cool>
+```
+
+## Encode value as xml string on a single line
+Given a sample.yml file of:
+```yaml
+a:
+  cool:
+    foo: bar
+    +id: hi
+```
+then
+```bash
+yq eval '.a | @xml' sample.yml
+```
+will output
+```yaml
+<cool id="hi"><foo>bar</foo></cool>
+```
+
+## Encode value as xml string with custom indentation
+Given a sample.yml file of:
+```yaml
+a:
+  cool:
+    foo: bar
+    +id: hi
+```
+then
+```bash
+yq eval '.a | to_xml(1)' sample.yml
+```
+will output
+```yaml
+<cool id="hi">
+ <foo>bar</foo>
+</cool>
 ```
 
 ## Decode a xml encoded string

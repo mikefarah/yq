@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
 )
@@ -37,6 +38,8 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 			}
 
 			logging.SetBackend(backend)
+			yqlib.XmlPreferences.AttributePrefix = xmlAttributePrefix
+			yqlib.XmlPreferences.ContentName = xmlContentName
 		},
 	}
 

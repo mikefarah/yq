@@ -43,7 +43,7 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 	case "xml", "x":
 		return XmlOutputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
 	}
 }
 
@@ -108,7 +108,7 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 	case YamlOutputFormat:
 		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
 	case XmlOutputFormat:
-		encoder = NewXmlEncoder(writer, p.indent, "+", "+content")
+		encoder = NewXmlEncoder(writer, p.indent, XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
 	}
 
 	return encoder.Encode(node)

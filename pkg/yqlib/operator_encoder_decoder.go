@@ -82,7 +82,7 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	case YamlInputFormat:
 		decoder = NewYamlDecoder()
 	case XmlInputFormat:
-		decoder = NewXmlDecoder("+a", "+content")
+		decoder = NewXmlDecoder(XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
 	}
 
 	var results = list.New()

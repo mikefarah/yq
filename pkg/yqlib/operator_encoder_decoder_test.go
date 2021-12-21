@@ -169,6 +169,30 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Encode value as xml string",
+		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
+		expression:  `.a | to_xml`,
+		expected: []string{
+			"D0, P[a], (!!str)::<cool id=\"hi\">\n  <foo>bar</foo>\n</cool>\n",
+		},
+	},
+	{
+		description: "Encode value as xml string on a single line",
+		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
+		expression:  `.a | @xml`,
+		expected: []string{
+			"D0, P[a], (!!str)::<cool id=\"hi\"><foo>bar</foo></cool>\n",
+		},
+	},
+	{
+		description: "Encode value as xml string with custom indentation",
+		document:    `{a: {cool: {foo: "bar", +id: hi}}}`,
+		expression:  `.a | to_xml(1)`,
+		expected: []string{
+			"D0, P[a], (!!str)::<cool id=\"hi\">\n <foo>bar</foo>\n</cool>\n",
+		},
+	},
+	{
 		description: "Decode a xml encoded string",
 		document:    `a: "<foo>bar</foo>"`,
 		expression:  `.b = (.a | from_xml)`,

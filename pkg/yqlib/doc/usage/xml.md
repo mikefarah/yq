@@ -1,8 +1,10 @@
 # XML
 
-At the moment, `yq` only supports decoding `xml` (into one of the other supported output formats).
+Encode and decode to and from XML. Whitespace is not conserved for round trips - but the order of the fields are.
 
-As yaml does not have the concept of attributes, these are converted to regular fields with a prefix to prevent clobbering. Consecutive xml nodes with the same name are assumed to be arrays.
+As yaml does not have the concept of attributes, xml attributes are converted to regular fields with a prefix to prevent clobbering. This defaults to "+", use the `--xml-attribute-prefix` to change.
+
+Consecutive xml nodes with the same name are assumed to be arrays.
 
 All values in XML are assumed to be strings - but you can use `from_yaml` to parse them into their correct types:
 
@@ -10,6 +12,15 @@ All values in XML are assumed to be strings - but you can use `from_yaml` to par
 ```
 yq e -p=xml '.myNumberField |= from_yaml' my.xml
 ```
+
+
+XML nodes that have attributes then plain content, e.g:
+
+```xml
+<cat name="tiger">meow</cat>
+```
+
+The content of the node will be set as a field in the map with the key "+content". Use the `--xml-content-name` flag to change this.
 
 ## Parse xml: simple
 Given a sample.xml file of:
@@ -97,8 +108,7 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat>purrs</cat>
-```
+<cat>purrs</cat>```
 
 ## Encode xml: array
 Given a sample.yml file of:
@@ -117,8 +127,7 @@ will output
 <pets>
   <cat>purrs</cat>
   <cat>meows</cat>
-</pets>
-```
+</pets>```
 
 ## Encode xml: attributes
 Fields with the matching xml-attribute-prefix are assumed to be attributes.
@@ -138,8 +147,7 @@ will output
 ```xml
 <cat name="tiger">
   <meows>true</meows>
-</cat>
-```
+</cat>```
 
 ## Encode xml: attributes with content
 Fields with the matching xml-content-name is assumed to be content.
@@ -157,6 +165,5 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat name="tiger">cool</cat>
-```
+<cat name="tiger">cool</cat>```
 

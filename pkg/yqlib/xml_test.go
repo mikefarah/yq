@@ -110,8 +110,6 @@ var xmlScenarios = []xmlScenario{
 	},
 }
 
-//encode
-
 func testXmlScenario(t *testing.T, s *xmlScenario) {
 	if s.encodeScenario {
 		test.AssertResultWithContext(t, s.expected, yamlToXml(s.input, 2), s.description)
@@ -179,7 +177,7 @@ func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "```bash\nyq e -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n\n", yamlToXml(s.input, 2)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", yamlToXml(s.input, 2)))
 }
 
 func TestXmlScenarios(t *testing.T) {

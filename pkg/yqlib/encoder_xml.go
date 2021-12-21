@@ -28,12 +28,25 @@ func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string, content
 func (e *xmlEncoder) Encode(node *yaml.Node) error {
 	switch node.Kind {
 	case yaml.MappingNode:
-		return e.encodeTopLevelMap(node)
+		err := e.encodeTopLevelMap(node)
+		if err != nil {
+			return err
+		}
+		var charData xml.CharData = []byte("\n")
+		err = e.xmlEncoder.EncodeToken(charData)
+		if err != nil {
+			return err
+		}
+		return e.xmlEncoder.Flush()
 	case yaml.DocumentNode:
 		return e.Encode(unwrapDoc(node))
 	case yaml.ScalarNode:
 		var charData xml.CharData = []byte(node.Value)
-		return e.xmlEncoder.EncodeToken(charData)
+		err := e.xmlEncoder.EncodeToken(charData)
+		if err != nil {
+			return err
+		}
+		return e.xmlEncoder.Flush()
 	}
 	return fmt.Errorf("unsupported type %v", node.Tag)
 }

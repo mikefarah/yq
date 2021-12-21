@@ -14,8 +14,10 @@ These operators are useful to process yaml documents that have stringified embed
 | Properties |  | to_props/@props |
 | CSV |  | to_csv/@csv |
 | TSV |  | to_tsv/@tsv |
-| XML | from_xml |  |
+| XML | from_xml | to_xml(i)/@xml |
 
 
 CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+
+XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 

@@ -322,6 +322,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`toyaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 	lexer.Add([]byte(`to_yaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 
+	lexer.Add([]byte(`toxml\([0-9]+\)`), encodeWithIndent(XmlOutputFormat))
+	lexer.Add([]byte(`to_xml\([0-9]+\)`), encodeWithIndent(XmlOutputFormat))
+
 	lexer.Add([]byte(`tojson\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
 	lexer.Add([]byte(`to_json\([0-9]+\)`), encodeWithIndent(JsonOutputFormat))
 
@@ -346,6 +349,10 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
 	lexer.Add([]byte(`@tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
 
+	lexer.Add([]byte(`toxml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: XmlOutputFormat}))
+	lexer.Add([]byte(`to_xml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: XmlOutputFormat, indent: 2}))
+	lexer.Add([]byte(`@xml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: XmlOutputFormat, indent: 0}))
+
 	lexer.Add([]byte(`fromyaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromjson`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromxml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XmlInputFormat}))
@@ -359,9 +366,9 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`load`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewYamlDecoder()}))
 
-	lexer.Add([]byte(`xmlload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder("+", "+content")}))
-	lexer.Add([]byte(`load_xml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder("+", "+content")}))
-	lexer.Add([]byte(`loadxml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder("+", "+content")}))
+	lexer.Add([]byte(`xmlload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder(XmlPreferences.AttributePrefix, XmlPreferences.ContentName)}))
+	lexer.Add([]byte(`load_xml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder(XmlPreferences.AttributePrefix, XmlPreferences.ContentName)}))
+	lexer.Add([]byte(`loadxml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXmlDecoder(XmlPreferences.AttributePrefix, XmlPreferences.ContentName)}))
 
 	lexer.Add([]byte(`strload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))
 	lexer.Add([]byte(`load_str`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))

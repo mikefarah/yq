@@ -13,6 +13,13 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+type xmlPreferences struct {
+	AttributePrefix string
+	ContentName     string
+}
+
+var XmlPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
+
 var log = logging.MustGetLogger("yq-lib")
 
 // GetLogger returns the yq logger instance.
