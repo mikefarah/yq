@@ -1,2 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<cat legs="4">BiBi</cat>
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment
+for x --></x>
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before -->4<!-- in d after --></d>
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->

@@ -73,3 +73,21 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) yql
 	}
 	return printerWriter
 }
+
+func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
+	switch format {
+	case yqlib.JsonOutputFormat:
+		return yqlib.NewJsonEncoder(indent)
+	case yqlib.PropsOutputFormat:
+		return yqlib.NewPropertiesEncoder()
+	case yqlib.CsvOutputFormat:
+		return yqlib.NewCsvEncoder(',')
+	case yqlib.TsvOutputFormat:
+		return yqlib.NewCsvEncoder('\t')
+	case yqlib.YamlOutputFormat:
+		return yqlib.NewYamlEncoder(indent, colorsEnabled, !noDocSeparators, unwrapScalar)
+	case yqlib.XmlOutputFormat:
+		return yqlib.NewXmlEncoder(indent, xmlAttributePrefix, xmlContentName)
+	}
+	panic("invalid encoder")
+}

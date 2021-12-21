@@ -24,23 +24,29 @@ func decodeXml(t *testing.T, xml string) *CandidateNode {
 	return &CandidateNode{Node: node}
 }
 
-func yamlToXml(sampleYaml string, indent int) string {
+func processScenario(s xmlScenario) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var encoder = NewXmlEncoder(writer, indent, "+", "+content")
-	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
+	var encoder = NewXmlEncoder(2, "+", "+content")
+
+	var decoder = NewYamlDecoder()
+	if s.scenarioType == "roundtrip" {
+		decoder = NewXmlDecoder("+", "+content")
+	}
+
+	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
 	if err != nil {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	err = encoder.Encode(node)
+	err = encoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
 	}
 	writer.Flush()
 
-	return strings.TrimSuffix(output.String(), "\n")
+	return output.String()
 }
 
 type xmlScenario struct {
@@ -49,8 +55,153 @@ type xmlScenario struct {
 	description    string
 	subdescription string
 	skipDoc        bool
-	encodeScenario bool
+	scenarioType   string
 }
+
+var inputXmlWithComments = `
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+`
+var inputXmlWithCommentsWithSubChild = `
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before --><z sweet="cool"/><!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+`
+
+var expectedDecodeYamlWithSubChild = `D0, P[], (doc)::# before cat
+cat:
+    # in cat before
+    x: "3" # multi
+    # line comment 
+    # for x
+    # before y
+
+    y:
+        # in y before
+        d:
+            # in d before
+            z:
+                +sweet: cool
+            # in d after
+        # in y after
+    # in_cat_after
+# after cat
+`
+
+var inputXmlWithCommentsWithArray = `
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before --><z sweet="cool"/><!-- in d after --></d>
+        <d><!-- in d2 before --><z sweet="cool2"/><!-- in d2 after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+`
+
+var expectedDecodeYamlWithArray = `D0, P[], (doc)::# before cat
+cat:
+    # in cat before
+    x: "3" # multi
+    # line comment 
+    # for x
+    # before y
+
+    y:
+        # in y before
+        d:
+            - # in d before
+              z:
+                +sweet: cool
+              # in d after
+            - # in d2 before
+              z:
+                +sweet: cool2
+              # in d2 after
+        # in y after
+    # in_cat_after
+# after cat
+`
+
+var expectedDecodeYamlWithComments = `D0, P[], (doc)::# before cat
+cat:
+    # in cat before
+    x: "3" # multi
+    # line comment 
+    # for x
+    # before y
+
+    y:
+        # in y before
+        # in d before
+        d: z # in d after
+        # in y after
+    # in_cat_after
+# after cat
+`
+
+var expectedRoundtripXmlWithComments = `<!-- before cat --><cat><!-- in cat before -->
+  <x>3<!-- multi
+line comment 
+for x --></x><!-- before y -->
+  <y><!-- in y before
+in d before -->
+    <d>z<!-- in d after --></d><!-- in y after -->
+  </y><!-- in_cat_after -->
+</cat><!-- after cat -->
+`
+
+var yamlWithComments = `# above_cat
+cat: # inline_cat
+  # above_array
+  array: # inline_array
+    - val1 # inline_val1
+    # above_val2
+    - val2 # inline_val2
+# below_cat
+`
+
+var expectedXmlWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+  <array>val1<!-- inline_val1 --></array>
+  <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
+</cat><!-- below_cat -->
+`
 
 var xmlScenarios = []xmlScenario{
 	{
@@ -66,53 +217,88 @@ var xmlScenarios = []xmlScenario{
 	},
 	{
 		description:    "Parse xml: attributes",
-		subdescription: "Attributes are converted to fields, with the attribute prefix.",
+		subdescription: "Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
 	},
 	{
 		description:    "Parse xml: attributes with content",
-		subdescription: "Content is added as a field, using the content name",
+		subdescription: "Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
 	},
 	{
-		description:    "Encode xml: simple",
-		input:          "cat: purrs",
-		expected:       "<cat>purrs</cat>",
-		encodeScenario: true,
+		description:    "Parse xml: with comments",
+		subdescription: "A best attempt is made to preserve comments.",
+		input:          inputXmlWithComments,
+		expected:       expectedDecodeYamlWithComments,
+		scenarioType:   "decode",
 	},
 	{
-		description:    "Encode xml: array",
-		input:          "pets:\n  cat:\n    - purrs\n    - meows",
-		expected:       "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>",
-		encodeScenario: true,
+		description:  "Parse xml: with comments subchild",
+		skipDoc:      true,
+		input:        inputXmlWithCommentsWithSubChild,
+		expected:     expectedDecodeYamlWithSubChild,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse xml: with comments array",
+		skipDoc:      true,
+		input:        inputXmlWithCommentsWithArray,
+		expected:     expectedDecodeYamlWithArray,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Encode xml: simple",
+		input:        "cat: purrs",
+		expected:     "<cat>purrs</cat>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:  "Encode xml: array",
+		input:        "pets:\n  cat:\n    - purrs\n    - meows",
+		expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
+		scenarioType: "encode",
 	},
 	{
 		description:    "Encode xml: attributes",
 		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
 		input:          "cat:\n  +name: tiger\n  meows: true\n",
-		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>",
-		encodeScenario: true,
+		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType:   "encode",
 	},
 	{
-		skipDoc:        true,
-		input:          "cat:\n  ++name: tiger\n  meows: true\n",
-		expected:       "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>",
-		encodeScenario: true,
+		skipDoc:      true,
+		input:        "cat:\n  ++name: tiger\n  meows: true\n",
+		expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType: "encode",
 	},
 	{
 		description:    "Encode xml: attributes with content",
 		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
 		input:          "cat:\n  +name: tiger\n  +content: cool\n",
-		expected:       "<cat name=\"tiger\">cool</cat>",
-		encodeScenario: true,
+		expected:       "<cat name=\"tiger\">cool</cat>\n",
+		scenarioType:   "encode",
+	},
+	{
+		description:    "Encode xml: comments",
+		subdescription: "A best attempt is made to copy comments to xml.",
+		input:          yamlWithComments,
+		expected:       expectedXmlWithComments,
+		scenarioType:   "encode",
+	},
+	{
+		description:    "Round trip: with comments",
+		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
+		input:          inputXmlWithComments,
+		expected:       expectedRoundtripXmlWithComments,
+		scenarioType:   "roundtrip",
 	},
 }
 
-func testXmlScenario(t *testing.T, s *xmlScenario) {
-	if s.encodeScenario {
-		test.AssertResultWithContext(t, s.expected, yamlToXml(s.input, 2), s.description)
+func testXmlScenario(t *testing.T, s xmlScenario) {
+	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
+		test.AssertResultWithContext(t, s.expected, processScenario(s), s.description)
 	} else {
 		var actual = resultToString(t, decodeXml(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
@@ -125,8 +311,10 @@ func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	if s.skipDoc {
 		return
 	}
-	if s.encodeScenario {
+	if s.scenarioType == "encode" {
 		documentXmlEncodeScenario(w, s)
+	} else if s.scenarioType == "roundtrip" {
+		documentXmlRoundTripScenario(w, s)
 	} else {
 		documentXmlDecodeScenario(t, w, s)
 	}
@@ -149,7 +337,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node := decodeXml(t, s.input)
 
@@ -177,12 +365,30 @@ func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "```bash\nyq e -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", yamlToXml(s.input, 2)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))
+}
+
+func documentXmlRoundTripScenario(w *bufio.Writer, s xmlScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.xml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq e -p=xml -o=xml '.' sample.xml\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))
 }
 
 func TestXmlScenarios(t *testing.T) {
 	for _, tt := range xmlScenarios {
-		testXmlScenario(t, &tt)
+		testXmlScenario(t, tt)
 	}
 	genericScenarios := make([]interface{}, len(xmlScenarios))
 	for i, s := range xmlScenarios {

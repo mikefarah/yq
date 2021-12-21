@@ -13,13 +13,13 @@ func yamlToCsv(sampleYaml string, separator rune) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var jsonEncoder = NewCsvEncoder(writer, separator)
+	var jsonEncoder = NewCsvEncoder(separator)
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	err = jsonEncoder.Encode(node)
+	err = jsonEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
 	}

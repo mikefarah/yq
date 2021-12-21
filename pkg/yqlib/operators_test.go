@@ -26,6 +26,10 @@ type expressionScenario struct {
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 }
 
+func NewSimpleYamlPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+	return NewPrinter(NewYamlEncoder(indent, colorsEnabled, printDocSeparators, unwrapScalar), NewSinglePrinterWriter(writer))
+}
+
 func readDocumentWithLeadingContent(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
 	reader, firstFileLeadingContent, err := processReadStream(bufio.NewReader(strings.NewReader(content)))
 	if err != nil {
@@ -92,7 +96,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 func resultToString(t *testing.T, n *CandidateNode) string {
 	var valueBuffer bytes.Buffer
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
 
 	err := printer.PrintResults(n.AsList())
 	if err != nil {
@@ -145,7 +149,7 @@ func copyFromHeader(folder string, title string, out *os.File) error {
 
 func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(".. style= \"\"")
 	if err != nil {
@@ -268,7 +272,7 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formattedDoc string, formattedDoc2 string) {
 	var output bytes.Buffer
 	var err error
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {

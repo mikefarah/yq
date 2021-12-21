@@ -1,6 +1,8 @@
 package yqlib
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -10,14 +12,54 @@ import (
 )
 
 type propertiesEncoder struct {
-	destination io.Writer
 }
 
-func NewPropertiesEncoder(destination io.Writer) Encoder {
-	return &propertiesEncoder{destination}
+func NewPropertiesEncoder() Encoder {
+	return &propertiesEncoder{}
 }
 
-func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
+func (pe *propertiesEncoder) CanHandleAliases() bool {
+	return false
+}
+
+func (pe *propertiesEncoder) PrintDocumentSeparator(writer io.Writer) error {
+	return nil
+}
+
+func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+	reader := bufio.NewReader(strings.NewReader(content))
+	for {
+
+		readline, errReading := reader.ReadString('\n')
+		if errReading != nil && !errors.Is(errReading, io.EOF) {
+			return errReading
+		}
+		if strings.Contains(readline, "$yqDocSeperator$") {
+
+			if err := pe.PrintDocumentSeparator(writer); err != nil {
+				return err
+			}
+
+		} else {
+			if err := writeString(writer, readline); err != nil {
+				return err
+			}
+		}
+
+		if errors.Is(errReading, io.EOF) {
+			if readline != "" {
+				// the last comment we read didn't have a new line, put one in
+				if err := writeString(writer, "\n"); err != nil {
+					return err
+				}
+			}
+			break
+		}
+	}
+	return nil
+}
+
+func (pe *propertiesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	mapKeysToStrings(node)
 	p := properties.NewProperties()
 	err := pe.doEncode(p, node, "")
@@ -25,14 +67,12 @@ func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
 		return err
 	}
 
-	_, err = p.WriteComment(pe.destination, "#", properties.UTF8)
+	_, err = p.WriteComment(writer, "#", properties.UTF8)
 	return err
 }
 
 func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node, path string) error {
-	p.SetComment(path,
-		strings.Replace(node.HeadComment, "#", "", 1)+
-			strings.Replace(node.LineComment, "#", "", 1))
+	p.SetComment(path, headAndLineComment(node))
 	switch node.Kind {
 	case yaml.ScalarNode:
 		_, _, err := p.Set(path, node.Value)

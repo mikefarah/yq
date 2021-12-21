@@ -13,13 +13,13 @@ func yamlToJson(sampleYaml string, indent int) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var jsonEncoder = NewJsonEncoder(writer, indent)
+	var jsonEncoder = NewJsonEncoder(indent)
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	err = jsonEncoder.Encode(node)
+	err = jsonEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
 	}

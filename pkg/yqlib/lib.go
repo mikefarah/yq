@@ -18,8 +18,6 @@ type xmlPreferences struct {
 	ContentName     string
 }
 
-var XmlPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
-
 var log = logging.MustGetLogger("yq-lib")
 
 // GetLogger returns the yq logger instance.
@@ -234,6 +232,22 @@ func createScalarNode(value interface{}, stringValue string) *yaml.Node {
 		node.Tag = "!!null"
 	}
 	return node
+}
+
+func headAndLineComment(node *yaml.Node) string {
+	return headComment(node) + lineComment(node)
+}
+
+func headComment(node *yaml.Node) string {
+	return strings.Replace(node.HeadComment, "#", "", 1)
+}
+
+func lineComment(node *yaml.Node) string {
+	return strings.Replace(node.LineComment, "#", "", 1)
+}
+
+func footComment(node *yaml.Node) string {
+	return strings.Replace(node.FootComment, "#", "", 1)
 }
 
 func createValueOperation(value interface{}, stringValue string) *Operation {
