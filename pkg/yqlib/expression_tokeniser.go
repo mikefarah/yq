@@ -346,11 +346,13 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
 	lexer.Add([]byte(`@tsv`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: TsvOutputFormat}))
 
-	lexer.Add([]byte(`fromyaml`), opToken(decodeOpType))
-	lexer.Add([]byte(`fromjson`), opToken(decodeOpType))
+	lexer.Add([]byte(`fromyaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`fromjson`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`fromxml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XmlInputFormat}))
 
-	lexer.Add([]byte(`from_yaml`), opToken(decodeOpType))
-	lexer.Add([]byte(`from_json`), opToken(decodeOpType))
+	lexer.Add([]byte(`from_yaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`from_json`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`from_xml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XmlInputFormat}))
 
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
 	lexer.Add([]byte(`sort_keys`), opToken(sortKeysOpType))

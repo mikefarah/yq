@@ -88,7 +88,11 @@ func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 
 	node := decodeXml(t, s.inputXml)
 
-	printer.PrintResults(node.AsList())
+	err := printer.PrintResults(node.AsList())
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 

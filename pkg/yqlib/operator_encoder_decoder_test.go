@@ -168,6 +168,14 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: \"foo:\\n  a: frog\"\n",
 		},
 	},
+	{
+		description: "Decode a xml encoded string",
+		document:    `a: "<foo>bar</foo>"`,
+		expression:  `.b = (.a | from_xml)`,
+		expected: []string{
+			"D0, P[], (doc)::a: \"<foo>bar</foo>\"\nb:\n    foo: bar\n",
+		},
+	},
 }
 
 func TestEncoderDecoderOperatorScenarios(t *testing.T) {
