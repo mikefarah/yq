@@ -4,15 +4,17 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type xmlEncoder struct {
-	xmlEncoder *xml.Encoder
+	xmlEncoder      *xml.Encoder
+	attributePrefix string
 }
 
-func NewXmlEncoder(writer io.Writer, indent int) Encoder {
+func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string) Encoder {
 	encoder := xml.NewEncoder(writer)
 	var indentString = ""
 
@@ -20,12 +22,12 @@ func NewXmlEncoder(writer io.Writer, indent int) Encoder {
 		indentString = indentString + " "
 	}
 	encoder.Indent("", indentString)
-	return &xmlEncoder{encoder}
+	return &xmlEncoder{encoder, attributePrefix}
 }
 func (e *xmlEncoder) Encode(node *yaml.Node) error {
 	switch node.Kind {
 	case yaml.MappingNode:
-		return e.encodeMap(node)
+		return e.encodeTopLevelMap(node)
 	case yaml.DocumentNode:
 		return e.Encode(unwrapDoc(node))
 	case yaml.ScalarNode:
@@ -35,18 +37,24 @@ func (e *xmlEncoder) Encode(node *yaml.Node) error {
 	return fmt.Errorf("unsupported type %v", node.Tag)
 }
 
+func (e *xmlEncoder) encodeTopLevelMap(node *yaml.Node) error {
+	for i := 0; i < len(node.Content); i += 2 {
+		key := node.Content[i]
+		value := node.Content[i+1]
+
+		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
+		err := e.doEncode(value, start)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (e *xmlEncoder) doEncode(node *yaml.Node, start xml.StartElement) error {
 	switch node.Kind {
 	case yaml.MappingNode:
-		err := e.xmlEncoder.EncodeToken(start)
-		if err != nil {
-			return err
-		}
-		err = e.encodeMap(node)
-		if err != nil {
-			return err
-		}
-		return e.xmlEncoder.EncodeToken(start.End())
+		return e.encodeMap(node, start)
 	case yaml.SequenceNode:
 		return e.encodeArray(node, start)
 	case yaml.ScalarNode:
@@ -77,16 +85,41 @@ func (e *xmlEncoder) encodeArray(node *yaml.Node, start xml.StartElement) error 
 	return nil
 }
 
-func (e *xmlEncoder) encodeMap(node *yaml.Node) error {
+func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
+
+	//first find all the attributes and put them on the start token
 	for i := 0; i < len(node.Content); i += 2 {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-		err := e.doEncode(value, start)
-		if err != nil {
-			return err
+		if strings.HasPrefix(key.Value, e.attributePrefix) {
+			if value.Kind == yaml.ScalarNode {
+				attributeName := strings.Replace(key.Value, e.attributePrefix, "", 1)
+				start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: attributeName}, Value: value.Value})
+			} else {
+				return fmt.Errorf("cannot use %v as attribute, only scalars are supported", value.Tag)
+			}
 		}
 	}
-	return nil
+
+	err := e.xmlEncoder.EncodeToken(start)
+	if err != nil {
+		return err
+	}
+
+	//now we encode non attribute tokens
+	for i := 0; i < len(node.Content); i += 2 {
+		key := node.Content[i]
+		value := node.Content[i+1]
+
+		if !strings.HasPrefix(key.Value, e.attributePrefix) {
+			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
+			err := e.doEncode(value, start)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return e.xmlEncoder.EncodeToken(start.End())
 }

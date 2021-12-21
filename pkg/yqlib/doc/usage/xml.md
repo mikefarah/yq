@@ -120,3 +120,24 @@ will output
 </pets>
 ```
 
+## Encode xml: attributes
+Fields with the matching xml-attribute-prefix are assumed to be attributes.
+
+Given a sample.yml file of:
+```yaml
+cat:
+  +name: tiger
+  meows: true
+
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<cat name="tiger">
+  <meows>true</meows>
+</cat>
+```
+

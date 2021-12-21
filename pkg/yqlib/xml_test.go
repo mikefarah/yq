@@ -28,7 +28,7 @@ func yamlToXml(sampleYaml string, indent int) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var encoder = NewXmlEncoder(writer, indent)
+	var encoder = NewXmlEncoder(writer, indent, "+")
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
@@ -86,6 +86,19 @@ var xmlScenarios = []xmlScenario{
 		description:    "Encode xml: array",
 		input:          "pets:\n  cat:\n    - purrs\n    - meows",
 		expected:       "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>",
+		encodeScenario: true,
+	},
+	{
+		description:    "Encode xml: attributes",
+		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
+		input:          "cat:\n  +name: tiger\n  meows: true\n",
+		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>",
+		encodeScenario: true,
+	},
+	{
+		skipDoc:        true,
+		input:          "cat:\n  ++name: tiger\n  meows: true\n",
+		expected:       "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>",
 		encodeScenario: true,
 	},
 }
