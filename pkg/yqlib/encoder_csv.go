@@ -18,6 +18,14 @@ func NewCsvEncoder(destination io.Writer, separator rune) Encoder {
 	return &csvEncoder{csvWriter}
 }
 
+func (e *csvEncoder) PrintDocumentSeparator() error {
+	return nil
+}
+
+func (e *csvEncoder) PrintLeadingContent(content string) error {
+	return nil
+}
+
 func (e *csvEncoder) encodeRow(contents []*yaml.Node) error {
 	stringValues := make([]string, len(contents))
 

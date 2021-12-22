@@ -1,34 +1,88 @@
 package yqlib
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type Encoder interface {
 	Encode(node *yaml.Node) error
+	PrintDocumentSeparator() error
+	PrintLeadingContent(content string) error
 }
 
 type yamlEncoder struct {
-	destination io.Writer
-	indent      int
-	colorise    bool
-	firstDoc    bool
+	destination        io.Writer
+	indent             int
+	colorise           bool
+	firstDoc           bool
+	printDocSeparators bool
 }
 
-func NewYamlEncoder(destination io.Writer, indent int, colorise bool) Encoder {
+func NewYamlEncoder(destination io.Writer, indent int, colorise bool, printDocSeparators bool) Encoder {
 	if indent < 0 {
 		indent = 0
 	}
-	return &yamlEncoder{destination, indent, colorise, true}
+	return &yamlEncoder{destination, indent, colorise, true, printDocSeparators}
+}
+func (ye *yamlEncoder) PrintDocumentSeparator() error {
+	if ye.printDocSeparators {
+		if err := writeString(ye.destination, "---\n"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (ye *yamlEncoder) PrintLeadingContent(content string) error {
+	log.Debug("headcommentwas %v", content)
+	log.Debug("finished headcomment")
+	reader := bufio.NewReader(strings.NewReader(content))
+
+	for {
+
+		readline, errReading := reader.ReadString('\n')
+		if errReading != nil && !errors.Is(errReading, io.EOF) {
+			return errReading
+		}
+		if strings.Contains(readline, "$yqDocSeperator$") {
+
+			if err := ye.PrintDocumentSeparator(); err != nil {
+				return err
+			}
+
+		} else {
+			if err := writeString(ye.destination, readline); err != nil {
+				return err
+			}
+		}
+
+		if errors.Is(errReading, io.EOF) {
+			if readline != "" {
+				// the last comment we read didn't have a new line, put one in
+				if err := writeString(ye.destination, "\n"); err != nil {
+					return err
+				}
+			}
+			break
+		}
+	}
+
+	return nil
 }
 
 func (ye *yamlEncoder) Encode(node *yaml.Node) error {
+
+	if node.Kind == yaml.ScalarNode && ye.unwrapScalar {
+		return writeString(ye.destination, node.Value+"\n")
+	}
 
 	destination := ye.destination
 	tempBuffer := bytes.NewBuffer(nil)
@@ -86,6 +140,14 @@ func NewJsonEncoder(destination io.Writer, indent int) Encoder {
 	}
 	encoder.SetIndent("", indentString)
 	return &jsonEncoder{encoder}
+}
+
+func (je *jsonEncoder) PrintDocumentSeparator() error {
+	return nil
+}
+
+func (je *jsonEncoder) PrintLeadingContent(content string) error {
+	return nil
 }
 
 func (je *jsonEncoder) Encode(node *yaml.Node) error {

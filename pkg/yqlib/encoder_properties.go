@@ -1,8 +1,11 @@
 package yqlib
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/magiconair/properties"
 	yaml "gopkg.in/yaml.v3"
@@ -14,6 +17,43 @@ type propertiesEncoder struct {
 
 func NewPropertiesEncoder(destination io.Writer) Encoder {
 	return &propertiesEncoder{destination}
+}
+
+func (e *propertiesEncoder) PrintDocumentSeparator() error {
+	return nil
+}
+
+func (e *propertiesEncoder) PrintLeadingContent(content string) error {
+	reader := bufio.NewReader(strings.NewReader(content))
+	for {
+
+		readline, errReading := reader.ReadString('\n')
+		if errReading != nil && !errors.Is(errReading, io.EOF) {
+			return errReading
+		}
+		if strings.Contains(readline, "$yqDocSeperator$") {
+
+			if err := e.PrintDocumentSeparator(); err != nil {
+				return err
+			}
+
+		} else {
+			if err := writeString(e.destination, readline); err != nil {
+				return err
+			}
+		}
+
+		if errors.Is(errReading, io.EOF) {
+			if readline != "" {
+				// the last comment we read didn't have a new line, put one in
+				if err := writeString(e.destination, "\n"); err != nil {
+					return err
+				}
+			}
+			break
+		}
+	}
+	return nil
 }
 
 func (pe *propertiesEncoder) Encode(node *yaml.Node) error {

@@ -25,6 +25,15 @@ func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string, content
 	encoder.Indent("", indentString)
 	return &xmlEncoder{encoder, attributePrefix, contentName}
 }
+
+func (e *xmlEncoder) PrintDocumentSeparator() error {
+	return nil
+}
+
+func (e *xmlEncoder) PrintLeadingContent(content string) error {
+	return nil
+}
+
 func (e *xmlEncoder) Encode(node *yaml.Node) error {
 	switch node.Kind {
 	case yaml.MappingNode:

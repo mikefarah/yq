@@ -49,6 +49,7 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 
 type resultsPrinter struct {
 	outputFormat       PrinterOutputFormat
+	encoder            Encoder
 	unwrapScalar       bool
 	colorsEnabled      bool
 	indent             int
@@ -91,27 +92,22 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 	p.printedMatches = p.printedMatches || (node.Tag != "!!null" &&
 		(node.Tag != "!!bool" || node.Value != "false"))
 
-	var encoder Encoder
-	if node.Kind == yaml.ScalarNode && p.unwrapScalar && p.outputFormat == YamlOutputFormat {
-		return writeString(writer, node.Value+"\n")
-	}
+	// switch p.outputFormat {
+	// case JsonOutputFormat:
+	// 	encoder = NewJsonEncoder(writer, p.indent)
+	// case PropsOutputFormat:
+	// 	encoder = NewPropertiesEncoder(writer)
+	// case CsvOutputFormat:
+	// 	encoder = NewCsvEncoder(writer, ',')
+	// case TsvOutputFormat:
+	// 	encoder = NewCsvEncoder(writer, '\t')
+	// case YamlOutputFormat:
+	// 	encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
+	// case XmlOutputFormat:
+	// 	encoder = NewXmlEncoder(writer, p.indent, XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
+	// }
 
-	switch p.outputFormat {
-	case JsonOutputFormat:
-		encoder = NewJsonEncoder(writer, p.indent)
-	case PropsOutputFormat:
-		encoder = NewPropertiesEncoder(writer)
-	case CsvOutputFormat:
-		encoder = NewCsvEncoder(writer, ',')
-	case TsvOutputFormat:
-		encoder = NewCsvEncoder(writer, '\t')
-	case YamlOutputFormat:
-		encoder = NewYamlEncoder(writer, p.indent, p.colorsEnabled)
-	case XmlOutputFormat:
-		encoder = NewXmlEncoder(writer, p.indent, XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
-	}
-
-	return encoder.Encode(node)
+	return p.encoder.Encode(node)
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
@@ -152,14 +148,14 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeperator\$`)
 		commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
 
-		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && p.printDocSeparators && !commentStartsWithSeparator {
+		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && !commentStartsWithSeparator {
 			log.Debug("-- writing doc sep")
-			if err := writeString(writer, "---\n"); err != nil {
+			if err := p.encoder.PrintDocumentSeparator(); err != nil {
 				return err
 			}
 		}
 
-		if err := processLeadingContent(mappedDoc, writer, p.printDocSeparators, p.outputFormat); err != nil {
+		if err := p.encoder.PrintLeadingContent(mappedDoc.LeadingContent); err != nil {
 			return err
 		}
 
@@ -173,6 +169,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		}
 	}
 
+	// what happens if I remove output format check?
 	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
 		writer, err := p.printerWriter.GetWriter(nil)
 		if err != nil {
