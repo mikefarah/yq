@@ -74,7 +74,6 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
-		// labelNode.HeadComment = n.HeadComment
 		var valueNode *yaml.Node
 		var err error
 		log.Debug("len of children in %v is %v", label, len(children))
@@ -89,7 +88,6 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 			if err != nil {
 				return nil, err
 			}
-
 			if i == len(n.Children)-1 {
 				valueNode.FootComment = n.FootComment
 			}
