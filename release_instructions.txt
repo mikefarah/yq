@@ -33,7 +33,15 @@
   - build and push latest and new version tag
   - docker build .  -t mikefarah/yq:latest -t mikefarah/yq:3 -t mikefarah/yq:3.X
 
-- debian package
+- debian package (with release script)
+  - execute the script `./scripts/release-deb.sh` *on the machine having the private
+      gpg key to sign the generated sources* providing the version to release, the
+      ppa where deploying the files and the passphrase of the private key if needed:
+      ```
+      ./scripts/release-deb.sh -o output -p -s --passphrase PASSPHRASE VERSION
+      ```
+
+- debian package (manually)
   - ensure you get all vendor dependencies before packaging
 	```go mod vendor```
   - execute 
