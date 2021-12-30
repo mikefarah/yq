@@ -24,13 +24,14 @@ type yamlEncoder struct {
 	colorise           bool
 	firstDoc           bool
 	printDocSeparators bool
+	unwrapScalar       bool
 }
 
-func NewYamlEncoder(destination io.Writer, indent int, colorise bool, printDocSeparators bool) Encoder {
+func NewYamlEncoder(destination io.Writer, indent int, colorise bool, printDocSeparators bool, unwrapScalar bool) Encoder {
 	if indent < 0 {
 		indent = 0
 	}
-	return &yamlEncoder{destination, indent, colorise, true, printDocSeparators}
+	return &yamlEncoder{destination, indent, colorise, true, printDocSeparators, unwrapScalar}
 }
 func (ye *yamlEncoder) PrintDocumentSeparator() error {
 	if ye.printDocSeparators {

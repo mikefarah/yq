@@ -170,7 +170,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	}
 
 	// what happens if I remove output format check?
-	if p.appendixReader != nil && p.outputFormat == YamlOutputFormat {
+	if p.appendixReader != nil {
 		writer, err := p.printerWriter.GetWriter(nil)
 		if err != nil {
 			return err
