@@ -12,18 +12,21 @@ import (
 )
 
 type propertiesEncoder struct {
-	destination io.Writer
 }
 
-func NewPropertiesEncoder(destination io.Writer) Encoder {
-	return &propertiesEncoder{destination}
+func NewPropertiesEncoder() Encoder {
+	return &propertiesEncoder{}
 }
 
-func (e *propertiesEncoder) PrintDocumentSeparator() error {
+func (pe *propertiesEncoder) CanHandleAliases() bool {
+	return false
+}
+
+func (pe *propertiesEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	return nil
 }
 
-func (e *propertiesEncoder) PrintLeadingContent(content string) error {
+func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content string) error {
 	reader := bufio.NewReader(strings.NewReader(content))
 	for {
 
@@ -33,12 +36,12 @@ func (e *propertiesEncoder) PrintLeadingContent(content string) error {
 		}
 		if strings.Contains(readline, "$yqDocSeperator$") {
 
-			if err := e.PrintDocumentSeparator(); err != nil {
+			if err := pe.PrintDocumentSeparator(writer); err != nil {
 				return err
 			}
 
 		} else {
-			if err := writeString(e.destination, readline); err != nil {
+			if err := writeString(writer, readline); err != nil {
 				return err
 			}
 		}
@@ -46,7 +49,7 @@ func (e *propertiesEncoder) PrintLeadingContent(content string) error {
 		if errors.Is(errReading, io.EOF) {
 			if readline != "" {
 				// the last comment we read didn't have a new line, put one in
-				if err := writeString(e.destination, "\n"); err != nil {
+				if err := writeString(writer, "\n"); err != nil {
 					return err
 				}
 			}
@@ -56,7 +59,7 @@ func (e *propertiesEncoder) PrintLeadingContent(content string) error {
 	return nil
 }
 
-func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
+func (pe *propertiesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	mapKeysToStrings(node)
 	p := properties.NewProperties()
 	err := pe.doEncode(p, node, "")
@@ -64,7 +67,7 @@ func (pe *propertiesEncoder) Encode(node *yaml.Node) error {
 		return err
 	}
 
-	_, err = p.WriteComment(pe.destination, "#", properties.UTF8)
+	_, err = p.WriteComment(writer, "#", properties.UTF8)
 	return err
 }
 

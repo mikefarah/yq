@@ -9,83 +9,90 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+var XmlPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
+
 type xmlEncoder struct {
-	xmlEncoder      *xml.Encoder
 	attributePrefix string
 	contentName     string
+	indentString    string
 }
 
-func NewXmlEncoder(writer io.Writer, indent int, attributePrefix string, contentName string) Encoder {
-	encoder := xml.NewEncoder(writer)
+func NewXmlEncoder(indent int, attributePrefix string, contentName string) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	encoder.Indent("", indentString)
-	return &xmlEncoder{encoder, attributePrefix, contentName}
+	return &xmlEncoder{attributePrefix, contentName, indentString}
 }
 
-func (e *xmlEncoder) PrintDocumentSeparator() error {
+func (e *xmlEncoder) CanHandleAliases() bool {
+	return false
+}
+
+func (e *xmlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	return nil
 }
 
-func (e *xmlEncoder) PrintLeadingContent(content string) error {
+func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
 	return nil
 }
 
-func (e *xmlEncoder) Encode(node *yaml.Node) error {
+func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+	encoder := xml.NewEncoder(writer)
+	encoder.Indent("", e.indentString)
+
 	switch node.Kind {
 	case yaml.MappingNode:
-		err := e.encodeTopLevelMap(node)
+		err := e.encodeTopLevelMap(encoder, node)
 		if err != nil {
 			return err
 		}
 	case yaml.DocumentNode:
-		err := e.encodeComment(headAndLineComment(node))
+		err := e.encodeComment(encoder, headAndLineComment(node))
 		if err != nil {
 			return err
 		}
-
-		err = e.Encode(unwrapDoc(node))
+		// this used to call encode...
+		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
 		if err != nil {
 			return err
 		}
-		err = e.encodeComment(footComment(node))
+		err = e.encodeComment(encoder, footComment(node))
 		if err != nil {
 			return err
 		}
 	case yaml.ScalarNode:
 		var charData xml.CharData = []byte(node.Value)
-		err := e.xmlEncoder.EncodeToken(charData)
+		err := encoder.EncodeToken(charData)
 		if err != nil {
 			return err
 		}
-		return e.xmlEncoder.Flush()
+		return encoder.Flush()
 	default:
 		return fmt.Errorf("unsupported type %v", node.Tag)
 	}
 	var charData xml.CharData = []byte("\n")
-	return e.xmlEncoder.EncodeToken(charData)
+	return encoder.EncodeToken(charData)
 
 }
 
-func (e *xmlEncoder) encodeTopLevelMap(node *yaml.Node) error {
+func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
 	for i := 0; i < len(node.Content); i += 2 {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
 		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-		err := e.encodeComment(headAndLineComment(key))
+		err := e.encodeComment(encoder, headAndLineComment(key))
 		if err != nil {
 			return err
 		}
 
-		err = e.doEncode(value, start)
+		err = e.doEncode(encoder, value, start)
 		if err != nil {
 			return err
 		}
-		err = e.encodeComment(footComment(key))
+		err = e.encodeComment(encoder, footComment(key))
 		if err != nil {
 			return err
 		}
@@ -93,49 +100,49 @@ func (e *xmlEncoder) encodeTopLevelMap(node *yaml.Node) error {
 	return nil
 }
 
-func (e *xmlEncoder) encodeStart(node *yaml.Node, start xml.StartElement) error {
-	err := e.xmlEncoder.EncodeToken(start)
+func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
+	err := encoder.EncodeToken(start)
 	if err != nil {
 		return err
 	}
-	return e.encodeComment(headAndLineComment(node))
+	return e.encodeComment(encoder, headAndLineComment(node))
 }
 
-func (e *xmlEncoder) encodeEnd(node *yaml.Node, start xml.StartElement) error {
-	err := e.xmlEncoder.EncodeToken(start.End())
+func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
+	err := encoder.EncodeToken(start.End())
 	if err != nil {
 		return err
 	}
-	return e.encodeComment(footComment(node))
+	return e.encodeComment(encoder, footComment(node))
 }
 
-func (e *xmlEncoder) doEncode(node *yaml.Node, start xml.StartElement) error {
+func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
 	switch node.Kind {
 	case yaml.MappingNode:
-		return e.encodeMap(node, start)
+		return e.encodeMap(encoder, node, start)
 	case yaml.SequenceNode:
-		return e.encodeArray(node, start)
+		return e.encodeArray(encoder, node, start)
 	case yaml.ScalarNode:
-		err := e.encodeStart(node, start)
+		err := e.encodeStart(encoder, node, start)
 		if err != nil {
 			return err
 		}
 
 		var charData xml.CharData = []byte(node.Value)
-		err = e.xmlEncoder.EncodeToken(charData)
+		err = encoder.EncodeToken(charData)
 		if err != nil {
 			return err
 		}
 
-		return e.encodeEnd(node, start)
+		return e.encodeEnd(encoder, node, start)
 	}
 	return fmt.Errorf("unsupported type %v", node.Tag)
 }
 
-func (e *xmlEncoder) encodeComment(commentStr string) error {
+func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) error {
 	if commentStr != "" {
 		var comment xml.Comment = []byte(commentStr)
-		err := e.xmlEncoder.EncodeToken(comment)
+		err := encoder.EncodeToken(comment)
 		if err != nil {
 			return err
 		}
@@ -143,10 +150,10 @@ func (e *xmlEncoder) encodeComment(commentStr string) error {
 	return nil
 }
 
-func (e *xmlEncoder) encodeArray(node *yaml.Node, start xml.StartElement) error {
+func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
 	for i := 0; i < len(node.Content); i++ {
 		value := node.Content[i]
-		err := e.doEncode(value, start.Copy())
+		err := e.doEncode(encoder, value, start.Copy())
 		if err != nil {
 			return err
 		}
@@ -154,7 +161,7 @@ func (e *xmlEncoder) encodeArray(node *yaml.Node, start xml.StartElement) error 
 	return nil
 }
 
-func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
+func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
 
 	//first find all the attributes and put them on the start token
 	for i := 0; i < len(node.Content); i += 2 {
@@ -171,7 +178,7 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 		}
 	}
 
-	err := e.encodeStart(node, start)
+	err := e.encodeStart(encoder, node, start)
 	if err != nil {
 		return err
 	}
@@ -181,30 +188,30 @@ func (e *xmlEncoder) encodeMap(node *yaml.Node, start xml.StartElement) error {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		err := e.encodeComment(headAndLineComment(key))
+		err := e.encodeComment(encoder, headAndLineComment(key))
 		if err != nil {
 			return err
 		}
 
 		if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-			err := e.doEncode(value, start)
+			err := e.doEncode(encoder, value, start)
 			if err != nil {
 				return err
 			}
 		} else if key.Value == e.contentName {
 			// directly encode the contents
 			var charData xml.CharData = []byte(value.Value)
-			err = e.xmlEncoder.EncodeToken(charData)
+			err = encoder.EncodeToken(charData)
 			if err != nil {
 				return err
 			}
 		}
-		err = e.encodeComment(footComment(key))
+		err = e.encodeComment(encoder, footComment(key))
 		if err != nil {
 			return err
 		}
 	}
 
-	return e.encodeEnd(node, start)
+	return e.encodeEnd(encoder, node, start)
 }

@@ -142,4 +142,24 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputXmlMultiPropertiesMultietc() {
+  cat >test.yml <<EOL
+a: {b: {c: ["cat"]}}asd
+EOL
+
+  read -r -d '' expected << EOM
+<a>
+  <b>
+    <c>cat</c>
+  </b>asd
+</a>
+EOM
+
+  X=$(./yq e --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+}
+
 source ./scripts/shunit2

@@ -1,165 +1,20 @@
 package yqlib
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type Encoder interface {
-	Encode(node *yaml.Node) error
-	PrintDocumentSeparator() error
-	PrintLeadingContent(content string) error
-}
-
-type yamlEncoder struct {
-	destination        io.Writer
-	indent             int
-	colorise           bool
-	firstDoc           bool
-	printDocSeparators bool
-	unwrapScalar       bool
-}
-
-func NewYamlEncoder(destination io.Writer, indent int, colorise bool, printDocSeparators bool, unwrapScalar bool) Encoder {
-	if indent < 0 {
-		indent = 0
-	}
-	return &yamlEncoder{destination, indent, colorise, true, printDocSeparators, unwrapScalar}
-}
-func (ye *yamlEncoder) PrintDocumentSeparator() error {
-	if ye.printDocSeparators {
-		if err := writeString(ye.destination, "---\n"); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (ye *yamlEncoder) PrintLeadingContent(content string) error {
-	log.Debug("headcommentwas %v", content)
-	log.Debug("finished headcomment")
-	reader := bufio.NewReader(strings.NewReader(content))
-
-	for {
-
-		readline, errReading := reader.ReadString('\n')
-		if errReading != nil && !errors.Is(errReading, io.EOF) {
-			return errReading
-		}
-		if strings.Contains(readline, "$yqDocSeperator$") {
-
-			if err := ye.PrintDocumentSeparator(); err != nil {
-				return err
-			}
-
-		} else {
-			if err := writeString(ye.destination, readline); err != nil {
-				return err
-			}
-		}
-
-		if errors.Is(errReading, io.EOF) {
-			if readline != "" {
-				// the last comment we read didn't have a new line, put one in
-				if err := writeString(ye.destination, "\n"); err != nil {
-					return err
-				}
-			}
-			break
-		}
-	}
-
-	return nil
-}
-
-func (ye *yamlEncoder) Encode(node *yaml.Node) error {
-
-	if node.Kind == yaml.ScalarNode && ye.unwrapScalar {
-		return writeString(ye.destination, node.Value+"\n")
-	}
-
-	destination := ye.destination
-	tempBuffer := bytes.NewBuffer(nil)
-	if ye.colorise {
-		destination = tempBuffer
-	}
-
-	var encoder = yaml.NewEncoder(destination)
-
-	encoder.SetIndent(ye.indent)
-	// TODO: work out if the first doc had a separator or not.
-	if ye.firstDoc {
-		ye.firstDoc = false
-	} else if _, err := destination.Write([]byte("---\n")); err != nil {
-		return err
-	}
-
-	if err := encoder.Encode(node); err != nil {
-		return err
-	}
-
-	if ye.colorise {
-		return colorizeAndPrint(tempBuffer.Bytes(), ye.destination)
-	}
-	return nil
-}
-
-type jsonEncoder struct {
-	encoder *json.Encoder
-}
-
-func mapKeysToStrings(node *yaml.Node) {
-
-	if node.Kind == yaml.MappingNode {
-		for index, child := range node.Content {
-			if index%2 == 0 { // its a map key
-				child.Tag = "!!str"
-			}
-		}
-	}
-
-	for _, child := range node.Content {
-		mapKeysToStrings(child)
-	}
-}
-
-func NewJsonEncoder(destination io.Writer, indent int) Encoder {
-	var encoder = json.NewEncoder(destination)
-	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
-
-	var indentString = ""
-
-	for index := 0; index < indent; index++ {
-		indentString = indentString + " "
-	}
-	encoder.SetIndent("", indentString)
-	return &jsonEncoder{encoder}
-}
-
-func (je *jsonEncoder) PrintDocumentSeparator() error {
-	return nil
-}
-
-func (je *jsonEncoder) PrintLeadingContent(content string) error {
-	return nil
-}
-
-func (je *jsonEncoder) Encode(node *yaml.Node) error {
-	var dataBucket orderedMap
-	// firstly, convert all map keys to strings
-	mapKeysToStrings(node)
-	errorDecoding := node.Decode(&dataBucket)
-	if errorDecoding != nil {
-		return errorDecoding
-	}
-	return je.encoder.Encode(dataBucket)
+	Encode(writer io.Writer, node *yaml.Node) error
+	PrintDocumentSeparator(writer io.Writer) error
+	PrintLeadingContent(writer io.Writer, content string) error
+	CanHandleAliases() bool
 }
 
 // orderedMap allows to marshal and unmarshal JSON and YAML values keeping the

@@ -18,8 +18,6 @@ type xmlPreferences struct {
 	ContentName     string
 }
 
-var XmlPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
-
 var log = logging.MustGetLogger("yq-lib")
 
 // GetLogger returns the yq logger instance.

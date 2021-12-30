@@ -13,13 +13,13 @@ func yamlToProps(sampleYaml string) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var propsEncoder = NewPropertiesEncoder(writer)
+	var propsEncoder = NewPropertiesEncoder()
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	err = propsEncoder.Encode(node)
+	err = propsEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
 	}

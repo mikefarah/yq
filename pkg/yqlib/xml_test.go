@@ -28,7 +28,7 @@ func processScenario(s xmlScenario) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var encoder = NewXmlEncoder(writer, 2, "+", "+content")
+	var encoder = NewXmlEncoder(2, "+", "+content")
 
 	var decoder = NewYamlDecoder()
 	if s.scenarioType == "roundtrip" {
@@ -40,13 +40,13 @@ func processScenario(s xmlScenario) string {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode).Node
-	err = encoder.Encode(node)
+	err = encoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
 	}
 	writer.Flush()
 
-	return strings.TrimSuffix(output.String(), "\n")
+	return output.String()
 }
 
 type xmlScenario struct {
@@ -116,75 +116,75 @@ var expectedXmlWithComments = `<!-- above_cat inline_cat--><cat><!-- above_array
 `
 
 var xmlScenarios = []xmlScenario{
-	// {
-	// 	description: "Parse xml: simple",
-	// 	input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
-	// 	expected:    "D0, P[], (doc)::cat: meow\n",
-	// },
-	// {
-	// 	description:    "Parse xml: array",
-	// 	subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
-	// 	expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
-	// },
-	// {
-	// 	description:    "Parse xml: attributes",
-	// 	subdescription: "Attributes are converted to fields, with the attribute prefix.",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
-	// 	expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
-	// },
-	// {
-	// 	description:    "Parse xml: attributes with content",
-	// 	subdescription: "Content is added as a field, using the content name",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
-	// 	expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
-	// },
-	// {
-	// 	description:    "Parse xml: with comments",
-	// 	subdescription: "A best attempt is made to preserve comments.",
-	// 	input:          inputXmlWithComments,
-	// 	expected:       expectedDecodeYamlWithComments,
-	// 	scenarioType:   "decode",
-	// },
-	// {
-	// 	description:  "Encode xml: simple",
-	// 	input:        "cat: purrs",
-	// 	expected:     "<cat>purrs</cat>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:  "Encode xml: array",
-	// 	input:        "pets:\n  cat:\n    - purrs\n    - meows",
-	// 	expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: attributes",
-	// 	subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
-	// 	input:          "cat:\n  +name: tiger\n  meows: true\n",
-	// 	expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
-	// 	scenarioType:   "encode",
-	// },
-	// {
-	// 	skipDoc:      true,
-	// 	input:        "cat:\n  ++name: tiger\n  meows: true\n",
-	// 	expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: attributes with content",
-	// 	subdescription: "Fields with the matching xml-content-name is assumed to be content.",
-	// 	input:          "cat:\n  +name: tiger\n  +content: cool\n",
-	// 	expected:       "<cat name=\"tiger\">cool</cat>\n",
-	// 	scenarioType:   "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: comments",
-	// 	subdescription: "A best attempt is made to copy comments to xml.",
-	// 	input:          yamlWithComments,
-	// 	expected:       expectedXmlWithComments,
-	// 	scenarioType:   "encode",
-	// },
+	{
+		description: "Parse xml: simple",
+		input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
+		expected:    "D0, P[], (doc)::cat: meow\n",
+	},
+	{
+		description:    "Parse xml: array",
+		subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
+		expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
+	},
+	{
+		description:    "Parse xml: attributes",
+		subdescription: "Attributes are converted to fields, with the attribute prefix.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
+		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
+	},
+	{
+		description:    "Parse xml: attributes with content",
+		subdescription: "Content is added as a field, using the content name",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
+		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
+	},
+	{
+		description:    "Parse xml: with comments",
+		subdescription: "A best attempt is made to preserve comments.",
+		input:          inputXmlWithComments,
+		expected:       expectedDecodeYamlWithComments,
+		scenarioType:   "decode",
+	},
+	{
+		description:  "Encode xml: simple",
+		input:        "cat: purrs",
+		expected:     "<cat>purrs</cat>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:  "Encode xml: array",
+		input:        "pets:\n  cat:\n    - purrs\n    - meows",
+		expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:    "Encode xml: attributes",
+		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
+		input:          "cat:\n  +name: tiger\n  meows: true\n",
+		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType:   "encode",
+	},
+	{
+		skipDoc:      true,
+		input:        "cat:\n  ++name: tiger\n  meows: true\n",
+		expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:    "Encode xml: attributes with content",
+		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
+		input:          "cat:\n  +name: tiger\n  +content: cool\n",
+		expected:       "<cat name=\"tiger\">cool</cat>\n",
+		scenarioType:   "encode",
+	},
+	{
+		description:    "Encode xml: comments",
+		subdescription: "A best attempt is made to copy comments to xml.",
+		input:          yamlWithComments,
+		expected:       expectedXmlWithComments,
+		scenarioType:   "encode",
+	},
 	{
 		description:    "Round trip: with comments",
 		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
@@ -233,7 +233,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
 	node := decodeXml(t, s.input)
 

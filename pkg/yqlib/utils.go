@@ -70,13 +70,6 @@ func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
 	}
 }
 
-func explodeNodes(nodes *list.List) (*list.List, error) {
-	explodeOp := Operation{OperationType: explodeOpType}
-	explodeNode := ExpressionNode{Operation: &explodeOp}
-	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: nodes}, &explodeNode)
-	return context.MatchingNodes, err
-}
-
 func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
 	decoder.Init(reader)
 	inputList := list.New()
