@@ -63,14 +63,14 @@ func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: n.HeadComment}
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: n.HeadComment, FootComment: n.FootComment}
 
 	if len(n.Data) > 0 {
 		label := dec.contentPrefix
 		yamlNode.Content = append(yamlNode.Content, createScalarNode(label, label), createScalarNode(n.Data, n.Data))
 	}
 
-	for i, keyValuePair := range n.Children {
+	for _, keyValuePair := range n.Children {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
@@ -88,9 +88,6 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 			if err != nil {
 				return nil, err
 			}
-			if i == len(n.Children)-1 {
-				valueNode.FootComment = n.FootComment
-			}
 		}
 		yamlNode.Content = append(yamlNode.Content, labelNode, valueNode)
 	}
@@ -105,6 +102,7 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 	scalar := createScalarNode(n.Data, n.Data)
 	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
 	scalar.LineComment = n.HeadComment
+	scalar.FootComment = n.FootComment
 
 	return scalar, nil
 }
@@ -221,10 +219,21 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			elem = elem.parent
 		case xml.Comment:
 
-			commentStr := trimNonGraphic(string(xml.CharData(se)))
+			commentStr := string(xml.CharData(se))
 			if elem.state == "started" {
 				log.Debug("got a foot comment for %v: %v", elem.label, commentStr)
-				elem.n.FootComment = commentStr
+				// elem.n.FootComment = elem.n.FootComment + commentStr
+				// put the comment on the foot of the last child
+				if len(elem.n.Children) > 0 {
+
+					child := elem.n.Children[len(elem.n.Children)-1]
+					log.Debug("putting it here: %v", child.K)
+					child.V[0].FootComment = child.V[0].FootComment + commentStr
+				} else {
+					log.Debug("putting it on the element")
+					elem.n.FootComment = elem.n.FootComment + commentStr
+				}
+
 			} else {
 				log.Debug("got a head comment for %v: %v", elem.label, commentStr)
 				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})

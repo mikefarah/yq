@@ -49,11 +49,12 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 			return err
 		}
 	case yaml.DocumentNode:
+		log.Debugf("ENCODING DOCUMENT NODE")
 		err := e.encodeComment(encoder, headAndLineComment(node))
 		if err != nil {
 			return err
 		}
-		// this used to call encode...
+		log.Debugf("OK NOW THE ACTUAL")
 		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
 		if err != nil {
 			return err
@@ -78,15 +79,22 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
+	err := e.encodeComment(encoder, headAndLineComment(node))
+	if err != nil {
+		return err
+	}
 	for i := 0; i < len(node.Content); i += 2 {
 		key := node.Content[i]
 		value := node.Content[i+1]
 
 		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
+		log.Debugf("comments of key %v", key.Value)
 		err := e.encodeComment(encoder, headAndLineComment(key))
 		if err != nil {
 			return err
 		}
+
+		log.Debugf("recursing")
 
 		err = e.doEncode(encoder, value, start)
 		if err != nil {
@@ -97,7 +105,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) er
 			return err
 		}
 	}
-	return nil
+	return e.encodeComment(encoder, footComment(node))
 }
 
 func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
@@ -141,6 +149,7 @@ func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yaml.Node, start xml.S
 
 func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) error {
 	if commentStr != "" {
+		log.Debugf("encoding comment %v", commentStr)
 		var comment xml.Comment = []byte(commentStr)
 		err := encoder.EncodeToken(comment)
 		if err != nil {
@@ -151,6 +160,7 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 }
 
 func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
+	e.encodeComment(encoder, headAndLineComment(node))
 	for i := 0; i < len(node.Content); i++ {
 		value := node.Content[i]
 		err := e.doEncode(encoder, value, start.Copy())
@@ -158,10 +168,12 @@ func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yaml.Node, start xm
 			return err
 		}
 	}
+	e.encodeComment(encoder, footComment(node))
 	return nil
 }
 
 func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
+	log.Debug("its a map")
 
 	//first find all the attributes and put them on the start token
 	for i := 0; i < len(node.Content); i += 2 {
@@ -201,8 +213,16 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 			}
 		} else if key.Value == e.contentName {
 			// directly encode the contents
+			err = e.encodeComment(encoder, headAndLineComment(value))
+			if err != nil {
+				return err
+			}
 			var charData xml.CharData = []byte(value.Value)
 			err = encoder.EncodeToken(charData)
+			if err != nil {
+				return err
+			}
+			err = e.encodeComment(encoder, footComment(value))
 			if err != nil {
 				return err
 			}

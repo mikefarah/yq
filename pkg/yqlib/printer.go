@@ -100,7 +100,6 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	}
 
 	if p.firstTimePrinting {
-		log.Debugf("its my first time *blush*")
 		node := matchingNodes.Front().Value.(*CandidateNode)
 		p.previousDocIndex = node.Document
 		p.previousFileIndex = node.FileIndex
