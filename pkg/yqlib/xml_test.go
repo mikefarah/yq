@@ -63,12 +63,13 @@ var inputXmlWithComments = `
 <cat>
 	<!-- in cat before -->
 	<x>3<!-- multi
-line comment
+line comment 
 for x --></x>
 	<!-- before y -->
 	<y>
 		<!-- in y before -->
-		<d><!-- in d before -->4<!-- in d after --></d>
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
 		<!-- in y after -->
 	</y>
 	<!-- in_cat_after -->
@@ -80,8 +81,10 @@ var expectedDecodeYamlWithComments = `D0, P[], (doc)::# before cat
 cat:
     # in cat before
     x: "3" # multi
-    # line comment
+    # line comment 
     # for x
+    # before y
+
     y:
         # in y before
         d: "4" # in d before in d after
@@ -111,8 +114,8 @@ cat: # inline_cat
 `
 
 var expectedXmlWithComments = `<!-- above_cat inline_cat--><cat><!-- above_array inline_array-->
-  <array><!-- inline_val1-->val1</array>
-  <array><!-- above_val2 inline_val2-->val2</array>
+  <array>val1<!-- inline_val1--></array>
+  <array><!-- above_val2-->val2<!-- inline_val2--></array>
 </cat><!-- below_cat-->
 `
 
@@ -140,13 +143,13 @@ var xmlScenarios = []xmlScenario{
 	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
 	// 	expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
 	// },
-	// {
-	// 	description:    "Parse xml: with comments",
-	// 	subdescription: "A best attempt is made to preserve comments.",
-	// 	input:          inputXmlWithComments,
-	// 	expected:       expectedDecodeYamlWithComments,
-	// 	scenarioType:   "decode",
-	// },
+	{
+		description:    "Parse xml: with comments",
+		subdescription: "A best attempt is made to preserve comments.",
+		input:          inputXmlWithComments,
+		expected:       expectedDecodeYamlWithComments,
+		scenarioType:   "decode",
+	},
 	// {
 	// 	description:  "Encode xml: simple",
 	// 	input:        "cat: purrs",
@@ -186,13 +189,13 @@ var xmlScenarios = []xmlScenario{
 	// 	expected:       expectedXmlWithComments,
 	// 	scenarioType:   "encode",
 	// },
-	{
-		description:    "Round trip: with comments",
-		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
-		input:          inputXmlWithComments,
-		expected:       expectedRoundtripXmlWithComments,
-		scenarioType:   "roundtrip",
-	},
+	// {
+	// 	description:    "Round trip: with comments",
+	// 	subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
+	// 	input:          inputXmlWithComments,
+	// 	expected:       expectedRoundtripXmlWithComments,
+	// 	scenarioType:   "roundtrip",
+	// },
 }
 
 func testXmlScenario(t *testing.T, s xmlScenario) {

@@ -66,5 +66,6 @@ func AssertResultWithContext(t *testing.T, expectedValue interface{}, actualValu
 	if expectedValue != actualValue {
 		t.Error(context)
 		t.Error(": expected <\n", strings.ReplaceAll(fmt.Sprintf("%v", expectedValue), " ", "@"), ">\n but got <\n", strings.ReplaceAll(fmt.Sprintf("%v", actualValue), " ", "@"), ">\n")
+		// t.Error(": expected <\n", expectedValue, ">\n but got <\n", actualValue, ">\n")
 	}
 }

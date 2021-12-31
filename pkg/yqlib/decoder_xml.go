@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	// "strings"
 	"unicode"
 
 	"golang.org/x/net/html/charset"
@@ -61,9 +63,16 @@ func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
 	return yamlNode, nil
 }
 
+func (dec *xmlDecoder) processComment(c string) string {
+	if c == "" {
+		return ""
+	}
+	return "#" + strings.TrimRight(c, " ")
+}
+
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: n.HeadComment, FootComment: n.FootComment}
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: dec.processComment(n.HeadComment), FootComment: dec.processComment(n.FootComment)}
 
 	if len(n.Data) > 0 {
 		label := dec.contentPrefix
@@ -83,7 +92,13 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 				return nil, err
 			}
 		} else {
-
+			// comment hack for maps of scalars
+			// if the value is a scalar, the head comment of the scalar needs to go on the key?
+			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
+			if len(children[0].Children) == 0 {
+				labelNode.HeadComment = joinFilter([]string{labelNode.HeadComment, children[0].HeadComment})
+				children[0].HeadComment = ""
+			}
 			valueNode, err = dec.convertToYamlNode(children[0])
 			if err != nil {
 				return nil, err
@@ -101,9 +116,9 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 	}
 	scalar := createScalarNode(n.Data, n.Data)
 	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	scalar.HeadComment = n.HeadComment
-	scalar.LineComment = n.LineComment
-	scalar.FootComment = n.FootComment
+	scalar.HeadComment = dec.processComment(n.HeadComment)
+	scalar.LineComment = dec.processComment(n.LineComment)
+	scalar.FootComment = dec.processComment(n.FootComment)
 
 	return scalar, nil
 }
@@ -226,23 +241,24 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 
 			commentStr := string(xml.CharData(se))
 			if elem.state == "started" {
-				log.Debug("got a foot comment for %v: %v", elem.label, commentStr)
+				log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
 				// elem.n.FootComment = elem.n.FootComment + commentStr
 				// put the comment on the foot of the last child
 				if len(elem.n.Children) > 0 {
 
 					child := elem.n.Children[len(elem.n.Children)-1]
 					log.Debug("putting it here: %v", child.K)
-					child.V[0].FootComment = joinFilter([]string{child.V[0].FootComment, commentStr})
+					child.V[len(child.V)-1].FootComment = joinFilter([]string{child.V[len(child.V)-1].FootComment, commentStr})
 				} else {
 					log.Debug("putting it on the element")
 					elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
 				}
 
 			} else if elem.state == "chardata" {
+				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
 			} else {
-				log.Debug("got a head comment for (%v) %v: %v", elem.state, elem.label, commentStr)
+				log.Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})
 			}
 

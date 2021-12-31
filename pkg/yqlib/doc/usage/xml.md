@@ -22,8 +22,8 @@ XML nodes that have attributes then plain content, e.g:
 
 The content of the node will be set as a field in the map with the key "+content". Use the `--xml-content-name` flag to change this.
 
-## Round trip: with comments
-A best effort is made, but comment positions and white space are not preserved perfectly.
+## Parse xml: with comments
+A best attempt is made to preserve comments.
 
 Given a sample.xml file of:
 ```xml
@@ -32,12 +32,13 @@ Given a sample.xml file of:
 <cat>
 	<!-- in cat before -->
 	<x>3<!-- multi
-line comment
+line comment 
 for x --></x>
 	<!-- before y -->
 	<y>
 		<!-- in y before -->
-		<d><!-- in d before -->4<!-- in d after --></d>
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
 		<!-- in y after -->
 	</y>
 	<!-- in_cat_after -->
@@ -51,21 +52,19 @@ yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-#  before cat 
+# before cat
 cat:
-  #  in cat before 
-  x: "3" #  multi
-  # line comment
-  # for x 
-  #  before y 
+  # in cat before
+  x: "3" # multi
+  # line comment 
+  # for x
+  # before y
 
   y:
-    #  in y before 
-    d: "4" #  in d after 
-    #  in y after 
-
     #  in d before 
+    d: z # in d after
+    # in y after
 
-#  after cat 
+# after cat
 ```
 
