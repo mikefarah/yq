@@ -195,6 +195,12 @@ webi yq
 See [webi](https://webinstall.dev/)
 Supported by @adithyasunil26 (https://github.com/webinstall/webi-installers/tree/master/yq)
 
+### Arch Linux
+
+```
+pacman -S go-yq
+```
+
 ### Windows:
 [![Chocolatey](https://img.shields.io/chocolatey/v/yq.svg)](https://chocolatey.org/packages/yq)
 [![Chocolatey](https://img.shields.io/chocolatey/dt/yq.svg)](https://chocolatey.org/packages/yq)
