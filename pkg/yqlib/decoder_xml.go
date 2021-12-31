@@ -101,7 +101,8 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 	}
 	scalar := createScalarNode(n.Data, n.Data)
 	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	scalar.LineComment = n.HeadComment
+	scalar.HeadComment = n.HeadComment
+	scalar.LineComment = n.LineComment
 	scalar.FootComment = n.FootComment
 
 	return scalar, nil
@@ -133,6 +134,7 @@ type xmlNode struct {
 	Children    []*xmlChildrenKv
 	HeadComment string
 	FootComment string
+	LineComment string
 	Data        string
 }
 
@@ -207,6 +209,9 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 		case xml.CharData:
 			// Extract XML data (if any)
 			elem.n.Data = trimNonGraphic(string(se))
+			if elem.n.Data != "" {
+				elem.state = "chardata"
+			}
 		case xml.EndElement:
 			log.Debug("end element %v", elem.label)
 			elem.state = "finished"
@@ -228,14 +233,16 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 
 					child := elem.n.Children[len(elem.n.Children)-1]
 					log.Debug("putting it here: %v", child.K)
-					child.V[0].FootComment = child.V[0].FootComment + commentStr
+					child.V[0].FootComment = joinFilter([]string{child.V[0].FootComment, commentStr})
 				} else {
 					log.Debug("putting it on the element")
-					elem.n.FootComment = elem.n.FootComment + commentStr
+					elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
 				}
 
+			} else if elem.state == "chardata" {
+				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
 			} else {
-				log.Debug("got a head comment for %v: %v", elem.label, commentStr)
+				log.Debug("got a head comment for (%v) %v: %v", elem.state, elem.label, commentStr)
 				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})
 			}
 

@@ -91,11 +91,11 @@ cat:
 `
 
 var expectedRoundtripXmlWithComments = `<!-- before cat --><cat><!-- in cat before -->
-  <x><!-- multi
+  <x>3<!-- multi
 line comment
-for x -->3</x><!-- before y -->
+for x --></x><!-- before y -->
   <y><!-- in y before -->
-    <d><!-- in d before   in d after -->4</d><!-- in y after -->
+    <d><!-- in d before -->4<!-- in d after --></d><!-- in y after -->
   </y><!-- in_cat_after -->
 </cat><!-- after cat -->
 `

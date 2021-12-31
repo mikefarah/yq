@@ -113,7 +113,7 @@ func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yaml.Node, start xm
 	if err != nil {
 		return err
 	}
-	return e.encodeComment(encoder, headAndLineComment(node))
+	return e.encodeComment(encoder, headComment(node))
 }
 
 func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
@@ -139,6 +139,10 @@ func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yaml.Node, start xml.S
 		var charData xml.CharData = []byte(node.Value)
 		err = encoder.EncodeToken(charData)
 		if err != nil {
+			return err
+		}
+
+		if err = e.encodeComment(encoder, lineComment(node)); err != nil {
 			return err
 		}
 
