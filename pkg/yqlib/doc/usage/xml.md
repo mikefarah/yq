@@ -61,7 +61,8 @@ cat:
   # before y
 
   y:
-    #  in d before 
+    # in y before
+    # in d before
     d: z # in d after
     # in y after
 

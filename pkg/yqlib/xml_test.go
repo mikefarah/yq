@@ -76,6 +76,43 @@ for x --></x>
 </cat>
 <!-- after cat -->
 `
+var inputXmlWithCommentsWithSubChild = `
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before --><z/><!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+`
+
+var inputXmlWithCommentsWithArray = `
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before --><z/><!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+`
 
 var expectedDecodeYamlWithComments = `D0, P[], (doc)::# before cat
 cat:
@@ -87,7 +124,8 @@ cat:
 
     y:
         # in y before
-        d: "4" # in d before in d after
+        # in d before
+        d: z # in d after
         # in y after
 
 # after cat

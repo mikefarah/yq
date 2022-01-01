@@ -72,19 +72,26 @@ func (dec *xmlDecoder) processComment(c string) string {
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: dec.processComment(n.HeadComment), FootComment: dec.processComment(n.FootComment)}
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode, FootComment: dec.processComment(n.FootComment)}
 
 	if len(n.Data) > 0 {
 		label := dec.contentPrefix
-		yamlNode.Content = append(yamlNode.Content, createScalarNode(label, label), createScalarNode(n.Data, n.Data))
+		labelNode := createScalarNode(label, label)
+		labelNode.HeadComment = dec.processComment(n.HeadComment)
+		yamlNode.Content = append(yamlNode.Content, labelNode, createScalarNode(n.Data, n.Data))
 	}
 
-	for _, keyValuePair := range n.Children {
+	for i, keyValuePair := range n.Children {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
 		var valueNode *yaml.Node
 		var err error
+
+		if i == 0 {
+			labelNode.HeadComment = dec.processComment(n.HeadComment)
+		}
+
 		log.Debug("len of children in %v is %v", label, len(children))
 		if len(children) > 1 {
 			valueNode, err = dec.createSequence(children)
@@ -95,8 +102,8 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 			// comment hack for maps of scalars
 			// if the value is a scalar, the head comment of the scalar needs to go on the key?
 			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
-			if len(children[0].Children) == 0 {
-				labelNode.HeadComment = joinFilter([]string{labelNode.HeadComment, children[0].HeadComment})
+			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
+				labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
 				children[0].HeadComment = ""
 			}
 			valueNode, err = dec.convertToYamlNode(children[0])
