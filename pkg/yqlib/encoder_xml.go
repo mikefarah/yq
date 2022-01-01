@@ -154,6 +154,10 @@ func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yaml.Node, start xml.S
 func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) error {
 	if commentStr != "" {
 		log.Debugf("encoding comment %v", commentStr)
+		if !strings.HasSuffix(commentStr, " ") {
+			commentStr = commentStr + " "
+		}
+
 		var comment xml.Comment = []byte(commentStr)
 		err := encoder.EncodeToken(comment)
 		if err != nil {

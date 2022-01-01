@@ -133,10 +133,11 @@ cat:
 
 var expectedRoundtripXmlWithComments = `<!-- before cat --><cat><!-- in cat before -->
   <x>3<!-- multi
-line comment
+line comment 
 for x --></x><!-- before y -->
-  <y><!-- in y before -->
-    <d><!-- in d before -->4<!-- in d after --></d><!-- in y after -->
+  <y><!-- in y before
+in d before -->
+    <d>z<!-- in d after --></d><!-- in y after -->
   </y><!-- in_cat_after -->
 </cat><!-- after cat -->
 `
@@ -151,36 +152,36 @@ cat: # inline_cat
 # below_cat
 `
 
-var expectedXmlWithComments = `<!-- above_cat inline_cat--><cat><!-- above_array inline_array-->
-  <array>val1<!-- inline_val1--></array>
-  <array><!-- above_val2-->val2<!-- inline_val2--></array>
-</cat><!-- below_cat-->
+var expectedXmlWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+  <array>val1<!-- inline_val1 --></array>
+  <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
+</cat><!-- below_cat -->
 `
 
 var xmlScenarios = []xmlScenario{
-	// {
-	// 	description: "Parse xml: simple",
-	// 	input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
-	// 	expected:    "D0, P[], (doc)::cat: meow\n",
-	// },
-	// {
-	// 	description:    "Parse xml: array",
-	// 	subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
-	// 	expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
-	// },
-	// {
-	// 	description:    "Parse xml: attributes",
-	// 	subdescription: "Attributes are converted to fields, with the attribute prefix.",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
-	// 	expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
-	// },
-	// {
-	// 	description:    "Parse xml: attributes with content",
-	// 	subdescription: "Content is added as a field, using the content name",
-	// 	input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
-	// 	expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
-	// },
+	{
+		description: "Parse xml: simple",
+		input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
+		expected:    "D0, P[], (doc)::cat: meow\n",
+	},
+	{
+		description:    "Parse xml: array",
+		subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
+		expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
+	},
+	{
+		description:    "Parse xml: attributes",
+		subdescription: "Attributes are converted to fields, with the attribute prefix.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
+		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
+	},
+	{
+		description:    "Parse xml: attributes with content",
+		subdescription: "Content is added as a field, using the content name",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
+		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
+	},
 	{
 		description:    "Parse xml: with comments",
 		subdescription: "A best attempt is made to preserve comments.",
@@ -188,52 +189,52 @@ var xmlScenarios = []xmlScenario{
 		expected:       expectedDecodeYamlWithComments,
 		scenarioType:   "decode",
 	},
-	// {
-	// 	description:  "Encode xml: simple",
-	// 	input:        "cat: purrs",
-	// 	expected:     "<cat>purrs</cat>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:  "Encode xml: array",
-	// 	input:        "pets:\n  cat:\n    - purrs\n    - meows",
-	// 	expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: attributes",
-	// 	subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
-	// 	input:          "cat:\n  +name: tiger\n  meows: true\n",
-	// 	expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
-	// 	scenarioType:   "encode",
-	// },
-	// {
-	// 	skipDoc:      true,
-	// 	input:        "cat:\n  ++name: tiger\n  meows: true\n",
-	// 	expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
-	// 	scenarioType: "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: attributes with content",
-	// 	subdescription: "Fields with the matching xml-content-name is assumed to be content.",
-	// 	input:          "cat:\n  +name: tiger\n  +content: cool\n",
-	// 	expected:       "<cat name=\"tiger\">cool</cat>\n",
-	// 	scenarioType:   "encode",
-	// },
-	// {
-	// 	description:    "Encode xml: comments",
-	// 	subdescription: "A best attempt is made to copy comments to xml.",
-	// 	input:          yamlWithComments,
-	// 	expected:       expectedXmlWithComments,
-	// 	scenarioType:   "encode",
-	// },
-	// {
-	// 	description:    "Round trip: with comments",
-	// 	subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
-	// 	input:          inputXmlWithComments,
-	// 	expected:       expectedRoundtripXmlWithComments,
-	// 	scenarioType:   "roundtrip",
-	// },
+	{
+		description:  "Encode xml: simple",
+		input:        "cat: purrs",
+		expected:     "<cat>purrs</cat>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:  "Encode xml: array",
+		input:        "pets:\n  cat:\n    - purrs\n    - meows",
+		expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:    "Encode xml: attributes",
+		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
+		input:          "cat:\n  +name: tiger\n  meows: true\n",
+		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType:   "encode",
+	},
+	{
+		skipDoc:      true,
+		input:        "cat:\n  ++name: tiger\n  meows: true\n",
+		expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		scenarioType: "encode",
+	},
+	{
+		description:    "Encode xml: attributes with content",
+		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
+		input:          "cat:\n  +name: tiger\n  +content: cool\n",
+		expected:       "<cat name=\"tiger\">cool</cat>\n",
+		scenarioType:   "encode",
+	},
+	{
+		description:    "Encode xml: comments",
+		subdescription: "A best attempt is made to copy comments to xml.",
+		input:          yamlWithComments,
+		expected:       expectedXmlWithComments,
+		scenarioType:   "encode",
+	},
+	{
+		description:    "Round trip: with comments",
+		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
+		input:          inputXmlWithComments,
+		expected:       expectedRoundtripXmlWithComments,
+		scenarioType:   "roundtrip",
+	},
 }
 
 func testXmlScenario(t *testing.T, s xmlScenario) {
