@@ -91,6 +91,10 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 
 		if i == 0 {
 			labelNode.HeadComment = dec.processComment(n.HeadComment)
+
+		}
+
+		if i == len(n.Children)-1 {
 			labelNode.FootComment = dec.processComment(n.FootComment)
 		}
 

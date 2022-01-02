@@ -254,13 +254,13 @@ var xmlScenarios = []xmlScenario{
 	// 	expected:       expectedXmlWithComments,
 	// 	scenarioType:   "encode",
 	// },
-	// {
-	// 	description:    "Round trip: with comments",
-	// 	subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
-	// 	input:          inputXmlWithComments,
-	// 	expected:       expectedRoundtripXmlWithComments,
-	// 	scenarioType:   "roundtrip",
-	// },
+	{
+		description:    "Round trip: with comments",
+		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
+		input:          inputXmlWithComments,
+		expected:       expectedRoundtripXmlWithComments,
+		scenarioType:   "roundtrip",
+	},
 }
 
 func testXmlScenario(t *testing.T, s xmlScenario) {

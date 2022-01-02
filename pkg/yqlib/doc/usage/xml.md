@@ -22,3 +22,48 @@ XML nodes that have attributes then plain content, e.g:
 
 The content of the node will be set as a field in the map with the key "+content". Use the `--xml-content-name` flag to change this.
 
+## Round trip: with comments
+A best effort is made, but comment positions and white space are not preserved perfectly.
+
+Given a sample.xml file of:
+```xml
+
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+
+```
+then
+```bash
+yq e -p=xml '.' sample.xml
+```
+will output
+```yaml
+# before cat
+cat:
+  # in cat before
+  x: "3" # multi
+  # line comment 
+  # for x
+  y:
+    # in y before
+    # in d before
+    d: z # in d after
+    # in y after
+  # before y   in_cat_after
+# after cat
+```
+
