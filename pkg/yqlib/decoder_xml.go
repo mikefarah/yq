@@ -72,12 +72,13 @@ func (dec *xmlDecoder) processComment(c string) string {
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, FootComment: dec.processComment(n.FootComment)}
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode}
 
 	if len(n.Data) > 0 {
 		label := dec.contentPrefix
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
+		labelNode.FootComment = dec.processComment(n.FootComment)
 		yamlNode.Content = append(yamlNode.Content, labelNode, createScalarNode(n.Data, n.Data))
 	}
 
@@ -90,6 +91,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 
 		if i == 0 {
 			labelNode.HeadComment = dec.processComment(n.HeadComment)
+			labelNode.FootComment = dec.processComment(n.FootComment)
 		}
 
 		log.Debug("len of children in %v is %v", label, len(children))
@@ -250,7 +252,7 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			commentStr := string(xml.CharData(se))
 			if elem.state == "started" {
 				log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
-				dec.placeFootCommentOnLastChild(elem.n, commentStr)
+				elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
 			} else if elem.state == "chardata" {
 				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
@@ -263,21 +265,6 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 	}
 
 	return nil
-}
-
-func (dec *xmlDecoder) placeFootCommentOnLastChild(n *xmlNode, commentStr string) {
-	if len(n.Children) > 0 {
-		child := n.Children[len(n.Children)-1]
-		log.Debug("putting it here: %v", child.K)
-		dec.placeFootCommentOnLastChild(child.V[len(child.V)-1], commentStr)
-	} else {
-		log.Debug("putting it on the element")
-		if n.FootComment != "" {
-			n.FootComment = n.FootComment + "\n" + strings.TrimSpace(commentStr)
-		} else {
-			n.FootComment = commentStr
-		}
-	}
 }
 
 func joinFilter(rawStrings []string) string {
