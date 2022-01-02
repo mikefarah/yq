@@ -233,6 +233,7 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			elem.n.Data = trimNonGraphic(string(se))
 			if elem.n.Data != "" {
 				elem.state = "chardata"
+				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)
 			}
 		case xml.EndElement:
 			log.Debug("end element %v", elem.label)
@@ -249,18 +250,7 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			commentStr := string(xml.CharData(se))
 			if elem.state == "started" {
 				log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
-				// elem.n.FootComment = elem.n.FootComment + commentStr
-				// put the comment on the foot of the last child
-				if len(elem.n.Children) > 0 {
-
-					child := elem.n.Children[len(elem.n.Children)-1]
-					log.Debug("putting it here: %v", child.K)
-					child.V[len(child.V)-1].FootComment = joinFilter([]string{child.V[len(child.V)-1].FootComment, commentStr})
-				} else {
-					log.Debug("putting it on the element")
-					elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
-				}
-
+				dec.placeFootCommentOnLastChild(elem.n, commentStr)
 			} else if elem.state == "chardata" {
 				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
@@ -273,6 +263,21 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 	}
 
 	return nil
+}
+
+func (dec *xmlDecoder) placeFootCommentOnLastChild(n *xmlNode, commentStr string) {
+	if len(n.Children) > 0 {
+		child := n.Children[len(n.Children)-1]
+		log.Debug("putting it here: %v", child.K)
+		dec.placeFootCommentOnLastChild(child.V[len(child.V)-1], commentStr)
+	} else {
+		log.Debug("putting it on the element")
+		if n.FootComment != "" {
+			n.FootComment = n.FootComment + "\n" + strings.TrimSpace(commentStr)
+		} else {
+			n.FootComment = commentStr
+		}
+	}
 }
 
 func joinFilter(rawStrings []string) string {
