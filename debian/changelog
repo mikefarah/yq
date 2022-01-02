@@ -3,28 +3,20 @@ yq (4.16.2) focal; urgency=medium
   * Fixed with semicolon space issue
   * Updating with documentation
   * Added STDIN example to the top
-  * Added STDIN example to the top
-  * Bump deb to version 4.13.0
   * minor readme cleanup
   * Help text tweak
-  * Bumping version
   * Fixed docker timeout - simplify docker builds
   * New release with docker build fixes
   * Updating to go 1.17 to fix CVE #944
-  * Bump version
   * Fix a typo in root.go
   * Skip the tests if the nocheck Debian build option is specified
   * Fixed select bug (#958)
   * Sped up explode operator
   * Slight performance improvement to context.ChildContext
   * Speed up multiply
-  * Bump version
   * Update README with recently added / changed options
   * Make deepMatch report in linear time
   * Removed leadingContentPreProcessing flag - header preprocessing is stable
-  * Man page wip
-  * Man page wip
-  * Man page wip
   * Revert "Removed leadingContentPreProcessing flag - header preprocessing is stable"
   * Keep flag, it is needed in corner cases
   * Updated Readme
@@ -32,19 +24,13 @@ yq (4.16.2) focal; urgency=medium
   * Fixed expression parsing bug #970
   * Bumping go-lang, docker versions
   * Added test release flow
-  * Man page release workflow wip
-  * Man page release workflow wip
-  * Man page release workflow wip
   * Updated github action release to generate man page
   * Bumping version
   * Removing no longer needed github action
-  * Added encoder op
   * Added decoder op
   * Fixed newline handling when decoding/encoding
-  * better docs
   * Fixed newline handling in encoder/decoder
   * Can specify indent in encode ops
-  * better docs
   * Added group_by operator
   * Added flatten operator
   * Fixed flatten error message
@@ -53,11 +39,9 @@ yq (4.16.2) focal; urgency=medium
   * Refactored command logic
   * Fix JSON encoding removing null #985
   * Fixed acceptance tests
-  * Bumping version
-  * gitbook wip
+  * gitbook
   * Update document generation script
   * Updating README
-  * Tweaking docs
   * Updating release instructions
   * github action no longer uses data1.yml
   * Create dependabot.yml
@@ -71,17 +55,12 @@ yq (4.16.2) focal; urgency=medium
   * Update go.yml
   * add build check to PRs
   * Include secure as part of build process
-  * Include secure as part of build process
   * Fixing bad label in github action
-  * wip
-  * wip
   * fixed printer test
   * remove leading content indicator
   * Fixed header preprocessing!
-  * Bumping version
   * lint : define golangci configuration file
   * Update check.sh
-  * wip
   * Load file acceptance test
   * Minor improvement on handling front matter
   * Improved load doc
@@ -93,9 +72,7 @@ yq (4.16.2) focal; urgency=medium
   * Added errorlint to devtools
   * Added key operator
   * Added more tests
-  * Update release notes
   * Fixing comments
-  * Bumping version
   * Attempt to fix golint problem
   * Include version query for tools
   * Clean up errored file?
@@ -104,39 +81,29 @@ yq (4.16.2) focal; urgency=medium
   * update Golangci version to v1.43.0
   * gci linter
   * Better merge array by key example
-  * Better merge array by key example
   * Added credit for merge by array example
   * Better formatting of merge arrays example
   * Better merge example
   * Add accessor for the yq logger instance (#1013)
   * Fixed collect op when working with multiple nodes
-  * Added another test
-  * Added another test
   * Added map, map_values
   * Add support for Podman as well as Docker (#1026)
   * Bump github.com/jinzhu/copier from 0.3.2 to 0.3.4 (#1027)
   * Added csv, tsv output formats
   * Added encoder tests
-  * Added encoder tests
   * Cleanup test
   * Fixed docker permission issue #1014
   * Recording release notes for next release
   * Assignment op no longer clobbers anchor (#1029)
-  * Updated release notes
-  * wip
   * Added sort_by operator
-  * Updated release notes
-  * Bumping version
   * Improved error message
   * Improved tips and tricks
-  * Improving docs
   * Report while filename failed to parse #1030
   * Added script for extracting checksums
   * Improved extract-checksum.sh
   * Bump github.com/spf13/cobra from 1.2.1 to 1.3.0 (#1039)
   * enable more linters (#1043)
   * Bump golang compiler #1037
-  * Bumping version
 
  -- Roberto Mier Escandon <rmescandon@gmail.com>  Tue, 21 Dec 2021 09:41:44 +0000
 
