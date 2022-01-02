@@ -1,3 +1,112 @@
+yq (4.16.2) focal; urgency=medium
+
+  * Fixed with semicolon space issue
+  * Updating with documentation
+  * Added STDIN example to the top
+  * minor readme cleanup
+  * Help text tweak
+  * Fixed docker timeout - simplify docker builds
+  * New release with docker build fixes
+  * Updating to go 1.17 to fix CVE #944
+  * Fix a typo in root.go
+  * Skip the tests if the nocheck Debian build option is specified
+  * Fixed select bug (#958)
+  * Sped up explode operator
+  * Slight performance improvement to context.ChildContext
+  * Speed up multiply
+  * Update README with recently added / changed options
+  * Make deepMatch report in linear time
+  * Removed leadingContentPreProcessing flag - header preprocessing is stable
+  * Revert "Removed leadingContentPreProcessing flag - header preprocessing is stable"
+  * Keep flag, it is needed in corner cases
+  * Updated Readme
+  * Man page
+  * Fixed expression parsing bug #970
+  * Bumping go-lang, docker versions
+  * Added test release flow
+  * Updated github action release to generate man page
+  * Bumping version
+  * Removing no longer needed github action
+  * Added decoder op
+  * Fixed newline handling when decoding/encoding
+  * Fixed newline handling in encoder/decoder
+  * Can specify indent in encode ops
+  * Added group_by operator
+  * Added flatten operator
+  * Fixed flatten error message
+  * Improving docs
+  * Split printer
+  * Refactored command logic
+  * Fix JSON encoding removing null #985
+  * Fixed acceptance tests
+  * gitbook
+  * Update document generation script
+  * Updating README
+  * Updating release instructions
+  * github action no longer uses data1.yml
+  * Create dependabot.yml
+  * Bump actions/create-release from 1.0.0 to 1.1.4
+  * Bump actions/setup-go from 1 to 2.1.4
+  * Bump github.com/goccy/go-yaml from 1.8.9 to 1.9.4
+  * Bump github.com/jinzhu/copier from 0.2.8 to 0.3.2
+  * Bump github.com/fatih/color from 1.10.0 to 1.13.0
+  * Bump github.com/spf13/cobra from 1.1.3 to 1.2.1
+  * Update dependabot.yml
+  * Update go.yml
+  * add build check to PRs
+  * Include secure as part of build process
+  * Fixing bad label in github action
+  * fixed printer test
+  * remove leading content indicator
+  * Fixed header preprocessing!
+  * lint : define golangci configuration file
+  * Update check.sh
+  * Load file acceptance test
+  * Minor improvement on handling front matter
+  * Improved load doc
+  * feature: detect MANPATh and install there
+  * Update install-man-page.sh
+  * simplify prod stage, move version label to action
+  * add labels, quote some values
+  * enable errorlint linter
+  * Added errorlint to devtools
+  * Added key operator
+  * Added more tests
+  * Fixing comments
+  * Attempt to fix golint problem
+  * Include version query for tools
+  * Clean up errored file?
+  * enable misspell linter
+  * updated readme
+  * update Golangci version to v1.43.0
+  * gci linter
+  * Better merge array by key example
+  * Added credit for merge by array example
+  * Better formatting of merge arrays example
+  * Better merge example
+  * Add accessor for the yq logger instance (#1013)
+  * Fixed collect op when working with multiple nodes
+  * Added map, map_values
+  * Add support for Podman as well as Docker (#1026)
+  * Bump github.com/jinzhu/copier from 0.3.2 to 0.3.4 (#1027)
+  * Added csv, tsv output formats
+  * Added encoder tests
+  * Cleanup test
+  * Fixed docker permission issue #1014
+  * Recording release notes for next release
+  * Assignment op no longer clobbers anchor (#1029)
+  * Added sort_by operator
+  * Improved error message
+  * Improved tips and tricks
+  * Report while filename failed to parse #1030
+  * Added script for extracting checksums
+  * Improved extract-checksum.sh
+  * Bump github.com/spf13/cobra from 1.2.1 to 1.3.0 (#1039)
+  * enable more linters (#1043)
+  * Bump golang compiler #1037
+
+ -- Roberto Mier Escandon <rmescandon@gmail.com>  Tue, 21 Dec 2021 09:41:44 +0000
+
 yq (4.13.0) focal; urgency=medium
 
   * New `with` operator for making multiple changes to a given path
