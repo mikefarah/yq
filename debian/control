@@ -3,7 +3,8 @@ Section: devel
 Priority: optional
 Maintainer: Roberto Mier Escandón <rmescandon@gmail.com>
 Build-Depends: debhelper (>=10),
-               golang-1.15,
+               golang-1.17-go,
+               pandoc,
                rsync
 Standards-Version: 4.1.4
 Homepage: https://github.com/mikefarah/yq.git

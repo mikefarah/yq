@@ -33,7 +33,7 @@ func (f *frontMatterHandlerImpl) GetContentReader() io.Reader {
 }
 
 func (f *frontMatterHandlerImpl) CleanUp() {
-	tryRemoveFile(f.yamlFrontMatterFilename)
+	tryRemoveTempFile(f.yamlFrontMatterFilename)
 }
 
 // Splits the given file by yaml front matter

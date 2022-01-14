@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 #
-# Copyright (C) 2018 Roberto Mier Escandón <rmescandon@gmail.com>
+# Copyright (C) 2018-2021 Roberto Mier Escandón <rmescandon@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3 as
@@ -17,20 +17,21 @@
 PROJECT := yq
 OWNER := mikefarah
 REPO := github.com
-GOVERSION := 1.15
 
 export DH_OPTIONS
 export DH_GOPKG := ${REPO}/${OWNER}/${PROJECT}
-export GOROOT := /usr/lib/go-${GOVERSION}
+export GOROOT := /usr/local/go
 export GOPATH := ${CURDIR}/_build
 export GOBIN := ${GOPATH}/bin
 export PATH := ${GOROOT}/bin:${GOBIN}:${PATH}
 export GOCACHE := /tmp/gocache
 export GOFLAGS := -mod=vendor
+export GO111MODULE := on
 
 SRCDIR := ${GOPATH}/src/${DH_GOPKG}
 DESTDIR := ${CURDIR}/debian/${PROJECT}
 BINDIR := /usr/bin
+MANDIR := /usr/share/man/man1/
 ASSETSDIR := /usr/share/${PROJECT}
 
 %:
@@ -42,7 +43,17 @@ override_dh_auto_build:
 	# copy project to local srcdir to build from there
 	rsync -avz --progress --exclude=_build --exclude=debian --exclude=tmp. --exclude=go.mod --exclude=docs . $(SRCDIR)
 	# build go code
-	(cd ${SRCDIR} && go install -buildmode=pie ./...)
+	( \
+		cd ${SRCDIR} && \
+		go install -buildmode=pie ./... \
+	)
+
+	# build man page
+	( \
+		cd ${SRCDIR} && \
+		./scripts/generate-man-page-md.sh && \
+		./scripts/generate-man-page.sh \
+	)
 	
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
@@ -53,6 +64,10 @@ override_dh_auto_install:
 	cp ${GOBIN}/yq ${DESTDIR}/${BINDIR}
 	cp -f ${SRCDIR}/LICENSE ${DESTDIR}/${ASSETSDIR}
 	chmod a+x ${DESTDIR}/${BINDIR}/yq
+
+	# man
+	mkdir -p "${DESTDIR}"/"${MANDIR}"
+	cp "${SRCDIR}"/yq.1 "${DESTDIR}"/"${MANDIR}" \
 
 override_dh_auto_clean:
 	dh_clean

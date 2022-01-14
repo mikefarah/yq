@@ -66,7 +66,7 @@ yaml: doc
 	}
 	test.AssertResult(t, expectedContent, string(contentBytes))
 
-	tryRemoveFile(file)
+	tryRemoveTempFile(file)
 	fmHandler.CleanUp()
 }
 
@@ -103,7 +103,7 @@ yaml: doc
 	}
 	test.AssertResult(t, expectedContent, string(contentBytes))
 
-	tryRemoveFile(file)
+	tryRemoveTempFile(file)
 	fmHandler.CleanUp()
 }
 
@@ -137,6 +137,6 @@ yaml: doc
 	}
 	test.AssertResult(t, expectedContent, string(contentBytes))
 
-	tryRemoveFile(file)
+	tryRemoveTempFile(file)
 	fmHandler.CleanUp()
 }

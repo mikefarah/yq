@@ -1,30 +1,28 @@
 package yqlib
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 )
 
-func safelyRenameFile(from string, to string) {
+func tryRenameFile(from string, to string) error {
 	if renameError := os.Rename(from, to); renameError != nil {
 		log.Debugf("Error renaming from %v to %v, attempting to copy contents", from, to)
 		log.Debug(renameError.Error())
+		log.Debug("going to try copying instead")
 		// can't do this rename when running in docker to a file targeted in a mounted volume,
 		// so gracefully degrade to copying the entire contents.
 		if copyError := copyFileContents(from, to); copyError != nil {
-			log.Errorf("Failed copying from %v to %v", from, to)
-			log.Error(copyError.Error())
-		} else {
-			removeErr := os.Remove(from)
-			if removeErr != nil {
-				log.Errorf("failed removing original file: %s", from)
-			}
+			return fmt.Errorf("failed copying from %v to %v: %w", from, to, copyError)
 		}
+		tryRemoveTempFile(from)
 	}
+	return nil
 }
 
-func tryRemoveFile(filename string) {
+func tryRemoveTempFile(filename string) {
 	log.Debug("Removing temp file: %v", filename)
 	removeErr := os.Remove(filename)
 	if removeErr != nil {
