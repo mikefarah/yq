@@ -44,8 +44,8 @@ func (w *writeInPlaceHandlerImpl) FinishWriteInPlace(evaluatedSuccessfully bool)
 	safelyCloseFile(w.tempFile)
 	if evaluatedSuccessfully {
 		log.Debug("Moving temp file to target")
-		safelyRenameFile(w.tempFile.Name(), w.inputFilename)
+		tryRenameFile(w.tempFile.Name(), w.inputFilename)
 	} else {
-		tryRemoveFile(w.tempFile.Name())
+		tryRemoveTempFile(w.tempFile.Name())
 	}
 }
