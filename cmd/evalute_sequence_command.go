@@ -53,7 +53,7 @@ func processExpression(expression string) string {
 	return expression
 }
 
-func evaluateSequence(cmd *cobra.Command, args []string) error {
+func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 	// 0 args, read std in
 	// 1 arg, null input, process expression
 	// 1 arg, read file in sequence
@@ -80,7 +80,11 @@ func evaluateSequence(cmd *cobra.Command, args []string) error {
 		}
 		// need to indirectly call the function so  that completedSuccessfully is
 		// passed when we finish execution as opposed to now
-		defer func() { writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully) }()
+		defer func() {
+			if cmdError == nil {
+				cmdError = writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully)
+			}
+		}()
 	}
 
 	format, err := yqlib.OutputFormatFromString(outputFormat)

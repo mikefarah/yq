@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func tryRenameFile(from string, to string) {
+func tryRenameFile(from string, to string) error {
 	if renameError := os.Rename(from, to); renameError != nil {
 		log.Debugf("Error renaming from %v to %v, attempting to copy contents", from, to)
 		log.Debug(renameError.Error())
@@ -15,11 +15,11 @@ func tryRenameFile(from string, to string) {
 		// can't do this rename when running in docker to a file targeted in a mounted volume,
 		// so gracefully degrade to copying the entire contents.
 		if copyError := copyFileContents(from, to); copyError != nil {
-			panic(fmt.Errorf("failed copying from %v to %v: %w", from, to, copyError))
-		} else {
-			tryRemoveTempFile(from)
+			return fmt.Errorf("failed copying from %v to %v: %w", from, to, copyError)
 		}
+		tryRemoveTempFile(from)
 	}
+	return nil
 }
 
 func tryRemoveTempFile(filename string) {
