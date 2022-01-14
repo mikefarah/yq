@@ -14,6 +14,14 @@ var unionOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "clone test",
+		expression:  `"abc" as $a | [$a, "cat"]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- abc\n- cat\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `(.foo = "bar"), (.toe = "jam")`,
 		expected: []string{
