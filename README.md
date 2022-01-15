@@ -104,6 +104,9 @@ rm /etc/myfile.tmp
 docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
 
+Note that you can run `yq` in docker without network access and other privileges if you desire,
+namely `--security-opt=no-new-privileges --cap-drop all --network none`.
+
 ```bash
 podman run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
 ```
