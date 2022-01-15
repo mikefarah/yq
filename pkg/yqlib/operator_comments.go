@@ -86,7 +86,8 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 			var chompRegexp = regexp.MustCompile(`\n$`)
 			var output bytes.Buffer
 			var writer = bufio.NewWriter(&output)
-			if err := processLeadingContent(candidate, writer, false, YamlOutputFormat); err != nil {
+			var encoder = NewYamlEncoder(2, false, false, false)
+			if err := encoder.PrintLeadingContent(writer, candidate.LeadingContent); err != nil {
 				return Context{}, err
 			}
 			if err := writer.Flush(); err != nil {

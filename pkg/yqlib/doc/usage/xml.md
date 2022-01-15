@@ -2,8 +2,6 @@
 
 Encode and decode to and from XML. Whitespace is not conserved for round trips - but the order of the fields are.
 
-As yaml does not have the concept of attributes, xml attributes are converted to regular fields with a prefix to prevent clobbering. This defaults to "+", use the `--xml-attribute-prefix` to change.
-
 Consecutive xml nodes with the same name are assumed to be arrays.
 
 All values in XML are assumed to be strings - but you can use `from_yaml` to parse them into their correct types:
@@ -13,8 +11,6 @@ All values in XML are assumed to be strings - but you can use `from_yaml` to par
 yq e -p=xml '.myNumberField |= from_yaml' my.xml
 ```
 
-
-XML nodes that have attributes then plain content, e.g:
 
 ```xml
 <cat name="tiger">meow</cat>
@@ -58,7 +54,7 @@ animal:
 ```
 
 ## Parse xml: attributes
-Attributes are converted to fields, with the attribute prefix.
+Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.
 
 Given a sample.xml file of:
 ```xml
@@ -79,7 +75,7 @@ cat:
 ```
 
 ## Parse xml: attributes with content
-Content is added as a field, using the content name
+Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.
 
 Given a sample.xml file of:
 ```xml
@@ -97,6 +93,53 @@ cat:
   +legs: "4"
 ```
 
+## Parse xml: with comments
+A best attempt is made to preserve comments.
+
+Given a sample.xml file of:
+```xml
+
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+
+```
+then
+```bash
+yq e -p=xml '.' sample.xml
+```
+will output
+```yaml
+# before cat
+cat:
+  # in cat before
+  x: "3" # multi
+  # line comment 
+  # for x
+  # before y
+
+  y:
+    # in y before
+    # in d before
+    d: z # in d after
+    # in y after
+  # in_cat_after
+# after cat
+```
+
 ## Encode xml: simple
 Given a sample.yml file of:
 ```yaml
@@ -108,7 +151,8 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat>purrs</cat>```
+<cat>purrs</cat>
+```
 
 ## Encode xml: array
 Given a sample.yml file of:
@@ -127,7 +171,8 @@ will output
 <pets>
   <cat>purrs</cat>
   <cat>meows</cat>
-</pets>```
+</pets>
+```
 
 ## Encode xml: attributes
 Fields with the matching xml-attribute-prefix are assumed to be attributes.
@@ -147,7 +192,8 @@ will output
 ```xml
 <cat name="tiger">
   <meows>true</meows>
-</cat>```
+</cat>
+```
 
 ## Encode xml: attributes with content
 Fields with the matching xml-content-name is assumed to be content.
@@ -165,5 +211,74 @@ yq e -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<cat name="tiger">cool</cat>```
+<cat name="tiger">cool</cat>
+```
+
+## Encode xml: comments
+A best attempt is made to copy comments to xml.
+
+Given a sample.yml file of:
+```yaml
+# above_cat
+cat: # inline_cat
+  # above_array
+  array: # inline_array
+    - val1 # inline_val1
+    # above_val2
+    - val2 # inline_val2
+# below_cat
+
+```
+then
+```bash
+yq e -o=xml '.' sample.yml
+```
+will output
+```xml
+<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+  <array>val1<!-- inline_val1 --></array>
+  <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
+</cat><!-- below_cat -->
+```
+
+## Round trip: with comments
+A best effort is made, but comment positions and white space are not preserved perfectly.
+
+Given a sample.xml file of:
+```xml
+
+<!-- before cat -->
+<cat>
+	<!-- in cat before -->
+	<x>3<!-- multi
+line comment 
+for x --></x>
+	<!-- before y -->
+	<y>
+		<!-- in y before -->
+		<d><!-- in d before -->z<!-- in d after --></d>
+		
+		<!-- in y after -->
+	</y>
+	<!-- in_cat_after -->
+</cat>
+<!-- after cat -->
+
+```
+then
+```bash
+yq e -p=xml -o=xml '.' sample.xml
+```
+will output
+```xml
+<!-- before cat --><cat><!-- in cat before -->
+  <x>3<!-- multi
+line comment 
+for x --></x><!-- before y -->
+  <y><!-- in y before
+in d before -->
+    <d>z<!-- in d after --></d><!-- in y after -->
+  </y><!-- in_cat_after -->
+</cat><!-- after cat -->
+```
 

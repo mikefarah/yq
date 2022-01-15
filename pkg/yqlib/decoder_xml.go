@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strings"
 	"unicode"
 
 	"golang.org/x/net/html/charset"
@@ -31,15 +32,15 @@ func InputFormatFromString(format string) (InputFormat, error) {
 type xmlDecoder struct {
 	reader          io.Reader
 	attributePrefix string
-	contentPrefix   string
+	contentName     string
 	finished        bool
 }
 
-func NewXmlDecoder(attributePrefix string, contentPrefix string) Decoder {
-	if contentPrefix == "" {
-		contentPrefix = "content"
+func NewXmlDecoder(attributePrefix string, contentName string) Decoder {
+	if contentName == "" {
+		contentName = "content"
 	}
-	return &xmlDecoder{attributePrefix: attributePrefix, contentPrefix: contentPrefix, finished: false}
+	return &xmlDecoder{attributePrefix: attributePrefix, contentName: contentName, finished: false}
 }
 
 func (dec *xmlDecoder) Init(reader io.Reader) {
@@ -60,20 +61,41 @@ func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
 	return yamlNode, nil
 }
 
+func (dec *xmlDecoder) processComment(c string) string {
+	if c == "" {
+		return ""
+	}
+	return "#" + strings.TrimRight(c, " ")
+}
+
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, HeadComment: n.Comment}
+	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode}
 
 	if len(n.Data) > 0 {
-		label := dec.contentPrefix
-		yamlNode.Content = append(yamlNode.Content, createScalarNode(label, label), createScalarNode(n.Data, n.Data))
+		label := dec.contentName
+		labelNode := createScalarNode(label, label)
+		labelNode.HeadComment = dec.processComment(n.HeadComment)
+		labelNode.FootComment = dec.processComment(n.FootComment)
+		yamlNode.Content = append(yamlNode.Content, labelNode, createScalarNode(n.Data, n.Data))
 	}
 
-	for _, keyValuePair := range n.Children {
+	for i, keyValuePair := range n.Children {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
 		var valueNode *yaml.Node
 		var err error
+
+		if i == 0 {
+			labelNode.HeadComment = dec.processComment(n.HeadComment)
+
+		}
+
+		// if i == len(n.Children)-1 {
+		labelNode.FootComment = dec.processComment(keyValuePair.FootComment)
+		// }
+
 		log.Debug("len of children in %v is %v", label, len(children))
 		if len(children) > 1 {
 			valueNode, err = dec.createSequence(children)
@@ -81,6 +103,13 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 				return nil, err
 			}
 		} else {
+			// comment hack for maps of scalars
+			// if the value is a scalar, the head comment of the scalar needs to go on the key?
+			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
+			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
+				labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
+				children[0].HeadComment = ""
+			}
 			valueNode, err = dec.convertToYamlNode(children[0])
 			if err != nil {
 				return nil, err
@@ -97,7 +126,11 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 		return dec.createMap(n)
 	}
 	scalar := createScalarNode(n.Data, n.Data)
-	scalar.HeadComment = n.Comment
+	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
+	scalar.HeadComment = dec.processComment(n.HeadComment)
+	scalar.LineComment = dec.processComment(n.LineComment)
+	scalar.FootComment = dec.processComment(n.FootComment)
+
 	return scalar, nil
 }
 
@@ -124,14 +157,17 @@ func (dec *xmlDecoder) Decode(rootYamlNode *yaml.Node) error {
 }
 
 type xmlNode struct {
-	Children []*xmlChildrenKv
-	Comment  string
-	Data     string
+	Children    []*xmlChildrenKv
+	HeadComment string
+	FootComment string
+	LineComment string
+	Data        string
 }
 
 type xmlChildrenKv struct {
-	K string
-	V []*xmlNode
+	K           string
+	V           []*xmlNode
+	FootComment string
 }
 
 // AddChild appends a node to the list of children
@@ -158,6 +194,7 @@ type element struct {
 	parent *element
 	n      *xmlNode
 	label  string
+	state  string
 }
 
 // this code is heavily based on https://github.com/basgys/goxml2json
@@ -183,6 +220,8 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 
 		switch se := t.(type) {
 		case xml.StartElement:
+			log.Debug("start element %v", se.Name.Local)
+			elem.state = "started"
 			// Build new a new current element and link it to its parent
 			elem = &element{
 				parent: elem,
@@ -197,7 +236,13 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 		case xml.CharData:
 			// Extract XML data (if any)
 			elem.n.Data = trimNonGraphic(string(se))
+			if elem.n.Data != "" {
+				elem.state = "chardata"
+				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)
+			}
 		case xml.EndElement:
+			log.Debug("end element %v", elem.label)
+			elem.state = "finished"
 			// And add it to its parent list
 			if elem.parent != nil {
 				elem.parent.n.AddChild(elem.label, elem.n)
@@ -206,11 +251,47 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 			// Then change the current element to its parent
 			elem = elem.parent
 		case xml.Comment:
-			elem.n.Comment = trimNonGraphic(string(xml.CharData(se)))
+
+			commentStr := string(xml.CharData(se))
+			if elem.state == "started" {
+				applyFootComment(elem, commentStr)
+
+			} else if elem.state == "chardata" {
+				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
+				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
+			} else {
+				log.Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
+				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})
+			}
+
 		}
 	}
 
 	return nil
+}
+
+func applyFootComment(elem *element, commentStr string) {
+
+	// first lets try to put the comment on the last child
+	if len(elem.n.Children) > 0 {
+		lastChildIndex := len(elem.n.Children) - 1
+		childKv := elem.n.Children[lastChildIndex]
+		log.Debug("got a foot comment for %v: [%v]", childKv.K, commentStr)
+		childKv.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+	} else {
+		log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
+		elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+	}
+}
+
+func joinFilter(rawStrings []string) string {
+	stringsToJoin := make([]string, 0)
+	for _, str := range rawStrings {
+		if str != "" {
+			stringsToJoin = append(stringsToJoin, str)
+		}
+	}
+	return strings.Join(stringsToJoin, " ")
 }
 
 // trimNonGraphic returns a slice of the string s, with all leading and trailing

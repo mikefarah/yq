@@ -85,8 +85,9 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 	}
 
 	printerWriter := configurePrinterWriter(format, out)
+	encoder := configureEncoder(format)
 
-	printer := yqlib.NewPrinter(printerWriter, format, unwrapScalar, colorsEnabled, indent, !noDocSeparators)
+	printer := yqlib.NewPrinter(encoder, printerWriter)
 
 	if frontMatter != "" {
 		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])

@@ -11,92 +11,10 @@ import (
 )
 
 type Encoder interface {
-	Encode(node *yaml.Node) error
-}
-
-type yamlEncoder struct {
-	destination io.Writer
-	indent      int
-	colorise    bool
-	firstDoc    bool
-}
-
-func NewYamlEncoder(destination io.Writer, indent int, colorise bool) Encoder {
-	if indent < 0 {
-		indent = 0
-	}
-	return &yamlEncoder{destination, indent, colorise, true}
-}
-
-func (ye *yamlEncoder) Encode(node *yaml.Node) error {
-
-	destination := ye.destination
-	tempBuffer := bytes.NewBuffer(nil)
-	if ye.colorise {
-		destination = tempBuffer
-	}
-
-	var encoder = yaml.NewEncoder(destination)
-
-	encoder.SetIndent(ye.indent)
-	// TODO: work out if the first doc had a separator or not.
-	if ye.firstDoc {
-		ye.firstDoc = false
-	} else if _, err := destination.Write([]byte("---\n")); err != nil {
-		return err
-	}
-
-	if err := encoder.Encode(node); err != nil {
-		return err
-	}
-
-	if ye.colorise {
-		return colorizeAndPrint(tempBuffer.Bytes(), ye.destination)
-	}
-	return nil
-}
-
-type jsonEncoder struct {
-	encoder *json.Encoder
-}
-
-func mapKeysToStrings(node *yaml.Node) {
-
-	if node.Kind == yaml.MappingNode {
-		for index, child := range node.Content {
-			if index%2 == 0 { // its a map key
-				child.Tag = "!!str"
-			}
-		}
-	}
-
-	for _, child := range node.Content {
-		mapKeysToStrings(child)
-	}
-}
-
-func NewJsonEncoder(destination io.Writer, indent int) Encoder {
-	var encoder = json.NewEncoder(destination)
-	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
-
-	var indentString = ""
-
-	for index := 0; index < indent; index++ {
-		indentString = indentString + " "
-	}
-	encoder.SetIndent("", indentString)
-	return &jsonEncoder{encoder}
-}
-
-func (je *jsonEncoder) Encode(node *yaml.Node) error {
-	var dataBucket orderedMap
-	// firstly, convert all map keys to strings
-	mapKeysToStrings(node)
-	errorDecoding := node.Decode(&dataBucket)
-	if errorDecoding != nil {
-		return errorDecoding
-	}
-	return je.encoder.Encode(dataBucket)
+	Encode(writer io.Writer, node *yaml.Node) error
+	PrintDocumentSeparator(writer io.Writer) error
+	PrintLeadingContent(writer io.Writer, content string) error
+	CanHandleAliases() bool
 }
 
 // orderedMap allows to marshal and unmarshal JSON and YAML values keeping the

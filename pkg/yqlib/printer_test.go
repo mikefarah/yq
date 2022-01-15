@@ -33,10 +33,10 @@ func nodeToList(candidate *CandidateNode) *list.List {
 	return elMap
 }
 
-func TestPrinterMultipleDocsInSequence(t *testing.T) {
+func TestPrinterMultipleDocsInSequenceOnly(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -74,7 +74,7 @@ func TestPrinterMultipleDocsInSequence(t *testing.T) {
 func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -116,7 +116,7 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -163,7 +163,7 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -213,7 +213,7 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -232,7 +232,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -261,7 +261,7 @@ a: coconut
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
@@ -287,7 +287,7 @@ a: coconut
 func TestPrinterScalarWithLeadingCont(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewPrinterWithSingleWriter(writer, YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
 	node, err := NewExpressionParser().ParseExpression(".a")
 	if err != nil {
@@ -314,7 +314,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
 	// when outputing JSON.
-	printer := NewPrinterWithSingleWriter(writer, JsonOutputFormat, true, false, 0, true)
+	printer := NewPrinter(NewJsonEncoder(0), NewSinglePrinterWriter(writer))
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {

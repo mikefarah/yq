@@ -9,16 +9,26 @@ import (
 )
 
 type csvEncoder struct {
-	destination csv.Writer
+	separator rune
 }
 
-func NewCsvEncoder(destination io.Writer, separator rune) Encoder {
-	csvWriter := *csv.NewWriter(destination)
-	csvWriter.Comma = separator
-	return &csvEncoder{csvWriter}
+func NewCsvEncoder(separator rune) Encoder {
+	return &csvEncoder{separator}
 }
 
-func (e *csvEncoder) encodeRow(contents []*yaml.Node) error {
+func (e *csvEncoder) CanHandleAliases() bool {
+	return false
+}
+
+func (e *csvEncoder) PrintDocumentSeparator(writer io.Writer) error {
+	return nil
+}
+
+func (e *csvEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+	return nil
+}
+
+func (e *csvEncoder) encodeRow(csvWriter *csv.Writer, contents []*yaml.Node) error {
 	stringValues := make([]string, len(contents))
 
 	for i, child := range contents {
@@ -28,10 +38,13 @@ func (e *csvEncoder) encodeRow(contents []*yaml.Node) error {
 		}
 		stringValues[i] = child.Value
 	}
-	return e.destination.Write(stringValues)
+	return csvWriter.Write(stringValues)
 }
 
-func (e *csvEncoder) Encode(originalNode *yaml.Node) error {
+func (e *csvEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
+	csvWriter := csv.NewWriter(writer)
+	csvWriter.Comma = e.separator
+
 	// node must be a sequence
 	node := unwrapDoc(originalNode)
 	if node.Kind != yaml.SequenceNode {
@@ -40,7 +53,7 @@ func (e *csvEncoder) Encode(originalNode *yaml.Node) error {
 		return nil
 	}
 	if node.Content[0].Kind == yaml.ScalarNode {
-		return e.encodeRow(node.Content)
+		return e.encodeRow(csvWriter, node.Content)
 	}
 
 	for i, child := range node.Content {
@@ -48,7 +61,7 @@ func (e *csvEncoder) Encode(originalNode *yaml.Node) error {
 		if child.Kind != yaml.SequenceNode {
 			return fmt.Errorf("csv encoding only works for arrays of scalars (string/numbers/booleans), child[%v] is a %v", i, child.Tag)
 		}
-		err := e.encodeRow(child.Content)
+		err := e.encodeRow(csvWriter, child.Content)
 		if err != nil {
 			return err
 		}

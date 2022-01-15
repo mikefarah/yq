@@ -10,11 +10,31 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func yamlToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
+func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
+	switch format {
+	case JsonOutputFormat:
+		return NewJsonEncoder(indent)
+	case PropsOutputFormat:
+		return NewPropertiesEncoder()
+	case CsvOutputFormat:
+		return NewCsvEncoder(',')
+	case TsvOutputFormat:
+		return NewCsvEncoder('\t')
+	case YamlOutputFormat:
+		return NewYamlEncoder(indent, false, true, true)
+	case XmlOutputFormat:
+		return NewXmlEncoder(indent, XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
+	}
+	panic("invalid encoder")
+}
+
+func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
 	log.Debug("printing with indent: %v", prefs.indent)
 
-	printer := NewPrinterWithSingleWriter(bufio.NewWriter(&output), prefs.format, true, false, prefs.indent, true)
+	encoder := configureEncoder(prefs.format, prefs.indent)
+
+	printer := NewPrinter(encoder, NewSinglePrinterWriter(bufio.NewWriter(&output)))
 	err := printer.PrintResults(candidate.AsList())
 	return output.String(), err
 }
@@ -36,7 +56,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		stringValue, err := yamlToString(candidate, preferences)
+		stringValue, err := encodeToString(candidate, preferences)
 
 		if err != nil {
 			return Context{}, err

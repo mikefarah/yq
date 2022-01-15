@@ -142,4 +142,25 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputXmComplex() {
+  cat >test.yml <<EOL
+a: {b: {c: ["cat", "dog"], +f: meow}}
+EOL
+
+  read -r -d '' expected << EOM
+<a>
+  <b f="meow">
+    <c>cat</c>
+    <c>dog</c>
+  </b>
+</a>
+EOM
+
+  X=$(./yq e --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=x test.yml)
+  assertEquals "$expected" "$X"
+}
+
 source ./scripts/shunit2
