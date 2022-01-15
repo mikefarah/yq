@@ -168,16 +168,18 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 }
 
 func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
-	e.encodeComment(encoder, headAndLineComment(node))
+
+	if err := e.encodeComment(encoder, headAndLineComment(node)); err != nil {
+		return err
+	}
+
 	for i := 0; i < len(node.Content); i++ {
 		value := node.Content[i]
-		err := e.doEncode(encoder, value, start.Copy())
-		if err != nil {
+		if err := e.doEncode(encoder, value, start.Copy()); err != nil {
 			return err
 		}
 	}
-	e.encodeComment(encoder, footComment(node))
-	return nil
+	return e.encodeComment(encoder, footComment(node))
 }
 
 func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {

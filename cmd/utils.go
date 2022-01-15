@@ -52,7 +52,7 @@ func configureDecoder() (yqlib.Decoder, error) {
 	}
 	switch yqlibInputFormat {
 	case yqlib.XmlInputFormat:
-		return yqlib.NewXmlDecoder(), nil
+		return yqlib.NewXmlDecoder(xmlAttributePrefix, xmlContentName), nil
 	}
 	return yqlib.NewYamlDecoder(), nil
 }
@@ -87,7 +87,7 @@ func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	case yqlib.YamlOutputFormat:
 		return yqlib.NewYamlEncoder(indent, colorsEnabled, !noDocSeparators, unwrapScalar)
 	case yqlib.XmlOutputFormat:
-		return yqlib.NewXmlEncoder(indent)
+		return yqlib.NewXmlEncoder(indent, xmlAttributePrefix, xmlContentName)
 	}
 	panic("invalid encoder")
 }

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/pkg/diff"
+	"github.com/pkg/diff/write"
 	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v3"
 )
@@ -63,9 +66,14 @@ func AssertResultComplexWithContext(t *testing.T, expectedValue interface{}, act
 
 func AssertResultWithContext(t *testing.T, expectedValue interface{}, actualValue interface{}, context interface{}) {
 	t.Helper()
+	opts := []write.Option{write.TerminalColor()}
 	if expectedValue != actualValue {
 		t.Error(context)
-		t.Error(": expected <\n", strings.ReplaceAll(fmt.Sprintf("%v", expectedValue), " ", "@"), ">\n but got <\n", strings.ReplaceAll(fmt.Sprintf("%v", actualValue), " ", "@"), ">\n")
-		// t.Error(": expected <\n", expectedValue, ">\n but got <\n", actualValue, ">\n")
+		var differenceBuffer bytes.Buffer
+		if err := diff.Text("expected", "actual", expectedValue, actualValue, bufio.NewWriter(&differenceBuffer), opts...); err != nil {
+			t.Error(err)
+		} else {
+			t.Error(differenceBuffer.String())
+		}
 	}
 }

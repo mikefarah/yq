@@ -34,15 +34,15 @@ func InputFormatFromString(format string) (InputFormat, error) {
 type xmlDecoder struct {
 	reader          io.Reader
 	attributePrefix string
-	contentPrefix   string
+	contentName     string
 	finished        bool
 }
 
-func NewXmlDecoder(attributePrefix string, contentPrefix string) Decoder {
-	if contentPrefix == "" {
-		contentPrefix = "content"
+func NewXmlDecoder(attributePrefix string, contentName string) Decoder {
+	if contentName == "" {
+		contentName = "content"
 	}
-	return &xmlDecoder{attributePrefix: attributePrefix, contentPrefix: contentPrefix, finished: false}
+	return &xmlDecoder{attributePrefix: attributePrefix, contentName: contentName, finished: false}
 }
 
 func (dec *xmlDecoder) Init(reader io.Reader) {
@@ -75,7 +75,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	yamlNode := &yaml.Node{Kind: yaml.MappingNode}
 
 	if len(n.Data) > 0 {
-		label := dec.contentPrefix
+		label := dec.contentName
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
@@ -94,9 +94,9 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 
 		}
 
-		if i == len(n.Children)-1 {
-			labelNode.FootComment = dec.processComment(n.FootComment)
-		}
+		// if i == len(n.Children)-1 {
+		labelNode.FootComment = dec.processComment(keyValuePair.FootComment)
+		// }
 
 		log.Debug("len of children in %v is %v", label, len(children))
 		if len(children) > 1 {
@@ -167,8 +167,9 @@ type xmlNode struct {
 }
 
 type xmlChildrenKv struct {
-	K string
-	V []*xmlNode
+	K           string
+	V           []*xmlNode
+	FootComment string
 }
 
 // AddChild appends a node to the list of children
@@ -255,8 +256,8 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 
 			commentStr := string(xml.CharData(se))
 			if elem.state == "started" {
-				log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
-				elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+				applyFootComment(elem, commentStr)
+
 			} else if elem.state == "chardata" {
 				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
@@ -269,6 +270,20 @@ func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
 	}
 
 	return nil
+}
+
+func applyFootComment(elem *element, commentStr string) {
+
+	// first lets try to put the comment on the last child
+	if len(elem.n.Children) > 0 {
+		lastChildIndex := len(elem.n.Children) - 1
+		childKv := elem.n.Children[lastChildIndex]
+		log.Debug("got a foot comment for %v: [%v]", childKv.K, commentStr)
+		childKv.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+	} else {
+		log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
+		elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+	}
 }
 
 func joinFilter(rawStrings []string) string {
