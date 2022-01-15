@@ -6,7 +6,6 @@ import (
 	"io"
 	"strings"
 
-	// "strings"
 	"unicode"
 
 	"golang.org/x/net/html/charset"

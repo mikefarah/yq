@@ -49,12 +49,10 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 			return err
 		}
 	case yaml.DocumentNode:
-		log.Debugf("ENCODING DOCUMENT NODE")
 		err := e.encodeComment(encoder, headAndLineComment(node))
 		if err != nil {
 			return err
 		}
-		log.Debugf("OK NOW THE ACTUAL")
 		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
 		if err != nil {
 			return err
