@@ -24,7 +24,7 @@ func decodeXml(t *testing.T, xml string) *CandidateNode {
 	return &CandidateNode{Node: node}
 }
 
-func processScenario(s xmlScenario) string {
+func processXmlScenario(s formatScenario) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
@@ -49,7 +49,7 @@ func processScenario(s xmlScenario) string {
 	return output.String()
 }
 
-type xmlScenario struct {
+type formatScenario struct {
 	input          string
 	expected       string
 	description    string
@@ -203,7 +203,7 @@ var expectedXmlWithComments = `<!-- above_cat inline_cat --><cat><!-- above_arra
 </cat><!-- below_cat -->
 `
 
-var xmlScenarios = []xmlScenario{
+var xmlScenarios = []formatScenario{
 	{
 		description: "Parse xml: simple",
 		input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
@@ -296,9 +296,9 @@ var xmlScenarios = []xmlScenario{
 	},
 }
 
-func testXmlScenario(t *testing.T, s xmlScenario) {
+func testXmlScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processScenario(s), s.description)
+		test.AssertResultWithContext(t, s.expected, processXmlScenario(s), s.description)
 	} else {
 		var actual = resultToString(t, decodeXml(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
@@ -306,7 +306,7 @@ func testXmlScenario(t *testing.T, s xmlScenario) {
 }
 
 func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(xmlScenario)
+	s := i.(formatScenario)
 
 	if s.skipDoc {
 		return
@@ -321,7 +321,7 @@ func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 
 }
 
-func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
+func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -350,7 +350,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 }
 
-func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
+func documentXmlEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -365,10 +365,10 @@ func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "```bash\nyq e -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))
 }
 
-func documentXmlRoundTripScenario(w *bufio.Writer, s xmlScenario) {
+func documentXmlRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -383,7 +383,7 @@ func documentXmlRoundTripScenario(w *bufio.Writer, s xmlScenario) {
 	writeOrPanic(w, "```bash\nyq e -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))
 }
 
 func TestXmlScenarios(t *testing.T) {
