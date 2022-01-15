@@ -1,3 +1,9 @@
+4.17.1:
+  - Added XML support (#491)
+  - New merge flag (n) to only merge new fields (#1038)
+  - Fixed exit status bug for permission denied error (#1062)
+  - Fixed using multiple variables with union (,) operator (#1048)
+
 4.16.2:
   - Bumped go-lang compiler to fix CVE-2021-44717 (#1037)
   - Dependency version bumps via dependabot
