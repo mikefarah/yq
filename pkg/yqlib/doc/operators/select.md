@@ -2,26 +2,6 @@
 
 Select is used to filter arrays and maps by a boolean expression.
 
-## Select elements from array with regular expression
-See more regular expression examples under the `string` operator docs.
-
-Given a sample.yml file of:
-```yaml
-- this_0
-- not_this
-- nor_0_this
-- thisTo_4
-```
-then
-```bash
-yq eval '.[] | select(test("[a-zA-Z]+_[0-9]$"))' sample.yml
-```
-will output
-```yaml
-this_0
-thisTo_4
-```
-
 ## Select elements from array using wildcard prefix
 Given a sample.yml file of:
 ```yaml
@@ -75,6 +55,26 @@ go
 going
 ```
 
+## Select elements from array with regular expression
+See more regular expression examples under the `string` operator docs.
+
+Given a sample.yml file of:
+```yaml
+- this_0
+- not_this
+- nor_0_this
+- thisTo_4
+```
+then
+```bash
+yq eval '.[] | select(test("[a-zA-Z]+_[0-9]$"))' sample.yml
+```
+will output
+```yaml
+this_0
+thisTo_4
+```
+
 ## Select items from a map
 Given a sample.yml file of:
 ```yaml
@@ -92,7 +92,7 @@ cat
 dog
 ```
 
-## Use select + with_entries to filter map keys
+## Use select and with_entries to filter map keys
 Given a sample.yml file of:
 ```yaml
 name: bob

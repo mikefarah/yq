@@ -28,16 +28,6 @@ var selectOperatorScenarios = []expressionScenario{
 		expected:   []string{},
 	},
 	{
-		description:    "Select elements from array with regular expression",
-		subdescription: "See more regular expression examples under the `string` operator docs.",
-		document:       `[this_0, not_this, nor_0_this, thisTo_4]`,
-		expression:     `.[] | select(test("[a-zA-Z]+_[0-9]$"))`,
-		expected: []string{
-			"D0, P[0], (!!str)::this_0\n",
-			"D0, P[3], (!!str)::thisTo_4\n",
-		},
-	},
-	{
 		description: "Select elements from array using wildcard prefix",
 		document:    `[cat,goat,dog]`,
 		expression:  `.[] | select(. == "*at")`,
@@ -63,6 +53,16 @@ var selectOperatorScenarios = []expressionScenario{
 			"D0, P[0], (!!str)::ago\n",
 			"D0, P[1], (!!str)::go\n",
 			"D0, P[3], (!!str)::going\n",
+		},
+	},
+	{
+		description:    "Select elements from array with regular expression",
+		subdescription: "See more regular expression examples under the `string` operator docs.",
+		document:       `[this_0, not_this, nor_0_this, thisTo_4]`,
+		expression:     `.[] | select(test("[a-zA-Z]+_[0-9]$"))`,
+		expected: []string{
+			"D0, P[0], (!!str)::this_0\n",
+			"D0, P[3], (!!str)::thisTo_4\n",
 		},
 	},
 	{
@@ -107,7 +107,7 @@ var selectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Use select + with_entries to filter map keys",
+		description: "Use select and with_entries to filter map keys",
 		document:    `{name: bob, legs: 2, game: poker}`,
 		expression:  `with_entries(select(.key | test("ame$")))`,
 		expected: []string{
