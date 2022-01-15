@@ -217,13 +217,13 @@ var xmlScenarios = []xmlScenario{
 	},
 	{
 		description:    "Parse xml: attributes",
-		subdescription: "Attributes are converted to fields, with the attribute prefix.",
+		subdescription: "Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
 	},
 	{
 		description:    "Parse xml: attributes with content",
-		subdescription: "Content is added as a field, using the content name",
+		subdescription: "Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
 	},
@@ -313,6 +313,8 @@ func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	}
 	if s.scenarioType == "encode" {
 		documentXmlEncodeScenario(w, s)
+	} else if s.scenarioType == "roundtrip" {
+		documentXmlRoundTripScenario(w, s)
 	} else {
 		documentXmlDecodeScenario(t, w, s)
 	}
@@ -361,6 +363,24 @@ func documentXmlEncodeScenario(w *bufio.Writer, s xmlScenario) {
 
 	writeOrPanic(w, "then\n")
 	writeOrPanic(w, "```bash\nyq e -o=xml '.' sample.yml\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))
+}
+
+func documentXmlRoundTripScenario(w *bufio.Writer, s xmlScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.xml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq e -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processScenario(s)))

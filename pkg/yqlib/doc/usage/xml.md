@@ -2,8 +2,6 @@
 
 Encode and decode to and from XML. Whitespace is not conserved for round trips - but the order of the fields are.
 
-As yaml does not have the concept of attributes, xml attributes are converted to regular fields with a prefix to prevent clobbering. This defaults to "+", use the `--xml-attribute-prefix` to change.
-
 Consecutive xml nodes with the same name are assumed to be arrays.
 
 All values in XML are assumed to be strings - but you can use `from_yaml` to parse them into their correct types:
@@ -13,8 +11,6 @@ All values in XML are assumed to be strings - but you can use `from_yaml` to par
 yq e -p=xml '.myNumberField |= from_yaml' my.xml
 ```
 
-
-XML nodes that have attributes then plain content, e.g:
 
 ```xml
 <cat name="tiger">meow</cat>
@@ -58,7 +54,7 @@ animal:
 ```
 
 ## Parse xml: attributes
-Attributes are converted to fields, with the attribute prefix.
+Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.
 
 Given a sample.xml file of:
 ```xml
@@ -79,7 +75,7 @@ cat:
 ```
 
 ## Parse xml: attributes with content
-Content is added as a field, using the content name
+Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.
 
 Given a sample.xml file of:
 ```xml
@@ -271,24 +267,18 @@ for x --></x>
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq e -p=xml -o=xml '.' sample.xml
 ```
 will output
-```yaml
-# before cat
-cat:
-  # in cat before
-  x: "3" # multi
-  # line comment 
-  # for x
-  # before y
-
-  y:
-    # in y before
-    # in d before
-    d: z # in d after
-    # in y after
-  # in_cat_after
-# after cat
+```xml
+<!-- before cat --><cat><!-- in cat before -->
+  <x>3<!-- multi
+line comment 
+for x --></x><!-- before y -->
+  <y><!-- in y before
+in d before -->
+    <d>z<!-- in d after --></d><!-- in y after -->
+  </y><!-- in_cat_after -->
+</cat><!-- after cat -->
 ```
 
