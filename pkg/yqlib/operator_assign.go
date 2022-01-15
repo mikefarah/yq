@@ -2,13 +2,15 @@ package yqlib
 
 type assignPreferences struct {
 	DontOverWriteAnchor bool
+	OnlyWriteNull       bool
 }
 
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		rhs.Node = unwrapDoc(rhs.Node)
-
-		lhs.UpdateFrom(rhs, prefs)
+		if !prefs.OnlyWriteNull || lhs.Node.Tag == "!!null" {
+			lhs.UpdateFrom(rhs, prefs)
+		}
 		return lhs, nil
 	}
 }
@@ -76,7 +78,9 @@ func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionN
 			if expressionNode.Operation.Preferences != nil {
 				prefs = expressionNode.Operation.Preferences.(assignPreferences)
 			}
-			candidate.UpdateAttributesFrom(first.Value.(*CandidateNode), prefs)
+			if !prefs.OnlyWriteNull || candidate.Node.Tag == "!!null" {
+				candidate.UpdateAttributesFrom(first.Value.(*CandidateNode), prefs)
+			}
 		}
 	}
 	return context, nil

@@ -18,7 +18,7 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 		return Context{}, err
 	}
 
-	assignmentOp := &Operation{OperationType: assignOpType}
+	assignmentOp := &Operation{OperationType: assignOpType, Preferences: expressionNode.Operation.Preferences}
 	valueOp := &Operation{OperationType: valueOpType}
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {

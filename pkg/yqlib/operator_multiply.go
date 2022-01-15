@@ -13,6 +13,7 @@ type multiplyPreferences struct {
 	AppendArrays    bool
 	DeepMergeArrays bool
 	TraversePrefs   traversePreferences
+	AssignPrefs     assignPreferences
 }
 
 func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -140,7 +141,7 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	lhsPath := rhs.Path[pathIndexToStartFrom:]
 	log.Debugf("merge - lhsPath %v", lhsPath)
 
-	assignmentOp := &Operation{OperationType: assignAttributesOpType}
+	assignmentOp := &Operation{OperationType: assignAttributesOpType, Preferences: preferences.AssignPrefs}
 	if shouldAppendArrays && rhs.Node.Kind == yaml.SequenceNode {
 		assignmentOp.OperationType = addAssignOpType
 		log.Debugf("merge - assignmentOp.OperationType = addAssignOpType")
@@ -157,7 +158,11 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	}
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
 
-	assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey), Rhs: &ExpressionNode{Operation: rhsOp}}
+	assignmentOpNode := &ExpressionNode{
+		Operation: assignmentOp,
+		Lhs:       createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey),
+		Rhs:       &ExpressionNode{Operation: rhsOp},
+	}
 
 	_, err := d.GetMatchingNodes(context.SingleChildContext(lhs), assignmentOpNode)
 

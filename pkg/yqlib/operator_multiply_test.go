@@ -345,11 +345,27 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Merge, only new fields",
+		document:    `{a: {thing: one, cat: frog}, b: {missing: two, thing: two}}`,
+		expression:  `.a *n .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{thing: one, cat: frog, missing: two}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: [{thing: one}], b: [{missing: two, thing: two}]}`,
 		expression: `.a *?d .b`,
 		expected: []string{
 			"D0, P[a], (!!seq)::[{thing: two}]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: [{thing: one}], b: [{missing: two, thing: two}]}`,
+		expression: `.a *nd .b`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[{thing: one, missing: two}]\n",
 		},
 	},
 	{
@@ -374,6 +390,16 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression:  `.a *?+ .b`,
 		expected: []string{
 			"D0, P[a], (!!map)::{thing: [1, 2, 3, 4]}\n",
+		},
+	},
+	{
+		description:    "Merge, only new fields, appending arrays",
+		subdescription: "Append (+) with (n) has no effect.",
+		skipDoc:        true,
+		document:       `{a: {thing: [1,2]}, b: {thing: [3,4], another: [1]}}`,
+		expression:     `.a *n+ .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::{thing: [1, 2], another: [1]}\n",
 		},
 	},
 	{

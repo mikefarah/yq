@@ -110,6 +110,9 @@ func multiplyWithPrefs() lex.Action {
 		if strings.Contains(options, "?") {
 			prefs.TraversePrefs = traversePreferences{DontAutoCreate: true}
 		}
+		if strings.Contains(options, "n") {
+			prefs.AssignPrefs = assignPreferences{OnlyWriteNull: true}
+		}
 		if strings.Contains(options, "d") {
 			prefs.DeepMergeArrays = true
 		}
@@ -473,7 +476,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\]\??`), literalToken(closeCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(closeCollectObject, true))
-	lexer.Add([]byte(`\*[\+|\?d]*`), multiplyWithPrefs())
+	lexer.Add([]byte(`\*[\+|\?dn]*`), multiplyWithPrefs())
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
 	lexer.Add([]byte(`\-`), opToken(subtractOpType))

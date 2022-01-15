@@ -10,9 +10,10 @@ Note that when merging objects, this operator returns the merged object (not the
 ### Merge Flags
 You can control how objects are merged by using one or more of the following flags. Multiple flags can be used together, e.g. `.a *+? .b`.  See examples below
 
-- `+` to append arrays
-- `?` to only merge existing fields
-- `d` to deeply merge arrays
+- `+` append arrays
+- `d` deeply merge arrays
+- `?` only merge _existing_ fields
+- `n` only merge _new_ fields
 
 ### Merging files
 Note the use of `eval-all` to ensure all documents are loaded into memory.
@@ -146,6 +147,27 @@ will output
 ```yaml
 thing: two
 cat: frog
+```
+
+## Merge, only new fields
+Given a sample.yml file of:
+```yaml
+a:
+  thing: one
+  cat: frog
+b:
+  missing: two
+  thing: two
+```
+then
+```bash
+yq eval '.a *n .b' sample.yml
+```
+will output
+```yaml
+thing: one
+cat: frog
+missing: two
 ```
 
 ## Merge, appending arrays
