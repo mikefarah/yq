@@ -3,7 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -77,7 +76,7 @@ func createTempFile() (*os.File, error) {
 		return nil, err
 	}
 
-	file, err := ioutil.TempFile("", "temp")
+	file, err := os.CreateTemp("", "temp")
 	if err != nil {
 		return nil, err
 	}
