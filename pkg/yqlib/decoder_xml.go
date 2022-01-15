@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-
 	"unicode"
 
 	"golang.org/x/net/html/charset"
