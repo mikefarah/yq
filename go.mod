@@ -4,7 +4,7 @@ require (
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/fatih/color v1.13.0
 	github.com/goccy/go-yaml v1.9.5
-	github.com/jinzhu/copier v0.3.4
+	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.5
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/spf13/cobra v1.3.0
