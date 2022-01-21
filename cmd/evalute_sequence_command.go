@@ -44,11 +44,11 @@ expression and prints the result in sequence.`,
 }
 
 func processExpression(expression string) string {
-	var prettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
+
 	if prettyPrint && expression == "" {
-		return prettyPrintExp
+		return yqlib.PrettyPrintExp
 	} else if prettyPrint {
-		return fmt.Sprintf("%v | %v", expression, prettyPrintExp)
+		return fmt.Sprintf("%v | %v", expression, yqlib.PrettyPrintExp)
 	}
 	return expression
 }

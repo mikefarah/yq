@@ -51,6 +51,8 @@ func processXmlScenario(s formatScenario) string {
 
 type formatScenario struct {
 	input          string
+	indent         int
+	expression     string
 	expected       string
 	description    string
 	subdescription string

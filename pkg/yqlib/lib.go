@@ -20,6 +20,8 @@ type xmlPreferences struct {
 
 var log = logging.MustGetLogger("yq-lib")
 
+var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
+
 // GetLogger returns the yq logger instance.
 func GetLogger() *logging.Logger {
 	return log
