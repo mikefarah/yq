@@ -18,6 +18,14 @@ linters:
     - revive
     - unconvert
     - unparam
+linters-settings:
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages:
+      - io/ioutil
+    packages-with-error-message:
+      - io/ioutil: "The 'io/ioutil' package is deprecated. Use corresponding 'os' or 'io' functions instead."
 issues:
   exclude-rules:
   - linters:

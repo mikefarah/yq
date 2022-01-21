@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"container/list"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -19,7 +18,7 @@ func loadString(filename string) (*CandidateNode, error) {
 	// ignore CWE-22 gosec issue - that's more targeted for http based apps that run in a public directory,
 	// and ensuring that it's not possible to give a path to a file outside that directory.
 
-	filebytes, err := ioutil.ReadFile(filename) // #nosec
+	filebytes, err := os.ReadFile(filename) // #nosec
 	if err != nil {
 		return nil, err
 	}

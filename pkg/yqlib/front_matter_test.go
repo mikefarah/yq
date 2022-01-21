@@ -1,7 +1,8 @@
 package yqlib
 
 import (
-	"io/ioutil"
+	"io"
+	"os"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -24,7 +25,7 @@ func createTestFile(content string) string {
 }
 
 func readFile(filename string) string {
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +61,7 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	contentBytes, err := io.ReadAll(fmHandler.GetContentReader())
 	if err != nil {
 		panic(err)
 	}
@@ -97,7 +98,7 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	contentBytes, err := io.ReadAll(fmHandler.GetContentReader())
 	if err != nil {
 		panic(err)
 	}
@@ -131,7 +132,7 @@ yaml: doc
 
 	test.AssertResult(t, expectedYamlFm, yamlFm)
 
-	contentBytes, err := ioutil.ReadAll(fmHandler.GetContentReader())
+	contentBytes, err := io.ReadAll(fmHandler.GetContentReader())
 	if err != nil {
 		panic(err)
 	}
