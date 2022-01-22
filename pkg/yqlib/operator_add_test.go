@@ -144,6 +144,34 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!str)::cat\n",
 		},
 	},
+	{
+		description:    "Custom types: that are really strings",
+		subdescription: "when custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse cat\nb: !goat _meow",
+		expression:     `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse cat_meow\nb: !goat _meow\n",
+		},
+	},
+	{
+		description:    "Custom types: that are really numbers",
+		subdescription: "when custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse 1.2\nb: !goat 2.3",
+		expression:     `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 3.5\nb: !goat 2.3\n",
+		},
+	},
+	{
+		description:    "Custom types: that are really arrays",
+		skipDoc:        true,
+		subdescription: "when custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse [a]\nb: !goat [b]",
+		expression:     `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse [a, b]\nb: !goat [b]\n",
+		},
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {

@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -55,7 +56,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	case yaml.SequenceNode:
 		target.Node.Kind = yaml.SequenceNode
 		target.Node.Style = lhsNode.Style
-		target.Node.Tag = "!!seq"
+		target.Node.Tag = lhsNode.Tag
 		target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
@@ -69,12 +70,39 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	return target, nil
 }
 
-func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
+func guessTagFromCustomType(node *yaml.Node) string {
+	decoder := NewYamlDecoder()
+	decoder.Init(strings.NewReader(node.Value))
+	var dataBucket yaml.Node
+	errorReading := decoder.Decode(&dataBucket)
+	if errorReading != nil {
+		log.Warning("could not guess underlying tag type %w", errorReading)
+		return node.Tag
+	}
+	guessedTag := unwrapDoc(&dataBucket).Tag
+	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
+	return guessedTag
+}
 
-	if lhs.Tag == "!!str" {
-		target.Node.Tag = "!!str"
+func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
+	lhsTag := lhs.Tag
+	rhsTag := rhs.Tag
+	lhsIsCustom := false
+	if !strings.HasPrefix(lhsTag, "!!") {
+		// custom tag - we have to have a guess
+		lhsTag = guessTagFromCustomType(lhs)
+		lhsIsCustom = true
+	}
+
+	if !strings.HasPrefix(rhsTag, "!!") {
+		// custom tag - we have to have a guess
+		rhsTag = guessTagFromCustomType(rhs)
+	}
+
+	if lhsTag == "!!str" {
+		target.Node.Tag = lhs.Tag
 		target.Node.Value = lhs.Value + rhs.Value
-	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
+	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		format, lhsNum, err := parseInt(lhs.Value)
 		if err != nil {
 			return nil, err
@@ -84,9 +112,9 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Candida
 			return nil, err
 		}
 		sum := lhsNum + rhsNum
-		target.Node.Tag = "!!int"
+		target.Node.Tag = lhs.Tag
 		target.Node.Value = fmt.Sprintf(format, sum)
-	} else if (lhs.Tag == "!!int" || lhs.Tag == "!!float") && (rhs.Tag == "!!int" || rhs.Tag == "!!float") {
+	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
 			return nil, err
@@ -96,10 +124,14 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Candida
 			return nil, err
 		}
 		sum := lhsNum + rhsNum
-		target.Node.Tag = "!!float"
+		if lhsIsCustom {
+			target.Node.Tag = lhs.Tag
+		} else {
+			target.Node.Tag = "!!float"
+		}
 		target.Node.Value = fmt.Sprintf("%v", sum)
 	} else {
-		return nil, fmt.Errorf("%v cannot be added to %v", lhs.Tag, rhs.Tag)
+		return nil, fmt.Errorf("%v cannot be added to %v", lhsTag, rhsTag)
 	}
 
 	return target, nil

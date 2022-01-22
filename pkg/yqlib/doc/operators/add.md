@@ -265,3 +265,39 @@ will output
 cat
 ```
 
+## Custom types: that are really strings
+when custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse cat
+b: !goat _meow
+```
+then
+```bash
+yq eval '.a += .b' sample.yml
+```
+will output
+```yaml
+a: !horse cat_meow
+b: !goat _meow
+```
+
+## Custom types: that are really numbers
+when custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 1.2
+b: !goat 2.3
+```
+then
+```bash
+yq eval '.a += .b' sample.yml
+```
+will output
+```yaml
+a: !horse 3.5
+b: !goat 2.3
+```
+
