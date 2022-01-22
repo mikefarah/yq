@@ -1,3 +1,6 @@
+4.17.2:
+  - Fixed manpath issue (thanks @mr-pmillz)
+  
 4.17.1:
   - Added XML support (#491)
   - New merge flag (n) to only merge new fields (#1038)
