@@ -23,13 +23,19 @@ yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.y
 ```
 
 ## Multiply integers
-Running
+Given a sample.yml file of:
+```yaml
+a: 3
+b: 4
+```
+then
 ```bash
-yq eval --null-input '3 * 4'
+yq eval '.a *= .b' sample.yml
 ```
 will output
 ```yaml
-12
+a: 12
+b: 4
 ```
 
 ## Merge objects together, returning merged result only

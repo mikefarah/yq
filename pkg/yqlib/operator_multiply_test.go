@@ -153,9 +153,10 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Multiply integers",
-		expression:  `3 * 4`,
+		document:    "a: 3\nb: 4",
+		expression:  `.a *= .b`,
 		expected: []string{
-			"D0, P[], (!!int)::12\n",
+			"D0, P[], (doc)::a: 12\nb: 4\n",
 		},
 	},
 	{

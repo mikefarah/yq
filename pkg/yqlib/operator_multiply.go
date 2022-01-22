@@ -17,6 +17,21 @@ type multiplyPreferences struct {
 	AssignPrefs     assignPreferences
 }
 
+func createMultiplyOp(prefs interface{}) func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
+	return func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
+		return &ExpressionNode{Operation: &Operation{OperationType: multiplyOpType, Preferences: prefs},
+			Lhs: lhs,
+			Rhs: rhs}
+	}
+}
+
+func multiplyAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	var multiplyPrefs = expressionNode.Operation.Preferences
+	expressionNode.Operation.Preferences = nil
+
+	return compoundAssignFunction(d, context, expressionNode, createMultiplyOp(multiplyPrefs))
+}
+
 func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- MultiplyOperator")
 	return crossFunction(d, context, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)), false)

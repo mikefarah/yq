@@ -100,7 +100,7 @@ func assignOpToken(updateAssign bool) lex.Action {
 	}
 }
 
-func multiplyWithPrefs() lex.Action {
+func multiplyWithPrefs(op *operationType) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		prefs := multiplyPreferences{}
 		options := string(m.Bytes)
@@ -117,7 +117,7 @@ func multiplyWithPrefs() lex.Action {
 			prefs.DeepMergeArrays = true
 		}
 		prefs.TraversePrefs.DontFollowAlias = true
-		op := &Operation{OperationType: multiplyOpType, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}
+		op := &Operation{OperationType: op, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
@@ -476,9 +476,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\]\??`), literalToken(closeCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
 	lexer.Add([]byte(`\}`), literalToken(closeCollectObject, true))
-	lexer.Add([]byte(`\*[\+|\?dn]*`), multiplyWithPrefs())
+	lexer.Add([]byte(`\*=[\+|\?dn]*`), multiplyWithPrefs(multiplyAssignOpType))
+	lexer.Add([]byte(`\*[\+|\?dn]*`), multiplyWithPrefs(multiplyOpType))
+
 	lexer.Add([]byte(`\+`), opToken(addOpType))
 	lexer.Add([]byte(`\+=`), opToken(addAssignOpType))
+
 	lexer.Add([]byte(`\-`), opToken(subtractOpType))
 	lexer.Add([]byte(`\-=`), opToken(subtractAssignOpType))
 	lexer.Add([]byte(`\$[a-zA-Z_-0-9]+`), getVariableOpToken())
