@@ -4,25 +4,19 @@ Encode and decode to and from XML. Whitespace is not conserved for round trips -
 
 Consecutive xml nodes with the same name are assumed to be arrays.
 
-All values in XML are assumed to be strings - but you can use `from_yaml` to parse them into their correct types:
-
-
-```
-yq e -p=xml '.myNumberField |= from_yaml' my.xml
-```
-
-
-```xml
-<cat name="tiger">meow</cat>
-```
-
-The content of the node will be set as a field in the map with the key "+content". Use the `--xml-content-name` flag to change this.
+XML content data and attributes are created as fields. This can be controlled by the `'--xml-attribute-prefix` and `--xml-content-name` flags - see below for examples.
 
 ## Parse xml: simple
+Notice how all the values are strings, see the next example on how you can fix that.
+
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<cat>meow</cat>
+<cat>
+  <says>meow</says>
+  <legs>4</legs>
+  <cute>true</cute>
+</cat>
 ```
 then
 ```bash
@@ -30,7 +24,34 @@ yq e -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-cat: meow
+cat:
+  says: meow
+  legs: "4"
+  cute: "true"
+```
+
+## Parse xml: number
+All values are assumed to be strings when parsing XML, but you can use the `from_yaml` operator on all the strings values to autoparse into the correct type.
+
+Given a sample.xml file of:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<cat>
+  <says>meow</says>
+  <legs>4</legs>
+  <cute>true</cute>
+</cat>
+```
+then
+```bash
+yq e -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
+```
+will output
+```yaml
+cat:
+  says: meow
+  legs: 4
+  cute: true
 ```
 
 ## Parse xml: array
@@ -39,8 +60,8 @@ Consecutive nodes with identical xml names are assumed to be arrays.
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<animal>1</animal>
-<animal>2</animal>
+<animal>cat</animal>
+<animal>goat</animal>
 ```
 then
 ```bash
@@ -49,8 +70,8 @@ yq e -p=xml '.' sample.xml
 will output
 ```yaml
 animal:
-  - "1"
-  - "2"
+  - cat
+  - goat
 ```
 
 ## Parse xml: attributes
@@ -75,7 +96,7 @@ cat:
 ```
 
 ## Parse xml: attributes with content
-Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.
+Content is added as a field, using the default content name of `+content`. Use `--xml-content-name` to set your own.
 
 Given a sample.xml file of:
 ```xml

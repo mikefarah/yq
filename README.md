@@ -3,7 +3,7 @@
 ![Build](https://github.com/mikefarah/yq/workflows/Build/badge.svg)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq)
 
 
-a lightweight and portable command-line YAML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
+a lightweight and portable command-line YAML, JSON and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json and xml. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
 yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
 
@@ -241,19 +241,21 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 ## Features
 - [Detailed documentation with many examples](https://mikefarah.gitbook.io/yq/)
 - Written in portable go, so you can download a lovely dependency free binary
-- Uses similar syntax as `jq` but works with YAML and JSON files
+- Uses similar syntax as `jq` but works with YAML, [JSON](https://mikefarah.gitbook.io/yq/usage/convert) and [XML](https://mikefarah.gitbook.io/yq/usage/xml) files
 - Fully supports multi document yaml files
 - Supports yaml [front matter](https://mikefarah.gitbook.io/yq/usage/front-matter) blocks (e.g. jekyll/assemble)
 - Colorized yaml output
-- [Deeply traverse yaml](https://mikefarah.gitbook.io/yq/operators/traverse-read)
-- [Sort yaml by keys](https://mikefarah.gitbook.io/yq/operators/sort-keys)
+- [Deeply data structures](https://mikefarah.gitbook.io/yq/operators/traverse-read)
+- [Sort keys](https://mikefarah.gitbook.io/yq/operators/sort-keys)
 - Manipulate yaml [comments](https://mikefarah.gitbook.io/yq/operators/comment-operators), [styling](https://mikefarah.gitbook.io/yq/operators/style), [tags](https://mikefarah.gitbook.io/yq/operators/tag) and [anchors and aliases](https://mikefarah.gitbook.io/yq/operators/anchor-and-alias-operators).
-- [Update yaml inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
+- [Update inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
 - [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/operators/select#select-and-update-matching-values-in-map)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
 - [Load content from other files](https://mikefarah.gitbook.io/yq/operators/load)
 - [Convert to/from json](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
+- [Convert to/from xml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/xml)
 - [Convert to properties](https://mikefarah.gitbook.io/yq/v/v4.x/usage/properties)
+- [Convert to csv/tsv](https://mikefarah.gitbook.io/yq/usage/csv-tsv)
 - [Pipe data in by using '-'](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate)
 - [General shell completion scripts (bash/zsh/fish/powershell)](https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
 - [Reduce](https://mikefarah.gitbook.io/yq/operators/reduce) to merge multiple files or sum an array or other fancy things.
@@ -269,27 +271,32 @@ Usage:
   yq [command]
 
 Available Commands:
+  completion       Generate the autocompletion script for the specified shell
   eval             Apply the expression to each document in each yaml file in sequence
   eval-all         Loads _all_ yaml documents of _all_ yaml files and runs expression once
   help             Help about any command
   shell-completion Generate completion script
 
 Flags:
-  -C, --colors                force print with colors
-  -e, --exit-status           set exit status if there are no matches or null or false is returned
-  -f, --front-matter string   (extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact
-      --header-preprocess     Slurp any header comments and seperators before processing expression. This is a workaround for go-yaml to persist header content (default true)
-  -h, --help                  help for yq
-  -I, --indent int            sets indent level for output (default 2)
-  -i, --inplace               update the yaml file inplace of first yaml file given.
-  -M, --no-colors             force print with no colors
-  -N, --no-doc                Don't print document separators (---)
-  -n, --null-input            Don't read input, simply evaluate the expression given. Useful for creating yaml docs from scratch.
-  -o, --output-format string  [yaml|y|json|j|props|p] output format type. (default "yaml")
-  -P, --prettyPrint           pretty print, shorthand for '... style = ""'
-      --unwrapScalar          unwrap scalar, print the value with no quotes, colors or comments (default true)
-  -v, --verbose               verbose mode
-  -V, --version               Print version information and quit
+  -C, --colors                        force print with colors
+  -e, --exit-status                   set exit status if there are no matches or null or false is returned
+  -f, --front-matter string           (extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact
+      --header-preprocess             Slurp any header comments and separators before processing expression. (default true)
+  -h, --help                          help for yq
+  -I, --indent int                    sets indent level for output (default 2)
+  -i, --inplace                       update the file inplace of first file given.
+  -p, --input-format string           [yaml|y|xml|x] parse format for input. Note that json is a subset of yaml. (default "yaml")
+  -M, --no-colors                     force print with no colors
+  -N, --no-doc                        Don't print document separators (---)
+  -n, --null-input                    Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.
+  -o, --output-format string          [yaml|y|json|j|props|p|xml|x] output format type. (default "yaml")
+  -P, --prettyPrint                   pretty print, shorthand for '... style = ""'
+  -s, --split-exp string              print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter.
+      --unwrapScalar                  unwrap scalar, print the value with no quotes, colors or comments (default true)
+  -v, --verbose                       verbose mode
+  -V, --version                       Print version information and quit
+      --xml-attribute-prefix string   prefix for xml attributes (default "+")
+      --xml-content-name string       name for xml content (if no attribute name is present). (default "+content")
 
 Use "yq [command] --help" for more information about a command.
 ```

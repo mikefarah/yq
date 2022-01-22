@@ -11,17 +11,39 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func decodeXml(t *testing.T, xml string) *CandidateNode {
+func decodeXml(t *testing.T, s formatScenario) *CandidateNode {
 	decoder := NewXmlDecoder("+", "+content")
 
-	decoder.Init(strings.NewReader(xml))
+	decoder.Init(strings.NewReader(s.input))
 
 	node := &yaml.Node{}
 	err := decoder.Decode(node)
 	if err != nil {
-		t.Error(err, "fail to decode", xml)
+		t.Error(err, "fail to decode", s.input)
 	}
-	return &CandidateNode{Node: node}
+
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+
+	exp, err := NewExpressionParser().ParseExpression(expression)
+
+	if err != nil {
+		t.Error(err)
+		return nil
+	}
+
+	candidateNode := CandidateNode{Node: node}
+
+	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: candidateNode.AsList()}, exp)
+
+	if err != nil {
+		t.Error(err)
+		return nil
+	}
+
+	return context.MatchingNodes.Front().Value.(*CandidateNode)
 }
 
 func processXmlScenario(s formatScenario) string {
@@ -207,15 +229,23 @@ var expectedXmlWithComments = `<!-- above_cat inline_cat --><cat><!-- above_arra
 
 var xmlScenarios = []formatScenario{
 	{
-		description: "Parse xml: simple",
-		input:       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>meow</cat>",
-		expected:    "D0, P[], (doc)::cat: meow\n",
+		description:    "Parse xml: simple",
+		subdescription: "Notice how all the values are strings, see the next example on how you can fix that.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
+		expected:       "D0, P[], (doc)::cat:\n    says: meow\n    legs: \"4\"\n    cute: \"true\"\n",
+	},
+	{
+		description:    "Parse xml: number",
+		subdescription: "All values are assumed to be strings when parsing XML, but you can use the `from_yaml` operator on all the strings values to autoparse into the correct type.",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
+		expression:     " (.. | select(tag == \"!!str\")) |= from_yaml",
+		expected:       "D0, P[], ()::cat:\n    says: meow\n    legs: 4\n    cute: true\n",
 	},
 	{
 		description:    "Parse xml: array",
 		subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
-		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>1</animal>\n<animal>2</animal>",
-		expected:       "D0, P[], (doc)::animal:\n    - \"1\"\n    - \"2\"\n",
+		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>cat</animal>\n<animal>goat</animal>",
+		expected:       "D0, P[], (doc)::animal:\n    - cat\n    - goat\n",
 	},
 	{
 		description:    "Parse xml: attributes",
@@ -225,7 +255,7 @@ var xmlScenarios = []formatScenario{
 	},
 	{
 		description:    "Parse xml: attributes with content",
-		subdescription: "Content is added as a field, using the default content name of '+content'. Use `--xml-content-name` to set your own.",
+		subdescription: "Content is added as a field, using the default content name of `+content`. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
 		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
 	},
@@ -302,7 +332,7 @@ func testXmlScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
 		test.AssertResultWithContext(t, s.expected, processXmlScenario(s), s.description)
 	} else {
-		var actual = resultToString(t, decodeXml(t, s.input))
+		var actual = resultToString(t, decodeXml(t, s))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
 	}
 }
@@ -335,13 +365,17 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq e -p=xml '.' sample.xml\n```\n")
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq e -p=xml '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
-	node := decodeXml(t, s.input)
+	node := decodeXml(t, s)
 
 	err := printer.PrintResults(node.AsList())
 	if err != nil {
