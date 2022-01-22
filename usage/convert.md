@@ -1,97 +1,126 @@
-# Working with JSON
+# JSON
 
-## Yaml to Json
+Encode and decode to and from JSON. Note that YAML is a _superset_ of JSON - so `yq` can read any json file without doing anything special.
 
-To convert output to json, use the `--output-format=json` (or `-o=j`) flag. You can change the json output format by using the [indent](output-format.md#indent) flag.&#x20;
+This means you don't need to 'convert' a JSON file to YAML - however if you want idiomatic YAML styling, then you can use the `-P/--prettyPrint` flag, see examples below.
 
-Given a sample.yaml file of:
+## Parse json: simple
+JSON is a subset of yaml, so all you need to do is prettify the output
 
-```yaml
-b:
-  c: 2
+Given a sample.json file of:
+```json
+{"cat": "meow"}
 ```
-
 then
-
 ```bash
-yq eval -o=j sample.yaml
+yq e -P '.' sample.json
 ```
-
 will output
-
-```javascript
-{
-  "b": {
-    "c": 2
-  }
-}
-```
-
-To format the json:
-
 ```yaml
-yq eval -o=j -I=0 sample.yaml
+cat: meow
 ```
 
-will yield
+## Parse json: complex
+JSON is a subset of yaml, so all you need to do is prettify the output
 
-```yaml
-{"b":{"c":2}}
-```
-
-### Multiple matches
-
-Each matching yaml node will be converted to json and printed out as a separate json doc. You may want to set the [indent](output-format.md#indent) flags to 0 if you want a json doc per line.
-
-Given a sample.yaml file of:
-
-```yaml
-bob:
-  c: 2
-bab:
-  c: 5
-```
-
-then
-
-```bash
-yq eval -o=j '.b*' sample.yaml
-```
-
-will output
-
-```javascript
-{
-  "c": 2
-}
-{
-  "c": 5
-}
-```
-
-## Json to Yaml
-
-To read in json, just pass in a json file instead of yaml, it will just work - as json is a subset of yaml. However, you will probably want to use the [Style Operator](broken-reference) or `--prettyPrint/-P` flag to make look more like an idiomatic yaml document. This can be done by resetting the style of all elements.
-
-e.g given a json file
-
-```javascript
+Given a sample.json file of:
+```json
 {"a":"Easy! as one two three","b":{"c":2,"d":[3,4]}}
 ```
-
 then
-
 ```bash
-yq eval -P sample.json
+yq e -P '.' sample.json
 ```
-
 will output
-
 ```yaml
 a: Easy! as one two three
 b:
   c: 2
   d:
-  - 3
-  - 4
+    - 3
+    - 4
 ```
+
+## Encode json: simple
+Given a sample.yml file of:
+```yaml
+cat: meow
+```
+then
+```bash
+yq e -o=json '.' sample.yml
+```
+will output
+```json
+{
+  "cat": "meow"
+}
+```
+
+## Encode json: simple - in one line
+Given a sample.yml file of:
+```yaml
+cat: meow # this is a comment, and it will be dropped.
+```
+then
+```bash
+yq e -o=json -I=0 '.' sample.yml
+```
+will output
+```json
+{"cat":"meow"}
+```
+
+## Encode json: comments
+Given a sample.yml file of:
+```yaml
+cat: meow # this is a comment, and it will be dropped.
+```
+then
+```bash
+yq e -o=json '.' sample.yml
+```
+will output
+```json
+{
+  "cat": "meow"
+}
+```
+
+## Encode json: anchors
+Anchors are dereferenced
+
+Given a sample.yml file of:
+```yaml
+cat: &ref meow
+anotherCat: *ref
+```
+then
+```bash
+yq e -o=json '.' sample.yml
+```
+will output
+```json
+{
+  "cat": "meow",
+  "anotherCat": "meow"
+}
+```
+
+## Encode json: multiple results
+Each matching node is converted into a json doc. This is best used with 0 indent (json document per line)
+
+Given a sample.yml file of:
+```yaml
+things: [{stuff: cool}, {whatever: cat}]
+```
+then
+```bash
+yq e -o=json -I=0 '.things[]' sample.yml
+```
+will output
+```json
+{"stuff":"cool"}
+{"whatever":"cat"}
+```
+
