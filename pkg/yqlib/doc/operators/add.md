@@ -7,6 +7,8 @@ Add behaves differently according to the type of the LHS:
 
 Use `+=` as append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
 
+Add is not (yet) supported for maps - however you can use merge `*` which will have a similar effect...
+
 ## Concatenate and assign arrays
 Given a sample.yml file of:
 ```yaml
@@ -266,7 +268,7 @@ cat
 ```
 
 ## Custom types: that are really strings
-when custom tags are encountered, yq will try to decode the underlying type.
+When custom tags are encountered, yq will try to decode the underlying type.
 
 Given a sample.yml file of:
 ```yaml
@@ -284,7 +286,7 @@ b: !goat _meow
 ```
 
 ## Custom types: that are really numbers
-when custom tags are encountered, yq will try to decode the underlying type.
+When custom tags are encountered, yq will try to decode the underlying type.
 
 Given a sample.yml file of:
 ```yaml

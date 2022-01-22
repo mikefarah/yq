@@ -136,7 +136,12 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 		n.Node.Value = ""
 	}
 	n.Node.Kind = other.Node.Kind
-	n.Node.Tag = other.Node.Tag
+
+	// don't clobber custom tags...
+	if strings.HasPrefix(n.Node.Tag, "!!") || n.Node.Tag == "" {
+		n.Node.Tag = other.Node.Tag
+	}
+
 	n.Node.Alias = other.Node.Alias
 
 	if !prefs.DontOverWriteAnchor {

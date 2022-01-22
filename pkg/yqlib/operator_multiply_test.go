@@ -461,6 +461,60 @@ var multiplyOperatorScenarios = []expressionScenario{
 			"D0, P[b], (!!map)::{name: dog, <<: *cat}\n",
 		},
 	},
+	{
+		description:    "Custom types: that are really numbers",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse 2\nb: !goat 3",
+		expression:     ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 6\nb: !goat 3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really numbers",
+		document:    "a: !horse 2.5\nb: !goat 3.5",
+		expression:  ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 8.75\nb: !goat 3.5\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really numbers",
+		document:    "a: 2\nb: !goat 3.5",
+		expression:  ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !!float 7\nb: !goat 3.5\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really arrays",
+		document:    "a: !horse [1,2]\nb: !goat [3]",
+		expression:  ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !horse [3]\nb: !goat [3]\n",
+		},
+	},
+	{
+		description:    "Custom types: that are really maps",
+		subdescription: "Custom tags will be maintained.",
+		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
+		expression:     ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !horse {cat: meow, dog: woof}\nb: !goat {dog: woof}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really maps",
+		document:    "a: {cat: !horse meow}\nb: {cat: 5}",
+		expression:  ".a = .a * .b",
+		expected: []string{
+			"D0, P[], (doc)::a: {cat: !horse 5}\nb: {cat: 5}\n",
+		},
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {

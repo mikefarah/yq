@@ -93,6 +93,34 @@ var subtractOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::{a: 2, b: 4}\n",
 		},
 	},
+	{
+		description:    "Custom types: that are really numbers",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse 2\nb: !goat 1",
+		expression:     `.a -= .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 1\nb: !goat 1\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Custom types: that are really floats",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse 2.5\nb: !goat 1.5",
+		expression:     `.a - .b`,
+		expected: []string{
+			"D0, P[a], (!horse)::1\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really maps",
+		document:    `[!horse {a: b, c: d}, !goat {a: b}]`,
+		expression:  `. - [{"c": "d", "a": "b"}]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[!goat {a: b}]\n",
+		},
+	},
 }
 
 func TestSubtractOperatorScenarios(t *testing.T) {

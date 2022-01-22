@@ -71,12 +71,17 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 }
 
 func guessTagFromCustomType(node *yaml.Node) string {
+	if node.Value == "" {
+		log.Warning("node has no value to guess the type with")
+		return node.Tag
+	}
+
 	decoder := NewYamlDecoder()
 	decoder.Init(strings.NewReader(node.Value))
 	var dataBucket yaml.Node
 	errorReading := decoder.Decode(&dataBucket)
 	if errorReading != nil {
-		log.Warning("could not guess underlying tag type %w", errorReading)
+		log.Warning("could not guess underlying tag type %v", errorReading)
 		return node.Tag
 	}
 	guessedTag := unwrapDoc(&dataBucket).Tag

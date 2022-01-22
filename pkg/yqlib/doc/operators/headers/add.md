@@ -6,3 +6,5 @@ Add behaves differently according to the type of the LHS:
 * string scalars: concatenate
 
 Use `+=` as append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
+
+Add is not (yet) supported for maps - however you can use merge `*` which will have a similar effect...

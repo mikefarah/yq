@@ -111,3 +111,21 @@ a: 2
 b: 4
 ```
 
+## Custom types: that are really numbers
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 2
+b: !goat 1
+```
+then
+```bash
+yq eval '.a -= .b' sample.yml
+```
+will output
+```yaml
+a: !horse 1
+b: !goat 1
+```
+

@@ -190,9 +190,32 @@ func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 }
 
 func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
-	if lhs.Kind != rhs.Kind || lhs.Tag != rhs.Tag {
+	if lhs.Kind != rhs.Kind {
 		return false
-	} else if lhs.Tag == "!!null" {
+	}
+
+	if lhs.Kind == yaml.ScalarNode {
+		//process custom tags of scalar nodes.
+		//dont worry about matching tags of maps or arrays.
+
+		lhsTag := lhs.Tag
+		rhsTag := rhs.Tag
+		if !strings.HasPrefix(lhsTag, "!!") {
+			// custom tag - we have to have a guess
+			lhsTag = guessTagFromCustomType(lhs)
+		}
+
+		if !strings.HasPrefix(rhsTag, "!!") {
+			// custom tag - we have to have a guess
+			rhsTag = guessTagFromCustomType(rhs)
+		}
+
+		if lhsTag != rhsTag {
+			return false
+		}
+	}
+
+	if lhs.Tag == "!!null" {
 		return true
 
 	} else if lhs.Kind == yaml.ScalarNode {

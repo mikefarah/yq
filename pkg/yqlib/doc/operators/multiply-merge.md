@@ -410,3 +410,44 @@ thing: foobar_thing
 b: foobarList_b
 ```
 
+## Custom types: that are really numbers
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 2
+b: !goat 3
+```
+then
+```bash
+yq eval '.a = .a * .b' sample.yml
+```
+will output
+```yaml
+a: !horse 6
+b: !goat 3
+```
+
+## Custom types: that are really maps
+Custom tags will be maintained.
+
+Given a sample.yml file of:
+```yaml
+a: !horse
+  cat: meow
+b: !goat
+  dog: woof
+```
+then
+```bash
+yq eval '.a = .a * .b' sample.yml
+```
+will output
+```yaml
+a: !horse
+  cat: meow
+  dog: woof
+b: !goat
+  dog: woof
+```
+

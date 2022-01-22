@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -74,10 +75,23 @@ func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 }
 
 func subtractScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
+	lhsTag := lhs.Tag
+	rhsTag := rhs.Tag
+	lhsIsCustom := false
+	if !strings.HasPrefix(lhsTag, "!!") {
+		// custom tag - we have to have a guess
+		lhsTag = guessTagFromCustomType(lhs)
+		lhsIsCustom = true
+	}
 
-	if lhs.Tag == "!!str" {
+	if !strings.HasPrefix(rhsTag, "!!") {
+		// custom tag - we have to have a guess
+		rhsTag = guessTagFromCustomType(rhs)
+	}
+
+	if lhsTag == "!!str" {
 		return nil, fmt.Errorf("strings cannot be subtracted")
-	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
+	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		format, lhsNum, err := parseInt(lhs.Value)
 		if err != nil {
 			return nil, err
@@ -87,9 +101,9 @@ func subtractScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Ca
 			return nil, err
 		}
 		result := lhsNum - rhsNum
-		target.Node.Tag = "!!int"
+		target.Node.Tag = lhs.Tag
 		target.Node.Value = fmt.Sprintf(format, result)
-	} else if (lhs.Tag == "!!int" || lhs.Tag == "!!float") && (rhs.Tag == "!!int" || rhs.Tag == "!!float") {
+	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
 			return nil, err
@@ -99,7 +113,11 @@ func subtractScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Ca
 			return nil, err
 		}
 		result := lhsNum - rhsNum
-		target.Node.Tag = "!!float"
+		if lhsIsCustom {
+			target.Node.Tag = lhs.Tag
+		} else {
+			target.Node.Tag = "!!float"
+		}
 		target.Node.Value = fmt.Sprintf("%v", result)
 	} else {
 		return nil, fmt.Errorf("%v cannot be added to %v", lhs.Tag, rhs.Tag)

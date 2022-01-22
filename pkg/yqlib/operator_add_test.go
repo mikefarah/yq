@@ -146,7 +146,7 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Custom types: that are really strings",
-		subdescription: "when custom tags are encountered, yq will try to decode the underlying type.",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
 		document:       "a: !horse cat\nb: !goat _meow",
 		expression:     `.a += .b`,
 		expected: []string{
@@ -155,11 +155,36 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Custom types: that are really numbers",
-		subdescription: "when custom tags are encountered, yq will try to decode the underlying type.",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
 		document:       "a: !horse 1.2\nb: !goat 2.3",
 		expression:     `.a += .b`,
 		expected: []string{
 			"D0, P[], (doc)::a: !horse 3.5\nb: !goat 2.3\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a: !horse 2\nb: !goat 2.3",
+		expression: `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 4.3\nb: !goat 2.3\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a: 2\nb: !goat 2.3",
+		expression: `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: 4.3\nb: !goat 2.3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Custom types: that are really ints",
+		document:    "a: !horse 2\nb: !goat 3",
+		expression:  `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse 5\nb: !goat 3\n",
 		},
 	},
 	{

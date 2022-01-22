@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/jinzhu/copier"
 	yaml "gopkg.in/yaml.v3"
@@ -57,20 +58,43 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			newBlank.Node.FootComment = footComment
 
 			return mergeObjects(d, context.WritableClone(), &newBlank, rhs, preferences)
-		} else if lhs.Node.Tag == "!!int" && rhs.Node.Tag == "!!int" {
-			return multiplyIntegers(lhs, rhs)
-		} else if (lhs.Node.Tag == "!!int" || lhs.Node.Tag == "!!float") && (rhs.Node.Tag == "!!int" || rhs.Node.Tag == "!!float") {
-			return multiplyFloats(lhs, rhs)
 		}
-		return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
+		return multiplyScalars(lhs, rhs)
 	}
 }
 
-func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func multiplyScalars(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	lhsTag := lhs.Node.Tag
+	rhsTag := rhs.Node.Tag
+	lhsIsCustom := false
+	if !strings.HasPrefix(lhsTag, "!!") {
+		// custom tag - we have to have a guess
+		lhsTag = guessTagFromCustomType(lhs.Node)
+		lhsIsCustom = true
+	}
+
+	if !strings.HasPrefix(rhsTag, "!!") {
+		// custom tag - we have to have a guess
+		rhsTag = guessTagFromCustomType(rhs.Node)
+	}
+
+	if lhsTag == "!!int" && rhsTag == "!!int" {
+		return multiplyIntegers(lhs, rhs)
+	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
+		return multiplyFloats(lhs, rhs, lhsIsCustom)
+	}
+	return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Node.Tag, rhs.Node.Tag)
+}
+
+func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode, lhsIsCustom bool) (*CandidateNode, error) {
 	target := lhs.CreateReplacement(&yaml.Node{})
 	target.Node.Kind = yaml.ScalarNode
 	target.Node.Style = lhs.Node.Style
-	target.Node.Tag = "!!float"
+	if lhsIsCustom {
+		target.Node.Tag = lhs.Node.Tag
+	} else {
+		target.Node.Tag = "!!float"
+	}
 
 	lhsNum, err := strconv.ParseFloat(lhs.Node.Value, 64)
 	if err != nil {
@@ -88,7 +112,7 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 	target := lhs.CreateReplacement(&yaml.Node{})
 	target.Node.Kind = yaml.ScalarNode
 	target.Node.Style = lhs.Node.Style
-	target.Node.Tag = "!!int"
+	target.Node.Tag = lhs.Node.Tag
 
 	format, lhsNum, err := parseInt(lhs.Node.Value)
 	if err != nil {
