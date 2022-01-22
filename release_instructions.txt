@@ -1,5 +1,4 @@
 - update release notes
-- check dependabot
 - increment version in version.go
 - increment version in snapcraft.yaml
 - make sure local build passes
