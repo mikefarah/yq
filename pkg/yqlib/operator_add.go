@@ -52,21 +52,19 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:
-		return nil, fmt.Errorf("maps not yet supported for addition")
+		addMaps(target, lhs, rhs)
 	case yaml.SequenceNode:
-		target.Node.Kind = yaml.SequenceNode
-		target.Node.Style = lhsNode.Style
-		target.Node.Tag = lhsNode.Tag
-		target.Node.Content = append(lhsNode.Content, toNodes(rhs)...)
+		addSequences(target, lhs, rhs)
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be added to a 2%v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
 		}
 		target.Node.Kind = yaml.ScalarNode
 		target.Node.Style = lhsNode.Style
-		return addScalars(target, lhsNode, rhs.Node)
+		if err := addScalars(target, lhsNode, rhs.Node); err != nil {
+			return nil, err
+		}
 	}
-
 	return target, nil
 }
 
@@ -89,7 +87,7 @@ func guessTagFromCustomType(node *yaml.Node) string {
 	return guessedTag
 }
 
-func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*CandidateNode, error) {
+func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 	lhsTag := lhs.Tag
 	rhsTag := rhs.Tag
 	lhsIsCustom := false
@@ -110,11 +108,11 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Candida
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		format, lhsNum, err := parseInt(lhs.Value)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		_, rhsNum, err := parseInt(rhs.Value)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		sum := lhsNum + rhsNum
 		target.Node.Tag = lhs.Tag
@@ -122,11 +120,11 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Candida
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		sum := lhsNum + rhsNum
 		if lhsIsCustom {
@@ -136,8 +134,42 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) (*Candida
 		}
 		target.Node.Value = fmt.Sprintf("%v", sum)
 	} else {
-		return nil, fmt.Errorf("%v cannot be added to %v", lhsTag, rhsTag)
+		return fmt.Errorf("%v cannot be added to %v", lhsTag, rhsTag)
 	}
+	return nil
+}
 
-	return target, nil
+func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) {
+	target.Node.Kind = yaml.SequenceNode
+	target.Node.Style = lhs.Node.Style
+	target.Node.Tag = lhs.Node.Tag
+	target.Node.Content = make([]*yaml.Node, len(lhs.Node.Content))
+	copy(target.Node.Content, lhs.Node.Content)
+	target.Node.Content = append(target.Node.Content, toNodes(rhs)...)
+}
+
+func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
+	lhs := lhsC.Node
+	rhs := rhsC.Node
+
+	target.Node.Content = make([]*yaml.Node, len(lhs.Content))
+	copy(target.Node.Content, lhs.Content)
+
+	for index := 0; index < len(rhs.Content); index = index + 2 {
+		key := rhs.Content[index]
+		value := rhs.Content[index+1]
+		log.Debug("finding %v", key.Value)
+		indexInLhs := findInArray(target.Node, key)
+		log.Debug("indexInLhs %v", indexInLhs)
+		if indexInLhs < 0 {
+			// not in there, append it
+			target.Node.Content = append(target.Node.Content, key, value)
+		} else {
+			// it's there, replace it
+			target.Node.Content[indexInLhs+1] = value
+		}
+	}
+	target.Node.Kind = yaml.MappingNode
+	target.Node.Style = lhs.Style
+	target.Node.Tag = lhs.Tag
 }

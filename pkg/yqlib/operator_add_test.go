@@ -145,6 +145,15 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Add maps to shallow merge",
+		subdescription: "Adding objects together shallow merges them. Use `*` to deeply merge.",
+		document:       "a: {thing: {name: Astuff, value: x}, a1: cool}\nb: {thing: {name: Bstuff, legs: 3}, b1: neat}",
+		expression:     `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: {thing: {name: Bstuff, legs: 3}, a1: cool, b1: neat}\nb: {thing: {name: Bstuff, legs: 3}, b1: neat}\n",
+		},
+	},
+	{
 		description:    "Custom types: that are really strings",
 		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
 		document:       "a: !horse cat\nb: !goat _meow",

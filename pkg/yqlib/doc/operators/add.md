@@ -4,10 +4,10 @@ Add behaves differently according to the type of the LHS:
 * arrays: concatenate
 * number scalars: arithmetic addition
 * string scalars: concatenate
+* maps: shallow merge (use the multiply operator (`*`) to deeply merge)
 
-Use `+=` as append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
+Use `+=` as a relative append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
 
-Add is not (yet) supported for maps - however you can use merge `*` which will have a similar effect...
 
 ## Concatenate and assign arrays
 Given a sample.yml file of:
@@ -265,6 +265,41 @@ yq eval --null-input 'null + "cat"'
 will output
 ```yaml
 cat
+```
+
+## Add maps to shallow merge
+Adding objects together shallow merges them. Use `*` to deeply merge.
+
+Given a sample.yml file of:
+```yaml
+a:
+  thing:
+    name: Astuff
+    value: x
+  a1: cool
+b:
+  thing:
+    name: Bstuff
+    legs: 3
+  b1: neat
+```
+then
+```bash
+yq eval '.a += .b' sample.yml
+```
+will output
+```yaml
+a:
+  thing:
+    name: Bstuff
+    legs: 3
+  a1: cool
+  b1: neat
+b:
+  thing:
+    name: Bstuff
+    legs: 3
+  b1: neat
 ```
 
 ## Custom types: that are really strings
