@@ -131,6 +131,8 @@ var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler:
 var notOpType = &operationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: notOperator}
 var emptyOpType = &operationType{Type: "EMPTY", Precedence: 50, Handler: emptyOperator}
 
+var envsubstOpType = &operationType{Type: "ENVSUBST", NumArgs: 0, Precedence: 50, Handler: envsubstOperator}
+
 var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: recursiveDescentOperator}
 
 var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: selectOperator}

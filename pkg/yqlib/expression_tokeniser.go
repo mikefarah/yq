@@ -472,6 +472,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`strenv\([^\)]+\)`), envOp(true))
 	lexer.Add([]byte(`env\([^\)]+\)`), envOp(false))
 
+	lexer.Add([]byte(`envsubst`), opToken(envsubstOpType))
+
 	lexer.Add([]byte(`\[`), literalToken(openCollect, false))
 	lexer.Add([]byte(`\]\??`), literalToken(closeCollect, true))
 	lexer.Add([]byte(`\{`), literalToken(openCollectObject, false))
