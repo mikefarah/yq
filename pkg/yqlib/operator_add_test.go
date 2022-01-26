@@ -63,6 +63,78 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Concatenate to empty array",
+		document:    `{a: []}`,
+		expression:  `.a + "cat"`,
+		expected: []string{
+			"D0, P[a], (!!seq)::- cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to existing array",
+		document:    `{a: [dog]}`,
+		expression:  `.a + "cat"`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[dog, cat]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to empty array",
+		document:    `a: []`,
+		expression:  `.a += "cat"`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    - cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to existing array",
+		document:    `a: [dog]`,
+		expression:  `.a += "cat"`,
+		expected: []string{
+			"D0, P[], (doc)::a: [dog, cat]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to empty object",
+		document:    `{a: {}}`,
+		expression:  `.a + {"b": "cat"}`,
+		expected: []string{
+			"D0, P[a], (!!map)::b: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to existing object",
+		document:    `{a: {c: dog}}`,
+		expression:  `.a + {"b": "cat"}`,
+		expected: []string{
+			"D0, P[a], (!!map)::{c: dog, b: cat}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to empty object in place",
+		document:    `a: {}`,
+		expression:  `.a += {"b": "cat"}`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    b: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Concatenate to existing object in place",
+		document:    `a: {c: dog}`,
+		expression:  `.a += {"b": "cat"}`,
+		expected: []string{
+			"D0, P[], (doc)::a: {c: dog, b: cat}\n",
+		},
+	},
+	{
 		description: "Add new object to array",
 		document:    `a: [{dog: woof}]`,
 		expression:  `.a + {"cat": "meow"}`,

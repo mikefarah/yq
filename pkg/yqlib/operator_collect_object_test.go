@@ -19,7 +19,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		document:   "a: []",
 		expression: `.a += [{"key": "att2", "value": "val2"}]`,
 		expected: []string{
-			"D0, P[], (doc)::a: [{key: att2, value: val2}]\n",
+			"D0, P[], (doc)::a:\n    - key: att2\n      value: val2\n",
 		},
 	},
 	{

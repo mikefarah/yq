@@ -150,7 +150,10 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes
-	if n.Node.Style == 0 {
+	//
+	// if this is an empty map or empty array, use the style of other node.
+
+	if n.Node.Style == 0 || (n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0) {
 		n.Node.Style = other.Node.Style
 	}
 

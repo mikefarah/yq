@@ -141,7 +141,9 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 
 func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) {
 	target.Node.Kind = yaml.SequenceNode
-	target.Node.Style = lhs.Node.Style
+	if len(lhs.Node.Content) > 0 {
+		target.Node.Style = lhs.Node.Style
+	}
 	target.Node.Tag = lhs.Node.Tag
 	target.Node.Content = make([]*yaml.Node, len(lhs.Node.Content))
 	copy(target.Node.Content, lhs.Node.Content)
@@ -170,6 +172,8 @@ func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 		}
 	}
 	target.Node.Kind = yaml.MappingNode
-	target.Node.Style = lhs.Style
+	if len(lhs.Content) > 0 {
+		target.Node.Style = lhs.Style
+	}
 	target.Node.Tag = lhs.Tag
 }
