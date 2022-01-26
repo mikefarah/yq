@@ -10,6 +10,15 @@ testBasicEvalRoundTrip() {
   assertEquals 123 "$X"
 }
 
+testBasicStdInWithOneArg() {
+  ./yq e -n ".a = 123" > test.yml
+  X=$(cat test.yml | ./yq e ".a")
+  assertEquals 123 "$X"
+
+  X=$(cat test.yml | ./yq ea ".a")
+  assertEquals 123 "$X"
+}
+
 testBasicUpdateInPlaceSequence() {
   cat >test.yml <<EOL
 a: 0

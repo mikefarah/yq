@@ -134,6 +134,9 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 	case 1:
 		if nullInput {
 			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer, "")
+		} else if pipingStdIn && args[0] != "-" {
+			// must have given a single expression and piping input from stdin
+			err = streamEvaluator.EvaluateFiles(processExpression(args[0]), []string{"-"}, printer, leadingContentPreProcessing, decoder)
 		} else {
 			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
 		}
