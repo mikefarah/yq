@@ -84,7 +84,10 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 		return err
 	}
 
-	printerWriter := configurePrinterWriter(format, out)
+	printerWriter, err := configurePrinterWriter(format, out)
+	if err != nil {
+		return err
+	}
 	encoder := configureEncoder(format)
 
 	printer := yqlib.NewPrinter(encoder, printerWriter)

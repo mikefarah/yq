@@ -57,7 +57,7 @@ func configureDecoder() (yqlib.Decoder, error) {
 	return yqlib.NewYamlDecoder(), nil
 }
 
-func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) yqlib.PrinterWriter {
+func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {
 
 	var printerWriter yqlib.PrinterWriter
 
@@ -65,13 +65,13 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) yql
 		colorsEnabled = forceColor
 		splitExp, err := yqlib.NewExpressionParser().ParseExpression(splitFileExp)
 		if err != nil {
-			return nil
+			return nil, fmt.Errorf("bad split document expression: %w", err)
 		}
 		printerWriter = yqlib.NewMultiPrinterWriter(splitExp, format)
 	} else {
 		printerWriter = yqlib.NewSinglePrinterWriter(out)
 	}
-	return printerWriter
+	return printerWriter, nil
 }
 
 func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
