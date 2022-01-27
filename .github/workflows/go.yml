@@ -25,6 +25,7 @@ jobs:
         fi
 
     - name: Check the build
+      shell: bash -l {0}
       run: |
         export PATH=${PATH}:`go env GOPATH`/bin
         scripts/devtools.sh

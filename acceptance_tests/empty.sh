@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o
+set -eo pipefail
 
 setUp() {
   rm test*.yml || true
@@ -9,9 +9,6 @@ setUp() {
 EOL
 }
 
-# hack - for some reason in github actions, it
-# golang thinks yq has stdin pipeinto it (ModeNamedPipe is set, ModeCharDevice is not)
-# explicitly add an expression so it doesnt try to read 'test.yml' as one...
 testEmptyEval() {
   X=$(./yq e test.yml)
   expected=$(cat test.yml)
@@ -21,7 +18,7 @@ testEmptyEval() {
 
 testEmptyEvalNoNewLine() {
   echo -n "#comment" >test.yml
-  X=$(./yq e "." test.yml)
+  X=$(./yq e test.yml)
   expected=$(cat test.yml)
   assertEquals 0 $?
   assertEquals "$expected" "$X"
