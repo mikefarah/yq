@@ -1,3 +1,12 @@
+4.18.1:
+  - `eval` is now the _default_ command, you can leave it out
+  - `-` no longer needs to be specified as STDIN, unless you are also working with multiple files.
+  - Adding to empty maps / arrays now uses idiomatic yaml styling by default
+  - Fixed seg fault on bad input #1086
+  - New `envsubst` operator! (thanks @sciyoshi)
+  - Added support for `*=`, relative multiply/merge
+  - Custom tag types now autocast to there actual types #933
+
 4.17.2:
   - Fixed manpath issue (thanks @mr-pmillz)
   
