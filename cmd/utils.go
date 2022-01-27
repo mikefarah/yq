@@ -91,3 +91,13 @@ func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	}
 	panic("invalid encoder")
 }
+
+// this is a hack to enable backwards compatibility with githubactions (which pipe /dev/null into everything)
+// and being able to call yq with the filename as a single parameter
+//
+// without this - yq detects there is stdin (thanks githubactions),
+// then tries to parse the filename as an expression
+func maybeFile(str string) bool {
+	_, err := os.Stat(str) // #nosec
+	return err == nil
+}

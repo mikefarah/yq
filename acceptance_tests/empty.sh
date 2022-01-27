@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eo pipefail
-
 setUp() {
   rm test*.yml || true
   cat >test.yml <<EOL
