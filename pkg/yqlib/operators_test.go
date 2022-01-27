@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
+	"gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -24,6 +25,12 @@ type expressionScenario struct {
 	expected              []string
 	skipDoc               bool
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
+}
+
+func TestMain(m *testing.M) {
+	logging.SetLevel(logging.ERROR, "")
+	code := m.Run()
+	os.Exit(code)
 }
 
 func NewSimpleYamlPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
@@ -46,7 +53,6 @@ func readDocumentWithLeadingContent(content string, fakefilename string, fakeFil
 
 func testScenario(t *testing.T, s *expressionScenario) {
 	var err error
-
 	node, err := NewExpressionParser().ParseExpression(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %w", s.expression, s.description, err))

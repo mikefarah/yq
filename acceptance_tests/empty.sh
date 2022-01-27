@@ -8,7 +8,7 @@ EOL
 }
 
 testEmptyEval() {
-  X=$(./yq e test.yml)
+  X=$(./yq e test.yml -v)
   expected=$(cat test.yml)
   assertEquals 0 $?
   assertEquals "$expected" "$X"

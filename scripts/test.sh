@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go test -v $(go list ./... | grep -v -E 'examples' | grep -v -E 'test')
+go test $(go list ./... | grep -v -E 'examples' | grep -v -E 'test')
