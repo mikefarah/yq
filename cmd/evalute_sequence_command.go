@@ -13,7 +13,7 @@ func createEvaluateSequenceCommand() *cobra.Command {
 	var cmdEvalSequence = &cobra.Command{
 		Use:     "eval [expression] [yaml_file1]...",
 		Aliases: []string{"e"},
-		Short:   "Apply the expression to each document in each yaml file in sequence",
+		Short:   "(default) Apply the expression to each document in each yaml file in sequence",
 		Example: `
 # Reads field under the given path for each file
 yq e '.a.b' f1.yml f2.yml 

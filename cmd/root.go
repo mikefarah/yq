@@ -14,6 +14,12 @@ func New() *cobra.Command {
 		Short: "yq is a lightweight and portable command-line YAML processor.",
 		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
+		Example: `
+# yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
+cat myfile.yml | yq '.stuff' # outputs the data at the "stuff" node from "myfile.yml"
+
+yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
+`,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if version {
