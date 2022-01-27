@@ -17,13 +17,13 @@ a: |
 Using `$( exp )` wont work, as it will trim the trailing new line.
 
 ```
-m=$(echo "cat\n") yq e -n '.a = strenv(m)'
+m=$(echo "cat\n") yq -n '.a = strenv(m)'
 a: cat
 ```
 
 However, using printf works:
 ```
-printf -v m "cat\n" ; m="$m" yq e -n '.a = strenv(m)'
+printf -v m "cat\n" ; m="$m" yq -n '.a = strenv(m)'
 a: |
   cat
 ```
@@ -31,7 +31,7 @@ a: |
 As well as having multiline expressions:
 ```
 m="cat
-"  yq e -n '.a = strenv(m)'
+"  yq -n '.a = strenv(m)'
 a: |
   cat
 ```
@@ -40,5 +40,5 @@ Similarly, if you're trying to set the content from a file, and want a trailing 
 
 ```
 IFS= read -rd '' output < <(cat my_file)
-output=$output ./yq e '.data.values = strenv(output)' first.yml
+output=$output ./yq '.data.values = strenv(output)' first.yml
 ```

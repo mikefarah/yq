@@ -369,7 +369,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) 
 	if expression == "" {
 		expression = "."
 	}
-	writeOrPanic(w, fmt.Sprintf("```bash\nyq e -p=xml '%v' sample.xml\n```\n", expression))
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=xml '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
@@ -398,7 +398,7 @@ func documentXmlEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq e -o=xml '.' sample.yml\n```\n")
+	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))
@@ -416,7 +416,7 @@ func documentXmlRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq e -p=xml -o=xml '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))

@@ -5,8 +5,8 @@ setUp() {
 }
 
 testBasicEvalRoundTrip() {
-  ./yq e -n ".a = 123" > test.yml
-  X=$(./yq e '.a' test.yml)
+  ./yq -n ".a = 123" > test.yml
+  X=$(./yq '.a' test.yml)
   assertEquals 123 "$X"
 }
 

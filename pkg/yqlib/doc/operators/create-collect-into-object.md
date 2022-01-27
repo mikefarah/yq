@@ -5,7 +5,7 @@ This is used to construct objects (or maps). This can be used against existing y
 ## Collect empty object
 Running
 ```bash
-yq eval --null-input '{}'
+yq --null-input '{}'
 ```
 will output
 ```yaml
@@ -19,7 +19,7 @@ name: Mike
 ```
 then
 ```bash
-yq eval '{"wrap": .}' sample.yml
+yq '{"wrap": .}' sample.yml
 ```
 will output
 ```yaml
@@ -37,7 +37,7 @@ pets:
 ```
 then
 ```bash
-yq eval '{.name: .pets.[]}' sample.yml
+yq '{.name: .pets.[]}' sample.yml
 ```
 will output
 ```yaml
@@ -60,7 +60,7 @@ pets:
 ```
 then
 ```bash
-yq eval '{.name: .pets.[]}' sample.yml
+yq '{.name: .pets.[]}' sample.yml
 ```
 will output
 ```yaml
@@ -73,7 +73,7 @@ Rosey: sheep
 ## Creating yaml from scratch
 Running
 ```bash
-yq eval --null-input '{"wrap": "frog"}'
+yq --null-input '{"wrap": "frog"}'
 ```
 will output
 ```yaml

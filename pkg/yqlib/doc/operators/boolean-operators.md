@@ -13,7 +13,7 @@ These are most commonly used with the `select` operator to filter particular nod
 ## `or` example
 Running
 ```bash
-yq eval --null-input 'true or false'
+yq --null-input 'true or false'
 ```
 will output
 ```yaml
@@ -23,7 +23,7 @@ true
 ## `and` example
 Running
 ```bash
-yq eval --null-input 'true and false'
+yq --null-input 'true and false'
 ```
 will output
 ```yaml
@@ -42,7 +42,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '[.[] | select(.a == "cat" or .b == "dog")]' sample.yml
+yq '[.[] | select(.a == "cat" or .b == "dog")]' sample.yml
 ```
 will output
 ```yaml
@@ -60,7 +60,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'any' sample.yml
+yq 'any' sample.yml
 ```
 will output
 ```yaml
@@ -74,7 +74,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'any' sample.yml
+yq 'any' sample.yml
 ```
 will output
 ```yaml
@@ -93,7 +93,7 @@ b:
 ```
 then
 ```bash
-yq eval '.[] |= any_c(. == "awesome")' sample.yml
+yq '.[] |= any_c(. == "awesome")' sample.yml
 ```
 will output
 ```yaml
@@ -109,7 +109,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'all' sample.yml
+yq 'all' sample.yml
 ```
 will output
 ```yaml
@@ -123,7 +123,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'all' sample.yml
+yq 'all' sample.yml
 ```
 will output
 ```yaml
@@ -142,7 +142,7 @@ b:
 ```
 then
 ```bash
-yq eval '.[] |= all_c(tag == "!!str")' sample.yml
+yq '.[] |= all_c(tag == "!!str")' sample.yml
 ```
 will output
 ```yaml
@@ -153,7 +153,7 @@ b: false
 ## Not true is false
 Running
 ```bash
-yq eval --null-input 'true | not'
+yq --null-input 'true | not'
 ```
 will output
 ```yaml
@@ -163,7 +163,7 @@ false
 ## Not false is true
 Running
 ```bash
-yq eval --null-input 'false | not'
+yq --null-input 'false | not'
 ```
 will output
 ```yaml
@@ -173,7 +173,7 @@ true
 ## String values considered to be true
 Running
 ```bash
-yq eval --null-input '"cat" | not'
+yq --null-input '"cat" | not'
 ```
 will output
 ```yaml
@@ -183,7 +183,7 @@ false
 ## Empty string value considered to be true
 Running
 ```bash
-yq eval --null-input '"" | not'
+yq --null-input '"" | not'
 ```
 will output
 ```yaml
@@ -193,7 +193,7 @@ false
 ## Numbers are considered to be true
 Running
 ```bash
-yq eval --null-input '1 | not'
+yq --null-input '1 | not'
 ```
 will output
 ```yaml
@@ -203,7 +203,7 @@ false
 ## Zero is considered to be true
 Running
 ```bash
-yq eval --null-input '0 | not'
+yq --null-input '0 | not'
 ```
 will output
 ```yaml
@@ -213,7 +213,7 @@ false
 ## Null is considered to be false
 Running
 ```bash
-yq eval --null-input '~ | not'
+yq --null-input '~ | not'
 ```
 will output
 ```yaml

@@ -10,7 +10,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a' sample.yml
+yq '.a' sample.yml
 ```
 will output
 ```yaml
@@ -27,7 +27,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[]' sample.yml
+yq '.[]' sample.yml
 ```
 will output
 ```yaml
@@ -44,7 +44,7 @@ cat
 ```
 then
 ```bash
-yq eval '.[]' sample.yml
+yq '.[]' sample.yml
 ```
 will output
 ```yaml
@@ -59,7 +59,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.["{}"]' sample.yml
+yq '.["{}"]' sample.yml
 ```
 will output
 ```yaml
@@ -75,7 +75,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a["key.withdots"]["another.key"]' sample.yml
+yq '.a["key.withdots"]["another.key"]' sample.yml
 ```
 will output
 ```yaml
@@ -91,7 +91,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.["red rabbit"]' sample.yml
+yq '.["red rabbit"]' sample.yml
 ```
 will output
 ```yaml
@@ -109,7 +109,7 @@ banana: soft yum
 ```
 then
 ```bash
-yq eval '.[.b]' sample.yml
+yq '.[.b]' sample.yml
 ```
 will output
 ```yaml
@@ -125,7 +125,7 @@ c: banana
 ```
 then
 ```bash
-yq eval '.a.b' sample.yml
+yq '.a.b' sample.yml
 ```
 will output
 ```yaml
@@ -143,7 +143,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.a?' sample.yml
+yq '.a?' sample.yml
 ```
 will output
 ```yaml
@@ -158,7 +158,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a."*a*"' sample.yml
+yq '.a."*a*"' sample.yml
 ```
 will output
 ```yaml
@@ -175,7 +175,7 @@ b: *cat
 ```
 then
 ```bash
-yq eval '.b' sample.yml
+yq '.b' sample.yml
 ```
 will output
 ```yaml
@@ -191,7 +191,7 @@ b: *cat
 ```
 then
 ```bash
-yq eval '.b[]' sample.yml
+yq '.b[]' sample.yml
 ```
 will output
 ```yaml
@@ -207,7 +207,7 @@ b: *cat
 ```
 then
 ```bash
-yq eval '.b.c' sample.yml
+yq '.b.c' sample.yml
 ```
 will output
 ```yaml
@@ -223,7 +223,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[0]' sample.yml
+yq '.[0]' sample.yml
 ```
 will output
 ```yaml
@@ -237,7 +237,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[1][0]' sample.yml
+yq '.[1][0]' sample.yml
 ```
 will output
 ```yaml
@@ -251,7 +251,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[2]' sample.yml
+yq '.[2]' sample.yml
 ```
 will output
 ```yaml
@@ -265,7 +265,7 @@ a: b
 ```
 then
 ```bash
-yq eval '.[0]' sample.yml
+yq '.[0]' sample.yml
 ```
 will output
 ```yaml
@@ -296,7 +296,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar.a' sample.yml
+yq '.foobar.a' sample.yml
 ```
 will output
 ```yaml
@@ -327,7 +327,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar.c' sample.yml
+yq '.foobar.c' sample.yml
 ```
 will output
 ```yaml
@@ -358,7 +358,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar.thing' sample.yml
+yq '.foobar.thing' sample.yml
 ```
 will output
 ```yaml
@@ -389,7 +389,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar[]' sample.yml
+yq '.foobar[]' sample.yml
 ```
 will output
 ```yaml
@@ -424,7 +424,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobarList.thing' sample.yml
+yq '.foobarList.thing' sample.yml
 ```
 will output
 ```yaml
@@ -455,7 +455,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobarList[]' sample.yml
+yq '.foobarList[]' sample.yml
 ```
 will output
 ```yaml
@@ -475,7 +475,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a[0, 2]' sample.yml
+yq '.a[0, 2]' sample.yml
 ```
 will output
 ```yaml

@@ -20,7 +20,7 @@ myFile: ../../examples/thing.yml
 ```
 then
 ```bash
-yq eval 'load(.myFile)' sample.yml
+yq 'load(.myFile)' sample.yml
 ```
 will output
 ```yaml
@@ -38,7 +38,7 @@ something:
 ```
 then
 ```bash
-yq eval '.something |= load("../../examples/" + .file)' sample.yml
+yq '.something |= load("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
@@ -60,7 +60,7 @@ over:
 ```
 then
 ```bash
-yq eval '(.. | select(has("file"))) |= load("../../examples/" + .file)' sample.yml
+yq '(.. | select(has("file"))) |= load("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
@@ -83,7 +83,7 @@ something:
 ```
 then
 ```bash
-yq eval '.something |= strload("../../examples/" + .file)' sample.yml
+yq '.something |= strload("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml

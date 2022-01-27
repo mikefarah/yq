@@ -11,32 +11,35 @@ yq is written in go - so you can download a dependency free binary for your plat
 
 Read a value:
 ```bash
-yq e '.a.b[0].c' file.yaml
+yq '.a.b[0].c' file.yaml
 ```
 
 Pipe from STDIN:
 ```bash
-cat file.yaml | yq e '.a.b[0].c' -
+cat file.yaml | yq '.a.b[0].c'
 ```
 
 Update a yaml file, inplace
 ```bash
-yq e -i '.a.b[0].c = "cool"' file.yaml
+yq -i '.a.b[0].c = "cool"' file.yaml
 ```
 
 Update using environment variables
 ```bash
-NAME=mike yq e -i '.a.b[0].c = strenv(NAME)' file.yaml
+NAME=mike yq -i '.a.b[0].c = strenv(NAME)' file.yaml
 ```
 
 Merge multiple files
-```
+```bash
+# note the use of `ea` to evaluate all the files at once
+# instead of in sequence
 yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
 ```
 
+
 Multiple updates to a yaml file
 ```bash
-yq e -i '
+yq -i '
   .a.b[0].c = "cool" |
   .x.y.z = "foobar" |
   .person.name = strenv(NAME)
@@ -82,16 +85,16 @@ snap install yq
 `yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
 ```
-sudo cat /etc/myfile | yq e '.a.path' - 
+sudo cat /etc/myfile | yq '.a.path'
 ```
 
 And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
 ```
-sudo cat /etc/myfile | yq e '.a.path = "value"' - | sudo sponge /etc/myfile
+sudo cat /etc/myfile | yq '.a.path = "value"' | sudo sponge /etc/myfile
 ```
 or write to a temporary file:
 ```
-sudo cat /etc/myfile | yq e '.a.path = "value"' | sudo tee /etc/myfile.tmp
+sudo cat /etc/myfile | yq '.a.path = "value"' | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
@@ -101,14 +104,14 @@ rm /etc/myfile.tmp
 #### Oneshot use:
 
 ```bash
-docker run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
+docker run --rm -v "${PWD}":/workdir mikefarah/yq [command] [flags] [expression ]FILE...
 ```
 
 Note that you can run `yq` in docker without network access and other privileges if you desire,
 namely `--security-opt=no-new-privileges --cap-drop all --network none`.
 
 ```bash
-podman run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression ]FILE...
+podman run --rm -v "${PWD}":/workdir mikefarah/yq [command] [flags] [expression ]FILE...
 ```
 
 #### Pipe in via STDIN:
@@ -116,11 +119,11 @@ podman run --rm -v "${PWD}":/workdir mikefarah/yq <command> [flags] [expression 
 You'll need to pass the `-i\--interactive` flag to docker:
 
 ```bash
-cat myfile.yml | docker run -i --rm mikefarah/yq e . -
+cat myfile.yml | docker run -i --rm mikefarah/yq '.this.thing'
 ```
 
 ```bash
-cat myfile.yml | podman run -i --rm mikefarah/yq e . -
+cat myfile.yml | podman run -i --rm mikefarah/yq '.this.thing'
 ```
 
 #### Run commands interactively:
@@ -176,7 +179,7 @@ USER yq
   - name: Set foobar to cool
     uses: mikefarah/yq@master
     with:
-      cmd: yq eval -i '.foo.bar = "cool"' 'config.yml'
+      cmd: yq -i '.foo.bar = "cool"' 'config.yml'
 ```
 
 See https://mikefarah.gitbook.io/yq/usage/github-action for more.
@@ -270,9 +273,17 @@ Usage:
   yq [flags]
   yq [command]
 
+Examples:
+
+# yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
+cat myfile.yml | yq '.stuff' # outputs the data at the "stuff" node from "myfile.yml"
+
+yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
+
+
 Available Commands:
   completion       Generate the autocompletion script for the specified shell
-  eval             Apply the expression to each document in each yaml file in sequence
+  eval             (default) Apply the expression to each document in each yaml file in sequence
   eval-all         Loads _all_ yaml documents of _all_ yaml files and runs expression once
   help             Help about any command
   shell-completion Generate completion script

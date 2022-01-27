@@ -10,7 +10,7 @@ b: dog
 ```
 then
 ```bash
-yq eval 'del(.b)' sample.yml
+yq 'del(.b)' sample.yml
 ```
 will output
 ```yaml
@@ -26,7 +26,7 @@ a:
 ```
 then
 ```bash
-yq eval 'del(.a.a1)' sample.yml
+yq 'del(.a.a1)' sample.yml
 ```
 will output
 ```yaml
@@ -43,7 +43,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'del(.[1])' sample.yml
+yq 'del(.[1])' sample.yml
 ```
 will output
 ```yaml
@@ -59,7 +59,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'del(.[0].a)' sample.yml
+yq 'del(.[0].a)' sample.yml
 ```
 will output
 ```yaml
@@ -74,7 +74,7 @@ b: dog
 ```
 then
 ```bash
-yq eval 'del(.c)' sample.yml
+yq 'del(.c)' sample.yml
 ```
 will output
 ```yaml
@@ -91,7 +91,7 @@ c: bat
 ```
 then
 ```bash
-yq eval 'del( .[] | select(. == "*at") )' sample.yml
+yq 'del( .[] | select(. == "*at") )' sample.yml
 ```
 will output
 ```yaml
@@ -109,7 +109,7 @@ a:
 ```
 then
 ```bash
-yq eval 'del(.. | select(has("name")).name)' sample.yml
+yq 'del(.. | select(has("name")).name)' sample.yml
 ```
 will output
 ```yaml

@@ -12,7 +12,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b | path' sample.yml
+yq '.a.b | path' sample.yml
 ```
 will output
 ```yaml
@@ -28,7 +28,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b | path | .[-1]' sample.yml
+yq '.a.b | path | .[-1]' sample.yml
 ```
 will output
 ```yaml
@@ -44,7 +44,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.[] | select(. == "dog") | path' sample.yml
+yq '.a.[] | select(. == "dog") | path' sample.yml
 ```
 will output
 ```yaml
@@ -61,7 +61,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.[] | select(. == "dog") | path | .[-1]' sample.yml
+yq '.a.[] | select(. == "dog") | path | .[-1]' sample.yml
 ```
 will output
 ```yaml
@@ -78,7 +78,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
+yq '.a[] | select(. == "*og") | [{"path":path, "value":.}]' sample.yml
 ```
 will output
 ```yaml

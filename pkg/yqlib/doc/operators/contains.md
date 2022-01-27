@@ -13,7 +13,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'contains(["baz", "bar"])' sample.yml
+yq 'contains(["baz", "bar"])' sample.yml
 ```
 will output
 ```yaml
@@ -32,7 +32,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'contains({"bar": [{"barp": 12}]})' sample.yml
+yq 'contains({"bar": [{"barp": 12}]})' sample.yml
 ```
 will output
 ```yaml
@@ -51,7 +51,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'contains({"foo": 12, "bar": [{"barp": 15}]})' sample.yml
+yq 'contains({"foo": 12, "bar": [{"barp": 15}]})' sample.yml
 ```
 will output
 ```yaml
@@ -65,7 +65,7 @@ foobar
 ```
 then
 ```bash
-yq eval 'contains("bar")' sample.yml
+yq 'contains("bar")' sample.yml
 ```
 will output
 ```yaml
@@ -79,7 +79,7 @@ meow
 ```
 then
 ```bash
-yq eval 'contains("meow")' sample.yml
+yq 'contains("meow")' sample.yml
 ```
 will output
 ```yaml

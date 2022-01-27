@@ -8,7 +8,7 @@ This will, like the `jq` equivalent, recursively match all _value_ nodes. Use it
 For instance to set the `style` of all _value_ nodes in a yaml doc, excluding map keys:
 
 ```bash
-yq eval '.. style= "flow"' file.yaml
+yq '.. style= "flow"' file.yaml
 ```
 
 ## match values and map keys form `...`
@@ -17,7 +17,7 @@ The also includes map keys in the results set. This is particularly useful in YA
 For instance to set the `style` of all nodes in a yaml doc, including the map keys:
 
 ```bash
-yq eval '... style= "flow"' file.yaml
+yq '... style= "flow"' file.yaml
 ```
 ## Recurse map (values only)
 Given a sample.yml file of:
@@ -26,7 +26,7 @@ a: frog
 ```
 then
 ```bash
-yq eval '..' sample.yml
+yq '..' sample.yml
 ```
 will output
 ```yaml
@@ -47,7 +47,7 @@ a:
 ```
 then
 ```bash
-yq eval '[.. | select(has("name"))]' sample.yml
+yq '[.. | select(has("name"))]' sample.yml
 ```
 will output
 ```yaml
@@ -70,7 +70,7 @@ a:
 ```
 then
 ```bash
-yq eval '.. | select(. == "frog")' sample.yml
+yq '.. | select(. == "frog")' sample.yml
 ```
 will output
 ```yaml
@@ -87,7 +87,7 @@ a: frog
 ```
 then
 ```bash
-yq eval '...' sample.yml
+yq '...' sample.yml
 ```
 will output
 ```yaml
@@ -105,7 +105,7 @@ b: *cat
 ```
 then
 ```bash
-yq eval '[..]' sample.yml
+yq '[..]' sample.yml
 ```
 will output
 ```yaml
@@ -142,7 +142,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar | [..]' sample.yml
+yq '.foobar | [..]' sample.yml
 ```
 will output
 ```yaml

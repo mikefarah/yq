@@ -11,7 +11,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '.a as $foo | $foo' sample.yml
+yq '.a as $foo | $foo' sample.yml
 ```
 will output
 ```yaml
@@ -26,7 +26,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] as $foo | $foo' sample.yml
+yq '.[] as $foo | $foo' sample.yml
 ```
 will output
 ```yaml
@@ -50,7 +50,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.realnames as $names | .posts[] | {"title":.title, "author": $names[.author]}' sample.yml
+yq '.realnames as $names | .posts[] | {"title":.title, "author": $names[.author]}' sample.yml
 ```
 will output
 ```yaml
@@ -68,7 +68,7 @@ b: b_value
 ```
 then
 ```bash
-yq eval '.a as $x  | .b as $y | .b = $x | .a = $y' sample.yml
+yq '.a as $x  | .b as $y | .b = $x | .a = $y' sample.yml
 ```
 will output
 ```yaml
@@ -87,7 +87,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b ref $x | $x = "new" | $x style="double"' sample.yml
+yq '.a.b ref $x | $x = "new" | $x style="double"' sample.yml
 ```
 will output
 ```yaml

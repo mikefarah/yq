@@ -6,7 +6,7 @@ This creates an array using the expression between the square brackets.
 ## Collect empty
 Running
 ```bash
-yq eval --null-input '[]'
+yq --null-input '[]'
 ```
 will output
 ```yaml
@@ -16,7 +16,7 @@ will output
 ## Collect single
 Running
 ```bash
-yq eval --null-input '["cat"]'
+yq --null-input '["cat"]'
 ```
 will output
 ```yaml
@@ -31,7 +31,7 @@ b: dog
 ```
 then
 ```bash
-yq eval '[.a, .b]' sample.yml
+yq '[.a, .b]' sample.yml
 ```
 will output
 ```yaml

@@ -30,7 +30,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | to_json)' sample.yml
+yq '.b = (.a | to_json)' sample.yml
 ```
 will output
 ```yaml
@@ -52,7 +52,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | to_json(0))' sample.yml
+yq '.b = (.a | to_json(0))' sample.yml
 ```
 will output
 ```yaml
@@ -71,7 +71,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | @json)' sample.yml
+yq '.b = (.a | @json)' sample.yml
 ```
 will output
 ```yaml
@@ -89,7 +89,7 @@ a: '{"cool":"thing"}'
 ```
 then
 ```bash
-yq eval '.a | from_json | ... style=""' sample.yml
+yq '.a | from_json | ... style=""' sample.yml
 ```
 will output
 ```yaml
@@ -104,7 +104,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | @props)' sample.yml
+yq '.b = (.a | @props)' sample.yml
 ```
 will output
 ```yaml
@@ -125,7 +125,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | to_yaml)' sample.yml
+yq '.b = (.a | to_yaml)' sample.yml
 ```
 will output
 ```yaml
@@ -148,7 +148,7 @@ a:
 ```
 then
 ```bash
-yq eval '.b = (.a | to_yaml(8))' sample.yml
+yq '.b = (.a | to_yaml(8))' sample.yml
 ```
 will output
 ```yaml
@@ -167,7 +167,7 @@ a: 'foo: bar'
 ```
 then
 ```bash
-yq eval '.b = (.a | from_yaml)' sample.yml
+yq '.b = (.a | from_yaml)' sample.yml
 ```
 will output
 ```yaml
@@ -186,7 +186,7 @@ a: |
 ```
 then
 ```bash
-yq eval '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
+yq '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
 ```
 will output
 ```yaml
@@ -202,7 +202,7 @@ a: 'foo: bar'
 ```
 then
 ```bash
-yq eval '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
+yq '.a |= (from_yaml | .foo = "cat" | to_yaml)' sample.yml
 ```
 will output
 ```yaml
@@ -221,7 +221,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '@csv' sample.yml
+yq '@csv' sample.yml
 ```
 will output
 ```yaml
@@ -242,7 +242,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '@csv' sample.yml
+yq '@csv' sample.yml
 ```
 will output
 ```yaml
@@ -266,7 +266,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '@tsv' sample.yml
+yq '@tsv' sample.yml
 ```
 will output
 ```yaml
@@ -284,7 +284,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a | to_xml' sample.yml
+yq '.a | to_xml' sample.yml
 ```
 will output
 ```yaml
@@ -304,7 +304,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a | @xml' sample.yml
+yq '.a | @xml' sample.yml
 ```
 will output
 ```yaml
@@ -322,7 +322,7 @@ a:
 ```
 then
 ```bash
-yq eval '{"cat": .a | to_xml(1)}' sample.yml
+yq '{"cat": .a | to_xml(1)}' sample.yml
 ```
 will output
 ```yaml
@@ -339,7 +339,7 @@ a: <foo>bar</foo>
 ```
 then
 ```bash
-yq eval '.b = (.a | from_xml)' sample.yml
+yq '.b = (.a | from_xml)' sample.yml
 ```
 will output
 ```yaml

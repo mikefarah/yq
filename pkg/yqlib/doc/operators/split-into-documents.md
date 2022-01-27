@@ -5,7 +5,7 @@ This operator splits all matches into separate documents
 ## Split empty
 Running
 ```bash
-yq eval --null-input 'splitDoc'
+yq --null-input 'splitDoc'
 ```
 will output
 ```yaml
@@ -20,7 +20,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | splitDoc' sample.yml
+yq '.[] | splitDoc' sample.yml
 ```
 will output
 ```yaml

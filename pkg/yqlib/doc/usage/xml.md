@@ -20,7 +20,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -44,7 +44,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
+yq -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
 ```
 will output
 ```yaml
@@ -65,7 +65,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -86,7 +86,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -105,7 +105,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -140,7 +140,7 @@ for x --></x>
 ```
 then
 ```bash
-yq e -p=xml '.' sample.xml
+yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
@@ -168,7 +168,7 @@ cat: purrs
 ```
 then
 ```bash
-yq e -o=xml '.' sample.yml
+yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
@@ -185,7 +185,7 @@ pets:
 ```
 then
 ```bash
-yq e -o=xml '.' sample.yml
+yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
@@ -207,7 +207,7 @@ cat:
 ```
 then
 ```bash
-yq e -o=xml '.' sample.yml
+yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
@@ -228,7 +228,7 @@ cat:
 ```
 then
 ```bash
-yq e -o=xml '.' sample.yml
+yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
@@ -252,7 +252,7 @@ cat: # inline_cat
 ```
 then
 ```bash
-yq e -o=xml '.' sample.yml
+yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
@@ -288,7 +288,7 @@ for x --></x>
 ```
 then
 ```bash
-yq e -p=xml -o=xml '.' sample.xml
+yq -p=xml -o=xml '.' sample.xml
 ```
 will output
 ```xml

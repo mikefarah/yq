@@ -17,7 +17,7 @@ a: cat
 ```
 then
 ```bash
-yq eval 'filename' sample.yml
+yq 'filename' sample.yml
 ```
 will output
 ```yaml
@@ -31,7 +31,7 @@ a: cat
 ```
 then
 ```bash
-yq eval 'fileIndex' sample.yml
+yq 'fileIndex' sample.yml
 ```
 will output
 ```yaml
@@ -65,7 +65,7 @@ a: cat
 ```
 then
 ```bash
-yq eval 'fi' sample.yml
+yq 'fi' sample.yml
 ```
 will output
 ```yaml

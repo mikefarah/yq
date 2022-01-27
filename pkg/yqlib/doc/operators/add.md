@@ -20,7 +20,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b += ["cow"]' sample.yml
+yq '.a.b += ["cow"]' sample.yml
 ```
 will output
 ```yaml
@@ -44,7 +44,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a + .b' sample.yml
+yq '.a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -63,7 +63,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + null' sample.yml
+yq '.a + null' sample.yml
 ```
 will output
 ```yaml
@@ -79,7 +79,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + {"cat": "meow"}' sample.yml
+yq '.a + {"cat": "meow"}' sample.yml
 ```
 will output
 ```yaml
@@ -96,7 +96,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + "hello"' sample.yml
+yq '.a + "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -117,7 +117,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -143,7 +143,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a += .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml
@@ -171,7 +171,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a[].b += ["mouse"]' sample.yml
+yq '.a[].b += ["mouse"]' sample.yml
 ```
 will output
 ```yaml
@@ -195,7 +195,7 @@ b: meow
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -213,7 +213,7 @@ b: 4.9
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -231,7 +231,7 @@ b: 4
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -247,7 +247,7 @@ b: 5
 ```
 then
 ```bash
-yq eval '.[] += 1' sample.yml
+yq '.[] += 1' sample.yml
 ```
 will output
 ```yaml
@@ -260,7 +260,7 @@ Adding to null simply returns the rhs
 
 Running
 ```bash
-yq eval --null-input 'null + "cat"'
+yq --null-input 'null + "cat"'
 ```
 will output
 ```yaml
@@ -285,7 +285,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a += .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml
@@ -312,7 +312,7 @@ b: !goat _meow
 ```
 then
 ```bash
-yq eval '.a += .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml
@@ -330,7 +330,7 @@ b: !goat 2.3
 ```
 then
 ```bash
-yq eval '.a += .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml

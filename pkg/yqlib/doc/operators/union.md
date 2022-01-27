@@ -5,7 +5,7 @@ This operator is used to combine different results together.
 ## Combine scalars
 Running
 ```bash
-yq eval --null-input '1, true, "cat"'
+yq --null-input '1, true, "cat"'
 ```
 will output
 ```yaml
@@ -23,7 +23,7 @@ c: fieldC
 ```
 then
 ```bash
-yq eval '.a, .c' sample.yml
+yq '.a, .c' sample.yml
 ```
 will output
 ```yaml
