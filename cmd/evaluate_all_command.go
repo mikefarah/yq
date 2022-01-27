@@ -54,6 +54,7 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 
 	stat, _ := os.Stdin.Stat()
 	pipingStdIn := (stat.Mode() & os.ModeCharDevice) == 0
+	yqlib.GetLogger().Debug("pipingStdIn: %v", pipingStdIn)
 
 	out := cmd.OutOrStdout()
 
