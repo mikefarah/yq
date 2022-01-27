@@ -25,6 +25,7 @@ func NewExpressionParser() ExpressionParser {
 }
 
 func (p *expressionParserImpl) ParseExpression(expression string) (*ExpressionNode, error) {
+	log.Debug("Parsing expression: [%v]", expression)
 	tokens, err := p.pathTokeniser.Tokenise(expression)
 	if err != nil {
 		return nil, err

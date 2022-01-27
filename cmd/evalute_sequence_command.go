@@ -67,8 +67,9 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 
 	stat, _ := os.Stdin.Stat()
 	pipingStdIn := (stat.Mode() & os.ModeCharDevice) == 0
-	yqlib.GetLogger().Debug("stat.Mode(): %v", stat.Mode())
 	yqlib.GetLogger().Debug("pipingStdIn: %v", pipingStdIn)
+
+	yqlib.GetLogger().Debug("stat.Mode(): %v", stat.Mode())
 	yqlib.GetLogger().Debug("ModeDir: %v", stat.Mode()&os.ModeDir)
 	yqlib.GetLogger().Debug("ModeAppend: %v", stat.Mode()&os.ModeAppend)
 	yqlib.GetLogger().Debug("ModeExclusive: %v", stat.Mode()&os.ModeExclusive)
