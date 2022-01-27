@@ -8,7 +8,7 @@ This will, like the `jq` equivalent, recursively match all _value_ nodes. Use it
 For instance to set the `style` of all _value_ nodes in a yaml doc, excluding map keys:
 
 ```bash
-yq eval '.. style= "flow"' file.yaml
+yq '.. style= "flow"' file.yaml
 ```
 
 ## match values and map keys form `...`
@@ -17,5 +17,5 @@ The also includes map keys in the results set. This is particularly useful in YA
 For instance to set the `style` of all nodes in a yaml doc, including the map keys:
 
 ```bash
-yq eval '... style= "flow"' file.yaml
+yq '... style= "flow"' file.yaml
 ```

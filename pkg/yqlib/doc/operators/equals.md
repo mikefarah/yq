@@ -21,7 +21,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | (. == "*at")' sample.yml
+yq '.[] | (. == "*at")' sample.yml
 ```
 will output
 ```yaml
@@ -39,7 +39,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | (. != "*at")' sample.yml
+yq '.[] | (. != "*at")' sample.yml
 ```
 will output
 ```yaml
@@ -57,7 +57,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | (. == 4)' sample.yml
+yq '.[] | (. == 4)' sample.yml
 ```
 will output
 ```yaml
@@ -75,7 +75,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | (. != 4)' sample.yml
+yq '.[] | (. != 4)' sample.yml
 ```
 will output
 ```yaml
@@ -87,7 +87,7 @@ true
 ## Match nulls
 Running
 ```bash
-yq eval --null-input 'null == ~'
+yq --null-input 'null == ~'
 ```
 will output
 ```yaml
@@ -101,7 +101,7 @@ a: frog
 ```
 then
 ```bash
-yq eval 'select(.b != "thing")' sample.yml
+yq 'select(.b != "thing")' sample.yml
 ```
 will output
 ```yaml
@@ -115,7 +115,7 @@ a: frog
 ```
 then
 ```bash
-yq eval 'select(.b == .c)' sample.yml
+yq 'select(.b == .c)' sample.yml
 ```
 will output
 ```yaml

@@ -16,8 +16,11 @@ func New() *cobra.Command {
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 		Example: `
 # yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
-cat myfile.yml | yq '.stuff' # outputs the data at the "stuff" node from "myfile.yml"
 
+# read the "stuff" node from "myfile.yml"
+cat myfile.yml | yq '.stuff' 
+
+# update myfile.yml in place
 yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
 `,
 

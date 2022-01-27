@@ -11,7 +11,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '.a | length' sample.yml
+yq '.a | length' sample.yml
 ```
 will output
 ```yaml
@@ -25,7 +25,7 @@ a: null
 ```
 then
 ```bash
-yq eval '.a | length' sample.yml
+yq '.a | length' sample.yml
 ```
 will output
 ```yaml
@@ -42,7 +42,7 @@ c: dog
 ```
 then
 ```bash
-yq eval 'length' sample.yml
+yq 'length' sample.yml
 ```
 will output
 ```yaml
@@ -61,7 +61,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'length' sample.yml
+yq 'length' sample.yml
 ```
 will output
 ```yaml

@@ -13,6 +13,6 @@ To replace environment variables across all values in a document, `envsubst` can
 as follows:
 
 ```bash
-yq eval '(.. | select(tag == "!!str")) |= envsubst' file.yaml
+yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ```
 

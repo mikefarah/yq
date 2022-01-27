@@ -11,7 +11,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'map(. + 1)' sample.yml
+yq 'map(. + 1)' sample.yml
 ```
 will output
 ```yaml
@@ -29,7 +29,7 @@ c: 3
 ```
 then
 ```bash
-yq eval 'map_values(. + 1)' sample.yml
+yq 'map_values(. + 1)' sample.yml
 ```
 will output
 ```yaml

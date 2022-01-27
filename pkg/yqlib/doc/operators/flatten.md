@@ -12,7 +12,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'flatten' sample.yml
+yq 'flatten' sample.yml
 ```
 will output
 ```yaml
@@ -30,7 +30,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'flatten(1)' sample.yml
+yq 'flatten(1)' sample.yml
 ```
 will output
 ```yaml
@@ -46,7 +46,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'flatten' sample.yml
+yq 'flatten' sample.yml
 ```
 will output
 ```yaml
@@ -61,7 +61,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'flatten' sample.yml
+yq 'flatten' sample.yml
 ```
 will output
 ```yaml

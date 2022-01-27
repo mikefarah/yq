@@ -159,7 +159,7 @@ func documentJsonDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 	writeOrPanic(w, fmt.Sprintf("```json\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq e -P '.' sample.json\n```\n")
+	writeOrPanic(w, "```bash\nyq -P '.' sample.json\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
@@ -208,9 +208,9 @@ func documentJsonEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 
 	if s.indent == 2 {
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq e -o=json '%v' sample.yml\n```\n", expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=json '%v' sample.yml\n```\n", expression))
 	} else {
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq e -o=json -I=%v '%v' sample.yml\n```\n", s.indent, expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=json -I=%v '%v' sample.yml\n```\n", s.indent, expression))
 	}
 	writeOrPanic(w, "will output\n")
 

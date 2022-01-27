@@ -12,7 +12,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | has("a")' sample.yml
+yq '.[] | has("a")' sample.yml
 ```
 will output
 ```yaml
@@ -36,7 +36,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(.a.b | has("c"))' sample.yml
+yq '.[] | select(.a.b | has("c"))' sample.yml
 ```
 will output
 ```yaml
@@ -57,7 +57,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | has(1)' sample.yml
+yq '.[] | has(1)' sample.yml
 ```
 will output
 ```yaml

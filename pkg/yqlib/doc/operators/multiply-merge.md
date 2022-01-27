@@ -30,7 +30,7 @@ b: 4
 ```
 then
 ```bash
-yq eval '.a *= .b' sample.yml
+yq '.a *= .b' sample.yml
 ```
 will output
 ```yaml
@@ -51,7 +51,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a * .b' sample.yml
+yq '.a * .b' sample.yml
 ```
 will output
 ```yaml
@@ -74,7 +74,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -98,7 +98,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -121,7 +121,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -147,7 +147,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *? .b' sample.yml
+yq '.a *? .b' sample.yml
 ```
 will output
 ```yaml
@@ -167,7 +167,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *n .b' sample.yml
+yq '.a *n .b' sample.yml
 ```
 will output
 ```yaml
@@ -194,7 +194,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *+ .b' sample.yml
+yq '.a *+ .b' sample.yml
 ```
 will output
 ```yaml
@@ -224,7 +224,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *?+ .b' sample.yml
+yq '.a *?+ .b' sample.yml
 ```
 will output
 ```yaml
@@ -251,7 +251,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *d .b' sample.yml
+yq '.a *d .b' sample.yml
 ```
 will output
 ```yaml
@@ -331,7 +331,7 @@ b: dog
 ```
 then
 ```bash
-yq eval '. * {"a": {"c": .a}}' sample.yml
+yq '. * {"a": {"c": .a}}' sample.yml
 ```
 will output
 ```yaml
@@ -352,7 +352,7 @@ c:
 ```
 then
 ```bash
-yq eval '.c * .b' sample.yml
+yq '.c * .b' sample.yml
 ```
 will output
 ```yaml
@@ -372,7 +372,7 @@ c:
 ```
 then
 ```bash
-yq eval '.c * .a' sample.yml
+yq '.c * .a' sample.yml
 ```
 will output
 ```yaml
@@ -404,7 +404,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar * .foobarList' sample.yml
+yq '.foobar * .foobarList' sample.yml
 ```
 will output
 ```yaml
@@ -426,7 +426,7 @@ b: !goat 3
 ```
 then
 ```bash
-yq eval '.a = .a * .b' sample.yml
+yq '.a = .a * .b' sample.yml
 ```
 will output
 ```yaml
@@ -446,7 +446,7 @@ b: !goat
 ```
 then
 ```bash
-yq eval '.a = .a * .b' sample.yml
+yq '.a = .a * .b' sample.yml
 ```
 will output
 ```yaml

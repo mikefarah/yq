@@ -13,7 +13,7 @@ Given a sample.json file of:
 ```
 then
 ```bash
-yq e -P '.' sample.json
+yq -P '.' sample.json
 ```
 will output
 ```yaml
@@ -29,7 +29,7 @@ Given a sample.json file of:
 ```
 then
 ```bash
-yq e -P '.' sample.json
+yq -P '.' sample.json
 ```
 will output
 ```yaml
@@ -48,7 +48,7 @@ cat: meow
 ```
 then
 ```bash
-yq e -o=json '.' sample.yml
+yq -o=json '.' sample.yml
 ```
 will output
 ```json
@@ -64,7 +64,7 @@ cat: meow # this is a comment, and it will be dropped.
 ```
 then
 ```bash
-yq e -o=json -I=0 '.' sample.yml
+yq -o=json -I=0 '.' sample.yml
 ```
 will output
 ```json
@@ -78,7 +78,7 @@ cat: meow # this is a comment, and it will be dropped.
 ```
 then
 ```bash
-yq e -o=json '.' sample.yml
+yq -o=json '.' sample.yml
 ```
 will output
 ```json
@@ -97,7 +97,7 @@ anotherCat: *ref
 ```
 then
 ```bash
-yq e -o=json '.' sample.yml
+yq -o=json '.' sample.yml
 ```
 will output
 ```json
@@ -116,7 +116,7 @@ things: [{stuff: cool}, {whatever: cat}]
 ```
 then
 ```bash
-yq e -o=json -I=0 '.things[]' sample.yml
+yq -o=json -I=0 '.things[]' sample.yml
 ```
 will output
 ```json

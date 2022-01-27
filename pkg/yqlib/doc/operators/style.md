@@ -11,7 +11,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b = "new" | .a.b style="double"' sample.yml
+yq '.a.b = "new" | .a.b style="double"' sample.yml
 ```
 will output
 ```yaml
@@ -29,7 +29,7 @@ a:
 ```
 then
 ```bash
-yq eval 'with(.a.b ; . = "new" | . style="double")' sample.yml
+yq 'with(.a.b ; . = "new" | . style="double")' sample.yml
 ```
 will output
 ```yaml
@@ -48,7 +48,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="tagged"' sample.yml
+yq '.. style="tagged"' sample.yml
 ```
 will output
 ```yaml
@@ -69,7 +69,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="double"' sample.yml
+yq '.. style="double"' sample.yml
 ```
 will output
 ```yaml
@@ -89,7 +89,7 @@ e: true
 ```
 then
 ```bash
-yq eval '... style="double"' sample.yml
+yq '... style="double"' sample.yml
 ```
 will output
 ```yaml
@@ -109,7 +109,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="single"' sample.yml
+yq '.. style="single"' sample.yml
 ```
 will output
 ```yaml
@@ -129,7 +129,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="literal"' sample.yml
+yq '.. style="literal"' sample.yml
 ```
 will output
 ```yaml
@@ -153,7 +153,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="folded"' sample.yml
+yq '.. style="folded"' sample.yml
 ```
 will output
 ```yaml
@@ -177,7 +177,7 @@ e: true
 ```
 then
 ```bash
-yq eval '.. style="flow"' sample.yml
+yq '.. style="flow"' sample.yml
 ```
 will output
 ```yaml
@@ -196,7 +196,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '... style=""' sample.yml
+yq '... style=""' sample.yml
 ```
 will output
 ```yaml
@@ -214,7 +214,7 @@ b: double
 ```
 then
 ```bash
-yq eval '.[] style |= .' sample.yml
+yq '.[] style |= .' sample.yml
 ```
 will output
 ```yaml
@@ -229,7 +229,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.. | style' sample.yml
+yq '.. | style' sample.yml
 ```
 will output
 ```yaml

@@ -12,7 +12,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'unique' sample.yml
+yq 'unique' sample.yml
 ```
 will output
 ```yaml
@@ -33,7 +33,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'unique' sample.yml
+yq 'unique' sample.yml
 ```
 will output
 ```yaml
@@ -53,7 +53,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'unique_by(tag)' sample.yml
+yq 'unique_by(tag)' sample.yml
 ```
 will output
 ```yaml
@@ -72,7 +72,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'unique_by(.name)' sample.yml
+yq 'unique_by(.name)' sample.yml
 ```
 will output
 ```yaml

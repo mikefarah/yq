@@ -9,7 +9,7 @@ a: bridge
 ```
 then
 ```bash
-yq eval '.a // "hello"' sample.yml
+yq '.a // "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -23,7 +23,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.a // "hello"' sample.yml
+yq '.a // "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -37,7 +37,7 @@ a: ~
 ```
 then
 ```bash
-yq eval '.a // "hello"' sample.yml
+yq '.a // "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -51,7 +51,7 @@ a: false
 ```
 then
 ```bash
-yq eval '.a // "hello"' sample.yml
+yq '.a // "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -66,7 +66,7 @@ b: cat
 ```
 then
 ```bash
-yq eval '.a // .b' sample.yml
+yq '.a // .b' sample.yml
 ```
 will output
 ```yaml

@@ -227,7 +227,7 @@ func documentOperatorScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 	formattedDoc := ""
 	formattedDoc2 := ""
-	command := "eval"
+	command := ""
 
 	envCommand := ""
 
@@ -258,19 +258,19 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 			writeOrPanic(w, "And another sample another.yml file of:\n")
 			writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n", formattedDoc2))
 			files = "sample.yml another.yml"
-			command = "eval-all"
+			command = "eval-all "
 		}
 
 		writeOrPanic(w, "then\n")
 
 		if s.expression != "" {
-			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v '%v' %v\n```\n", envCommand, command, s.expression, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v'%v' %v\n```\n", envCommand, command, s.expression, files))
 		} else {
-			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v %v\n```\n", envCommand, command, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v\n```\n", envCommand, command, files))
 		}
 	} else {
 		writeOrPanic(w, "Running\n")
-		writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v --null-input '%v'\n```\n", envCommand, command, s.expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v--null-input '%v'\n```\n", envCommand, command, s.expression))
 	}
 	return formattedDoc, formattedDoc2
 }

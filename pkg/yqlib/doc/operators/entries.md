@@ -10,7 +10,7 @@ b: 2
 ```
 then
 ```bash
-yq eval 'to_entries' sample.yml
+yq 'to_entries' sample.yml
 ```
 will output
 ```yaml
@@ -28,7 +28,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'to_entries' sample.yml
+yq 'to_entries' sample.yml
 ```
 will output
 ```yaml
@@ -45,7 +45,7 @@ null
 ```
 then
 ```bash
-yq eval 'to_entries' sample.yml
+yq 'to_entries' sample.yml
 ```
 will output
 ```yaml
@@ -59,7 +59,7 @@ b: 2
 ```
 then
 ```bash
-yq eval 'to_entries | from_entries' sample.yml
+yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
@@ -77,7 +77,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'to_entries | from_entries' sample.yml
+yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
@@ -93,7 +93,7 @@ b: 2
 ```
 then
 ```bash
-yq eval 'with_entries(.key |= "KEY_" + .)' sample.yml
+yq 'with_entries(.key |= "KEY_" + .)' sample.yml
 ```
 will output
 ```yaml
@@ -111,7 +111,7 @@ c:
 ```
 then
 ```bash
-yq eval 'with_entries(select(.value | has("b")))' sample.yml
+yq 'with_entries(select(.value | has("b")))' sample.yml
 ```
 will output
 ```yaml

@@ -26,7 +26,7 @@ country: Australia
 And we run a command:
 
 ```bash
-yq eval 'predictWeatherOf(.country)'
+yq 'predictWeatherOf(.country)'
 ```
 
 it could output

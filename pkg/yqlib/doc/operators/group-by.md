@@ -14,7 +14,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'group_by(.foo)' sample.yml
+yq 'group_by(.foo)' sample.yml
 ```
 will output
 ```yaml
@@ -40,7 +40,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'group_by(.foo)' sample.yml
+yq 'group_by(.foo)' sample.yml
 ```
 will output
 ```yaml
