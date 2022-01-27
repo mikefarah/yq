@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o
+
 setUp() {
   rm test*.yml || true
   cat >test.yml <<EOL
@@ -11,7 +13,7 @@ EOL
 # golang thinks yq has stdin pipeinto it (ModeNamedPipe is set, ModeCharDevice is not)
 # explicitly add an expression so it doesnt try to read 'test.yml' as one...
 testEmptyEval() {
-  X=$(./yq e "." test.yml)
+  X=$(./yq e test.yml)
   expected=$(cat test.yml)
   assertEquals 0 $?
   assertEquals "$expected" "$X"
