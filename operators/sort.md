@@ -13,7 +13,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'sort_by(.a)' sample.yml
+yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
@@ -32,7 +32,7 @@ cool:
 ```
 then
 ```bash
-yq eval '.cool |= sort_by(.a)' sample.yml
+yq '.cool |= sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
@@ -54,7 +54,7 @@ cool:
 ```
 then
 ```bash
-yq eval '.cool |= sort_by(keys | .[0])' sample.yml
+yq '.cool |= sort_by(keys | .[0])' sample.yml
 ```
 will output
 ```yaml
@@ -80,7 +80,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'sort_by(.a)' sample.yml
+yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
@@ -103,7 +103,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'sort_by(.a)' sample.yml
+yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
@@ -125,7 +125,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'sort' sample.yml
+yq 'sort' sample.yml
 ```
 will output
 ```yaml

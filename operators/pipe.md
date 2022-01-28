@@ -10,7 +10,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a | .b' sample.yml
+yq '.a | .b' sample.yml
 ```
 will output
 ```yaml
@@ -26,7 +26,7 @@ c: same
 ```
 then
 ```bash
-yq eval '.a = "cat" | .b = "dog"' sample.yml
+yq '.a = "cat" | .b = "dog"' sample.yml
 ```
 will output
 ```yaml

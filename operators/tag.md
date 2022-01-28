@@ -13,7 +13,7 @@ f: []
 ```
 then
 ```bash
-yq eval '.. | tag' sample.yml
+yq '.. | tag' sample.yml
 ```
 will output
 ```yaml
@@ -32,7 +32,7 @@ a: str
 ```
 then
 ```bash
-yq eval '.a tag = "!!mikefarah"' sample.yml
+yq '.a tag = "!!mikefarah"' sample.yml
 ```
 will output
 ```yaml
@@ -49,7 +49,7 @@ e: true
 ```
 then
 ```bash
-yq eval '(.. | select(tag == "!!int")) tag= "!!str"' sample.yml
+yq '(.. | select(tag == "!!int")) tag= "!!str"' sample.yml
 ```
 will output
 ```yaml

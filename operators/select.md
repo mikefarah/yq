@@ -11,7 +11,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(. == "*at")' sample.yml
+yq '.[] | select(. == "*at")' sample.yml
 ```
 will output
 ```yaml
@@ -28,7 +28,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(. == "go*")' sample.yml
+yq '.[] | select(. == "go*")' sample.yml
 ```
 will output
 ```yaml
@@ -46,7 +46,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(. == "*go*")' sample.yml
+yq '.[] | select(. == "*go*")' sample.yml
 ```
 will output
 ```yaml
@@ -67,7 +67,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | select(test("[a-zA-Z]+_[0-9]$"))' sample.yml
+yq '.[] | select(test("[a-zA-Z]+_[0-9]$"))' sample.yml
 ```
 will output
 ```yaml
@@ -84,7 +84,7 @@ horse: dog
 ```
 then
 ```bash
-yq eval '.[] | select(. == "cat" or test("og$"))' sample.yml
+yq '.[] | select(. == "cat" or test("og$"))' sample.yml
 ```
 will output
 ```yaml
@@ -101,7 +101,7 @@ game: poker
 ```
 then
 ```bash
-yq eval 'with_entries(select(.key | test("ame$")))' sample.yml
+yq 'with_entries(select(.key | test("ame$")))' sample.yml
 ```
 will output
 ```yaml
@@ -121,7 +121,7 @@ a:
 ```
 then
 ```bash
-yq eval '(.a.[] | select(. == "cat" or . == "goat")) |= "rabbit"' sample.yml
+yq '(.a.[] | select(. == "cat" or . == "goat")) |= "rabbit"' sample.yml
 ```
 will output
 ```yaml

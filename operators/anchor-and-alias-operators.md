@@ -25,7 +25,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[4] | explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
@@ -55,7 +55,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[4] | explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
@@ -87,7 +87,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[4] | explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
@@ -103,7 +103,7 @@ a: &billyBob cat
 ```
 then
 ```bash
-yq eval '.a | anchor' sample.yml
+yq '.a | anchor' sample.yml
 ```
 will output
 ```yaml
@@ -117,7 +117,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '.a anchor = "foobar"' sample.yml
+yq '.a anchor = "foobar"' sample.yml
 ```
 will output
 ```yaml
@@ -132,7 +132,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a anchor |= .b' sample.yml
+yq '.a anchor |= .b' sample.yml
 ```
 will output
 ```yaml
@@ -148,7 +148,7 @@ a: *billyBob
 ```
 then
 ```bash
-yq eval '.a | alias' sample.yml
+yq '.a | alias' sample.yml
 ```
 will output
 ```yaml
@@ -163,7 +163,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '.a alias = "meow"' sample.yml
+yq '.a alias = "meow"' sample.yml
 ```
 will output
 ```yaml
@@ -179,7 +179,7 @@ a: cat
 ```
 then
 ```bash
-yq eval '.a alias = ""' sample.yml
+yq '.a alias = ""' sample.yml
 ```
 will output
 ```yaml
@@ -196,7 +196,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a alias |= .f' sample.yml
+yq '.a alias |= .f' sample.yml
 ```
 will output
 ```yaml
@@ -213,7 +213,7 @@ f:
 ```
 then
 ```bash
-yq eval 'explode(.f)' sample.yml
+yq 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
@@ -229,7 +229,7 @@ a: mike
 ```
 then
 ```bash
-yq eval 'explode(.a)' sample.yml
+yq 'explode(.a)' sample.yml
 ```
 will output
 ```yaml
@@ -245,7 +245,7 @@ f:
 ```
 then
 ```bash
-yq eval 'explode(.f)' sample.yml
+yq 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
@@ -278,7 +278,7 @@ foobar:
 ```
 then
 ```bash
-yq eval 'explode(.)' sample.yml
+yq 'explode(.)' sample.yml
 ```
 will output
 ```yaml
@@ -317,7 +317,7 @@ thingTwo:
 ```
 then
 ```bash
-yq eval '.thingOne |= explode(.) * {"value": false}' sample.yml
+yq '.thingOne |= explode(.) * {"value": false}' sample.yml
 ```
 will output
 ```yaml

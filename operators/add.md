@@ -4,8 +4,10 @@ Add behaves differently according to the type of the LHS:
 * arrays: concatenate
 * number scalars: arithmetic addition
 * string scalars: concatenate
+* maps: shallow merge (use the multiply operator (`*`) to deeply merge)
 
-Use `+=` as append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
+Use `+=` as a relative append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
+
 
 ## Concatenate and assign arrays
 Given a sample.yml file of:
@@ -18,7 +20,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b += ["cow"]' sample.yml
+yq '.a.b += ["cow"]' sample.yml
 ```
 will output
 ```yaml
@@ -42,7 +44,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a + .b' sample.yml
+yq '.a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -61,7 +63,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + null' sample.yml
+yq '.a + null' sample.yml
 ```
 will output
 ```yaml
@@ -77,7 +79,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + {"cat": "meow"}' sample.yml
+yq '.a + {"cat": "meow"}' sample.yml
 ```
 will output
 ```yaml
@@ -94,7 +96,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a + "hello"' sample.yml
+yq '.a + "hello"' sample.yml
 ```
 will output
 ```yaml
@@ -115,7 +117,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -141,7 +143,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a += .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml
@@ -169,7 +171,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a[].b += ["mouse"]' sample.yml
+yq '.a[].b += ["mouse"]' sample.yml
 ```
 will output
 ```yaml
@@ -193,7 +195,7 @@ b: meow
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -211,7 +213,7 @@ b: 4.9
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -229,7 +231,7 @@ b: 4
 ```
 then
 ```bash
-yq eval '.a = .a + .b' sample.yml
+yq '.a = .a + .b' sample.yml
 ```
 will output
 ```yaml
@@ -245,7 +247,7 @@ b: 5
 ```
 then
 ```bash
-yq eval '.[] += 1' sample.yml
+yq '.[] += 1' sample.yml
 ```
 will output
 ```yaml
@@ -258,10 +260,81 @@ Adding to null simply returns the rhs
 
 Running
 ```bash
-yq eval --null-input 'null + "cat"'
+yq --null-input 'null + "cat"'
 ```
 will output
 ```yaml
 cat
+```
+
+## Add maps to shallow merge
+Adding objects together shallow merges them. Use `*` to deeply merge.
+
+Given a sample.yml file of:
+```yaml
+a:
+  thing:
+    name: Astuff
+    value: x
+  a1: cool
+b:
+  thing:
+    name: Bstuff
+    legs: 3
+  b1: neat
+```
+then
+```bash
+yq '.a += .b' sample.yml
+```
+will output
+```yaml
+a:
+  thing:
+    name: Bstuff
+    legs: 3
+  a1: cool
+  b1: neat
+b:
+  thing:
+    name: Bstuff
+    legs: 3
+  b1: neat
+```
+
+## Custom types: that are really strings
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse cat
+b: !goat _meow
+```
+then
+```bash
+yq '.a += .b' sample.yml
+```
+will output
+```yaml
+a: !horse cat_meow
+b: !goat _meow
+```
+
+## Custom types: that are really numbers
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 1.2
+b: !goat 2.3
+```
+then
+```bash
+yq '.a += .b' sample.yml
+```
+will output
+```yaml
+a: !horse 3.5
+b: !goat 2.3
 ```
 

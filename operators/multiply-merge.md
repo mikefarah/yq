@@ -23,13 +23,19 @@ yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.y
 ```
 
 ## Multiply integers
-Running
+Given a sample.yml file of:
+```yaml
+a: 3
+b: 4
+```
+then
 ```bash
-yq eval --null-input '3 * 4'
+yq '.a *= .b' sample.yml
 ```
 will output
 ```yaml
-12
+a: 12
+b: 4
 ```
 
 ## Merge objects together, returning merged result only
@@ -45,7 +51,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a * .b' sample.yml
+yq '.a * .b' sample.yml
 ```
 will output
 ```yaml
@@ -68,7 +74,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -92,7 +98,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -115,7 +121,7 @@ b:
 ```
 then
 ```bash
-yq eval '. * {"a":.b}' sample.yml
+yq '. * {"a":.b}' sample.yml
 ```
 will output
 ```yaml
@@ -141,7 +147,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *? .b' sample.yml
+yq '.a *? .b' sample.yml
 ```
 will output
 ```yaml
@@ -161,7 +167,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *n .b' sample.yml
+yq '.a *n .b' sample.yml
 ```
 will output
 ```yaml
@@ -188,7 +194,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *+ .b' sample.yml
+yq '.a *+ .b' sample.yml
 ```
 will output
 ```yaml
@@ -218,7 +224,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *?+ .b' sample.yml
+yq '.a *?+ .b' sample.yml
 ```
 will output
 ```yaml
@@ -245,7 +251,7 @@ b:
 ```
 then
 ```bash
-yq eval '.a *d .b' sample.yml
+yq '.a *d .b' sample.yml
 ```
 will output
 ```yaml
@@ -325,7 +331,7 @@ b: dog
 ```
 then
 ```bash
-yq eval '. * {"a": {"c": .a}}' sample.yml
+yq '. * {"a": {"c": .a}}' sample.yml
 ```
 will output
 ```yaml
@@ -346,7 +352,7 @@ c:
 ```
 then
 ```bash
-yq eval '.c * .b' sample.yml
+yq '.c * .b' sample.yml
 ```
 will output
 ```yaml
@@ -366,7 +372,7 @@ c:
 ```
 then
 ```bash
-yq eval '.c * .a' sample.yml
+yq '.c * .a' sample.yml
 ```
 will output
 ```yaml
@@ -398,7 +404,7 @@ foobar:
 ```
 then
 ```bash
-yq eval '.foobar * .foobarList' sample.yml
+yq '.foobar * .foobarList' sample.yml
 ```
 will output
 ```yaml
@@ -408,5 +414,46 @@ c: foobarList_c
   - *bar
 thing: foobar_thing
 b: foobarList_b
+```
+
+## Custom types: that are really numbers
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 2
+b: !goat 3
+```
+then
+```bash
+yq '.a = .a * .b' sample.yml
+```
+will output
+```yaml
+a: !horse 6
+b: !goat 3
+```
+
+## Custom types: that are really maps
+Custom tags will be maintained.
+
+Given a sample.yml file of:
+```yaml
+a: !horse
+  cat: meow
+b: !goat
+  dog: woof
+```
+then
+```bash
+yq '.a = .a * .b' sample.yml
+```
+will output
+```yaml
+a: !horse
+  cat: meow
+  dog: woof
+b: !goat
+  dog: woof
 ```
 

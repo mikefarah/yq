@@ -5,7 +5,7 @@ You can use subtract to subtract numbers, as well as removing elements from an a
 ## Array subtraction
 Running
 ```bash
-yq eval --null-input '[1,2] - [2,3]'
+yq --null-input '[1,2] - [2,3]'
 ```
 will output
 ```yaml
@@ -15,7 +15,7 @@ will output
 ## Array subtraction with nested array
 Running
 ```bash
-yq eval --null-input '[[1], 1, 2] - [[1], 3]'
+yq --null-input '[[1], 1, 2] - [[1], 3]'
 ```
 will output
 ```yaml
@@ -34,7 +34,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '. - [{"c": "d", "a": "b"}]' sample.yml
+yq '. - [{"c": "d", "a": "b"}]' sample.yml
 ```
 will output
 ```yaml
@@ -51,7 +51,7 @@ b: 4.5
 ```
 then
 ```bash
-yq eval '.a = .a - .b' sample.yml
+yq '.a = .a - .b' sample.yml
 ```
 will output
 ```yaml
@@ -69,7 +69,7 @@ b: 4.5
 ```
 then
 ```bash
-yq eval '.a = .a - .b' sample.yml
+yq '.a = .a - .b' sample.yml
 ```
 will output
 ```yaml
@@ -87,7 +87,7 @@ b: 4
 ```
 then
 ```bash
-yq eval '.a = .a - .b' sample.yml
+yq '.a = .a - .b' sample.yml
 ```
 will output
 ```yaml
@@ -103,11 +103,29 @@ b: 5
 ```
 then
 ```bash
-yq eval '.[] -= 1' sample.yml
+yq '.[] -= 1' sample.yml
 ```
 will output
 ```yaml
 a: 2
 b: 4
+```
+
+## Custom types: that are really numbers
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse 2
+b: !goat 1
+```
+then
+```bash
+yq '.a -= .b' sample.yml
+```
+will output
+```yaml
+a: !horse 1
+b: !goat 1
 ```
 

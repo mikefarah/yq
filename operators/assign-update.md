@@ -10,7 +10,7 @@ This will do a similar thing to the plain form, however, the RHS expression is r
 ## Create yaml file
 Running
 ```bash
-yq eval --null-input '.a.b = "cat" | .x = "frog"'
+yq --null-input '.a.b = "cat" | .x = "frog"'
 ```
 will output
 ```yaml
@@ -28,7 +28,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a |= .b' sample.yml
+yq '.a |= .b' sample.yml
 ```
 will output
 ```yaml
@@ -45,7 +45,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] |= . * 2' sample.yml
+yq '.[] |= . * 2' sample.yml
 ```
 will output
 ```yaml
@@ -84,7 +84,7 @@ b: sibling
 ```
 then
 ```bash
-yq eval '.a = .b' sample.yml
+yq '.a = .b' sample.yml
 ```
 will output
 ```yaml
@@ -101,7 +101,7 @@ c: fieldC
 ```
 then
 ```bash
-yq eval '(.a, .c) = "potatoe"' sample.yml
+yq '(.a, .c) = "potatoe"' sample.yml
 ```
 will output
 ```yaml
@@ -118,7 +118,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b = "frog"' sample.yml
+yq '.a.b = "frog"' sample.yml
 ```
 will output
 ```yaml
@@ -136,7 +136,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.b |= "frog"' sample.yml
+yq '.a.b |= "frog"' sample.yml
 ```
 will output
 ```yaml
@@ -155,7 +155,7 @@ a:
 ```
 then
 ```bash
-yq eval '(.a[] | select(. == "apple")) = "frog"' sample.yml
+yq '(.a[] | select(. == "apple")) = "frog"' sample.yml
 ```
 will output
 ```yaml
@@ -173,7 +173,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '(.[] | select(. == "*andy")) = "bogs"' sample.yml
+yq '(.[] | select(. == "*andy")) = "bogs"' sample.yml
 ```
 will output
 ```yaml
@@ -189,7 +189,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.a.b |= "bogs"' sample.yml
+yq '.a.b |= "bogs"' sample.yml
 ```
 will output
 ```yaml
@@ -205,7 +205,7 @@ a: &cool cat
 ```
 then
 ```bash
-yq eval '.a = "dog"' sample.yml
+yq '.a = "dog"' sample.yml
 ```
 will output
 ```yaml
@@ -219,7 +219,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.a.b.[0] |= "bogs"' sample.yml
+yq '.a.b.[0] |= "bogs"' sample.yml
 ```
 will output
 ```yaml

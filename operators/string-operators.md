@@ -17,13 +17,13 @@ a: |
 Using `$( exp )` wont work, as it will trim the trailing new line.
 
 ```
-m=$(echo "cat\n") yq e -n '.a = strenv(m)'
+m=$(echo "cat\n") yq -n '.a = strenv(m)'
 a: cat
 ```
 
 However, using printf works:
 ```
-printf -v m "cat\n" ; m="$m" yq e -n '.a = strenv(m)'
+printf -v m "cat\n" ; m="$m" yq -n '.a = strenv(m)'
 a: |
   cat
 ```
@@ -31,7 +31,7 @@ a: |
 As well as having multiline expressions:
 ```
 m="cat
-"  yq e -n '.a = strenv(m)'
+"  yq -n '.a = strenv(m)'
 a: |
   cat
 ```
@@ -40,7 +40,7 @@ Similarly, if you're trying to set the content from a file, and want a trailing 
 
 ```
 IFS= read -rd '' output < <(cat my_file)
-output=$output ./yq e '.data.values = strenv(output)' first.yml
+output=$output ./yq '.data.values = strenv(output)' first.yml
 ```
 
 ## Join strings
@@ -54,7 +54,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'join("; ")' sample.yml
+yq 'join("; ")' sample.yml
 ```
 will output
 ```yaml
@@ -68,7 +68,7 @@ foo bar foo
 ```
 then
 ```bash
-yq eval 'match("foo")' sample.yml
+yq 'match("foo")' sample.yml
 ```
 will output
 ```yaml
@@ -85,7 +85,7 @@ foo bar FOO
 ```
 then
 ```bash
-yq eval '[match("(?i)foo"; "g")]' sample.yml
+yq '[match("(?i)foo"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -106,7 +106,7 @@ abc abc
 ```
 then
 ```bash
-yq eval '[match("(abc)+"; "g")]' sample.yml
+yq '[match("(abc)+"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -133,7 +133,7 @@ foo bar foo foo  foo
 ```
 then
 ```bash
-yq eval '[match("foo (?P<bar123>bar)? foo"; "g")]' sample.yml
+yq '[match("foo (?P<bar123>bar)? foo"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -162,7 +162,7 @@ xyzzy-14
 ```
 then
 ```bash
-yq eval 'capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")' sample.yml
+yq 'capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")' sample.yml
 ```
 will output
 ```yaml
@@ -177,7 +177,7 @@ cat cat
 ```
 then
 ```bash
-yq eval 'match("cat")' sample.yml
+yq 'match("cat")' sample.yml
 ```
 will output
 ```yaml
@@ -194,7 +194,7 @@ cat cat
 ```
 then
 ```bash
-yq eval '[match("cat"; "g")]' sample.yml
+yq '[match("cat"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -218,7 +218,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] | test("at")' sample.yml
+yq '.[] | test("at")' sample.yml
 ```
 will output
 ```yaml
@@ -236,7 +236,7 @@ a: dogs are great
 ```
 then
 ```bash
-yq eval '.a |= sub("dogs", "cats")' sample.yml
+yq '.a |= sub("dogs", "cats")' sample.yml
 ```
 will output
 ```yaml
@@ -254,7 +254,7 @@ b: heat
 ```
 then
 ```bash
-yq eval '.[] |= sub("(a)", "${1}r")' sample.yml
+yq '.[] |= sub("(a)", "${1}r")' sample.yml
 ```
 will output
 ```yaml
@@ -269,7 +269,7 @@ cat; meow; 1; ; true
 ```
 then
 ```bash
-yq eval 'split("; ")' sample.yml
+yq 'split("; ")' sample.yml
 ```
 will output
 ```yaml
@@ -287,7 +287,7 @@ word
 ```
 then
 ```bash
-yq eval 'split("; ")' sample.yml
+yq 'split("; ")' sample.yml
 ```
 will output
 ```yaml

@@ -10,7 +10,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.nested | parent' sample.yml
+yq '.a.nested | parent' sample.yml
 ```
 will output
 ```yaml
@@ -29,7 +29,7 @@ b:
 ```
 then
 ```bash
-yq eval '.. | select(. == "banana") | parent' sample.yml
+yq '.. | select(. == "banana") | parent' sample.yml
 ```
 will output
 ```yaml
@@ -44,7 +44,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'parent' sample.yml
+yq 'parent' sample.yml
 ```
 will output
 ```yaml

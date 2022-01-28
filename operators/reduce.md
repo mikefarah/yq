@@ -31,7 +31,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] as $item ireduce (0; . + $item)' sample.yml
+yq '.[] as $item ireduce (0; . + $item)' sample.yml
 ```
 will output
 ```yaml
@@ -67,7 +67,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[] as $item ireduce ({}; .[$item | .name] = ($item | .has) )' sample.yml
+yq '.[] as $item ireduce ({}; .[$item | .name] = ($item | .has) )' sample.yml
 ```
 will output
 ```yaml

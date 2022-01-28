@@ -10,7 +10,7 @@ cat: meow
 ```
 then
 ```bash
-yq eval 'keys' sample.yml
+yq 'keys' sample.yml
 ```
 will output
 ```yaml
@@ -26,7 +26,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'keys' sample.yml
+yq 'keys' sample.yml
 ```
 will output
 ```yaml
@@ -43,7 +43,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval '.[1] | key' sample.yml
+yq '.[1] | key' sample.yml
 ```
 will output
 ```yaml
@@ -57,7 +57,7 @@ a: thing
 ```
 then
 ```bash
-yq eval '.a | key' sample.yml
+yq '.a | key' sample.yml
 ```
 will output
 ```yaml
@@ -71,7 +71,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq eval 'key' sample.yml
+yq 'key' sample.yml
 ```
 will output
 ```yaml
@@ -86,7 +86,7 @@ a:
 ```
 then
 ```bash
-yq eval '(.a.x | key) = "meow"' sample.yml
+yq '(.a.x | key) = "meow"' sample.yml
 ```
 will output
 ```yaml
@@ -105,7 +105,7 @@ a:
 ```
 then
 ```bash
-yq eval '.a.x | key | headComment' sample.yml
+yq '.a.x | key | headComment' sample.yml
 ```
 will output
 ```yaml
