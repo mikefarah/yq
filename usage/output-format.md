@@ -37,7 +37,7 @@ apples:
 Then:
 
 ```
-yq e -I4 sample.yaml
+yq -I4 sample.yaml
 ```
 
 Will print out:
@@ -53,7 +53,7 @@ apples:
 This also works with json
 
 ```
-yq e -j -I4 sample.yaml
+yq -j -I4 sample.yaml
 ```
 
 yields
@@ -86,7 +86,7 @@ a: "Things" # cool stuff
 
 Then:
 
-`yq e --unwrapScalar=false '.a' data.yml`
+`yq --unwrapScalar=false '.a' data.yml`
 
 Will yield:
 

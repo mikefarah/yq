@@ -5,7 +5,7 @@
 Yaml files can be surprisingly lenient in what can be parsed as a yaml file. A reasonable way of validation a yaml file is to ensure the top level is a map or array (although it is valid yaml to have scalars at the top level, but often this is not what you want). This can be done by:
 
 ```
-yq e --exit-status 'tag == "!!map" or tag== "!!seq"' file.txt > /dev/null
+yq --exit-status 'tag == "!!map" or tag== "!!seq"' file.txt > /dev/null
 ```
 
 ## Split expressions over multiple lines to improve readability
@@ -15,7 +15,7 @@ Feel free to use multiple lines in your expression to improve readability.
 Use `with` if you need to make several updates to the same path.
 
 ```bash
-yq eval --inplace '
+yq --inplace '
   with(.a.deeply.nested; 
     . = "newValue" | . style="single") |
   with(.b.another.nested; 
@@ -37,7 +37,7 @@ coolActions:
 You can create a bash array named `actions` by:
 
 ```bash
-> readarray actions < <(yq e '.coolActions[]' sample.yaml)
+> readarray actions < <(yq '.coolActions[]' sample.yaml)
 > echo "${actions[1]}"
 edit
 ```
@@ -47,7 +47,7 @@ edit
 Use an environment variable with the `strenv` operator to inject the contents from an environment variable.
 
 ```bash
-LICENSE=$(cat LICENSE) yq eval -n '.a = strenv(LICENSE)'
+LICENSE=$(cat LICENSE) yq -n '.a = strenv(LICENSE)'
 ```
 
 Note that `bash` substitution "$(..)" trims newlines, this will cause string blocks to start with `|-` instead of `|`. If you want to keep your nice trailing newline, read more [here](https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines)
@@ -58,7 +58,7 @@ Note that `bash` substitution "$(..)" trims newlines, this will cause string blo
 The `strenv` operator is a great way to handle special characters in strings:
 
 ```bash
-VAL='.a |!@  == "string2"' yq e '.a = strenv(VAL)' example.yaml
+VAL='.a |!@  == "string2"' yq '.a = strenv(VAL)' example.yaml
 ```
 
 ## Quotes in Windows Powershell
@@ -66,7 +66,7 @@ VAL='.a |!@  == "string2"' yq e '.a = strenv(VAL)' example.yaml
 Powershell has its [own](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about\_quoting\_rules?view=powershell-7.1) way of handling quotes:
 
 ```bash
-PS > yq e -n '.test = ""something""'
+PS > yq -n '.test = ""something""'
 test: something
 PS >
 ```
@@ -90,7 +90,7 @@ See [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays
 To create a new `yaml` file simply:
 
 ```
-yq e -n '.someNew="content"' > newfile.yml
+yq -n '.someNew="content"' > newfile.yml
 ```
 
 ## Comparing yaml files
@@ -98,7 +98,7 @@ yq e -n '.someNew="content"' > newfile.yml
 The best way to run a diff is to use `yq` to normalise the yaml files and then just use diff. Here is a simple example of using pretty print `-P` to normalise the styling and running diff:
 
 ```
-diff <(yq e -P 'sort_keys(..)' file1.yaml) <(yq e -P 'sort_keys(..)' file2.yaml)
+diff <(yq -P 'sort_keys(..)' file1.yaml) <(yq -P 'sort_keys(..)' file2.yaml)
 ```
 
 This way you can use the full power of `diff` and normalise the yaml files as you like.
@@ -110,7 +110,7 @@ You may also want to remove all comments using `... comments=""`
 Like `diff` and other bash commands, you can use `<(exp)` to pipe in multiple streams of data into `yq`. instance:
 
 ```
-yq e '.apple' <(curl -s https://somewhere/data1.yaml) <(cat file.yml)
+yq '.apple' <(curl -s https://somewhere/data1.yaml) <(cat file.yml)
 ```
 
 ## Updating deeply selected paths
@@ -127,7 +127,7 @@ yq '(.foo.bar[] | select(name == "fred) | .apple) = "cool"'
 In order to combine multiple yaml files into a single file (with `---` separators) you can just:
 
 ```
-yq e '.' somewhere/*.yaml
+yq '.' somewhere/*.yaml
 ```
 
 ## Multiple updates to the same path
@@ -135,7 +135,7 @@ yq e '.' somewhere/*.yaml
 You can use the [with](../operators/with.md) operator to set a nested context:
 
 ```
-yq eval 'with(.a.deeply ; .nested = "newValue" | .other= "newThing")' sample.yml
+yq 'with(.a.deeply ; .nested = "newValue" | .other= "newThing")' sample.yml
 ```
 
 The first argument expression sets the root context, and the second expression runs against that root context.

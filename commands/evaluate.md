@@ -6,6 +6,8 @@ description: >-
 
 # Evaluate
 
+Note that (as of 4.18.1) this is the default command when none is supplied to yq.
+
 ## Usage:&#x20;
 
 ```bash
@@ -20,20 +22,20 @@ Note that you can pass in `-` as a filename to pipe from STDIN.
 
 ```bash
 # runs the expression against each file, in series
-yq e '.a.b | length' f1.yml f2.yml 
+yq '.a.b | length' f1.yml f2.yml 
 
 # '-' will pipe from STDIN
-cat file.yml | yq e '.a.b' f1.yml -  f2.yml
+cat file.yml | yq '.a.b' f1.yml -  f2.yml
 
 # prints out the file
-yq e sample.yaml 
+yq sample.yaml 
 cat sample.yml | yq e
 
 # prints a new yaml document
-yq e -n '.a.b.c = "cat"' 
+yq -n '.a.b.c = "cat"' 
 
 # updates file.yaml directly
-yq e '.a.b = "cool"' -i file.yaml 
+yq '.a.b = "cool"' -i file.yaml 
 ```
 
 

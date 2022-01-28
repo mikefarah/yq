@@ -19,7 +19,7 @@ b: bannana
 The running
 
 ```
-yq e --front-matter=process '.a="chocolate"' file.jekyll
+yq --front-matter=process '.a="chocolate"' file.jekyll
 ```
 
 Will yield:
@@ -37,7 +37,7 @@ b: bannana
 Running with `--front-matter=extract` will only output the yaml contents and ignore the rest. From the previous example, if you were to instead run:
 
 ```
-yq e --front-matter=extract '.a="chocolate"' file.jekyll
+yq --front-matter=extract '.a="chocolate"' file.jekyll
 ```
 
 Then this would yield:

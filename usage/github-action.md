@@ -8,7 +8,7 @@ You can use `yq` in your GitHub action, for instance:
     id: lookupSdkVersion
     uses: mikefarah/yq@master
     with:
-      cmd: yq eval '.renutil.version' 'config.yml'
+      cmd: yq '.renutil.version' 'config.yml'
   - name: Restore Cache
     id: restore-cache
     uses: actions/cache@v2

@@ -15,7 +15,7 @@ a: test_doc2
 Then running:
 
 ```bash
-yq e -s '.a' myfile.yml
+yq -s '.a' myfile.yml
 ```
 
 will result in two files:
@@ -40,7 +40,7 @@ TIP: if you don't want the leading document separators (`---`), then run with th
 This is like the example above, but we'll use `$index` for the filename. Note that this variable is only defined for the `--split-exp/s` flag.
 
 ```
-yq e -s '"file_" + $index' myfile.yml
+yq -s '"file_" + $index' myfile.yml
 ```
 
 This will create two files, `file_0.yml` and `file_1.yml`.
@@ -59,7 +59,7 @@ You can also split results into separate files. Notice
 Then, by splatting the array into individual results, we can split the content into several files:
 
 ```bash
-yq e '.[]' file.yml -s '"user_" + .name'
+yq '.[]' file.yml -s '"user_" + .name'
 ```
 
 will result in two files:

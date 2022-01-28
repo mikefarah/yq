@@ -27,7 +27,7 @@ yq r sample.yaml 'a.b.c'
 v4:
 
 ```
-yq e '.a.b.c' sample.yaml
+yq '.a.b.c' sample.yaml
 ```
 
 ### Reading with default value
@@ -41,7 +41,7 @@ yq r sample.yaml --defaultValue frog path.not.there
 v4: (use the [alternative](broken-reference) operator)
 
 ```
-yq e '.path.not.there // "frog"' sample.yaml
+yq '.path.not.there // "frog"' sample.yaml
 ```
 
 
@@ -57,7 +57,7 @@ yq r sample.yaml 'a.(b.d==cat).f'
 v4:
 
 ```bash
-yq eval '.a | select(.b.d == "cat") | .f' sample.yaml
+yq '.a | select(.b.d == "cat") | .f' sample.yaml
 ```
 
 ### Recursively match nodes
@@ -71,7 +71,7 @@ yq r sample.yaml 'thing.**.name'
 v4:
 
 ```
-yq e '.thing | .. | select(has("name"))' sample.yaml
+yq '.thing | .. | select(has("name"))' sample.yaml
 ```
 
 ### Multiple documents
@@ -85,7 +85,7 @@ yq r -d1 sample.yaml 'b.c'
 v4 (via the document index operator):
 
 ```bash
-yq eval 'select(documentIndex == 1) | .b.c' sample.yml
+yq 'select(documentIndex == 1) | .b.c' sample.yml
 ```
 
 ### Updating / writing documents
@@ -99,7 +99,7 @@ yq w sample.yaml 'a.b.c' fred
 v4:
 
 ```
-yq eval '.a.b.c = "fred"' sample.yaml
+yq '.a.b.c = "fred"' sample.yaml
 ```
 
 ### Deleting documents
@@ -113,7 +113,7 @@ yq d sample.yaml 'a.b.c'
 v4:
 
 ```bash
-yq eval 'del(.a.b.c)' sample.yaml
+yq 'del(.a.b.c)' sample.yaml
 ```
 
 ### Merging documents
@@ -137,7 +137,7 @@ yq p data1.yaml c.d
 v4:
 
 ```
-yq eval '{"c": {"d": . }}' data1.yml
+yq '{"c": {"d": . }}' data1.yml
 ```
 
 ### Create new yaml documents
@@ -153,7 +153,7 @@ yq n b.c cat
 v4:
 
 ```
-yq e -n '.b.c = "cat"'
+yq -n '.b.c = "cat"'
 ```
 
 ### Validate documents
@@ -167,13 +167,13 @@ yq validate some.file
 v4:
 
 ```
-yq e 'true' some.file > /dev/null
+yq 'true' some.file > /dev/null
 ```
 
 Note that passing 'true' as the expression saves having to reencode the yaml (only to pipe it to stdout). In v4 you can also do a slightly more sophisticated validation and assert the tag on the root level, so you can ensure the yaml file is a map or array at the top level:
 
 ```
-yq e --exit-status 'tag == "!!map" or tag== "!!seq"' some.file > /dev/null
+yq --exit-status 'tag == "!!map" or tag== "!!seq"' some.file > /dev/null
 ```
 
 ### Comparing yaml files
@@ -189,7 +189,7 @@ v4:
 In v4 there is no built in compare command, instead it relies on using diff. The downside is longer syntax, the upside is that you can use the full power of diff.
 
 ```
-diff <(yq e -P file1.yml) <(yq e -P file2.yml)
+diff <(yq -P file1.yml) <(yq -P file2.yml)
 ```
 
 ### Script files
@@ -209,7 +209,7 @@ V4 doesn't have a similar feature, however the fact that you can run multiple op
 ```bash
 #!/bin/bash
 
-yq e '
+yq '
   .a.key1 = "things" |
   del(.a.ab.key2)
 ' ./examples/data1.yaml

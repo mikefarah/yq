@@ -18,7 +18,7 @@ person: # neither do comments on maps
 then
 
 ```bash
-yq eval -o=p sample.yaml
+yq -o=p sample.yaml
 ```
 
 will output:

@@ -16,7 +16,7 @@ Compatible structures is either an array of scalars (strings/numbers/booleans), 
 then
 
 ```bash
-yq e '.' -o=csv sample.yaml
+yq '.' -o=csv sample.yaml
 ```
 
 will output:
@@ -29,7 +29,7 @@ because,excel,is,cool
 Similarly, for tsv:
 
 ```bash
-yq e '.' -o=tsv sample.yaml
+yq '.' -o=tsv sample.yaml
 ```
 
 will output:

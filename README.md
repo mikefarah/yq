@@ -8,22 +8,22 @@ yq is written in go - so you can download a dependency free binary for your plat
 
 Read a value:
 ```bash
-yq e '.a.b[0].c' file.yaml
+yq '.a.b[0].c' file.yaml
 ```
 
 Pipe from STDIN:
 ```bash
-cat file.yaml | yq e '.a.b[0].c' -
+cat file.yaml | yq '.a.b[0].c'
 ```
 
 Update a yaml file, inplace
 ```bash
-yq e -i '.a.b[0].c = "cool"' file.yaml
+yq -i '.a.b[0].c = "cool"' file.yaml
 ```
 
 Update using environment variables
 ```bash
-NAME=mike yq e -i '.a.b[0].c = strenv(NAME)' file.yaml
+NAME=mike yq -i '.a.b[0].c = strenv(NAME)' file.yaml
 ```
 
 Merge multiple files
@@ -33,7 +33,7 @@ yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
 
 Multiple updates to a yaml file
 ```bash
-yq e -i '
+yq -i '
   .a.b[0].c = "cool" |
   .x.y.z = "foobar" |
   .person.name = strenv(NAME)
