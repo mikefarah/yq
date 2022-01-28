@@ -4,6 +4,27 @@ a lightweight and portable command-line YAML processor. `yq` uses [jq](https://g
 
 yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as docker, all listed below.
 
+## Notice for v4.x versions prior to 4.18.1
+Since 4.18.1, yq's 'eval/e' command is the _default_ command and no longers needs to be specified.
+
+Older versions will still need to specify 'eval/e'.
+
+Similarly, '-' is no longer required as a filename to read from STDIN (unless reading from multiple files).
+
+TLDR:
+
+Prior to 4.18.1 
+```bash
+cat file.yaml | yq e '.cool' -
+```
+
+4.18+ 
+```bash
+cat file.yaml | yq '.cool'
+```
+
+When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression again all the document at once.
+
 ## Quick Usage Guide
 
 Read a value:
