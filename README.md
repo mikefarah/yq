@@ -26,7 +26,7 @@ cat file.yaml | yq e '.cool' -
 cat file.yaml | yq '.cool'
 ```
 
-When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression again all the document at once.
+When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression against all the document at once.
 
 ## Quick Usage Guide
 
