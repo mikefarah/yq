@@ -44,13 +44,7 @@ edit
 
 ## Set contents from another file
 
-Use an environment variable with the `strenv` operator to inject the contents from an environment variable.
-
-```bash
-LICENSE=$(cat LICENSE) yq -n '.a = strenv(LICENSE)'
-```
-
-Note that `bash` substitution "$(..)" trims newlines, this will cause string blocks to start with `|-` instead of `|`. If you want to keep your nice trailing newline, read more [here](https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines)
+Use the [load](https://mikefarah.gitbook.io/yq/operators/load) operator to load contents from another file.
 
 
 ## Special characters in strings
