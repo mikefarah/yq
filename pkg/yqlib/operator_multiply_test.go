@@ -29,27 +29,32 @@ var mergeArrayWithAnchors = `sample:
 - <<: *a
 `
 
-var mergeArraysObjectKeysText = `The approach, at a high level, is to reduce into a merged map (keyed by the unique key)
+var mergeArraysObjectKeysText = `
+This is a fairly complex expression - you can use it as is by providing the environment variables as seen in the example below.
+
+It merges in the array provided in the second file into the first - matching on equal keys.
+
+Explanation:
+
+The approach, at a high level, is to reduce into a merged map (keyed by the unique key)
 and then convert that back into an array.
 
-First the expression will create a map from the arrays keyed by '.a', the unique field we want to merge by.
+First the expression will create a map from the arrays keyed by the idPath, the unique field we want to merge by.
 The reduce operator is merging '({}; . * $item )', so array elements with the matching key will be merged together.
 
 Next, we convert the map back to an array, using reduce again, concatenating all the map values together.
 
 Finally, we set the result of the merged array back into the first doc.
 
-To use this, you will need to update '.myArray' in the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
-
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 `
 
 var mergeExpression = `
 (
-  ((.myArray[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+  (( (eval(strenv(originalPath)) + eval(strenv(otherPath)))  | .[] | {(eval(strenv(idPath))):  .}) as $item ireduce ({}; . * $item )) as $uniqueMap
   | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 ) as $mergedArray
-| select(fi == 0) | .myArray = $mergedArray
+| select(fi == 0) | (eval(strenv(originalPath))) = $mergedArray
 `
 
 var docWithHeader = `# here
@@ -413,11 +418,12 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Merge arrays of objects together, matching on a key",
-		subdescription: mergeArraysObjectKeysText,
-		document:       `{myArray: [{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}], something: else}`,
-		document2:      `myArray: [{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
-		expression:     mergeExpression,
+		description:          "Merge arrays of objects together, matching on a key",
+		subdescription:       mergeArraysObjectKeysText,
+		document:             `{myArray: [{a: apple, b: appleB}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB}], something: else}`,
+		document2:            `newArray: [{a: banana, c: bananaC}, {a: apple, b: appleB2}, {a: dingo, c: dingoC}]`,
+		environmentVariables: map[string]string{"originalPath": ".myArray", "otherPath": ".newArray", "idPath": ".a"},
+		expression:           mergeExpression,
 		expected: []string{
 			"D0, P[], (doc)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}, {a: dingo, c: dingoC}], something: else}\n",
 		},

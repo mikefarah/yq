@@ -262,17 +262,22 @@ will output
 ```
 
 ## Merge arrays of objects together, matching on a key
+
+This is a fairly complex expression - you can use it as is by providing the environment variables as seen in the example below.
+
+It merges in the array provided in the second file into the first - matching on equal keys.
+
+Explanation:
+
 The approach, at a high level, is to reduce into a merged map (keyed by the unique key)
 and then convert that back into an array.
 
-First the expression will create a map from the arrays keyed by '.a', the unique field we want to merge by.
+First the expression will create a map from the arrays keyed by the idPath, the unique field we want to merge by.
 The reduce operator is merging '({}; . * $item )', so array elements with the matching key will be merged together.
 
 Next, we convert the map back to an array, using reduce again, concatenating all the map values together.
 
 Finally, we set the result of the merged array back into the first doc.
-
-To use this, you will need to update '.myArray' in the expression to your array (e.g. .my.array), and '.a' to be the key field of your array (e.g. '.name')
 
 Thanks Kev from [stackoverflow](https://stackoverflow.com/a/70109529/1168223)
 
@@ -290,7 +295,7 @@ something: else
 ```
 And another sample another.yml file of:
 ```yaml
-myArray:
+newArray:
   - a: banana
     c: bananaC
   - a: apple
@@ -300,12 +305,12 @@ myArray:
 ```
 then
 ```bash
-yq eval-all '
+originalPath=".myArray"  otherPath=".newArray"  idPath=".a" yq eval-all '
 (
-  ((.myArray[] | {.a: .}) as $item ireduce ({}; . * $item )) as $uniqueMap
+  (( (eval(strenv(originalPath)) + eval(strenv(otherPath)))  | .[] | {(eval(strenv(idPath))):  .}) as $item ireduce ({}; . * $item )) as $uniqueMap
   | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)
 ) as $mergedArray
-| select(fi == 0) | .myArray = $mergedArray
+| select(fi == 0) | (eval(strenv(originalPath))) = $mergedArray
 ' sample.yml another.yml
 ```
 will output
