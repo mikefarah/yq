@@ -63,7 +63,7 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yq
 
 	if splitFileExp != "" {
 		colorsEnabled = forceColor
-		splitExp, err := yqlib.NewExpressionParser().ParseExpression(splitFileExp)
+		splitExp, err := yqlib.ExpressionParser.ParseExpression(splitFileExp)
 		if err != nil {
 			return nil, fmt.Errorf("bad split document expression: %w", err)
 		}

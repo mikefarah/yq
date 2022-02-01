@@ -316,6 +316,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`:\s*`), opToken(createMapOpType))
 	lexer.Add([]byte(`length`), opToken(lengthOpType))
 
+	lexer.Add([]byte(`eval`), opToken(evalOpType))
+
 	lexer.Add([]byte(`map`), opToken(mapOpType))
 	lexer.Add([]byte(`map_values`), opToken(mapValuesOpType))
 

@@ -54,6 +54,16 @@ var envOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:         "Dynamically evaluate a path from an environment variable",
+		subdescription:      "The env variable can be any valid yq expression.",
+		document:            `{a: {b: [{name: dog}, {name: cat}]}}`,
+		environmentVariable: ".a.b[0].name",
+		expression:          `eval(strenv(myenv))`,
+		expected: []string{
+			"D0, P[a b 0 name], (!!str)::dog\n",
+		},
+	},
+	{
 		description:         "Dynamic key lookup with environment variable",
 		environmentVariable: "cat",
 		document:            `{cat: meow, dog: woof}`,

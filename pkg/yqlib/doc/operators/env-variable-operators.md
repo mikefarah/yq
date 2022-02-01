@@ -77,6 +77,25 @@ will output
 a: "12"
 ```
 
+## Dynamically evaluate a path from an environment variable
+The env variable can be any valid yq expression.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    - name: dog
+    - name: cat
+```
+then
+```bash
+myenv=".a.b[0].name" yq 'eval(strenv(myenv))' sample.yml
+```
+will output
+```yaml
+dog
+```
+
 ## Dynamic key lookup with environment variable
 Given a sample.yml file of:
 ```yaml

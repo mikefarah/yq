@@ -79,7 +79,7 @@ func decodeJson(t *testing.T, jsonString string) *CandidateNode {
 		return nil
 	}
 
-	exp, err := NewExpressionParser().ParseExpression(PrettyPrintExp)
+	exp, err := getExpressionParser().ParseExpression(PrettyPrintExp)
 
 	if err != nil {
 		t.Error(err)
@@ -124,7 +124,7 @@ func processJsonScenario(s formatScenario) string {
 		expression = "."
 	}
 
-	exp, err := NewExpressionParser().ParseExpression(expression)
+	exp, err := getExpressionParser().ParseExpression(expression)
 
 	if err != nil {
 		panic(err)

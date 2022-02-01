@@ -21,16 +21,15 @@ type StreamEvaluator interface {
 
 type streamEvaluator struct {
 	treeNavigator DataTreeNavigator
-	treeCreator   ExpressionParser
 	fileIndex     int
 }
 
 func NewStreamEvaluator() StreamEvaluator {
-	return &streamEvaluator{treeNavigator: NewDataTreeNavigator(), treeCreator: NewExpressionParser()}
+	return &streamEvaluator{treeNavigator: NewDataTreeNavigator()}
 }
 
 func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadingContent string) error {
-	node, err := s.treeCreator.ParseExpression(expression)
+	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
@@ -53,7 +52,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 
 func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
 	var totalProcessDocs uint
-	node, err := s.treeCreator.ParseExpression(expression)
+	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}

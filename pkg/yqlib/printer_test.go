@@ -289,7 +289,7 @@ func TestPrinterScalarWithLeadingCont(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	node, err := NewExpressionParser().ParseExpression(".a")
+	node, err := getExpressionParser().ParseExpression(".a")
 	if err != nil {
 		panic(err)
 	}

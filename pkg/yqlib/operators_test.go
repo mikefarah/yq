@@ -53,7 +53,7 @@ func readDocumentWithLeadingContent(content string, fakefilename string, fakeFil
 
 func testScenario(t *testing.T, s *expressionScenario) {
 	var err error
-	node, err := NewExpressionParser().ParseExpression(s.expression)
+	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %w", s.expression, s.description, err))
 		return
@@ -157,7 +157,7 @@ func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
-	node, err := NewExpressionParser().ParseExpression(".. style= \"\"")
+	node, err := getExpressionParser().ParseExpression(".. style= \"\"")
 	if err != nil {
 		panic(err)
 	}
@@ -280,7 +280,7 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 	var err error
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
-	node, err := NewExpressionParser().ParseExpression(s.expression)
+	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {
 		t.Error(fmt.Errorf("Error parsing expression %v of %v: %w", s.expression, s.description, err))
 		return

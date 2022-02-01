@@ -34,6 +34,7 @@ yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			cmd.SetOut(cmd.OutOrStdout())
+
 			var format = logging.MustStringFormatter(
 				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
 			)
@@ -47,6 +48,7 @@ yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
 			}
 
 			logging.SetBackend(backend)
+			yqlib.InitExpressionParser()
 			yqlib.XmlPreferences.AttributePrefix = xmlAttributePrefix
 			yqlib.XmlPreferences.ContentName = xmlContentName
 		},

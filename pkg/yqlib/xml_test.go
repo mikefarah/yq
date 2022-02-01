@@ -27,7 +27,7 @@ func decodeXml(t *testing.T, s formatScenario) *CandidateNode {
 		expression = "."
 	}
 
-	exp, err := NewExpressionParser().ParseExpression(expression)
+	exp, err := getExpressionParser().ParseExpression(expression)
 
 	if err != nil {
 		t.Error(err)

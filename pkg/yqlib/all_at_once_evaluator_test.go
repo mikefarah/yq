@@ -31,6 +31,7 @@ var evaluateNodesScenario = []expressionScenario{
 }
 
 func TestAllAtOnceEvaluateNodes(t *testing.T) {
+	InitExpressionParser()
 	var evaluator = NewAllAtOnceEvaluator()
 	for _, tt := range evaluateNodesScenario {
 		node := test.ParseData(tt.document)
