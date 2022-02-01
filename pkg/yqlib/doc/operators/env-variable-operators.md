@@ -89,7 +89,7 @@ a:
 ```
 then
 ```bash
-valueEnv="moo"  pathEnv=".a.b[0].name" yq 'eval(strenv(pathEnv)) = strenv(valueEnv)' sample.yml
+pathEnv=".a.b[0].name"  valueEnv="moo" yq 'eval(strenv(pathEnv)) = strenv(valueEnv)' sample.yml
 ```
 will output
 ```yaml

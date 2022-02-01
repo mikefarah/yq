@@ -98,19 +98,17 @@ func decodeJson(t *testing.T, jsonString string) *CandidateNode {
 
 func testJsonScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processJsonScenario(s), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJsonEncoder(s.indent)), s.description)
 	} else {
 		var actual = resultToString(t, decodeJson(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
 	}
 }
 
-func processJsonScenario(s formatScenario) string {
+func processFormatScenario(s formatScenario, encoder Encoder) string {
 
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
-
-	var encoder = NewJsonEncoder(s.indent)
 
 	var decoder = NewYamlDecoder()
 
@@ -214,7 +212,7 @@ func documentJsonEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processJsonScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewJsonEncoder(s.indent))))
 }
 
 func TestJsonScenarios(t *testing.T) {
