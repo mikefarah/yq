@@ -15,13 +15,13 @@ var evalOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:         "Dynamically update a path from an environment variable",
-		subdescription:      "The env variable can be any valid yq expression.",
-		document:            `{a: {b: [{name: dog}, {name: cat}]}}`,
-		environmentVariable: ".a.b[0].name",
-		expression:          `eval(strenv(myenv)) = "cow"`,
+		description:          "Dynamically update a path from an environment variable",
+		subdescription:       "The env variable can be any valid yq expression.",
+		document:             `{a: {b: [{name: dog}, {name: cat}]}}`,
+		environmentVariables: map[string]string{"pathEnv": ".a.b[0].name", "valueEnv": "moo"},
+		expression:           `eval(strenv(pathEnv)) = strenv(valueEnv)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: [{name: cow}, {name: cat}]}}\n",
+			"D0, P[], (doc)::{a: {b: [{name: moo}, {name: cat}]}}\n",
 		},
 	},
 }

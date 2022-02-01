@@ -36,13 +36,13 @@ a:
 ```
 then
 ```bash
-myenv=".a.b[0].name" yq 'eval(strenv(myenv)) = "cow"' sample.yml
+valueEnv="moo"  pathEnv=".a.b[0].name" yq 'eval(strenv(pathEnv)) = strenv(valueEnv)' sample.yml
 ```
 will output
 ```yaml
 a:
   b:
-    - name: cow
+    - name: moo
     - name: cat
 ```
 

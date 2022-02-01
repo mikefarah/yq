@@ -18,7 +18,7 @@ import (
 type expressionScenario struct {
 	description           string
 	subdescription        string
-	environmentVariable   string
+	environmentVariables  map[string]string
 	document              string
 	document2             string
 	expression            string
@@ -87,8 +87,8 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 	}
 
-	if s.environmentVariable != "" {
-		os.Setenv("myenv", s.environmentVariable)
+	for name, value := range s.environmentVariables {
+		os.Setenv(name, value)
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
@@ -231,9 +231,13 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 
 	envCommand := ""
 
-	if s.environmentVariable != "" {
-		envCommand = fmt.Sprintf("myenv=\"%v\" ", s.environmentVariable)
-		os.Setenv("myenv", s.environmentVariable)
+	for name, value := range s.environmentVariables {
+		if envCommand == "" {
+			envCommand = fmt.Sprintf("%v=\"%v\" ", name, value)
+		} else {
+			envCommand = fmt.Sprintf("%v %v=\"%v\" ", envCommand, name, value)
+		}
+		os.Setenv(name, value)
 	}
 
 	if s.document != "" {
