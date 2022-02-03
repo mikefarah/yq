@@ -18,16 +18,23 @@ func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return compoundAssignFunction(d, context, expressionNode, createAddOp)
 }
 
-func toNodes(candidate *CandidateNode) []*yaml.Node {
+func toNodes(candidate *CandidateNode, lhs *CandidateNode) ([]*yaml.Node, error) {
 	if candidate.Node.Tag == "!!null" {
-		return []*yaml.Node{}
+		return []*yaml.Node{}, nil
+	}
+	clone, err := candidate.Copy()
+	if err != nil {
+		return nil, err
 	}
 
 	switch candidate.Node.Kind {
 	case yaml.SequenceNode:
-		return candidate.Node.Content
+		return clone.Node.Content, nil
 	default:
-		return []*yaml.Node{candidate.Node}
+		if len(lhs.Node.Content) > 0 {
+			clone.Node.Style = lhs.Node.Content[0].Style
+		}
+		return []*yaml.Node{clone.Node}, nil
 	}
 
 }
@@ -54,7 +61,10 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	case yaml.MappingNode:
 		addMaps(target, lhs, rhs)
 	case yaml.SequenceNode:
-		addSequences(target, lhs, rhs)
+		if err := addSequences(target, lhs, rhs); err != nil {
+			return nil, err
+		}
+
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
 			return nil, fmt.Errorf("%v (%v) cannot be added to a %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
@@ -139,7 +149,7 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 	return nil
 }
 
-func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) {
+func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	target.Node.Kind = yaml.SequenceNode
 	if len(lhs.Node.Content) > 0 {
 		target.Node.Style = lhs.Node.Style
@@ -147,7 +157,15 @@ func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode)
 	target.Node.Tag = lhs.Node.Tag
 	target.Node.Content = make([]*yaml.Node, len(lhs.Node.Content))
 	copy(target.Node.Content, lhs.Node.Content)
-	target.Node.Content = append(target.Node.Content, toNodes(rhs)...)
+
+	extraNodes, err := toNodes(rhs, lhs)
+	if err != nil {
+		return err
+	}
+
+	target.Node.Content = append(target.Node.Content, extraNodes...)
+	return nil
+
 }
 
 func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {

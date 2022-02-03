@@ -30,20 +30,23 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: 0\n",
 		},
 	},
-	{
-		description: "Concatenate and assign arrays",
-		document:    `{a: {val: thing, b: [cat,dog]}}`,
-		expression:  ".a.b += [\"cow\"]",
-		expected: []string{
-			"D0, P[], (doc)::{a: {val: thing, b: [cat, dog, cow]}}\n",
-		},
-	},
+
 	{
 		description: "Concatenate arrays",
 		document:    `{a: [1,2], b: [3,4]}`,
 		expression:  `.a + .b`,
 		expected: []string{
 			"D0, P[a], (!!seq)::[1, 2, 3, 4]\n",
+		},
+	},
+	{
+		description:           "Concatenate to existing array",
+		subdescription:        "Note that the styling of `a` is kept.",
+		document:              "a: [1,2]\nb:\n  - 3\n  - 4",
+		dontFormatInputForDoc: true,
+		expression:            `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: [1, 2, 3, 4]\nb:\n    - 3\n    - 4\n",
 		},
 	},
 	{
@@ -72,12 +75,23 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:     true,
-		description: "Concatenate to existing array",
-		document:    `{a: [dog]}`,
-		expression:  `.a + "cat"`,
+		description:           "Append to existing array",
+		subdescription:        "Note that the styling is copied from existing array elements",
+		dontFormatInputForDoc: true,
+		document:              `a: ['dog']`,
+		expression:            `.a += "cat"`,
 		expected: []string{
-			"D0, P[a], (!!seq)::[dog, cat]\n",
+			"D0, P[], (doc)::a: ['dog', 'cat']\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Concatenate to existing array",
+		subdescription: "does not modify original",
+		document:       `{a: ['dog'], b: cat}`,
+		expression:     `.a = .a + .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: ['dog', 'cat'], b: cat}\n",
 		},
 	},
 	{
@@ -117,6 +131,16 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:        true,
+		description:    "Concatenate to existing object",
+		subdescription: "matches stylig",
+		document:       "a:\n  c: dog",
+		expression:     `.a + {"b": "cat"}`,
+		expected: []string{
+			"D0, P[a], (!!map)::c: dog\nb: cat\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Concatenate to empty object in place",
 		document:    `a: {}`,
@@ -143,30 +167,6 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Add string to array",
-		document:    `{a: [1,2]}`,
-		expression:  `.a + "hello"`,
-		expected: []string{
-			"D0, P[a], (!!seq)::[1, 2, hello]\n",
-		},
-	},
-	{
-		description: "Append to array",
-		document:    `{a: [1,2], b: [3,4]}`,
-		expression:  `.a = .a + .b`,
-		expected: []string{
-			"D0, P[], (doc)::{a: [1, 2, 3, 4], b: [3, 4]}\n",
-		},
-	},
-	{
-		description: "Append another array using +=",
-		document:    `{a: [1,2], b: [3,4]}`,
-		expression:  `.a += .b`,
-		expected: []string{
-			"D0, P[], (doc)::{a: [1, 2, 3, 4], b: [3, 4]}\n",
-		},
-	},
-	{
 		description: "Relative append",
 		document:    `a: { a1: {b: [cat]}, a2: {b: [dog]}, a3: {} }`,
 		expression:  `.a[].b += ["mouse"]`,
@@ -177,7 +177,7 @@ var addOperatorScenarios = []expressionScenario{
 	{
 		description: "String concatenation",
 		document:    `{a: cat, b: meow}`,
-		expression:  `.a = .a + .b`,
+		expression:  `.a += .b`,
 		expected: []string{
 			"D0, P[], (doc)::{a: catmeow, b: meow}\n",
 		},
