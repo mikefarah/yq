@@ -1,15 +1,17 @@
-# Working with CSV and TSV
+# Working with CSV, TSV
 
 {% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be used.
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
 `yq e <exp> <file>`
 {% endhint %}
 
 ## Yaml to CSV/TSV
 
 You can convert compatible yaml structures to CSV or TSV by using:
-- `--outputformat=csv` or `-o=c` for csv (comma separated values)
-- `--outputformat=tsv` or `-o=t` for tsv (tab separated values)
+
+* `--outputformat=csv` or `-o=c` for csv (comma separated values)
+* `--outputformat=tsv` or `-o=t` for tsv (tab separated values)
 
 Compatible structures is either an array of scalars (strings/numbers/booleans), which is a single row; or an array of arrays of scalars (multiple rows).
 
@@ -39,8 +41,7 @@ yq '.' -o=tsv sample.yaml
 
 will output:
 
-```tsv
+```
 i	like	csv
 because	excel	is	cool
 ```
-
