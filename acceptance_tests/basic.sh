@@ -16,19 +16,68 @@ testBasicPipeWithDot() {
   assertEquals "a: 123" "$X"
 }
 
-testBasicAllFiles() {
+testBasicGitHubAction() {
   ./yq -n ".a = 123" > test.yml
-  ./yq -n ".a = 124" > test2.yml
-  X=$(./yq test.yml test2.yml)
-  Y=$(./yq e '.' test.yml test2.yml)
-  assertEquals "$Y" "$X"
+  X=$(cat /dev/null | ./yq test.yml)
+  assertEquals "a: 123" "$X"
+
+  X=$(cat /dev/null | ./yq e test.yml)
+  assertEquals "a: 123" "$X"
+
+  X=$(cat /dev/null | ./yq ea test.yml)
+  assertEquals "a: 123" "$X"
 }
+
+testBasicGitHubActionWithExpression() {
+  ./yq -n ".a = 123" > test.yml
+  X=$(cat /dev/null | ./yq '.a' test.yml)
+  assertEquals "123" "$X"
+
+  X=$(cat /dev/null | ./yq e '.a' test.yml)
+  assertEquals "123" "$X"
+
+  X=$(cat /dev/null | ./yq ea '.a' test.yml)
+  assertEquals "123" "$X"
+}
+
 
 testBasicEvalAllAllFiles() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
   X=$(./yq ea test.yml test2.yml)
   Y=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicCatWithFilesNoDash() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq test2.yml)
+  Y=$(./yq e '.' test2.yml test.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicEvalAllCatWithFilesNoDash() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq ea test2.yml)
+  Y=$(./yq e '.' test2.yml test.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicCatWithFilesNoDashWithExp() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq '.a' test2.yml)
+  Y=$(./yq e '.a' test2.yml test.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicEvalAllCatWithFilesNoDashWithExp() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq ea '.a' test2.yml)
+  Y=$(./yq e '.a' test2.yml test.yml)
   assertEquals "$Y" "$X"
 }
 

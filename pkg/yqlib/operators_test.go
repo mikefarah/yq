@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"testing"
 
@@ -237,7 +238,14 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 
 	envCommand := ""
 
-	for name, value := range s.environmentVariables {
+	envKeys := make([]string, 0, len(s.environmentVariables))
+	for k := range s.environmentVariables {
+		envKeys = append(envKeys, k)
+	}
+	sort.Strings(envKeys)
+
+	for _, name := range envKeys {
+		value := s.environmentVariables[name]
 		if envCommand == "" {
 			envCommand = fmt.Sprintf("%v=\"%v\" ", name, value)
 		} else {
