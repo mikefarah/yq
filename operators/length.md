@@ -2,6 +2,12 @@
 
 Returns the lengths of the nodes. Length is defined according to the type of the node.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## String length
 returns length of string
 

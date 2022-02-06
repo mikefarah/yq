@@ -10,6 +10,12 @@ The `or` and `and` operators take two parameters and return a boolean result.
 
 These are most commonly used with the `select` operator to filter particular nodes.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## `or` example
 Running
 ```bash

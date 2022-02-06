@@ -22,6 +22,12 @@ CSV and TSV format both accept either a single array or scalars (representing a 
 XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Encode value as json string
 Given a sample.yml file of:
 ```yaml

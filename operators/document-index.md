@@ -2,6 +2,12 @@
 
 Use the `documentIndex` operator (or the `di` shorthand) to select nodes of a particular document.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Retrieve a document index
 Given a sample.yml file of:
 ```yaml

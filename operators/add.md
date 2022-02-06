@@ -9,28 +9,11 @@ Add behaves differently according to the type of the LHS:
 Use `+=` as a relative append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
 
 
-## Concatenate and assign arrays
-Given a sample.yml file of:
-```yaml
-a:
-  val: thing
-  b:
-    - cat
-    - dog
-```
-then
-```bash
-yq '.a.b += ["cow"]' sample.yml
-```
-will output
-```yaml
-a:
-  val: thing
-  b:
-    - cat
-    - dog
-    - cow
-```
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
 
 ## Concatenate arrays
 Given a sample.yml file of:
@@ -54,6 +37,28 @@ will output
 - 4
 ```
 
+## Concatenate to existing array
+Note that the styling of `a` is kept.
+
+Given a sample.yml file of:
+```yaml
+a: [1,2]
+b:
+  - 3
+  - 4
+```
+then
+```bash
+yq '.a += .b' sample.yml
+```
+will output
+```yaml
+a: [1, 2, 3, 4]
+b:
+  - 3
+  - 4
+```
+
 ## Concatenate null to array
 Given a sample.yml file of:
 ```yaml
@@ -71,6 +76,22 @@ will output
 - 2
 ```
 
+## Append to existing array
+Note that the styling is copied from existing array elements
+
+Given a sample.yml file of:
+```yaml
+a: ['dog']
+```
+then
+```bash
+yq '.a += "cat"' sample.yml
+```
+will output
+```yaml
+a: ['dog', 'cat']
+```
+
 ## Add new object to array
 Given a sample.yml file of:
 ```yaml
@@ -85,76 +106,6 @@ will output
 ```yaml
 - dog: woof
 - cat: meow
-```
-
-## Add string to array
-Given a sample.yml file of:
-```yaml
-a:
-  - 1
-  - 2
-```
-then
-```bash
-yq '.a + "hello"' sample.yml
-```
-will output
-```yaml
-- 1
-- 2
-- hello
-```
-
-## Append to array
-Given a sample.yml file of:
-```yaml
-a:
-  - 1
-  - 2
-b:
-  - 3
-  - 4
-```
-then
-```bash
-yq '.a = .a + .b' sample.yml
-```
-will output
-```yaml
-a:
-  - 1
-  - 2
-  - 3
-  - 4
-b:
-  - 3
-  - 4
-```
-
-## Append another array using +=
-Given a sample.yml file of:
-```yaml
-a:
-  - 1
-  - 2
-b:
-  - 3
-  - 4
-```
-then
-```bash
-yq '.a += .b' sample.yml
-```
-will output
-```yaml
-a:
-  - 1
-  - 2
-  - 3
-  - 4
-b:
-  - 3
-  - 4
 ```
 
 ## Relative append
@@ -195,7 +146,7 @@ b: meow
 ```
 then
 ```bash
-yq '.a = .a + .b' sample.yml
+yq '.a += .b' sample.yml
 ```
 will output
 ```yaml

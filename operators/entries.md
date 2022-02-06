@@ -2,6 +2,12 @@
 
 Similar to the same named functions in `jq` these functions convert to/from an object and an array of key-value pairs. This is most useful for performing operations on keys of maps.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## to_entries Map
 Given a sample.yml file of:
 ```yaml

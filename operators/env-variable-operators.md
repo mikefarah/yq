@@ -17,6 +17,12 @@ yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ```
 
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Read string environment variable
 Running
 ```bash
@@ -75,6 +81,28 @@ myenv="12" yq --null-input '.a = strenv(myenv)'
 will output
 ```yaml
 a: "12"
+```
+
+## Dynamically update a path from an environment variable
+The env variable can be any valid yq expression.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    - name: dog
+    - name: cat
+```
+then
+```bash
+pathEnv=".a.b[0].name"  valueEnv="moo" yq 'eval(strenv(pathEnv)) = strenv(valueEnv)' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    - name: moo
+    - name: cat
 ```
 
 ## Dynamic key lookup with environment variable

@@ -43,6 +43,12 @@ IFS= read -rd '' output < <(cat my_file)
 output=$output ./yq '.data.values = strenv(output)' first.yml
 ```
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Join strings
 Given a sample.yml file of:
 ```yaml

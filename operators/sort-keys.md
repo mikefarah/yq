@@ -12,6 +12,12 @@ diff file1.yml file2.yml
 
 Note that `yq` does not yet consider anchors when sorting by keys - this may result in invalid yaml documents if your are using merge anchors.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Sort keys of map
 Given a sample.yml file of:
 ```yaml

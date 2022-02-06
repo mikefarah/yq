@@ -2,6 +2,12 @@
 
 You can use subtract to subtract numbers, as well as removing elements from an array.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Array subtraction
 Running
 ```bash

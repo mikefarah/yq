@@ -5,6 +5,12 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 `yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
 
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Merge one map
 see https://yaml.org/type/merge.html
 

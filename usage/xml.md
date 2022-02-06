@@ -6,6 +6,12 @@ Consecutive xml nodes with the same name are assumed to be arrays.
 
 XML content data and attributes are created as fields. This can be controlled by the `'--xml-attribute-prefix` and `--xml-content-name` flags - see below for examples.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Parse xml: simple
 Notice how all the values are strings, see the next example on how you can fix that.
 
