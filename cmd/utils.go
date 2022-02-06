@@ -98,6 +98,6 @@ func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 // without this - yq detects there is stdin (thanks githubactions),
 // then tries to parse the filename as an expression
 func maybeFile(str string) bool {
-	_, err := os.Stat(str) // #nosec
-	return err == nil
+	stat, err := os.Stat(str) // #nosec
+	return err == nil && !stat.IsDir()
 }

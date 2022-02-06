@@ -10,6 +10,12 @@ testBasicEvalRoundTrip() {
   assertEquals 123 "$X"
 }
 
+testBasicPipeWithDot() {
+  ./yq -n ".a = 123" > test.yml
+  X=$(cat test.yml | ./yq '.')
+  assertEquals 123 "$X"
+}
+
 testBasicEvalRoundTripNoEval() {
   ./yq -n ".a = 123" > test.yml
   X=$(./yq '.a' test.yml)
