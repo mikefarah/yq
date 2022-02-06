@@ -28,6 +28,7 @@
   * [Entries](operators/entries.md)
   * [Env Variable Operators](operators/env-variable-operators.md)
   * [Equals](operators/equals.md)
+  * [Eval](operators/eval.md)
   * [File Operators](operators/file-operators.md)
   * [Flatten](operators/flatten.md)
   * [Group By](operators/group-by.md)
