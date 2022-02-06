@@ -28,3 +28,5 @@ var frontMatter = ""
 var splitFileExp = ""
 
 var completedSuccessfully = false
+
+var forceExpression = ""

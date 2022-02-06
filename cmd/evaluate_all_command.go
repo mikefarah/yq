@@ -126,27 +126,19 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 
 	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
 
-	args = processArgs(pipingStdIn, args)
+	expression, args := processArgs(pipingStdIn, args)
 	yqlib.GetLogger().Debugf("processed args: %v", args)
 
 	switch len(args) {
 	case 0:
-		cmd.Println(cmd.UsageString())
-		return nil
-	case 1:
 		if nullInput {
-			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(args[0]), printer, "")
+			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(expression), printer, "")
 		} else {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
+			cmd.Println(cmd.UsageString())
+			return nil
 		}
 	default:
-		// the first argument is either an expression - or a file.
-		if args[0] == "-" || maybeFile(args[0]) {
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), args, printer, leadingContentPreProcessing, decoder)
-		} else {
-			// first argument is an expression, the rest are files.
-			err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
-		}
+		err = allAtOnceEvaluator.EvaluateFiles(processExpression(expression), args, printer, leadingContentPreProcessing, decoder)
 	}
 
 	completedSuccessfully = err == nil

@@ -143,29 +143,18 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 		}
 		defer frontMatterHandler.CleanUp()
 	}
-	args = processArgs(pipingStdIn, args)
-	yqlib.GetLogger().Debugf("processed args: %v", args)
+	expression, args := processArgs(pipingStdIn, args)
 
 	switch len(args) {
 	case 0:
-		cmd.Println(cmd.UsageString())
-		return nil
-	case 1:
 		if nullInput {
-			err = streamEvaluator.EvaluateNew(processExpression(args[0]), printer, "")
+			err = streamEvaluator.EvaluateNew(processExpression(expression), printer, "")
 		} else {
-			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
+			cmd.Println(cmd.UsageString())
+			return nil
 		}
 	default:
-		// the first argument is either an expression - or a file.
-		if args[0] == "-" || maybeFile(args[0]) {
-			// its a file, there is no expression given
-			err = streamEvaluator.EvaluateFiles(processExpression(""), args, printer, leadingContentPreProcessing, decoder)
-		} else {
-			// first argument is an expression, the rest are files.
-			err = streamEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
-		}
-
+		err = streamEvaluator.EvaluateFiles(processExpression(expression), args, printer, leadingContentPreProcessing, decoder)
 	}
 	completedSuccessfully = err == nil
 

@@ -2,6 +2,7 @@
 
 setUp() {
   rm test*.yml || true
+  rm .xyz -f
 }
 
 testBasicEvalRoundTrip() {
@@ -14,6 +15,18 @@ testBasicPipeWithDot() {
   ./yq -n ".a = 123" > test.yml
   X=$(cat test.yml | ./yq '.')
   assertEquals "a: 123" "$X"
+}
+
+testBasicExpressionMatchesFileName() {
+  ./yq -n ".xyz = 123" > test.yml
+  touch .xyz
+  
+  X=$(./yq --expression '.xyz' test.yml)
+  assertEquals "123" "$X"
+
+  X=$(./yq ea --expression '.xyz' test.yml)
+  assertEquals "123" "$X"
+
 }
 
 testBasicGitHubAction() {

@@ -113,7 +113,7 @@ func maybeFile(str string) bool {
 	return result
 }
 
-func processArgs(pipingStdin bool, args []string) []string {
+func processStdInArgs(pipingStdin bool, args []string) []string {
 	if !pipingStdin {
 		return args
 	}
@@ -128,4 +128,16 @@ func processArgs(pipingStdin bool, args []string) []string {
 	// we're piping from stdin, but there's no '-' arg
 	// lets add one to the end
 	return append(args, "-")
+}
+
+func processArgs(pipingStdin bool, originalArgs []string) (string, []string) {
+	args := processStdInArgs(pipingStdin, originalArgs)
+	yqlib.GetLogger().Debugf("processed args: %v", args)
+	expression := forceExpression
+	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
+		yqlib.GetLogger().Debug("assuming expression is '%v'", args[0])
+		expression = args[0]
+		args = args[1:]
+	}
+	return expression, args
 }
