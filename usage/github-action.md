@@ -28,9 +28,4 @@ If you [enable step debug logging](https://docs.github.com/en/actions/managing-w
 
 Thanks @[**devorbitus**](https://github.com/devorbitus)**!**
 
-****
-
-{% hint style="warning" %}
-This is a hint
-{% endhint %}
 

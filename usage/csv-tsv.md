@@ -1,5 +1,10 @@
 # Working with CSV and TSV
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be used.
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Yaml to CSV/TSV
 
 You can convert compatible yaml structures to CSV or TSV by using:
