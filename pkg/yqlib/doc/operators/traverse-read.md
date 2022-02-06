@@ -2,6 +2,12 @@
 
 This is the simplest (and perhaps most used) operator, it is used to navigate deeply into yaml structures.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Simple map navigation
 Given a sample.yml file of:
 ```yaml

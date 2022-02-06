@@ -4,6 +4,12 @@ Sorts an array. Use `sort` to sort an array as is, or `sort_by(exp)` to sort by 
 
 Note that at this stage, `yq` only sorts scalar fields.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Sort by string field
 Given a sample.yml file of:
 ```yaml

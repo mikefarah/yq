@@ -22,6 +22,12 @@ Note the use of `eval-all` to ensure all documents are loaded into memory.
 yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.yaml
 ```
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Multiply integers
 Given a sample.yml file of:
 ```yaml
@@ -305,7 +311,7 @@ newArray:
 ```
 then
 ```bash
-originalPath=".myArray"  otherPath=".newArray"  idPath=".a" yq eval-all '
+idPath=".a"  originalPath=".myArray"  otherPath=".newArray" yq eval-all '
 (
   (( (eval(strenv(originalPath)) + eval(strenv(otherPath)))  | .[] | {(eval(strenv(idPath))):  .}) as $item ireduce ({}; . * $item )) as $uniqueMap
   | ( $uniqueMap  | to_entries | .[]) as $item ireduce([]; . + $item.value)

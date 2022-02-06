@@ -4,6 +4,12 @@ Encode and decode to and from JSON. Note that YAML is a _superset_ of JSON - so 
 
 This means you don't need to 'convert' a JSON file to YAML - however if you want idiomatic YAML styling, then you can use the `-P/--prettyPrint` flag, see examples below.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Parse json: simple
 JSON is a subset of yaml, so all you need to do is prettify the output
 

@@ -12,6 +12,12 @@ It is most often used with the select operator to find particular nodes:
 select(.a == .b)
 ```
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Match string
 Given a sample.yml file of:
 ```yaml

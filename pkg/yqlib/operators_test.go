@@ -138,8 +138,7 @@ func writeOrPanic(w *bufio.Writer, text string) {
 	}
 }
 
-func copyFromHeader(folder string, title string, out *os.File) error {
-	source := fmt.Sprintf("doc/%v/headers/%v.md", folder, title)
+func copySnippet(source string, out *os.File) error {
 	_, err := os.Stat(source)
 	if os.IsNotExist(err) {
 		return nil
@@ -180,7 +179,14 @@ func documentScenarios(t *testing.T, folder string, title string, scenarios []in
 	}
 	defer f.Close()
 
-	err = copyFromHeader(folder, title, f)
+	source := fmt.Sprintf("doc/%v/headers/%v.md", folder, title)
+	err = copySnippet(source, f)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	err = copySnippet("doc/notification-snippet.md", f)
 	if err != nil {
 		t.Error(err)
 		return

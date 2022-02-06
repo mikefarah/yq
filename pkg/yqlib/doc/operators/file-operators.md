@@ -10,6 +10,12 @@ Note the use of eval-all to ensure all documents are loaded into memory.
 yq eval-all 'select(fi == 0) * select(filename == "file2.yaml")' file1.yaml file2.yaml
 ```
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Get filename
 Given a sample.yml file of:
 ```yaml

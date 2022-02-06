@@ -4,6 +4,12 @@ The path operator can be used to get the traversal paths of matching nodes in an
 
 You can get the key/index of matching nodes by using the `path` operator to return the path array then piping that through `.[-1]` to get the last element of that array, the key.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Map path
 Given a sample.yml file of:
 ```yaml

@@ -2,6 +2,12 @@
 
 Use the `with` operator to conveniently make multiple updates to a deeply nested path, or to update array elements relatively to each other. The first argument expression sets the root context, and the second expression runs against that root context.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Update and style
 Given a sample.yml file of:
 ```yaml

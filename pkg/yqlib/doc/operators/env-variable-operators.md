@@ -17,6 +17,12 @@ yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ```
 
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Read string environment variable
 Running
 ```bash

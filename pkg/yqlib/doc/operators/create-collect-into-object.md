@@ -2,6 +2,12 @@
 
 This is used to construct objects (or maps). This can be used against existing yaml, or to create fresh yaml documents.
 
+{% hint style="warning" %}
+Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
+
+`yq e <exp> <file>`
+{% endhint %}
+
 ## Collect empty object
 Running
 ```bash
