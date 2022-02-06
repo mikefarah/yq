@@ -30,7 +30,7 @@ Thanks @[**devorbitus**](https://github.com/devorbitus)**!**
 
 ****
 
-{% hint style="success" %}
+{% hint style="warning" %}
 This is a hint
 {% endhint %}
 
