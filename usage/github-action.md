@@ -27,3 +27,10 @@ Details of how the GitHub action itself is configured can be found [here](https:
 If you [enable step debug logging](https://docs.github.com/en/actions/managing-workflow-runs/enabling-debug-logging#enabling-step-debug-logging), you can see additional information about the exact command sent as well as the response returned within the GitHub Action logs.
 
 Thanks @[**devorbitus**](https://github.com/devorbitus)**!**
+
+****
+
+{% hint style="success" %}
+This is a hint
+{% endhint %}
+
