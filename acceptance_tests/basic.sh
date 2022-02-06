@@ -13,7 +13,56 @@ testBasicEvalRoundTrip() {
 testBasicPipeWithDot() {
   ./yq -n ".a = 123" > test.yml
   X=$(cat test.yml | ./yq '.')
-  assertEquals 123 "$X"
+  assertEquals "a: 123" "$X"
+}
+
+testBasicAllFiles() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(./yq test.yml test2.yml)
+  Y=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicEvalAllAllFiles() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(./yq ea test.yml test2.yml)
+  Y=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$Y" "$X"
+}
+
+
+testBasicStdInWithFiles() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq - test2.yml)
+  Y=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicEvalAllStdInWithFiles() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq ea - test2.yml)
+  Y=$(./yq e '.' test.yml test2.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicStdInWithFilesReverse() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq test2.yml -)
+  Y=$(./yq e '.' test2.yml test.yml)
+  assertEquals "$Y" "$X"
+}
+
+testBasicEvalAllStdInWithFilesReverse() {
+  ./yq -n ".a = 123" > test.yml
+  ./yq -n ".a = 124" > test2.yml
+  X=$(cat test.yml | ./yq ea test2.yml -)
+  Y=$(./yq e '.' test2.yml test.yml)
+  assertEquals "$Y" "$X"
 }
 
 testBasicEvalRoundTripNoEval() {

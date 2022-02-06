@@ -144,7 +144,13 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
 		}
 	default:
-		err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
+		// the first argument is either an expression - or a file.
+		if args[0] == "-" || maybeFile(args[0]) {
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(""), args, printer, leadingContentPreProcessing, decoder)
+		} else {
+			// first argument is an expression, the rest are files.
+			err = allAtOnceEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
+		}
 	}
 
 	completedSuccessfully = err == nil

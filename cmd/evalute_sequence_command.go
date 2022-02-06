@@ -162,7 +162,15 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 			err = streamEvaluator.EvaluateFiles(processExpression(""), []string{args[0]}, printer, leadingContentPreProcessing, decoder)
 		}
 	default:
-		err = streamEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
+		// the first argument is either an expression - or a file.
+		if args[0] == "-" || maybeFile(args[0]) {
+			// its a file, there is no expression given
+			err = streamEvaluator.EvaluateFiles(processExpression(""), args, printer, leadingContentPreProcessing, decoder)
+		} else {
+			// first argument is an expression, the rest are files.
+			err = streamEvaluator.EvaluateFiles(processExpression(args[0]), args[1:], printer, leadingContentPreProcessing, decoder)
+		}
+
 	}
 	completedSuccessfully = err == nil
 
