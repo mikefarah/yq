@@ -126,6 +126,9 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 		return dec.createMap(n)
 	}
 	scalar := createScalarNode(n.Data, n.Data)
+	if n.Data == "" {
+		scalar = createScalarNode(nil, "")
+	}
 	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
 	scalar.HeadComment = dec.processComment(n.HeadComment)
 	scalar.LineComment = dec.processComment(n.LineComment)
@@ -149,6 +152,8 @@ func (dec *xmlDecoder) Decode(rootYamlNode *yaml.Node) error {
 
 	if err != nil {
 		return err
+	} else if firstNode.Tag == "!!null" {
+		return io.EOF
 	}
 	rootYamlNode.Kind = yaml.DocumentNode
 	rootYamlNode.Content = []*yaml.Node{firstNode}

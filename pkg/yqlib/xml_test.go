@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 
@@ -18,7 +19,7 @@ func decodeXml(t *testing.T, s formatScenario) *CandidateNode {
 
 	node := &yaml.Node{}
 	err := decoder.Decode(node)
-	if err != nil {
+	if err != nil && err != io.EOF {
 		t.Error(err, "fail to decode", s.input)
 	}
 
@@ -265,6 +266,34 @@ var xmlScenarios = []formatScenario{
 		input:          inputXmlWithComments,
 		expected:       expectedDecodeYamlWithComments,
 		scenarioType:   "decode",
+	},
+	{
+		description:  "Empty doc",
+		skipDoc:      true,
+		input:        "",
+		expected:     "D0, P[], ()::null\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Empty single node",
+		skipDoc:      true,
+		input:        "<a/>",
+		expected:     "D0, P[], (doc)::a:\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Empty close node",
+		skipDoc:      true,
+		input:        "<a></a>",
+		expected:     "D0, P[], (doc)::a:\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Nested empty",
+		skipDoc:      true,
+		input:        "<a><b/></a>",
+		expected:     "D0, P[], (doc)::a:\n    b:\n",
+		scenarioType: "decode",
 	},
 	{
 		description:  "Parse xml: with comments subchild",
