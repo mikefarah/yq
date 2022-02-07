@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -12,14 +13,14 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func decodeXml(t *testing.T, s formatScenario) *CandidateNode {
-	decoder := NewXmlDecoder("+", "+content")
+func decodeXML(t *testing.T, s formatScenario) *CandidateNode {
+	decoder := NewXMLDecoder("+", "+content")
 
 	decoder.Init(strings.NewReader(s.input))
 
 	node := &yaml.Node{}
 	err := decoder.Decode(node)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		t.Error(err, "fail to decode", s.input)
 	}
 
@@ -47,15 +48,15 @@ func decodeXml(t *testing.T, s formatScenario) *CandidateNode {
 	return context.MatchingNodes.Front().Value.(*CandidateNode)
 }
 
-func processXmlScenario(s formatScenario) string {
+func processXMLScenario(s formatScenario) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var encoder = NewXmlEncoder(2, "+", "+content")
+	var encoder = NewXMLEncoder(2, "+", "+content")
 
 	var decoder = NewYamlDecoder()
 	if s.scenarioType == "roundtrip" {
-		decoder = NewXmlDecoder("+", "+content")
+		decoder = NewXMLDecoder("+", "+content")
 	}
 
 	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
@@ -83,7 +84,7 @@ type formatScenario struct {
 	scenarioType   string
 }
 
-var inputXmlWithComments = `
+var inputXMLWithComments = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -101,7 +102,7 @@ for x --></x>
 </cat>
 <!-- after cat -->
 `
-var inputXmlWithCommentsWithSubChild = `
+var inputXMLWithCommentsWithSubChild = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -140,7 +141,7 @@ cat:
 # after cat
 `
 
-var inputXmlWithCommentsWithArray = `
+var inputXMLWithCommentsWithArray = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -201,7 +202,7 @@ cat:
 # after cat
 `
 
-var expectedRoundtripXmlWithComments = `<!-- before cat --><cat><!-- in cat before -->
+var expectedRoundtripXMLWithComments = `<!-- before cat --><cat><!-- in cat before -->
   <x>3<!-- multi
 line comment 
 for x --></x><!-- before y -->
@@ -222,7 +223,7 @@ cat: # inline_cat
 # below_cat
 `
 
-var expectedXmlWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+var expectedXMLWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->
@@ -263,7 +264,7 @@ var xmlScenarios = []formatScenario{
 	{
 		description:    "Parse xml: with comments",
 		subdescription: "A best attempt is made to preserve comments.",
-		input:          inputXmlWithComments,
+		input:          inputXMLWithComments,
 		expected:       expectedDecodeYamlWithComments,
 		scenarioType:   "decode",
 	},
@@ -298,14 +299,14 @@ var xmlScenarios = []formatScenario{
 	{
 		description:  "Parse xml: with comments subchild",
 		skipDoc:      true,
-		input:        inputXmlWithCommentsWithSubChild,
+		input:        inputXMLWithCommentsWithSubChild,
 		expected:     expectedDecodeYamlWithSubChild,
 		scenarioType: "decode",
 	},
 	{
 		description:  "Parse xml: with comments array",
 		skipDoc:      true,
-		input:        inputXmlWithCommentsWithArray,
+		input:        inputXMLWithCommentsWithArray,
 		expected:     expectedDecodeYamlWithArray,
 		scenarioType: "decode",
 	},
@@ -345,44 +346,44 @@ var xmlScenarios = []formatScenario{
 		description:    "Encode xml: comments",
 		subdescription: "A best attempt is made to copy comments to xml.",
 		input:          yamlWithComments,
-		expected:       expectedXmlWithComments,
+		expected:       expectedXMLWithComments,
 		scenarioType:   "encode",
 	},
 	{
 		description:    "Round trip: with comments",
 		subdescription: "A best effort is made, but comment positions and white space are not preserved perfectly.",
-		input:          inputXmlWithComments,
-		expected:       expectedRoundtripXmlWithComments,
+		input:          inputXMLWithComments,
+		expected:       expectedRoundtripXMLWithComments,
 		scenarioType:   "roundtrip",
 	},
 }
 
-func testXmlScenario(t *testing.T, s formatScenario) {
+func testXMLScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processXmlScenario(s), s.description)
+		test.AssertResultWithContext(t, s.expected, processXMLScenario(s), s.description)
 	} else {
-		var actual = resultToString(t, decodeXml(t, s))
+		var actual = resultToString(t, decodeXML(t, s))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
 	}
 }
 
-func documentXmlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
 	if s.skipDoc {
 		return
 	}
 	if s.scenarioType == "encode" {
-		documentXmlEncodeScenario(w, s)
+		documentXMLEncodeScenario(w, s)
 	} else if s.scenarioType == "roundtrip" {
-		documentXmlRoundTripScenario(w, s)
+		documentXMLRoundTripScenario(w, s)
 	} else {
-		documentXmlDecodeScenario(t, w, s)
+		documentXMLDecodeScenario(t, w, s)
 	}
 
 }
 
-func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
+func documentXMLDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -404,7 +405,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) 
 	var output bytes.Buffer
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
-	node := decodeXml(t, s)
+	node := decodeXML(t, s)
 
 	err := printer.PrintResults(node.AsList())
 	if err != nil {
@@ -415,7 +416,7 @@ func documentXmlDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 }
 
-func documentXmlEncodeScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -430,10 +431,10 @@ func documentXmlEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXMLScenario(s)))
 }
 
-func documentXmlRoundTripScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -448,16 +449,16 @@ func documentXmlRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXmlScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXMLScenario(s)))
 }
 
-func TestXmlScenarios(t *testing.T) {
+func TestXMLScenarios(t *testing.T) {
 	for _, tt := range xmlScenarios {
-		testXmlScenario(t, tt)
+		testXMLScenario(t, tt)
 	}
 	genericScenarios := make([]interface{}, len(xmlScenarios))
 	for i, s := range xmlScenarios {
 		genericScenarios[i] = s
 	}
-	documentScenarios(t, "usage", "xml", genericScenarios, documentXmlScenario)
+	documentScenarios(t, "usage", "xml", genericScenarios, documentXMLScenario)
 }

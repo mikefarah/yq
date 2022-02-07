@@ -31,7 +31,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 	log.Debugf("AssignStyleOperator: %v")
 	var style yaml.Style
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -44,7 +44,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -54,7 +54,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting style of : %v", candidate.GetKey())
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}

@@ -82,14 +82,14 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	// BUT we still return the original context back (see jq)
 	// https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
 
 	// rhs is a collect expression that will yield indexes to retrieve of the arrays
 
-	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 
 	if err != nil {
 		return Context{}, err

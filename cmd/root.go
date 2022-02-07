@@ -49,8 +49,8 @@ yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
 
 			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
-			yqlib.XmlPreferences.AttributePrefix = xmlAttributePrefix
-			yqlib.XmlPreferences.ContentName = xmlContentName
+			yqlib.XMLPreferences.AttributePrefix = xmlAttributePrefix
+			yqlib.XMLPreferences.ContentName = xmlContentName
 		},
 	}
 

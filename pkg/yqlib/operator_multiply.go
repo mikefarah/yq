@@ -20,8 +20,8 @@ type multiplyPreferences struct {
 func createMultiplyOp(prefs interface{}) func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 	return func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 		return &ExpressionNode{Operation: &Operation{OperationType: multiplyOpType, Preferences: prefs},
-			Lhs: lhs,
-			Rhs: rhs}
+			LHS: lhs,
+			RHS: rhs}
 	}
 }
 
@@ -199,8 +199,8 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
-		Lhs:       createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey),
-		Rhs:       &ExpressionNode{Operation: rhsOp},
+		LHS:       createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey),
+		RHS:       &ExpressionNode{Operation: rhsOp},
 	}
 
 	_, err := d.GetMatchingNodes(context.SingleChildContext(lhs), assignmentOpNode)

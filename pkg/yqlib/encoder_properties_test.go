@@ -31,18 +31,18 @@ func yamlToProps(sampleYaml string) string {
 func TestPropertiesEncoderSimple(t *testing.T) {
 	var sampleYaml = `a: 'bob cool'`
 
-	var expectedJson = `a = bob cool`
+	var expectedProps = `a = bob cool`
 	var actualProps = yamlToProps(sampleYaml)
-	test.AssertResult(t, expectedJson, actualProps)
+	test.AssertResult(t, expectedProps, actualProps)
 }
 
 func TestPropertiesEncoderSimpleWithComments(t *testing.T) {
 	var sampleYaml = `a: 'bob cool' # line`
 
-	var expectedJson = `# line
+	var expectedProps = `# line
 a = bob cool`
 	var actualProps = yamlToProps(sampleYaml)
-	test.AssertResult(t, expectedJson, actualProps)
+	test.AssertResult(t, expectedProps, actualProps)
 }
 
 func TestPropertiesEncoderDeep(t *testing.T) {
@@ -50,9 +50,9 @@ func TestPropertiesEncoderDeep(t *testing.T) {
   b: "bob cool"
 `
 
-	var expectedJson = `a.b = bob cool`
+	var expectedProps = `a.b = bob cool`
 	var actualProps = yamlToProps(sampleYaml)
-	test.AssertResult(t, expectedJson, actualProps)
+	test.AssertResult(t, expectedProps, actualProps)
 }
 
 func TestPropertiesEncoderDeepWithComments(t *testing.T) {
@@ -60,10 +60,10 @@ func TestPropertiesEncoderDeepWithComments(t *testing.T) {
   b: "bob cool" # b thing
 `
 
-	var expectedJson = `# b thing
+	var expectedProps = `# b thing
 a.b = bob cool`
 	var actualProps = yamlToProps(sampleYaml)
-	test.AssertResult(t, expectedJson, actualProps)
+	test.AssertResult(t, expectedProps, actualProps)
 }
 
 func TestPropertiesEncoderArray(t *testing.T) {
@@ -71,8 +71,8 @@ func TestPropertiesEncoderArray(t *testing.T) {
   b: [{c: dog}, {c: cat}]
 `
 
-	var expectedJson = `a.b.0.c = dog
+	var expectedProps = `a.b.0.c = dog
 a.b.1.c = cat`
 	var actualProps = yamlToProps(sampleYaml)
-	test.AssertResult(t, expectedJson, actualProps)
+	test.AssertResult(t, expectedProps, actualProps)
 }

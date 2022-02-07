@@ -50,7 +50,7 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 			return Context{}, fmt.Errorf("Only arrays are supported for group by")
 		}
 
-		newMatches, err := processIntoGroups(d, context, expressionNode.Rhs, candidateNode)
+		newMatches, err := processIntoGroups(d, context, expressionNode.RHS, candidateNode)
 
 		if err != nil {
 			return Context{}, err

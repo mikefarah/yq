@@ -17,7 +17,7 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 
 		assignUpdateExp := &ExpressionNode{
 			Operation: &Operation{OperationType: assignOpType, UpdateAssign: true},
-			Rhs:       expressionNode.Rhs,
+			RHS:       expressionNode.RHS,
 		}
 		_, err = assignUpdateOperator(d, splatted, assignUpdateExp)
 		if err != nil {
@@ -42,8 +42,8 @@ func mapOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 			return Context{}, err
 		}
 
-		result, err := d.GetMatchingNodes(splatted, expressionNode.Rhs)
-		log.Debug("expressionNode.Rhs %v", expressionNode.Rhs.Operation.OperationType)
+		result, err := d.GetMatchingNodes(splatted, expressionNode.RHS)
+		log.Debug("expressionNode.Rhs %v", expressionNode.RHS.Operation.OperationType)
 		log.Debug("result %v", result)
 		if err != nil {
 			return Context{}, err

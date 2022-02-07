@@ -20,14 +20,14 @@ type assignVarPreferences struct {
 }
 
 func assignVariableOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.LHS)
 	if err != nil {
 		return Context{}, nil
 	}
-	if expressionNode.Rhs.Operation.OperationType.Type != "GET_VARIABLE" {
+	if expressionNode.RHS.Operation.OperationType.Type != "GET_VARIABLE" {
 		return Context{}, fmt.Errorf("RHS of 'as' operator must be a variable name e.g. $foo")
 	}
-	variableName := expressionNode.Rhs.Operation.StringValue
+	variableName := expressionNode.RHS.Operation.StringValue
 
 	prefs := expressionNode.Operation.Preferences.(assignVarPreferences)
 

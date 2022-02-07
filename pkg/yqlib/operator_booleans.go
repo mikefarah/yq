@@ -103,7 +103,7 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if candidateNode.Kind != yaml.SequenceNode {
 			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
 		}
-		booleanResult, err := findBoolean(false, d, context, expressionNode.Rhs, candidateNode)
+		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidateNode)
 		if err != nil {
 			return Context{}, err
 		}
@@ -122,7 +122,7 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if candidateNode.Kind != yaml.SequenceNode {
 			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
 		}
-		booleanResult, err := findBoolean(true, d, context, expressionNode.Rhs, candidateNode)
+		booleanResult, err := findBoolean(true, d, context, expressionNode.RHS, candidateNode)
 		if err != nil {
 			return Context{}, err
 		}

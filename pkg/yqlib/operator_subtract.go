@@ -10,8 +10,8 @@ import (
 
 func createSubtractOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 	return &ExpressionNode{Operation: &Operation{OperationType: subtractOpType},
-		Lhs: lhs,
-		Rhs: rhs}
+		LHS: lhs,
+		RHS: rhs}
 }
 
 func subtractAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -25,7 +25,7 @@ func subtractOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 }
 
 func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	newLhsArray := make([]*yaml.Node, 0)
+	newLHSArray := make([]*yaml.Node, 0)
 
 	for lindex := 0; lindex < len(lhs.Node.Content); lindex = lindex + 1 {
 		shouldInclude := true
@@ -35,10 +35,10 @@ func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, erro
 			}
 		}
 		if shouldInclude {
-			newLhsArray = append(newLhsArray, lhs.Node.Content[lindex])
+			newLHSArray = append(newLHSArray, lhs.Node.Content[lindex])
 		}
 	}
-	lhs.Node.Content = newLhsArray
+	lhs.Node.Content = newLHSArray
 	return lhs, nil
 }
 

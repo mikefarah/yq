@@ -12,7 +12,7 @@ import (
 
 func sortOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-	expressionNode.Rhs = selfExpression
+	expressionNode.RHS = selfExpression
 	return sortByOperator(d, context, expressionNode)
 }
 
@@ -36,7 +36,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		for i, originalNode := range candidateNode.Content {
 
 			childCandidate := candidate.CreateChildInArray(i, originalNode)
-			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(childCandidate), expressionNode.Rhs)
+			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(childCandidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}

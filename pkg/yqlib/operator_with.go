@@ -6,11 +6,11 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	log.Debugf("-- withOperator")
 	// with(path, exp)
 
-	if expressionNode.Rhs.Operation.OperationType != blockOpType {
-		return Context{}, fmt.Errorf("with must be given a block, got %v instead", expressionNode.Rhs.Operation.OperationType.Type)
+	if expressionNode.RHS.Operation.OperationType != blockOpType {
+		return Context{}, fmt.Errorf("with must be given a block, got %v instead", expressionNode.RHS.Operation.OperationType.Type)
 	}
 
-	pathExp := expressionNode.Rhs.Lhs
+	pathExp := expressionNode.RHS.LHS
 
 	updateContext, err := d.GetMatchingNodes(context, pathExp)
 
@@ -18,7 +18,7 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		return Context{}, err
 	}
 
-	updateExp := expressionNode.Rhs.Rhs
+	updateExp := expressionNode.RHS.RHS
 
 	_, err = d.GetMatchingNodes(updateContext, updateExp)
 	if err != nil {

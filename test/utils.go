@@ -6,31 +6,12 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/pkg/diff"
 	"github.com/pkg/diff/write"
-	"github.com/spf13/cobra"
 	yaml "gopkg.in/yaml.v3"
 )
-
-type resulter struct {
-	Error   error
-	Output  string
-	Command *cobra.Command
-}
-
-func RunCmd(c *cobra.Command, input string) resulter {
-	buf := new(bytes.Buffer)
-	c.SetOutput(buf)
-	c.SetArgs(strings.Split(input, " "))
-
-	err := c.Execute()
-	output := buf.String()
-
-	return resulter{err, output, c}
-}
 
 func ParseData(rawData string) yaml.Node {
 	var parsedData yaml.Node

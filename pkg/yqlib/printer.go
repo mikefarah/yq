@@ -21,11 +21,11 @@ type PrinterOutputFormat uint32
 
 const (
 	YamlOutputFormat = 1 << iota
-	JsonOutputFormat
+	JSONOutputFormat
 	PropsOutputFormat
-	CsvOutputFormat
-	TsvOutputFormat
-	XmlOutputFormat
+	CSVOutputFormat
+	TSVOutputFormat
+	XMLOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
@@ -33,15 +33,15 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 	case "yaml", "y":
 		return YamlOutputFormat, nil
 	case "json", "j":
-		return JsonOutputFormat, nil
+		return JSONOutputFormat, nil
 	case "props", "p":
 		return PropsOutputFormat, nil
 	case "csv", "c":
-		return CsvOutputFormat, nil
+		return CSVOutputFormat, nil
 	case "tsv", "t":
-		return TsvOutputFormat, nil
+		return TSVOutputFormat, nil
 	case "xml", "x":
-		return XmlOutputFormat, nil
+		return XMLOutputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
 	}

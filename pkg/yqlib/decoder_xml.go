@@ -15,7 +15,7 @@ type InputFormat uint
 
 const (
 	YamlInputFormat = 1 << iota
-	XmlInputFormat
+	XMLInputFormat
 )
 
 func InputFormatFromString(format string) (InputFormat, error) {
@@ -23,7 +23,7 @@ func InputFormatFromString(format string) (InputFormat, error) {
 	case "yaml", "y":
 		return YamlInputFormat, nil
 	case "xml", "x":
-		return XmlInputFormat, nil
+		return XMLInputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml]", format)
 	}
@@ -36,7 +36,7 @@ type xmlDecoder struct {
 	finished        bool
 }
 
-func NewXmlDecoder(attributePrefix string, contentName string) Decoder {
+func NewXMLDecoder(attributePrefix string, contentName string) Decoder {
 	if contentName == "" {
 		contentName = "content"
 	}
@@ -143,7 +143,7 @@ func (dec *xmlDecoder) Decode(rootYamlNode *yaml.Node) error {
 	}
 	root := &xmlNode{}
 	// cant use xj - it doesn't keep map order.
-	err := dec.decodeXml(root)
+	err := dec.decodeXML(root)
 
 	if err != nil {
 		return err
@@ -205,7 +205,7 @@ type element struct {
 // this code is heavily based on https://github.com/basgys/goxml2json
 // main changes are to decode into a structure that preserves the original order
 // of the map keys.
-func (dec *xmlDecoder) decodeXml(root *xmlNode) error {
+func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	xmlDec := xml.NewDecoder(dec.reader)
 
 	// That will convert the charset if the provided XML is non-UTF-8

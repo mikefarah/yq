@@ -13,7 +13,7 @@ func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, contex
 	regEx := ""
 	replacementText := ""
 
-	regExNodes, err := d.GetMatchingNodes(context.ReadOnlyClone(), block.Lhs)
+	regExNodes, err := d.GetMatchingNodes(context.ReadOnlyClone(), block.LHS)
 	if err != nil {
 		return "", "", err
 	}
@@ -23,7 +23,7 @@ func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, contex
 
 	log.Debug("regEx %v", regEx)
 
-	replacementNodes, err := d.GetMatchingNodes(context, block.Rhs)
+	replacementNodes, err := d.GetMatchingNodes(context, block.RHS)
 	if err != nil {
 		return "", "", err
 	}
@@ -43,7 +43,7 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 	//rhs  block operator
 	//lhs of block = regex
 	//rhs of block = replacement expression
-	block := expressionNode.Rhs
+	block := expressionNode.RHS
 
 	regExStr, replacementText, err := getSubstituteParameters(d, block, context)
 
@@ -194,15 +194,15 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 }
 
 func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (*regexp.Regexp, matchPreferences, error) {
-	regExExpNode := expressionNode.Rhs
+	regExExpNode := expressionNode.RHS
 
 	matchPrefs := matchPreferences{}
 
 	// we got given parameters e.g. match(exp; params)
-	if expressionNode.Rhs.Operation.OperationType == blockOpType {
-		block := expressionNode.Rhs
-		regExExpNode = block.Lhs
-		replacementNodes, err := d.GetMatchingNodes(context, block.Rhs)
+	if expressionNode.RHS.Operation.OperationType == blockOpType {
+		block := expressionNode.RHS
+		regExExpNode = block.LHS
+		replacementNodes, err := d.GetMatchingNodes(context, block.RHS)
 		if err != nil {
 			return nil, matchPrefs, err
 		}
@@ -304,7 +304,7 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	log.Debugf("-- joinStringOperator")
 	joinStr := ""
 
-	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 	if err != nil {
 		return Context{}, err
 	}
@@ -345,7 +345,7 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 	log.Debugf("-- splitStringOperator")
 	splitStr := ""
 
-	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 	if err != nil {
 		return Context{}, err
 	}

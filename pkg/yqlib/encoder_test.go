@@ -9,11 +9,11 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-func yamlToJson(sampleYaml string, indent int) string {
+func yamlToJSON(sampleYaml string, indent int) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var jsonEncoder = NewJsonEncoder(indent)
+	var jsonEncoder = NewJONEncoder(indent)
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {
 		panic(err)
@@ -28,13 +28,13 @@ func yamlToJson(sampleYaml string, indent int) string {
 	return strings.TrimSuffix(output.String(), "\n")
 }
 
-func TestJsonEncoderPreservesObjectOrder(t *testing.T) {
+func TestJSONEncoderPreservesObjectOrder(t *testing.T) {
 	var sampleYaml = `zabbix: winner
 apple: great
 banana:
 - {cobra: kai, angus: bob}
 `
-	var expectedJson = `{
+	var expectedJSON = `{
   "zabbix": "winner",
   "apple": "great",
   "banana": [
@@ -44,31 +44,31 @@ banana:
     }
   ]
 }`
-	var actualJson = yamlToJson(sampleYaml, 2)
-	test.AssertResult(t, expectedJson, actualJson)
+	var actualJSON = yamlToJSON(sampleYaml, 2)
+	test.AssertResult(t, expectedJSON, actualJSON)
 }
 
 func TestJsonNullInArray(t *testing.T) {
 	var sampleYaml = `[null]`
-	var actualJson = yamlToJson(sampleYaml, 0)
-	test.AssertResult(t, sampleYaml, actualJson)
+	var actualJSON = yamlToJSON(sampleYaml, 0)
+	test.AssertResult(t, sampleYaml, actualJSON)
 }
 
 func TestJsonNull(t *testing.T) {
 	var sampleYaml = `null`
-	var actualJson = yamlToJson(sampleYaml, 0)
-	test.AssertResult(t, sampleYaml, actualJson)
+	var actualJSON = yamlToJSON(sampleYaml, 0)
+	test.AssertResult(t, sampleYaml, actualJSON)
 }
 
 func TestJsonNullInObject(t *testing.T) {
 	var sampleYaml = `{x: null}`
-	var actualJson = yamlToJson(sampleYaml, 0)
-	test.AssertResult(t, `{"x":null}`, actualJson)
+	var actualJSON = yamlToJSON(sampleYaml, 0)
+	test.AssertResult(t, `{"x":null}`, actualJSON)
 }
 
 func TestJsonEncoderDoesNotEscapeHTMLChars(t *testing.T) {
 	var sampleYaml = `build: "( ./lint && ./format && ./compile ) < src.code"`
-	var expectedJson = `{"build":"( ./lint && ./format && ./compile ) < src.code"}`
-	var actualJson = yamlToJson(sampleYaml, 0)
-	test.AssertResult(t, expectedJson, actualJson)
+	var expectedJSON = `{"build":"( ./lint && ./format && ./compile ) < src.code"}`
+	var actualJSON = yamlToJSON(sampleYaml, 0)
+	test.AssertResult(t, expectedJSON, actualJSON)
 }

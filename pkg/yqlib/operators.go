@@ -13,7 +13,7 @@ type operatorHandler func(d *dataTreeNavigator, context Context, expressionNode 
 type compoundCalculation func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode
 
 func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation compoundCalculation) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
@@ -26,7 +26,7 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 		valueOp.CandidateNode = candidate
 		valueExpression := &ExpressionNode{Operation: valueOp}
 
-		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, Lhs: valueExpression, Rhs: calculation(valueExpression, expressionNode.Rhs)}
+		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, LHS: valueExpression, RHS: calculation(valueExpression, expressionNode.RHS)}
 
 		_, err = d.GetMatchingNodes(context, assignmentOpNode)
 		if err != nil {
@@ -50,7 +50,7 @@ func emptyOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 
 type crossFunctionCalculation func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error)
 
-func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *CandidateNode, rhs Context, calculation crossFunctionCalculation, results *list.List, calcWhenEmpty bool) error {
+func resultsForRHS(d *dataTreeNavigator, context Context, lhsCandidate *CandidateNode, rhs Context, calculation crossFunctionCalculation, results *list.List, calcWhenEmpty bool) error {
 
 	if calcWhenEmpty && rhs.MatchingNodes.Len() == 0 {
 		resultCandidate, err := calculation(d, context, lhsCandidate, nil)
@@ -79,20 +79,20 @@ func resultsForRhs(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 
 func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation crossFunctionCalculation, calcWhenEmpty bool) (Context, error) {
 	var results = list.New()
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
 	log.Debugf("crossFunction LHS len: %v", lhs.MatchingNodes.Len())
 
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	rhs, err := d.GetMatchingNodes(context, expressionNode.RHS)
 
 	if err != nil {
 		return Context{}, err
 	}
 
 	if calcWhenEmpty && lhs.MatchingNodes.Len() == 0 {
-		err := resultsForRhs(d, context, nil, rhs, calculation, results, calcWhenEmpty)
+		err := resultsForRHS(d, context, nil, rhs, calculation, results, calcWhenEmpty)
 		if err != nil {
 			return Context{}, err
 		}
@@ -101,7 +101,7 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		lhsCandidate := el.Value.(*CandidateNode)
 
-		err := resultsForRhs(d, context, lhsCandidate, rhs, calculation, results, calcWhenEmpty)
+		err := resultsForRHS(d, context, lhsCandidate, rhs, calculation, results, calcWhenEmpty)
 		if err != nil {
 			return Context{}, err
 		}
@@ -165,7 +165,7 @@ func createTraversalTree(path []interface{}, traversePrefs traversePreferences, 
 
 	return &ExpressionNode{
 		Operation: &Operation{OperationType: shortPipeOpType},
-		Lhs:       createTraversalTree(path[0:1], traversePrefs, false),
-		Rhs:       createTraversalTree(path[1:], traversePrefs, targetKey),
+		LHS:       createTraversalTree(path[0:1], traversePrefs, false),
+		RHS:       createTraversalTree(path[1:], traversePrefs, targetKey),
 	}
 }

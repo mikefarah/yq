@@ -41,7 +41,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	}
 
 	if evaluateAllTogether {
-		collectedNode, err := collectTogether(d, context, expressionNode.Rhs)
+		collectedNode, err := collectTogether(d, context, expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -56,7 +56,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		collectedNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 		collectCandidate := candidate.CreateReplacement(collectedNode)
 
-		collectExpResults, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+		collectExpResults, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}

@@ -15,13 +15,13 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	//ensure lhs is actually an assignment
 	//and rhs is a block (empty)
-	if expressionNode.Lhs.Operation.OperationType != assignVariableOpType {
-		return Context{}, fmt.Errorf("reduce must be given a variables assignment, got %v instead", expressionNode.Lhs.Operation.OperationType.Type)
-	} else if expressionNode.Rhs.Operation.OperationType != blockOpType {
-		return Context{}, fmt.Errorf("reduce must be given a block, got %v instead", expressionNode.Rhs.Operation.OperationType.Type)
+	if expressionNode.LHS.Operation.OperationType != assignVariableOpType {
+		return Context{}, fmt.Errorf("reduce must be given a variables assignment, got %v instead", expressionNode.LHS.Operation.OperationType.Type)
+	} else if expressionNode.RHS.Operation.OperationType != blockOpType {
+		return Context{}, fmt.Errorf("reduce must be given a block, got %v instead", expressionNode.RHS.Operation.OperationType.Type)
 	}
 
-	arrayExpNode := expressionNode.Lhs.Lhs
+	arrayExpNode := expressionNode.LHS.LHS
 	array, err := d.GetMatchingNodes(context, arrayExpNode)
 
 	log.Debugf("array of %v things", array.MatchingNodes.Len())
@@ -30,9 +30,9 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		return Context{}, err
 	}
 
-	variableName := expressionNode.Lhs.Rhs.Operation.StringValue
+	variableName := expressionNode.LHS.RHS.Operation.StringValue
 
-	initExp := expressionNode.Rhs.Lhs
+	initExp := expressionNode.RHS.LHS
 
 	accum, err := d.GetMatchingNodes(context, initExp)
 	if err != nil {
@@ -41,7 +41,7 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	log.Debugf("with variable %v", variableName)
 
-	blockExp := expressionNode.Rhs.Rhs
+	blockExp := expressionNode.RHS.RHS
 	for el := array.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("REDUCING WITH %v", NodeToString(candidate))

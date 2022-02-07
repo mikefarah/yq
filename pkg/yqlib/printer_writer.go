@@ -38,7 +38,7 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputForma
 	extension := "yml"
 
 	switch format {
-	case JsonOutputFormat:
+	case JSONOutputFormat:
 		extension = "json"
 	case PropsOutputFormat:
 		extension = "properties"

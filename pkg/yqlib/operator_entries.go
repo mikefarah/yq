@@ -148,8 +148,8 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 			return Context{}, err
 		}
 
-		result, err := d.GetMatchingNodes(splatted, expressionNode.Rhs)
-		log.Debug("expressionNode.Rhs %v", expressionNode.Rhs.Operation.OperationType)
+		result, err := d.GetMatchingNodes(splatted, expressionNode.RHS)
+		log.Debug("expressionNode.Rhs %v", expressionNode.RHS.Operation.OperationType)
 		log.Debug("result %v", result)
 		if err != nil {
 			return Context{}, err

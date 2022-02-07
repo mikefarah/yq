@@ -2,7 +2,7 @@
 
 setUp() {
   rm test*.yml || true
-  rm .xyz -f
+  rm .xyz -f || true
 }
 
 testBasicEvalRoundTrip() {

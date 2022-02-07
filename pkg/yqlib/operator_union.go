@@ -5,14 +5,14 @@ import "container/list"
 func unionOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debug("unionOperator")
 	log.Debug("context: %v", NodesToString(context.MatchingNodes))
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
 	log.Debug("lhs: %v", NodesToString(lhs.MatchingNodes))
 	log.Debug("rhs input: %v", NodesToString(context.MatchingNodes))
-	log.Debug("rhs: %v", expressionNode.Rhs.Operation.toString())
-	rhs, err := d.GetMatchingNodes(context, expressionNode.Rhs)
+	log.Debug("rhs: %v", expressionNode.RHS.Operation.toString())
+	rhs, err := d.GetMatchingNodes(context, expressionNode.RHS)
 
 	if err != nil {
 		return Context{}, err

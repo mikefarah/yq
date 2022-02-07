@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var XmlPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
+var XMLPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content"}
 
 type xmlEncoder struct {
 	attributePrefix string
@@ -17,7 +17,7 @@ type xmlEncoder struct {
 	indentString    string
 }
 
-func NewXmlEncoder(indent int, attributePrefix string, contentName string) Encoder {
+func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {

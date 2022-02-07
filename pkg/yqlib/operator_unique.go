@@ -10,7 +10,7 @@ import (
 
 func unique(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-	uniqueByExpression := &ExpressionNode{Operation: &Operation{OperationType: uniqueByOpType}, Rhs: selfExpression}
+	uniqueByExpression := &ExpressionNode{Operation: &Operation{OperationType: uniqueByOpType}, RHS: selfExpression}
 	return uniqueBy(d, context, uniqueByExpression)
 
 }
@@ -31,7 +31,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 		var newMatches = orderedmap.NewOrderedMap()
 		for _, node := range candidateNode.Content {
 			child := &CandidateNode{Node: node}
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.RHS)
 
 			if err != nil {
 				return Context{}, err

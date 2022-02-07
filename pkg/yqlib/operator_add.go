@@ -10,8 +10,8 @@ import (
 
 func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
 	return &ExpressionNode{Operation: &Operation{OperationType: addOpType},
-		Lhs: lhs,
-		Rhs: rhs}
+		LHS: lhs,
+		RHS: rhs}
 }
 
 func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -179,14 +179,14 @@ func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 		key := rhs.Content[index]
 		value := rhs.Content[index+1]
 		log.Debug("finding %v", key.Value)
-		indexInLhs := findInArray(target.Node, key)
-		log.Debug("indexInLhs %v", indexInLhs)
-		if indexInLhs < 0 {
+		indexInLHS := findInArray(target.Node, key)
+		log.Debug("indexInLhs %v", indexInLHS)
+		if indexInLHS < 0 {
 			// not in there, append it
 			target.Node.Content = append(target.Node.Content, key, value)
 		} else {
 			// it's there, replace it
-			target.Node.Content[indexInLhs+1] = value
+			target.Node.Content[indexInLHS+1] = value
 		}
 	}
 	target.Node.Kind = yaml.MappingNode

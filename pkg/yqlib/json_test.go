@@ -71,7 +71,7 @@ var jsonScenarios = []formatScenario{
 	},
 }
 
-func decodeJson(t *testing.T, jsonString string) *CandidateNode {
+func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 	docs, err := readDocumentWithLeadingContent(jsonString, "sample.json", 0)
 
 	if err != nil {
@@ -96,11 +96,11 @@ func decodeJson(t *testing.T, jsonString string) *CandidateNode {
 	return context.MatchingNodes.Front().Value.(*CandidateNode)
 }
 
-func testJsonScenario(t *testing.T, s formatScenario) {
+func testJSONScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJsonEncoder(s.indent)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJONEncoder(s.indent)), s.description)
 	} else {
-		var actual = resultToString(t, decodeJson(t, s.input))
+		var actual = resultToString(t, decodeJSON(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
 	}
 }
@@ -145,7 +145,7 @@ func processFormatScenario(s formatScenario, encoder Encoder) string {
 
 }
 
-func documentJsonDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
+func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -163,7 +163,7 @@ func documentJsonDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 	var output bytes.Buffer
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
 
-	node := decodeJson(t, s.input)
+	node := decodeJSON(t, s.input)
 
 	err := printer.PrintResults(node.AsList())
 	if err != nil {
@@ -174,20 +174,20 @@ func documentJsonDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
 }
 
-func documentJsonScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentJSONScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
 	if s.skipDoc {
 		return
 	}
 	if s.scenarioType == "encode" {
-		documentJsonEncodeScenario(w, s)
+		documentJSONEncodeScenario(w, s)
 	} else {
-		documentJsonDecodeScenario(t, w, s)
+		documentJSONDecodeScenario(t, w, s)
 	}
 }
 
-func documentJsonEncodeScenario(w *bufio.Writer, s formatScenario) {
+func documentJSONEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -212,16 +212,16 @@ func documentJsonEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewJsonEncoder(s.indent))))
+	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewJONEncoder(s.indent))))
 }
 
-func TestJsonScenarios(t *testing.T) {
+func TestJSONScenarios(t *testing.T) {
 	for _, tt := range jsonScenarios {
-		testJsonScenario(t, tt)
+		testJSONScenario(t, tt)
 	}
 	genericScenarios := make([]interface{}, len(jsonScenarios))
 	for i, s := range jsonScenarios {
 		genericScenarios[i] = s
 	}
-	documentScenarios(t, "usage", "convert", genericScenarios, documentJsonScenario)
+	documentScenarios(t, "usage", "convert", genericScenarios, documentJSONScenario)
 }

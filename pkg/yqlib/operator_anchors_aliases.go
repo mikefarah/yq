@@ -12,7 +12,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 	aliasName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -21,7 +21,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -32,7 +32,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 		log.Debugf("Setting aliasName : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}
@@ -68,7 +68,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 	anchorName := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -78,7 +78,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -89,7 +89,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 		log.Debugf("Setting anchorName of : %v", candidate.GetKey())
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}
@@ -124,7 +124,7 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
 
 		if err != nil {
 			return Context{}, err

@@ -19,7 +19,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 	log.Debugf("AssignComments operator!")
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -29,7 +29,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 	comment := ""
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -43,7 +43,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		candidate := el.Value.(*CandidateNode)
 
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}

@@ -193,9 +193,9 @@ func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 		key := lhs.Content[index]
 		value := lhs.Content[index+1]
 
-		indexInRhs := findInArray(rhs, key)
+		indexInRHS := findInArray(rhs, key)
 
-		if indexInRhs == -1 || !recursiveNodeEqual(value, rhs.Content[indexInRhs+1]) {
+		if indexInRHS == -1 || !recursiveNodeEqual(value, rhs.Content[indexInRHS+1]) {
 			return false
 		}
 	}
@@ -289,7 +289,7 @@ func footComment(node *yaml.Node) string {
 }
 
 func createValueOperation(value interface{}, stringValue string) *Operation {
-	var node *yaml.Node = createScalarNode(value, stringValue)
+	var node = createScalarNode(value, stringValue)
 
 	return &Operation{
 		OperationType: valueOpType,

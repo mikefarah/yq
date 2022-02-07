@@ -12,7 +12,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	tag := ""
 
 	if !expressionNode.Operation.UpdateAssign {
-		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.Rhs)
+		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
@@ -22,7 +22,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.Lhs)
+	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -32,7 +32,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 		candidate := el.Value.(*CandidateNode)
 		log.Debugf("Setting tag of : %v", candidate.GetKey())
 		if expressionNode.Operation.UpdateAssign {
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.Rhs)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}

@@ -12,18 +12,18 @@ import (
 
 func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 	switch format {
-	case JsonOutputFormat:
-		return NewJsonEncoder(indent)
+	case JSONOutputFormat:
+		return NewJONEncoder(indent)
 	case PropsOutputFormat:
 		return NewPropertiesEncoder()
-	case CsvOutputFormat:
+	case CSVOutputFormat:
 		return NewCsvEncoder(',')
-	case TsvOutputFormat:
+	case TSVOutputFormat:
 		return NewCsvEncoder('\t')
 	case YamlOutputFormat:
 		return NewYamlEncoder(indent, false, true, true)
-	case XmlOutputFormat:
-		return NewXmlEncoder(indent, XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
+	case XMLOutputFormat:
+		return NewXMLEncoder(indent, XMLPreferences.AttributePrefix, XMLPreferences.ContentName)
 	}
 	panic("invalid encoder")
 }
@@ -76,9 +76,9 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		// dont print a new line when printing json on a single line.
-		if (preferences.format == JsonOutputFormat && preferences.indent == 0) ||
-			preferences.format == CsvOutputFormat ||
-			preferences.format == TsvOutputFormat {
+		if (preferences.format == JSONOutputFormat && preferences.indent == 0) ||
+			preferences.format == CSVOutputFormat ||
+			preferences.format == TSVOutputFormat {
 			stringValue = chomper.ReplaceAllString(stringValue, "")
 		}
 
@@ -101,8 +101,8 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	switch preferences.format {
 	case YamlInputFormat:
 		decoder = NewYamlDecoder()
-	case XmlInputFormat:
-		decoder = NewXmlDecoder(XmlPreferences.AttributePrefix, XmlPreferences.ContentName)
+	case XMLInputFormat:
+		decoder = NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName)
 	}
 
 	var results = list.New()

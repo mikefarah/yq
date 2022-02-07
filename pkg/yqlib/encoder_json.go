@@ -26,7 +26,7 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJsonEncoder(indent int) Encoder {
+func NewJONEncoder(indent int) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
