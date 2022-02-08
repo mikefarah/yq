@@ -16,6 +16,7 @@ type InputFormat uint
 const (
 	YamlInputFormat = 1 << iota
 	XMLInputFormat
+	PropertiesInputFormat
 )
 
 func InputFormatFromString(format string) (InputFormat, error) {
@@ -24,6 +25,8 @@ func InputFormatFromString(format string) (InputFormat, error) {
 		return YamlInputFormat, nil
 	case "xml", "x":
 		return XMLInputFormat, nil
+	case "props", "p":
+		return PropertiesInputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml]", format)
 	}
