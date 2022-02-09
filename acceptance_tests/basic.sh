@@ -1,8 +1,8 @@
 #!/bin/bash
 
 setUp() {
-  rm test*.yml || true
-  rm .xyz -f || true
+  rm test*.yml 2>/dev/null || true
+  rm .xyz 2>/dev/null || true
 }
 
 testBasicEvalRoundTrip() {

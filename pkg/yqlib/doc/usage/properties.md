@@ -119,3 +119,28 @@ person:
         - pizza
 ```
 
+## Roundtrip
+Given a sample.properties file of:
+```properties
+# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = cat
+person.food.0 = pizza
+
+```
+then
+```bash
+yq -p=props -o=props '.person.pets.0 = "dog"' sample.properties
+```
+will output
+```properties
+# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = dog
+person.food.0 = pizza
+```
+

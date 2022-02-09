@@ -26,6 +26,14 @@ person.pets.0 = cat
 person.food.0 = pizza
 `
 
+var expectedUpdatedProperties = `# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = dog
+person.food.0 = pizza
+`
+
 var expectedDecodedYaml = `person:
   name: Mike # comments on values appear
   pets:
@@ -70,11 +78,17 @@ var propertyScenarios = []formatScenario{
 		expected:       expectedPropertiesWithEmptyMapsAndArrays,
 	},
 	{
-		skipDoc:      true,
 		description:  "Decode properties",
 		input:        expectedProperties,
 		expected:     expectedDecodedYaml,
 		scenarioType: "decode",
+	},
+	{
+		description:  "Roundtrip",
+		input:        expectedProperties,
+		expression:   `.person.pets.0 = "dog"`,
+		expected:     expectedUpdatedProperties,
+		scenarioType: "roundtrip",
 	},
 }
 
@@ -128,10 +142,37 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewYamlEncoder(s.indent, false, true, true), NewPropertiesDecoder())))
 }
 
+func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.properties file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+
+	expression := s.expression
+	if expression != "" {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=props -o=props '%v' sample.properties\n```\n", expression))
+	} else {
+		writeOrPanic(w, "```bash\nyq -p=props -o=props sample.properties\n```\n")
+	}
+
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewPropertiesEncoder(), NewPropertiesDecoder())))
+}
+
 func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 	if s.scenarioType == "decode" {
 		documentDecodePropertyScenario(w, s)
+	} else if s.scenarioType == "roundtrip" {
+		documentRoundTripPropertyScenario(w, s)
 	} else {
 		documentEncodePropertyScenario(w, s)
 	}
@@ -142,6 +183,8 @@ func TestPropertyScenarios(t *testing.T) {
 	for _, s := range propertyScenarios {
 		if s.scenarioType == "decode" {
 			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlEncoder(2, false, true, true), NewPropertiesDecoder()), s.description)
+		} else if s.scenarioType == "roundtrip" {
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesEncoder(), NewPropertiesDecoder()), s.description)
 		} else {
 			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesEncoder(), NewYamlDecoder()), s.description)
 		}

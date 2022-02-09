@@ -39,6 +39,13 @@ func parsePropKey(key string) []interface{} {
 	return path
 }
 
+func (dec *propertiesDecoder) processComment(c string) string {
+	if c == "" {
+		return ""
+	}
+	return "# " + c
+}
+
 func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, context Context, key string) error {
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)
@@ -47,7 +54,7 @@ func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, c
 		Value:       value,
 		Tag:         "!!str",
 		Kind:        yaml.ScalarNode,
-		LineComment: properties.GetComment(key),
+		LineComment: dec.processComment(properties.GetComment(key)),
 	}
 
 	rhsNode.Tag = guessTagFromCustomType(rhsNode)
