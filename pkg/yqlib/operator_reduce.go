@@ -24,8 +24,6 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	arrayExpNode := expressionNode.LHS.LHS
 	array, err := d.GetMatchingNodes(context, arrayExpNode)
 
-	log.Debugf("array of %v things", array.MatchingNodes.Len())
-
 	if err != nil {
 		return Context{}, err
 	}

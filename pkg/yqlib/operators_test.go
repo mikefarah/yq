@@ -25,6 +25,7 @@ type expressionScenario struct {
 	expression            string
 	expected              []string
 	skipDoc               bool
+	expectedError         string
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 }
 
@@ -93,6 +94,11 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
+
+	if s.expectedError != "" {
+		test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
+		return
+	}
 
 	if err != nil {
 		t.Error(fmt.Errorf("%w: %v", err, s.expression))

@@ -14,6 +14,12 @@ var variableOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		document:      "a: [cat]",
+		skipDoc:       true,
+		expression:    "(.[] | {.name: .}) as $item",
+		expectedError: `Cannot index array with 'name' (strconv.ParseInt: parsing "name": invalid syntax)`,
+	},
+	{
 		description: "Single value variable",
 		document:    `a: cat`,
 		expression:  `.a as $foo | $foo`,
