@@ -121,7 +121,7 @@ func documentEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewPropertiesEncoder(), NewYamlDecoder())))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder())))
 }
 
 func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -146,7 +146,7 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewYamlEncoder(s.indent, false, true, true), NewPropertiesDecoder())))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(s.indent, false, true, true))))
 }
 
 func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -171,7 +171,7 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewPropertiesEncoder(), NewPropertiesDecoder())))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder())))
 }
 
 func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
@@ -189,11 +189,11 @@ func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 func TestPropertyScenarios(t *testing.T) {
 	for _, s := range propertyScenarios {
 		if s.scenarioType == "decode" {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlEncoder(2, false, true, true), NewPropertiesDecoder()), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, true, true)), s.description)
 		} else if s.scenarioType == "roundtrip" {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesEncoder(), NewPropertiesDecoder()), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder()), s.description)
 		} else {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesEncoder(), NewYamlDecoder()), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder()), s.description)
 		}
 	}
 	genericScenarios := make([]interface{}, len(propertyScenarios))

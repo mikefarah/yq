@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -98,53 +97,11 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 
 func testJSONScenario(t *testing.T, s formatScenario) {
 	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJONEncoder(s.indent), NewYamlDecoder()), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewJONEncoder(s.indent)), s.description)
 	} else {
 		var actual = resultToString(t, decodeJSON(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
 	}
-}
-
-func processFormatScenario(s formatScenario, encoder Encoder, decoder Decoder) string {
-
-	var output bytes.Buffer
-	writer := bufio.NewWriter(&output)
-
-	if decoder == nil {
-		decoder = NewYamlDecoder()
-	}
-
-	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
-	if err != nil {
-		panic(err)
-	}
-
-	expression := s.expression
-	if expression == "" {
-		expression = "."
-	}
-
-	exp, err := getExpressionParser().ParseExpression(expression)
-
-	if err != nil {
-		panic(err)
-	}
-
-	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, exp)
-
-	if err != nil {
-		panic(err)
-	}
-
-	printer := NewPrinter(encoder, NewSinglePrinterWriter(writer))
-	err = printer.PrintResults(context.MatchingNodes)
-	if err != nil {
-		panic(err)
-	}
-	writer.Flush()
-
-	return output.String()
-
 }
 
 func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
@@ -214,7 +171,7 @@ func documentJSONEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewJONEncoder(s.indent), NewYamlDecoder())))
+	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewJONEncoder(s.indent))))
 }
 
 func TestJSONScenarios(t *testing.T) {
