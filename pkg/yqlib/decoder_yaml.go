@@ -6,11 +6,6 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-type Decoder interface {
-	Init(reader io.Reader)
-	Decode(node *yaml.Node) error
-}
-
 type yamlDecoder struct {
 	decoder yaml.Decoder
 }

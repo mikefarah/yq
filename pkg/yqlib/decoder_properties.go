@@ -83,8 +83,13 @@ func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
 		return io.EOF
 	}
 	buf := new(bytes.Buffer)
+
 	if _, err := buf.ReadFrom(dec.reader); err != nil {
 		return err
+	}
+	if buf.Len() == 0 {
+		dec.finished = true
+		return io.EOF
 	}
 	properties, err := properties.LoadString(buf.String())
 	if err != nil {

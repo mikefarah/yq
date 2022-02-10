@@ -23,6 +23,23 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputPropertiesGitHubAction() {
+  cat >test.properties <<EOL
+mike.things = hello
+EOL
+
+  read -r -d '' expected << EOM
+mike:
+  things: hello
+EOM
+
+  X=$(cat /dev/null | ./yq e -p=props test.properties)
+  assertEquals "$expected" "$X"
+
+  X=$(cat /dev/null | ./yq ea -p=props test.properties)
+  assertEquals "$expected" "$X"
+}
+
 testInputXml() {
   cat >test.yml <<EOL
 <cat legs="4">BiBi</cat>

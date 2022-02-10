@@ -90,6 +90,13 @@ var propertyScenarios = []formatScenario{
 		expected:     expectedUpdatedProperties,
 		scenarioType: "roundtrip",
 	},
+	{
+		description:  "Empty doc",
+		skipDoc:      true,
+		input:        "",
+		expected:     "",
+		scenarioType: "decode",
+	},
 }
 
 func documentEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
