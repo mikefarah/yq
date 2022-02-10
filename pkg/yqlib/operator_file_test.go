@@ -16,7 +16,7 @@ var fileOperatorScenarios = []expressionScenario{
 	{
 		description: "Get file index",
 		document:    `{a: cat}`,
-		expression:  `fileIndex`,
+		expression:  `file_index`,
 		expected: []string{
 			"D0, P[], (!!int)::0\n",
 		},
@@ -25,7 +25,7 @@ var fileOperatorScenarios = []expressionScenario{
 		description: "Get file indices of multiple documents",
 		document:    `{a: cat}`,
 		document2:   `{a: cat}`,
-		expression:  `fileIndex`,
+		expression:  `file_index`,
 		expected: []string{
 			"D0, P[], (!!int)::0\n",
 			"D0, P[], (!!int)::1\n",

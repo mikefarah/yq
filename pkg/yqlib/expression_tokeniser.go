@@ -393,8 +393,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`\/\/`), opToken(alternativeOpType))
 
 	lexer.Add([]byte(`documentIndex`), opToken(getDocumentIndexOpType))
+	lexer.Add([]byte(`document_index`), opToken(getDocumentIndexOpType))
+
 	lexer.Add([]byte(`di`), opToken(getDocumentIndexOpType))
+
 	lexer.Add([]byte(`splitDoc`), opToken(splitDocumentOpType))
+	lexer.Add([]byte(`split_doc`), opToken(splitDocumentOpType))
 
 	lexer.Add([]byte(`join`), opToken(joinStringOpType))
 	lexer.Add([]byte(`sub`), opToken(subStringOpType))
@@ -423,7 +427,10 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`anchor`), opAssignableToken(getAnchorOpType, assignAnchorOpType))
 	lexer.Add([]byte(`alias`), opAssignableToken(getAliasOptype, assignAliasOpType))
 	lexer.Add([]byte(`filename`), opToken(getFilenameOpType))
+
 	lexer.Add([]byte(`fileIndex`), opToken(getFileIndexOpType))
+	lexer.Add([]byte(`file_index`), opToken(getFileIndexOpType))
+
 	lexer.Add([]byte(`fi`), opToken(getFileIndexOpType))
 	lexer.Add([]byte(`path`), opToken(getPathOpType))
 	lexer.Add([]byte(`to_entries`), opToken(toEntriesOpType))
@@ -433,10 +440,13 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`with`), opToken(withOpType))
 
 	lexer.Add([]byte(`lineComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
+	lexer.Add([]byte(`line_comment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}))
 
 	lexer.Add([]byte(`headComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{HeadComment: true}))
+	lexer.Add([]byte(`head_comment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{HeadComment: true}))
 
 	lexer.Add([]byte(`footComment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{FootComment: true}))
+	lexer.Add([]byte(`foot_comment`), opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{FootComment: true}))
 
 	lexer.Add([]byte(`comments\s*=`), assignAllCommentsOp(false))
 	lexer.Add([]byte(`comments\s*\|=`), assignAllCommentsOp(true))
@@ -519,7 +529,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 	scanner, err := p.lexer.Scanner([]byte(expression))
 
 	if err != nil {
-		return nil, fmt.Errorf("Parsing expression: %w", err)
+		return nil, fmt.Errorf("parsing expression: %w", err)
 	}
 	var tokens []*token
 	for tok, err, eof := scanner.Next(); !eof; tok, err, eof = scanner.Next() {
@@ -530,7 +540,7 @@ func (p *expressionTokeniserImpl) Tokenise(expression string) ([]*token, error) 
 			tokens = append(tokens, currentToken)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("Parsing expression: %w", err)
+			return nil, fmt.Errorf("parsing expression: %w", err)
 		}
 	}
 	var postProcessedTokens = make([]*token, 0)

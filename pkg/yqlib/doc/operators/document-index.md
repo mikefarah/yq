@@ -17,7 +17,7 @@ a: frog
 ```
 then
 ```bash
-yq '.a | documentIndex' sample.yml
+yq '.a | document_index' sample.yml
 ```
 will output
 ```yaml
@@ -53,7 +53,7 @@ a: frog
 ```
 then
 ```bash
-yq 'select(documentIndex == 1)' sample.yml
+yq 'select(document_index == 1)' sample.yml
 ```
 will output
 ```yaml
@@ -85,7 +85,7 @@ a: frog
 ```
 then
 ```bash
-yq '.a | ({"match": ., "doc": documentIndex})' sample.yml
+yq '.a | ({"match": ., "doc": document_index})' sample.yml
 ```
 will output
 ```yaml
