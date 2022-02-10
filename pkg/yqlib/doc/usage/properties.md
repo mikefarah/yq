@@ -27,7 +27,7 @@ emptyMap: []
 ```
 then
 ```bash
-yq -o=props -I=0 '.' sample.yml
+yq -o=props sample.yml
 ```
 will output
 ```properties
@@ -54,7 +54,7 @@ emptyMap: []
 ```
 then
 ```bash
-yq -o=props -I=0 '... comments = ""' sample.yml
+yq -o=props '... comments = ""' sample.yml
 ```
 will output
 ```properties
@@ -80,7 +80,7 @@ emptyMap: []
 ```
 then
 ```bash
-yq -o=props -I=0 '(.. | select( (tag == "!!map" or tag =="!!seq") and length == 0)) = ""' sample.yml
+yq -o=props '(.. | select( (tag == "!!map" or tag =="!!seq") and length == 0)) = ""' sample.yml
 ```
 will output
 ```properties
@@ -92,5 +92,68 @@ person.pets.0 = cat
 person.food.0 = pizza
 emptyArray = 
 emptyMap = 
+```
+
+## Decode properties
+Given a sample.properties file of:
+```properties
+# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = cat
+person.food.0 = pizza
+
+```
+then
+```bash
+yq -p=props sample.properties
+```
+will output
+```yaml
+person:
+    name: Mike # comments on values appear
+    pets:
+        - cat # comments on array values appear
+    food:
+        - pizza
+```
+
+## Roundtrip
+Given a sample.properties file of:
+```properties
+# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = cat
+person.food.0 = pizza
+
+```
+then
+```bash
+yq -p=props -o=props '.person.pets.0 = "dog"' sample.properties
+```
+will output
+```properties
+# comments on values appear
+person.name = Mike
+
+# comments on array values appear
+person.pets.0 = dog
+person.food.0 = pizza
+```
+
+## Empty doc
+Given a sample.properties file of:
+```properties
+
+```
+then
+```bash
+yq -p=props sample.properties
+```
+will output
+```yaml
 ```
 

@@ -2,87 +2,11 @@ package yqlib
 
 import (
 	"bufio"
-	"bytes"
-	"errors"
 	"fmt"
-	"io"
-	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
-	yaml "gopkg.in/yaml.v3"
 )
-
-func decodeXML(t *testing.T, s formatScenario) *CandidateNode {
-	decoder := NewXMLDecoder("+", "+content")
-
-	decoder.Init(strings.NewReader(s.input))
-
-	node := &yaml.Node{}
-	err := decoder.Decode(node)
-	if err != nil && !errors.Is(err, io.EOF) {
-		t.Error(err, "fail to decode", s.input)
-	}
-
-	expression := s.expression
-	if expression == "" {
-		expression = "."
-	}
-
-	exp, err := getExpressionParser().ParseExpression(expression)
-
-	if err != nil {
-		t.Error(err)
-		return nil
-	}
-
-	candidateNode := CandidateNode{Node: node}
-
-	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: candidateNode.AsList()}, exp)
-
-	if err != nil {
-		t.Error(err)
-		return nil
-	}
-
-	return context.MatchingNodes.Front().Value.(*CandidateNode)
-}
-
-func processXMLScenario(s formatScenario) string {
-	var output bytes.Buffer
-	writer := bufio.NewWriter(&output)
-
-	var encoder = NewXMLEncoder(2, "+", "+content")
-
-	var decoder = NewYamlDecoder()
-	if s.scenarioType == "roundtrip" {
-		decoder = NewXMLDecoder("+", "+content")
-	}
-
-	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
-	if err != nil {
-		panic(err)
-	}
-	node := inputs.Front().Value.(*CandidateNode).Node
-	err = encoder.Encode(writer, node)
-	if err != nil {
-		panic(err)
-	}
-	writer.Flush()
-
-	return output.String()
-}
-
-type formatScenario struct {
-	input          string
-	indent         int
-	expression     string
-	expected       string
-	description    string
-	subdescription string
-	skipDoc        bool
-	scenarioType   string
-}
 
 var inputXMLWithComments = `
 <!-- before cat -->
@@ -121,7 +45,7 @@ for x --></x>
 <!-- after cat -->
 `
 
-var expectedDecodeYamlWithSubChild = `D0, P[], (doc)::# before cat
+var expectedDecodeYamlWithSubChild = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -161,7 +85,7 @@ for x --></x>
 <!-- after cat -->
 `
 
-var expectedDecodeYamlWithArray = `D0, P[], (doc)::# before cat
+var expectedDecodeYamlWithArray = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -185,7 +109,7 @@ cat:
 # after cat
 `
 
-var expectedDecodeYamlWithComments = `D0, P[], (doc)::# before cat
+var expectedDecodeYamlWithComments = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -234,32 +158,32 @@ var xmlScenarios = []formatScenario{
 		description:    "Parse xml: simple",
 		subdescription: "Notice how all the values are strings, see the next example on how you can fix that.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
-		expected:       "D0, P[], (doc)::cat:\n    says: meow\n    legs: \"4\"\n    cute: \"true\"\n",
+		expected:       "cat:\n    says: meow\n    legs: \"4\"\n    cute: \"true\"\n",
 	},
 	{
 		description:    "Parse xml: number",
 		subdescription: "All values are assumed to be strings when parsing XML, but you can use the `from_yaml` operator on all the strings values to autoparse into the correct type.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
 		expression:     " (.. | select(tag == \"!!str\")) |= from_yaml",
-		expected:       "D0, P[], ()::cat:\n    says: meow\n    legs: 4\n    cute: true\n",
+		expected:       "cat:\n    says: meow\n    legs: 4\n    cute: true\n",
 	},
 	{
 		description:    "Parse xml: array",
 		subdescription: "Consecutive nodes with identical xml names are assumed to be arrays.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<animal>cat</animal>\n<animal>goat</animal>",
-		expected:       "D0, P[], (doc)::animal:\n    - cat\n    - goat\n",
+		expected:       "animal:\n    - cat\n    - goat\n",
 	},
 	{
 		description:    "Parse xml: attributes",
 		subdescription: "Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
-		expected:       "D0, P[], (doc)::cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
+		expected:       "cat:\n    +legs: \"4\"\n    legs: \"7\"\n",
 	},
 	{
 		description:    "Parse xml: attributes with content",
 		subdescription: "Content is added as a field, using the default content name of `+content`. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
-		expected:       "D0, P[], (doc)::cat:\n    +content: meow\n    +legs: \"4\"\n",
+		expected:       "cat:\n    +content: meow\n    +legs: \"4\"\n",
 	},
 	{
 		description:    "Parse xml: with comments",
@@ -272,28 +196,28 @@ var xmlScenarios = []formatScenario{
 		description:  "Empty doc",
 		skipDoc:      true,
 		input:        "",
-		expected:     "D0, P[], ()::null\n",
+		expected:     "",
 		scenarioType: "decode",
 	},
 	{
 		description:  "Empty single node",
 		skipDoc:      true,
 		input:        "<a/>",
-		expected:     "D0, P[], (doc)::a:\n",
+		expected:     "a:\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "Empty close node",
 		skipDoc:      true,
 		input:        "<a></a>",
-		expected:     "D0, P[], (doc)::a:\n",
+		expected:     "a:\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "Nested empty",
 		skipDoc:      true,
 		input:        "<a><b/></a>",
-		expected:     "D0, P[], (doc)::a:\n    b:\n",
+		expected:     "a:\n    b:\n",
 		scenarioType: "decode",
 	},
 	{
@@ -359,11 +283,12 @@ var xmlScenarios = []formatScenario{
 }
 
 func testXMLScenario(t *testing.T, s formatScenario) {
-	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
-		test.AssertResultWithContext(t, s.expected, processXMLScenario(s), s.description)
+	if s.scenarioType == "encode" {
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content")), s.description)
+	} else if s.scenarioType == "roundtrip" {
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content"), NewXMLEncoder(2, "+", "+content")), s.description)
 	} else {
-		var actual = resultToString(t, decodeXML(t, s))
-		test.AssertResultWithContext(t, s.expected, actual, s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content"), NewYamlEncoder(4, false, true, true)), s.description)
 	}
 }
 
@@ -378,12 +303,12 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	} else if s.scenarioType == "roundtrip" {
 		documentXMLRoundTripScenario(w, s)
 	} else {
-		documentXMLDecodeScenario(t, w, s)
+		documentXMLDecodeScenario(w, s)
 	}
 
 }
 
-func documentXMLDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
+func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -402,18 +327,7 @@ func documentXMLDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=xml '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	var output bytes.Buffer
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
-
-	node := decodeXML(t, s)
-
-	err := printer.PrintResults(node.AsList())
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", output.String()))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content"), NewYamlEncoder(2, false, true, true))))
 }
 
 func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
@@ -431,7 +345,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXMLScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content"))))
 }
 
 func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
@@ -449,7 +363,7 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processXMLScenario(s)))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content"), NewXMLEncoder(2, "+", "+content"))))
 }
 
 func TestXMLScenarios(t *testing.T) {

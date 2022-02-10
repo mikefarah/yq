@@ -1,7 +1,43 @@
 #!/bin/bash
 
 setUp() {
-  rm test*.yml || true
+  rm test*.yml 2>/dev/null || true
+  rm test*.properties 2>/dev/null || true
+  rm test*.xml 2>/dev/null || true
+}
+
+testInputProperties() {
+  cat >test.properties <<EOL
+mike.things = hello
+EOL
+
+  read -r -d '' expected << EOM
+mike:
+  things: hello
+EOM
+
+  X=$(./yq e -p=props test.properties)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=props test.properties)
+  assertEquals "$expected" "$X"
+}
+
+testInputPropertiesGitHubAction() {
+  cat >test.properties <<EOL
+mike.things = hello
+EOL
+
+  read -r -d '' expected << EOM
+mike:
+  things: hello
+EOM
+
+  X=$(cat /dev/null | ./yq e -p=props test.properties)
+  assertEquals "$expected" "$X"
+
+  X=$(cat /dev/null | ./yq ea -p=props test.properties)
+  assertEquals "$expected" "$X"
 }
 
 testInputXml() {

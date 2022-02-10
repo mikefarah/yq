@@ -54,7 +54,10 @@ func configureDecoder() (yqlib.Decoder, error) {
 	switch yqlibInputFormat {
 	case yqlib.XMLInputFormat:
 		return yqlib.NewXMLDecoder(xmlAttributePrefix, xmlContentName), nil
+	case yqlib.PropertiesInputFormat:
+		return yqlib.NewPropertiesDecoder(), nil
 	}
+
 	return yqlib.NewYamlDecoder(), nil
 }
 
