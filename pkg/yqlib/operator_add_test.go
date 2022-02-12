@@ -209,6 +209,34 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Date addition",
+		subdescription: "You can add durations to dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: 2021-01-01T00:00:00Z`,
+		expression:     `.a += "3h10m"`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2021-01-01T03:10:00Z\n",
+		},
+	},
+	{
+		description:    "Date addition - custom format",
+		subdescription: "You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
+		expression:     `with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
+		expected: []string{
+			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 6:00AM GMT\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Date addition - custom format",
+		subdescription: "You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: !cat Saturday, 15-Dec-01 at 2:59AM GMT`,
+		expression:     `with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
+		expected: []string{
+			"D0, P[], (doc)::a: !cat Saturday, 15-Dec-01 at 6:00AM GMT\n",
+		},
+	},
+	{
 		description:    "Add to null",
 		subdescription: "Adding to null simply returns the rhs",
 		expression:     `null + "cat"`,

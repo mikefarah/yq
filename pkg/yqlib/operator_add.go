@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -71,7 +72,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 		}
 		target.Node.Kind = yaml.ScalarNode
 		target.Node.Style = lhsNode.Style
-		if err := addScalars(target, lhsNode, rhs.Node); err != nil {
+		if err := addScalars(context, target, lhsNode, rhs.Node); err != nil {
 			return nil, err
 		}
 	}
@@ -97,7 +98,7 @@ func guessTagFromCustomType(node *yaml.Node) string {
 	return guessedTag
 }
 
-func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 	lhsTag := lhs.Tag
 	rhsTag := rhs.Tag
 	lhsIsCustom := false
@@ -112,7 +113,18 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 		rhsTag = guessTagFromCustomType(rhs)
 	}
 
-	if lhsTag == "!!str" {
+	isDateTime := lhs.Tag == "!!timestamp"
+
+	// if the lhs is a string, it might be a timestamp in a custom format.
+	if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
+		_, err := time.Parse(context.GetDateTimeLayout(), lhs.Value)
+		isDateTime = err == nil
+	}
+
+	if isDateTime {
+		return addDateTimes(context.GetDateTimeLayout(), target, lhs, rhs)
+
+	} else if lhsTag == "!!str" {
 		target.Node.Tag = lhs.Tag
 		target.Node.Value = lhs.Value + rhs.Value
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
@@ -147,6 +159,24 @@ func addScalars(target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 		return fmt.Errorf("%v cannot be added to %v", lhsTag, rhsTag)
 	}
 	return nil
+}
+
+func addDateTimes(layout string, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+
+	duration, err := time.ParseDuration(rhs.Value)
+	if err != nil {
+		return fmt.Errorf("unable to parse duration [%v]: %w", rhs.Value, err)
+	}
+
+	currentTime, err := time.Parse(layout, lhs.Value)
+	if err != nil {
+		return err
+	}
+
+	newTime := currentTime.Add(duration)
+	target.Node.Value = newTime.Format(layout)
+	return nil
+
 }
 
 func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {

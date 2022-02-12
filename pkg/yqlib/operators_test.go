@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mikefarah/yq/v4/test"
 	"gopkg.in/op/go-logging.v1"
@@ -31,6 +32,9 @@ type expressionScenario struct {
 
 func TestMain(m *testing.M) {
 	logging.SetLevel(logging.ERROR, "")
+	Now = func() time.Time {
+		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
+	}
 	code := m.Run()
 	os.Exit(code)
 }
