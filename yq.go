@@ -12,7 +12,7 @@ func main() {
 	args := os.Args[1:]
 
 	_, _, err := cmd.Find(args)
-	if err != nil {
+	if err != nil && args[0] != "__complete" {
 		// default command when nothing matches...
 		newArgs := []string{"eval"}
 		cmd.SetArgs(append(newArgs, os.Args[1:]...))
