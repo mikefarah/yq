@@ -206,6 +206,38 @@ a: 4
 b: 6
 ```
 
+## Date addition
+You can add durations to dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.
+
+Given a sample.yml file of:
+```yaml
+a: 2021-01-01T00:00:00Z
+```
+then
+```bash
+yq '.a += "3h10m"' sample.yml
+```
+will output
+```yaml
+a: 2021-01-01T03:10:00Z
+```
+
+## Date addition - custom format
+You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.
+
+Given a sample.yml file of:
+```yaml
+a: Saturday, 15-Dec-01 at 2:59AM GMT
+```
+then
+```bash
+yq 'with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")' sample.yml
+```
+will output
+```yaml
+a: Saturday, 15-Dec-01 at 6:00AM GMT
+```
+
 ## Add to null
 Adding to null simply returns the rhs
 

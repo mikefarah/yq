@@ -94,6 +94,34 @@ var subtractOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Date subtraction",
+		subdescription: "You can subtract durations from dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: 2021-01-01T03:10:00Z`,
+		expression:     `.a -= "3h10m"`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2021-01-01T00:00:00Z\n",
+		},
+	},
+	{
+		description:    "Date subtraction - custom format",
+		subdescription: "Use with_dtf to specify your datetime format. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: Saturday, 15-Dec-01 at 6:00AM GMT`,
+		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a -= "3h1m")`,
+		expected: []string{
+			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 2:59AM GMT\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Date subtraction - custom format",
+		subdescription: "You can subtract durations from dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: !cat Saturday, 15-Dec-01 at 6:00AM GMT`,
+		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a -= "3h1m")`,
+		expected: []string{
+			"D0, P[], (doc)::a: !cat Saturday, 15-Dec-01 at 2:59AM GMT\n",
+		},
+	},
+	{
 		description:    "Custom types: that are really numbers",
 		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
 		document:       "a: !horse 2\nb: !goat 1",

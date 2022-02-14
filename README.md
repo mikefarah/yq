@@ -124,7 +124,6 @@ rm /etc/myfile.tmp
 ```
 
 ### Run with Docker or Podman
-
 #### Oneshot use:
 
 ```bash
@@ -194,7 +193,7 @@ Or, in your Dockerfile:
 FROM mikefarah/yq
 
 USER root
-RUN apk add bash
+RUN apk add --no-cache bash
 USER yq
 ```
 

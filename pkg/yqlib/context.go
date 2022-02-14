@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"time"
 
 	"github.com/jinzhu/copier"
 	logging "gopkg.in/op/go-logging.v1"
@@ -12,6 +13,7 @@ type Context struct {
 	MatchingNodes  *list.List
 	Variables      map[string]*list.List
 	DontAutoCreate bool
+	datetimeLayout string
 }
 
 func (n *Context) SingleReadonlyChildContext(candidate *CandidateNode) Context {
@@ -26,6 +28,17 @@ func (n *Context) SingleChildContext(candidate *CandidateNode) Context {
 	list := list.New()
 	list.PushBack(candidate)
 	return n.ChildContext(list)
+}
+
+func (n *Context) SetDateTimeLayout(newDateTimeLayout string) {
+	n.datetimeLayout = newDateTimeLayout
+}
+
+func (n *Context) GetDateTimeLayout() string {
+	if n.datetimeLayout != "" {
+		return n.datetimeLayout
+	}
+	return time.RFC3339
 }
 
 func (n *Context) GetVariable(name string) *list.List {
@@ -43,7 +56,7 @@ func (n *Context) SetVariable(name string, value *list.List) {
 }
 
 func (n *Context) ChildContext(results *list.List) Context {
-	clone := Context{DontAutoCreate: n.DontAutoCreate}
+	clone := Context{DontAutoCreate: n.DontAutoCreate, datetimeLayout: n.datetimeLayout}
 	clone.Variables = make(map[string]*list.List)
 	if len(n.Variables) > 0 {
 		err := copier.Copy(&clone.Variables, n.Variables)
