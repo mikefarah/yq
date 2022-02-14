@@ -5,16 +5,15 @@ Various operators for parsing and manipulating dates.
 ## Date time formattings
 This uses the golangs built in time library for parsing and formatting date times.
 
-When not specified, the RFC3339 standard is assumed `2006-01-02T15:04:05Z07:00`.
+When not specified, the RFC3339 standard is assumed `2006-01-02T15:04:05Z07:00` for parsing.
 
-To use a custom format, use the `with_dtformat` operator to set the formatting context. Expressions in the second parameter then assume that date format.
+To specify a custom parsing format, use the `with_dtf` operator. The first parameter sets the datetime parsing format for the expression in the second parameter. The expression can be any valid `yq` expression tree.
 
 ```bash
-yq 'with_dtformat("myformat"; .a + "3h" | tz("Australia/Melbourne"))'
+yq 'with_dtf("myformat"; .a + "3h" | tz("Australia/Melbourne"))'
 ```
 
-See https://pkg.go.dev/time#pkg-constants for more examples.
-
+See https://pkg.go.dev/time#pkg-constants for examples of formatting options.
 
 
 ## Timezones
@@ -49,7 +48,7 @@ a: Saturday, 15-Dec-01 at 2:59AM
 ```
 
 ## Format: from custom date time
-Use with_dtformat to set a custom datetime format for parsing.
+Use with_dtf to set a custom datetime format for parsing.
 
 Given a sample.yml file of:
 ```yaml
@@ -57,7 +56,7 @@ a: Saturday, 15-Dec-01 at 2:59AM
 ```
 then
 ```bash
-yq '.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM"; format_datetime("2006-01-02"))' sample.yml
+yq '.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM"; format_datetime("2006-01-02"))' sample.yml
 ```
 will output
 ```yaml
@@ -119,7 +118,7 @@ a: Saturday, 15-Dec-01 at 2:59AM GMT
 ```
 then
 ```bash
-yq '.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))' sample.yml
+yq '.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))' sample.yml
 ```
 will output
 ```yaml
@@ -135,7 +134,7 @@ a: Saturday, 15-Dec-01 at 2:59AM GMT
 ```
 then
 ```bash
-yq '.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))' sample.yml
+yq '.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))' sample.yml
 ```
 will output
 ```yaml
@@ -156,6 +155,22 @@ will output
 a: 2021-01-01T03:10:00Z
 ```
 
+## Date subtraction
+You can subtract durations from dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.
+
+Given a sample.yml file of:
+```yaml
+a: 2021-01-01T03:10:00Z
+```
+then
+```bash
+yq '.a -= "3h10m"' sample.yml
+```
+will output
+```yaml
+a: 2021-01-01T00:00:00Z
+```
+
 ## Date addition - custom format
 Given a sample.yml file of:
 ```yaml
@@ -163,10 +178,26 @@ a: Saturday, 15-Dec-01 at 2:59AM GMT
 ```
 then
 ```bash
-yq 'with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; .a += "3h1m")' sample.yml
+yq 'with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a += "3h1m")' sample.yml
 ```
 will output
 ```yaml
 a: Saturday, 15-Dec-01 at 6:00AM GMT
+```
+
+## Date script with custom format
+You can embed full expressions in with_dtf if needed.
+
+Given a sample.yml file of:
+```yaml
+a: Saturday, 15-Dec-01 at 2:59AM GMT
+```
+then
+```bash
+yq 'with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a = (.a + "3h1m" | tz("Australia/Perth")))' sample.yml
+```
+will output
+```yaml
+a: Saturday, 15-Dec-01 at 2:00PM AWST
 ```
 

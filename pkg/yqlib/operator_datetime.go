@@ -32,7 +32,7 @@ func withDateTimeFormat(d *dataTreeNavigator, context Context, expressionNode *E
 		return d.GetMatchingNodes(context, expressionNode.RHS.RHS)
 
 	}
-	return Context{}, errors.New(`must provide a date time format string and an expression, e.g. with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; <exp>)`)
+	return Context{}, errors.New(`must provide a date time format string and an expression, e.g. with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; <exp>)`)
 
 }
 

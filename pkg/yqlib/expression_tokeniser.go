@@ -327,7 +327,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`format_datetime`), opToken(formatDateTimeOpType))
 	lexer.Add([]byte(`now`), opToken(nowOpType))
 	lexer.Add([]byte(`tz`), opToken(tzOpType))
-	lexer.Add([]byte(`with_dtformat`), opToken(withDtFormatOpType))
+	lexer.Add([]byte(`with_dtf`), opToken(withDtFormatOpType))
 
 	lexer.Add([]byte(`toyaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 	lexer.Add([]byte(`to_yaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))

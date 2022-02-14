@@ -221,7 +221,7 @@ var addOperatorScenarios = []expressionScenario{
 		description:    "Date addition - custom format",
 		subdescription: "You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
-		expression:     `with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
+		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
 		expected: []string{
 			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 6:00AM GMT\n",
 		},
@@ -231,7 +231,7 @@ var addOperatorScenarios = []expressionScenario{
 		description:    "Date addition - custom format",
 		subdescription: "You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
 		document:       `a: !cat Saturday, 15-Dec-01 at 2:59AM GMT`,
-		expression:     `with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
+		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")`,
 		expected: []string{
 			"D0, P[], (doc)::a: !cat Saturday, 15-Dec-01 at 6:00AM GMT\n",
 		},

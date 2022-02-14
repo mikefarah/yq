@@ -231,7 +231,7 @@ a: Saturday, 15-Dec-01 at 2:59AM GMT
 ```
 then
 ```bash
-yq 'with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")' sample.yml
+yq 'with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a += "3h1m")' sample.yml
 ```
 will output
 ```yaml

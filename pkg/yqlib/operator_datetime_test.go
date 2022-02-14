@@ -16,9 +16,9 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Format: from custom date time",
-		subdescription: "Use with_dtformat to set a custom datetime format for parsing.",
+		subdescription: "Use with_dtf to set a custom datetime format for parsing.",
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM`,
-		expression:     `.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM"; format_datetime("2006-01-02"))`,
+		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM"; format_datetime("2006-01-02"))`,
 		expected: []string{
 			"D0, P[], (doc)::a: 2001-12-15\n",
 		},
@@ -53,7 +53,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		description:    "Timezone: with custom format",
 		subdescription: "Specify standard IANA Time Zone format or 'utc', 'local'",
 		document:       "a: Saturday, 15-Dec-01 at 2:59AM GMT",
-		expression:     `.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
+		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
 		expected: []string{
 			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
@@ -62,7 +62,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		description:    "Add and tz custom format",
 		subdescription: "Specify standard IANA Time Zone format or 'utc', 'local'",
 		document:       "a: Saturday, 15-Dec-01 at 2:59AM GMT",
-		expression:     `.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
+		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
 		expected: []string{
 			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
@@ -76,19 +76,36 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Date subtraction",
+		subdescription: "You can subtract durations from dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		document:       `a: 2021-01-01T03:10:00Z`,
+		expression:     `.a -= "3h10m"`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2021-01-01T00:00:00Z\n",
+		},
+	},
+	{
 		description: "Date addition - custom format",
 		document:    `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
-		expression:  `with_dtformat("Monday, 02-Jan-06 at 3:04PM MST"; .a += "3h1m")`,
+		expression:  `with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a += "3h1m")`,
 		expected: []string{
 			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 6:00AM GMT\n",
 		},
 	},
-
+	{
+		description:    "Date script with custom format",
+		subdescription: "You can embed full expressions in with_dtf if needed.",
+		document:       `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
+		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a = (.a + "3h1m" | tz("Australia/Perth")))`,
+		expected: []string{
+			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 2:00PM AWST\n",
+		},
+	},
 	{
 		description: "allow comma",
 		skipDoc:     true,
 		document:    "a: Saturday, 15-Dec-01 at 2:59AM GMT",
-		expression:  `.a |= with_dtformat("Monday, 02-Jan-06 at 3:04PM MST", tz("Australia/Sydney"))`,
+		expression:  `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST", tz("Australia/Sydney"))`,
 		expected: []string{
 			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
