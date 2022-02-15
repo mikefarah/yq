@@ -22,6 +22,7 @@
   * [Comment Operators](operators/comment-operators.md)
   * [Contains](operators/contains.md)
   * [Create, Collect into Object](operators/create-collect-into-object.md)
+  * [Date Time](operators/datetime.md)
   * [Delete](operators/delete.md)
   * [Document Index](operators/document-index.md)
   * [Encode / Decode](operators/encode-decode.md)

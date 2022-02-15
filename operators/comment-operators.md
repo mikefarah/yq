@@ -23,7 +23,7 @@ a: cat
 ```
 then
 ```bash
-yq '.a lineComment="single"' sample.yml
+yq '.a line_comment="single"' sample.yml
 ```
 will output
 ```yaml
@@ -38,7 +38,7 @@ b: dog
 ```
 then
 ```bash
-yq '.. lineComment |= .' sample.yml
+yq '.. line_comment |= .' sample.yml
 ```
 will output
 ```yaml
@@ -53,7 +53,7 @@ a: cat
 ```
 then
 ```bash
-yq '. headComment="single"' sample.yml
+yq '. head_comment="single"' sample.yml
 ```
 will output
 ```yaml
@@ -69,7 +69,7 @@ a: cat
 ```
 then
 ```bash
-yq '. footComment=.a' sample.yml
+yq '. foot_comment=.a' sample.yml
 ```
 will output
 ```yaml
@@ -86,7 +86,7 @@ b: dog # leave this
 ```
 then
 ```bash
-yq '.a lineComment=""' sample.yml
+yq '.a line_comment=""' sample.yml
 ```
 will output
 ```yaml
@@ -120,7 +120,7 @@ a: cat # meow
 ```
 then
 ```bash
-yq '.a | lineComment' sample.yml
+yq '.a | line_comment' sample.yml
 ```
 will output
 ```yaml
@@ -138,7 +138,7 @@ a: cat # meow
 ```
 then
 ```bash
-yq '. | headComment' sample.yml
+yq '. | head_comment' sample.yml
 ```
 will output
 ```yaml
@@ -157,7 +157,7 @@ a: cat # meow
 ```
 then
 ```bash
-yq 'headComment' sample.yml
+yq 'head_comment' sample.yml
 ```
 will output
 ```yaml
@@ -177,7 +177,7 @@ a: cat # meow
 ```
 then
 ```bash
-yq '. | footComment' sample.yml
+yq '. | foot_comment' sample.yml
 ```
 will output
 ```yaml

@@ -11,7 +11,7 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 ## Split empty
 Running
 ```bash
-yq --null-input 'splitDoc'
+yq --null-input 'split_doc'
 ```
 will output
 ```yaml
@@ -26,7 +26,7 @@ Given a sample.yml file of:
 ```
 then
 ```bash
-yq '.[] | splitDoc' sample.yml
+yq '.[] | split_doc' sample.yml
 ```
 will output
 ```yaml
