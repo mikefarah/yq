@@ -1,3 +1,12 @@
+4.20.1:
+  - New [Date Operators]((https://mikefarah.gitbook.io/yq/operators/datetime)) (now, tz, add and subtract durations from dates) 
+  - Can now decode property files!
+  - New flag to manually set expression if required
+  - ZSH completion bug fix (#1108) thanks @whi-tw
+  - Fixed SEGV error (#1096)
+  - Fixed Github actions issues (it pipes in /dev/null) for XML
+  - Fixed bug - handle expressions that match a directory (e.g. ".")
+
 4.19.1:
   - New [eval](https://mikefarah.gitbook.io/yq/operators/eval) _operator_ that allows dynamic expression evaluation (e.g. from a env variable) (#1087)
   - Adding new elements to array now automatically applies styling of existing elements (#722)

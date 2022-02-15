@@ -197,6 +197,18 @@ RUN apk add --no-cache bash
 USER yq
 ```
 
+#### Missing timezone data
+By default, the alpine image yq uses does not include timezone data. If you'd like to use the `tz` operator, you'll need to include this data:
+
+```
+FROM mikefarah/yq
+
+USER root
+RUN apk add --no-cache tzdata
+USER yq
+```
+
+
 ### GitHub Action
 ```
   - name: Set foobar to cool
