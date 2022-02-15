@@ -380,6 +380,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`load_xml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName)}))
 	lexer.Add([]byte(`loadxml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName)}))
 
+	lexer.Add([]byte(`load_props`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewPropertiesDecoder()}))
+	lexer.Add([]byte(`loadprops`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewPropertiesDecoder()}))
+
 	lexer.Add([]byte(`strload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))
 	lexer.Add([]byte(`load_str`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))
 	lexer.Add([]byte(`loadstr`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: true}))
