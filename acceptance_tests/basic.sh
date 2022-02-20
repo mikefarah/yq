@@ -62,11 +62,16 @@ testBasicEvalAllAllFiles() {
   assertEquals "$Y" "$X"
 }
 
+# when given a file, don't read STDIN
+# otherwise strange things start happening
+# in scripts
+# https://github.com/mikefarah/yq/issues/1115
+
 testBasicCatWithFilesNoDash() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
   X=$(cat test.yml | ./yq test2.yml)
-  Y=$(./yq e '.' test2.yml test.yml)
+  Y=$(./yq e '.' test2.yml)
   assertEquals "$Y" "$X"
 }
 
@@ -74,7 +79,7 @@ testBasicEvalAllCatWithFilesNoDash() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
   X=$(cat test.yml | ./yq ea test2.yml)
-  Y=$(./yq e '.' test2.yml test.yml)
+  Y=$(./yq e '.' test2.yml)
   assertEquals "$Y" "$X"
 }
 
@@ -82,7 +87,7 @@ testBasicCatWithFilesNoDashWithExp() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
   X=$(cat test.yml | ./yq '.a' test2.yml)
-  Y=$(./yq e '.a' test2.yml test.yml)
+  Y=$(./yq e '.a' test2.yml)
   assertEquals "$Y" "$X"
 }
 
@@ -90,7 +95,7 @@ testBasicEvalAllCatWithFilesNoDashWithExp() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
   X=$(cat test.yml | ./yq ea '.a' test2.yml)
-  Y=$(./yq e '.a' test2.yml test.yml)
+  Y=$(./yq e '.a' test2.yml)
   assertEquals "$Y" "$X"
 }
 

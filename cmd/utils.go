@@ -117,7 +117,11 @@ func maybeFile(str string) bool {
 }
 
 func processStdInArgs(pipingStdin bool, args []string) []string {
-	if !pipingStdin {
+	// if we've been given a file, don't automatically
+	// read from stdin.
+	// this happens if there is more than one argument
+	// or only one argument and its a file
+	if !pipingStdin || len(args) > 1 || (len(args) > 0 && maybeFile(args[0])) {
 		return args
 	}
 
