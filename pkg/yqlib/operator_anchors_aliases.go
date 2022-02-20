@@ -201,7 +201,7 @@ func explodeNode(node *yaml.Node, context Context) error {
 			node.Kind = node.Alias.Kind
 			node.Style = node.Alias.Style
 			node.Tag = node.Alias.Tag
-			node.Content = node.Alias.Content
+			node.Content = deepCloneContent(node.Alias.Content)
 			node.Value = node.Alias.Value
 			node.Alias = nil
 		}

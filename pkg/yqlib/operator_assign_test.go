@@ -29,6 +29,15 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "self reference",
+		document:    "a: cat",
+		expression:  `.a = [.a]`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    - cat\n",
+		},
+	},
+	{
 		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,

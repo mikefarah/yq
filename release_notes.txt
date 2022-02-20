@@ -1,3 +1,6 @@
+4.20.2:
+  - Fixed self assignment issue (#1107)
+
 4.20.1:
   - New [Date Operators]((https://mikefarah.gitbook.io/yq/operators/datetime)) (now, tz, add and subtract durations from dates) 
   - Can now decode property files!

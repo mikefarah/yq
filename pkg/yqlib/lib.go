@@ -245,7 +245,35 @@ func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 		return recurseNodeObjectEqual(lhs, rhs)
 	}
 	return false
+}
 
+func deepCloneContent(content []*yaml.Node) []*yaml.Node {
+	clonedContent := make([]*yaml.Node, len(content))
+	for i, child := range content {
+		clonedContent[i] = deepClone(child)
+	}
+	return clonedContent
+}
+
+func deepClone(node *yaml.Node) *yaml.Node {
+	if node == nil {
+		return nil
+	}
+	clonedContent := deepCloneContent(node.Content)
+	return &yaml.Node{
+		Content:     clonedContent,
+		Kind:        node.Kind,
+		Style:       node.Style,
+		Tag:         node.Tag,
+		Value:       node.Value,
+		Anchor:      node.Anchor,
+		Alias:       deepClone(node.Alias),
+		HeadComment: node.HeadComment,
+		LineComment: node.LineComment,
+		FootComment: node.FootComment,
+		Line:        node.Line,
+		Column:      node.Column,
+	}
 }
 
 // yaml numbers can be hex encoded...

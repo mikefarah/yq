@@ -116,15 +116,24 @@ func (n *CandidateNode) Copy() (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
+	clone.Node = deepClone(n.Node)
 	return clone, nil
 }
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences) {
 
-	n.UpdateAttributesFrom(other, prefs)
-	n.Node.Content = other.Node.Content
+	// if this is an empty map or empty array, use the style of other node.
+	if n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0 {
+		n.Node.Style = other.Node.Style
+	}
+
+	n.Node.Content = deepCloneContent(other.Node.Content)
+	n.Node.Kind = other.Node.Kind
 	n.Node.Value = other.Node.Value
+
+	n.UpdateAttributesFrom(other, prefs)
+
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
@@ -150,10 +159,8 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes
-	//
-	// if this is an empty map or empty array, use the style of other node.
 
-	if n.Node.Style == 0 || (n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0) {
+	if n.Node.Style == 0 {
 		n.Node.Style = other.Node.Style
 	}
 
