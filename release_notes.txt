@@ -1,5 +1,8 @@
 4.20.2:
   - Fixed self assignment issue (#1107)
+  - Fixed bad capture groups with multiple matches (#1114)
+  - No longer auto-read from STDIN if there are files given (#1115)
+  - Added missing load_props operator
 
 4.20.1:
   - New [Date Operators]((https://mikefarah.gitbook.io/yq/operators/datetime)) (now, tz, add and subtract durations from dates) 
