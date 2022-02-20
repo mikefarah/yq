@@ -136,19 +136,19 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 	}
 
 	for i, matches := range allMatches {
-		capturesNode := &yaml.Node{Kind: yaml.SequenceNode}
+		capturesListNode := &yaml.Node{Kind: yaml.SequenceNode}
 		match, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
 			captureNode := &yaml.Node{Kind: yaml.MappingNode}
-			captureNode.Content = addMatch(capturesNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1])
-			capturesNode.Content = append(capturesNode.Content, captureNode)
+			captureNode.Content = addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1])
+			capturesListNode.Content = append(capturesListNode.Content, captureNode)
 		}
 
 		node := &yaml.Node{Kind: yaml.MappingNode}
 		node.Content = addMatch(node.Content, match, allIndices[i][0], "")
 		node.Content = append(node.Content,
 			createScalarNode("captures", "captures"),
-			capturesNode,
+			capturesListNode,
 		)
 		results.PushBack(candidate.CreateReplacement(node))
 

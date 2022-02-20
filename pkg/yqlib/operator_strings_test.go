@@ -30,11 +30,11 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Match with capture groups",
+		description: "Match with global capture group",
 		document:    `abc abc`,
-		expression:  `[match("(abc)+"; "g")]`,
+		expression:  `[match("(ab)(c)"; "g")]`,
 		expected: []string{
-			"D0, P[], (!!seq)::- string: abc\n  offset: 0\n  length: 3\n  captures:\n    - string: abc\n      offset: 0\n      length: 3\n- string: abc\n  offset: 4\n  length: 3\n  captures:\n    - string: abc\n      offset: 4\n      length: 3\n",
+			"D0, P[], (!!seq)::- string: abc\n  offset: 0\n  length: 3\n  captures:\n    - string: ab\n      offset: 0\n      length: 2\n    - string: c\n      offset: 2\n      length: 1\n- string: abc\n  offset: 4\n  length: 3\n  captures:\n    - string: ab\n      offset: 4\n      length: 2\n    - string: c\n      offset: 6\n      length: 1\n",
 		},
 	},
 	{

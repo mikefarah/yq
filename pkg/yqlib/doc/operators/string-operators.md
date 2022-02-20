@@ -105,14 +105,14 @@ will output
   captures: []
 ```
 
-## Match with capture groups
+## Match with global capture group
 Given a sample.yml file of:
 ```yaml
 abc abc
 ```
 then
 ```bash
-yq '[match("(abc)+"; "g")]' sample.yml
+yq '[match("(ab)(c)"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -120,16 +120,22 @@ will output
   offset: 0
   length: 3
   captures:
-    - string: abc
+    - string: ab
       offset: 0
-      length: 3
+      length: 2
+    - string: c
+      offset: 2
+      length: 1
 - string: abc
   offset: 4
   length: 3
   captures:
-    - string: abc
+    - string: ab
       offset: 4
-      length: 3
+      length: 2
+    - string: c
+      offset: 6
+      length: 1
 ```
 
 ## Match with named capture groups
