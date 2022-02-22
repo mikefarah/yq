@@ -49,6 +49,38 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 `yq e <exp> <file>`
 {% endhint %}
 
+## To up (upper) case
+Works with unicode characters
+
+Given a sample.yml file of:
+```yaml
+água
+```
+then
+```bash
+yq 'upcase' sample.yml
+```
+will output
+```yaml
+ÁGUA
+```
+
+## To down (lower) case
+Works with unicode characters
+
+Given a sample.yml file of:
+```yaml
+ÁgUA
+```
+then
+```bash
+yq 'downcase' sample.yml
+```
+will output
+```yaml
+água
+```
+
 ## Join strings
 Given a sample.yml file of:
 ```yaml

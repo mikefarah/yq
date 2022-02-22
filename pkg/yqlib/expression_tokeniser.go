@@ -414,6 +414,12 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`capture`), opToken(captureOpType))
 	lexer.Add([]byte(`test`), opToken(testOpType))
 
+	lexer.Add([]byte(`upcase`), opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: true}))
+	lexer.Add([]byte(`ascii_upcase`), opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: true}))
+
+	lexer.Add([]byte(`downcase`), opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: false}))
+	lexer.Add([]byte(`ascii_downcase`), opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: false}))
+
 	lexer.Add([]byte(`sort`), opToken(sortOpType))
 	lexer.Add([]byte(`sort_by`), opToken(sortByOpType))
 	lexer.Add([]byte(`reverse`), opToken(reverseOpType))

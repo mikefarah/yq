@@ -125,13 +125,16 @@ var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, 
 var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 50, Handler: sortByOperator}
 var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 50, Handler: reverseOperator}
 var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 50, Handler: sortOperator}
+
 var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: sortKeysOperator}
+
 var joinStringOpType = &operationType{Type: "JOIN", NumArgs: 1, Precedence: 50, Handler: joinStringOperator}
 var subStringOpType = &operationType{Type: "SUBSTR", NumArgs: 1, Precedence: 50, Handler: substituteStringOperator}
 var matchOpType = &operationType{Type: "MATCH", NumArgs: 1, Precedence: 50, Handler: matchOperator}
 var captureOpType = &operationType{Type: "CAPTURE", NumArgs: 1, Precedence: 50, Handler: captureOperator}
 var testOpType = &operationType{Type: "TEST", NumArgs: 1, Precedence: 50, Handler: testOperator}
 var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
+var changeCaseOpType = &operationType{Type: "CHANGE_CASE", NumArgs: 0, Precedence: 50, Handler: changeCaseOperator}
 
 var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 50, Handler: loadYamlOperator}
 

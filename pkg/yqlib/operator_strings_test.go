@@ -6,6 +6,40 @@ import (
 
 var stringsOperatorScenarios = []expressionScenario{
 	{
+		description:    "To up (upper) case",
+		subdescription: "Works with unicode characters",
+		document:       `água`,
+		expression:     "upcase",
+		expected: []string{
+			"D0, P[], (!!str)::ÁGUA\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `!camel água`,
+		expression: "upcase",
+		expected: []string{
+			"D0, P[], (!camel)::ÁGUA\n",
+		},
+	},
+	{
+		description:    "To down (lower) case",
+		subdescription: "Works with unicode characters",
+		document:       `ÁgUA`,
+		expression:     "downcase",
+		expected: []string{
+			"D0, P[], (!!str)::água\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `!camel ÁgUA`,
+		expression: "downcase",
+		expected: []string{
+			"D0, P[], (!camel)::água\n",
+		},
+	},
+	{
 		description: "Join strings",
 		document:    `[cat, meow, 1, null, true]`,
 		expression:  `join("; ")`,
