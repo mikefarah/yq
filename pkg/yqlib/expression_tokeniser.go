@@ -416,6 +416,7 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`sort`), opToken(sortOpType))
 	lexer.Add([]byte(`sort_by`), opToken(sortByOpType))
+	lexer.Add([]byte(`reverse`), opToken(reverseOpType))
 
 	lexer.Add([]byte(`any`), opToken(anyOpType))
 	lexer.Add([]byte(`any_c`), opToken(anyConditionOpType))

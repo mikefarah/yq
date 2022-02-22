@@ -12,6 +12,15 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Sort descending by string field",
+		subdescription: "Use sort with reverse to sort in descending order.",
+		document:       "[{a: banana},{a: cat},{a: apple}]",
+		expression:     `sort_by(.a) | reverse`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: cat}, {a: banana}, {a: apple}]\n",
+		},
+	},
+	{
 		description: "Sort array in place",
 		document:    "cool: [{a: banana},{a: cat},{a: apple}]",
 		expression:  `.cool |= sort_by(.a)`,
