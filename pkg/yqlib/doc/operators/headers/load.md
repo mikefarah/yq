@@ -12,6 +12,7 @@ You can load files of the following supported types:
 | XML | load_xml |
 | Properties | load_props |
 | Plain String | load_str |
+| Base64 | load_base64 |
 
 ## Samples files for tests:
 
