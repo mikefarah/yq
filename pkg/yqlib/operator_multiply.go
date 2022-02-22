@@ -80,17 +80,12 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 
 func multiplyScalars(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhsTag := lhs.Node.Tag
-	rhsTag := rhs.Node.Tag
+	rhsTag := guessTagFromCustomType(rhs.Node)
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
 		lhsTag = guessTagFromCustomType(lhs.Node)
 		lhsIsCustom = true
-	}
-
-	if !strings.HasPrefix(rhsTag, "!!") {
-		// custom tag - we have to have a guess
-		rhsTag = guessTagFromCustomType(rhs.Node)
 	}
 
 	if lhsTag == "!!int" && rhsTag == "!!int" {

@@ -79,38 +79,14 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	return target, nil
 }
 
-func guessTagFromCustomType(node *yaml.Node) string {
-	if node.Value == "" {
-		log.Warning("node has no value to guess the type with")
-		return node.Tag
-	}
-
-	decoder := NewYamlDecoder()
-	decoder.Init(strings.NewReader(node.Value))
-	var dataBucket yaml.Node
-	errorReading := decoder.Decode(&dataBucket)
-	if errorReading != nil {
-		log.Warning("could not guess underlying tag type %v", errorReading)
-		return node.Tag
-	}
-	guessedTag := unwrapDoc(&dataBucket).Tag
-	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
-	return guessedTag
-}
-
 func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
 	lhsTag := lhs.Tag
-	rhsTag := rhs.Tag
+	rhsTag := guessTagFromCustomType(rhs)
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
 		lhsTag = guessTagFromCustomType(lhs)
 		lhsIsCustom = true
-	}
-
-	if !strings.HasPrefix(rhsTag, "!!") {
-		// custom tag - we have to have a guess
-		rhsTag = guessTagFromCustomType(rhs)
 	}
 
 	isDateTime := lhs.Tag == "!!timestamp"

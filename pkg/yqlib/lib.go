@@ -209,6 +209,27 @@ func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	return true
 }
 
+func guessTagFromCustomType(node *yaml.Node) string {
+	if strings.HasPrefix(node.Tag, "!!") {
+		return node.Tag
+	} else if node.Value == "" {
+		log.Warning("node has no value to guess the type with")
+		return node.Tag
+	}
+
+	decoder := NewYamlDecoder()
+	decoder.Init(strings.NewReader(node.Value))
+	var dataBucket yaml.Node
+	errorReading := decoder.Decode(&dataBucket)
+	if errorReading != nil {
+		log.Warning("could not guess underlying tag type %v", errorReading)
+		return node.Tag
+	}
+	guessedTag := unwrapDoc(&dataBucket).Tag
+	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
+	return guessedTag
+}
+
 func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	if lhs.Kind != rhs.Kind {
 		return false
@@ -218,17 +239,8 @@ func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 		//process custom tags of scalar nodes.
 		//dont worry about matching tags of maps or arrays.
 
-		lhsTag := lhs.Tag
-		rhsTag := rhs.Tag
-		if !strings.HasPrefix(lhsTag, "!!") {
-			// custom tag - we have to have a guess
-			lhsTag = guessTagFromCustomType(lhs)
-		}
-
-		if !strings.HasPrefix(rhsTag, "!!") {
-			// custom tag - we have to have a guess
-			rhsTag = guessTagFromCustomType(rhs)
-		}
+		lhsTag := guessTagFromCustomType(lhs)
+		rhsTag := guessTagFromCustomType(rhs)
 
 		if lhsTag != rhsTag {
 			return false

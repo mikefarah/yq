@@ -14,9 +14,25 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `[!horse cat, !goat meow, !frog 1, null, true]`,
+		expression: `join("; ")`,
+		expected: []string{
+			"D0, P[], (!!str)::cat; meow; 1; ; true\n",
+		},
+	},
+	{
 		description: "Match string",
 		document:    `foo bar foo`,
 		expression:  `match("foo")`,
+		expected: []string{
+			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `!horse foo bar foo`,
+		expression: `match("foo")`,
 		expected: []string{
 			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
 		},
@@ -54,6 +70,14 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `!horse xyzzy-14`,
+		expression: `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")`,
+		expected: []string{
+			"D0, P[], ()::a: xyzzy\nn: \"14\"\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Capture named groups into a map, with null",
 		document:    `xyzzy-14`,
@@ -74,6 +98,14 @@ var stringsOperatorScenarios = []expressionScenario{
 		description: "Match with global flag",
 		document:    `cat cat`,
 		expression:  `[match("cat"; "g")]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- string: cat\n  offset: 0\n  length: 3\n  captures: []\n- string: cat\n  offset: 4\n  length: 3\n  captures: []\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `!horse cat cat`,
+		expression: `[match("cat"; "g")]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- string: cat\n  offset: 0\n  length: 3\n  captures: []\n- string: cat\n  offset: 4\n  length: 3\n  captures: []\n",
 		},
@@ -109,6 +141,15 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `[!horse "cat", !cat "dog"]`,
+		expression: `.[] | test("at")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `["cat*", "cat*", "cat"]`,
 		expression: `.[] | test("cat\*")`,
 		expected: []string{
@@ -136,6 +177,15 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Custom types: that are really strings",
+		subdescription: "When custom tags are encountered, yq will try to decode the underlying type.",
+		document:       "a: !horse cat\nb: !goat heat",
+		expression:     `.[] |= sub("(a)", "${1}r")`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse cart\nb: !goat heart\n",
+		},
+	},
+	{
 		description: "Split strings",
 		document:    `"cat; meow; 1; ; true"`,
 		expression:  `split("; ")`,
@@ -147,6 +197,14 @@ var stringsOperatorScenarios = []expressionScenario{
 		description: "Split strings one match",
 		document:    `"word"`,
 		expression:  `split("; ")`,
+		expected: []string{
+			"D0, P[], (!!seq)::- word\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `!horse "word"`,
+		expression: `split("; ")`,
 		expected: []string{
 			"D0, P[], (!!seq)::- word\n",
 		},

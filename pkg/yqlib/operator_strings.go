@@ -61,7 +61,8 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
-		if node.Tag != "!!str" {
+
+		if guessTagFromCustomType(node) != "!!str" {
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
@@ -247,7 +248,8 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
-		if node.Tag != "!!str" {
+
+		if guessTagFromCustomType(node) != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
@@ -268,7 +270,8 @@ func captureOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
-		if node.Tag != "!!str" {
+
+		if guessTagFromCustomType(node) != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 		capture(matchPrefs, regEx, candidate, node.Value, results)
@@ -289,7 +292,8 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		node := unwrapDoc(candidate.Node)
-		if node.Tag != "!!str" {
+
+		if guessTagFromCustomType(node) != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 		matches := regEx.FindStringSubmatch(node.Value)
@@ -361,7 +365,8 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 		if node.Tag == "!!null" {
 			continue
 		}
-		if node.Tag != "!!str" {
+
+		if guessTagFromCustomType(node) != "!!str" {
 			return Context{}, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
 		}
 		targetNode := split(node.Value, splitStr)

@@ -274,6 +274,24 @@ a: cart
 b: heart
 ```
 
+## Custom types: that are really strings
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse cat
+b: !goat heat
+```
+then
+```bash
+yq '.[] |= sub("(a)", "${1}r")' sample.yml
+```
+will output
+```yaml
+a: !horse cart
+b: !goat heart
+```
+
 ## Split strings
 Given a sample.yml file of:
 ```yaml
