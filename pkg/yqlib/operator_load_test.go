@@ -65,6 +65,14 @@ var loadScenarios = []expressionScenario{
 			"D0, P[], (!!map)::this:\n    is: a properties file\n    cool: ay\n",
 		},
 	},
+	{
+		description: "Load from base64 encoded file",
+		document:    "cool: things",
+		expression:  `.more_stuff = load_base64("../../examples/base64.txt")`,
+		expected: []string{
+			"D0, P[], (doc)::cool: things\nmore_stuff: my secret chilli recipe is....\n",
+		},
+	},
 }
 
 func TestLoadScenarios(t *testing.T) {

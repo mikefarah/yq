@@ -13,20 +13,33 @@ You can load files of the following supported types:
 | Properties | load_props |
 | Plain String | load_str |
 
-Lets say there is a file `../../examples/thing.yml`:
+## Samples files for tests:
+
+### yaml
+
+`../../examples/thing.yml`:
 
 ```yaml
 a: apple is included
 b: cool
 ```
-and a file `small.xml`:
+
+### xml
+`small.xml`:
 
 ```xml
 <this>is some xml</this>
 ```
 
-and `small.properties`:
+### properties
+`small.properties`:
 
 ```properties
 this.is = a properties file
+```
+
+### base64
+`base64.txt`:
+```
+bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ```
