@@ -26,6 +26,7 @@ const (
 	CSVOutputFormat
 	TSVOutputFormat
 	XMLOutputFormat
+	Base64OutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {

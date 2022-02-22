@@ -24,6 +24,8 @@ func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 		return NewYamlEncoder(indent, false, true, true)
 	case XMLOutputFormat:
 		return NewXMLEncoder(indent, XMLPreferences.AttributePrefix, XMLPreferences.ContentName)
+	case Base64OutputFormat:
+		return NewBase64Encoder()
 	}
 	panic("invalid encoder")
 }
@@ -103,6 +105,8 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		decoder = NewYamlDecoder()
 	case XMLInputFormat:
 		decoder = NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName)
+	case Base64InputFormat:
+		decoder = NewBase64Decoder()
 	}
 
 	var results = list.New()

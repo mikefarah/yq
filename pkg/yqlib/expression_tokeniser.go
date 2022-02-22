@@ -363,6 +363,9 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`to_xml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: XMLOutputFormat, indent: 2}))
 	lexer.Add([]byte(`@xml`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: XMLOutputFormat, indent: 0}))
 
+	lexer.Add([]byte(`@base64`), opTokenWithPrefs(encodeOpType, nil, encoderPreferences{format: Base64OutputFormat}))
+	lexer.Add([]byte(`@base64d`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: Base64InputFormat}))
+
 	lexer.Add([]byte(`fromyaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromjson`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromxml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XMLInputFormat}))

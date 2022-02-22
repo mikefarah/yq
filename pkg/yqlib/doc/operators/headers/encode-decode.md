@@ -15,9 +15,12 @@ These operators are useful to process yaml documents that have stringified embed
 | CSV |  | to_csv/@csv |
 | TSV |  | to_tsv/@tsv |
 | XML | from_xml | to_xml(i)/@xml |
+| Base64 | @base64d | @base64 |
 
 
 CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
 
 XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 
+
+Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Encoding and decoding both assume that the content is a string.

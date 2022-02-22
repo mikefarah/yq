@@ -13,6 +13,7 @@ const (
 	YamlInputFormat = 1 << iota
 	XMLInputFormat
 	PropertiesInputFormat
+	Base64InputFormat
 )
 
 type Decoder interface {

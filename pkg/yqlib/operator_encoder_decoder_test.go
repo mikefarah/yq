@@ -200,6 +200,41 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: \"<foo>bar</foo>\"\nb:\n    foo: bar\n",
 		},
 	},
+	{
+		description: "Encode a string to base64",
+		document:    "coolData: a special string",
+		expression:  ".coolData | @base64",
+		expected: []string{
+			"D0, P[coolData], (!!str)::YSBzcGVjaWFsIHN0cmluZw==\n",
+		},
+	},
+	{
+		description:    "Encode a yaml document to base64",
+		subdescription: "Pipe through @yaml first to convert to a string, then use @base64 to encode it.",
+		document:       "a: apple",
+		expression:     "@yaml | @base64",
+		expected: []string{
+			"D0, P[], (!!str)::YTogYXBwbGUK\n",
+		},
+	},
+	{
+		description:    "Decode a base64 encoded string",
+		subdescription: "Decoded data is assumed to be a string.",
+		document:       "coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J+Yig==",
+		expression:     ".coolData | @base64d",
+		expected: []string{
+			"D0, P[coolData], (!!str)::Works with UTF-16 😊\n",
+		},
+	},
+	{
+		description:    "Decode a base64 encoded yaml document",
+		subdescription: "Pipe through `from_yaml` to parse the decoded base64 string as a yaml document.",
+		document:       "coolData: YTogYXBwbGUK",
+		expression:     ".coolData |= (@base64d | from_yaml)",
+		expected: []string{
+			"D0, P[], (doc)::coolData:\n    a: apple\n",
+		},
+	},
 }
 
 func TestEncoderDecoderOperatorScenarios(t *testing.T) {
