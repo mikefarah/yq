@@ -38,6 +38,33 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "change to number when old value is valid number",
+		document:    `a: "3"`,
+		expression:  `.a = 3`,
+		expected: []string{
+			"D0, P[], (doc)::a: 3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "change to bool when old value is valid bool",
+		document:    `a: "true"`,
+		expression:  `.a = true`,
+		expected: []string{
+			"D0, P[], (doc)::a: true\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "update custom tag string, dont clobber style",
+		document:    `a: !cat "meow"`,
+		expression:  `.a = "woof"`,
+		expected: []string{
+			"D0, P[], (doc)::a: !cat \"woof\"\n",
+		},
+	},
+	{
 		description: "Update node to be the child value",
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,

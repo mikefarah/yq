@@ -124,7 +124,9 @@ func (n *CandidateNode) Copy() (*CandidateNode, error) {
 func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences) {
 
 	// if this is an empty map or empty array, use the style of other node.
-	if n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0 {
+	if (n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0) ||
+		// if the tag has changed (e.g. from str to bool)
+		(guessTagFromCustomType(n.Node) != guessTagFromCustomType(other.Node)) {
 		n.Node.Style = other.Node.Style
 	}
 
