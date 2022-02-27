@@ -1,7 +1,7 @@
 4.21.1:
   - Added [reverse](https://mikefarah.gitbook.io/yq/operators/reverse) operator
   - Added [string case](https://mikefarah.gitbook.io/yq/operators/string-operators) operators
-  - Added [base64 support](https://mikefarah.gitbook.io/yq/usage/base64)
+  - Added [base64 support](https://mikefarah.gitbook.io/yq/operators/encode-decode)
   - Added [line](https://mikefarah.gitbook.io/yq/operators/line)  and [column](https://mikefarah.gitbook.io/yq/operators/column) operators
   - Bumped dependency versions
 
