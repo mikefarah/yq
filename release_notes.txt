@@ -1,3 +1,10 @@
+4.21.1:
+  - Added [reverse](https://mikefarah.gitbook.io/yq/operators/reverse) operator
+  - Added [string case](https://mikefarah.gitbook.io/yq/operators/string-operators) operators
+  - Added [base64 support](https://mikefarah.gitbook.io/yq/usage/base64)
+  - Added [line](https://mikefarah.gitbook.io/yq/operators/line)  and [column](https://mikefarah.gitbook.io/yq/operators/column) operators
+  - Bumped dependency versions
+
 4.20.2:
   - Fixed self assignment issue (#1107)
   - Fixed bad capture groups with multiple matches (#1114)
@@ -5,7 +12,7 @@
   - Added missing load_props operator
 
 4.20.1:
-  - New [Date Operators]((https://mikefarah.gitbook.io/yq/operators/datetime)) (now, tz, add and subtract durations from dates) 
+  - New [Date Operators](https://mikefarah.gitbook.io/yq/operators/datetime) (now, tz, add and subtract durations from dates) 
   - Can now decode property files!
   - New flag to manually set expression if required
   - ZSH completion bug fix (#1108) thanks @whi-tw
