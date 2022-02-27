@@ -49,6 +49,38 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 `yq e <exp> <file>`
 {% endhint %}
 
+## To up (upper) case
+Works with unicode characters
+
+Given a sample.yml file of:
+```yaml
+água
+```
+then
+```bash
+yq 'upcase' sample.yml
+```
+will output
+```yaml
+ÁGUA
+```
+
+## To down (lower) case
+Works with unicode characters
+
+Given a sample.yml file of:
+```yaml
+ÁgUA
+```
+then
+```bash
+yq 'downcase' sample.yml
+```
+will output
+```yaml
+água
+```
+
 ## Join strings
 Given a sample.yml file of:
 ```yaml
@@ -105,14 +137,14 @@ will output
   captures: []
 ```
 
-## Match with capture groups
+## Match with global capture group
 Given a sample.yml file of:
 ```yaml
 abc abc
 ```
 then
 ```bash
-yq '[match("(abc)+"; "g")]' sample.yml
+yq '[match("(ab)(c)"; "g")]' sample.yml
 ```
 will output
 ```yaml
@@ -120,16 +152,22 @@ will output
   offset: 0
   length: 3
   captures:
-    - string: abc
+    - string: ab
       offset: 0
-      length: 3
+      length: 2
+    - string: c
+      offset: 2
+      length: 1
 - string: abc
   offset: 4
   length: 3
   captures:
-    - string: abc
+    - string: ab
       offset: 4
-      length: 3
+      length: 2
+    - string: c
+      offset: 6
+      length: 1
 ```
 
 ## Match with named capture groups
@@ -266,6 +304,24 @@ will output
 ```yaml
 a: cart
 b: heart
+```
+
+## Custom types: that are really strings
+When custom tags are encountered, yq will try to decode the underlying type.
+
+Given a sample.yml file of:
+```yaml
+a: !horse cat
+b: !goat heat
+```
+then
+```bash
+yq '.[] |= sub("(a)", "${1}r")' sample.yml
+```
+will output
+```yaml
+a: !horse cart
+b: !goat heart
 ```
 
 ## Split strings

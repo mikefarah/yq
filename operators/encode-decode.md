@@ -15,12 +15,15 @@ These operators are useful to process yaml documents that have stringified embed
 | CSV |  | to_csv/@csv |
 | TSV |  | to_tsv/@tsv |
 | XML | from_xml | to_xml(i)/@xml |
+| Base64 | @base64d | @base64 |
 
 
 CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
 
 XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 
+
+Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Encoding and decoding both assume that the content is a string.
 
 {% hint style="warning" %}
 Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
@@ -352,5 +355,68 @@ will output
 a: <foo>bar</foo>
 b:
   foo: bar
+```
+
+## Encode a string to base64
+Given a sample.yml file of:
+```yaml
+coolData: a special string
+```
+then
+```bash
+yq '.coolData | @base64' sample.yml
+```
+will output
+```yaml
+YSBzcGVjaWFsIHN0cmluZw==
+```
+
+## Encode a yaml document to base64
+Pipe through @yaml first to convert to a string, then use @base64 to encode it.
+
+Given a sample.yml file of:
+```yaml
+a: apple
+```
+then
+```bash
+yq '@yaml | @base64' sample.yml
+```
+will output
+```yaml
+YTogYXBwbGUK
+```
+
+## Decode a base64 encoded string
+Decoded data is assumed to be a string.
+
+Given a sample.yml file of:
+```yaml
+coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J+Yig==
+```
+then
+```bash
+yq '.coolData | @base64d' sample.yml
+```
+will output
+```yaml
+Works with UTF-16 😊
+```
+
+## Decode a base64 encoded yaml document
+Pipe through `from_yaml` to parse the decoded base64 string as a yaml document.
+
+Given a sample.yml file of:
+```yaml
+coolData: YTogYXBwbGUK
+```
+then
+```bash
+yq '.coolData |= (@base64d | from_yaml)' sample.yml
+```
+will output
+```yaml
+coolData:
+  a: apple
 ```
 

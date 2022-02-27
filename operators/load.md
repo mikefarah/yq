@@ -1,16 +1,48 @@
 # Load
 
-The `load`/`strload` operator allows you to load in content from another file referenced in your yaml document.
+The load operators allows you to load in content from another file.
 
 Note that you can use string operators like `+` and `sub` to modify the value in the yaml file to a path that exists in your system.
 
-Use `strload` to load text based content as a string block, and `load` to interpret the file as yaml.
+You can load files of the following supported types:
 
-Lets say there is a file `../../examples/thing.yml`:
+|Format | Load Operator |
+| --- | --- |
+| Yaml | load |
+| XML | load_xml |
+| Properties | load_props |
+| Plain String | load_str |
+| Base64 | load_base64 |
+
+## Samples files for tests:
+
+### yaml
+
+`../../examples/thing.yml`:
 
 ```yaml
 a: apple is included
 b: cool
+```
+
+### xml
+`small.xml`:
+
+```xml
+<this>is some xml</this>
+```
+
+### properties
+`small.properties`:
+
+```properties
+this.is = a properties file
+```
+
+### base64
+`base64.txt`:
+```
+bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ```
 
 {% hint style="warning" %}
@@ -89,12 +121,80 @@ something:
 ```
 then
 ```bash
-yq '.something |= strload("../../examples/" + .file)' sample.yml
+yq '.something |= load_str("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
 something: |-
   a: apple is included
   b: cool.
+```
+
+## Load from XML
+Given a sample.yml file of:
+```yaml
+cool: things
+```
+then
+```bash
+yq '.more_stuff = load_xml("../../examples/small.xml")' sample.yml
+```
+will output
+```yaml
+cool: things
+more_stuff:
+  this: is some xml
+```
+
+## Load from Properties
+Given a sample.yml file of:
+```yaml
+cool: things
+```
+then
+```bash
+yq '.more_stuff = load_props("../../examples/small.properties")' sample.yml
+```
+will output
+```yaml
+cool: things
+more_stuff:
+  this:
+    is: a properties file
+```
+
+## Merge from properties
+This can be used as a convenient way to update a yaml document
+
+Given a sample.yml file of:
+```yaml
+this:
+  is: from yaml
+  cool: ay
+```
+then
+```bash
+yq '. *= load_props("../../examples/small.properties")' sample.yml
+```
+will output
+```yaml
+this:
+  is: a properties file
+  cool: ay
+```
+
+## Load from base64 encoded file
+Given a sample.yml file of:
+```yaml
+cool: things
+```
+then
+```bash
+yq '.more_stuff = load_base64("../../examples/base64.txt")' sample.yml
+```
+will output
+```yaml
+cool: things
+more_stuff: my secret chilli recipe is....
 ```
 
