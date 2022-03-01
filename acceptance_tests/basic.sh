@@ -3,6 +3,7 @@
 setUp() {
   rm test*.yml 2>/dev/null || true
   rm .xyz 2>/dev/null || true
+  rm instructions.txt 2>/dev/null || true
 }
 
 testBasicEvalRoundTrip() {
@@ -26,7 +27,17 @@ testBasicExpressionMatchesFileName() {
 
   X=$(./yq ea --expression '.xyz' test.yml)
   assertEquals "123" "$X"
+}
 
+testBasicExpressionFromFile() {
+  ./yq -n ".xyz = 123" > test.yml
+  echo '.xyz = "meow" | .cool = "frog"' > instructions.txt
+  
+  X=$(./yq --from-file instructions.txt test.yml -o=j -I=0)
+  assertEquals '{"xyz":"meow","cool":"frog"}' "$X"
+
+  X=$(./yq ea --from-file instructions.txt test.yml -o=j -I=0)
+  assertEquals '{"xyz":"meow","cool":"frog"}' "$X"
 }
 
 testBasicGitHubAction() {

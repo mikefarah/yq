@@ -126,7 +126,10 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 
 	allAtOnceEvaluator := yqlib.NewAllAtOnceEvaluator()
 
-	expression, args := processArgs(pipingStdIn, args)
+	expression, args, err := processArgs(pipingStdIn, args)
+	if err != nil {
+		return err
+	}
 	yqlib.GetLogger().Debugf("processed args: %v", args)
 
 	switch len(args) {

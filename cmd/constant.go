@@ -30,3 +30,5 @@ var splitFileExp = ""
 var completedSuccessfully = false
 
 var forceExpression = ""
+
+var expressionFile = ""

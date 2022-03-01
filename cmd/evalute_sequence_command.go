@@ -143,7 +143,10 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 		}
 		defer frontMatterHandler.CleanUp()
 	}
-	expression, args := processArgs(pipingStdIn, args)
+	expression, args, err := processArgs(pipingStdIn, args)
+	if err != nil {
+		return err
+	}
 
 	switch len(args) {
 	case 0:

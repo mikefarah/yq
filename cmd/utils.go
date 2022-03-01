@@ -137,14 +137,22 @@ func processStdInArgs(pipingStdin bool, args []string) []string {
 	return append(args, "-")
 }
 
-func processArgs(pipingStdin bool, originalArgs []string) (string, []string) {
+func processArgs(pipingStdin bool, originalArgs []string) (string, []string, error) {
+	expression := forceExpression
+	if expressionFile != "" {
+		expressionBytes, err := os.ReadFile(expressionFile)
+		if err != nil {
+			return "", nil, err
+		}
+		expression = string(expressionBytes)
+	}
+
 	args := processStdInArgs(pipingStdin, originalArgs)
 	yqlib.GetLogger().Debugf("processed args: %v", args)
-	expression := forceExpression
 	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
 		yqlib.GetLogger().Debug("assuming expression is '%v'", args[0])
 		expression = args[0]
 		args = args[1:]
 	}
-	return expression, args
+	return expression, args, nil
 }
