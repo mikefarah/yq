@@ -84,6 +84,13 @@ var propertyScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "does not expand automatically",
+		skipDoc:      true,
+		input:        "mike = ${dontExpand} this",
+		expected:     "mike: ${dontExpand} this\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "Roundtrip",
 		input:        expectedProperties,
 		expression:   `.person.pets.0 = "dog"`,
@@ -176,6 +183,9 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 
 func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
+	if s.skipDoc {
+		return
+	}
 	if s.scenarioType == "decode" {
 		documentDecodePropertyScenario(w, s)
 	} else if s.scenarioType == "roundtrip" {

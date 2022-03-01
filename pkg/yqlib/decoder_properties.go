@@ -95,6 +95,7 @@ func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
 	if err != nil {
 		return err
 	}
+	properties.DisableExpansion = true
 
 	rootMap := &CandidateNode{
 		Node: &yaml.Node{
