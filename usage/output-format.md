@@ -16,7 +16,7 @@ The \``--no-colors/-M` flag to force print without colours
 
 ## Pretty Print
 
-To print out idiomatic `yaml` use the `--prettyPrint/-P` flag. Note that this is shorthand for using the [style](broken-reference) operator `... style=""`
+To print out idiomatic `yaml` use the `--prettyPrint/-P` flag. Note that this is shorthand for using the [style](https://mikefarah.gitbook.io/yq/operators/style) operator `... style=""`
 
 ## Indent
 
