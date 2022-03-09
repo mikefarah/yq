@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/mikefarah/yq/v4/test"
-	"gopkg.in/op/go-logging.v1"
+	logging "gopkg.in/op/go-logging.v1"
 	yaml "gopkg.in/yaml.v3"
 )
 

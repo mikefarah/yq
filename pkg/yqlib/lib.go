@@ -85,6 +85,7 @@ var columnOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Hand
 
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
 var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
+var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}
 var evalOpType = &operationType{Type: "EVAL", NumArgs: 1, Precedence: 50, Handler: evalOperator}
 var mapValuesOpType = &operationType{Type: "MAP_VALUES", NumArgs: 1, Precedence: 50, Handler: mapValuesOperator}
 
@@ -197,6 +198,16 @@ func findInArray(array *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
+func findKeyInMap(array *yaml.Node, item *yaml.Node) int {
+
+	for index := 0; index < len(array.Content); index = index + 2 {
+		if recursiveNodeEqual(array.Content[index], item) {
+			return index
+		}
+	}
+	return -1
+}
+
 func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false
@@ -274,11 +285,21 @@ func deepCloneContent(content []*yaml.Node) []*yaml.Node {
 	return clonedContent
 }
 
+func deepCloneNoContent(node *yaml.Node) *yaml.Node {
+	return deepCloneWithOptions(node, false)
+}
 func deepClone(node *yaml.Node) *yaml.Node {
+	return deepCloneWithOptions(node, true)
+}
+
+func deepCloneWithOptions(node *yaml.Node, cloneContent bool) *yaml.Node {
 	if node == nil {
 		return nil
 	}
-	clonedContent := deepCloneContent(node.Content)
+	var clonedContent []*yaml.Node
+	if cloneContent {
+		clonedContent = deepCloneContent(node.Content)
+	}
 	return &yaml.Node{
 		Content:     clonedContent,
 		Kind:        node.Kind,
