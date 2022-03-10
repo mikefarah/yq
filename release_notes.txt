@@ -1,3 +1,8 @@
+4.22.1:
+  - Added [pick] (https://mikefarah.gitbook.io/yq/operators/pick) operator
+  - Can load expression from a file '--from-file' (#1120)
+  - Fixed property auto expansion (#1127)
+
 4.21.1:
   - Added [reverse](https://mikefarah.gitbook.io/yq/operators/reverse) operator
   - Added [string case](https://mikefarah.gitbook.io/yq/operators/string-operators) operators
