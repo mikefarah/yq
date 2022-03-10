@@ -144,16 +144,3 @@ person.pets.0 = dog
 person.food.0 = pizza
 ```
 
-## Empty doc
-Given a sample.properties file of:
-```properties
-
-```
-then
-```bash
-yq -p=props sample.properties
-```
-will output
-```yaml
-```
-
