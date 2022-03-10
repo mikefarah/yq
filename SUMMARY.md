@@ -43,6 +43,7 @@
   * [Multiply (Merge)](operators/multiply-merge.md)
   * [Parent](operators/parent.md)
   * [Path](operators/path.md)
+  * [Pick](operators/pick.md)
   * [Pipe](operators/pipe.md)
   * [Recursive Descent (Glob)](operators/recursive-descent-glob.md)
   * [Reduce](operators/reduce.md)
