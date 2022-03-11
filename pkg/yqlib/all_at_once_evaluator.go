@@ -22,6 +22,7 @@ type allAtOnceEvaluator struct {
 }
 
 func NewAllAtOnceEvaluator() Evaluator {
+	InitExpressionParser()
 	return &allAtOnceEvaluator{treeNavigator: NewDataTreeNavigator()}
 }
 
