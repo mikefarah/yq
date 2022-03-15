@@ -7,9 +7,7 @@ import (
 )
 
 func getExpressionParser() ExpressionParserInterface {
-	if ExpressionParser == nil {
-		ExpressionParser = newExpressionParser()
-	}
+	InitExpressionParser()
 	return ExpressionParser
 }
 
