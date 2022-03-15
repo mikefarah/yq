@@ -15,9 +15,16 @@ You can control how objects are merged by using one or more of the following fla
 - `?` only merge _existing_ fields
 - `n` only merge _new_ fields
 
-### Merging files
+
+### Merge two files together
+This uses the load operator to merge file2 into file1.
+```bash
+yq '. *= load("file2.yml")' file1.yml
+```
+
+### Merging all files
 Note the use of `eval-all` to ensure all documents are loaded into memory.
 
 ```bash
-yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' file1.yaml file2.yaml
+yq eval-all '. as $item ireduce ({}; . * $item )' *.yml
 ```
