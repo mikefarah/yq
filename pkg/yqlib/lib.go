@@ -72,7 +72,9 @@ var subtractOpType = &operationType{Type: "SUBTRACT", NumArgs: 2, Precedence: 42
 var alternativeOpType = &operationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 42, Handler: alternativeOperator}
 
 var equalsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: equalsOperator}
-var notEqualsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Handler: notEqualsOperator}
+var notEqualsOpType = &operationType{Type: "NOT_EQUALS", NumArgs: 2, Precedence: 40, Handler: notEqualsOperator}
+
+var compareOpType = &operationType{Type: "COMPARE", NumArgs: 2, Precedence: 40, Handler: compareOperator}
 
 //createmap needs to be above union, as we use union to build the components of the objects
 var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 15, Handler: createMapOperator}
