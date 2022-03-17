@@ -509,6 +509,13 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`\s*==\s*`), opToken(equalsOpType))
 	lexer.Add([]byte(`\s*!=\s*`), opToken(notEqualsOpType))
+
+	lexer.Add([]byte(`\s*>=\s*`), opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: true, Greater: true}))
+	lexer.Add([]byte(`\s*>\s*`), opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: true}))
+
+	lexer.Add([]byte(`\s*<=\s*`), opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: true, Greater: false}))
+	lexer.Add([]byte(`\s*<\s*`), opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: false}))
+
 	lexer.Add([]byte(`\s*=\s*`), assignOpToken(false))
 
 	lexer.Add([]byte(`del`), opToken(deleteChildOpType))
