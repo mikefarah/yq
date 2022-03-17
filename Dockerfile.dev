@@ -1,4 +1,4 @@
-FROM golang:1.17
+FROM golang:1.18.0
 
 COPY scripts/devtools.sh /opt/devtools.sh
 
