@@ -8,7 +8,7 @@ require (
 	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.6
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/timtadh/lexmachine v0.2.2
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
