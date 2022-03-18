@@ -14,6 +14,13 @@ select(.a == .b)
 
 The not equals `!=` operator returns `false` if the LHS is equal to the RHS.
 
+## Related Operators
+
+- comparison (`>=`, `<` etc) operators (here)[https://mikefarah.gitbook.io/yq/operators/compare]
+- boolean operators (`and`, `or`, `any` etc) (here)[https://mikefarah.gitbook.io/yq/operators/boolean-operators]
+- select operator (here)[https://mikefarah.gitbook.io/yq/operators/select]
+
+
 {% hint style="warning" %}
 Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
 

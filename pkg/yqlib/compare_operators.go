@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -52,18 +53,40 @@ func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, 
 	}
 }
 
+func compareDateTime(layout string, prefs compareTypePref, lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
+	lhsTime, err := time.Parse(layout, lhs.Value)
+	if err != nil {
+		return false, err
+	}
+
+	rhsTime, err := time.Parse(layout, rhs.Value)
+	if err != nil {
+		return false, err
+	}
+
+	if prefs.OrEqual && lhsTime.Equal(rhsTime) {
+		return true, nil
+	}
+	if prefs.Greater {
+		return lhsTime.After(rhsTime), nil
+	}
+	return lhsTime.Before(rhsTime), nil
+
+}
+
 func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
 	lhsTag := guessTagFromCustomType(lhs)
 	rhsTag := guessTagFromCustomType(rhs)
 
-	// isDateTime := lhs.Tag == "!!timestamp"
-	// // if the lhs is a string, it might be a timestamp in a custom format.
-	// if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
-	// 	_, err := time.Parse(context.GetDateTimeLayout(), lhs.Value)
-	// 	isDateTime = err == nil
-	// }
-
-	if lhsTag == "!!int" && rhsTag == "!!int" {
+	isDateTime := lhs.Tag == "!!timestamp"
+	// if the lhs is a string, it might be a timestamp in a custom format.
+	if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
+		_, err := time.Parse(context.GetDateTimeLayout(), lhs.Value)
+		isDateTime = err == nil
+	}
+	if isDateTime {
+		return compareDateTime(context.GetDateTimeLayout(), prefs, lhs, rhs)
+	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		_, lhsNum, err := parseInt(lhs.Value)
 		if err != nil {
 			return false, err
@@ -96,6 +119,15 @@ func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs 
 			return lhsNum > rhsNum, nil
 		}
 		return lhsNum < rhsNum, nil
+	} else if lhsTag == "!!str" && rhsTag == "!!str" {
+		if prefs.OrEqual && lhs.Value == rhs.Value {
+			return true, nil
+		}
+		if prefs.Greater {
+			return lhs.Value > rhs.Value, nil
+		}
+		return lhs.Value < rhs.Value, nil
 	}
-	return false, fmt.Errorf("not yet supported")
+
+	return false, fmt.Errorf("%v not yet supported for comparison", lhs.Tag)
 }
