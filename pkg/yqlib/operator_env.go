@@ -12,6 +12,8 @@ import (
 
 type envOpPreferences struct {
 	StringValue bool
+	NoUnset     bool
+	NoEmpty     bool
 }
 
 func envOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -52,6 +54,7 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
+	preferences := expressionNode.Operation.Preferences.(envOpPreferences)
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -61,7 +64,7 @@ func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		value, err := envsubst.String(node.Value)
+		value, err := envsubst.StringRestricted(node.Value, preferences.NoUnset, preferences.NoEmpty)
 		if err != nil {
 			return Context{}, err
 		}

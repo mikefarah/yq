@@ -89,6 +89,29 @@ var envOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:          "Replace strings with envsubst(nu), missing variables",
+		environmentVariables: map[string]string{"myenv": "cat"},
+		expression:           `"the ${myenvnonexisting} meows" | envsubst`,
+		expected: []string{
+			"D0, P[], (!!str)::the  meows\n",
+		},
+	},
+	{
+		description:          "Replace strings with envsubst(ne), empty variable",
+		environmentVariables: map[string]string{"myenv": ""},
+		expression:           `"the ${myenv} meows" | envsubst`,
+		expected: []string{
+			"D0, P[], (!!str)::the  meows\n",
+		},
+	},
+	{
+		description: "Replace strings with envsubst(ne), missing variable",
+		expression:  `"the ${myenv} meows" | envsubst`,
+		expected: []string{
+			"D0, P[], (!!str)::the  meows\n",
+		},
+	},
+	{
 		description:          "Replace strings with envsubst, missing variables with defaults",
 		environmentVariables: map[string]string{"myenv": "cat"},
 		expression:           `"the ${myenvnonexisting-dog} meows" | envsubst`,

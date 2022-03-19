@@ -16,6 +16,26 @@ var pathTests = []struct {
 	expectedPostFix []interface{}
 }{
 	{
+		`envsubst(ne)`,
+		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST"),
+	},
+	{
+		`envsubst(nu)`,
+		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST"),
+	},
+	{
+		`envsubst(nu, ne)`,
+		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST"),
+	},
+	{
+		`envsubst(ne, nu)`,
+		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST"),
+	},
+	{
 		`[.a, .b]`,
 		append(make([]interface{}, 0), "[", "a", "UNION", "b", "]"),
 		append(make([]interface{}, 0), "a", "b", "UNION", "COLLECT"),
