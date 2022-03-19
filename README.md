@@ -30,9 +30,6 @@ When merging multiple files together, `eval-all/ea` is still required to tell `y
 
 ## Quick Usage Guide
 
-
-
-
 Read a value:
 ```bash
 yq '.a.b[0].c' file.yaml
@@ -60,7 +57,6 @@ Merge multiple files
 yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
 ```
 
-
 Multiple updates to a yaml file
 ```bash
 yq -i '
@@ -70,7 +66,12 @@ yq -i '
 ' file.yaml
 ```
 
-See the [documentation](https://mikefarah.gitbook.io/yq/) for more.
+Convert JSON to YAML
+```bash
+yq -P sample.json
+```
+
+See the [documentation](https://mikefarah.gitbook.io/yq/) for more examples.
 
 ## Install
 
@@ -172,8 +173,6 @@ yq() {
   podman run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
 }
 ```
-
-
 #### Running as root:
 
 `yq`'s container image no longer runs under root (https://github.com/mikefarah/yq/pull/860). If you'd like to install more things in the container image, or you're having permissions issues when attempting to read/write files you'll need to either:
@@ -207,7 +206,6 @@ USER root
 RUN apk add --no-cache tzdata
 USER yq
 ```
-
 
 ### GitHub Action
 ```
