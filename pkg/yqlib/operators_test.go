@@ -105,7 +105,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	}
 
 	if err != nil {
-		t.Error(fmt.Errorf("%w: %v", err, s.expression))
+		t.Error(fmt.Errorf("%w: %v: %v", err, s.description, s.expression))
 		return
 	}
 	test.AssertResultComplexWithContext(t, s.expected, resultsToString(t, context.MatchingNodes), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
@@ -343,8 +343,13 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
-	if err != nil {
+
+	if s.expectedError != "" && err != nil {
+		writeOrPanic(w, fmt.Sprintf("```bash\nError: %v\n```\n\n", err.Error()))
+		return
+	} else if err != nil {
 		t.Error(err, s.expression)
+		return
 	}
 
 	err = printer.PrintResults(context.MatchingNodes)

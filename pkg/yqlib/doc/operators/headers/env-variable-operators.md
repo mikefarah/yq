@@ -8,6 +8,17 @@ There are three operators:
 - `envsubst` which you pipe strings into and it interpolates environment variables in strings using [envsubst](https://github.com/a8m/envsubst). 
 
 
+## EnvSubst Options
+You can optionally pass envsubst any of the following options:
+  - nu: NoUnset, this will fail if there are any referenced variables that are not set
+  - ne: NoEmpty, this will fail if there are any referenced variables that are empty
+  - ff: FailFast, this will abort on the first failure (rather than collect all the errors)
+
+E.g:
+`envsubst(ne, ff)` will fail on the first empty variable.
+
+See [Imposing Restrictions](https://github.com/a8m/envsubst#imposing-restrictions) in the `envsubst` documentation for more information, and below for examples.
+
 ## Tip
 To replace environment variables across all values in a document, `envsubst` can be used with the recursive descent operator
 as follows:

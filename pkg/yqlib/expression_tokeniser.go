@@ -135,7 +135,18 @@ func opTokenWithPrefs(op *operationType, assignOpType *operationType, preference
 	}
 }
 
-func extractNumberParamter(value string) (int, error) {
+func hasOptionParameter(value string, option string) bool {
+	parameterParser := regexp.MustCompile(`.*\([^\)]*\)`)
+	matches := parameterParser.FindStringSubmatch(value)
+	if len(matches) == 0 {
+		return false
+	}
+	parameterString := matches[0]
+	optionParser := regexp.MustCompile(fmt.Sprintf("\\b%v\\b", option))
+	return len(optionParser.FindStringSubmatch(parameterString)) > 0
+}
+
+func extractNumberParameter(value string) (int, error) {
 	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
 	matches := parameterParser.FindStringSubmatch(value)
 	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32)
@@ -145,10 +156,30 @@ func extractNumberParamter(value string) (int, error) {
 	return int(indent), nil
 }
 
+func envSubstWithOptions() lex.Action {
+	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
+		value := string(m.Bytes)
+		noEmpty := hasOptionParameter(value, "ne")
+		noUnset := hasOptionParameter(value, "nu")
+		failFast := hasOptionParameter(value, "ff")
+		envsubstOpType.Type = "ENVSUBST"
+		prefs := envOpPreferences{NoUnset: noUnset, NoEmpty: noEmpty, FailFast: failFast}
+		if noEmpty {
+			envsubstOpType.Type = envsubstOpType.Type + "_NO_EMPTY"
+		}
+		if noUnset {
+			envsubstOpType.Type = envsubstOpType.Type + "_NO_UNSET"
+		}
+
+		op := &Operation{OperationType: envsubstOpType, Value: envsubstOpType.Type, StringValue: value, Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: op}, nil
+	}
+}
+
 func flattenWithDepth() lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		var depth, errParsingInt = extractNumberParamter(value)
+		var depth, errParsingInt = extractNumberParameter(value)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -162,7 +193,7 @@ func flattenWithDepth() lex.Action {
 func encodeWithIndent(outputFormat PrinterOutputFormat) lex.Action {
 	return func(s *lex.Scanner, m *machines.Match) (interface{}, error) {
 		value := string(m.Bytes)
-		var indent, errParsingInt = extractNumberParamter(value)
+		var indent, errParsingInt = extractNumberParameter(value)
 		if errParsingInt != nil {
 			return nil, errParsingInt
 		}
@@ -507,6 +538,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`strenv\([^\)]+\)`), envOp(true))
 	lexer.Add([]byte(`env\([^\)]+\)`), envOp(false))
 
+	lexer.Add([]byte(`envsubst\((ne|nu|ff| |,)+\)`), envSubstWithOptions())
 	lexer.Add([]byte(`envsubst`), opToken(envsubstOpType))
 
 	lexer.Add([]byte(`\[`), literalToken(openCollect, false))
