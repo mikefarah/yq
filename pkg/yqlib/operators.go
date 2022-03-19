@@ -19,14 +19,18 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 	}
 
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: expressionNode.Operation.Preferences}
-	valueOp := &Operation{OperationType: valueOpType}
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		valueOp.CandidateNode = candidate
-		valueExpression := &ExpressionNode{Operation: valueOp}
+		clone, err := candidate.Copy()
+		if err != nil {
+			return Context{}, err
+		}
+		valueCopyExp := &ExpressionNode{Operation: &Operation{OperationType: valueOpType, CandidateNode: clone}}
 
-		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, LHS: valueExpression, RHS: calculation(valueExpression, expressionNode.RHS)}
+		valueExpression := &ExpressionNode{Operation: &Operation{OperationType: valueOpType, CandidateNode: candidate}}
+
+		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, LHS: valueExpression, RHS: calculation(valueCopyExp, expressionNode.RHS)}
 
 		_, err = d.GetMatchingNodes(context, assignmentOpNode)
 		if err != nil {

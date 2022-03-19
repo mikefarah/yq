@@ -16,6 +16,15 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `[[c], [b]]`,
+		expression: `.[] | . += "a"`,
+		expected: []string{
+			"D0, P[0], (!!seq)::[c, a]\n",
+			"D0, P[1], (!!seq)::[b, a]\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `{}`,
 		expression: "(.a + .b) as $x",
 		expected: []string{

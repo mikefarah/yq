@@ -95,6 +95,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `[[c], [b]]`,
+		expression: `.[] | . *+ ["a"]`,
+		expected: []string{
+			"D0, P[0], (!!seq)::[c, a]\n",
+			"D0, P[1], (!!seq)::[b, a]\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   docWithHeader,
 		document2:  docNoComments,
 		expression: `select(fi == 0) * select(fi == 1)`,

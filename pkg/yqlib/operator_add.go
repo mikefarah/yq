@@ -161,15 +161,13 @@ func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode)
 		target.Node.Style = lhs.Node.Style
 	}
 	target.Node.Tag = lhs.Node.Tag
-	target.Node.Content = make([]*yaml.Node, len(lhs.Node.Content))
-	copy(target.Node.Content, lhs.Node.Content)
 
 	extraNodes, err := toNodes(rhs, lhs)
 	if err != nil {
 		return err
 	}
 
-	target.Node.Content = append(target.Node.Content, extraNodes...)
+	target.Node.Content = append(deepCloneContent(lhs.Node.Content), extraNodes...)
 	return nil
 
 }
