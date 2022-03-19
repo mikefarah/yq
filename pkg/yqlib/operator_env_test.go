@@ -81,43 +81,54 @@ var envOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:          "Replace strings with envsubst, missing variables",
-		environmentVariables: map[string]string{"myenv": "cat"},
-		expression:           `"the ${myenvnonexisting} meows" | envsubst`,
+		description: "Replace strings with envsubst, missing variables",
+		expression:  `"the ${myenvnonexisting} meows" | envsubst`,
 		expected: []string{
 			"D0, P[], (!!str)::the  meows\n",
 		},
 	},
 	{
-		description:          "Replace strings with envsubst(nu), missing variables",
-		environmentVariables: map[string]string{"myenv": "cat"},
-		expression:           `"the ${myenvnonexisting} meows" | envsubst`,
+		description:    "Replace strings with envsubst(nu), missing variables",
+		subdescription: "(nu) not unset, will fail if there are unset (missing) variables",
+		expression:     `"the ${myenvnonexisting} meows" | envsubst(nu)`,
+		expectedError:  "variable ${myenvnonexisting} not set",
+	},
+	{
+		description:    "Replace strings with envsubst(ne), missing variables",
+		subdescription: "(ne) not empty, only validates set variables",
+		expression:     `"the ${myenvnonexisting} meows" | envsubst(ne)`,
 		expected: []string{
 			"D0, P[], (!!str)::the  meows\n",
 		},
 	},
 	{
 		description:          "Replace strings with envsubst(ne), empty variable",
+		subdescription:       "(ne) not empty, will fail if a references variable is empty",
 		environmentVariables: map[string]string{"myenv": ""},
-		expression:           `"the ${myenv} meows" | envsubst`,
-		expected: []string{
-			"D0, P[], (!!str)::the  meows\n",
-		},
+		expression:           `"the ${myenv} meows" | envsubst(ne)`,
+		expectedError:        "variable ${myenv} set but empty",
 	},
 	{
-		description: "Replace strings with envsubst(ne), missing variable",
-		expression:  `"the ${myenv} meows" | envsubst`,
-		expected: []string{
-			"D0, P[], (!!str)::the  meows\n",
-		},
-	},
-	{
-		description:          "Replace strings with envsubst, missing variables with defaults",
-		environmentVariables: map[string]string{"myenv": "cat"},
-		expression:           `"the ${myenvnonexisting-dog} meows" | envsubst`,
+		description: "Replace strings with envsubst, missing variables with defaults",
+		expression:  `"the ${myenvnonexisting-dog} meows" | envsubst`,
 		expected: []string{
 			"D0, P[], (!!str)::the dog meows\n",
 		},
+	},
+	{
+		description:    "Replace strings with envsubst(nu), missing variables with defaults",
+		subdescription: "Having a default specified skips over the missing variable.",
+		expression:     `"the ${myenvnonexisting-dog} meows" | envsubst(nu)`,
+		expected: []string{
+			"D0, P[], (!!str)::the dog meows\n",
+		},
+	},
+	{
+		description:          "Replace strings with envsubst(ne), missing variables with defaults",
+		subdescription:       "Fails, because the variable is explicitly set to blank.",
+		environmentVariables: map[string]string{"myEmptyEnv": ""},
+		expression:           `"the ${myEmptyEnv-dog} meows" | envsubst(ne)`,
+		expectedError:        "variable ${myEmptyEnv} set but empty",
 	},
 	{
 		description:          "Replace string environment variable in document",
@@ -127,6 +138,17 @@ var envOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (doc)::{v: \"cat meow\"}\n",
 		},
+	},
+	{
+		description:    "(Default) Return all envsubst errors",
+		subdescription: "By default, all errors are returned at once.",
+		expression:     `"the ${notThere} ${alsoNotThere}" | envsubst(nu)`,
+		expectedError:  "variable ${notThere} not set\nvariable ${alsoNotThere} not set",
+	},
+	{
+		description:   "Fail fast, return the first envsubst error (and abort)",
+		expression:    `"the ${notThere} ${alsoNotThere}" | envsubst(nu,ff)`,
+		expectedError: "variable ${notThere} not set",
 	},
 }
 

@@ -17,23 +17,23 @@ var pathTests = []struct {
 }{
 	{
 		`envsubst(ne)`,
-		append(make([]interface{}, 0), "ENVSUBST"),
-		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY"),
 	},
 	{
 		`envsubst(nu)`,
-		append(make([]interface{}, 0), "ENVSUBST"),
-		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_UNSET"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_UNSET"),
 	},
 	{
 		`envsubst(nu, ne)`,
-		append(make([]interface{}, 0), "ENVSUBST"),
-		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY_NO_UNSET"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY_NO_UNSET"),
 	},
 	{
 		`envsubst(ne, nu)`,
-		append(make([]interface{}, 0), "ENVSUBST"),
-		append(make([]interface{}, 0), "ENVSUBST"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY_NO_UNSET"),
+		append(make([]interface{}, 0), "ENVSUBST_NO_EMPTY_NO_UNSET"),
 	},
 	{
 		`[.a, .b]`,

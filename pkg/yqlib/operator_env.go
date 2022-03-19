@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	envsubst "github.com/a8m/envsubst"
+	parse "github.com/a8m/envsubst/parse"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -14,6 +14,7 @@ type envOpPreferences struct {
 	StringValue bool
 	NoUnset     bool
 	NoEmpty     bool
+	FailFast    bool
 }
 
 func envOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -54,7 +55,19 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
-	preferences := expressionNode.Operation.Preferences.(envOpPreferences)
+	preferences := envOpPreferences{}
+	if expressionNode.Operation.Preferences != nil {
+		preferences = expressionNode.Operation.Preferences.(envOpPreferences)
+	}
+
+	parser := parse.New("string", os.Environ(),
+		&parse.Restrictions{NoUnset: preferences.NoUnset, NoEmpty: preferences.NoEmpty})
+
+	if preferences.FailFast {
+		parser.Mode = parse.Quick
+	} else {
+		parser.Mode = parse.AllErrors
+	}
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -64,7 +77,7 @@ func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		value, err := envsubst.StringRestricted(node.Value, preferences.NoUnset, preferences.NoEmpty)
+		value, err := parser.Parse(node.Value)
 		if err != nil {
 			return Context{}, err
 		}
