@@ -1,3 +1,11 @@
+4.23.1:
+  - Can now supply the envsubst operator with parameters (nounset, noempty, failfast). See [envsubst](https://mikefarah.gitbook.io/yq/operators/env-variable-operators) for details (#1137)
+  - Bumped dependencies
+  - Fixed '+=' problem with multiple matches #1145
+  - Fixed bug with "and", "or" evaluating the RHS when not needed
+  - Fixed potential panic (thanks @mkatychev)
+  - Tweaked CLI help (thanks @justin-f-perez)
+
 4.22.1:
   - Added [pick] (https://mikefarah.gitbook.io/yq/operators/pick) operator
   - Can load expression from a file '--from-file' (#1120)
