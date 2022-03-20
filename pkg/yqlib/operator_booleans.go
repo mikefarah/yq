@@ -27,41 +27,48 @@ func isTruthy(c *CandidateNode) (bool, error) {
 	return isTruthyNode(node)
 }
 
-type boolOp func(bool, bool) bool
+func getBoolean(candidate *CandidateNode) (bool, error) {
+	if candidate != nil {
+		candidate.Node = unwrapDoc(candidate.Node)
+		return isTruthy(candidate)
+	}
+	return false, nil
+}
 
-func performBoolOp(op boolOp) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		owner := lhs
+func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
+	owner := lhs
 
-		if lhs == nil && rhs == nil {
-			owner = &CandidateNode{}
-		} else if lhs == nil {
-			owner = rhs
+	if lhs == nil && rhs == nil {
+		owner = &CandidateNode{}
+	} else if lhs == nil {
+		owner = rhs
+	}
+	return owner
+}
+
+func returnRhsTruthy(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	owner := getOwner(lhs, rhs)
+	rhsBool, err := getBoolean(rhs)
+	if err != nil {
+		return nil, err
+	}
+
+	return createBooleanCandidate(owner, rhsBool), nil
+}
+
+func returnLHSWhen(targetBool bool) func(lhs *CandidateNode) (*CandidateNode, error) {
+	return func(lhs *CandidateNode) (*CandidateNode, error) {
+		var err error
+		var lhsBool bool
+
+		if lhsBool, err = getBoolean(lhs); err != nil || lhsBool != targetBool {
+			return nil, err
 		}
-
-		var errDecoding error
-		lhsTrue := false
+		owner := &CandidateNode{}
 		if lhs != nil {
-			lhs.Node = unwrapDoc(lhs.Node)
-			lhsTrue, errDecoding = isTruthy(lhs)
-
-			if errDecoding != nil {
-				return nil, errDecoding
-			}
+			owner = lhs
 		}
-		log.Debugf("-- lhsTrue", lhsTrue)
-
-		rhsTrue := false
-		if rhs != nil {
-			rhs.Node = unwrapDoc(rhs.Node)
-			rhsTrue, errDecoding = isTruthy(rhs)
-			if errDecoding != nil {
-				return nil, errDecoding
-			}
-		}
-		log.Debugf("-- rhsTrue", rhsTrue)
-
-		return createBooleanCandidate(owner, op(lhsTrue, rhsTrue)), nil
+		return createBooleanCandidate(owner, targetBool), nil
 	}
 }
 
@@ -133,20 +140,21 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func orOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- orOp")
-	return crossFunction(d, context.ReadOnlyClone(), expressionNode, performBoolOp(
-		func(b1 bool, b2 bool) bool {
-			log.Debugf("-- peformingOrOp with %v and %v", b1, b2)
-			return b1 || b2
-		}), true)
+	prefs := crossFunctionPreferences{
+		CalcWhenEmpty:  true,
+		Calculation:    returnRhsTruthy,
+		LhsResultValue: returnLHSWhen(true),
+	}
+	return crossFunctionWithPrefs(d, context.ReadOnlyClone(), expressionNode, prefs)
 }
 
 func andOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- AndOp")
-	return crossFunction(d, context.ReadOnlyClone(), expressionNode, performBoolOp(
-		func(b1 bool, b2 bool) bool {
-			return b1 && b2
-		}), true)
+	prefs := crossFunctionPreferences{
+		CalcWhenEmpty:  true,
+		Calculation:    returnRhsTruthy,
+		LhsResultValue: returnLHSWhen(false),
+	}
+	return crossFunctionWithPrefs(d, context.ReadOnlyClone(), expressionNode, prefs)
 }
 
 func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
