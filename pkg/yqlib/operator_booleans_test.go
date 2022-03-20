@@ -47,17 +47,17 @@ var booleanOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
 		description: "And should not run 2nd arg if first is false",
-		expression:  `select(false and test(3))`,
+		expression:  `false and test(3)`,
 		expected: []string{
-			"D0, P[], (doc)::b: hi\n",
+			"D0, P[], (!!bool)::false\n",
 		},
 	},
 	{
 		skipDoc:     true,
 		description: "Or should not run 2nd arg if first is true",
-		expression:  `select(true or test(3))`,
+		expression:  `true or test(3)`,
 		expected: []string{
-			"D0, P[], (doc)::b: hi\n",
+			"D0, P[], (!!bool)::true\n",
 		},
 	},
 	{
@@ -168,9 +168,18 @@ var booleanOperatorScenarios = []expressionScenario{
 		expression: `.[] or (false, true)`,
 		expected: []string{
 			"D0, P[a], (!!bool)::true\n",
-			"D0, P[a], (!!bool)::true\n",
 			"D0, P[b], (!!bool)::false\n",
 			"D0, P[b], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: true, b: false}`,
+		expression: `.[] and (false, true)`,
+		expected: []string{
+			"D0, P[a], (!!bool)::false\n",
+			"D0, P[a], (!!bool)::true\n",
+			"D0, P[b], (!!bool)::false\n",
 		},
 	},
 	{
