@@ -200,7 +200,10 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	}
 
 	for {
-		t, _ := xmlDec.Token()
+		t, e := xmlDec.Token()
+		if e != nil {
+			return e
+		}
 		if t == nil {
 			break
 		}
