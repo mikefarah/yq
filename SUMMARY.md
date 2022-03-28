@@ -21,6 +21,7 @@
   * [Collect into Array](operators/collect-into-array.md)
   * [Column](operators/column.md)
   * [Comment Operators](operators/comment-operators.md)
+  * [Compare Operators](operators/compare.md)
   * [Contains](operators/contains.md)
   * [Create, Collect into Object](operators/create-collect-into-object.md)
   * [Date Time](operators/datetime.md)
