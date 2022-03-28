@@ -39,7 +39,7 @@ func copyFileContents(src, dst string) (err error) {
 		return err
 	}
 	defer safelyCloseFile(in)
-	out, err := os.Create(dst)
+	out, err := os.Create(dst) // #nosec
 	if err != nil {
 		return err
 	}

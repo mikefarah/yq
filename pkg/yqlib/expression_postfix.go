@@ -50,7 +50,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			log.Debugf("put %v onto the opstack", currentToken.toString(true))
 		case closeCollect, closeCollectObject:
 			var opener tokenType = openCollect
-			var collectOperator *operationType = collectOpType
+			var collectOperator = collectOpType
 			if currentToken.TokenType == closeCollectObject {
 				opener = openCollectObject
 				collectOperator = collectObjectOpType
