@@ -11,7 +11,7 @@ These operators are useful to process yaml documents that have stringified embed
 | --- | -- | --|
 | Yaml | from_yaml | to_yaml(i)/@yaml |
 | JSON | from_json | to_json(i)/@json |
-| Properties |  | to_props/@props |
+| Properties | from_props  | to_props/@props |
 | CSV |  | to_csv/@csv |
 | TSV |  | to_tsv/@tsv |
 | XML | from_xml | to_xml(i)/@xml |
@@ -121,6 +121,24 @@ a:
   cool: thing
 b: |
   cool = thing
+```
+
+## Decode props encoded string
+Given a sample.yml file of:
+```yaml
+a: |-
+  cats=great
+  dogs=cool as well
+```
+then
+```bash
+yq '.a |= from_props' sample.yml
+```
+will output
+```yaml
+a:
+  cats: great
+  dogs: cool as well
 ```
 
 ## Encode value as yaml string

@@ -64,6 +64,14 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Decode props encoded string",
+		document:    `a: "cats=great\ndogs=cool as well"`,
+		expression:  `.a |= from_props`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    cats: great\n    dogs: cool as well\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   "a:\n  cool:\n    bob: dylan",
 		expression: `.b = (.a | @yaml)`,

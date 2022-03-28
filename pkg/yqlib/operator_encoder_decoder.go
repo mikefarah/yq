@@ -107,6 +107,8 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		decoder = NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode)
 	case Base64InputFormat:
 		decoder = NewBase64Decoder()
+	case PropertiesInputFormat:
+		decoder = NewPropertiesDecoder()
 	}
 
 	var results = list.New()

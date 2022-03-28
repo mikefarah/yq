@@ -407,6 +407,7 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`from_yaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`from_json`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`from_xml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XMLInputFormat}))
+	lexer.Add([]byte(`from_props`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: PropertiesInputFormat}))
 
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
 	lexer.Add([]byte(`sort_keys`), opToken(sortKeysOpType))
