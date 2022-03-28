@@ -58,6 +58,27 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+
+testInputXmlStrict() {
+  cat >test.yml <<EOL
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY writer "Catherine.">
+<!ENTITY copyright "(r) Great">
+]>
+<root>
+    <item>&writer;&copyright;</item>
+</root>
+EOL
+
+  X=$(./yq -p=xml --xml-strict-mode test.yml 2>&1)
+  assertEquals 1 $?
+  assertEquals "Error: bad file 'test.yml': XML syntax error on line 7: invalid character entity &writer;" "$X"
+
+  X=$(./yq ea -p=xml --xml-strict-mode test.yml 2>&1)
+  assertEquals "Error: bad file 'test.yml': XML syntax error on line 7: invalid character entity &writer;" "$X"
+}
+
 testInputXmlGithubAction() {
   cat >test.yml <<EOL
 <cat legs="4">BiBi</cat>

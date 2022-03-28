@@ -104,7 +104,7 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	case YamlInputFormat:
 		decoder = NewYamlDecoder()
 	case XMLInputFormat:
-		decoder = NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName)
+		decoder = NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode)
 	case Base64InputFormat:
 		decoder = NewBase64Decoder()
 	}

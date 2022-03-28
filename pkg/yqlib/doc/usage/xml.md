@@ -120,6 +120,31 @@ cat:
   +legs: "4"
 ```
 
+## Parse xml: custom dtd
+DTD entities are ignored.
+
+Given a sample.xml file of:
+```xml
+
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY writer "Blah.">
+<!ENTITY copyright "Blah">
+]>
+<root>
+    <item>&writer;&copyright;</item>
+</root>
+```
+then
+```bash
+yq -p=xml '.' sample.xml
+```
+will output
+```yaml
+root:
+  item: '&writer;&copyright;'
+```
+
 ## Parse xml: with comments
 A best attempt is made to preserve comments.
 

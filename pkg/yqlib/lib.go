@@ -24,6 +24,7 @@ func InitExpressionParser() {
 type xmlPreferences struct {
 	AttributePrefix string
 	ContentName     string
+	StrictMode      bool
 }
 
 var log = logging.MustGetLogger("yq-lib")

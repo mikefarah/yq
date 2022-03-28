@@ -54,6 +54,7 @@ yq -P sample.json
 			yqlib.InitExpressionParser()
 			yqlib.XMLPreferences.AttributePrefix = xmlAttributePrefix
 			yqlib.XMLPreferences.ContentName = xmlContentName
+			yqlib.XMLPreferences.StrictMode = xmlStrictMode
 		},
 	}
 
@@ -70,6 +71,7 @@ yq -P sample.json
 
 	rootCmd.PersistentFlags().StringVar(&xmlAttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
 	rootCmd.PersistentFlags().StringVar(&xmlContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
+	rootCmd.PersistentFlags().BoolVar(&xmlStrictMode, "xml-strict-mode", false, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
 
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")

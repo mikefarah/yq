@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"encoding/xml"
+	"errors"
 	"io"
 	"strings"
 	"unicode"
@@ -14,14 +15,15 @@ type xmlDecoder struct {
 	reader          io.Reader
 	attributePrefix string
 	contentName     string
+	strictMode      bool
 	finished        bool
 }
 
-func NewXMLDecoder(attributePrefix string, contentName string) Decoder {
+func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool) Decoder {
 	if contentName == "" {
 		contentName = "content"
 	}
-	return &xmlDecoder{attributePrefix: attributePrefix, contentName: contentName, finished: false}
+	return &xmlDecoder{attributePrefix: attributePrefix, contentName: contentName, finished: false, strictMode: strictMode}
 }
 
 func (dec *xmlDecoder) Init(reader io.Reader) {
@@ -189,7 +191,7 @@ type element struct {
 // of the map keys.
 func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	xmlDec := xml.NewDecoder(dec.reader)
-
+	xmlDec.Strict = dec.strictMode
 	// That will convert the charset if the provided XML is non-UTF-8
 	xmlDec.CharsetReader = charset.NewReaderLabel
 
@@ -201,7 +203,7 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 	for {
 		t, e := xmlDec.Token()
-		if e != nil {
+		if e != nil && !errors.Is(e, io.EOF) {
 			return e
 		}
 		if t == nil {

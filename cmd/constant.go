@@ -10,6 +10,7 @@ var inputFormat = "yaml"
 
 var xmlAttributePrefix = "+"
 var xmlContentName = "+content"
+var xmlStrictMode = false
 
 var exitStatus = false
 var forceColor = false
