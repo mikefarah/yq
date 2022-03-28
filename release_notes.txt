@@ -1,3 +1,8 @@
+4.24.1:
+  - Added comparison operators! (#94)
+  - Bumped golang to 1.18 (#1153)
+  - XML parser no longer runs in strict mode (added new flag to run in strict mode) (#1155)
+
 4.23.1:
   - Can now supply the envsubst operator with parameters (nounset, noempty, failfast). See [envsubst](https://mikefarah.gitbook.io/yq/operators/env-variable-operators) for details (#1137)
   - Bumped dependencies
