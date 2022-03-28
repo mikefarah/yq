@@ -39,7 +39,7 @@ jobs:
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
-          go get github.com/mitchellh/gox
+          go install github.com/mitchellh/gox@v1.0.1
           mkdir -p build
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh

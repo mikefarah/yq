@@ -217,9 +217,9 @@ USER yq
 
 See https://mikefarah.gitbook.io/yq/usage/github-action for more.
 
-### Go Get:
+### Go Install:
 ```
-GO111MODULE=on go get github.com/mikefarah/yq/v4
+go install github.com/mikefarah/yq/v4@latest
 ```
 
 ## Community Supported Installation methods
