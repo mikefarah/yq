@@ -75,6 +75,13 @@ To merge all given yaml files into one, use the `reduce` operator with the `*` (
 yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
 ```
 
+## Merge - showing the source file and line
+To see the original source file and line number of your merged result, you can pre-process the files and add that information in as line comments, then perform the merge.
+
+```bash
+yq ea '(..  lineComment |= filename + ":" + line) | select(fi==0) * select(fi==1)' data1.yaml data2.yaml
+```
+
 ## Merge an array of objects by key
 
 See [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays-of-objects-together-matching-on-a-key) for a working example.
