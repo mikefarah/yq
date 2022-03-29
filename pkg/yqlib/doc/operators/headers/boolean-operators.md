@@ -12,6 +12,6 @@ These are most commonly used with the `select` operator to filter particular nod
 
 ## Related Operators
 
-- equals / not equals (`==`, `!=`) operators (here)[https://mikefarah.gitbook.io/yq/operators/equals]
-- comparison (`>=`, `<` etc) operators (here)[https://mikefarah.gitbook.io/yq/operators/compare]
-- select operator (here)[https://mikefarah.gitbook.io/yq/operators/select]
+- equals / not equals (`==`, `!=`) operators [here](https://mikefarah.gitbook.io/yq/operators/equals)
+- comparison (`>=`, `<` etc) operators [here](https://mikefarah.gitbook.io/yq/operators/compare)
+- select operator [here](https://mikefarah.gitbook.io/yq/operators/select)

@@ -10,6 +10,6 @@ The following types are currently supported:
 
 ## Related Operators
 
-- equals / not equals (`==`, `!=`) operators (here)[https://mikefarah.gitbook.io/yq/operators/equals]
-- boolean operators (`and`, `or`, `any` etc) (here)[https://mikefarah.gitbook.io/yq/operators/boolean-operators]
-- select operator (here)[https://mikefarah.gitbook.io/yq/operators/select]
+- equals / not equals (`==`, `!=`) operators [here](https://mikefarah.gitbook.io/yq/operators/equals)
+- boolean operators (`and`, `or`, `any` etc) [here](https://mikefarah.gitbook.io/yq/operators/boolean-operators)
+- select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
