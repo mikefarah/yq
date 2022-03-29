@@ -18,7 +18,7 @@ See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 # yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
 
 # read the "stuff" node from "myfile.yml"
-cat myfile.yml | yq '.stuff' 
+yq '.stuff' < myfile.yml
 
 # update myfile.yml in place
 yq -i '.stuff = "foo"' myfile.yml

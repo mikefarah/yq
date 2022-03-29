@@ -18,12 +18,12 @@ TLDR:
 
 Prior to 4.18.1 
 ```bash
-cat file.yaml | yq e '.cool' -
+yq e '.cool' - < file.yaml
 ```
 
 4.18+ 
 ```bash
-cat file.yaml | yq '.cool'
+yq '.cool' < file.yaml
 ```
 
 When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression against all the document at once.
@@ -37,7 +37,7 @@ yq '.a.b[0].c' file.yaml
 
 Pipe from STDIN:
 ```bash
-cat file.yaml | yq '.a.b[0].c'
+yq '.a.b[0].c' < file.yaml
 ```
 
 Update a yaml file, inplace
@@ -143,11 +143,11 @@ podman run --rm -v "${PWD}":/workdir mikefarah/yq [command] [flags] [expression 
 You'll need to pass the `-i\--interactive` flag to docker:
 
 ```bash
-cat myfile.yml | docker run -i --rm mikefarah/yq '.this.thing'
+docker run -i --rm mikefarah/yq '.this.thing' < myfile.yml
 ```
 
 ```bash
-cat myfile.yml | podman run -i --rm mikefarah/yq '.this.thing'
+podman run -i --rm mikefarah/yq '.this.thing' < myfile.yml
 ```
 
 #### Run commands interactively:
@@ -310,7 +310,7 @@ Usage:
 Examples:
 
 # yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
-cat myfile.yml | yq '.stuff' # outputs the data at the "stuff" node from "myfile.yml"
+yq '.stuff' < myfile.yml # outputs the data at the "stuff" node from "myfile.yml"
 
 yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
 
