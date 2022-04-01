@@ -1,7 +1,9 @@
 # String Operators
 
 ## RegEx
-This uses golangs native regex functions under the hood - See https://github.com/google/re2/wiki/Syntax for the supported syntax.
+This uses golangs native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
+
+Case insensitive tip: prefix the regex with `(?i)` - e.g. `test("(?i)cats)"`.
 
 ### match(regEx)
 This operator returns the substring match details of the given regEx.
@@ -9,7 +11,7 @@ This operator returns the substring match details of the given regEx.
 ### capture(regEx)
 Capture returns named RegEx capture groups in a map. Can be more convenient than `match` depending on what you are doing.
 
-# test(regEx)
+## test(regEx)
 Returns true if the string matches the RegEx, false otherwise.
 
 ## sub(regEx, replacement)
