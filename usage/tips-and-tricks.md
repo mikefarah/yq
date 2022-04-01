@@ -141,6 +141,52 @@ yq 'with(.a.deeply ; .nested = "newValue" | .other= "newThing")' sample.yml
 
 The first argument expression sets the root context, and the second expression runs against that root context.
 
+
+## Logic without if/elif/else
+`yq` has not yet added `if` expressions - however you should be able to use `with` and `select` to achieve the same outcome. Lets use an example:
+
+```yaml
+- animal: cat
+- animal: dog
+- animal: frog
+```
+
+Now, if you were using good ol' jq - you may have a script with `if`s like so:
+
+```bash
+jq ' .[] |=
+if (.animal == "cat") then
+  .noise = "meow" |
+  .whiskers = true
+elif (.animal == "dog") then
+  .noise = "woof" |
+  .happy = true
+else 
+  .noise = "??"
+end
+' < file.yaml
+```
+
+Using `yq` - you can get the same result by:
+
+```bash
+yq '.[] |= (
+  with(select(.animal == "cat"); 
+    .noise = "meow" | 
+    .whiskers = true
+  ) |
+  with(select(.animal == "dog"); 
+    .noise = "woof" | 
+    .happy = true
+  ) |
+  with(select(.noise == null); 
+    .noise = "???"
+  )
+)' < file.yml
+```
+
+Note that the logic isn't quite the same, as there is no concept of 'else'. So you may need to put additional logic in the expressions, as this has for the 'else' logic.
+
 ## yq adds a !!merge tag automatically
 
 The merge functionality from yaml v1.1 (e.g. `<<:`has actually been removed in the 1.2 spec. Thankfully, `yq` underlying yaml parser still supports that tag - and it's extra nice in that it explicitly puts the `!!merge` tag on key of the map entry. This tag tells other yaml parsers that this entry is a merge entry, as opposed to a regular string key that happens to have a value of `<<:`. This is backwards compatible with the 1.1 spec of yaml, it's simply an explicit way of specifying the type (for instance, you can use a `!!str` tag to enforce a particular value to be a string.
