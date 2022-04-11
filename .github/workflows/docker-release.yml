@@ -33,7 +33,9 @@ jobs:
       - name: Build and push image
         run: |
           echo "GithubRef: ${GITHUB_REF}"
-          IMAGE_VERSION=${GITHUB_REF:1}
+          VERSION::${GITHUB_REF##*/}
+          echo "VERSION: ${VERSION}"
+          IMAGE_VERSION=${VERSION:1}
           echo "IMAGE_VERSION: ${IMAGE_VERSION}"
 
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64"

@@ -1,3 +1,8 @@
+4.24.3:
+  - Added from_props
+  - Re-releasing, 4.24.2 release failed to publish correctly.
+
+
 4.24.2:
   - Fixing release pipeline for go1.18
 

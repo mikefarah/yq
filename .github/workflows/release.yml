@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v*'
+      - 'draftV*'
 
 jobs:
   publishGitRelease:
@@ -44,18 +45,8 @@ jobs:
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: true
-          prerelease: false
-
-      - uses: shogo82148/actions-upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/*
+          files: build/*
+          fail_on_unmatched_files: true
