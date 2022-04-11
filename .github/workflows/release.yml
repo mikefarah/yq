@@ -3,7 +3,7 @@ on:
   push:
     tags:
       - 'v*'
-      - 'draftV*'
+      - 'draft-*'
 
 jobs:
   publishGitRelease:
