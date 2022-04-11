@@ -49,4 +49,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: build/*
+          draft: true
           fail_on_unmatched_files: true
