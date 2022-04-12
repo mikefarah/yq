@@ -33,7 +33,7 @@ jobs:
       - name: Build and push image
         run: |
           echo "GithubRef: ${GITHUB_REF}"
-          VERSION::${GITHUB_REF##*/}
+          VERSION=${GITHUB_REF##*/}
           echo "VERSION: ${VERSION}"
           IMAGE_VERSION=${VERSION:1}
           echo "IMAGE_VERSION: ${IMAGE_VERSION}"
