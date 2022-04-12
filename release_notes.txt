@@ -1,3 +1,7 @@
+4.24.4:
+  - Fixed docker release build
+
+
 4.24.3:
   - Added from_props
   - Re-releasing, 4.24.2 release failed to publish correctly.
