@@ -1,3 +1,9 @@
+4.24.5:
+  - Fixed scenarios that dropped the first line if it's a comment (#1181)
+  - Fixed updating existing empty map resulting in single line styling (#1176)
+  - Fixed `with` operation bug (#1174)
+  - Bumped go compiler
+
 4.24.4:
   - Fixed docker release build
 
