@@ -79,6 +79,15 @@ var sortByOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[{a: false, b: 1}, {a: false, b: 3}, {a: true, b: 2}]\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "head comment",
+		document:    "# abc\n- def\n# ghi",
+		expression:  `sort`,
+		expected: []string{
+			"D0, P[], (!!seq)::# abc\n- def\n# ghi\n",
+		},
+	},
 }
 
 func TestSortByOperatorScenarios(t *testing.T) {

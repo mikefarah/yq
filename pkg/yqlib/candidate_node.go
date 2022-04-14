@@ -85,14 +85,15 @@ func (n *CandidateNode) CreateChildInArray(index int, node *yaml.Node) *Candidat
 
 func (n *CandidateNode) CreateReplacement(node *yaml.Node) *CandidateNode {
 	return &CandidateNode{
-		Node:      node,
-		Path:      n.createChildPath(nil),
-		Parent:    n.Parent,
-		Key:       n.Key,
-		IsMapKey:  n.IsMapKey,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
+		Node:           node,
+		Path:           n.createChildPath(nil),
+		LeadingContent: n.LeadingContent,
+		Parent:         n.Parent,
+		Key:            n.Key,
+		IsMapKey:       n.IsMapKey,
+		Document:       n.Document,
+		Filename:       n.Filename,
+		FileIndex:      n.FileIndex,
 	}
 }
 

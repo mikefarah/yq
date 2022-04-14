@@ -61,6 +61,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 
 	for index, filename := range filenames {
 		reader, leadingContent, err := readStream(filename, leadingContentPreProcessing)
+		log.Debug("leadingContent: %v", leadingContent)
 
 		if index == 0 {
 			firstFileLeadingContent = leadingContent
