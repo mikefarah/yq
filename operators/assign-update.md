@@ -199,7 +199,8 @@ yq '.a.b |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: bogs}}
+a:
+  b: bogs
 ```
 
 ## Update node value that has an anchor
@@ -229,6 +230,8 @@ yq '.a.b.[0] |= "bogs"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: [bogs]}}
+a:
+  b:
+    - bogs
 ```
 

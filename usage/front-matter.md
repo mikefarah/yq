@@ -2,6 +2,12 @@
 
 `yq` can process files with `yaml` front matter (e.g. jekyll, assemble and others) - this is done via the `--front-matter/-f` flag.
 
+Note that `yq` only processes the first passed in file for front-matter. If you'd like to process multiple files, you can:
+
+```bash
+find -name  "*.md" -exec yq --front-matter="process" '.updated_at = now' {} \;
+```
+
 ## Process front matter
 
 Use `--front-matter=process` to process the front matter, that is run the expression against the `yaml` content, and output back the entire file, included the non-yaml content block. For example:
