@@ -20,9 +20,13 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 
 	updateExp := expressionNode.RHS.RHS
 
-	_, err = d.GetMatchingNodes(updateContext, updateExp)
-	if err != nil {
-		return Context{}, err
+	for el := updateContext.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		_, err = d.GetMatchingNodes(updateContext.SingleChildContext(candidate), updateExp)
+		if err != nil {
+			return Context{}, err
+		}
+
 	}
 
 	return context, nil

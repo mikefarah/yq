@@ -28,6 +28,16 @@ var withOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::myArray: [{a: apple, b: apple yum}, {a: banana, b: banana yum}]\n",
 		},
 	},
+	{
+		description:    "Update array elements relatively +=",
+		skipDoc:        true,
+		subdescription: "The second expression runs with each element of the array as it's contextual root. This allows you to make updates relative to the element.",
+		document:       `myArray: [{a: apple},{a: banana}]`,
+		expression:     `with(.myArray[]; .a += .a)`,
+		expected: []string{
+			"D0, P[], (doc)::myArray: [{a: appleapple}, {a: bananabanana}]\n",
+		},
+	},
 }
 
 func TestWithOperatorScenarios(t *testing.T) {
