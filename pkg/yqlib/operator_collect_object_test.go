@@ -115,12 +115,12 @@ var collectObjectOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		document:   `{name: Mike, pets: {cows: [apl, bba]}}`,
-		document2:  `{name: Rosey, pets: {sheep: [frog, meow]}}`,
+		document:   "name: Mike\npets:\n  cows:\n    - apl\n    - bba",
+		document2:  "name: Rosey\npets:\n  sheep:\n    - frog\n    - meow",
 		expression: `{"a":.name, "b":.pets}`,
 		expected: []string{
-			"D0, P[], (!!map)::a: Mike\nb: {cows: [apl, bba]}\n",
-			"D0, P[], (!!map)::a: Rosey\nb: {sheep: [frog, meow]}\n",
+			"D0, P[], (!!map)::a: Mike\nb:\n    cows:\n        - apl\n        - bba\n",
+			"D0, P[], (!!map)::a: Rosey\nb:\n    sheep:\n        - frog\n        - meow\n",
 		},
 	},
 	{

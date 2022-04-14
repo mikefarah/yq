@@ -198,6 +198,11 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 		indexToUse := index
 		contentLength := int64(len(node.Content))
 		for contentLength <= index {
+			if contentLength == 0 {
+				// default to nice yaml formating
+				node.Style = 0
+			}
+
 			node.Content = append(node.Content, &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"})
 			contentLength = int64(len(node.Content))
 		}
@@ -207,7 +212,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 		}
 
 		if indexToUse < 0 {
-			return nil, fmt.Errorf("Index [%v] out of range, array size is %v", index, contentLength)
+			return nil, fmt.Errorf("index [%v] out of range, array size is %v", index, contentLength)
 		}
 
 		newMatches.PushBack(candidate.CreateChildInArray(int(index), node.Content[indexToUse]))
@@ -232,6 +237,11 @@ func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: key}
 		node := matchingNode.Node
+
+		if len(node.Content) == 0 {
+			node.Style = 0
+		}
+
 		node.Content = append(node.Content, keyNode, valueNode)
 
 		if prefs.IncludeMapKeys {

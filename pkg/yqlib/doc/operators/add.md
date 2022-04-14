@@ -135,7 +135,9 @@ a:
     b:
       - dog
       - mouse
-  a3: {b: [mouse]}
+  a3:
+    b:
+      - mouse
 ```
 
 ## String concatenation

@@ -239,7 +239,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:   `{a: &a { b: &b { c: &c cat } } }`,
 		expression: `{} * .`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: &a {b: &b {c: &c cat}}}\n",
+			"D0, P[], (!!map)::a: &a\n    b: &b\n        c: &c cat\n",
 		},
 	},
 	{
@@ -388,7 +388,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:   `{a: {array: [1]}, b: {}}`,
 		expression: `.b *+ .a`,
 		expected: []string{
-			"D0, P[b], (!!map)::{array: [1]}\n",
+			"D0, P[b], (!!map)::array: [1]\n",
 		},
 	},
 	{

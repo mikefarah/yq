@@ -37,6 +37,22 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `blah: {}`,
+		expression: `.blah.cat = "cool"`,
+		expected: []string{
+			"D0, P[], (doc)::blah:\n    cat: cool\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `blah: []`,
+		expression: `.blah.0 = "cool"`,
+		expected: []string{
+			"D0, P[], (doc)::blah:\n    - cool\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `b: cat`,
 		expression: ".b\n",
 		expected: []string{

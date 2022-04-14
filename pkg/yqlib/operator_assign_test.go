@@ -17,7 +17,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: `.a |= .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: null}\n",
+			"D0, P[], (doc)::a: null\n",
 		},
 	},
 	{
@@ -25,7 +25,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: `.a = .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: null}\n",
+			"D0, P[], (doc)::a: null\n",
 		},
 	},
 	{
@@ -178,7 +178,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:              `{}`,
 		expression:            `.a.b |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: bogs}}\n",
+			"D0, P[], (doc)::a:\n    b: bogs\n",
 		},
 	},
 	{
@@ -197,7 +197,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:              `{}`,
 		expression:            `.a.b.[0] |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: [bogs]}}\n",
+			"D0, P[], (doc)::a:\n    b:\n        - bogs\n",
 		},
 	},
 	{
@@ -205,7 +205,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `.a.b.[1].c |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: [null, {c: bogs}]}}\n",
+			"D0, P[], (doc)::a:\n    b:\n        - null\n        - c: bogs\n",
 		},
 	},
 }
