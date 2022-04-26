@@ -19,6 +19,19 @@ var tagOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "type is an alias for tag",
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
+		expression:  `.. | type`,
+		expected: []string{
+			"D0, P[], (!!str)::!!map\n",
+			"D0, P[a], (!!str)::!!str\n",
+			"D0, P[b], (!!str)::!!int\n",
+			"D0, P[c], (!!str)::!!float\n",
+			"D0, P[e], (!!str)::!!bool\n",
+			"D0, P[f], (!!str)::!!seq\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
 		expression: `tag`,
@@ -38,6 +51,15 @@ var tagOperatorScenarios = []expressionScenario{
 		description: "Set custom tag",
 		document:    `{a: str}`,
 		expression:  `.a tag = "!!mikefarah"`,
+		expected: []string{
+			"D0, P[], (doc)::{a: !!mikefarah str}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Set custom type",
+		document:    `{a: str}`,
+		expression:  `.a type = "!!mikefarah"`,
 		expected: []string{
 			"D0, P[], (doc)::{a: !!mikefarah str}\n",
 		},
