@@ -126,7 +126,7 @@ func processStdInArgs(args []string) []string {
 	// read from stdin.
 	// this happens if there is more than one argument
 	// or only one argument and its a file
-	if !pipingStdin || len(args) > 1 || (len(args) > 0 && maybeFile(args[0])) {
+	if nullInput || !pipingStdin || len(args) > 1 || (len(args) > 0 && maybeFile(args[0])) {
 		return args
 	}
 

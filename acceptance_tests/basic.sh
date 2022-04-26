@@ -86,6 +86,12 @@ testBasicCatWithFilesNoDash() {
   assertEquals "$Y" "$X"
 }
 
+# when the nullinput flag is used
+# dont automatically read STDIN (this breaks github actions)
+testBasicCreateFileGithubAction() {
+  cat /dev/null | ./yq -n ".a = 123" > test.yml
+}
+
 testBasicEvalAllCatWithFilesNoDash() {
   ./yq -n ".a = 123" > test.yml
   ./yq -n ".a = 124" > test2.yml
