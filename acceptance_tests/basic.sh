@@ -188,6 +188,40 @@ EOL
   assertEquals "10" "$X"
 }
 
+testBasicUpdateInPlaceMultipleFilesNoExpressionEval() {
+  cat >test.yml <<EOL
+a: 0
+EOL
+  cat >test2.yml <<EOL
+a: 1
+EOL
+read -r -d '' expected << EOM
+0
+---
+1
+EOM
+  ./yq -i test.yml test2.yml
+  X=$(./yq e '.a' test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testBasicUpdateInPlaceMultipleFilesNoExpressionEvalAll() {
+  cat >test.yml <<EOL
+a: 0
+EOL
+  cat >test2.yml <<EOL
+a: 1
+EOL
+read -r -d '' expected << EOM
+0
+---
+1
+EOM
+  ./yq -i ea test.yml test2.yml
+  X=$(./yq e '.a' test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testBasicNoExitStatus() {
   echo "a: cat" > test.yml
   X=$(./yq e '.z' test.yml)

@@ -10,7 +10,7 @@ import (
 	"gopkg.in/op/go-logging.v1"
 )
 
-func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err error) {
+func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	cmd.SilenceUsage = true
 
 	fileInfo, _ := os.Stdout.Stat()
@@ -19,11 +19,9 @@ func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err err
 		colorsEnabled = true
 	}
 
-	firstFileIndex = -1
-	if !nullInput && len(args) == 1 {
-		firstFileIndex = 0
-	} else if len(args) > 1 {
-		firstFileIndex = 1
+	expression, args, err := processArgs(args)
+	if err != nil {
+		return "", nil, err
 	}
 
 	// backwards compatibility
@@ -31,19 +29,23 @@ func initCommand(cmd *cobra.Command, args []string) (firstFileIndex int, err err
 		outputFormat = "json"
 	}
 
-	if writeInplace && (firstFileIndex == -1) {
-		return 0, fmt.Errorf("write inplace flag only applicable when giving an expression and at least one file")
+	if writeInplace && (len(args) == 0 || args[0] == "-") {
+		return "", nil, fmt.Errorf("write inplace flag only applicable when giving an expression and at least one file")
+	}
+
+	if frontMatter != "" && len(args) == 0 {
+		return "", nil, fmt.Errorf("front matter flag only applicable when giving an expression and at least one file")
 	}
 
 	if writeInplace && splitFileExp != "" {
-		return 0, fmt.Errorf("write inplace cannot be used with split file")
+		return "", nil, fmt.Errorf("write inplace cannot be used with split file")
 	}
 
-	if nullInput && len(args) > 1 {
-		return 0, fmt.Errorf("cannot pass files in when using null-input flag")
+	if nullInput && len(args) > 0 {
+		return "", nil, fmt.Errorf("cannot pass files in when using null-input flag")
 	}
 
-	return firstFileIndex, nil
+	return expression, args, nil
 }
 
 func configureDecoder() (yqlib.Decoder, error) {
@@ -116,7 +118,10 @@ func maybeFile(str string) bool {
 	return result
 }
 
-func processStdInArgs(pipingStdin bool, args []string) []string {
+func processStdInArgs(args []string) []string {
+	stat, _ := os.Stdin.Stat()
+	pipingStdin := (stat.Mode() & os.ModeCharDevice) == 0
+
 	// if we've been given a file, don't automatically
 	// read from stdin.
 	// this happens if there is more than one argument
@@ -137,7 +142,7 @@ func processStdInArgs(pipingStdin bool, args []string) []string {
 	return append(args, "-")
 }
 
-func processArgs(pipingStdin bool, originalArgs []string) (string, []string, error) {
+func processArgs(originalArgs []string) (string, []string, error) {
 	expression := forceExpression
 	if expressionFile != "" {
 		expressionBytes, err := os.ReadFile(expressionFile)
@@ -147,7 +152,7 @@ func processArgs(pipingStdin bool, originalArgs []string) (string, []string, err
 		expression = string(expressionBytes)
 	}
 
-	args := processStdInArgs(pipingStdin, originalArgs)
+	args := processStdInArgs(originalArgs)
 	yqlib.GetLogger().Debugf("processed args: %v", args)
 	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
 		yqlib.GetLogger().Debug("assuming expression is '%v'", args[0])

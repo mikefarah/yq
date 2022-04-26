@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
@@ -59,42 +58,19 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 	// 1 arg, read file in sequence
 	// 2+ args, [0] = expression, file the rest
 
+	out := cmd.OutOrStdout()
+
 	var err error
-	firstFileIndex, err := initCommand(cmd, args)
+
+	expression, args, err := initCommand(cmd, args)
 	if err != nil {
 		return err
 	}
 
-	stat, _ := os.Stdin.Stat()
-	pipingStdIn := (stat.Mode() & os.ModeCharDevice) == 0
-	yqlib.GetLogger().Debug("pipingStdIn: %v", pipingStdIn)
-
-	yqlib.GetLogger().Debug("stat.Mode(): %v", stat.Mode())
-	yqlib.GetLogger().Debug("ModeDir: %v", stat.Mode()&os.ModeDir)
-	yqlib.GetLogger().Debug("ModeAppend: %v", stat.Mode()&os.ModeAppend)
-	yqlib.GetLogger().Debug("ModeExclusive: %v", stat.Mode()&os.ModeExclusive)
-	yqlib.GetLogger().Debug("ModeTemporary: %v", stat.Mode()&os.ModeTemporary)
-	yqlib.GetLogger().Debug("ModeSymlink: %v", stat.Mode()&os.ModeSymlink)
-	yqlib.GetLogger().Debug("ModeDevice: %v", stat.Mode()&os.ModeDevice)
-	yqlib.GetLogger().Debug("ModeNamedPipe: %v", stat.Mode()&os.ModeNamedPipe)
-	yqlib.GetLogger().Debug("ModeSocket: %v", stat.Mode()&os.ModeSocket)
-	yqlib.GetLogger().Debug("ModeSetuid: %v", stat.Mode()&os.ModeSetuid)
-	yqlib.GetLogger().Debug("ModeSetgid: %v", stat.Mode()&os.ModeSetgid)
-	yqlib.GetLogger().Debug("ModeCharDevice: %v", stat.Mode()&os.ModeCharDevice)
-	yqlib.GetLogger().Debug("ModeSticky: %v", stat.Mode()&os.ModeSticky)
-	yqlib.GetLogger().Debug("ModeIrregular: %v", stat.Mode()&os.ModeIrregular)
-
-	// Mask for the type bits. For regular files, none will be set.
-	yqlib.GetLogger().Debug("ModeType: %v", stat.Mode()&os.ModeType)
-
-	yqlib.GetLogger().Debug("ModePerm: %v", stat.Mode()&os.ModePerm)
-
-	out := cmd.OutOrStdout()
-
 	if writeInplace {
 		// only use colors if its forced
 		colorsEnabled = forceColor
-		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[firstFileIndex])
+		writeInPlaceHandler := yqlib.NewWriteInPlaceHandler(args[0])
 		out, err = writeInPlaceHandler.CreateTempFile()
 		if err != nil {
 			return err
@@ -129,12 +105,12 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 
 	if frontMatter != "" {
 		yqlib.GetLogger().Debug("using front matter handler")
-		frontMatterHandler := yqlib.NewFrontMatterHandler(args[firstFileIndex])
+		frontMatterHandler := yqlib.NewFrontMatterHandler(args[0])
 		err = frontMatterHandler.Split()
 		if err != nil {
 			return err
 		}
-		args[firstFileIndex] = frontMatterHandler.GetYamlFrontMatterFilename()
+		args[0] = frontMatterHandler.GetYamlFrontMatterFilename()
 
 		if frontMatter == "process" {
 			reader := frontMatterHandler.GetContentReader()
@@ -142,10 +118,6 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 			defer yqlib.SafelyCloseReader(reader)
 		}
 		defer frontMatterHandler.CleanUp()
-	}
-	expression, args, err := processArgs(pipingStdIn, args)
-	if err != nil {
-		return err
 	}
 
 	switch len(args) {
