@@ -26,6 +26,15 @@ foobar:
   thing: foobar_thing
 `
 
+// cannot use merge anchors with arrays
+var badAliasSample = `
+_common: &common-docker-file
+  - FROM ubuntu:18.04
+
+steps:
+  <<: *common-docker-file
+`
+
 var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
@@ -528,6 +537,12 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a 1], (!!str)::b\n",
 			"D0, P[a 2], (!!str)::c\n",
 		},
+	},
+	{
+		skipDoc:       true,
+		document:      badAliasSample,
+		expression:    ".steps[]",
+		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
 	},
 }
 

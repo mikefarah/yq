@@ -309,6 +309,9 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, 
 func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *yaml.Node, wantedKey string, prefs traversePreferences, splat bool) error {
 	switch value.Kind {
 	case yaml.AliasNode:
+		if value.Alias.Kind != yaml.MappingNode {
+			return fmt.Errorf("can only use merge anchors with maps (!!map), but got %v", value.Alias.Tag)
+		}
 		candidateNode := originalCandidate.CreateReplacement(value.Alias)
 		return doTraverseMap(newMatches, candidateNode, wantedKey, prefs, splat)
 	case yaml.SequenceNode:
