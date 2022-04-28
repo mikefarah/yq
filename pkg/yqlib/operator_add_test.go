@@ -16,6 +16,14 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `a: key`,
+		expression: `. += {"key": "b"}`,
+		expected: []string{
+			"D0, P[], (!!map)::a: key\nkey: b\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[[c], [b]]`,
 		expression: `.[] | . += "a"`,
 		expected: []string{

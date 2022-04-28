@@ -183,7 +183,7 @@ func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 		key := rhs.Content[index]
 		value := rhs.Content[index+1]
 		log.Debug("finding %v", key.Value)
-		indexInLHS := findInArray(target.Node, key)
+		indexInLHS := findKeyInMap(target.Node, key)
 		log.Debug("indexInLhs %v", indexInLHS)
 		if indexInLHS < 0 {
 			// not in there, append it
