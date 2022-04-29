@@ -1,10 +1,10 @@
 4.25.1:
-  - Can specify a split expression file #1194
-  - Fixed append map bug when key matches value in existing map #1200
-  - Nicer error message when trying to use merge anchor tags other than maps #1184
-  - Fixed Don't automatically read stdin when the null input flag is used
-  - Added type as an alias for tag #1195
-  - Fixes bug when using write in-place with no expression and multiple files #1193
+- Can specify a split expression file #1194
+- Fixed append map bug when key matches value in existing map #1200
+- Nicer error message when trying to use merge anchor tags other than maps #1184
+- Fixed Don't automatically read stdin when the null input flag is used
+- Added type as an alias for tag #1195
+- Fixes bug when using write in-place with no expression and multiple files #1193
 
 4.24.5:
   - Fixed scenarios that dropped the first line if it's a comment (#1181)

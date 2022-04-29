@@ -6,11 +6,12 @@ import (
 
 var uniqueOperatorScenarios = []expressionScenario{
 	{
-		description: "Unique array of scalars (string/numbers)",
-		document:    `[1,2,3,2]`,
-		expression:  `unique`,
+		description:    "Unique array of scalars (string/numbers)",
+		subdescription: "Note that unique maintains the original order of the array.",
+		document:       `[2,1,3,2]`,
+		expression:     `unique`,
 		expected: []string{
-			"D0, P[], (!!seq)::- 1\n- 2\n- 3\n",
+			"D0, P[], (!!seq)::- 2\n- 1\n- 3\n",
 		},
 	},
 	{
