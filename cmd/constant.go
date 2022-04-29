@@ -27,6 +27,7 @@ var prettyPrint = false
 var frontMatter = ""
 
 var splitFileExp = ""
+var splitFileExpFile = ""
 
 var completedSuccessfully = false
 

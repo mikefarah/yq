@@ -24,6 +24,14 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		return "", nil, err
 	}
 
+	if splitFileExpFile != "" {
+		splitExpressionBytes, err := os.ReadFile(splitFileExpFile)
+		if err != nil {
+			return "", nil, err
+		}
+		splitFileExp = string(splitExpressionBytes)
+	}
+
 	// backwards compatibility
 	if outputToJSON {
 		outputFormat = "json"
