@@ -31,6 +31,29 @@ will output
 !!seq
 ```
 
+## type is an alias for tag
+Given a sample.yml file of:
+```yaml
+a: cat
+b: 5
+c: 3.2
+e: true
+f: []
+```
+then
+```bash
+yq '.. | type' sample.yml
+```
+will output
+```yaml
+!!map
+!!str
+!!int
+!!float
+!!bool
+!!seq
+```
+
 ## Set custom tag
 Given a sample.yml file of:
 ```yaml

@@ -9,10 +9,12 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 {% endhint %}
 
 ## Unique array of scalars (string/numbers)
+Note that unique maintains the original order of the array.
+
 Given a sample.yml file of:
 ```yaml
-- 1
 - 2
+- 1
 - 3
 - 2
 ```
@@ -22,8 +24,8 @@ yq 'unique' sample.yml
 ```
 will output
 ```yaml
-- 1
 - 2
+- 1
 - 3
 ```
 
