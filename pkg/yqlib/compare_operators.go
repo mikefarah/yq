@@ -87,11 +87,11 @@ func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs 
 	if isDateTime {
 		return compareDateTime(context.GetDateTimeLayout(), prefs, lhs, rhs)
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
-		_, lhsNum, err := parseInt(lhs.Value)
+		_, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
 			return false, err
 		}
-		_, rhsNum, err := parseInt(rhs.Value)
+		_, rhsNum, err := parseInt64(rhs.Value)
 		if err != nil {
 			return false, err
 		}

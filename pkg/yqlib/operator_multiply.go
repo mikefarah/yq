@@ -124,11 +124,11 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 	target.Node.Style = lhs.Node.Style
 	target.Node.Tag = lhs.Node.Tag
 
-	format, lhsNum, err := parseInt(lhs.Node.Value)
+	format, lhsNum, err := parseInt64(lhs.Node.Value)
 	if err != nil {
 		return nil, err
 	}
-	_, rhsNum, err := parseInt(rhs.Node.Value)
+	_, rhsNum, err := parseInt64(rhs.Node.Value)
 	if err != nil {
 		return nil, err
 	}

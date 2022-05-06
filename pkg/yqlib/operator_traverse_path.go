@@ -188,15 +188,15 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 
 	for _, indexNode := range indices {
 		log.Debug("traverseArrayWithIndices: '%v'", indexNode.Value)
-		index, err := strconv.ParseInt(indexNode.Value, 10, 64)
+		_, index, err := parseInt(indexNode.Value)
 		if err != nil && prefs.OptionalTraverse {
 			continue
 		}
 		if err != nil {
-			return nil, fmt.Errorf("Cannot index array with '%v' (%w)", indexNode.Value, err)
+			return nil, fmt.Errorf("cannot index array with '%v' (%w)", indexNode.Value, err)
 		}
 		indexToUse := index
-		contentLength := int64(len(node.Content))
+		contentLength := len(node.Content)
 		for contentLength <= index {
 			if contentLength == 0 {
 				// default to nice yaml formating
@@ -204,7 +204,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 			}
 
 			node.Content = append(node.Content, &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"})
-			contentLength = int64(len(node.Content))
+			contentLength = len(node.Content)
 		}
 
 		if indexToUse < 0 {
@@ -215,7 +215,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 			return nil, fmt.Errorf("index [%v] out of range, array size is %v", index, contentLength)
 		}
 
-		newMatches.PushBack(candidate.CreateChildInArray(int(index), node.Content[indexToUse]))
+		newMatches.PushBack(candidate.CreateChildInArray(index, node.Content[indexToUse]))
 	}
 	return newMatches, nil
 }

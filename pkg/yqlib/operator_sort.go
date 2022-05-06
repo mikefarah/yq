@@ -106,11 +106,11 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	} else if lhs.Tag != rhs.Tag || lhs.Tag == "!!str" {
 		return strings.Compare(lhs.Value, rhs.Value) < 0
 	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
-		_, lhsNum, err := parseInt(lhs.Value)
+		_, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
 			panic(err)
 		}
-		_, rhsNum, err := parseInt(rhs.Value)
+		_, rhsNum, err := parseInt64(rhs.Value)
 		if err != nil {
 			panic(err)
 		}

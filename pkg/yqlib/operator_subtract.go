@@ -104,11 +104,11 @@ func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs
 	} else if lhsTag == "!!str" {
 		return fmt.Errorf("strings cannot be subtracted")
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
-		format, lhsNum, err := parseInt(lhs.Value)
+		format, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
 			return err
 		}
-		_, rhsNum, err := parseInt(rhs.Value)
+		_, rhsNum, err := parseInt64(rhs.Value)
 		if err != nil {
 			return err
 		}

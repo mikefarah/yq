@@ -36,7 +36,7 @@ func pickSequence(original *yaml.Node, indices *yaml.Node) (*yaml.Node, error) {
 			return nil, fmt.Errorf("cannot index array with %v", indices.Content[index].Value)
 		}
 
-		if int(indexInArray) > -1 && int(indexInArray) < len(original.Content) {
+		if indexInArray > -1 && indexInArray < len(original.Content) {
 			filteredContent = append(filteredContent, deepClone(original.Content[indexInArray]))
 		}
 	}
