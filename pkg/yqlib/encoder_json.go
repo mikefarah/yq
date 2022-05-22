@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 
@@ -9,6 +10,7 @@ import (
 
 type jsonEncoder struct {
 	indentString string
+	colorise     bool
 }
 
 func mapKeysToStrings(node *yaml.Node) {
@@ -26,14 +28,14 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJONEncoder(indent int) Encoder {
+func NewJONEncoder(indent int, colorise bool) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
 
-	return &jsonEncoder{indentString}
+	return &jsonEncoder{indentString, colorise}
 }
 
 func (je *jsonEncoder) CanHandleAliases() bool {
@@ -49,7 +51,14 @@ func (je *jsonEncoder) PrintLeadingContent(writer io.Writer, content string) err
 }
 
 func (je *jsonEncoder) Encode(writer io.Writer, node *yaml.Node) error {
-	var encoder = json.NewEncoder(writer)
+
+	destination := writer
+	tempBuffer := bytes.NewBuffer(nil)
+	if je.colorise {
+		destination = tempBuffer
+	}
+
+	var encoder = json.NewEncoder(destination)
 	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 	encoder.SetIndent("", je.indentString)
 
@@ -60,5 +69,12 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	if errorDecoding != nil {
 		return errorDecoding
 	}
-	return encoder.Encode(dataBucket)
+	err := encoder.Encode(dataBucket)
+	if err != nil {
+		return err
+	}
+	if je.colorise {
+		return colorizeAndPrint(tempBuffer.Bytes(), writer)
+	}
+	return nil
 }

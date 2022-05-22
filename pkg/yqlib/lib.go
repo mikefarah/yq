@@ -331,25 +331,23 @@ func parseInt64(numberString string) (string, int64, error) {
 	return "%v", num, err
 }
 
-func parseInt(numberString string) (string, int, error) {
+func parseInt(numberString string) (int, error) {
 	var err error
 	var parsed int64
-	format := "%v"
 	if strings.HasPrefix(numberString, "0x") ||
 		strings.HasPrefix(numberString, "0X") {
-		format = "0x%X"
 		parsed, err = strconv.ParseInt(numberString[2:], 16, 64)
 	} else {
 		parsed, err = strconv.ParseInt(numberString, 10, 64)
 	}
 
 	if err != nil {
-		return "", 0, err
+		return 0, err
 	} else if parsed > math.MaxInt {
-		return "", 0, fmt.Errorf("%v is too big (larger than %v)", parsed, math.MaxInt)
+		return 0, fmt.Errorf("%v is too big (larger than %v)", parsed, math.MaxInt)
 	}
 
-	return format, int(parsed), err
+	return int(parsed), err
 }
 
 func createScalarNode(value interface{}, stringValue string) *yaml.Node {

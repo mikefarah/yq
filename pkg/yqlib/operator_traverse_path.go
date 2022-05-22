@@ -188,7 +188,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 
 	for _, indexNode := range indices {
 		log.Debug("traverseArrayWithIndices: '%v'", indexNode.Value)
-		_, index, err := parseInt(indexNode.Value)
+		index, err := parseInt(indexNode.Value)
 		if err != nil && prefs.OptionalTraverse {
 			continue
 		}

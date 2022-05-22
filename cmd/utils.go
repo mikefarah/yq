@@ -91,7 +91,7 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yq
 func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	switch format {
 	case yqlib.JSONOutputFormat:
-		return yqlib.NewJONEncoder(indent)
+		return yqlib.NewJONEncoder(indent, colorsEnabled)
 	case yqlib.PropsOutputFormat:
 		return yqlib.NewPropertiesEncoder()
 	case yqlib.CSVOutputFormat:

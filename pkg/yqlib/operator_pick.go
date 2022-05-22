@@ -31,7 +31,7 @@ func pickSequence(original *yaml.Node, indices *yaml.Node) (*yaml.Node, error) {
 
 	filteredContent := make([]*yaml.Node, 0)
 	for index := 0; index < len(indices.Content); index = index + 1 {
-		_, indexInArray, err := parseInt(indices.Content[index].Value)
+		indexInArray, err := parseInt(indices.Content[index].Value)
 		if err != nil {
 			return nil, fmt.Errorf("cannot index array with %v", indices.Content[index].Value)
 		}

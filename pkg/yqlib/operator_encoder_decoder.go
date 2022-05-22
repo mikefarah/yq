@@ -13,7 +13,7 @@ import (
 func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 	switch format {
 	case JSONOutputFormat:
-		return NewJONEncoder(indent)
+		return NewJONEncoder(indent, false)
 	case PropsOutputFormat:
 		return NewPropertiesEncoder()
 	case CSVOutputFormat:
