@@ -107,13 +107,13 @@ c: fieldC
 ```
 then
 ```bash
-yq '(.a, .c) = "potatoe"' sample.yml
+yq '(.a, .c) = "potato"' sample.yml
 ```
 will output
 ```yaml
-a: potatoe
+a: potato
 b: fieldB
-c: potatoe
+c: potato
 ```
 
 ## Update string value
@@ -151,7 +151,7 @@ a:
 ```
 
 ## Update deeply selected results
-Note that the LHS is wrapped in brackets! This is to ensure we dont first filter out the yaml and then update the snippet.
+Note that the LHS is wrapped in brackets! This is to ensure we don't first filter out the yaml and then update the snippet.
 
 Given a sample.yml file of:
 ```yaml

@@ -266,7 +266,7 @@ will output
 ```
 
 ## Test using regex
-Like jq'q equivalent, this works like match but only returns true/false instead of full match details
+Like jq's equivalent, this works like match but only returns true/false instead of full match details
 
 Given a sample.yml file of:
 ```yaml

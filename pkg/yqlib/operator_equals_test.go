@@ -130,7 +130,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Dont match number",
+		description: "Don't match number",
 		document:    `[3, 4, 5]`,
 		expression:  `.[] | (. != 4)`,
 		expected: []string{
@@ -165,7 +165,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Non exisitant key doesn't equal a value",
+		description: "Non existent key doesn't equal a value",
 		document:    "a: frog",
 		expression:  `select(.b != "thing")`,
 		expected: []string{

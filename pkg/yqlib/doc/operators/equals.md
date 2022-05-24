@@ -81,7 +81,7 @@ true
 false
 ```
 
-## Dont match number
+## Don't match number
 Given a sample.yml file of:
 ```yaml
 - 3
