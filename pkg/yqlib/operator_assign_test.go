@@ -101,9 +101,9 @@ var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Updated multiple paths",
 		document:    `{a: fieldA, b: fieldB, c: fieldC}`,
-		expression:  `(.a, .c) = "potatoe"`,
+		expression:  `(.a, .c) = "potato"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: potatoe, b: fieldB, c: potatoe}\n",
+			"D0, P[], (doc)::{a: potato, b: fieldB, c: potato}\n",
 		},
 	},
 	{
@@ -149,7 +149,7 @@ var assignOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Update deeply selected results",
-		subdescription: "Note that the LHS is wrapped in brackets! This is to ensure we dont first filter out the yaml and then update the snippet.",
+		subdescription: "Note that the LHS is wrapped in brackets! This is to ensure we don't first filter out the yaml and then update the snippet.",
 		document:       `{a: {b: apple, c: cactus}}`,
 		expression:     `(.a[] | select(. == "apple")) = "frog"`,
 		expected: []string{

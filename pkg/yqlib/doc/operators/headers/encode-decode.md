@@ -4,7 +4,7 @@ Encode operators will take the piped in object structure and encode it as a stri
 
 Note that you can optionally pass an indent value to the encode functions (see below).
 
-These operators are useful to process yaml documents that have stringified embeded yaml/json/props in them.
+These operators are useful to process yaml documents that have stringified embedded yaml/json/props in them.
 
 
 | Format | Decode (from string) | Encode (to string) |

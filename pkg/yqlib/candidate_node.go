@@ -21,7 +21,7 @@ type CandidateNode struct {
 	Filename  string
 	FileIndex int
 	// when performing op against all nodes given, this will treat all the nodes as one
-	// (e.g. top level cross document merge). This property does not propegate to child nodes.
+	// (e.g. top level cross document merge). This property does not propagate to child nodes.
 	EvaluateTogether bool
 	IsMapKey         bool
 }

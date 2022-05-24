@@ -47,7 +47,7 @@ b: dog
 
 ## Complex assignment, operator precedence rules
 
-Just like math expression - `yq` expression have an order of precedence. The pipe `|` operator has a low order of precedence, so operators with higher precedence will get evalated first. 
+Just like math expression - `yq` expression have an order of precedence. The pipe `|` operator has a low order of precedence, so operators with higher precedence will get evaluated first. 
 
 Most of the time, this is intuitively what you'd want, for instance `.a = "cat" | .b = "dog"` is effectively: `(.a = "cat") | (.b = "dog")`.
 
@@ -66,7 +66,7 @@ Lets say you had:
 Lets say you wanted to update the `sally` entry to have fruit: 'mango'. The _incorrect_ way to do that is:
 `.[] | select(.name == "sally") | .fruit = "mango"`.
 
-Becasue `|` has a low operator precedence, this will be evaluated (_incorrectly_) as : `(.[]) | (select(.name == "sally")) | (.fruit = "mango")`. What you'll see is only the updated segment returned:
+Because `|` has a low operator precedence, this will be evaluated (_incorrectly_) as : `(.[]) | (select(.name == "sally")) | (.fruit = "mango")`. What you'll see is only the updated segment returned:
 
 ```yaml
 name: sally

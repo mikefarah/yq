@@ -39,13 +39,13 @@ var variableOperatorScenarios = []expressionScenario{
 	{
 		description:    "Using variables as a lookup",
 		subdescription: "Example taken from [jq](https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...)",
-		document: `{"posts": [{"title": "Frist psot", "author": "anon"},
+		document: `{"posts": [{"title": "First post", "author": "anon"},
 			{"title": "A well-written article", "author": "person1"}],
 	"realnames": {"anon": "Anonymous Coward",
 					"person1": "Person McPherson"}}`,
 		expression: `.realnames as $names | .posts[] | {"title":.title, "author": $names[.author]}`,
 		expected: []string{
-			"D0, P[], (!!map)::title: \"Frist psot\"\nauthor: \"Anonymous Coward\"\n",
+			"D0, P[], (!!map)::title: \"First post\"\nauthor: \"Anonymous Coward\"\n",
 			"D0, P[], (!!map)::title: \"A well-written article\"\nauthor: \"Person McPherson\"\n",
 		},
 	},

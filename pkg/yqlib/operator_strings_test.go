@@ -165,7 +165,7 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Test using regex",
-		subdescription: "Like jq'q equivalent, this works like match but only returns true/false instead of full match details",
+		subdescription: "Like jq's equivalent, this works like match but only returns true/false instead of full match details",
 		document:       `["cat", "dog"]`,
 		expression:     `.[] | test("at")`,
 		expected: []string{
