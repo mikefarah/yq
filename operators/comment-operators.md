@@ -74,7 +74,6 @@ yq '. foot_comment=.a' sample.yml
 will output
 ```yaml
 a: cat
-
 # cat
 ```
 
@@ -117,6 +116,7 @@ b:
 Given a sample.yml file of:
 ```yaml
 a: cat # meow
+# have a great day
 ```
 then
 ```bash

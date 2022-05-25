@@ -81,7 +81,7 @@ true
 false
 ```
 
-## Dont match number
+## Don't match number
 Given a sample.yml file of:
 ```yaml
 - 3
@@ -109,7 +109,7 @@ will output
 true
 ```
 
-## Non exisitant key doesn't equal a value
+## Non existent key doesn't equal a value
 Given a sample.yml file of:
 ```yaml
 a: frog

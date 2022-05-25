@@ -46,7 +46,7 @@ Example taken from [jq](https://stedolan.github.io/jq/manual/#Variable/SymbolicB
 Given a sample.yml file of:
 ```yaml
 "posts":
-  - "title": Frist psot
+  - "title": First post
     "author": anon
   - "title": A well-written article
     "author": person1
@@ -60,7 +60,7 @@ yq '.realnames as $names | .posts[] | {"title":.title, "author": $names[.author]
 ```
 will output
 ```yaml
-title: Frist psot
+title: First post
 author: Anonymous Coward
 title: A well-written article
 author: Person McPherson
