@@ -19,7 +19,7 @@ with an expression:
 .a = .b
 ```
 
-Like math expression - operator precedence is important. 
+Like math expressions - operator precedence is important. 
 
 The `=` operator takes two arguments, a `lhs` expression, which in this case is `.a` and `rhs` expression which is `.b`. 
 
@@ -47,7 +47,7 @@ b: dog
 
 ## Complex assignment, operator precedence rules
 
-Just like math expression - `yq` expression have an order of precedence. The pipe `|` operator has a low order of precedence, so operators with higher precedence will get evaluated first. 
+Just like math expressions - `yq` expressions have an order of precedence. The pipe `|` operator has a low order of precedence, so operators with higher precedence will get evaluated first. 
 
 Most of the time, this is intuitively what you'd want, for instance `.a = "cat" | .b = "dog"` is effectively: `(.a = "cat") | (.b = "dog")`.
 
