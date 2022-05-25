@@ -12,6 +12,62 @@ testBasicEvalRoundTrip() {
   assertEquals 123 "$X"
 }
 
+testBasicTrailingContent() {
+  cat >test-trailing.yml <<EOL
+test:
+# this comment will be removed
+EOL
+
+  read -r -d '' expected << EOM
+test:
+# this comment will be removed
+EOM
+  X=$(./yq test-trailing.yml -P)
+  assertEquals "$expected" "$X"
+}
+
+testBasicTrailingContent() {
+  cat >test-trailing.yml <<EOL
+test:
+# this comment will be removed
+EOL
+
+  read -r -d '' expected << EOM
+test:
+# hi
+EOM
+  X=$(./yq '. footComment = "hi"' test-trailing.yml)
+  assertEquals "$expected" "$X"
+}
+
+testBasicTrailingContentEvalAll() {
+  cat >test-trailing.yml <<EOL
+test:
+# this comment will be removed
+EOL
+
+  read -r -d '' expected << EOM
+test:
+# this comment will be removed
+EOM
+  X=$(./yq ea test-trailing.yml -P)
+  assertEquals "$expected" "$X"
+}
+
+testBasicTrailingContentEvalAll() {
+  cat >test-trailing.yml <<EOL
+test:
+# this comment will be removed
+EOL
+
+  read -r -d '' expected << EOM
+test:
+# hi
+EOM
+  X=$(./yq ea '. footComment = "hi"' test-trailing.yml)
+  assertEquals "$expected" "$X"
+}
+
 testBasicPipeWithDot() {
   ./yq -n ".a = 123" > test.yml
   X=$(cat test.yml | ./yq '.')

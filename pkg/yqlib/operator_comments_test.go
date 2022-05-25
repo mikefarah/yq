@@ -59,7 +59,7 @@ var commentOperatorScenarios = []expressionScenario{
 		document:    `a: cat`,
 		expression:  `. foot_comment=.a`,
 		expected: []string{
-			"D0, P[], (doc)::a: cat\n\n# cat\n",
+			"D0, P[], (doc)::a: cat\n# cat\n",
 		},
 	},
 	{

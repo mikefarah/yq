@@ -134,6 +134,10 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return err
 		}
 
+		if err := p.encoder.PrintLeadingContent(writer, mappedDoc.TrailingContent); err != nil {
+			return err
+		}
+
 		p.previousDocIndex = mappedDoc.Document
 		if err := writer.Flush(); err != nil {
 			return err

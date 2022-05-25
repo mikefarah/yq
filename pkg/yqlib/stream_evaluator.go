@@ -110,6 +110,11 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 			Node:      &dataBucket,
 			FileIndex: s.fileIndex,
 		}
+		//move document comments into candidate node
+		// otherwise unwrap drops them.
+		candidateNode.TrailingContent = dataBucket.FootComment
+		dataBucket.FootComment = ""
+
 		if currentIndex == 0 {
 			candidateNode.LeadingContent = leadingContent
 		}

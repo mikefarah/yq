@@ -14,7 +14,8 @@ type CandidateNode struct {
 	Parent *CandidateNode // parent node
 	Key    *yaml.Node     // node key, if this is a value from a map (or index in an array)
 
-	LeadingContent string
+	LeadingContent  string
+	TrailingContent string
 
 	Path      []interface{} /// the path we took to get to this node
 	Document  uint          // the document index of this node
@@ -169,6 +170,9 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 
 	if other.Node.FootComment != "" {
 		n.Node.FootComment = other.Node.FootComment
+	}
+	if other.TrailingContent != "" {
+		n.TrailingContent = other.TrailingContent
 	}
 	if other.Node.HeadComment != "" {
 		n.Node.HeadComment = other.Node.HeadComment

@@ -96,6 +96,11 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 			EvaluateTogether: true,
 		}
 
+		//move document comments into candidate node
+		// otherwise unwrap drops them.
+		candidateNode.TrailingContent = dataBucket.FootComment
+		dataBucket.FootComment = ""
+
 		inputList.PushBack(candidateNode)
 
 		currentIndex = currentIndex + 1

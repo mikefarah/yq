@@ -144,7 +144,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document2:  docNoComments,
 		expression: `select(fi == 0) * select(fi == 1)`,
 		expected: []string{
-			"D0, P[], (!!map)::a: apple\nb: banana\n\n# footer\n",
+			"D0, P[], (!!map)::a: apple\nb: banana\n# footer\n",
 		},
 	},
 	{
@@ -157,12 +157,13 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:    true,
-		document:   docNoComments,
-		document2:  docWithFooter,
-		expression: `select(fi == 0) * select(fi == 1)`,
+		description: "doc 2 has footer",
+		skipDoc:     true,
+		document:    docNoComments,
+		document2:   docWithFooter,
+		expression:  `select(fi == 0) * select(fi == 1)`,
 		expected: []string{
-			"D0, P[], (!!map)::b: banana\na: apple\n\n# footer\n",
+			"D0, P[], (!!map)::b: banana\na: apple\n# footer\n",
 		},
 	},
 	{
