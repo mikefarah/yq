@@ -35,7 +35,6 @@ func (dec *base64Decoder) Decode(rootYamlNode *yaml.Node) error {
 	}
 	if buf.Len() == 0 {
 		dec.finished = true
-		return io.EOF
 	}
 	rootYamlNode.Kind = yaml.ScalarNode
 	rootYamlNode.Tag = "!!str"

@@ -243,6 +243,14 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::coolData:\n    a: apple\n",
 		},
 	},
+	{
+		description: "empty base64 decode",
+		skipDoc:     true,
+		expression:  `"" | @base64d`,
+		expected: []string{
+			"D0, P[], (!!str)::\n",
+		},
+	},
 }
 
 func TestEncoderDecoderOperatorScenarios(t *testing.T) {
