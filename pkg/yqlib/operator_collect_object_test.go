@@ -154,6 +154,13 @@ var collectObjectOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{wrap: {further: {name: Mike}}}\n",
 		},
 	},
+	{
+		description: "Creating yaml from scratch with multiple objects",
+		expression:  `(.a.b = "foo") | (.d.e = "bar")`,
+		expected: []string{
+			"D0, P[], ()::a:\n    b: foo\nd:\n    e: bar\n",
+		},
+	},
 }
 
 func TestCollectObjectOperatorScenarios(t *testing.T) {

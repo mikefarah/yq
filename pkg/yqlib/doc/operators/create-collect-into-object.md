@@ -86,3 +86,16 @@ will output
 wrap: frog
 ```
 
+## Creating yaml from scratch with multiple objects
+Running
+```bash
+yq --null-input '(.a.b = "foo") | (.d.e = "bar")'
+```
+will output
+```yaml
+a:
+  b: foo
+d:
+  e: bar
+```
+
