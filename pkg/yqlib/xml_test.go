@@ -216,7 +216,7 @@ var xmlScenarios = []formatScenario{
 		description:  "Empty doc",
 		skipDoc:      true,
 		input:        "",
-		expected:     "",
+		expected:     "\n",
 		scenarioType: "decode",
 	},
 	{

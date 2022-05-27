@@ -403,11 +403,17 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`fromyaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromjson`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`fromxml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XMLInputFormat}))
+	lexer.Add([]byte(`fromprops`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: PropertiesInputFormat}))
 
 	lexer.Add([]byte(`from_yaml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`from_json`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
 	lexer.Add([]byte(`from_xml`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XMLInputFormat}))
 	lexer.Add([]byte(`from_props`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: PropertiesInputFormat}))
+
+	lexer.Add([]byte(`@yamld`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`@jsond`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: YamlInputFormat}))
+	lexer.Add([]byte(`@xmld`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: XMLInputFormat}))
+	lexer.Add([]byte(`@propsd`), opTokenWithPrefs(decodeOpType, nil, decoderPreferences{format: PropertiesInputFormat}))
 
 	lexer.Add([]byte(`sortKeys`), opToken(sortKeysOpType))
 	lexer.Add([]byte(`sort_keys`), opToken(sortKeysOpType))

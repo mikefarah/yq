@@ -251,6 +251,14 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!str)::\n",
 		},
 	},
+	{
+		description: "empty xml decode",
+		skipDoc:     true,
+		expression:  `"" | @xmld`,
+		expected: []string{
+			"D0, P[], (!!null)::\n",
+		},
+	},
 }
 
 func TestEncoderDecoderOperatorScenarios(t *testing.T) {

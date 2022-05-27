@@ -9,9 +9,10 @@ import (
 )
 
 type base64Decoder struct {
-	reader   io.Reader
-	finished bool
-	encoding base64.Encoding
+	reader       io.Reader
+	finished     bool
+	readAnything bool
+	encoding     base64.Encoding
 }
 
 func NewBase64Decoder() Decoder {
@@ -20,6 +21,7 @@ func NewBase64Decoder() Decoder {
 
 func (dec *base64Decoder) Init(reader io.Reader) {
 	dec.reader = reader
+	dec.readAnything = false
 	dec.finished = false
 }
 
@@ -35,7 +37,15 @@ func (dec *base64Decoder) Decode(rootYamlNode *yaml.Node) error {
 	}
 	if buf.Len() == 0 {
 		dec.finished = true
+
+		// if we've read _only_ an empty string, lets return that
+		// otherwise if we've already read some bytes, and now we get
+		// an empty string, then we are done.
+		if dec.readAnything {
+			return io.EOF
+		}
 	}
+	dec.readAnything = true
 	rootYamlNode.Kind = yaml.ScalarNode
 	rootYamlNode.Tag = "!!str"
 	rootYamlNode.Value = buf.String()

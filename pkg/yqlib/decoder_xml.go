@@ -13,6 +13,7 @@ import (
 
 type xmlDecoder struct {
 	reader          io.Reader
+	readAnything    bool
 	attributePrefix string
 	contentName     string
 	strictMode      bool
@@ -28,6 +29,7 @@ func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool) 
 
 func (dec *xmlDecoder) Init(reader io.Reader) {
 	dec.reader = reader
+	dec.readAnything = false
 	dec.finished = false
 }
 
@@ -137,8 +139,11 @@ func (dec *xmlDecoder) Decode(rootYamlNode *yaml.Node) error {
 		return err
 	} else if firstNode.Tag == "!!null" {
 		dec.finished = true
-		return io.EOF
+		if dec.readAnything {
+			return io.EOF
+		}
 	}
+	dec.readAnything = true
 	rootYamlNode.Kind = yaml.DocumentNode
 	rootYamlNode.Content = []*yaml.Node{firstNode}
 	dec.finished = true
