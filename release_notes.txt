@@ -1,3 +1,11 @@
+4.25.2:
+  - Fixed comments disappearing from end of file (#1217)
+  - Fixed empty base64 decoding error (#1209)
+  - JSON output now in colors (#1208)
+  - Added codeql and fixed minor issues
+  - Bumped go-yaml library
+  - Bumped go dependency
+
 4.25.1:
 - Can specify a split expression file #1194
 - Fixed append map bug when key matches value in existing map #1200
