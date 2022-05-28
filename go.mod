@@ -12,7 +12,7 @@ require (
 	github.com/timtadh/lexmachine v0.2.2
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
