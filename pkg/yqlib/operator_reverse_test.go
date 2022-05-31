@@ -44,6 +44,15 @@ var reverseOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[{a: cat}, {a: banana}, {a: apple}]\n",
 		},
 	},
+	{
+		description: "Sort descending by string field, with comments",
+		skipDoc:     true,
+		document:    "# abc\n[{a: banana},{a: cat},{a: apple}]\n# xyz",
+		expression:  `sort_by(.a) | reverse`,
+		expected: []string{
+			"D0, P[], (!!seq)::# abc\n[{a: cat}, {a: banana}, {a: apple}]\n# xyz\n",
+		},
+	},
 }
 
 func TestReverseOperatorScenarios(t *testing.T) {

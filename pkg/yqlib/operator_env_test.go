@@ -150,6 +150,16 @@ var envOperatorScenarios = []expressionScenario{
 		expression:    `"the ${notThere} ${alsoNotThere}" | envsubst(nu,ff)`,
 		expectedError: "variable ${notThere} not set",
 	},
+	{
+		description:          "with header/footer",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "cat meow"},
+		document:             "# abc\n{v: \"${myenv}\"}\n# xyz\n",
+		expression:           `(.. | select(tag == "!!str")) |= envsubst`,
+		expected: []string{
+			"D0, P[], (!!map)::# abc\n{v: \"cat meow\"}\n# xyz\n",
+		},
+	},
 }
 
 func TestEnvOperatorScenarios(t *testing.T) {

@@ -15,12 +15,30 @@ var pickOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Pick keys from map with comments",
+		skipDoc:     true,
+		document:    "# abc\nmyMap: {cat: meow, dog: bark, thing: hamster, hamster: squeek}\n# xyz\n",
+		expression:  `.myMap |= pick(["hamster", "cat", "goat"])`,
+		expected: []string{
+			"D0, P[], (doc)::# abc\nmyMap: {hamster: squeek, cat: meow}\n# xyz\n",
+		},
+	},
+	{
 		description:    "Pick indices from array",
 		subdescription: "Note that the order of the indexes matches the pick order and non existent indexes are skipped.",
 		document:       `[cat, leopard, lion]`,
 		expression:     `pick([2, 0, 734, -5])`,
 		expected: []string{
 			"D0, P[], (!!seq)::[lion, cat]\n",
+		},
+	},
+	{
+		description: "Pick indices from array with comments",
+		skipDoc:     true,
+		document:    "# abc\n[cat, leopard, lion]\n# xyz",
+		expression:  `pick([2, 0, 734, -5])`,
+		expected: []string{
+			"D0, P[], (!!seq)::# abc\n[lion, cat]\n# xyz\n",
 		},
 	},
 }

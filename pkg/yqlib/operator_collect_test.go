@@ -29,12 +29,21 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:  true,
-		document: "{a: apple}\n---\n{b: frog}",
-
+		skipDoc:    true,
+		document:   "{a: apple}\n---\n{b: frog}",
 		expression: `[.]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- {a: apple}\n- {b: frog}\n",
+		},
+	},
+	{
+		description: "with comments",
+		skipDoc:     true,
+		document:    "# abc\n[{a: apple}]\n\n# xyz\n",
+
+		expression: `[.[]]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- {a: apple}\n",
 		},
 	},
 	{

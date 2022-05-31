@@ -25,7 +25,7 @@ func reverseOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for i, originalNode := range candidateNode.Content {
 			reverseList.Content[len(candidateNode.Content)-i-1] = originalNode
 		}
-		results.PushBack(candidate.CreateReplacement(reverseList))
+		results.PushBack(candidate.CreateReplacementWithDocWrappers(reverseList))
 
 	}
 

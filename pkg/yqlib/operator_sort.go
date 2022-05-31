@@ -64,7 +64,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		for i, sortedNode := range sortableArray {
 			sortedList.Content[i] = sortedNode.Node
 		}
-		results.PushBack(candidate.CreateReplacement(sortedList))
+		results.PushBack(candidate.CreateReplacementWithDocWrappers(sortedList))
 	}
 	return context.ChildContext(results), nil
 }

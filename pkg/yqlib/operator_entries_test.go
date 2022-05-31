@@ -63,11 +63,29 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `[{a: 1, b: 2}, {c: 1, d: 2}]`,
+		expression: `.[] | with_entries(.key |= "KEY_" + .)`,
+		expected: []string{
+			"D0, P[], (!!map)::KEY_a: 1\nKEY_b: 2\n",
+			"D0, P[], (!!map)::KEY_c: 1\nKEY_d: 2\n",
+		},
+	},
+	{
 		description: "Use with_entries to filter the map",
 		document:    `{a: { b: bird }, c: { d: dog }}`,
 		expression:  `with_entries(select(.value | has("b")))`,
 		expected: []string{
 			"D0, P[], (!!map)::a: {b: bird}\n",
+		},
+	},
+	{
+		description: "Use with_entries to filter the map; head comment",
+		skipDoc:     true,
+		document:    "# abc\n{a: { b: bird }, c: { d: dog }}\n# xyz",
+		expression:  `with_entries(select(.value | has("b")))`,
+		expected: []string{
+			"D0, P[], (!!map)::# abc\na: {b: bird}\n# xyz\n",
 		},
 	},
 }

@@ -20,7 +20,7 @@ func entrySeqFor(key *yaml.Node, value *yaml.Node) *yaml.Node {
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateReplacement(sequence)
+	var entriesNode = candidateNode.CreateReplacementWithDocWrappers(sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 2 {
@@ -34,7 +34,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-	var entriesNode = candidateNode.CreateReplacement(sequence)
+	var entriesNode = candidateNode.CreateReplacementWithDocWrappers(sequence)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 	for index := 0; index < len(contents); index = index + 1 {
@@ -94,7 +94,7 @@ func parseEntry(entry *yaml.Node, position int) (*yaml.Node, *yaml.Node, error) 
 
 func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
 	var node = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-	var mapCandidateNode = candidateNode.CreateReplacement(node)
+	var mapCandidateNode = candidateNode.CreateReplacementWithDocWrappers(node)
 
 	var contents = unwrapDoc(candidateNode.Node).Content
 
@@ -141,9 +141,11 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 	var results = list.New()
 
 	for el := toEntries.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
 		//run expression against entries
 		// splat toEntries and pipe it into Rhs
-		splatted, err := splat(context.SingleChildContext(el.Value.(*CandidateNode)), traversePreferences{})
+		splatted, err := splat(context.SingleChildContext(candidate), traversePreferences{})
 		if err != nil {
 			return Context{}, err
 		}
@@ -160,6 +162,10 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 		if err != nil {
 			return Context{}, err
 		}
+		collected.LeadingContent = candidate.LeadingContent
+		collected.TrailingContent = candidate.TrailingContent
+
+		log.Debugf("**** collected %v", collected.LeadingContent)
 
 		fromEntries, err := fromEntriesOperator(d, context.SingleChildContext(collected), expressionNode)
 		if err != nil {
