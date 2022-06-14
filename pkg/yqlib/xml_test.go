@@ -408,6 +408,9 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false), NewXMLEncoder(2, "+", "+content"))))
+
+	writeOrPanic(w, "instead of\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewXMLEncoder(2, "+", "+content"))))
 }
 
 func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) {
@@ -426,6 +429,9 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true), NewXMLEncoder(2, "+", "+content"))))
+
+	writeOrPanic(w, "instead of\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewXMLEncoder(2, "+", "+content"))))
 }
 
 func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {

@@ -210,6 +210,11 @@ will output
 <map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
 ```
 
+instead of
+```xml
+<map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
+```
+
 ## Parse xml: keep raw attribute namespace
 Given a sample.xml file of:
 ```xml
@@ -226,6 +231,11 @@ yq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml
 will output
 ```xml
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+```
+
+instead of
+```xml
+<map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
 ```
 
 ## Encode xml: simple
