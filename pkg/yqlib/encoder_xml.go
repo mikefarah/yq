@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var XMLPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content", StrictMode: false}
+var XMLPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content", StrictMode: false, UseRawToken: false}
 
 type xmlEncoder struct {
 	attributePrefix string

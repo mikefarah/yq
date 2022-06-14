@@ -17,14 +17,23 @@ type xmlDecoder struct {
 	attributePrefix string
 	contentName     string
 	strictMode      bool
+	keepNamespace   bool
+	useRawToken     bool
 	finished        bool
 }
 
-func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool) Decoder {
+func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, keepNamespace bool, useRawToken bool) Decoder {
 	if contentName == "" {
 		contentName = "content"
 	}
-	return &xmlDecoder{attributePrefix: attributePrefix, contentName: contentName, finished: false, strictMode: strictMode}
+	return &xmlDecoder{
+		attributePrefix: attributePrefix,
+		contentName:     contentName,
+		finished:        false,
+		strictMode:      strictMode,
+		keepNamespace:   keepNamespace,
+		useRawToken:     useRawToken,
+	}
 }
 
 func (dec *xmlDecoder) Init(reader io.Reader) {
@@ -206,8 +215,15 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 		n:      root,
 	}
 
+	getToken := func() (xml.Token, error) {
+		if dec.useRawToken {
+			return xmlDec.RawToken()
+		}
+		return xmlDec.Token()
+	}
+
 	for {
-		t, e := xmlDec.Token()
+		t, e := getToken()
 		if e != nil && !errors.Is(e, io.EOF) {
 			return e
 		}
@@ -228,6 +244,11 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 			// Extract attributes as children
 			for _, a := range se.Attr {
+				if dec.keepNamespace {
+					if a.Name.Space != "" {
+						a.Name.Local = a.Name.Space + ":" + a.Name.Local
+					}
+				}
 				elem.n.AddChild(dec.attributePrefix+a.Name.Local, &xmlNode{Data: a.Value})
 			}
 		case xml.CharData:

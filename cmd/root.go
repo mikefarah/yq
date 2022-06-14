@@ -72,6 +72,8 @@ yq -P sample.json
 	rootCmd.PersistentFlags().StringVar(&xmlAttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
 	rootCmd.PersistentFlags().StringVar(&xmlContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
 	rootCmd.PersistentFlags().BoolVar(&xmlStrictMode, "xml-strict-mode", false, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
+	rootCmd.PersistentFlags().BoolVar(&xmlKeepNamespace, "xml-keep-namespace", false, "enables keeping namespace after parsing attributes")
+	rootCmd.PersistentFlags().BoolVar(&xmlUseRawToken, "xml-raw-token", false, "enables using RawToken method instead Token. Commonly disables namespace translations. See https://pkg.go.dev/encoding/xml#Decoder.RawToken for details.")
 
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")
