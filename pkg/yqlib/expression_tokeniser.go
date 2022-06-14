@@ -420,9 +420,9 @@ func initLexer() (*lex.Lexer, error) {
 
 	lexer.Add([]byte(`load`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewYamlDecoder()}))
 
-	lexer.Add([]byte(`xmlload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode)}))
-	lexer.Add([]byte(`load_xml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode)}))
-	lexer.Add([]byte(`loadxml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode)}))
+	lexer.Add([]byte(`xmlload`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode, XMLPreferences.KeepNamespace, XMLPreferences.UseRawToken)}))
+	lexer.Add([]byte(`load_xml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode, XMLPreferences.KeepNamespace, XMLPreferences.UseRawToken)}))
+	lexer.Add([]byte(`loadxml`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode, XMLPreferences.KeepNamespace, XMLPreferences.UseRawToken)}))
 
 	lexer.Add([]byte(`load_base64`), opTokenWithPrefs(loadOpType, nil, loadPrefs{loadAsString: false, decoder: NewBase64Decoder()}))
 

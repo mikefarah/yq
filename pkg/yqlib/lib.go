@@ -26,6 +26,8 @@ type xmlPreferences struct {
 	AttributePrefix string
 	ContentName     string
 	StrictMode      bool
+	KeepNamespace   bool
+	UseRawToken     bool
 }
 
 var log = logging.MustGetLogger("yq-lib")
