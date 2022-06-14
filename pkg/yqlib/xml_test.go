@@ -153,6 +153,24 @@ var expectedXMLWithComments = `<!-- above_cat inline_cat --><cat><!-- above_arra
 </cat><!-- below_cat -->
 `
 
+var inputXMLWithNamespacedAttr = `
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+</map>
+`
+
+var expectedYAMLWithNamespacedAttr = `map:
+  +xmlns: some-namespace
+  +xmlns:xsi: some-instance
+  +some-instance:schemaLocation: some-url
+`
+
+var expectedYAMLWithRawNamespacedAttr = `map:
+  +xmlns: some-namespace
+  +xmlns:xsi: some-instance
+  +xsi:schemaLocation: some-url
+`
+
 var xmlWithCustomDtd = `
 <?xml version="1.0"?>
 <!DOCTYPE root [
@@ -255,6 +273,20 @@ var xmlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "Parse xml: keep attribute namespace",
+		skipDoc:      false,
+		input:        inputXMLWithNamespacedAttr,
+		expected:     expectedYAMLWithNamespacedAttr,
+		scenarioType: "decode-keep-ns",
+	},
+	{
+		description:  "Parse xml: keep raw attribute namespace",
+		skipDoc:      false,
+		input:        inputXMLWithNamespacedAttr,
+		expected:     expectedYAMLWithRawNamespacedAttr,
+		scenarioType: "decode-raw-token",
+	},
+	{
 		description:  "Encode xml: simple",
 		input:        "cat: purrs",
 		expected:     "<cat>purrs</cat>\n",
@@ -303,11 +335,16 @@ var xmlScenarios = []formatScenario{
 }
 
 func testXMLScenario(t *testing.T, s formatScenario) {
-	if s.scenarioType == "encode" {
+	switch s.scenarioType {
+	case "encode":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content")), s.description)
-	} else if s.scenarioType == "roundtrip" {
+	case "roundtrip":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewXMLEncoder(2, "+", "+content")), s.description)
-	} else {
+	case "decode-keep-ns":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false), NewYamlEncoder(2, false, true, true)), s.description)
+	case "decode-raw-token":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true), NewYamlEncoder(2, false, true, true)), s.description)
+	default:
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewYamlEncoder(4, false, true, true)), s.description)
 	}
 }
@@ -318,11 +355,16 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	if s.skipDoc {
 		return
 	}
-	if s.scenarioType == "encode" {
+	switch s.scenarioType {
+	case "encode":
 		documentXMLEncodeScenario(w, s)
-	} else if s.scenarioType == "roundtrip" {
+	case "roundtrip":
 		documentXMLRoundTripScenario(w, s)
-	} else {
+	case "decode-keep-ns":
+		documentXMLDecodeKeepNsScenario(w, s)
+	case "decode-raw-token":
+		documentXMLDecodeKeepNsRawTokenScenario(w, s)
+	default:
 		documentXMLDecodeScenario(w, s)
 	}
 
@@ -348,6 +390,42 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewYamlEncoder(2, false, true, true))))
+}
+
+func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.xml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace '.' sample.xml\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false), NewXMLEncoder(2, "+", "+content"))))
+}
+
+func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.xml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true), NewXMLEncoder(2, "+", "+content"))))
 }
 
 func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {

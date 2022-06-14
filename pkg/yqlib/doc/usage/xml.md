@@ -192,6 +192,42 @@ cat:
 # after cat
 ```
 
+## Parse xml: keep attribute namespace
+Given a sample.xml file of:
+```xml
+
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+</map>
+
+```
+then
+```bash
+yq -p=xml -o=xml --xml-keep-namespace '.' sample.xml
+```
+will output
+```xml
+<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
+```
+
+## Parse xml: keep raw attribute namespace
+Given a sample.xml file of:
+```xml
+
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+</map>
+
+```
+then
+```bash
+yq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml
+```
+will output
+```xml
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+```
+
 ## Encode xml: simple
 Given a sample.yml file of:
 ```yaml
