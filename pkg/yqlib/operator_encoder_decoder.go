@@ -15,7 +15,7 @@ func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 	case JSONOutputFormat:
 		return NewJONEncoder(indent, false)
 	case PropsOutputFormat:
-		return NewPropertiesEncoder()
+		return NewPropertiesEncoder(true)
 	case CSVOutputFormat:
 		return NewCsvEncoder(',')
 	case TSVOutputFormat:
