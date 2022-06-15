@@ -58,6 +58,27 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputXmlNamespaces() {
+  cat >test.yml <<EOL
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+</map>
+EOL
+
+  read -r -d '' expected << EOM
+map:
+  +xmlns: some-namespace
+  +xmlns:xsi: some-instance
+  +xsi:schemaLocation: some-url
+EOM
+
+  X=$(./yq e -p=xml test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=xml test.yml)
+  assertEquals "$expected" "$X"
+}
+
 
 testInputXmlStrict() {
   cat >test.yml <<EOL

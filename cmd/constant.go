@@ -11,8 +11,8 @@ var inputFormat = "yaml"
 var xmlAttributePrefix = "+"
 var xmlContentName = "+content"
 var xmlStrictMode = false
-var xmlKeepNamespace = false
-var xmlUseRawToken = false
+var xmlKeepNamespace = true
+var xmlUseRawToken = true
 
 var exitStatus = false
 var forceColor = false
