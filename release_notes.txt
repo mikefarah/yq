@@ -1,3 +1,9 @@
+4.25.3:
+  - xml decoder now maintains namespaces by default. Use new flags to disable if required. Thanks @rndmit
+  - Length and other similar operators no longer return comments (#1231)
+  - Bumped dependency versions
+
+
 4.25.2:
   - Fixed comments disappearing from end of file (#1217)
   - Fixed empty base64 decoding error (#1209)
