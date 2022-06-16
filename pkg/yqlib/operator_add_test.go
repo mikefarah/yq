@@ -200,6 +200,24 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "String concatenation - str + int",
+		skipDoc:     true,
+		document:    `{a: !cool cat, b: meow}`,
+		expression:  `.a + 3`,
+		expected: []string{
+			"D0, P[a], (!cool)::cat3\n",
+		},
+	},
+	{
+		description: "String concatenation - int + str",
+		skipDoc:     true,
+		document:    `{a: !cool cat, b: meow}`,
+		expression:  `3 + .a`,
+		expected: []string{
+			"D0, P[], (!cool)::3cat\n",
+		},
+	},
+	{
 		description:    "Number addition - float",
 		subdescription: "If the lhs or rhs are floats then the expression will be calculated with floats.",
 		document:       `{a: 3, b: 4.9}`,

@@ -103,6 +103,9 @@ func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yam
 	} else if lhsTag == "!!str" {
 		target.Node.Tag = lhs.Tag
 		target.Node.Value = lhs.Value + rhs.Value
+	} else if rhsTag == "!!str" {
+		target.Node.Tag = rhs.Tag
+		target.Node.Value = lhs.Value + rhs.Value
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		format, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
