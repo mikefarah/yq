@@ -8,9 +8,9 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var samplePropertiesYaml = `# block comments don't come through
+const samplePropertiesYaml = `# block comments don't come through
 person: # neither do comments on maps
-    name: Mike # comments on values appear
+    name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
     food: [pizza] # comments on arrays do not
@@ -18,37 +18,45 @@ emptyArray: []
 emptyMap: []
 `
 
-var expectedProperties = `# comments on values appear
-person.name = Mike
+const expectedPropertiesUnwrapped = `# comments on values appear
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
 person.food.0 = pizza
 `
 
-var expectedUpdatedProperties = `# comments on values appear
-person.name = Mike
+const expectedPropertiesWrapped = `# comments on values appear
+person.name = "Mike Wazowski"
+
+# comments on array values appear
+person.pets.0 = cat
+person.food.0 = pizza
+`
+
+const expectedUpdatedProperties = `# comments on values appear
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = dog
 person.food.0 = pizza
 `
 
-var expectedDecodedYaml = `person:
-  name: Mike # comments on values appear
+const expectedDecodedYaml = `person:
+  name: Mike Wazowski # comments on values appear
   pets:
     - cat # comments on array values appear
   food:
     - pizza
 `
 
-var expectedPropertiesNoComments = `person.name = Mike
+const expectedPropertiesNoComments = `person.name = Mike Wazowski
 person.pets.0 = cat
 person.food.0 = pizza
 `
 
-var expectedPropertiesWithEmptyMapsAndArrays = `# comments on values appear
-person.name = Mike
+const expectedPropertiesWithEmptyMapsAndArrays = `# comments on values appear
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
@@ -62,13 +70,25 @@ var propertyScenarios = []formatScenario{
 		description:    "Encode properties",
 		subdescription: "Note that empty arrays and maps are not encoded by default.",
 		input:          samplePropertiesYaml,
-		expected:       expectedProperties,
+		expected:       expectedPropertiesUnwrapped,
+		encoder:        NewPropertiesEncoder(true),
+		decoder:        NewYamlDecoder(),
+	},
+	{
+		description:    "Encode properties: scalar encapsulation",
+		subdescription: "Note that string values with blank characters in them are encapsulated with double quotes",
+		input:          samplePropertiesYaml,
+		expected:       expectedPropertiesWrapped,
+		decoder:        NewYamlDecoder(),
+		encoder:        NewPropertiesEncoder(false),
 	},
 	{
 		description: "Encode properties: no comments",
 		input:       samplePropertiesYaml,
 		expected:    expectedPropertiesNoComments,
 		expression:  `... comments = ""`,
+		decoder:     NewYamlDecoder(),
+		encoder:     NewPropertiesEncoder(true),
 	},
 	{
 		description:    "Encode properties: include empty maps and arrays",
@@ -76,12 +96,16 @@ var propertyScenarios = []formatScenario{
 		expression:     `(.. | select( (tag == "!!map" or tag =="!!seq") and length == 0)) = ""`,
 		input:          samplePropertiesYaml,
 		expected:       expectedPropertiesWithEmptyMapsAndArrays,
+		decoder:        NewYamlDecoder(),
+		encoder:        NewPropertiesEncoder(true),
 	},
 	{
 		description:  "Decode properties",
-		input:        expectedProperties,
+		input:        expectedPropertiesUnwrapped,
 		expected:     expectedDecodedYaml,
 		scenarioType: "decode",
+		decoder:      NewPropertiesDecoder(),
+		encoder:      NewYamlEncoder(2, false, true, true),
 	},
 	{
 		description:  "does not expand automatically",
@@ -89,13 +113,17 @@ var propertyScenarios = []formatScenario{
 		input:        "mike = ${dontExpand} this",
 		expected:     "mike: ${dontExpand} this\n",
 		scenarioType: "decode",
+		decoder:      NewPropertiesDecoder(),
+		encoder:      NewYamlEncoder(2, false, true, true),
 	},
 	{
 		description:  "Roundtrip",
-		input:        expectedProperties,
+		input:        expectedPropertiesUnwrapped,
 		expression:   `.person.pets.0 = "dog"`,
 		expected:     expectedUpdatedProperties,
 		scenarioType: "roundtrip",
+		decoder:      NewPropertiesDecoder(),
+		encoder:      NewPropertiesEncoder(true),
 	},
 	{
 		description:  "Empty doc",
@@ -103,6 +131,8 @@ var propertyScenarios = []formatScenario{
 		input:        "",
 		expected:     "",
 		scenarioType: "decode",
+		decoder:      NewPropertiesDecoder(),
+		encoder:      NewYamlEncoder(2, false, true, true),
 	},
 }
 
@@ -128,7 +158,7 @@ func documentEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(true))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, s.decoder, s.encoder)))
 }
 
 func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -153,7 +183,7 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(s.indent, false, true, true))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, s.decoder, s.encoder)))
 }
 
 func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -178,7 +208,7 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, s.decoder, s.encoder)))
 }
 
 func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
@@ -199,11 +229,11 @@ func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 func TestPropertyScenarios(t *testing.T) {
 	for _, s := range propertyScenarios {
 		if s.scenarioType == "decode" {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, true, true)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, s.decoder, s.encoder), s.description)
 		} else if s.scenarioType == "roundtrip" {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, s.decoder, s.encoder), s.description)
 		} else {
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(true)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, s.decoder, s.encoder), s.description)
 		}
 	}
 	genericScenarios := make([]interface{}, len(propertyScenarios))

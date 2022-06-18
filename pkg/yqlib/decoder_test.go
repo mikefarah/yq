@@ -15,6 +15,8 @@ type formatScenario struct {
 	subdescription string
 	skipDoc        bool
 	scenarioType   string
+	decoder        Decoder
+	encoder        Encoder
 }
 
 func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) string {
