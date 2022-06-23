@@ -81,7 +81,7 @@ yq -P sample.json
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
 	rootCmd.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the file inplace of first file given.")
-	rootCmd.PersistentFlags().BoolVarP(&unwrapScalar, "unwrapScalar", "", true, "unwrap scalar, print the value with no quotes, colors or comments")
+	rootCmd.PersistentFlags().BoolVarP(&unwrapScalar, "unwrapScalar", "r", true, "unwrap scalar, print the value with no quotes, colors or comments")
 	rootCmd.PersistentFlags().BoolVarP(&prettyPrint, "prettyPrint", "P", false, "pretty print, shorthand for '... style = \"\"'")
 	rootCmd.PersistentFlags().BoolVarP(&exitStatus, "exit-status", "e", false, "set exit status if there are no matches or null or false is returned")
 
