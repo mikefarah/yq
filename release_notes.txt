@@ -3,6 +3,7 @@
   - Length and other similar operators no longer return comments (#1231)
   - When split expression includes an extension, dont add .yml automatically (#1165)
   - Map -r to --unwrapScalar to be more a drop in replacement for jq (#1245) Thanks @SuperSandro2000
+  - Fixing usage of quoted numeric keys #1247
   - Bumped dependency versions
 
 
