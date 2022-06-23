@@ -3,7 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-	"strconv"
 
 	"github.com/elliotchance/orderedmap"
 	yaml "gopkg.in/yaml.v3"
@@ -57,7 +56,7 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 	switch value.Kind {
 	case yaml.MappingNode:
 		log.Debug("its a map with %v entries", len(value.Content)/2)
-		return traverseMap(context, matchingNode, operation.StringValue, operation.Preferences.(traversePreferences), false)
+		return traverseMap(context, matchingNode, createStringScalarNode(operation.StringValue), operation.Preferences.(traversePreferences), false)
 
 	case yaml.SequenceNode:
 		log.Debug("its a sequence of %v things!", len(value.Content))
@@ -131,11 +130,8 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 		node.Tag = ""
 		node.Kind = yaml.SequenceNode
 		//check that the indices are numeric, if not, then we should create an object
-		if len(indicesToTraverse) != 0 {
-			_, err := strconv.ParseInt(indicesToTraverse[0].Value, 10, 64)
-			if err != nil {
-				node.Kind = yaml.MappingNode
-			}
+		if len(indicesToTraverse) != 0 && indicesToTraverse[0].Tag != "!!int" {
+			node.Kind = yaml.MappingNode
 		}
 	}
 
@@ -155,14 +151,14 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 
 func traverseMapWithIndices(context Context, candidate *CandidateNode, indices []*yaml.Node, prefs traversePreferences) (*list.List, error) {
 	if len(indices) == 0 {
-		return traverseMap(context, candidate, "", prefs, true)
+		return traverseMap(context, candidate, createStringScalarNode(""), prefs, true)
 	}
 
 	var matchingNodeMap = list.New()
 
 	for _, indexNode := range indices {
 		log.Debug("traverseMapWithIndices: %v", indexNode.Value)
-		newNodes, err := traverseMap(context, candidate, indexNode.Value, prefs, false)
+		newNodes, err := traverseMap(context, candidate, indexNode, prefs, false)
 		if err != nil {
 			return nil, err
 		}
@@ -224,9 +220,9 @@ func keyMatches(key *yaml.Node, wantedKey string) bool {
 	return matchKey(key.Value, wantedKey)
 }
 
-func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs traversePreferences, splat bool) (*list.List, error) {
+func traverseMap(context Context, matchingNode *CandidateNode, keyNode *yaml.Node, prefs traversePreferences, splat bool) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
-	err := doTraverseMap(newMatches, matchingNode, key, prefs, splat)
+	err := doTraverseMap(newMatches, matchingNode, keyNode.Value, prefs, splat)
 
 	if err != nil {
 		return nil, err
@@ -235,7 +231,7 @@ func traverseMap(context Context, matchingNode *CandidateNode, key string, prefs
 	if !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
 		//no matches, create one automagically
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
-		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: key}
+
 		node := matchingNode.Node
 
 		if len(node.Content) == 0 {

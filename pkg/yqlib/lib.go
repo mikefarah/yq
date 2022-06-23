@@ -352,6 +352,13 @@ func parseInt(numberString string) (int, error) {
 	return int(parsed), err
 }
 
+func createStringScalarNode(stringValue string) *yaml.Node {
+	var node = &yaml.Node{Kind: yaml.ScalarNode}
+	node.Value = stringValue
+	node.Tag = "!!str"
+	return node
+}
+
 func createScalarNode(value interface{}, stringValue string) *yaml.Node {
 	var node = &yaml.Node{Kind: yaml.ScalarNode}
 	node.Value = stringValue

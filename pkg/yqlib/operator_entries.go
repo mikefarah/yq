@@ -72,20 +72,20 @@ func parseEntry(entry *yaml.Node, position int) (*yaml.Node, *yaml.Node, error) 
 	prefs := traversePreferences{DontAutoCreate: true}
 	candidateNode := &CandidateNode{Node: entry}
 
-	keyResults, err := traverseMap(Context{}, candidateNode, "key", prefs, false)
+	keyResults, err := traverseMap(Context{}, candidateNode, createStringScalarNode("key"), prefs, false)
 
 	if err != nil {
 		return nil, nil, err
 	} else if keyResults.Len() != 1 {
-		return nil, nil, fmt.Errorf("Expected to find one 'key' entry but found %v in position %v", keyResults.Len(), position)
+		return nil, nil, fmt.Errorf("expected to find one 'key' entry but found %v in position %v", keyResults.Len(), position)
 	}
 
-	valueResults, err := traverseMap(Context{}, candidateNode, "value", prefs, false)
+	valueResults, err := traverseMap(Context{}, candidateNode, createStringScalarNode("value"), prefs, false)
 
 	if err != nil {
 		return nil, nil, err
 	} else if valueResults.Len() != 1 {
-		return nil, nil, fmt.Errorf("Expected to find one 'value' entry but found %v in position %v", valueResults.Len(), position)
+		return nil, nil, fmt.Errorf("expected to find one 'value' entry but found %v in position %v", valueResults.Len(), position)
 	}
 
 	return keyResults.Front().Value.(*CandidateNode).Node, valueResults.Front().Value.(*CandidateNode).Node, nil
