@@ -41,6 +41,7 @@ yq*.snap
 
 test.yml
 test*.yml
+test*.yaml
 0.yml
 1.yml
 2.yml

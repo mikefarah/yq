@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 )
@@ -67,7 +68,10 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 	if result.MatchingNodes.Len() > 0 {
 		name = result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
 	}
-	name = fmt.Sprintf("%v.%v", name, sp.extension)
+	var extensionRegexp = regexp.MustCompile(`\.[a-zA-Z0-9]+$`)
+	if !extensionRegexp.MatchString(name) {
+		name = fmt.Sprintf("%v.%v", name, sp.extension)
+	}
 
 	f, err := os.Create(name)
 
