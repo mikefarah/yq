@@ -1,6 +1,8 @@
 4.25.3:
   - xml decoder now maintains namespaces by default. Use new flags to disable if required. Thanks @rndmit
   - Length and other similar operators no longer return comments (#1231)
+  - When split expression includes an extension, dont add .yml automatically (#1165)
+  - Map -r to --unwrapScalar to be more a drop in replacement for jq (#1245) Thanks @SuperSandro2000
   - Bumped dependency versions
 
 
