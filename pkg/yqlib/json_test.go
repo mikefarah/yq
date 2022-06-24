@@ -9,7 +9,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var complexExpectYaml = `D0, P[], (!!map)::a: Easy! as one two three
+const complexExpectYaml = `D0, P[], (!!map)::a: Easy! as one two three
 b:
     c: 2
     d:
@@ -96,11 +96,15 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 }
 
 func testJSONScenario(t *testing.T, s formatScenario) {
-	if s.scenarioType == "encode" || s.scenarioType == "roundtrip" {
+	switch s.scenarioType {
+	case "encode", "decode":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewJONEncoder(s.indent, false)), s.description)
-	} else {
+	case "":
 		var actual = resultToString(t, decodeJSON(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
+
+	default:
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
 }
 
@@ -135,14 +139,17 @@ func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 
 func documentJSONScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
-
 	if s.skipDoc {
 		return
 	}
-	if s.scenarioType == "encode" {
-		documentJSONEncodeScenario(w, s)
-	} else {
+	switch s.scenarioType {
+	case "":
 		documentJSONDecodeScenario(t, w, s)
+	case "encode":
+		documentJSONEncodeScenario(w, s)
+
+	default:
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
 }
 
