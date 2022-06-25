@@ -363,6 +363,8 @@ func initLexer() (*lex.Lexer, error) {
 	lexer.Add([]byte(`tz`), opToken(tzOpType))
 	lexer.Add([]byte(`with_dtf`), opToken(withDtFormatOpType))
 
+	lexer.Add([]byte(`error`), opToken(errorOpType))
+
 	lexer.Add([]byte(`toyaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 	lexer.Add([]byte(`to_yaml\([0-9]+\)`), encodeWithIndent(YamlOutputFormat))
 
