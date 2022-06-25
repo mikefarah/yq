@@ -54,3 +54,6 @@ yq.1
 # debian pkg
 _build
 debian/files
+
+# intellij
+/.idea

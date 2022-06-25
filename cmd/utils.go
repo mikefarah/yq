@@ -93,7 +93,7 @@ func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	case yqlib.JSONOutputFormat:
 		return yqlib.NewJONEncoder(indent, colorsEnabled)
 	case yqlib.PropsOutputFormat:
-		return yqlib.NewPropertiesEncoder()
+		return yqlib.NewPropertiesEncoder(unwrapScalar)
 	case yqlib.CSVOutputFormat:
 		return yqlib.NewCsvEncoder(',')
 	case yqlib.TSVOutputFormat:

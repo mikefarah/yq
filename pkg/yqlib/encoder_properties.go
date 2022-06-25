@@ -12,10 +12,13 @@ import (
 )
 
 type propertiesEncoder struct {
+	unwrapScalar bool
 }
 
-func NewPropertiesEncoder() Encoder {
-	return &propertiesEncoder{}
+func NewPropertiesEncoder(unwrapScalar bool) Encoder {
+	return &propertiesEncoder{
+		unwrapScalar: unwrapScalar,
+	}
 }
 
 func (pe *propertiesEncoder) CanHandleAliases() bool {
@@ -75,7 +78,13 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node,
 	p.SetComment(path, headAndLineComment(node))
 	switch node.Kind {
 	case yaml.ScalarNode:
-		_, _, err := p.Set(path, node.Value)
+		var nodeValue string
+		if pe.unwrapScalar || !strings.Contains(node.Value, " ") {
+			nodeValue = node.Value
+		} else {
+			nodeValue = fmt.Sprintf("%q", node.Value)
+		}
+		_, _, err := p.Set(path, nodeValue)
 		return err
 	case yaml.DocumentNode:
 		return pe.doEncode(p, node.Content[0], path)

@@ -17,7 +17,7 @@ Given a sample.yml file of:
 ```yaml
 # block comments don't come through
 person: # neither do comments on maps
-    name: Mike # comments on values appear
+    name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
     food: [pizza] # comments on arrays do not
@@ -32,7 +32,36 @@ yq -o=props sample.yml
 will output
 ```properties
 # comments on values appear
-person.name = Mike
+person.name = Mike Wazowski
+
+# comments on array values appear
+person.pets.0 = cat
+person.food.0 = pizza
+```
+
+## Encode properties: scalar encapsulation
+Note that string values with blank characters in them are encapsulated with double quotes
+
+Given a sample.yml file of:
+```yaml
+# block comments don't come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o=props --unwrapScalar=false sample.yml
+```
+will output
+```properties
+# comments on values appear
+person.name = "Mike Wazowski"
 
 # comments on array values appear
 person.pets.0 = cat
@@ -44,7 +73,7 @@ Given a sample.yml file of:
 ```yaml
 # block comments don't come through
 person: # neither do comments on maps
-    name: Mike # comments on values appear
+    name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
     food: [pizza] # comments on arrays do not
@@ -58,7 +87,7 @@ yq -o=props '... comments = ""' sample.yml
 ```
 will output
 ```properties
-person.name = Mike
+person.name = Mike Wazowski
 person.pets.0 = cat
 person.food.0 = pizza
 ```
@@ -70,7 +99,7 @@ Given a sample.yml file of:
 ```yaml
 # block comments don't come through
 person: # neither do comments on maps
-    name: Mike # comments on values appear
+    name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
     food: [pizza] # comments on arrays do not
@@ -85,7 +114,7 @@ yq -o=props '(.. | select( (tag == "!!map" or tag =="!!seq") and length == 0)) =
 will output
 ```properties
 # comments on values appear
-person.name = Mike
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
@@ -98,7 +127,7 @@ emptyMap =
 Given a sample.properties file of:
 ```properties
 # comments on values appear
-person.name = Mike
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
@@ -112,7 +141,7 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    name: Mike # comments on values appear
+    name: Mike Wazowski # comments on values appear
     pets:
         - cat # comments on array values appear
     food:
@@ -123,7 +152,7 @@ person:
 Given a sample.properties file of:
 ```properties
 # comments on values appear
-person.name = Mike
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
@@ -137,7 +166,7 @@ yq -p=props -o=props '.person.pets.0 = "dog"' sample.properties
 will output
 ```properties
 # comments on values appear
-person.name = Mike
+person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = dog

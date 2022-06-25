@@ -8,7 +8,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var inputXMLWithComments = `
+const inputXMLWithComments = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -26,7 +26,7 @@ for x --></x>
 </cat>
 <!-- after cat -->
 `
-var inputXMLWithCommentsWithSubChild = `
+const inputXMLWithCommentsWithSubChild = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -45,7 +45,7 @@ for x --></x>
 <!-- after cat -->
 `
 
-var expectedDecodeYamlWithSubChild = `# before cat
+const expectedDecodeYamlWithSubChild = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -65,7 +65,7 @@ cat:
 # after cat
 `
 
-var inputXMLWithCommentsWithArray = `
+const inputXMLWithCommentsWithArray = `
 <!-- before cat -->
 <cat>
 	<!-- in cat before -->
@@ -85,7 +85,7 @@ for x --></x>
 <!-- after cat -->
 `
 
-var expectedDecodeYamlWithArray = `# before cat
+const expectedDecodeYamlWithArray = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -109,7 +109,7 @@ cat:
 # after cat
 `
 
-var expectedDecodeYamlWithComments = `# before cat
+const expectedDecodeYamlWithComments = `# before cat
 cat:
     # in cat before
     x: "3" # multi
@@ -126,7 +126,7 @@ cat:
 # after cat
 `
 
-var expectedRoundtripXMLWithComments = `<!-- before cat --><cat><!-- in cat before -->
+const expectedRoundtripXMLWithComments = `<!-- before cat --><cat><!-- in cat before -->
   <x>3<!-- multi
 line comment 
 for x --></x><!-- before y -->
@@ -137,7 +137,7 @@ in d before -->
 </cat><!-- after cat -->
 `
 
-var yamlWithComments = `# above_cat
+const yamlWithComments = `# above_cat
 cat: # inline_cat
   # above_array
   array: # inline_array
@@ -147,31 +147,31 @@ cat: # inline_cat
 # below_cat
 `
 
-var expectedXMLWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+const expectedXMLWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->
 `
 
-var inputXMLWithNamespacedAttr = `
+const inputXMLWithNamespacedAttr = `
 <?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
 </map>
 `
 
-var expectedYAMLWithNamespacedAttr = `map:
+const expectedYAMLWithNamespacedAttr = `map:
   +xmlns: some-namespace
   +xmlns:xsi: some-instance
   +some-instance:schemaLocation: some-url
 `
 
-var expectedYAMLWithRawNamespacedAttr = `map:
+const expectedYAMLWithRawNamespacedAttr = `map:
   +xmlns: some-namespace
   +xmlns:xsi: some-instance
   +xsi:schemaLocation: some-url
 `
 
-var xmlWithCustomDtd = `
+const xmlWithCustomDtd = `
 <?xml version="1.0"?>
 <!DOCTYPE root [
 <!ENTITY writer "Blah.">
@@ -181,7 +181,7 @@ var xmlWithCustomDtd = `
     <item>&writer;&copyright;</item>
 </root>`
 
-var expectedDtd = `root:
+const expectedDtd = `root:
     item: '&writer;&copyright;'
 `
 
@@ -336,6 +336,8 @@ var xmlScenarios = []formatScenario{
 
 func testXMLScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
+	case "", "decode":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewYamlEncoder(4, false, true, true)), s.description)
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content")), s.description)
 	case "roundtrip":
@@ -344,8 +346,9 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false), NewYamlEncoder(2, false, true, true)), s.description)
 	case "decode-raw-token":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true), NewYamlEncoder(2, false, true, true)), s.description)
+
 	default:
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewYamlEncoder(4, false, true, true)), s.description)
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
 }
 
@@ -356,6 +359,8 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
+	case "", "decode":
+		documentXMLDecodeScenario(w, s)
 	case "encode":
 		documentXMLEncodeScenario(w, s)
 	case "roundtrip":
@@ -364,10 +369,10 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		documentXMLDecodeKeepNsScenario(w, s)
 	case "decode-raw-token":
 		documentXMLDecodeKeepNsRawTokenScenario(w, s)
-	default:
-		documentXMLDecodeScenario(w, s)
-	}
 
+	default:
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
+	}
 }
 
 func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
