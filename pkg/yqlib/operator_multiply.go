@@ -27,7 +27,6 @@ func createMultiplyOp(prefs interface{}) func(lhs *ExpressionNode, rhs *Expressi
 
 func multiplyAssignOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var multiplyPrefs = expressionNode.Operation.Preferences
-	expressionNode.Operation.Preferences = nil
 
 	return compoundAssignFunction(d, context, expressionNode, createMultiplyOp(multiplyPrefs))
 }

@@ -22,8 +22,8 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 	}
 
 	prefs := assignPreferences{}
-	if expressionNode.Operation.Preferences != nil {
-		prefs = expressionNode.Operation.Preferences.(assignPreferences)
+	if p, ok := expressionNode.Operation.Preferences.(assignPreferences); ok {
+		prefs = p
 	}
 
 	if !expressionNode.Operation.UpdateAssign {
