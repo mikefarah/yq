@@ -22,6 +22,8 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 	}
 
 	prefs := assignPreferences{}
+	// they way *= (multipleAssign) is handled, we set the multiplePrefs
+	// on the node, not assignPrefs. Long story.
 	if p, ok := expressionNode.Operation.Preferences.(assignPreferences); ok {
 		prefs = p
 	}

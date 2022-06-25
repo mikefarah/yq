@@ -1,3 +1,6 @@
+4.25.4:
+  - Fixed panic when using multiply assign on multiple documents #1256 Thanks @care0717
+
 4.25.3:
   - xml decoder now maintains namespaces by default. Use new flags to disable if required. Thanks @rndmit
   - Length and other similar operators no longer return comments (#1231)

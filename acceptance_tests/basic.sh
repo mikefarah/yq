@@ -331,4 +331,26 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testBasicMultiplyAssignMultiDoc() {
+      cat >test.yml <<EOL
+a: 1
+---
+b: 2
+EOL
+
+read -r -d '' expected << EOM
+a: 1
+c: 3
+---
+b: 2
+c: 3
+EOM
+
+
+  X=$(./yq '. *= {"c":3}' test.yml)
+  assertEquals "$expected" "$X"
+}
+
+
+
 source ./scripts/shunit2
