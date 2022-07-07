@@ -10,8 +10,8 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 
 You can convert compatible yaml structures to CSV or TSV by using:
 
-* `--outputformat=csv` or `-o=c` for csv (comma separated values)
-* `--outputformat=tsv` or `-o=t` for tsv (tab separated values)
+* `--output-format=csv` or `-o=c` for csv (comma separated values)
+* `--output-format=tsv` or `-o=t` for tsv (tab separated values)
 
 Compatible structures is either an array of scalars (strings/numbers/booleans), which is a single row; or an array of arrays of scalars (multiple rows).
 
