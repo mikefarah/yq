@@ -312,7 +312,7 @@ var pathTests = []struct {
 	},
 }
 
-var tokeniser = newExpressionTokeniser()
+var tokeniser = newParticipleLexer()
 var postFixer = newExpressionPostFixer()
 
 func TestPathParsing(t *testing.T) {
