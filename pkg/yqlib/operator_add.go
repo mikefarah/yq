@@ -56,7 +56,9 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 		return lhs.CreateReplacement(rhs.Node), nil
 	}
 
-	target := lhs.CreateReplacement(&yaml.Node{})
+	target := lhs.CreateReplacement(&yaml.Node{
+		Anchor: lhs.Node.Anchor,
+	})
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:

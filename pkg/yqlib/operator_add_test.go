@@ -341,6 +341,15 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: !horse [a, b]\nb: !goat [b]\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Keep anchors",
+		document:    "a: &horse [1]",
+		expression:  `.a += 2`,
+		expected: []string{
+			"D0, P[], (doc)::a: &horse [1, 2]\n",
+		},
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {
