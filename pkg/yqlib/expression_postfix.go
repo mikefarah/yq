@@ -76,7 +76,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			// on the close op - move it to the traverse array op
 			// allows for .["cat"]?
 			prefs := traversePreferences{}
-			closeTokenMatch := string(currentToken.Match.Bytes)
+			closeTokenMatch := currentToken.Match
 			if closeTokenMatch[len(closeTokenMatch)-1:] == "?" {
 				prefs.OptionalTraverse = true
 			}

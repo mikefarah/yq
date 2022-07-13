@@ -21,7 +21,7 @@ type expressionParserImpl struct {
 }
 
 func newExpressionParser() ExpressionParserInterface {
-	return &expressionParserImpl{newExpressionTokeniser(), newExpressionPostFixer()}
+	return &expressionParserImpl{newParticipleLexer(), newExpressionPostFixer()}
 }
 
 func (p *expressionParserImpl) ParseExpression(expression string) (*ExpressionNode, error) {
