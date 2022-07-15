@@ -1,3 +1,11 @@
+4.26.1:
+  - Switched to new expression parser (#1264)
+  - Don't clobber anchor when adding nodes (#1269)
+  - New error operator for custom validation (#1259)
+  - Added support for --wrapScalar=false in properties encoder (#1241) Thanks @dcarbone
+  - Fix error on multiple assign (#1257) Thanks @care0717
+  - Bumped dependency versions
+
 4.25.4:
   - Fixed panic when using multiply assign on multiple documents #1256 Thanks @care0717
 
