@@ -56,9 +56,9 @@ VAL='.a |!@  == "string2"' yq '.a = strenv(VAL)' example.yaml
 ```
 
 ## String blocks and newline issues
-There are a couple of tricks to getting the right string representation, take a look here for more details:
+There are a couple of tricks to getting the right string representation, take a look at [string operators](https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines) for more details:
 
-https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines
+
 
 ## Quotes in Windows Powershell
 
