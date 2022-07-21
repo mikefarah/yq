@@ -55,6 +55,11 @@ The `strenv` operator is a great way to handle special characters in strings:
 VAL='.a |!@  == "string2"' yq '.a = strenv(VAL)' example.yaml
 ```
 
+## String blocks and newline issues
+There are a couple of tricks to getting the right string representation, take a look here for more details:
+
+https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines
+
 ## Quotes in Windows Powershell
 
 Powershell has its [own](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about\_quoting\_rules?view=powershell-7.1) way of handling quotes:
