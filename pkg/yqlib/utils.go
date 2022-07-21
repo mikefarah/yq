@@ -33,6 +33,14 @@ func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, s
 	return processReadStream(reader)
 }
 
+func readString(input string, leadingContentPreProcessing bool) (io.Reader, string, error) {
+	reader := bufio.NewReader(strings.NewReader(input))
+	if !leadingContentPreProcessing {
+		return reader, "", nil
+	}
+	return processReadStream(reader)
+}
+
 func writeString(writer io.Writer, txt string) error {
 	_, errorWriting := writer.Write([]byte(txt))
 	return errorWriting
