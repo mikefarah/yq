@@ -66,6 +66,8 @@ func configureDecoder() (yqlib.Decoder, error) {
 		return yqlib.NewXMLDecoder(xmlAttributePrefix, xmlContentName, xmlStrictMode, xmlKeepNamespace, xmlUseRawToken), nil
 	case yqlib.PropertiesInputFormat:
 		return yqlib.NewPropertiesDecoder(), nil
+	case yqlib.JsonInputFormat:
+		return yqlib.NewJSONDecoder(), nil
 	}
 
 	return yqlib.NewYamlDecoder(), nil
@@ -91,7 +93,7 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yq
 func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	switch format {
 	case yqlib.JSONOutputFormat:
-		return yqlib.NewJONEncoder(indent, colorsEnabled)
+		return yqlib.NewJSONEncoder(indent, colorsEnabled)
 	case yqlib.PropsOutputFormat:
 		return yqlib.NewPropertiesEncoder(unwrapScalar)
 	case yqlib.CSVOutputFormat:
