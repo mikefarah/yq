@@ -2,9 +2,9 @@ package yqlib
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 
+	"github.com/goccy/go-json"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -28,7 +28,7 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJONEncoder(indent int, colorise bool) Encoder {
+func NewJSONEncoder(indent int, colorise bool) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {

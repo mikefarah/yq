@@ -314,7 +314,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
 	// when outputing JSON.
-	printer := NewPrinter(NewJONEncoder(0, false), NewSinglePrinterWriter(writer))
+	printer := NewPrinter(NewJSONEncoder(0, false), NewSinglePrinterWriter(writer))
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
 	if err != nil {

@@ -14,6 +14,7 @@ const (
 	XMLInputFormat
 	PropertiesInputFormat
 	Base64InputFormat
+	JsonInputFormat
 )
 
 type Decoder interface {
@@ -29,6 +30,8 @@ func InputFormatFromString(format string) (InputFormat, error) {
 		return XMLInputFormat, nil
 	case "props", "p":
 		return PropertiesInputFormat, nil
+	case "json", "ndjson", "j":
+		return JsonInputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml|props]", format)
 	}

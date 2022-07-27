@@ -17,6 +17,59 @@ b:
         - 4
 `
 
+const sampleNdJson = `{"this": "is a multidoc json file"}
+{"each": ["line is a valid json document"]}
+{"a number": 4}
+`
+
+const expectedNdJsonYaml = `this: is a multidoc json file
+---
+each:
+  - line is a valid json document
+---
+a number: 4
+`
+
+const expectedRoundTripSampleNdJson = `{"this":"is a multidoc json file"}
+{"each":["line is a valid json document"]}
+{"a number":4}
+`
+
+const expectedUpdatedMultilineJson = `{"this":"is a multidoc json file"}
+{"each":["line is a valid json document","cool"]}
+{"a number":4}
+`
+
+const sampleMultiLineJson = `{
+	"this": "is a multidoc json file"
+}
+{
+	"it": [
+		"has",
+		"consecutive",
+		"json documents"
+	]
+}
+{
+	"a number": 4
+}
+`
+
+const roundTripMultiLineJson = `{
+  "this": "is a multidoc json file"
+}
+{
+  "it": [
+    "has",
+    "consecutive",
+    "json documents"
+  ]
+}
+{
+  "a number": 4
+}
+`
+
 var jsonScenarios = []formatScenario{
 	{
 		description:    "Parse json: simple",
@@ -68,6 +121,120 @@ var jsonScenarios = []formatScenario{
 		expected:       "{\"stuff\":\"cool\"}\n{\"whatever\":\"cat\"}\n",
 		scenarioType:   "encode",
 	},
+	{
+		description:    "Roundtrip NDJSON",
+		subdescription: "Unfortunately the json encoder strips leading spaces of values.",
+		input:          sampleNdJson,
+		expected:       expectedRoundTripSampleNdJson,
+		scenarioType:   "roundtrip-ndjson",
+	},
+	{
+		description:    "Roundtrip multi-document JSON",
+		subdescription: "The NDJSON parser can also handle multiple multi-line json documents in a single file!",
+		input:          sampleMultiLineJson,
+		expected:       roundTripMultiLineJson,
+		scenarioType:   "roundtrip-multi",
+	},
+	{
+		description:    "Update a specific document in a multi-document json",
+		subdescription: "Documents are indexed by the `documentIndex` or `di` operator.",
+		input:          sampleNdJson,
+		expected:       expectedUpdatedMultilineJson,
+		expression:     `(select(di == 1) | .each ) += "cool"`,
+		scenarioType:   "roundtrip-ndjson",
+	},
+	{
+		description:    "Find and update a specific document in a multi-document json",
+		subdescription: "Use expressions as you normally would.",
+		input:          sampleNdJson,
+		expected:       expectedUpdatedMultilineJson,
+		expression:     `(select(has("each")) | .each ) += "cool"`,
+		scenarioType:   "roundtrip-ndjson",
+	},
+	{
+		description:  "Decode NDJSON",
+		input:        sampleNdJson,
+		expected:     expectedNdJsonYaml,
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "numbers",
+		skipDoc:      true,
+		input:        "[3, 3.0, 3.1, -1]",
+		expected:     "- 3\n- 3\n- 3.1\n- -1\n",
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "strings",
+		skipDoc:      true,
+		input:        `["", "cat"]`,
+		expected:     "- \"\"\n- cat\n",
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "null",
+		skipDoc:      true,
+		input:        `null`,
+		expected:     "null\n",
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "booleans",
+		skipDoc:      true,
+		input:        `[true, false]`,
+		expected:     "- true\n- false\n",
+		scenarioType: "decode-ndjson",
+	},
+}
+
+func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent int) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.json file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```json\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+
+	expression := s.expression
+	if expression != "" {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=json -o=json -I=%v '%v' sample.json\n```\n", indent, expression))
+	} else {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=json -o=json -I=%v sample.json\n```\n", indent))
+	}
+
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(indent, false))))
+}
+
+func documentDecodeNdJsonScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.json file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```json\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+
+	expression := s.expression
+	if expression != "" {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=json '%v' sample.json\n```\n", expression))
+	} else {
+		writeOrPanic(w, "```bash\nyq -p=json sample.json\n```\n")
+	}
+
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(s.indent, false, true, true))))
 }
 
 func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
@@ -98,10 +265,16 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 func testJSONScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "encode", "decode":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewJONEncoder(s.indent, false)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewJSONEncoder(s.indent, false)), s.description)
 	case "":
 		var actual = resultToString(t, decodeJSON(t, s.input))
 		test.AssertResultWithContext(t, s.expected, actual, s.description)
+	case "decode-ndjson":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(2, false, true, true)), s.description)
+	case "roundtrip-ndjson":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(0, false)), s.description)
+	case "roundtrip-multi":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(2, false)), s.description)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -147,6 +320,12 @@ func documentJSONScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		documentJSONDecodeScenario(t, w, s)
 	case "encode":
 		documentJSONEncodeScenario(w, s)
+	case "decode-ndjson":
+		documentDecodeNdJsonScenario(w, s)
+	case "roundtrip-ndjson":
+		documentRoundtripNdJsonScenario(w, s, 0)
+	case "roundtrip-multi":
+		documentRoundtripNdJsonScenario(w, s, 2)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -178,7 +357,7 @@ func documentJSONEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewJONEncoder(s.indent, false))))
+	writeOrPanic(w, fmt.Sprintf("```json\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewJSONEncoder(s.indent, false))))
 }
 
 func TestJSONScenarios(t *testing.T) {

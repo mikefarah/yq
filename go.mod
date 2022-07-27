@@ -6,6 +6,7 @@ require (
 	github.com/alecthomas/repr v0.1.0
 	github.com/elliotchance/orderedmap v1.4.0
 	github.com/fatih/color v1.13.0
+	github.com/goccy/go-json v0.9.10
 	github.com/goccy/go-yaml v1.9.5
 	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.6
