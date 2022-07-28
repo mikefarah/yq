@@ -1,5 +1,7 @@
 # GitHub Action
 
+## Guide
+
 You can use `yq` in your GitHub action, for instance:
 
 ```yaml
