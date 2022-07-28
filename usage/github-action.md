@@ -29,3 +29,13 @@ If you [enable step debug logging](https://docs.github.com/en/actions/managing-w
 Thanks @[**devorbitus**](https://github.com/devorbitus)**!**
 
 
+## Troubleshooting
+
+### Write in-place file permission errors
+The default user in github action dockerfiles (at the time of writing) seems to be 1001. This is what the `yq` github action is configured to run with (see the docker file [here](https://github.com/mikefarah/yq/blob/master/github-action/Dockerfile))
+
+There's a working example defined [here](https://github.com/mikefarah/yq/blob/master/.github/workflows/test-yq.yml) and you can see the Github action [results here](https://github.com/mikefarah/yq/actions/workflows/test-yq.yml)
+
+If you need to set the action to another user, follow the advice [here](https://stackoverflow.com/questions/58955666/how-to-set-the-docker-user-in-github-actions).
+
+
