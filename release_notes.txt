@@ -1,3 +1,7 @@
+4.27.1:
+  - Added 'json' decoder for support for multiple JSON documents in a single file (e.g. NDJSON)
+  - Fixed XML decoding issue (#1284)
+
 4.26.1:
   - Switched to new expression parser (#1264)
   - Don't clobber anchor when adding nodes (#1269)
