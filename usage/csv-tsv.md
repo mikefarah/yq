@@ -45,3 +45,32 @@ will output:
 i	like	csv
 because	excel	is	cool
 ```
+
+### Converting an array of objects to CSV
+
+If you have a yaml document like:
+
+```yaml
+foo: bar
+items:
+  - name: Tom
+    species: cat
+    color: blue
+  - name: Jim
+    species: dog
+    color: brown
+```
+
+To convert to CSV, you need to transform this into a array of CSV rows. Assuming you also want a header, then you can do:
+
+```bash
+yq '[["name", "species", "color"]] + [.items[] | [.name, .species, .color]]' data.yaml -o=csv
+```
+
+to yield:
+
+```csv
+name,species,color
+Tom,cat,blue
+Jim,dog,brown
+```
