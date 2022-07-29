@@ -67,9 +67,9 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		node := unwrapDoc(candidate.Node)
 
 		var replacement *yaml.Node
-		if node.Tag == "!!map" {
+		if node.Kind == yaml.MappingNode {
 			replacement = pickMap(node, indicesToPick)
-		} else if node.Tag == "!!seq" {
+		} else if node.Kind == yaml.SequenceNode {
 			replacement, err = pickSequence(node, indicesToPick)
 			if err != nil {
 				return Context{}, err

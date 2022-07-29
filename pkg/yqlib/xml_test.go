@@ -293,6 +293,22 @@ var xmlScenarios = []formatScenario{
 		scenarioType: "encode",
 	},
 	{
+		description:  "includes map tags",
+		skipDoc:      true,
+		input:        "<cat>purrs</cat>\n",
+		expression:   `tag`,
+		expected:     "!!map\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "includes array tags",
+		skipDoc:      true,
+		input:        "<cat>purrs</cat><cat>purrs</cat>\n",
+		expression:   `.cat | tag`,
+		expected:     "!!seq\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "Encode xml: array",
 		input:        "pets:\n  cat:\n    - purrs\n    - meows",
 		expected:     "<pets>\n  <cat>purrs</cat>\n  <cat>meows</cat>\n</pets>\n",

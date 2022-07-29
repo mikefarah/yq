@@ -43,7 +43,7 @@ func (dec *xmlDecoder) Init(reader io.Reader) {
 }
 
 func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
-	yamlNode := &yaml.Node{Kind: yaml.SequenceNode}
+	yamlNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	for _, child := range nodes {
 		yamlChild, err := dec.convertToYamlNode(child)
 		if err != nil {
@@ -64,7 +64,7 @@ func (dec *xmlDecoder) processComment(c string) string {
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode}
+	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
 		label := dec.contentName
