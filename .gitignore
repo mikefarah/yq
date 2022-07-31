@@ -57,3 +57,6 @@ debian/files
 
 # intellij
 /.idea
+
+# vscode
+.vscode
