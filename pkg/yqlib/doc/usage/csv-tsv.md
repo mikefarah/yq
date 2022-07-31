@@ -1,3 +1,6 @@
+# CSV
+Encode (arrays of arrays) data structures to CSV or TSV, Decode CSV, TSV into an array of objects.
+
 
 {% hint style="warning" %}
 Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
