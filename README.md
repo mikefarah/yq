@@ -3,7 +3,7 @@
 ![Build](https://github.com/mikefarah/yq/workflows/Build/badge.svg)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq) ![CodeQL](https://github.com/mikefarah/yq/workflows/CodeQL/badge.svg)
 
 
-a lightweight and portable command-line YAML, JSON and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json and xml. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
+a lightweight and portable command-line YAML, JSON and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json, xml, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
 yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
 
@@ -207,6 +207,14 @@ RUN apk add --no-cache tzdata
 USER yq
 ```
 
+#### Podman with SELinux
+
+If you are using podman with SELinux, you will need to set the shared volume flag `:z` on the volume mount:
+
+```
+-v "${PWD}":/workdir:z
+```
+
 ### GitHub Action
 ```
   - name: Set foobar to cool
@@ -290,10 +298,10 @@ Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
 - [Decode/Encode base64 data](https://mikefarah.gitbook.io/yq/operators/encode-decode)
 - [Load content from other files](https://mikefarah.gitbook.io/yq/operators/load)
-- [Convert to/from json](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
+- [Convert to/from json/ndjson](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
 - [Convert to/from xml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/xml)
 - [Convert to/from properties](https://mikefarah.gitbook.io/yq/v/v4.x/usage/properties)
-- [Convert to csv/tsv](https://mikefarah.gitbook.io/yq/usage/csv-tsv)
+- [Convert to/from csv/tsv](https://mikefarah.gitbook.io/yq/usage/csv-tsv)
 - [General shell completion scripts (bash/zsh/fish/powershell)](https://mikefarah.gitbook.io/yq/v/v4.x/commands/shell-completion)
 - [Reduce](https://mikefarah.gitbook.io/yq/operators/reduce) to merge multiple files or sum an array or other fancy things.
 - [Github Action](https://mikefarah.gitbook.io/yq/usage/github-action) to use in your automated pipeline (thanks @devorbitus)
