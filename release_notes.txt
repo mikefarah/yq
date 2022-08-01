@@ -1,6 +1,6 @@
 4.27.1:
   - Added 'json' decoder for support for multiple JSON documents in a single file (e.g. NDJSON)
-  - Added 'csv' decoding
+  - Added 'csv' decoding, array of objects encoding, and round-triping
   - New StringEvaluator when using yq as a lib (thanks @leviliangtw)
   - Fixed XML decoding issue (#1284)
 
