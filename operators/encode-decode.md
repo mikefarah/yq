@@ -9,16 +9,16 @@ These operators are useful to process yaml documents that have stringified embed
 
 | Format | Decode (from string) | Encode (to string) |
 | --- | -- | --|
-| Yaml | from_yaml | to_yaml(i)/@yaml |
-| JSON | from_json | to_json(i)/@json |
-| Properties | from_props  | to_props/@props |
-| CSV |  | to_csv/@csv |
-| TSV |  | to_tsv/@tsv |
-| XML | from_xml | to_xml(i)/@xml |
+| Yaml | from_yaml/@yamld | to_yaml(i)/@yaml |
+| JSON | from_json/@jsond | to_json(i)/@json |
+| Properties | from_props/@propsd  | to_props/@props |
+| CSV | from_csv/@csvd | to_csv/@csv |
+| TSV | from_tsv/@tsvd | to_tsv/@tsv |
+| XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
 
 
-CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+See CSV and TSV [documentation](https://mikefarah.gitbook.io/yq/usage/csv-tsv) for accepted formats.
 
 XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 
@@ -132,13 +132,49 @@ a: |-
 ```
 then
 ```bash
-yq '.a |= from_props' sample.yml
+yq '.a |= @propsd' sample.yml
 ```
 will output
 ```yaml
 a:
   cats: great
   dogs: cool as well
+```
+
+## Decode csv encoded string
+Given a sample.yml file of:
+```yaml
+a: |-
+  cats,dogs
+  great,cool as well
+```
+then
+```bash
+yq '.a |= @csvd' sample.yml
+```
+will output
+```yaml
+a:
+  - cats: great
+    dogs: cool as well
+```
+
+## Decode tsv encoded string
+Given a sample.yml file of:
+```yaml
+a: |-
+  cats	dogs
+  great	cool as well
+```
+then
+```bash
+yq '.a |= @tsvd' sample.yml
+```
+will output
+```yaml
+a:
+  - cats: great
+    dogs: cool as well
 ```
 
 ## Encode value as yaml string
