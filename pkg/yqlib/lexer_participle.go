@@ -67,7 +67,10 @@ var participleYqRules = []*participleYqRule{
 	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLOutputFormat, 2), 0},
 	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLOutputFormat, 0), 0},
 
+	{"CSVDecode", `from_?csv|@csvd`, decodeOp(CSVObjectInputFormat), 0},
 	{"CSVEncode", `to_?csv|@csv`, encodeWithIndent(CSVOutputFormat, 0), 0},
+
+	{"TSVDecode", `from_?tsv|@tsvd`, decodeOp(TSVObjectInputFormat), 0},
 	{"TSVEncode", `to_?tsv|@tsv`, encodeWithIndent(TSVOutputFormat, 0), 0},
 
 	{"Base64d", `@base64d`, decodeOp(Base64InputFormat), 0},

@@ -13,6 +13,11 @@ Gary,1,true,168.8
 Samantha's Rabbit,2,false,-188.8
 `
 
+const expectedUpdatedSimpleCsv = `name,numberOfCats,likesApples,height
+Gary,3,true,168.8
+Samantha's Rabbit,2,false,-188.8
+`
+
 const csvSimpleShort = `Name,Number of Cats
 Gary,1
 Samantha's Rabbit,2
@@ -33,10 +38,23 @@ const expectedYamlFromCSV = `- name: Gary
   height: -188.8
 `
 
+const expectedYamlFromCSVMissingData = `- name: Gary
+  numberOfCats: 1
+  height: 168.8
+- name: Samantha's Rabbit
+  height: -188.8
+  likesApples: false
+`
+
+const csvSimpleMissingData = `name,numberOfCats,height
+Gary,1,168.8
+Samantha's Rabbit,,-188.8
+`
+
 const csvTestSimpleYaml = `- [i, like, csv]
 - [because, excel, is, cool]`
 
-const csvTestExpectedSimpleCsv = `i,like,csv
+const expectedSimpleCsv = `i,like,csv
 because,excel,is,cool
 `
 
@@ -48,7 +66,7 @@ var csvScenarios = []formatScenario{
 	{
 		description:  "Encode CSV simple",
 		input:        csvTestSimpleYaml,
-		expected:     csvTestExpectedSimpleCsv,
+		expected:     expectedSimpleCsv,
 		scenarioType: "encode-csv",
 	},
 	{
@@ -58,19 +76,38 @@ var csvScenarios = []formatScenario{
 		scenarioType: "encode-tsv",
 	},
 	{
-		description:    "Encode array of objects to csv",
-		subdescription: "Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Nice thing about this method is you can pick the columns and call the header whatever you like.",
+		description:  "Encode Empty",
+		skipDoc:      true,
+		input:        `[]`,
+		expected:     "",
+		scenarioType: "encode-csv",
+	},
+	{
+		description:  "Comma in value",
+		skipDoc:      true,
+		input:        `["comma, in, value", things]`,
+		expected:     "\"comma, in, value\",things\n",
+		scenarioType: "encode-csv",
+	},
+	{
+		description:  "Encode array of objects to csv",
+		input:        expectedYamlFromCSV,
+		expected:     csvSimple,
+		scenarioType: "encode-csv",
+	},
+	{
+		description:    "Encode array of objects to custom csv format",
+		subdescription: "Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Pick the columns and call the header whatever you like.",
 		input:          expectedYamlFromCSV,
 		expected:       csvSimpleShort,
 		expression:     `[["Name", "Number of Cats"]] +  [.[] | [.name, .numberOfCats ]]`,
 		scenarioType:   "encode-csv",
 	},
 	{
-		description:    "Encode array of objects to csv - generic",
-		subdescription: "This is a little trickier than the previous example - we dynamically work out the $header, and use that to automatically create the value arrays.",
-		input:          expectedYamlFromCSV,
-		expected:       csvSimple,
-		expression:     `(.[0] | keys | .[] ) as $header |  [[$header]] +  [.[] | [ .[$header] ]]`,
+		description:    "Encode array of objects to csv - missing fields behaviour",
+		subdescription: "First entry is used to determine the headers, and it it missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank",
+		input:          expectedYamlFromCSVMissingData,
+		expected:       csvSimpleMissingData,
 		scenarioType:   "encode-csv",
 	},
 	{
@@ -87,6 +124,13 @@ var csvScenarios = []formatScenario{
 		expected:       expectedYamlFromCSV,
 		scenarioType:   "decode-tsv-object",
 	},
+	{
+		description:  "Round trip",
+		input:        csvSimple,
+		expected:     expectedUpdatedSimpleCsv,
+		expression:   `(.[] | select(.name == "Gary") | .numberOfCats) = 3`,
+		scenarioType: "roundtrip-csv",
+	},
 }
 
 func testCSVScenario(t *testing.T, s formatScenario) {
@@ -99,6 +143,8 @@ func testCSVScenario(t *testing.T, s formatScenario) {
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewYamlEncoder(2, false, true, true)), s.description)
 	case "decode-tsv-object":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder('\t'), NewYamlEncoder(2, false, true, true)), s.description)
+	case "roundtrip-csv":
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewCsvEncoder(',')), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -161,6 +207,38 @@ func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType str
 	)
 }
 
+func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType string) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, fmt.Sprintf("Given a sample.%v file of:\n", formatType))
+	writeOrPanic(w, fmt.Sprintf("```%v\n%v\n```\n", formatType, s.input))
+
+	writeOrPanic(w, "then\n")
+
+	expression := s.expression
+
+	if expression != "" {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=%v -o=%v '%v' sample.%v\n```\n", formatType, formatType, expression, formatType))
+	} else {
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=%v -o=%v sample.%v\n```\n", formatType, formatType, formatType))
+	}
+	writeOrPanic(w, "will output\n")
+
+	separator := ','
+	if formatType == "tsv" {
+		separator = '\t'
+	}
+
+	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
+		processFormatScenario(s, NewCSVObjectDecoder(separator), NewCsvEncoder(separator))),
+	)
+}
+
 func documentCSVScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 	if s.skipDoc {
@@ -175,6 +253,8 @@ func documentCSVScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		documentCSVDecodeObjectScenario(t, w, s, "csv")
 	case "decode-tsv-object":
 		documentCSVDecodeObjectScenario(t, w, s, "tsv")
+	case "roundtrip-csv":
+		documentCSVRoundTripScenario(w, s, "csv")
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))

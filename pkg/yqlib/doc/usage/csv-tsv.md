@@ -1,5 +1,32 @@
 # CSV
-Encode (arrays of arrays) data structures to CSV or TSV, Decode CSV, TSV into an array of objects.
+Encode/Decode to CSV or TSV.
+
+## Encode 
+Currently supports arrays of homogenous flat objects, that is: no nesting and it assumes the _first_ object has all the keys required:
+
+```yaml
+- name: Bobo
+  type: dog
+- name: Fifi
+  type: cat
+```
+
+As well as arrays of arrays of scalars (strings/numbers/booleans):
+
+```yaml
+- [Bobo, dog]
+- [Fifi, cat]
+```
+
+## Decode
+Decode assumes the first CSV/TSV row is the header row, and all rows beneath are the entries.
+The data will be coded into an array of objects, using the header rows as keys.
+
+```csv
+name,type
+Bobo,dog
+Fifi,cat
+```
 
 
 {% hint style="warning" %}
@@ -41,7 +68,31 @@ because	excel	is	cool
 ```
 
 ## Encode array of objects to csv
-Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Nice thing about this method is you can pick the columns and call the header whatever you like.
+Given a sample.yml file of:
+```yaml
+- name: Gary
+  numberOfCats: 1
+  likesApples: true
+  height: 168.8
+- name: Samantha's Rabbit
+  numberOfCats: 2
+  likesApples: false
+  height: -188.8
+
+```
+then
+```bash
+yq -o=csv sample.yml
+```
+will output
+```csv
+name,numberOfCats,likesApples,height
+Gary,1,true,168.8
+Samantha's Rabbit,2,false,-188.8
+```
+
+## Encode array of objects to custom csv format
+Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Pick the columns and call the header whatever you like.
 
 Given a sample.yml file of:
 ```yaml
@@ -66,30 +117,28 @@ Gary,1
 Samantha's Rabbit,2
 ```
 
-## Encode array of objects to csv - generic
-This is a little trickier than the previous example - we dynamically work out the $header, and use that to automatically create the value arrays.
+## Encode array of objects to csv - missing fields behaviour
+First entry is used to determine the headers, and it it missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank
 
 Given a sample.yml file of:
 ```yaml
 - name: Gary
   numberOfCats: 1
-  likesApples: true
   height: 168.8
 - name: Samantha's Rabbit
-  numberOfCats: 2
-  likesApples: false
   height: -188.8
+  likesApples: false
 
 ```
 then
 ```bash
-yq -o=csv '(.[0] | keys | .[] ) as $header |  [[$header]] +  [.[] | [ .[$header] ]]' sample.yml
+yq -o=csv sample.yml
 ```
 will output
 ```csv
-name,numberOfCats,likesApples,height
-Gary,1,true,168.8
-Samantha's Rabbit,2,false,-188.8
+name,numberOfCats,height
+Gary,1,168.8
+Samantha's Rabbit,,-188.8
 ```
 
 ## Parse CSV into an array of objects
@@ -142,5 +191,24 @@ will output
   numberOfCats: 2
   likesApples: false
   height: -188.8
+```
+
+## Round trip
+Given a sample.csv file of:
+```csv
+name,numberOfCats,likesApples,height
+Gary,1,true,168.8
+Samantha's Rabbit,2,false,-188.8
+
+```
+then
+```bash
+yq -p=csv -o=csv '(.[] | select(.name == "Gary") | .numberOfCats) = 3' sample.csv
+```
+will output
+```csv
+name,numberOfCats,likesApples,height
+Gary,3,true,168.8
+Samantha's Rabbit,2,false,-188.8
 ```
 

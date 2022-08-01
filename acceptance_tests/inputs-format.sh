@@ -3,6 +3,8 @@
 setUp() {
   rm test*.yml 2>/dev/null || true
   rm test*.properties 2>/dev/null || true
+  rm test*.csv 2>/dev/null || true
+  rm test*.tsv 2>/dev/null || true
   rm test*.xml 2>/dev/null || true
 }
 
@@ -39,6 +41,51 @@ EOM
   X=$(cat /dev/null | ./yq ea -p=props test.properties)
   assertEquals "$expected" "$X"
 }
+
+testInputCSV() {
+  cat >test.csv <<EOL
+fruit,yumLevel
+apple,5
+banana,4
+EOL
+
+  read -r -d '' expected << EOM
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOM
+
+  X=$(./yq e -p=csv test.csv)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=csv test.csv)
+  assertEquals "$expected" "$X"
+}
+
+testInputTSV() {
+  cat >test.tsv <<EOL
+fruit	yumLevel
+apple	5
+banana	4
+EOL
+
+  read -r -d '' expected << EOM
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOM
+
+  X=$(./yq e -p=t test.tsv)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=t test.tsv)
+  assertEquals "$expected" "$X"
+}
+
+
+
 
 testInputXml() {
   cat >test.yml <<EOL
