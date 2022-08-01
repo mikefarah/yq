@@ -66,8 +66,13 @@ func (o *orderedMap) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	case '[':
-		var arr []orderedMap
-		return json.Unmarshal(data, &arr)
+		var res []*orderedMap
+		if err := json.Unmarshal(data, &res); err != nil {
+			return err
+		}
+		o.altVal = res
+		o.kv = nil
+		return nil
 	}
 
 	return json.Unmarshal(data, &o.altVal)

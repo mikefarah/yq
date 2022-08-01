@@ -22,13 +22,13 @@ func (dec *jsonDecoder) Init(reader io.Reader) {
 
 func (dec *jsonDecoder) Decode(rootYamlNode *yaml.Node) error {
 
-	var dataBucket interface{}
+	var dataBucket orderedMap
 	log.Debug("going to decode")
 	err := dec.decoder.Decode(&dataBucket)
 	if err != nil {
 		return err
 	}
-	node, err := dec.convertToYamlNode(dataBucket)
+	node, err := dec.convertToYamlNode(&dataBucket)
 
 	if err != nil {
 		return err
@@ -38,39 +38,36 @@ func (dec *jsonDecoder) Decode(rootYamlNode *yaml.Node) error {
 	return nil
 }
 
-func (dec *jsonDecoder) convertToYamlNode(data interface{}) (*yaml.Node, error) {
-	switch data := data.(type) {
-	case nil:
-		return createScalarNode(nil, "null"), nil
-	case float64, float32:
-		// json decoder returns ints as float.
-		return parseSnippet(fmt.Sprintf("%v", data))
-	case int, int64, int32, string, bool:
-		return createScalarNode(data, fmt.Sprintf("%v", data)), nil
-	case map[string]interface{}:
-		return dec.parseMap(data)
-	case []interface{}:
-		return dec.parseArray(data)
-	default:
-		return nil, fmt.Errorf("unrecognised type :(")
+func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) {
+	if data.kv == nil {
+		switch rawData := data.altVal.(type) {
+		case nil:
+			return createScalarNode(nil, "null"), nil
+		case float64, float32:
+			// json decoder returns ints as float.
+			return parseSnippet(fmt.Sprintf("%v", rawData))
+		case int, int64, int32, string, bool:
+			return createScalarNode(rawData, fmt.Sprintf("%v", rawData)), nil
+		case []*orderedMap:
+			return dec.parseArray(rawData)
+		default:
+			return nil, fmt.Errorf("unrecognised type :( %v", rawData)
+		}
 	}
-}
-
-func (dec *jsonDecoder) parseMap(dataMap map[string]interface{}) (*yaml.Node, error) {
 
 	var yamlMap = &yaml.Node{Kind: yaml.MappingNode}
-
-	for key, value := range dataMap {
-		yamlValue, err := dec.convertToYamlNode(value)
+	for _, keyValuePair := range data.kv {
+		yamlValue, err := dec.convertToYamlNode(&keyValuePair.V)
 		if err != nil {
 			return nil, err
 		}
-		yamlMap.Content = append(yamlMap.Content, createScalarNode(key, fmt.Sprintf("%v", key)), yamlValue)
+		yamlMap.Content = append(yamlMap.Content, createScalarNode(keyValuePair.K, keyValuePair.K), yamlValue)
 	}
 	return yamlMap, nil
+
 }
 
-func (dec *jsonDecoder) parseArray(dataArray []interface{}) (*yaml.Node, error) {
+func (dec *jsonDecoder) parseArray(dataArray []*orderedMap) (*yaml.Node, error) {
 
 	var yamlMap = &yaml.Node{Kind: yaml.SequenceNode}
 

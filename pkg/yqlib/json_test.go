@@ -22,6 +22,13 @@ const sampleNdJson = `{"this": "is a multidoc json file"}
 {"a number": 4}
 `
 
+const sampleNdJsonKey = `{"a": "first", "b": "next", "ab": "last"}`
+
+const expectedJsonKeysInOrder = `a: first
+b: next
+ab: last
+`
+
 const expectedNdJsonYaml = `this: is a multidoc json file
 ---
 each:
@@ -158,10 +165,31 @@ var jsonScenarios = []formatScenario{
 		scenarioType: "decode-ndjson",
 	},
 	{
+		description:  "Decode NDJSON, maintain key order",
+		skipDoc:      true,
+		input:        sampleNdJsonKey,
+		expected:     expectedJsonKeysInOrder,
+		scenarioType: "decode-ndjson",
+	},
+	{
 		description:  "numbers",
 		skipDoc:      true,
 		input:        "[3, 3.0, 3.1, -1]",
 		expected:     "- 3\n- 3\n- 3.1\n- -1\n",
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "number single",
+		skipDoc:      true,
+		input:        "3",
+		expected:     "3\n",
+		scenarioType: "decode-ndjson",
+	},
+	{
+		description:  "empty string",
+		skipDoc:      true,
+		input:        `""`,
+		expected:     "\"\"\n",
 		scenarioType: "decode-ndjson",
 	},
 	{
