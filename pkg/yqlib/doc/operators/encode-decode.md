@@ -9,12 +9,12 @@ These operators are useful to process yaml documents that have stringified embed
 
 | Format | Decode (from string) | Encode (to string) |
 | --- | -- | --|
-| Yaml | from_yaml | to_yaml(i)/@yaml |
-| JSON | from_json | to_json(i)/@json |
+| Yaml | from_yaml/@yamld | to_yaml(i)/@yaml |
+| JSON | from_json/@jsond | to_json(i)/@json |
 | Properties | from_props/@propsd  | to_props/@props |
 | CSV | from_csv/@csvd | to_csv/@csv |
 | TSV | from_tsv/@tsvd | to_tsv/@tsv |
-| XML | from_xml | to_xml(i)/@xml |
+| XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
 
 
