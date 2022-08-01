@@ -1,3 +1,6 @@
+4.27.2:
+  - Fixed JSON decoder to maintain object key order.
+
 4.27.1:
   - Added 'json' decoder for support for multiple JSON documents in a single file (e.g. NDJSON)
   - Added 'csv' decoding, array of objects encoding, and round-triping
