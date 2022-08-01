@@ -61,6 +61,8 @@ yq -i '
 ' file.yaml
 ```
 
+Take a look at the discussions for [common questions](https://github.com/mikefarah/yq/discussions/categories/q-a), and [cool ideas](https://github.com/mikefarah/yq/discussions/categories/show-and-tell)
+
 ## Install
 
 See the [github page](https://github.com/mikefarah/yq/#install) for the various ways you can install and use `yq`
