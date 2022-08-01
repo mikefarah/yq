@@ -205,10 +205,10 @@ func findInArray(array *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
-func findKeyInMap(array *yaml.Node, item *yaml.Node) int {
+func findKeyInMap(dataMap *yaml.Node, item *yaml.Node) int {
 
-	for index := 0; index < len(array.Content); index = index + 2 {
-		if recursiveNodeEqual(array.Content[index], item) {
+	for index := 0; index < len(dataMap.Content); index = index + 2 {
+		if recursiveNodeEqual(dataMap.Content[index], item) {
 			return index
 		}
 	}

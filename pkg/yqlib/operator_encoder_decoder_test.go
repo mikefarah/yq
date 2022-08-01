@@ -66,9 +66,25 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
 		description: "Decode props encoded string",
 		document:    `a: "cats=great\ndogs=cool as well"`,
-		expression:  `.a |= from_props`,
+		expression:  `.a |= @propsd`,
 		expected: []string{
 			"D0, P[], (doc)::a:\n    cats: great\n    dogs: cool as well\n",
+		},
+	},
+	{
+		description: "Decode csv encoded string",
+		document:    `a: "cats,dogs\ngreat,cool as well"`,
+		expression:  `.a |= @csvd`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    - cats: great\n      dogs: cool as well\n",
+		},
+	},
+	{
+		description: "Decode tsv encoded string",
+		document: `a: "cats	dogs\ngreat	cool as well"`,
+		expression: `.a |= @tsvd`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    - cats: great\n      dogs: cool as well\n",
 		},
 	},
 	{

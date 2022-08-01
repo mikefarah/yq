@@ -523,7 +523,6 @@ var participleLexerScenarios = []participleLexerScenario{
 }
 
 func TestParticipleLexer(t *testing.T) {
-	log.Errorf("TestParticiple")
 	lexer := newParticipleLexer()
 
 	for _, scenario := range participleLexerScenarios {

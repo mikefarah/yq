@@ -102,6 +102,48 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputCSV() {
+  cat >test.yml <<EOL
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOL
+
+  read -r -d '' expected << EOM
+fruit,yumLevel
+apple,5
+banana,4
+EOM
+
+  X=$(./yq -o=c test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -o=csv test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testOutputTSV() {
+  cat >test.yml <<EOL
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOL
+
+  read -r -d '' expected << EOM
+fruit	yumLevel
+apple	5
+banana	4
+EOM
+
+  X=$(./yq -o=t test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -o=tsv test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testOutputXml() {
   cat >test.yml <<EOL
 a: {b: {c: ["cat"]}}

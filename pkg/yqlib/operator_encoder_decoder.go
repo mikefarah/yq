@@ -114,6 +114,10 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		decoder = NewBase64Decoder()
 	case PropertiesInputFormat:
 		decoder = NewPropertiesDecoder()
+	case CSVObjectInputFormat:
+		decoder = NewCSVObjectDecoder(',')
+	case TSVObjectInputFormat:
+		decoder = NewCSVObjectDecoder('\t')
 	}
 
 	var results = list.New()

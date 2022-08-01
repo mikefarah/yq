@@ -11,14 +11,14 @@ These operators are useful to process yaml documents that have stringified embed
 | --- | -- | --|
 | Yaml | from_yaml | to_yaml(i)/@yaml |
 | JSON | from_json | to_json(i)/@json |
-| Properties | from_props  | to_props/@props |
-| CSV |  | to_csv/@csv |
-| TSV |  | to_tsv/@tsv |
+| Properties | from_props/@propsd  | to_props/@props |
+| CSV | from_csv/@csvd | to_csv/@csv |
+| TSV | from_tsv/@tsvd | to_tsv/@tsv |
 | XML | from_xml | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
 
 
-CSV and TSV format both accept either a single array or scalars (representing a single row), or an array of array of scalars (representing multiple rows). 
+See CSV and TSV [documentation](https://mikefarah.gitbook.io/yq/usage/csv-tsv) for accepted formats.
 
 XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify attributes and content fields.
 

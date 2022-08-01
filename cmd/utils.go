@@ -68,6 +68,10 @@ func configureDecoder() (yqlib.Decoder, error) {
 		return yqlib.NewPropertiesDecoder(), nil
 	case yqlib.JsonInputFormat:
 		return yqlib.NewJSONDecoder(), nil
+	case yqlib.CSVObjectInputFormat:
+		return yqlib.NewCSVObjectDecoder(','), nil
+	case yqlib.TSVObjectInputFormat:
+		return yqlib.NewCSVObjectDecoder('\t'), nil
 	}
 
 	return yqlib.NewYamlDecoder(), nil
