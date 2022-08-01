@@ -1,5 +1,5 @@
 # CSV
-Encode/Decode to CSV or TSV.
+Encode/Decode/Roundtrip CSV and TSV files.
 
 ## Encode 
 Currently supports arrays of homogenous flat objects, that is: no nesting and it assumes the _first_ object has all the keys required:

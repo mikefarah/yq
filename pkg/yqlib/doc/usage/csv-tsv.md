@@ -1,5 +1,5 @@
 # CSV
-Encode/Decode to CSV or TSV.
+Encode/Decode/Roundtrip CSV and TSV files.
 
 ## Encode 
 Currently supports arrays of homogenous flat objects, that is: no nesting and it assumes the _first_ object has all the keys required:
@@ -118,7 +118,7 @@ Samantha's Rabbit,2
 ```
 
 ## Encode array of objects to csv - missing fields behaviour
-First entry is used to determine the headers, and it it missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank
+First entry is used to determine the headers, and it is missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank
 
 Given a sample.yml file of:
 ```yaml
@@ -142,7 +142,7 @@ Samantha's Rabbit,,-188.8
 ```
 
 ## Parse CSV into an array of objects
-First row is assumed to define the fields
+First row is assumed to be the header row.
 
 Given a sample.csv file of:
 ```csv
@@ -168,7 +168,7 @@ will output
 ```
 
 ## Parse TSV into an array of objects
-First row is assumed to define the fields
+First row is assumed to be the header row.
 
 Given a sample.tsv file of:
 ```tsv
