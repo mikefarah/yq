@@ -48,6 +48,17 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Trim strings",
+		document:    `[" cat", "dog ", " cow cow ", horse]`,
+		expression:  `.[] | trim`,
+		expected: []string{
+			"D0, P[0], (!!str)::cat\n",
+			"D0, P[1], (!!str)::dog\n",
+			"D0, P[2], (!!str)::cow cow\n",
+			"D0, P[3], (!!str)::horse\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `[!horse cat, !goat meow, !frog 1, null, true]`,
 		expression: `join("; ")`,

@@ -146,6 +146,7 @@ var captureOpType = &operationType{Type: "CAPTURE", NumArgs: 1, Precedence: 50, 
 var testOpType = &operationType{Type: "TEST", NumArgs: 1, Precedence: 50, Handler: testOperator}
 var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
 var changeCaseOpType = &operationType{Type: "CHANGE_CASE", NumArgs: 0, Precedence: 50, Handler: changeCaseOperator}
+var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handler: trimSpaceOperator}
 
 var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 50, Handler: loadYamlOperator}
 

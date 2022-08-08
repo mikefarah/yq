@@ -13,6 +13,26 @@ type changeCasePrefs struct {
 	ToUpperCase bool
 }
 
+func trimSpaceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	results := list.New()
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
+		node := unwrapDoc(candidate.Node)
+
+		if guessTagFromCustomType(node) != "!!str" {
+			return Context{}, fmt.Errorf("cannot trim %v, can only operate on strings. ", node.Tag)
+		}
+
+		newStringNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: node.Tag, Style: node.Style}
+		newStringNode.Value = strings.TrimSpace(node.Value)
+		results.PushBack(candidate.CreateReplacement(newStringNode))
+
+	}
+
+	return context.ChildContext(results), nil
+}
+
 func changeCaseOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	results := list.New()
 	prefs := expressionNode.Operation.Preferences.(changeCasePrefs)
