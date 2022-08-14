@@ -31,6 +31,22 @@ If you [enable step debug logging](https://docs.github.com/en/actions/managing-w
 Thanks @[**devorbitus**](https://github.com/devorbitus)**!**
 
 
+## Environment variables with Github Actions:
+
+GitHub Actions escape and interpolate rules can conflict with some yq syntax. Here is an example of how to quote a variable that could contain dots in a query path (more usage context: ambanum/OpenTermsArchive#899).
+
+```yaml
+  - name: Get an entry with a variable that might contain dots or spaces
+    id: get_username
+    uses: mikefarah/yq@master
+    with:
+      cmd: yq '.all.children.["${{ matrix.ip_address }}"].username' ops/inventories/production.yml
+  - name: Reuse a variable obtained in another step
+    run: echo ${{ steps.get_username.outputs.result }}
+```
+
+Thanks @MattiSG!
+
 ## Troubleshooting
 
 ### Write in-place file permission errors
