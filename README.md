@@ -223,6 +223,13 @@ If you are using podman with SELinux, you will need to set the shared volume fla
     uses: mikefarah/yq@master
     with:
       cmd: yq -i '.foo.bar = "cool"' 'config.yml'
+  - name: Get an entry with a variable that might contain dots or spaces
+    id: get_username
+    uses: mikefarah/yq@master
+    with:
+      cmd: yq '.all.children.["${{ matrix.ip_address }}"].username' ops/inventories/production.yml
+  - name: Reuse a variable obtained in another step
+    run: echo ${{ steps.get_username.outputs.result }}
 ```
 
 See https://mikefarah.gitbook.io/yq/usage/github-action for more.
