@@ -112,6 +112,26 @@ will output
 cat; meow; 1; ; true
 ```
 
+## Trim strings
+Given a sample.yml file of:
+```yaml
+- ' cat'
+- 'dog '
+- ' cow cow '
+- horse
+```
+then
+```bash
+yq '.[] | trim' sample.yml
+```
+will output
+```yaml
+cat
+dog
+cow cow
+horse
+```
+
 ## Match string
 Given a sample.yml file of:
 ```yaml

@@ -7,6 +7,11 @@ Which will assign the LHS node values to the RHS node values. The RHS expression
 
 ### relative form: `|=`
 This will do a similar thing to the plain form, however, the RHS expression is run against _the LHS nodes_. This is useful for updating values based on old values, e.g. increment.
+
+
+### Flags
+- `c` clobber custom tags
+
 {% hint style="warning" %}
 Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
 
@@ -233,5 +238,39 @@ will output
 a:
   b:
     - bogs
+```
+
+## Custom types are maintained by default
+Given a sample.yml file of:
+```yaml
+a: !cat meow
+b: !dog woof
+```
+then
+```bash
+yq '.a = .b' sample.yml
+```
+will output
+```yaml
+a: !cat woof
+b: !dog woof
+```
+
+## Custom types: clovver
+Use the `c` option to clobber custom tags
+
+Given a sample.yml file of:
+```yaml
+a: !cat meow
+b: !dog woof
+```
+then
+```bash
+yq '.a =c .b' sample.yml
+```
+will output
+```yaml
+a: !dog woof
+b: !dog woof
 ```
 

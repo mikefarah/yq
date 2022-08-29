@@ -14,6 +14,7 @@ You can control how objects are merged by using one or more of the following fla
 - `d` deeply merge arrays
 - `?` only merge _existing_ fields
 - `n` only merge _new_ fields
+- `c` clobber custom tags
 
 
 ### Merge two files together
@@ -475,6 +476,29 @@ yq '.a = .a * .b' sample.yml
 will output
 ```yaml
 a: !horse
+  cat: meow
+  dog: woof
+b: !goat
+  dog: woof
+```
+
+## Custom types: clobber tags
+Use the `c` option to clobber custom tags. Note that the second tag is now used
+
+Given a sample.yml file of:
+```yaml
+a: !horse
+  cat: meow
+b: !goat
+  dog: woof
+```
+then
+```bash
+yq '.a *=c .b' sample.yml
+```
+will output
+```yaml
+a: !goat
   cat: meow
   dog: woof
 b: !goat
