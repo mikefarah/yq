@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/copier"
+	logging "gopkg.in/op/go-logging.v1"
 	"gopkg.in/yaml.v3"
 )
 
@@ -83,8 +84,10 @@ func resultsForRHS(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 	}
 
 	for rightEl := rhs.MatchingNodes.Front(); rightEl != nil; rightEl = rightEl.Next() {
-		log.Debugf("Applying calc")
 		rhsCandidate := rightEl.Value.(*CandidateNode)
+		if !log.IsEnabledFor(logging.DEBUG) {
+			log.Debugf("Applying lhs: %v, rhsCandidate, %v", NodeToString(lhsCandidate), NodeToString(rhsCandidate))
+		}
 		resultCandidate, err := prefs.Calculation(d, context, lhsCandidate, rhsCandidate)
 		if err != nil {
 			return err

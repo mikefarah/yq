@@ -3,6 +3,7 @@ package yqlib
 type assignPreferences struct {
 	DontOverWriteAnchor bool
 	OnlyWriteNull       bool
+	ClobberCustomTags   bool
 }
 
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
@@ -15,18 +16,29 @@ func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	}
 }
 
+// they way *= (multipleAssign) is handled, we set the multiplePrefs
+// on the node, not assignPrefs. Long story.
+func getAssignPreferences(preferences interface{}) assignPreferences {
+	prefs := assignPreferences{}
+
+	switch typedPref := preferences.(type) {
+	case assignPreferences:
+		prefs = typedPref
+	case multiplyPreferences:
+		prefs = typedPref.AssignPrefs
+	}
+	return prefs
+}
+
 func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
 
-	prefs := assignPreferences{}
-	// they way *= (multipleAssign) is handled, we set the multiplePrefs
-	// on the node, not assignPrefs. Long story.
-	if p, ok := expressionNode.Operation.Preferences.(assignPreferences); ok {
-		prefs = p
-	}
+	prefs := getAssignPreferences(expressionNode.Operation.Preferences)
+
+	log.Debug("assignUpdateOperator prefs: %v", prefs)
 
 	if !expressionNode.Operation.UpdateAssign {
 		// this works because we already ran against LHS with an editable context.

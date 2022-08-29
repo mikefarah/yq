@@ -208,6 +208,23 @@ var assignOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a:\n    b:\n        - null\n        - c: bogs\n",
 		},
 	},
+	{
+		description: "Custom types are maintained by default",
+		document:    "a: !cat meow\nb: !dog woof",
+		expression:  `.a = .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !cat woof\nb: !dog woof\n",
+		},
+	},
+	{
+		description:    "Custom types: clovver",
+		subdescription: "Use the `c` option to clobber custom tags",
+		document:       "a: !cat meow\nb: !dog woof",
+		expression:     `.a =c .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: !dog woof\nb: !dog woof\n",
+		},
+	},
 }
 
 func TestAssignOperatorScenarios(t *testing.T) {

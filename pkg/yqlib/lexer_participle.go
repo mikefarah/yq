@@ -182,8 +182,8 @@ var participleYqRules = []*participleYqRule{
 	{"GreaterThan", `\s*>\s*`, opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: true}), 0},
 	{"LessThan", `\s*<\s*`, opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: false}), 0},
 
-	{"AssignRelative", `\|=`, assignOpToken(true), 0},
-	{"Assign", `=`, assignOpToken(false), 0},
+	{"AssignRelative", `\|=[c]*`, assignOpToken(true), 0},
+	{"Assign", `=[c]*`, assignOpToken(false), 0},
 
 	{`whitespace`, `[ \t\n]+`, nil, 0},
 
@@ -194,8 +194,8 @@ var participleYqRules = []*participleYqRule{
 
 	{"Union", `,`, opToken(unionOpType), 0},
 
-	{"MultiplyAssign", `\*=[\+|\?dn]*`, multiplyWithPrefs(multiplyAssignOpType), 0},
-	{"Multiply", `\*[\+|\?dn]*`, multiplyWithPrefs(multiplyOpType), 0},
+	{"MultiplyAssign", `\*=[\+|\?cdn]*`, multiplyWithPrefs(multiplyAssignOpType), 0},
+	{"Multiply", `\*[\+|\?cdn]*`, multiplyWithPrefs(multiplyOpType), 0},
 
 	{"AddAssign", `\+=`, opToken(addAssignOpType), 0},
 	{"Add", `\+`, opToken(addOpType), 0},
@@ -317,6 +317,9 @@ func assignOpToken(updateAssign bool) yqAction {
 		log.Debug("assignOpToken %v", rawToken.Value)
 		value := rawToken.Value
 		prefs := assignPreferences{DontOverWriteAnchor: true}
+		if strings.Contains(value, "c") {
+			prefs.ClobberCustomTags = true
+		}
 		op := &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, UpdateAssign: updateAssign, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
@@ -387,6 +390,7 @@ func envSubstWithOptions() yqAction {
 func multiplyWithPrefs(op *operationType) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
 		prefs := multiplyPreferences{}
+		prefs.AssignPrefs = assignPreferences{}
 		options := rawToken.Value
 		if strings.Contains(options, "+") {
 			prefs.AppendArrays = true
@@ -395,10 +399,13 @@ func multiplyWithPrefs(op *operationType) yqAction {
 			prefs.TraversePrefs = traversePreferences{DontAutoCreate: true}
 		}
 		if strings.Contains(options, "n") {
-			prefs.AssignPrefs = assignPreferences{OnlyWriteNull: true}
+			prefs.AssignPrefs.OnlyWriteNull = true
 		}
 		if strings.Contains(options, "d") {
 			prefs.DeepMergeArrays = true
+		}
+		if strings.Contains(options, "c") {
+			prefs.AssignPrefs.ClobberCustomTags = true
 		}
 		prefs.TraversePrefs.DontFollowAlias = true
 		op := &Operation{OperationType: op, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}

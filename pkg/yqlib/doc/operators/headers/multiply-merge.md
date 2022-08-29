@@ -14,6 +14,7 @@ You can control how objects are merged by using one or more of the following fla
 - `d` deeply merge arrays
 - `?` only merge _existing_ fields
 - `n` only merge _new_ fields
+- `c` clobber custom tags
 
 
 ### Merge two files together

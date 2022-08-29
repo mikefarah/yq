@@ -157,7 +157,7 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 	n.Node.Kind = other.Node.Kind
 
 	// don't clobber custom tags...
-	if strings.HasPrefix(n.Node.Tag, "!!") || n.Node.Tag == "" {
+	if prefs.ClobberCustomTags || strings.HasPrefix(n.Node.Tag, "!!") || n.Node.Tag == "" {
 		n.Node.Tag = other.Node.Tag
 	}
 

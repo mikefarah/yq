@@ -1,3 +1,8 @@
+4.27.3:
+  - Added new 'c' merge and assign flag that clobbers custom tags
+  - Bumped go dependency to fix CVE (#1316)
+  - Updated dependencies
+
 4.27.2:
   - Fixed JSON decoder to maintain object key order.
 

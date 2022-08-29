@@ -524,6 +524,35 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Custom types: clobber tags",
+		subdescription: "Use the `c` option to clobber custom tags. Note that the second tag is now used",
+		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
+		expression:     ".a *=c .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !goat {cat: meow, dog: woof}\nb: !goat {dog: woof}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Custom types: clobber tags - *=",
+		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used",
+		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
+		expression:     ".a =c .a *c .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !goat {cat: meow, dog: woof}\nb: !goat {dog: woof}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Custom types: dont clobber tags - *=",
+		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used",
+		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
+		expression:     ".a *= .b",
+		expected: []string{
+			"D0, P[], (doc)::a: !horse {cat: meow, dog: woof}\nb: !goat {dog: woof}\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Custom types: that are really maps",
 		document:    "a: {cat: !horse meow}\nb: {cat: 5}",
