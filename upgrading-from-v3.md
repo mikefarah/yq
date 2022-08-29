@@ -118,10 +118,12 @@ yq 'del(.a.b.c)' sample.yaml
 
 ### Merging documents
 
-Like `jq`, merge is done via the multiply operator. 
+Like `jq`, merge is done via the multiply operator. In yq, the merge operator can take extra options to modify how it works.
+
+For `v3` compatability, use the `n` option to only merge in new fields.
 
 ```bash
-yq '. * load("file2.yaml")' file1.yaml
+yq '. *n load("file2.yaml")' file1.yaml
 ```
 
 See the [multiply documentation](https://mikefarah.gitbook.io/yq/operators/multiply-merge) for more example and options.
