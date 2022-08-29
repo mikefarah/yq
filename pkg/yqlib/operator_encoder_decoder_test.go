@@ -81,8 +81,8 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Decode tsv encoded string",
-		document: `a: "cats	dogs\ngreat	cool as well"`,
-		expression: `.a |= @tsvd`,
+		document:    `a: "cats	dogs\ngreat	cool as well"`,
+		expression:  `.a |= @tsvd`,
 		expected: []string{
 			"D0, P[], (doc)::a:\n    - cats: great\n      dogs: cool as well\n",
 		},

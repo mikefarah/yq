@@ -72,7 +72,7 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 	return &CandidateNode{Node: innerList, Document: document, Path: path}, nil
 }
 
-//NOTE: here the document index gets dropped so we
+// NOTE: here the document index gets dropped so we
 // no longer know where the node originates from.
 func listToNodeSeq(list *list.List) *yaml.Node {
 	node := yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}

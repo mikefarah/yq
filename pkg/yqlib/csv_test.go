@@ -150,7 +150,7 @@ func testCSVScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentCSVDecodeObjectScenario(t *testing.T, w *bufio.Writer, s formatScenario, formatType string) {
+func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -250,9 +250,9 @@ func documentCSVScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	case "encode-tsv":
 		documentCSVEncodeScenario(w, s, "tsv")
 	case "decode-csv-object":
-		documentCSVDecodeObjectScenario(t, w, s, "csv")
+		documentCSVDecodeObjectScenario(w, s, "csv")
 	case "decode-tsv-object":
-		documentCSVDecodeObjectScenario(t, w, s, "tsv")
+		documentCSVDecodeObjectScenario(w, s, "tsv")
 	case "roundtrip-csv":
 		documentCSVRoundTripScenario(w, s, "csv")
 

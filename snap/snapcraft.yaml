@@ -16,7 +16,7 @@ apps:
 parts:
   yq:
     plugin: go
-    go-channel: 1.18/stable
+    go-channel: 1.19/stable
     source: .
     source-type: git
     go-importpath: github.com/mikefarah/yq

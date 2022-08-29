@@ -17,7 +17,7 @@ func sortOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 }
 
 // context represents the current matching nodes in the expression pipeline
-//expressionNode is your current expression (sort_by)
+// expressionNode is your current expression (sort_by)
 func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	results := list.New()

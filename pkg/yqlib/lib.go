@@ -1,5 +1,4 @@
 // Use the top level Evaluator or StreamEvaluator to evaluate expressions and return matches.
-//
 package yqlib
 
 import (
@@ -80,7 +79,7 @@ var notEqualsOpType = &operationType{Type: "NOT_EQUALS", NumArgs: 2, Precedence:
 
 var compareOpType = &operationType{Type: "COMPARE", NumArgs: 2, Precedence: 40, Handler: compareOperator}
 
-//createmap needs to be above union, as we use union to build the components of the objects
+// createmap needs to be above union, as we use union to build the components of the objects
 var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 15, Handler: createMapOperator}
 
 var shortPipeOpType = &operationType{Type: "SHORT_PIPE", NumArgs: 2, Precedence: 45, Handler: pipeOperator}
@@ -431,7 +430,7 @@ func (p *Operation) toString() string {
 	}
 }
 
-//use for debugging only
+// use for debugging only
 func NodesToString(collection *list.List) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
 		return ""
