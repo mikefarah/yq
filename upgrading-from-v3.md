@@ -118,11 +118,13 @@ yq 'del(.a.b.c)' sample.yaml
 
 ### Merging documents
 
-Like `jq`, merge is done via the multiply operator. You will need to use the eval-all command to load all documents into memory at once, and then use the file operator to select the file nodes to merge.
+Like `jq`, merge is done via the multiply operator. 
 
 ```bash
-yq eval-all 'select(fileIndex == 0) * select(filename == "file2.yaml")' file1.yaml file2.yaml
+yq '. * load("file2.yaml")' file1.yaml
 ```
+
+See the [multiply documentation](https://mikefarah.gitbook.io/yq/operators/multiply-merge) for more example and options.
 
 ### Prefix yaml
 
