@@ -63,8 +63,12 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		}
 		if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode && comment != "" {
 			candidate.TrailingContent = "# " + comment
+		} else if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode {
+			candidate.TrailingContent = comment
+
 		} else if preferences.FootComment && candidate.Node.Kind != yaml.DocumentNode {
 			candidate.Node.FootComment = comment
+			candidate.TrailingContent = ""
 		}
 
 	}

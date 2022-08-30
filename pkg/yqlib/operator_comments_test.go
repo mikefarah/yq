@@ -63,6 +63,15 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Set foot comment, using an expression",
+		document:    "a: cat\n\n# hi",
+		expression:  `. foot_comment=""`,
+		expected: []string{
+			"D0, P[], (doc)::a: cat\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `a: cat`,
 		expression: `. foot_comment=.b.d`,
@@ -110,6 +119,24 @@ var commentOperatorScenarios = []expressionScenario{
 		expression:            `. | head_comment`,
 		expected: []string{
 			"D0, P[], (!!str)::welcome!\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "strip trailing comment recurse all",
+		document:    "a: cat\n\n# haha",
+		expression:  `... comments= ""`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "strip trailing comment recurse values",
+		document:    "a: cat\n\n# haha",
+		expression:  `.. comments= ""`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat\n",
 		},
 	},
 	{
