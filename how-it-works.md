@@ -37,7 +37,7 @@ The `=` operator then pipes the 'root' context through the `rhs` expression of `
 dog
 ```
 
-Both sides have now been evaluated, so now the operator copies across the value from the RHS (`.b`) to the the LHS (`.a`), and it returns the now updated context:
+Both sides have now been evaluated, so now the operator copies across the value from the RHS (`.b`) to the LHS (`.a`), and it returns the now updated context:
 
 ```yaml
 a: dog
