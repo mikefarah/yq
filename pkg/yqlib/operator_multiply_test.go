@@ -561,6 +561,24 @@ var multiplyOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: {cat: !horse 5}\nb: {cat: 5}\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Relative merge, new fields only",
+		document:    "a: {a: original}\n",
+		expression:  `.a *=n load("../../examples/thing.yml")`,
+		expected: []string{
+			"D0, P[], (doc)::a: {a: original, b: cool.}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Relative merge",
+		document:    "a: {a: original}\n",
+		expression:  `.a *= load("../../examples/thing.yml")`,
+		expected: []string{
+			"D0, P[], (doc)::a: {a: apple is included, b: cool.}\n",
+		},
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {

@@ -19,7 +19,21 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 		return Context{}, err
 	}
 
-	assignmentOp := &Operation{OperationType: assignOpType, Preferences: expressionNode.Operation.Preferences}
+	// tricky logic when we are running *= with flags.
+	// we have an op like: .a *=nc .b
+	// which should roughly translate to .a =c .a *nc .b
+	// note that the 'n' flag only applies to the multiple op, not the assignment
+	// but the clobber flag applies to both!
+
+	prefs := assignPreferences{}
+	switch typedPref := expressionNode.Operation.Preferences.(type) {
+	case assignPreferences:
+		prefs = typedPref
+	case multiplyPreferences:
+		prefs.ClobberCustomTags = typedPref.AssignPrefs.ClobberCustomTags
+	}
+
+	assignmentOp := &Operation{OperationType: assignOpType, Preferences: prefs}
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
