@@ -1,3 +1,9 @@
+4.27.4:
+  - Fixed bug in alternative (//) operator, RHS being evaluated when it didn't need to be
+  - Fixed footer comment issue #1231
+  - Github action now runs as root (as recommended by Github Actions doc)
+  - Updated dependencies
+
 4.27.3:
   - Added new 'c' merge and assign flag that clobbers custom tags
   - Bumped go dependency to fix CVE (#1316)
