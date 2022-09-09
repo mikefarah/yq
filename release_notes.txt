@@ -1,3 +1,6 @@
+4.27.5:
+  - Fixed relative merge bug #1333
+
 4.27.4:
   - Fixed bug in alternative (//) operator, RHS being evaluated when it didn't need to be
   - Fixed footer comment issue #1231
