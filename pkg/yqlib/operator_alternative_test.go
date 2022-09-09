@@ -85,6 +85,24 @@ var alternativeOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!bool)::true\n",
 		},
 	},
+	{
+		description:    "Update or create - entity exists",
+		subdescription: "This initialises `a` if it's not present",
+		expression:     "(.a // (.a = 0)) += 1",
+		document:       `a: 1`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2\n",
+		},
+	},
+	{
+		description:    "Update or create - entity does not exist",
+		subdescription: "This initialises `a` if it's not present",
+		expression:     "(.a // (.a = 0)) += 1",
+		document:       `b: camel`,
+		expected: []string{
+			"D0, P[], (!!map)::b: camel\na: 1\n",
+		},
+	},
 }
 
 func TestAlternativeOperatorScenarios(t *testing.T) {
