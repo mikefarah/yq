@@ -79,3 +79,36 @@ will output
 cat
 ```
 
+## Update or create - entity exists
+This initialises `a` if it's not present
+
+Given a sample.yml file of:
+```yaml
+a: 1
+```
+then
+```bash
+yq '(.a // (.a = 0)) += 1' sample.yml
+```
+will output
+```yaml
+a: 2
+```
+
+## Update or create - entity does not exist
+This initialises `a` if it's not present
+
+Given a sample.yml file of:
+```yaml
+b: camel
+```
+then
+```bash
+yq '(.a // (.a = 0)) += 1' sample.yml
+```
+will output
+```yaml
+b: camel
+a: 1
+```
+
