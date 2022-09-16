@@ -100,7 +100,11 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, node)
 
 	if s.expectedError != "" {
-		test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
+		if err == nil {
+			t.Errorf("Expected error '%v' but it worked!", s.expectedError)
+		} else {
+			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), fmt.Sprintf("desc: %v\nexp: %v\ndoc: %v", s.description, s.expression, s.document))
+		}
 		return
 	}
 

@@ -350,6 +350,20 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: &horse [1, 2]\n",
 		},
 	},
+	{
+		skipDoc:       true,
+		description:   "Add sequence to map",
+		document:      "a: {x: cool}",
+		expression:    `.a += [2]`,
+		expectedError: "!!seq () cannot be added to a !!map (a)",
+	},
+	{
+		skipDoc:       true,
+		description:   "Add sequence to scalar",
+		document:      "a: cool",
+		expression:    `.a += [2]`,
+		expectedError: "!!seq () cannot be added to a !!str (a)",
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {

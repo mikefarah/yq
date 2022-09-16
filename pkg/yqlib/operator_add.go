@@ -62,6 +62,9 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 
 	switch lhsNode.Kind {
 	case yaml.MappingNode:
+		if rhs.Node.Kind != yaml.MappingNode {
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Node.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
+		}
 		addMaps(target, lhs, rhs)
 	case yaml.SequenceNode:
 		if err := addSequences(target, lhs, rhs); err != nil {
@@ -70,7 +73,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 
 	case yaml.ScalarNode:
 		if rhs.Node.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be added to a %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Node.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
 		}
 		target.Node.Kind = yaml.ScalarNode
 		target.Node.Style = lhsNode.Style
