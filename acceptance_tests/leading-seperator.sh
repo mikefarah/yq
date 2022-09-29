@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+# examples where header-preprocess is required
+
 setUp() {
   rm test*.yml || true
   cat >test.yml <<EOL
