@@ -17,6 +17,8 @@ Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#
 {% endhint %}
 
 ## Set line comment
+Set the comment on the key node for more reliability (see below).
+
 Given a sample.yml file of:
 ```yaml
 a: cat
@@ -28,6 +30,24 @@ yq '.a line_comment="single"' sample.yml
 will output
 ```yaml
 a: cat # single
+```
+
+## Set line comment of a maps/arrays
+For maps and arrays, you need to set the line comment on the _key_ node. This will also work for scalars.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b: things
+```
+then
+```bash
+yq '(.a | key) line_comment="single"' sample.yml
+```
+will output
+```yaml
+a: # single
+  b: things
 ```
 
 ## Use update assign to perform relative updates
