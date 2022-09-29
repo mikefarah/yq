@@ -6,11 +6,21 @@ import (
 
 var commentOperatorScenarios = []expressionScenario{
 	{
-		description: "Set line comment",
-		document:    `a: cat`,
-		expression:  `.a line_comment="single"`,
+		description:    "Set line comment",
+		subdescription: "Set the comment on the key node for more reliability (see below).",
+		document:       `a: cat`,
+		expression:     `.a line_comment="single"`,
 		expected: []string{
 			"D0, P[], (doc)::a: cat # single\n",
+		},
+	},
+	{
+		description:    "Set line comment of a maps/arrays",
+		subdescription: "For maps and arrays, you need to set the line comment on the _key_ node. This will also work for scalars.",
+		document:       "a:\n  b: things",
+		expression:     `(.a | key) line_comment="single"`,
+		expected: []string{
+			"D0, P[], (doc)::a: # single\n    b: things\n",
 		},
 	},
 	{
