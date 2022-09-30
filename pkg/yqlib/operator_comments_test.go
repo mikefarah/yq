@@ -4,6 +4,55 @@ import (
 	"testing"
 )
 
+var expectedWhereIsMyCommentMapKey = `D0, P[], (!!seq)::- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello
+  isKey: true
+  hc: ""
+  lc: hello-world-comment
+  fc: ""
+- p: hello
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+`
+
+var expectedWhereIsMyCommentArray = `D0, P[], (!!seq)::- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name.0
+  isKey: false
+  hc: under-name-comment
+  lc: ""
+  fc: ""
+`
+
 var commentOperatorScenarios = []expressionScenario{
 	{
 		description:    "Set line comment",
@@ -54,6 +103,24 @@ var commentOperatorScenarios = []expressionScenario{
 		expression: `.. comments |= .`,
 		expected: []string{
 			"D0, P[], (!!map)::a: cat # cat\n# cat\n\n# cat\nb: dog # dog\n# dog\n\n# dog\n",
+		},
+	},
+	{
+		description:    "Where is the comment - map key example",
+		subdescription: "The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).\nFrom this, you can see the 'hello-world-comment' is actually on the 'hello' key",
+		document:       "hello: # hello-world-comment\n  message: world",
+		expression:     `[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]`,
+		expected: []string{
+			expectedWhereIsMyCommentMapKey,
+		},
+	},
+	{
+		description:    "Where is the comment - array example",
+		subdescription: "The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).\nFrom this, you can see the 'under-name-comment' is actually on the first child",
+		document:       "name:\n  # under-name-comment\n  - first-array-child",
+		expression:     `[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]`,
+		expected: []string{
+			expectedWhereIsMyCommentArray,
 		},
 	},
 	{

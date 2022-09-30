@@ -66,6 +66,86 @@ a: cat # cat
 b: dog # dog
 ```
 
+## Where is the comment - map key example
+The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).
+From this, you can see the 'hello-world-comment' is actually on the 'hello' key
+
+Given a sample.yml file of:
+```yaml
+hello: # hello-world-comment
+  message: world
+```
+then
+```bash
+yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
+```
+will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello
+  isKey: true
+  hc: ""
+  lc: hello-world-comment
+  fc: ""
+- p: hello
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+```
+
+## Where is the comment - array example
+The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).
+From this, you can see the 'under-name-comment' is actually on the first child
+
+Given a sample.yml file of:
+```yaml
+name:
+  # under-name-comment
+  - first-array-child
+```
+then
+```bash
+yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
+```
+will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name.0
+  isKey: false
+  hc: under-name-comment
+  lc: ""
+  fc: ""
+```
+
 ## Set head comment
 Given a sample.yml file of:
 ```yaml
