@@ -115,12 +115,30 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Retreive comment - map key example",
+		subdescription: "From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment",
+		document:       "hello: # hello-world-comment\n  message: world",
+		expression:     `.hello | key | line_comment`,
+		expected: []string{
+			"D0, P[hello], (!!str)::hello-world-comment\n",
+		},
+	},
+	{
 		description:    "Where is the comment - array example",
 		subdescription: "The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).\nFrom this, you can see the 'under-name-comment' is actually on the first child",
 		document:       "name:\n  # under-name-comment\n  - first-array-child",
 		expression:     `[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]`,
 		expected: []string{
 			expectedWhereIsMyCommentArray,
+		},
+	},
+	{
+		description:    "Retreive comment - array example",
+		subdescription: "From the previous example, we know that the comment is on the first child as a headComment",
+		document:       "name:\n  # under-name-comment\n  - first-array-child",
+		expression:     `.name[0] | headComment`,
+		expected: []string{
+			"D0, P[name 0], (!!str)::under-name-comment\n",
 		},
 	},
 	{

@@ -108,6 +108,23 @@ will output
   fc: ""
 ```
 
+## Retreive comment - map key example
+From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment
+
+Given a sample.yml file of:
+```yaml
+hello: # hello-world-comment
+  message: world
+```
+then
+```bash
+yq '.hello | key | line_comment' sample.yml
+```
+will output
+```yaml
+hello-world-comment
+```
+
 ## Where is the comment - array example
 The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).
 From this, you can see the 'under-name-comment' is actually on the first child
@@ -144,6 +161,24 @@ will output
   hc: under-name-comment
   lc: ""
   fc: ""
+```
+
+## Retreive comment - array example
+From the previous example, we know that the comment is on the first child as a headComment
+
+Given a sample.yml file of:
+```yaml
+name:
+  # under-name-comment
+  - first-array-child
+```
+then
+```bash
+yq '.name[0] | headComment' sample.yml
+```
+will output
+```yaml
+under-name-comment
 ```
 
 ## Set head comment
