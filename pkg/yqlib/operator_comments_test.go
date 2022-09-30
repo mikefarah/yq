@@ -115,7 +115,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Retreive comment - map key example",
+		description:    "Retrieve comment - map key example",
 		subdescription: "From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment",
 		document:       "hello: # hello-world-comment\n  message: world",
 		expression:     `.hello | key | line_comment`,
@@ -133,7 +133,7 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Retreive comment - array example",
+		description:    "Retrieve comment - array example",
 		subdescription: "From the previous example, we know that the comment is on the first child as a headComment",
 		document:       "name:\n  # under-name-comment\n  - first-array-child",
 		expression:     `.name[0] | headComment`,

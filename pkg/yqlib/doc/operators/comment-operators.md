@@ -108,7 +108,7 @@ will output
   fc: ""
 ```
 
-## Retreive comment - map key example
+## Retrieve comment - map key example
 From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment
 
 Given a sample.yml file of:
@@ -163,7 +163,7 @@ will output
   fc: ""
 ```
 
-## Retreive comment - array example
+## Retrieve comment - array example
 From the previous example, we know that the comment is on the first child as a headComment
 
 Given a sample.yml file of:
