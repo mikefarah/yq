@@ -123,6 +123,7 @@ var participleYqRules = []*participleYqRule{
 
 	simpleOp("keys", keysOpType),
 	simpleOp("key", getKeyOpType),
+	simpleOp("is_?key", isKeyOpType),
 
 	simpleOp("file_?name|fileName", getFilenameOpType),
 	simpleOp("file_?index|fileIndex|fi", getFileIndexOpType),

@@ -4,6 +4,32 @@ import (
 	"testing"
 )
 
+var expectedIsKey = `D0, P[], (!!seq)::- p: ""
+  isKey: false
+  tag: '!!map'
+- p: a
+  isKey: true
+  tag: '!!str'
+- p: a
+  isKey: false
+  tag: '!!map'
+- p: a.b
+  isKey: true
+  tag: '!!str'
+- p: a.b
+  isKey: false
+  tag: '!!seq'
+- p: a.b.0
+  isKey: false
+  tag: '!!str'
+- p: a.c
+  isKey: true
+  tag: '!!str'
+- p: a.c
+  isKey: false
+  tag: '!!str'
+`
+
 var keysOperatorScenarios = []expressionScenario{
 	{
 		description: "Map keys",
@@ -73,6 +99,14 @@ var keysOperatorScenarios = []expressionScenario{
 		expression:  `.a.x | key | headComment`,
 		expected: []string{
 			"D0, P[a x], (!!str)::comment on key\n",
+		},
+	},
+	{
+		description: "Check node is a key",
+		document:    "a: \n  b: [cat]\n  c: frog\n",
+		expression:  `[... | { "p": path | join("."), "isKey": is_key, "tag": tag }]`,
+		expected: []string{
+			expectedIsKey,
 		},
 	},
 }

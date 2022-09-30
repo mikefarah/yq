@@ -118,3 +118,43 @@ will output
 comment on key
 ```
 
+## Check node is a key
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    - cat
+  c: frog
+```
+then
+```bash
+yq '[... | { "p": path | join("."), "isKey": is_key, "tag": tag }]' sample.yml
+```
+will output
+```yaml
+- p: ""
+  isKey: false
+  tag: '!!map'
+- p: a
+  isKey: true
+  tag: '!!str'
+- p: a
+  isKey: false
+  tag: '!!map'
+- p: a.b
+  isKey: true
+  tag: '!!str'
+- p: a.b
+  isKey: false
+  tag: '!!seq'
+- p: a.b.0
+  isKey: false
+  tag: '!!str'
+- p: a.c
+  isKey: true
+  tag: '!!str'
+- p: a.c
+  isKey: false
+  tag: '!!str'
+```
+

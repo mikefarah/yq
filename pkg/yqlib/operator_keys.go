@@ -7,6 +7,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func isKeyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	log.Debugf("-- isKeyOperator")
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
+		results.PushBack(createBooleanCandidate(candidate, candidate.IsMapKey))
+	}
+
+	return context.ChildContext(results), nil
+}
+
 func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- getKeyOperator")
 
