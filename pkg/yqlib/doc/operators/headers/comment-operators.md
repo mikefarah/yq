@@ -1,6 +1,6 @@
 # Comment Operators
 
-Use these comment operators to set or retrieve comments.
+Use these comment operators to set or retrieve comments. Note that line comments on maps/arrays are actually set on the _key_ node as opposed to the _value_ (map/array). See below for examples.
 
 Like the `=` and `|=` assign operators, the same syntax applies when updating comments:
 

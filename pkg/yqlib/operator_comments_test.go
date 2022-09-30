@@ -65,6 +65,14 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Set head comment of a map entry",
+		document:    "f: foo\na:\n  b: cat",
+		expression:  `(.a | key) head_comment="single"`,
+		expected: []string{
+			"D0, P[], (doc)::f: foo\n# single\na:\n    b: cat\n",
+		},
+	},
+	{
 		description: "Set foot comment, using an expression",
 		document:    `a: cat`,
 		expression:  `. foot_comment=.a`,
