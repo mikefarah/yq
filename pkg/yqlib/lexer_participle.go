@@ -129,6 +129,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("file_?index|fileIndex|fi", getFileIndexOpType),
 	simpleOp("path", getPathOpType),
 	simpleOp("set_?path", setPathOpType),
+	simpleOp("del_?paths", delPathsOpType),
 
 	simpleOp("to_?entries|toEntries", toEntriesOpType),
 	simpleOp("from_?entries|fromEntries", fromEntriesOpType),

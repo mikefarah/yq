@@ -16,34 +16,24 @@ func createPathNodeFor(pathElement interface{}) *yaml.Node {
 	}
 }
 
-func getPathArrayFromExp(d *dataTreeNavigator, context Context, pathExp *ExpressionNode) ([]interface{}, error) {
-	lhsPathContext, err := d.GetMatchingNodes(context.ReadOnlyClone(), pathExp)
-
-	if err != nil {
-		return nil, err
+func getPathArrayFromNode(funcName string, node *yaml.Node) ([]interface{}, error) {
+	if node.Kind != yaml.SequenceNode {
+		return nil, fmt.Errorf("%v: expected path array, but got %v instead", funcName, node.Tag)
 	}
 
-	if lhsPathContext.MatchingNodes.Len() != 1 {
-		return nil, fmt.Errorf("expected single path but found %v results instead", lhsPathContext.MatchingNodes.Len())
-	}
-	lhsValue := lhsPathContext.MatchingNodes.Front().Value.(*CandidateNode)
-	if lhsValue.Node.Kind != yaml.SequenceNode {
-		return nil, fmt.Errorf("expected path array, but got %v instead", lhsValue.Node.Tag)
-	}
+	path := make([]interface{}, len(node.Content))
 
-	path := make([]interface{}, len(lhsValue.Node.Content))
-
-	for i, childNode := range lhsValue.Node.Content {
+	for i, childNode := range node.Content {
 		if childNode.Tag == "!!str" {
 			path[i] = childNode.Value
 		} else if childNode.Tag == "!!int" {
 			number, err := parseInt(childNode.Value)
 			if err != nil {
-				return nil, fmt.Errorf("could not parse %v as an int: %w", childNode.Value, err)
+				return nil, fmt.Errorf("%v: could not parse %v as an int: %w", funcName, childNode.Value, err)
 			}
 			path[i] = number
 		} else {
-			return nil, fmt.Errorf("expected either a !!str or !!int in the path, found %v instead", childNode.Tag)
+			return nil, fmt.Errorf("%v: expected either a !!str or !!int in the path, found %v instead", funcName, childNode.Tag)
 		}
 
 	}
@@ -58,7 +48,18 @@ func setPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		return Context{}, fmt.Errorf("SETPATH must be given a block (;), got %v instead", expressionNode.RHS.Operation.OperationType.Type)
 	}
 
-	lhsPath, err := getPathArrayFromExp(d, context, expressionNode.RHS.LHS)
+	lhsPathContext, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS.LHS)
+
+	if err != nil {
+		return Context{}, err
+	}
+
+	if lhsPathContext.MatchingNodes.Len() != 1 {
+		return Context{}, fmt.Errorf("SETPATH: expected single path but found %v results instead", lhsPathContext.MatchingNodes.Len())
+	}
+	lhsValue := lhsPathContext.MatchingNodes.Front().Value.(*CandidateNode)
+
+	lhsPath, err := getPathArrayFromNode("SETPATH", lhsValue.Node)
 
 	if err != nil {
 		return Context{}, err
@@ -67,8 +68,6 @@ func setPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	lhsTraversalTree := createTraversalTree(lhsPath, traversePreferences{}, false)
 
 	assignmentOp := &Operation{OperationType: assignOpType}
-
-	//TODO if context is empty, create a new one
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -79,7 +78,7 @@ func setPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		}
 
 		if targetContextValue.MatchingNodes.Len() != 1 {
-			return Context{}, fmt.Errorf("Expected single value on RHS but found %v", targetContextValue.MatchingNodes.Len())
+			return Context{}, fmt.Errorf("SETPATH: expected single value on RHS but found %v", targetContextValue.MatchingNodes.Len())
 		}
 
 		rhsOp := &Operation{OperationType: valueOpType, CandidateNode: targetContextValue.MatchingNodes.Front().Value.(*CandidateNode)}
@@ -98,6 +97,56 @@ func setPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 
 	}
 	return context, nil
+}
+
+func delPathsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	log.Debugf("delPaths")
+	// single RHS expression that returns an array of paths (array of arrays)
+
+	pathArraysContext, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
+	if err != nil {
+		return Context{}, err
+	}
+	if pathArraysContext.MatchingNodes.Len() != 1 {
+		return Context{}, fmt.Errorf("DELPATHS: expected single value but found %v", pathArraysContext.MatchingNodes.Len())
+	}
+	pathArraysNode := pathArraysContext.MatchingNodes.Front().Value.(*CandidateNode).Node
+
+	if pathArraysNode.Tag != "!!seq" {
+		return Context{}, fmt.Errorf("DELPATHS: expected a sequence of sequences, but found %v", pathArraysNode.Tag)
+	}
+
+	updatedContext := context
+
+	for i, child := range pathArraysNode.Content {
+
+		if child.Tag != "!!seq" {
+			return Context{}, fmt.Errorf("DELPATHS: expected entry [%v] to be a sequence, but its a %v. Note that delpaths takes an array of path arrays, e.g. [[\"a\", \"b\"]]", i, child.Tag)
+		}
+		childPath, err := getPathArrayFromNode("DELPATHS", child)
+
+		if err != nil {
+			return Context{}, err
+		}
+
+		childTraversalExp := createTraversalTree(childPath, traversePreferences{}, false)
+		deleteChildOp := &Operation{OperationType: deleteChildOpType}
+
+		deleteChildOpNode := &ExpressionNode{
+			Operation: deleteChildOp,
+			RHS:       childTraversalExp,
+		}
+
+		updatedContext, err = d.GetMatchingNodes(updatedContext, deleteChildOpNode)
+
+		if err != nil {
+			return Context{}, err
+		}
+
+	}
+
+	return updatedContext, nil
+
 }
 
 func getPathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

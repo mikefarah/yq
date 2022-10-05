@@ -93,6 +93,30 @@ var pathOperatorScenarios = []expressionScenario{
 			"D0, P[], ()::a:\n    - things\n",
 		},
 	},
+	{
+		description:    "Delete path",
+		subdescription: "Notice delpaths takes an _array_ of paths.",
+		document:       `{a: {b: cat, c: dog, d: frog}}`,
+		expression:     `delpaths([["a", "c"], ["a", "d"]])`,
+		expected: []string{
+			"D0, P[], (doc)::{a: {b: cat}}\n",
+		},
+	},
+	{
+		description: "Delete array path",
+		document:    `a: [cat, frog]`,
+		expression:  `delpaths([["a", 0]])`,
+		expected: []string{
+			"D0, P[], (doc)::a: [frog]\n",
+		},
+	},
+	{
+		description:    "Delete - wrong parameter",
+		subdescription: "delpaths does not work with a single path array",
+		document:       `a: [cat, frog]`,
+		expression:     `delpaths(["a", 0])`,
+		expectedError:  "DELPATHS: expected entry [0] to be a sequence, but its a !!str. Note that delpaths takes an array of path arrays, e.g. [[\"a\", \"b\"]]",
+	},
 }
 
 func TestPathOperatorsScenarios(t *testing.T) {
