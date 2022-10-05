@@ -1,3 +1,8 @@
+4.28.1:
+  - Added `setpath` and `delpaths` operators, like jq (#1374)
+  - Added `is_key` operator, to check if a match was a key when recursing
+  - Added validation when attempting to add sequences to maps (#1341)
+
 4.27.5:
   - Fixed relative merge bug #1333
 
