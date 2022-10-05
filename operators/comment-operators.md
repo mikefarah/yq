@@ -1,6 +1,6 @@
 # Comment Operators
 
-Use these comment operators to set or retrieve comments.
+Use these comment operators to set or retrieve comments. Note that line comments on maps/arrays are actually set on the _key_ node as opposed to the _value_ (map/array). See below for examples.
 
 Like the `=` and `|=` assign operators, the same syntax applies when updating comments:
 
@@ -66,6 +66,121 @@ a: cat # cat
 b: dog # dog
 ```
 
+## Where is the comment - map key example
+The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).
+From this, you can see the 'hello-world-comment' is actually on the 'hello' key
+
+Given a sample.yml file of:
+```yaml
+hello: # hello-world-comment
+  message: world
+```
+then
+```bash
+yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
+```
+will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello
+  isKey: true
+  hc: ""
+  lc: hello-world-comment
+  fc: ""
+- p: hello
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+```
+
+## Retrieve comment - map key example
+From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment
+
+Given a sample.yml file of:
+```yaml
+hello: # hello-world-comment
+  message: world
+```
+then
+```bash
+yq '.hello | key | line_comment' sample.yml
+```
+will output
+```yaml
+hello-world-comment
+```
+
+## Where is the comment - array example
+The underlying yaml parser can assign comments in a document to surprising nodes. Use an expression like this to find where you comment is. 'p' indicates the path, 'isKey' is if the node is a map key (as opposed to a map value).
+From this, you can see the 'under-name-comment' is actually on the first child
+
+Given a sample.yml file of:
+```yaml
+name:
+  # under-name-comment
+  - first-array-child
+```
+then
+```bash
+yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
+```
+will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: true
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name.0
+  isKey: false
+  hc: under-name-comment
+  lc: ""
+  fc: ""
+```
+
+## Retrieve comment - array example
+From the previous example, we know that the comment is on the first child as a headComment
+
+Given a sample.yml file of:
+```yaml
+name:
+  # under-name-comment
+  - first-array-child
+```
+then
+```bash
+yq '.name[0] | headComment' sample.yml
+```
+will output
+```yaml
+under-name-comment
+```
+
 ## Set head comment
 Given a sample.yml file of:
 ```yaml
@@ -80,6 +195,25 @@ will output
 # single
 
 a: cat
+```
+
+## Set head comment of a map entry
+Given a sample.yml file of:
+```yaml
+f: foo
+a:
+  b: cat
+```
+then
+```bash
+yq '(.a | key) head_comment="single"' sample.yml
+```
+will output
+```yaml
+f: foo
+# single
+a:
+  b: cat
 ```
 
 ## Set foot comment, using an expression
