@@ -98,3 +98,59 @@ will output
   value: frog
 ```
 
+## Set path
+Given a sample.yml file of:
+```yaml
+a:
+  b: cat
+```
+then
+```bash
+yq 'setpath(["a", "b"]; "things")' sample.yml
+```
+will output
+```yaml
+a:
+  b: things
+```
+
+## Set on empty document
+Running
+```bash
+yq --null-input 'setpath(["a", "b"]; "things")'
+```
+will output
+```yaml
+a:
+  b: things
+```
+
+## Set array path
+Given a sample.yml file of:
+```yaml
+a:
+  - cat
+  - frog
+```
+then
+```bash
+yq 'setpath(["a", 0]; "things")' sample.yml
+```
+will output
+```yaml
+a:
+  - things
+  - frog
+```
+
+## Set array path empty
+Running
+```bash
+yq --null-input 'setpath(["a", 0]; "things")'
+```
+will output
+```yaml
+a:
+  - things
+```
+

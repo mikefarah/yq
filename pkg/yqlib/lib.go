@@ -130,7 +130,9 @@ var getAliasOpType = &operationType{Type: "GET_ALIAS", NumArgs: 0, Precedence: 5
 var getDocumentIndexOpType = &operationType{Type: "GET_DOCUMENT_INDEX", NumArgs: 0, Precedence: 50, Handler: getDocumentIndexOperator}
 var getFilenameOpType = &operationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: getFilenameOperator}
 var getFileIndexOpType = &operationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: getFileIndexOperator}
+
 var getPathOpType = &operationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: getPathOperator}
+var setPathOpType = &operationType{Type: "SET_PATH", NumArgs: 1, Precedence: 50, Handler: setPathOperator}
 
 var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: explodeOperator}
 var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 50, Handler: sortByOperator}

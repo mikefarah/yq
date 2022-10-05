@@ -7,7 +7,7 @@ func withOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	// with(path, exp)
 
 	if expressionNode.RHS.Operation.OperationType != blockOpType {
-		return Context{}, fmt.Errorf("with must be given a block, got %v instead", expressionNode.RHS.Operation.OperationType.Type)
+		return Context{}, fmt.Errorf("with must be given a block (;), got %v instead", expressionNode.RHS.Operation.OperationType.Type)
 	}
 
 	pathExp := expressionNode.RHS.LHS

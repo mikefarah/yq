@@ -63,6 +63,36 @@ var pathOperatorScenarios = []expressionScenario{
 			"D0, P[a 2], (!!seq)::- path:\n    - a\n    - 2\n  value: frog\n",
 		},
 	},
+	{
+		description: "Set path",
+		document:    `{a: {b: cat}}`,
+		expression:  `setpath(["a", "b"]; "things")`,
+		expected: []string{
+			"D0, P[], (doc)::{a: {b: things}}\n",
+		},
+	},
+	{
+		description: "Set on empty document",
+		expression:  `setpath(["a", "b"]; "things")`,
+		expected: []string{
+			"D0, P[], ()::a:\n    b: things\n",
+		},
+	},
+	{
+		description: "Set array path",
+		document:    `a: [cat, frog]`,
+		expression:  `setpath(["a", 0]; "things")`,
+		expected: []string{
+			"D0, P[], (doc)::a: [things, frog]\n",
+		},
+	},
+	{
+		description: "Set array path empty",
+		expression:  `setpath(["a", 0]; "things")`,
+		expected: []string{
+			"D0, P[], ()::a:\n    - things\n",
+		},
+	},
 }
 
 func TestPathOperatorsScenarios(t *testing.T) {
