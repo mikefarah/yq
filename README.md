@@ -265,6 +265,13 @@ choco install yq
 ```
 Supported by @chillum (https://chocolatey.org/packages/yq)
 
+and
+
+### Winget
+winget install yq
+
+https://winget.run/pkg/MikeFarah/yq
+
 ### Mac:
 Using [MacPorts](https://www.macports.org/)
 ```
