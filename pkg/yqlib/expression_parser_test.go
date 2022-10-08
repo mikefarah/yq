@@ -11,33 +11,38 @@ func getExpressionParser() ExpressionParserInterface {
 	return ExpressionParser
 }
 
+func TestParserNoMatchingCloseBracket(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression(".cat | with(.;.bob")
+	test.AssertResultComplex(t, "bad expression - probably missing close bracket on WITH", err.Error())
+}
+
 func TestParserNoMatchingCloseCollect(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression("[1,2")
-	test.AssertResultComplex(t, "Bad expression, could not find matching `]`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `]`", err.Error())
 }
 func TestParserNoMatchingCloseObjectInCollect(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(`[{"b": "c"]`)
-	test.AssertResultComplex(t, "Bad expression, could not find matching `}`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `}`", err.Error())
 }
 
 func TestParserNoMatchingCloseInCollect(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(`[(.a]`)
-	test.AssertResultComplex(t, "Bad expression, could not find matching `)`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `)`", err.Error())
 }
 
 func TestParserNoMatchingCloseCollectObject(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(`{"a": "b"`)
-	test.AssertResultComplex(t, "Bad expression, could not find matching `}`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `}`", err.Error())
 }
 
 func TestParserNoMatchingCloseCollectInCollectObject(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(`{"b": [1}`)
-	test.AssertResultComplex(t, "Bad expression, could not find matching `]`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `]`", err.Error())
 }
 
 func TestParserNoMatchingCloseBracketInCollectObject(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(`{"b": (1}`)
-	test.AssertResultComplex(t, "Bad expression, could not find matching `)`", err.Error())
+	test.AssertResultComplex(t, "bad expression, could not find matching `)`", err.Error())
 }
 
 func TestParserNoArgsForTwoArgOp(t *testing.T) {
@@ -72,5 +77,5 @@ func TestParserOneArgForOneArgOp(t *testing.T) {
 
 func TestParserExtraArgs(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression("sortKeys(.) explode(.)")
-	test.AssertResultComplex(t, "Bad expression, please check expression syntax", err.Error())
+	test.AssertResultComplex(t, "bad expression, please check expression syntax", err.Error())
 }
