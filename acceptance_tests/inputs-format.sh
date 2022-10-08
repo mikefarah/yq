@@ -63,6 +63,20 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputCSVUTF8() {
+  read -r -d '' expected << EOM
+- id: 1
+  first: john
+  last: smith
+- id: 1
+  first: jane
+  last: smith
+EOM
+
+  X=$(./yq -p=csv utf8.csv)
+  assertEquals "$expected" "$X"
+}
+
 testInputTSV() {
   cat >test.tsv <<EOL
 fruit	yumLevel

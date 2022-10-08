@@ -4,6 +4,7 @@ require (
 	github.com/a8m/envsubst v1.3.0
 	github.com/alecthomas/participle/v2 v2.0.0-beta.5
 	github.com/alecthomas/repr v0.1.0
+	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.5.0
 	github.com/fatih/color v1.13.0
 	github.com/goccy/go-json v0.9.11

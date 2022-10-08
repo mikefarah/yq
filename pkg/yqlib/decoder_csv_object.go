@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 
+	"github.com/dimchansky/utfbom"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -19,7 +20,9 @@ func NewCSVObjectDecoder(separator rune) Decoder {
 }
 
 func (dec *csvObjectDecoder) Init(reader io.Reader) {
-	dec.reader = *csv.NewReader(reader)
+	cleanReader, enc := utfbom.Skip(reader)
+	log.Debugf("Detected encoding: %s\n", enc)
+	dec.reader = *csv.NewReader(cleanReader)
 	dec.reader.Comma = dec.separator
 	dec.finished = false
 }
