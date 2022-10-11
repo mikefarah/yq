@@ -30,6 +30,16 @@ var deleteOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "delete whole document",
+		document2:   `a: slow`,
+		document:    `a: fast`,
+		expression:  `del(select(.a == "fast"))`,
+		expected: []string{
+			"D0, P[], (doc)::a: slow\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `a: [1,2,3]`,
 		expression: `.a | del(.[1])`,

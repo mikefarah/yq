@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
@@ -16,10 +17,22 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
-		//problem: context may already be '.a' and then I pass in '.a.a2'.
-		// should pass in .a2.
-		if candidate.Parent == nil {
-			log.Info("Could not find parent of %v", candidate.GetKey())
+		if candidate.Node.Kind == yaml.DocumentNode {
+			//need to delete this node from context.
+			newResults := list.New()
+			for item := context.MatchingNodes.Front(); item != nil; item = item.Next() {
+				nodeInContext := item.Value.(*CandidateNode)
+				if nodeInContext.Node != candidate.Node {
+					newResults.PushBack(nodeInContext)
+				} else {
+					log.Info("Need to delete this %v", NodeToString(nodeInContext))
+				}
+			}
+			return context.ChildContext(newResults), nil
+		} else if candidate.Parent == nil {
+			//problem: context may already be '.a' and then I pass in '.a.a2'.
+			// should pass in .a2.
+			log.Info("Could not find parent of %v", NodeToString(candidate))
 			return context, nil
 		}
 
