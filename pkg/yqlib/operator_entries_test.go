@@ -53,6 +53,15 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Custom sort map keys",
+		subdescription: "Use to_entries to convert to an array of key/value pairs, sort the array using sort/sort_by/etc, and convert it back.",
+		document:       `{a: 1, c: 3, b: 2}`,
+		expression:     `to_entries | sort_by(.key) | reverse | from_entries`,
+		expected: []string{
+			"D0, P[], (!!map)::c: 3\nb: 2\na: 1\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: 1, b: 2}`,
 		document2:  `{c: 1, d: 2}`,
