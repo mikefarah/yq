@@ -30,6 +30,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0" encoding="UTF-8"
 cat:
   says: meow
   legs: "4"
@@ -54,6 +55,7 @@ yq -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0" encoding="UTF-8"
 cat:
   says: meow
   legs: 4
@@ -75,6 +77,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0" encoding="UTF-8"
 animal:
   - cat
   - goat
@@ -96,6 +99,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0" encoding="UTF-8"
 cat:
   +legs: "4"
   legs: "7"
@@ -115,6 +119,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0" encoding="UTF-8"
 cat:
   +content: meow
   +legs: "4"
@@ -141,6 +146,12 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
+_procInst_xml: version="1.0"
+_directive_: |-
+  DOCTYPE root [
+  <!ENTITY writer "Blah.">
+  <!ENTITY copyright "Blah">
+  ]
 root:
   item: '&writer;&copyright;'
 ```
@@ -207,11 +218,13 @@ yq -p=xml -o=xml --xml-keep-namespace '.' sample.xml
 ```
 will output
 ```xml
+<?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
 ```
 
 instead of
 ```xml
+<?xml version="1.0"?>
 <map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
 ```
 
@@ -230,11 +243,13 @@ yq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml
 ```
 will output
 ```xml
+<?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
 ```
 
 instead of
 ```xml
+<?xml version="1.0"?>
 <map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
 ```
 
@@ -339,6 +354,32 @@ will output
 </cat><!-- below_cat -->
 ```
 
+## Encode: doctype and xml declaration
+Use the special xml names to add/modify proc instructions and directives.
+
+Given a sample.yml file of:
+```yaml
+_procInst_xml: version="1.0"
+_directive_: 'DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" '
+apple:
+  _procInst_coolioo: version="1.0"
+  _directive_: 'CATYPE meow purr puss '
+  b: things
+
+```
+then
+```bash
+yq -o=xml '.' sample.yml
+```
+will output
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+<apple><?coolioo version="1.0"?><!CATYPE meow purr puss >
+  <b>things</b>
+</apple>
+```
+
 ## Round trip: with comments
 A best effort is made, but comment positions and white space are not preserved perfectly.
 
@@ -378,5 +419,33 @@ in d before -->
     <d>z<!-- in d after --></d><!-- in y after -->
   </y><!-- in_cat_after -->
 </cat><!-- after cat -->
+```
+
+## Roundtrip: with doctype and declaration
+yq parses XML proc instructions and directives into nodes.
+Unfortunately the underlying XML parser loses whitespace information.
+
+Given a sample.xml file of:
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+<apple>
+  <?coolioo version="1.0"?>
+  <!CATYPE meow purr puss >
+  <b>things</b>
+</apple>
+
+```
+then
+```bash
+yq -p=xml -o=xml '.' sample.xml
+```
+will output
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+<apple><?coolioo version="1.0"?><!CATYPE meow purr puss >
+  <b>things</b>
+</apple>
 ```
 

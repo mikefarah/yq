@@ -22,9 +22,11 @@ type xmlDecoder struct {
 	keepNamespace   bool
 	useRawToken     bool
 	finished        bool
+	skipDirectives  bool
+	skipProcInst    bool
 }
 
-func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, keepNamespace bool, useRawToken bool) Decoder {
+func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, keepNamespace bool, useRawToken bool, skipDirectives bool, skipProcInst bool) Decoder {
 	if contentName == "" {
 		contentName = "content"
 	}
@@ -37,6 +39,8 @@ func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, 
 		useRawToken:     useRawToken,
 		directiveName:   "_directive_",
 		procInstPrefix:  "_procInst_",
+		skipDirectives:  skipDirectives,
+		skipProcInst:    skipProcInst,
 	}
 }
 
@@ -285,9 +289,13 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 			}
 
 		case xml.ProcInst:
-			elem.n.AddChild(dec.procInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
+			if !dec.skipProcInst {
+				elem.n.AddChild(dec.procInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
+			}
 		case xml.Directive:
-			elem.n.AddChild(dec.directiveName, &xmlNode{Data: string(se)})
+			if !dec.skipDirectives {
+				elem.n.AddChild(dec.directiveName, &xmlNode{Data: string(se)})
+			}
 		}
 	}
 
