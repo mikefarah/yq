@@ -8,4 +8,4 @@ RESULT="${RESULT//$'\r'/'%0D'}"
 echo "::debug::\$RESULT: $RESULT"
 # updating from 
 # https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-output-parameter
-echo "RESULT=$RESULT" >> $GITHUB_OUTPUT
+echo "result=$RESULT" >> $GITHUB_OUTPUT
