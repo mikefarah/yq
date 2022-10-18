@@ -15,8 +15,9 @@ type xmlEncoder struct {
 	attributePrefix string
 	contentName     string
 	indentString    string
-	directivePrefix string
+	directiveName   string
 	procInstPrefix  string
+	writer          io.Writer
 }
 
 func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encoder {
@@ -25,7 +26,7 @@ func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encod
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	return &xmlEncoder{attributePrefix, contentName, indentString, "_directive_", "_procInst_"}
+	return &xmlEncoder{attributePrefix, contentName, indentString, "_directive_", "_procInst_", nil}
 }
 
 func (e *xmlEncoder) CanHandleAliases() bool {
@@ -42,11 +43,13 @@ func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error
 
 func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	encoder := xml.NewEncoder(writer)
+	// hack so we can manually add newlines to procInst and directives
+	e.writer = writer
 	encoder.Indent("", e.indentString)
 
 	switch node.Kind {
 	case yaml.MappingNode:
-		err := e.encodeTopLevelMap(encoder, node, writer)
+		err := e.encodeTopLevelMap(encoder, node)
 		if err != nil {
 			return err
 		}
@@ -55,7 +58,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
-		err = e.encodeTopLevelMap(encoder, unwrapDoc(node), writer)
+		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
 		if err != nil {
 			return err
 		}
@@ -78,7 +81,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 
 }
 
-func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node, writer io.Writer) error {
+func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -94,13 +97,21 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node, wr
 			return err
 		}
 
-		if strings.HasPrefix(key.Value, e.procInstPrefix) && key.Value != e.contentName {
+		if strings.HasPrefix(key.Value, e.procInstPrefix) {
 			name := strings.Replace(key.Value, e.procInstPrefix, "", 1)
 			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
 			if err := encoder.EncodeToken(procInst); err != nil {
 				return err
 			}
-			if _, err := writer.Write([]byte("\n")); err != nil {
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		} else if key.Value == e.directiveName {
+			var directive xml.Directive = []byte(value.Value)
+			if err := encoder.EncodeToken(directive); err != nil {
+				return err
+			}
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
 				log.Warning("Unable to write newline, skipping: %w", err)
 			}
 		} else {
@@ -226,13 +237,17 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 		if err != nil {
 			return err
 		}
-		if strings.HasPrefix(key.Value, e.procInstPrefix) && key.Value != e.contentName {
+		if strings.HasPrefix(key.Value, e.procInstPrefix) {
 			name := strings.Replace(key.Value, e.procInstPrefix, "", 1)
 			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
 			if err := encoder.EncodeToken(procInst); err != nil {
 				return err
 			}
-
+		} else if key.Value == e.directiveName {
+			var directive xml.Directive = []byte(value.Value)
+			if err := encoder.EncodeToken(directive); err != nil {
+				return err
+			}
 		} else if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
 			err := e.doEncode(encoder, value, start)

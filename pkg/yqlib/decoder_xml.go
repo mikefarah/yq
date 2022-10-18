@@ -15,7 +15,7 @@ type xmlDecoder struct {
 	reader          io.Reader
 	readAnything    bool
 	attributePrefix string
-	directivePrefix string
+	directiveName   string
 	procInstPrefix  string
 	contentName     string
 	strictMode      bool
@@ -35,7 +35,7 @@ func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, 
 		strictMode:      strictMode,
 		keepNamespace:   keepNamespace,
 		useRawToken:     useRawToken,
-		directivePrefix: "_directive_",
+		directiveName:   "_directive_",
 		procInstPrefix:  "_procInst_",
 	}
 }
@@ -286,6 +286,8 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 		case xml.ProcInst:
 			elem.n.AddChild(dec.procInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
+		case xml.Directive:
+			elem.n.AddChild(dec.directiveName, &xmlNode{Data: string(se)})
 		}
 	}
 
