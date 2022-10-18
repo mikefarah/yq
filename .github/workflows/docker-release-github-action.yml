@@ -1,4 +1,4 @@
-name: Release Docker
+name: Release Github action Docker
 
 on:
   release:
