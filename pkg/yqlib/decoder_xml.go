@@ -15,6 +15,8 @@ type xmlDecoder struct {
 	reader          io.Reader
 	readAnything    bool
 	attributePrefix string
+	directivePrefix string
+	procInstPrefix  string
 	contentName     string
 	strictMode      bool
 	keepNamespace   bool
@@ -33,6 +35,8 @@ func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, 
 		strictMode:      strictMode,
 		keepNamespace:   keepNamespace,
 		useRawToken:     useRawToken,
+		directivePrefix: "_directive_",
+		procInstPrefix:  "_procInst_",
 	}
 }
 
@@ -86,9 +90,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 
 		}
 
-		// if i == len(n.Children)-1 {
 		labelNode.FootComment = dec.processComment(keyValuePair.FootComment)
-		// }
 
 		log.Debug("len of children in %v is %v", label, len(children))
 		if len(children) > 1 {
@@ -282,6 +284,8 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})
 			}
 
+		case xml.ProcInst:
+			elem.n.AddChild(dec.procInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
 		}
 	}
 

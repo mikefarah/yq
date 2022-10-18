@@ -15,6 +15,8 @@ type xmlEncoder struct {
 	attributePrefix string
 	contentName     string
 	indentString    string
+	directivePrefix string
+	procInstPrefix  string
 }
 
 func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encoder {
@@ -23,7 +25,7 @@ func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encod
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	return &xmlEncoder{attributePrefix, contentName, indentString}
+	return &xmlEncoder{attributePrefix, contentName, indentString, "_directive_", "_procInst_"}
 }
 
 func (e *xmlEncoder) CanHandleAliases() bool {
@@ -44,7 +46,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 
 	switch node.Kind {
 	case yaml.MappingNode:
-		err := e.encodeTopLevelMap(encoder, node)
+		err := e.encodeTopLevelMap(encoder, node, writer)
 		if err != nil {
 			return err
 		}
@@ -53,7 +55,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
-		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
+		err = e.encodeTopLevelMap(encoder, unwrapDoc(node), writer)
 		if err != nil {
 			return err
 		}
@@ -76,7 +78,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 
 }
 
-func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
+func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node, writer io.Writer) error {
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -92,11 +94,23 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) er
 			return err
 		}
 
-		log.Debugf("recursing")
+		if strings.HasPrefix(key.Value, e.procInstPrefix) && key.Value != e.contentName {
+			name := strings.Replace(key.Value, e.procInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
+				return err
+			}
+			if _, err := writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		} else {
 
-		err = e.doEncode(encoder, value, start)
-		if err != nil {
-			return err
+			log.Debugf("recursing")
+
+			err = e.doEncode(encoder, value, start)
+			if err != nil {
+				return err
+			}
 		}
 		err = e.encodeComment(encoder, footComment(key))
 		if err != nil {
@@ -212,8 +226,14 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 		if err != nil {
 			return err
 		}
+		if strings.HasPrefix(key.Value, e.procInstPrefix) && key.Value != e.contentName {
+			name := strings.Replace(key.Value, e.procInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
+				return err
+			}
 
-		if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
+		} else if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
 			err := e.doEncode(encoder, value, start)
 			if err != nil {
