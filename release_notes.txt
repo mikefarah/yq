@@ -1,5 +1,5 @@
 4.28.2:
-  - Fixed Github Actions issues (thanks @mattphelps-845)
+  - Fixed Github Actions issues (thanks @mattphelps-8451)
   - Fixed bug - can now delete documents #1377
   - Fixed handling of UTF8 encoded CSVs #1373
   - Detect and fail on missing closing brackets #1366
