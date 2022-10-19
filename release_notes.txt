@@ -1,3 +1,10 @@
+4.28.2:
+  - Fixed bug - can now delete documents #1377
+  - Fixed handling of UTF8 encoded CSVs #1373
+  - Detect and fail on missing closing brackets #1366
+  - yq Github actions now build docker image as part of release
+  - Bumped dependencies
+
 4.28.1:
   - Added `setpath` and `delpaths` operators, like jq (#1374)
   - Added `is_key` operator, to check if a match was a key when recursing
