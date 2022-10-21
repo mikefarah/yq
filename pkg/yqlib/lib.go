@@ -35,7 +35,7 @@ type xmlPreferences struct {
 
 func NewDefaultXmlPreferences() xmlPreferences {
 	return xmlPreferences{
-		AttributePrefix: "+@",
+		AttributePrefix: "+",
 		ContentName:     "+content",
 		StrictMode:      false,
 		KeepNamespace:   true,

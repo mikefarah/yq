@@ -77,6 +77,23 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
+	// make sure <?xml .. ?> processing instructions are encoded first
+	for i := 0; i < len(node.Content); i += 2 {
+		key := node.Content[i]
+		value := node.Content[i+1]
+
+		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
+				return err
+			}
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		}
+	}
+
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -92,7 +109,9 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) er
 			return err
 		}
 
-		if strings.HasPrefix(key.Value, e.prefs.ProcInstPrefix) {
+		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+			// dont double process these.
+		} else if strings.HasPrefix(key.Value, e.prefs.ProcInstPrefix) {
 			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
 			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
 			if err := encoder.EncodeToken(procInst); err != nil {

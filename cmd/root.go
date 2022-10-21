@@ -47,11 +47,18 @@ yq -P sample.json
 			if verbose {
 				backend.SetLevel(logging.DEBUG, "")
 			} else {
-				backend.SetLevel(logging.ERROR, "")
+				backend.SetLevel(logging.WARNING, "")
 			}
 
 			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
+			if (inputFormat == "x" || inputFormat == "xml") &&
+				outputFormat != "x" && outputFormat != "xml" &&
+				yqlib.XMLPreferences.AttributePrefix == "+" {
+				yqlib.GetLogger().Warning("The default xml-attribute-prefix will change in the next release to `+@` to avoid " +
+					"naming conflicts with the default content name, directive name and proc inst prefix. If you need to keep " +
+					"`+` please set that value explicityly with --xml-attribute-prefix.")
+			}
 		},
 	}
 
