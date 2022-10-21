@@ -27,7 +27,27 @@ type xmlPreferences struct {
 	StrictMode      bool
 	KeepNamespace   bool
 	UseRawToken     bool
+	ProcInstPrefix  string
+	DirectiveName   string
+	SkipProcInst    bool
+	SkipDirectives  bool
 }
+
+func NewDefaultXmlPreferences() xmlPreferences {
+	return xmlPreferences{
+		AttributePrefix: "+@",
+		ContentName:     "+content",
+		StrictMode:      false,
+		KeepNamespace:   true,
+		UseRawToken:     false,
+		ProcInstPrefix:  "+p_",
+		DirectiveName:   "+directive",
+		SkipProcInst:    false,
+		SkipDirectives:  false,
+	}
+}
+
+var XMLPreferences = NewDefaultXmlPreferences()
 
 var log = logging.MustGetLogger("yq-lib")
 

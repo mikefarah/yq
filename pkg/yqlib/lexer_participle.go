@@ -76,7 +76,7 @@ var participleYqRules = []*participleYqRule{
 	{"Base64d", `@base64d`, decodeOp(Base64InputFormat), 0},
 	{"Base64", `@base64`, encodeWithIndent(Base64OutputFormat, 0), 0},
 
-	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(XMLPreferences.AttributePrefix, XMLPreferences.ContentName, XMLPreferences.StrictMode, XMLPreferences.KeepNamespace, XMLPreferences.UseRawToken), false), 0},
+	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(XMLPreferences), false), 0},
 
 	{"LoadBase64", `load_?base64`, loadOp(NewBase64Decoder(), false), 0},
 

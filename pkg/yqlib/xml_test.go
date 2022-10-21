@@ -58,7 +58,7 @@ cat:
         d:
             # in d before
             z:
-                +sweet: cool
+                +@sweet: cool
             # in d after
         # in y after
     # in_cat_after
@@ -98,11 +98,11 @@ cat:
         d:
             - # in d before
               z:
-                +sweet: cool
+                +@sweet: cool
               # in d after
             - # in d2 before
               z:
-                +sweet: cool2
+                +@sweet: cool2
               # in d2 after
         # in y after
     # in_cat_after
@@ -159,18 +159,18 @@ const inputXMLWithNamespacedAttr = `
 </map>
 `
 
-const expectedYAMLWithNamespacedAttr = `_procInst_xml: version="1.0"
+const expectedYAMLWithNamespacedAttr = `+p_xml: version="1.0"
 map:
-  +xmlns: some-namespace
-  +xmlns:xsi: some-instance
-  +some-instance:schemaLocation: some-url
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@some-instance:schemaLocation: some-url
 `
 
-const expectedYAMLWithRawNamespacedAttr = `_procInst_xml: version="1.0"
+const expectedYAMLWithRawNamespacedAttr = `+p_xml: version="1.0"
 map:
-  +xmlns: some-namespace
-  +xmlns:xsi: some-instance
-  +xsi:schemaLocation: some-url
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@xsi:schemaLocation: some-url
 `
 
 const xmlWithCustomDtd = `
@@ -183,18 +183,19 @@ const xmlWithCustomDtd = `
     <item>&writer;&copyright;</item>
 </root>`
 
-const expectedDtd = `_procInst_xml: version="1.0"
-_directive_: |-
-    DOCTYPE root [
-    <!ENTITY writer "Blah.">
-    <!ENTITY copyright "Blah">
-    ]
-root:
-    item: '&writer;&copyright;'
+const expectedDtd = `<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY writer "Blah.">
+<!ENTITY copyright "Blah">
+]>
+<root>
+  <item>&amp;writer;&amp;copyright;</item>
+</root>
 `
 
-const expectedSkippedDtd = `root:
-    item: '&writer;&copyright;'
+const expectedSkippedDtd = `<root>
+  <item>&writer;&copyright;</item>
+</root>
 `
 
 const xmlWithProcInstAndDirectives = `<?xml version="1.0"?>
@@ -206,11 +207,11 @@ const xmlWithProcInstAndDirectives = `<?xml version="1.0"?>
 </apple>
 `
 
-const yamlWithProcInstAndDirectives = `_procInst_xml: version="1.0"
-_directive_: 'DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" '
+const yamlWithProcInstAndDirectives = `+p_xml: version="1.0"
++directive: 'DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" '
 apple:
-  _procInst_coolioo: version="1.0"
-  _directive_: 'CATYPE meow purr puss '
+  +p_coolioo: version="1.0"
+  +directive: 'CATYPE meow purr puss '
   b: things
 `
 
@@ -258,13 +259,14 @@ var xmlScenarios = []formatScenario{
 		subdescription: "DTD entities are processed as directives.",
 		input:          xmlWithCustomDtd,
 		expected:       expectedDtd,
+		scenarioType:   "roundtrip",
 	},
 	{
-		description:    "Parse xml: custom dtd",
-		subdescription: "DTD entities are processed as directives.",
+		description:    "Parse xml: skip custom dtd",
+		subdescription: "DTDs are directives, skip over directives to skip DTDs.",
 		input:          xmlWithCustomDtd,
 		expected:       expectedSkippedDtd,
-		scenarioType:   "c",
+		scenarioType:   "roundtrip-skip-directives",
 	},
 	{
 		description:    "Parse xml: with comments",
@@ -360,20 +362,21 @@ var xmlScenarios = []formatScenario{
 	{
 		description:    "Encode xml: attributes",
 		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
-		input:          "cat:\n  +name: tiger\n  meows: true\n",
+		input:          "cat:\n  +@name: tiger\n  meows: true\n",
 		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		scenarioType:   "encode",
 	},
 	{
+		description:  "double prefix",
 		skipDoc:      true,
-		input:        "cat:\n  ++name: tiger\n  meows: true\n",
-		expected:     "<cat +name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
+		input:        "cat:\n  +@+@name: tiger\n  meows: true\n",
+		expected:     "<cat +@name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		scenarioType: "encode",
 	},
 	{
 		description:    "Encode xml: attributes with content",
 		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
-		input:          "cat:\n  +name: tiger\n  +content: cool\n",
+		input:          "cat:\n  +@name: tiger\n  +content: cool\n",
 		expected:       "<cat name=\"tiger\">cool</cat>\n",
 		scenarioType:   "encode",
 	},
@@ -410,17 +413,23 @@ var xmlScenarios = []formatScenario{
 func testXMLScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false, false, false), NewYamlEncoder(4, false, true, true)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewYamlEncoder(4, false, true, true)), s.description)
 	case "encode":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content")), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, XMLPreferences)), s.description)
 	case "roundtrip":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false, false, false), NewXMLEncoder(2, "+", "+content")), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewXMLEncoder(2, XMLPreferences)), s.description)
 	case "decode-keep-ns":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false, false, false), NewYamlEncoder(2, false, true, true)), s.description)
+		prefs := NewDefaultXmlPreferences()
+		prefs.KeepNamespace = true
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, true, true)), s.description)
 	case "decode-raw-token":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true, false, false), NewYamlEncoder(2, false, true, true)), s.description)
-	case "encode-":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true, true, true), NewYamlEncoder(2, false, true, true)), s.description)
+		prefs := NewDefaultXmlPreferences()
+		prefs.UseRawToken = true
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, true, true)), s.description)
+	case "roundtrip-skip-directives":
+		prefs := NewDefaultXmlPreferences()
+		prefs.SkipDirectives = true
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs)), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -443,6 +452,8 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		documentXMLDecodeKeepNsScenario(w, s)
 	case "decode-raw-token":
 		documentXMLDecodeKeepNsRawTokenScenario(w, s)
+	case "roundtrip-skip-directives":
+		documentXMLSkipDirectrivesScenario(w, s)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -468,7 +479,7 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=xml '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false), NewYamlEncoder(2, false, true, true))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewYamlEncoder(2, false, true, true))))
 }
 
 func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
@@ -485,11 +496,14 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "then\n")
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
+	prefs := NewDefaultXmlPreferences()
+	prefs.KeepNamespace = true
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, false, false, false), NewXMLEncoder(2, "+", "+content"))))
-
+	prefsWithout := NewDefaultXmlPreferences()
+	prefs.KeepNamespace = false
 	writeOrPanic(w, "instead of\n")
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false, false, false), NewXMLEncoder(2, "+", "+content"))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))
 }
 
 func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) {
@@ -507,10 +521,16 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, true, true, false, false), NewXMLEncoder(2, "+", "+content"))))
+	prefs := NewDefaultXmlPreferences()
+	prefs.KeepNamespace = true
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
+
+	prefsWithout := NewDefaultXmlPreferences()
+	prefsWithout.KeepNamespace = false
 
 	writeOrPanic(w, "instead of\n")
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false, false, false), NewXMLEncoder(2, "+", "+content"))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))
 }
 
 func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
@@ -528,7 +548,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, "+", "+content"))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, XMLPreferences))))
 }
 
 func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
@@ -546,7 +566,27 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder("+", "+content", false, false, false, false, false), NewXMLEncoder(2, "+", "+content"))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewXMLEncoder(2, XMLPreferences))))
+}
+
+func documentXMLSkipDirectrivesScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.xml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-skip-directives '.' sample.xml\n```\n")
+	writeOrPanic(w, "will output\n")
+	prefs := NewDefaultXmlPreferences()
+	prefs.SkipDirectives = true
+
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
 }
 
 func TestXMLScenarios(t *testing.T) {

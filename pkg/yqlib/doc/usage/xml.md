@@ -30,7 +30,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-_procInst_xml: version="1.0" encoding="UTF-8"
++p_xml: version="1.0" encoding="UTF-8"
 cat:
   says: meow
   legs: "4"
@@ -55,7 +55,7 @@ yq -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
 ```
 will output
 ```yaml
-_procInst_xml: version="1.0" encoding="UTF-8"
++p_xml: version="1.0" encoding="UTF-8"
 cat:
   says: meow
   legs: 4
@@ -77,7 +77,7 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-_procInst_xml: version="1.0" encoding="UTF-8"
++p_xml: version="1.0" encoding="UTF-8"
 animal:
   - cat
   - goat
@@ -99,9 +99,9 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-_procInst_xml: version="1.0" encoding="UTF-8"
++p_xml: version="1.0" encoding="UTF-8"
 cat:
-  +legs: "4"
+  +@legs: "4"
   legs: "7"
 ```
 
@@ -119,14 +119,14 @@ yq -p=xml '.' sample.xml
 ```
 will output
 ```yaml
-_procInst_xml: version="1.0" encoding="UTF-8"
++p_xml: version="1.0" encoding="UTF-8"
 cat:
   +content: meow
-  +legs: "4"
+  +@legs: "4"
 ```
 
 ## Parse xml: custom dtd
-DTD entities are ignored.
+DTD entities are processed as directives.
 
 Given a sample.xml file of:
 ```xml
@@ -142,18 +142,45 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -p=xml -o=xml '.' sample.xml
 ```
 will output
-```yaml
-_procInst_xml: version="1.0"
-_directive_: |-
-  DOCTYPE root [
-  <!ENTITY writer "Blah.">
-  <!ENTITY copyright "Blah">
-  ]
-root:
-  item: '&writer;&copyright;'
+```xml
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY writer "Blah.">
+<!ENTITY copyright "Blah">
+]>
+<root>
+  <item>&amp;writer;&amp;copyright;</item>
+</root>
+```
+
+## Parse xml: skip custom dtd
+DTDs are directives, skip over directives to skip DTDs.
+
+Given a sample.xml file of:
+```xml
+
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY writer "Blah.">
+<!ENTITY copyright "Blah">
+]>
+<root>
+    <item>&writer;&copyright;</item>
+</root>
+```
+then
+```bash
+yq -p=xml -o=xml --xml-skip-directives '.' sample.xml
+```
+will output
+```xml
+<?xml version="1.0"?>
+<root>
+  <item>&amp;writer;&amp;copyright;</item>
+</root>
 ```
 
 ## Parse xml: with comments
@@ -225,7 +252,7 @@ will output
 instead of
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
 ```
 
 ## Parse xml: keep raw attribute namespace
@@ -244,7 +271,7 @@ yq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml
 will output
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
 ```
 
 instead of
@@ -293,7 +320,7 @@ Fields with the matching xml-attribute-prefix are assumed to be attributes.
 Given a sample.yml file of:
 ```yaml
 cat:
-  +name: tiger
+  +@name: tiger
   meows: true
 
 ```
@@ -314,7 +341,7 @@ Fields with the matching xml-content-name is assumed to be content.
 Given a sample.yml file of:
 ```yaml
 cat:
-  +name: tiger
+  +@name: tiger
   +content: cool
 
 ```
@@ -359,11 +386,11 @@ Use the special xml names to add/modify proc instructions and directives.
 
 Given a sample.yml file of:
 ```yaml
-_procInst_xml: version="1.0"
-_directive_: 'DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" '
++p_xml: version="1.0"
++directive: 'DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" '
 apple:
-  _procInst_coolioo: version="1.0"
-  _directive_: 'CATYPE meow purr puss '
+  +p_coolioo: version="1.0"
+  +directive: 'CATYPE meow purr puss '
   b: things
 
 ```

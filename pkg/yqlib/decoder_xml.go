@@ -12,35 +12,16 @@ import (
 )
 
 type xmlDecoder struct {
-	reader          io.Reader
-	readAnything    bool
-	attributePrefix string
-	directiveName   string
-	procInstPrefix  string
-	contentName     string
-	strictMode      bool
-	keepNamespace   bool
-	useRawToken     bool
-	finished        bool
-	skipDirectives  bool
-	skipProcInst    bool
+	reader       io.Reader
+	readAnything bool
+	finished     bool
+	prefs        xmlPreferences
 }
 
-func NewXMLDecoder(attributePrefix string, contentName string, strictMode bool, keepNamespace bool, useRawToken bool, skipDirectives bool, skipProcInst bool) Decoder {
-	if contentName == "" {
-		contentName = "content"
-	}
+func NewXMLDecoder(prefs xmlPreferences) Decoder {
 	return &xmlDecoder{
-		attributePrefix: attributePrefix,
-		contentName:     contentName,
-		finished:        false,
-		strictMode:      strictMode,
-		keepNamespace:   keepNamespace,
-		useRawToken:     useRawToken,
-		directiveName:   "_directive_",
-		procInstPrefix:  "_procInst_",
-		skipDirectives:  skipDirectives,
-		skipProcInst:    skipProcInst,
+		finished: false,
+		prefs:    prefs,
 	}
 }
 
@@ -75,7 +56,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
-		label := dec.contentName
+		label := dec.prefs.ContentName
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
@@ -211,7 +192,7 @@ type element struct {
 // of the map keys.
 func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	xmlDec := xml.NewDecoder(dec.reader)
-	xmlDec.Strict = dec.strictMode
+	xmlDec.Strict = dec.prefs.StrictMode
 	// That will convert the charset if the provided XML is non-UTF-8
 	xmlDec.CharsetReader = charset.NewReaderLabel
 
@@ -222,7 +203,7 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	}
 
 	getToken := func() (xml.Token, error) {
-		if dec.useRawToken {
+		if dec.prefs.UseRawToken {
 			return xmlDec.RawToken()
 		}
 		return xmlDec.Token()
@@ -250,12 +231,12 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 			// Extract attributes as children
 			for _, a := range se.Attr {
-				if dec.keepNamespace {
+				if dec.prefs.KeepNamespace {
 					if a.Name.Space != "" {
 						a.Name.Local = a.Name.Space + ":" + a.Name.Local
 					}
 				}
-				elem.n.AddChild(dec.attributePrefix+a.Name.Local, &xmlNode{Data: a.Value})
+				elem.n.AddChild(dec.prefs.AttributePrefix+a.Name.Local, &xmlNode{Data: a.Value})
 			}
 		case xml.CharData:
 			// Extract XML data (if any)
@@ -289,12 +270,12 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 			}
 
 		case xml.ProcInst:
-			if !dec.skipProcInst {
-				elem.n.AddChild(dec.procInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
+			if !dec.prefs.SkipProcInst {
+				elem.n.AddChild(dec.prefs.ProcInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
 			}
 		case xml.Directive:
-			if !dec.skipDirectives {
-				elem.n.AddChild(dec.directiveName, &xmlNode{Data: string(se)})
+			if !dec.prefs.SkipDirectives {
+				elem.n.AddChild(dec.prefs.DirectiveName, &xmlNode{Data: string(se)})
 			}
 		}
 	}
