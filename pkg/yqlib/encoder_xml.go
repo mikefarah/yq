@@ -9,21 +9,19 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var XMLPreferences = xmlPreferences{AttributePrefix: "+", ContentName: "+content", StrictMode: false, UseRawToken: false}
-
 type xmlEncoder struct {
-	attributePrefix string
-	contentName     string
-	indentString    string
+	indentString string
+	writer       io.Writer
+	prefs        xmlPreferences
 }
 
-func NewXMLEncoder(indent int, attributePrefix string, contentName string) Encoder {
+func NewXMLEncoder(indent int, prefs xmlPreferences) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	return &xmlEncoder{attributePrefix, contentName, indentString}
+	return &xmlEncoder{indentString, nil, prefs}
 }
 
 func (e *xmlEncoder) CanHandleAliases() bool {
@@ -40,6 +38,8 @@ func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error
 
 func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	encoder := xml.NewEncoder(writer)
+	// hack so we can manually add newlines to procInst and directives
+	e.writer = writer
 	encoder.Indent("", e.indentString)
 
 	switch node.Kind {
@@ -77,6 +77,23 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
+	// make sure <?xml .. ?> processing instructions are encoded first
+	for i := 0; i < len(node.Content); i += 2 {
+		key := node.Content[i]
+		value := node.Content[i+1]
+
+		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
+				return err
+			}
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		}
+	}
+
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -92,11 +109,33 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) er
 			return err
 		}
 
-		log.Debugf("recursing")
+		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+			// dont double process these.
+		} else if strings.HasPrefix(key.Value, e.prefs.ProcInstPrefix) {
+			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
+				return err
+			}
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		} else if key.Value == e.prefs.DirectiveName {
+			var directive xml.Directive = []byte(value.Value)
+			if err := encoder.EncodeToken(directive); err != nil {
+				return err
+			}
+			if _, err := e.writer.Write([]byte("\n")); err != nil {
+				log.Warning("Unable to write newline, skipping: %w", err)
+			}
+		} else {
 
-		err = e.doEncode(encoder, value, start)
-		if err != nil {
-			return err
+			log.Debugf("recursing")
+
+			err = e.doEncode(encoder, value, start)
+			if err != nil {
+				return err
+			}
 		}
 		err = e.encodeComment(encoder, footComment(key))
 		if err != nil {
@@ -180,6 +219,13 @@ func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yaml.Node, start xm
 	return e.encodeComment(encoder, footComment(node))
 }
 
+func (e *xmlEncoder) isAttribute(name string) bool {
+	return strings.HasPrefix(name, e.prefs.AttributePrefix) &&
+		name != e.prefs.ContentName &&
+		name != e.prefs.DirectiveName &&
+		!strings.HasPrefix(name, e.prefs.ProcInstPrefix)
+}
+
 func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.StartElement) error {
 	log.Debug("its a map")
 
@@ -188,9 +234,9 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		if strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
+		if e.isAttribute(key.Value) {
 			if value.Kind == yaml.ScalarNode {
-				attributeName := strings.Replace(key.Value, e.attributePrefix, "", 1)
+				attributeName := strings.Replace(key.Value, e.prefs.AttributePrefix, "", 1)
 				start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: attributeName}, Value: value.Value})
 			} else {
 				return fmt.Errorf("cannot use %v as attribute, only scalars are supported", value.Tag)
@@ -212,14 +258,18 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 		if err != nil {
 			return err
 		}
-
-		if !strings.HasPrefix(key.Value, e.attributePrefix) && key.Value != e.contentName {
-			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-			err := e.doEncode(encoder, value, start)
-			if err != nil {
+		if strings.HasPrefix(key.Value, e.prefs.ProcInstPrefix) {
+			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
+			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+			if err := encoder.EncodeToken(procInst); err != nil {
 				return err
 			}
-		} else if key.Value == e.contentName {
+		} else if key.Value == e.prefs.DirectiveName {
+			var directive xml.Directive = []byte(value.Value)
+			if err := encoder.EncodeToken(directive); err != nil {
+				return err
+			}
+		} else if key.Value == e.prefs.ContentName {
 			// directly encode the contents
 			err = e.encodeComment(encoder, headAndLineComment(value))
 			if err != nil {
@@ -231,6 +281,12 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yaml.Node, start xml.
 				return err
 			}
 			err = e.encodeComment(encoder, footComment(value))
+			if err != nil {
+				return err
+			}
+		} else if !e.isAttribute(key.Value) {
+			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
+			err := e.doEncode(encoder, value, start)
 			if err != nil {
 				return err
 			}

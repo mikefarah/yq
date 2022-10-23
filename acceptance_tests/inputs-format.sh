@@ -127,6 +127,7 @@ testInputXmlNamespaces() {
 EOL
 
   read -r -d '' expected << EOM
++p_xml: version="1.0"
 map:
   +xmlns: some-namespace
   +xmlns:xsi: some-instance
@@ -137,6 +138,26 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea -p=xml test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testInputXmlRoundtrip() {
+  cat >test.yml <<EOL
+<?xml version="1.0"?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">Meow</map>
+EOL
+
+  read -r -d '' expected << EOM
+<?xml version="1.0"?>
+<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">Meow</map>
+EOM
+
+  X=$(./yq -p=xml -o=xml test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=xml -o=xml test.yml)
   assertEquals "$expected" "$X"
 }
 
@@ -153,11 +174,11 @@ testInputXmlStrict() {
 </root>
 EOL
 
-  X=$(./yq -p=xml --xml-strict-mode test.yml 2>&1)
+  X=$(./yq -p=xml --xml-strict-mode test.yml -o=xml 2>&1)
   assertEquals 1 $?
   assertEquals "Error: bad file 'test.yml': XML syntax error on line 7: invalid character entity &writer;" "$X"
 
-  X=$(./yq ea -p=xml --xml-strict-mode test.yml 2>&1)
+  X=$(./yq ea -p=xml --xml-strict-mode test.yml -o=xml 2>&1)
   assertEquals "Error: bad file 'test.yml': XML syntax error on line 7: invalid character entity &writer;" "$X"
 }
 
