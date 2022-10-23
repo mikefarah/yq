@@ -1,5 +1,8 @@
 name: Test Yq Action
-on: [push]
+on: 
+  push:
+  workflow_dispatch:
+
 permissions:
   contents: read
 
@@ -12,11 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Get test
+        id: get_value
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval '.a' examples/sample.yaml
+          cmd: yq '.test' examples/multiline-text.yaml
+      - name: Multiline test
+        run: echo "### It was [${{ steps.get_value.outputs.result }}]" >> $GITHUB_STEP_SUMMARY
       - name: Write inplace test
         id: lookupSdkVersion
         uses: mikefarah/yq@master
         with:
-          cmd: yq eval -i '.b.c = 5' examples/sample.yaml
+          cmd: yq -i '.b.c = 5' examples/sample.yaml

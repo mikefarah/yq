@@ -60,3 +60,23 @@ jobs:
             -t "${IMAGE_NAME}:4" \
             -t "${IMAGE_NAME}:latest" \
             .
+          
+          cd github-action
+          docker buildx build \
+            --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
+            --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
+            --label "org.opencontainers.image.description=yq is a portable command-line YAML processor" \
+            --label "org.opencontainers.image.documentation=https://mikefarah.gitbook.io/yq/" \
+            --label "org.opencontainers.image.licenses=MIT" \
+            --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" \
+            --label "org.opencontainers.image.source=https://github.com/mikefarah/yq" \
+            --label "org.opencontainers.image.title=yq" \
+            --label "org.opencontainers.image.url=https://mikefarah.gitbook.io/yq/" \
+            --label "org.opencontainers.image.version=${IMAGE_VERSION}" \
+            --platform "${PLATFORMS}" \
+            --pull \
+            --push \
+            -t "${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
+            -t "${IMAGE_NAME}:4-githubaction" \
+            -t "${IMAGE_NAME}:latest-githubaction" \
+            .

@@ -77,7 +77,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Date subtraction",
-		subdescription: "You can subtract durations from dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
+		subdescription: "You can subtract durations from dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/datetime#date-time-formattings) for more information.",
 		document:       `a: 2021-01-01T03:10:00Z`,
 		expression:     `.a -= "3h10m"`,
 		expected: []string{

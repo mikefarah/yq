@@ -221,7 +221,17 @@ go install github.com/mikefarah/yq/v4@latest
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
-# Webi
+
+### Nix
+
+```
+nix profile install nixpkgs#yq-go
+```
+
+See [here](https://search.nixos.org/packages?channel=unstable&show=yq-go&from=0&size=50&sort=relevance&type=packages&query=yq-go)
+
+
+### Webi
 
 ```
 webi yq

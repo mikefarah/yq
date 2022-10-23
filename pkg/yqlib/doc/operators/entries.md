@@ -101,6 +101,26 @@ KEY_a: 1
 KEY_b: 2
 ```
 
+## Custom sort map keys
+Use to_entries to convert to an array of key/value pairs, sort the array using sort/sort_by/etc, and convert it back.
+
+Given a sample.yml file of:
+```yaml
+a: 1
+c: 3
+b: 2
+```
+then
+```bash
+yq 'to_entries | sort_by(.key) | reverse | from_entries' sample.yml
+```
+will output
+```yaml
+c: 3
+b: 2
+a: 1
+```
+
 ## Use with_entries to filter the map
 Given a sample.yml file of:
 ```yaml

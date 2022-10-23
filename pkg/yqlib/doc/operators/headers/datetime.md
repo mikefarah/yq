@@ -13,11 +13,11 @@ To specify a custom parsing format, use the `with_dtf` operator. The first param
 yq 'with_dtf("myformat"; .a + "3h" | tz("Australia/Melbourne"))'
 ```
 
-See https://pkg.go.dev/time#pkg-constants for examples of formatting options.
+See the [library docs](https://pkg.go.dev/time#pkg-constants) for examples of formatting options.
 
 
 ## Timezones
-This uses golangs built in LoadLocation function to parse timezones strings. See https://pkg.go.dev/time#LoadLocation for more details.
+This uses golangs built in LoadLocation function to parse timezones strings. See the [library docs](https://pkg.go.dev/time#LoadLocation) for more details.
 
 
 ## Durations
