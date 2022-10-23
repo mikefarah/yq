@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: '^1.19'
+          check-latest: true
       - name: Compile man page markup
         id: gen-man-page-md
         run: |
