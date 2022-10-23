@@ -16,6 +16,14 @@ This can be controlled by:
  | `--xml-proc-inst-prefix` | `+p_` |  ```<?xml version="1"?>``` |
 
 
+{% hint style="warning" %}
+Default Attribute Prefix will be changing in v4.30!
+In order to avoid name conflicts (e.g. having an attribute named "content" will create a field that clashes with the default content name of "+content") the attribute prefix will be changing to "+@".
+
+This will affect users that have not set their own prefix and are not roundtripping XML changes.
+
+{% endhint %}
+
 ## Encoder / Decoder flag options
 
 In addition to the above flags, there are the following xml encoder/decoder options controlled by flags:
@@ -30,12 +38,6 @@ In addition to the above flags, there are the following xml encoder/decoder opti
 
 
 See below for examples
-
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
 
 ## Parse xml: simple
 Notice how all the values are strings, see the next example on how you can fix that.

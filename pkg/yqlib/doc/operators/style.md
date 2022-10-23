@@ -2,12 +2,6 @@
 
 The style operator can be used to get or set the style of nodes (e.g. string style, yaml style)
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Update and set style of a particular node (simple)
 Given a sample.yml file of:
 ```yaml

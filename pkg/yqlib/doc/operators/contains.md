@@ -2,12 +2,6 @@
 
 This returns `true` if the context contains the passed in parameter, and false otherwise.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Array contains array
 Array is equal or subset of
 

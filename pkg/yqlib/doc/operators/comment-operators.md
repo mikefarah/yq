@@ -10,12 +10,6 @@ This will assign the LHS nodes comments to the expression on the RHS. The RHS is
 ### relative form: `|=` 
 Similar to the plain form, however the RHS evaluates against each matching LHS node! This is useful if you want to set the comments as a relative expression of the node, for instance its value or path.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Set line comment
 Set the comment on the key node for more reliability (see below).
 

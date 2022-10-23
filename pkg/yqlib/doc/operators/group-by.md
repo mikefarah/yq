@@ -2,12 +2,6 @@
 
 This is used to group items in an array by an expression.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Group by field
 Given a sample.yml file of:
 ```yaml

@@ -2,12 +2,6 @@
 
 This operator is used to provide alternative (or default) values when a particular expression is either null or false.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## LHS is defined
 Given a sample.yml file of:
 ```yaml
