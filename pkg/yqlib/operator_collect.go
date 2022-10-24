@@ -56,7 +56,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		collectedNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 		collectCandidate := candidate.CreateReplacement(collectedNode)
 
-		collectExpResults, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
+		collectExpResults, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}

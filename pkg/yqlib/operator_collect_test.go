@@ -21,6 +21,14 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "update in collect",
+		expression:  `[.a = "cat"]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- a: cat\n",
+		},
+	},
+	{
 		description: "Collect empty",
 		document:    ``,
 		expression:  `[]`,
