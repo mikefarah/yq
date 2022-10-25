@@ -386,6 +386,7 @@ A best attempt is made to copy comments to xml.
 
 Given a sample.yml file of:
 ```yaml
+# header comment
 # above_cat
 cat: # inline_cat
   # above_array
@@ -402,7 +403,10 @@ yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+<!--
+ header comment
+ above_cat
+ --><!-- inline_cat --><cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->

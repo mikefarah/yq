@@ -19,12 +19,13 @@ func NewCSVObjectDecoder(separator rune) Decoder {
 	return &csvObjectDecoder{separator: separator}
 }
 
-func (dec *csvObjectDecoder) Init(reader io.Reader) {
+func (dec *csvObjectDecoder) Init(reader io.Reader) error {
 	cleanReader, enc := utfbom.Skip(reader)
 	log.Debugf("Detected encoding: %s\n", enc)
 	dec.reader = *csv.NewReader(cleanReader)
 	dec.reader.Comma = dec.separator
 	dec.finished = false
+	return nil
 }
 
 func (dec *csvObjectDecoder) convertToYamlNode(content string) *yaml.Node {
@@ -47,14 +48,14 @@ func (dec *csvObjectDecoder) createObject(headerRow []string, contentRow []strin
 	return objectNode
 }
 
-func (dec *csvObjectDecoder) Decode(rootYamlNode *yaml.Node) error {
+func (dec *csvObjectDecoder) Decode() (*CandidateNode, error) {
 	if dec.finished {
-		return io.EOF
+		return nil, io.EOF
 	}
 	headerRow, err := dec.reader.Read()
 	log.Debugf(": headerRow%v", headerRow)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	rootArray := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
@@ -68,13 +69,13 @@ func (dec *csvObjectDecoder) Decode(rootYamlNode *yaml.Node) error {
 		log.Debugf("Read next contentRow: %v, %v", contentRow, err)
 	}
 	if !errors.Is(err, io.EOF) {
-		return err
+		return nil, err
 	}
 
-	log.Debugf("finished, contentRow%v", contentRow)
-	log.Debugf("err: %v", err)
-
-	rootYamlNode.Kind = yaml.DocumentNode
-	rootYamlNode.Content = []*yaml.Node{rootArray}
-	return nil
+	return &CandidateNode{
+		Node: &yaml.Node{
+			Kind:    yaml.DocumentNode,
+			Content: []*yaml.Node{rootArray},
+		},
+	}, nil
 }

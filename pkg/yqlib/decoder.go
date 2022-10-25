@@ -3,8 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"io"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type InputFormat uint
@@ -20,8 +18,8 @@ const (
 )
 
 type Decoder interface {
-	Init(reader io.Reader)
-	Decode(node *yaml.Node) error
+	Init(reader io.Reader) error
+	Decode() (*CandidateNode, error)
 }
 
 func InputFormatFromString(format string) (InputFormat, error) {

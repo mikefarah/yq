@@ -4,7 +4,6 @@ import (
 	"container/list"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -54,7 +53,6 @@ func nowOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode
 func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	format, err := getStringParamter("format", d, context, expressionNode.RHS)
 	layout := context.GetDateTimeLayout()
-	decoder := NewYamlDecoder()
 
 	if err != nil {
 		return Context{}, err
@@ -69,19 +67,15 @@ func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *Expre
 			return Context{}, fmt.Errorf("could not parse datetime of [%v]: %w", candidate.GetNicePath(), err)
 		}
 		formattedTimeStr := parsedTime.Format(format)
-		decoder.Init(strings.NewReader(formattedTimeStr))
-		var dataBucket yaml.Node
-		errorReading := decoder.Decode(&dataBucket)
-		var node *yaml.Node
+
+		node, errorReading := parseSnippet(formattedTimeStr)
 		if errorReading != nil {
-			log.Debugf("could not parse %v - lets just leave it as a string", formattedTimeStr)
+			log.Debugf("could not parse %v - lets just leave it as a string: %w", formattedTimeStr, errorReading)
 			node = &yaml.Node{
 				Kind:  yaml.ScalarNode,
 				Tag:   "!!str",
 				Value: formattedTimeStr,
 			}
-		} else {
-			node = unwrapDoc(&dataBucket)
 		}
 
 		results.PushBack(candidate.CreateReplacement(node))

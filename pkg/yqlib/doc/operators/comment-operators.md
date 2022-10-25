@@ -246,6 +246,7 @@ Note the use of `...` to ensure key nodes are included.
 
 Given a sample.yml file of:
 ```yaml
+# hi
 a: cat # comment
 # great
 b: # key comment
@@ -263,6 +264,7 @@ b:
 ## Get line comment
 Given a sample.yml file of:
 ```yaml
+# welcome!
 a: cat # meow
 # have a great day
 ```

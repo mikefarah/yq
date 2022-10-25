@@ -14,7 +14,7 @@ func yamlToProps(sampleYaml string, unwrapScalar bool) string {
 	writer := bufio.NewWriter(&output)
 
 	var propsEncoder = NewPropertiesEncoder(unwrapScalar)
-	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}

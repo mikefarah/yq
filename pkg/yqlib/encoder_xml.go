@@ -4,16 +4,20 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
 type xmlEncoder struct {
-	indentString string
-	writer       io.Writer
-	prefs        XmlPreferences
+	indentString   string
+	writer         io.Writer
+	prefs          XmlPreferences
+	leadingContent string
 }
+
+var commentPrefix = regexp.MustCompile(`(^|\n)\s*#`)
 
 func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
 	var indentString = ""
@@ -21,7 +25,7 @@ func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
-	return &xmlEncoder{indentString, nil, prefs}
+	return &xmlEncoder{indentString, nil, prefs, ""}
 }
 
 func (e *xmlEncoder) CanHandleAliases() bool {
@@ -33,6 +37,7 @@ func (e *xmlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 }
 
 func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+	e.leadingContent = commentPrefix.ReplaceAllString(content, "\n")
 	return nil
 }
 
@@ -41,6 +46,13 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	// hack so we can manually add newlines to procInst and directives
 	e.writer = writer
 	encoder.Indent("", e.indentString)
+
+	if e.leadingContent != "" {
+		err := e.encodeComment(encoder, e.leadingContent)
+		if err != nil {
+			return err
+		}
+	}
 
 	switch node.Kind {
 	case yaml.MappingNode:

@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -20,9 +21,10 @@ func NewPropertiesDecoder() Decoder {
 	return &propertiesDecoder{d: NewDataTreeNavigator(), finished: false}
 }
 
-func (dec *propertiesDecoder) Init(reader io.Reader) {
+func (dec *propertiesDecoder) Init(reader io.Reader) error {
 	dec.reader = reader
 	dec.finished = false
+	return nil
 }
 
 func parsePropKey(key string) []interface{} {
@@ -46,15 +48,49 @@ func (dec *propertiesDecoder) processComment(c string) string {
 	return "# " + c
 }
 
-func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, context Context, key string) error {
+func (dec *propertiesDecoder) applyPropertyComments(context Context, path []interface{}, comments []string) error {
+	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
+
+	rhsCandidateNode := &CandidateNode{
+		Path: path,
+		Node: &yaml.Node{
+			Tag:         "!!str",
+			Value:       fmt.Sprintf("%v", path[len(path)-1]),
+			HeadComment: dec.processComment(strings.Join(comments, "\n")),
+			Kind:        yaml.ScalarNode,
+		},
+	}
+
+	rhsCandidateNode.Node.Tag = guessTagFromCustomType(rhsCandidateNode.Node)
+
+	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhsCandidateNode}
+
+	assignmentOpNode := &ExpressionNode{
+		Operation: assignmentOp,
+		LHS:       createTraversalTree(path, traversePreferences{}, true),
+		RHS:       &ExpressionNode{Operation: rhsOp},
+	}
+
+	_, err := dec.d.GetMatchingNodes(context, assignmentOpNode)
+	return err
+}
+
+func (dec *propertiesDecoder) applyProperty(context Context, properties *properties.Properties, key string) error {
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)
 
+	propertyComments := properties.GetComments(key)
+	if len(propertyComments) > 0 {
+		err := dec.applyPropertyComments(context, path, propertyComments)
+		if err != nil {
+			return nil
+		}
+	}
+
 	rhsNode := &yaml.Node{
-		Value:       value,
-		Tag:         "!!str",
-		Kind:        yaml.ScalarNode,
-		LineComment: dec.processComment(properties.GetComment(key)),
+		Value: value,
+		Tag:   "!!str",
+		Kind:  yaml.ScalarNode,
 	}
 
 	rhsNode.Tag = guessTagFromCustomType(rhsNode)
@@ -78,22 +114,22 @@ func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, c
 	return err
 }
 
-func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
+func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {
 	if dec.finished {
-		return io.EOF
+		return nil, io.EOF
 	}
 	buf := new(bytes.Buffer)
 
 	if _, err := buf.ReadFrom(dec.reader); err != nil {
-		return err
+		return nil, err
 	}
 	if buf.Len() == 0 {
 		dec.finished = true
-		return io.EOF
+		return nil, io.EOF
 	}
 	properties, err := properties.LoadString(buf.String())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	properties.DisableExpansion = true
 
@@ -108,15 +144,18 @@ func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
 	context = context.SingleChildContext(rootMap)
 
 	for _, key := range properties.Keys() {
-		if err := dec.applyProperty(properties, context, key); err != nil {
-			return err
+		if err := dec.applyProperty(context, properties, key); err != nil {
+			return nil, err
 		}
 
 	}
-
-	rootYamlNode.Kind = yaml.DocumentNode
-	rootYamlNode.Content = []*yaml.Node{rootMap.Node}
 	dec.finished = true
-	return nil
+
+	return &CandidateNode{
+		Node: &yaml.Node{
+			Kind:    yaml.DocumentNode,
+			Content: []*yaml.Node{rootMap.Node},
+		},
+	}, nil
 
 }
