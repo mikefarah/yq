@@ -109,13 +109,13 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 	switch len(args) {
 	case 0:
 		if nullInput {
-			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(expression), printer, "")
+			err = yqlib.NewStreamEvaluator().EvaluateNew(processExpression(expression), printer)
 		} else {
 			cmd.Println(cmd.UsageString())
 			return nil
 		}
 	default:
-		err = allAtOnceEvaluator.EvaluateFiles(processExpression(expression), args, printer, leadingContentPreProcessing, decoder)
+		err = allAtOnceEvaluator.EvaluateFiles(processExpression(expression), args, printer, decoder)
 	}
 
 	completedSuccessfully = err == nil

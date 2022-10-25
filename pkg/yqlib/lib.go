@@ -21,14 +21,6 @@ func InitExpressionParser() {
 	}
 }
 
-type yamlPreferences struct {
-	LeadingContentPreProcessing bool
-	printDocSeparators          bool
-	unwrapScalar                bool
-}
-
-var YamlPreferences = NewDefaultYamlPreferences()
-
 var log = logging.MustGetLogger("yq-lib")
 
 var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
@@ -256,14 +248,16 @@ func guessTagFromCustomType(node *yaml.Node) string {
 }
 
 func parseSnippet(value string) (*yaml.Node, error) {
-	decoder := NewYamlDecoder()
-	decoder.Init(strings.NewReader(value))
-	var dataBucket yaml.Node
-	err := decoder.Decode(&dataBucket)
-	if len(dataBucket.Content) == 0 {
+	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
+	err := decoder.Init(strings.NewReader(value))
+	if err != nil {
+		return nil, err
+	}
+	parsedNode, err := decoder.Decode()
+	if len(parsedNode.Node.Content) == 0 {
 		return nil, fmt.Errorf("bad data")
 	}
-	return dataBucket.Content[0], err
+	return unwrapDoc(parsedNode.Node), err
 }
 
 func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {

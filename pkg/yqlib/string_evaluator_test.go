@@ -18,10 +18,10 @@ func TestStringEvaluator_Evaluate_Nominal(t *testing.T) {
 		`---` + "\n" +
 		` - name: jq` + "\n" +
 		`   description: Command-line JSON processor` + "\n"
-	encoder := NewYamlEncoder(2, true, true, true)
-	decoder := NewYamlDecoder()
+	encoder := NewYamlEncoder(2, true, ConfiguredYamlPreferences)
+	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
 
-	result, err := NewStringEvaluator().Evaluate(expression, input, encoder, true, decoder)
+	result, err := NewStringEvaluator().Evaluate(expression, input, encoder, decoder)
 	if err != nil {
 		t.Error(err)
 	}

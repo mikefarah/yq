@@ -8,7 +8,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-const samplePropertiesYaml = `# block comments don't come through
+const samplePropertiesYaml = `# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
@@ -18,7 +18,8 @@ emptyArray: []
 emptyMap: []
 `
 
-const expectedPropertiesUnwrapped = `# comments on values appear
+const expectedPropertiesUnwrapped = `# block comments come through
+# comments on values appear
 person.name = Mike Wazowski
 
 # comments on array values appear
@@ -26,7 +27,8 @@ person.pets.0 = cat
 person.food.0 = pizza
 `
 
-const expectedPropertiesWrapped = `# comments on values appear
+const expectedPropertiesWrapped = `# block comments come through
+# comments on values appear
 person.name = "Mike Wazowski"
 
 # comments on array values appear
@@ -55,7 +57,8 @@ person.pets.0 = cat
 person.food.0 = pizza
 `
 
-const expectedPropertiesWithEmptyMapsAndArrays = `# comments on values appear
+const expectedPropertiesWithEmptyMapsAndArrays = `# block comments come through
+# comments on values appear
 person.name = Mike Wazowski
 
 # comments on array values appear
@@ -143,7 +146,7 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(true))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true))))
 }
 
 func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -168,7 +171,7 @@ func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(false))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false))))
 }
 
 func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -193,7 +196,7 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(s.indent, false, true, true))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))))
 }
 
 func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -245,11 +248,11 @@ func TestPropertyScenarios(t *testing.T) {
 	for _, s := range propertyScenarios {
 		switch s.scenarioType {
 		case "":
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(true)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true)), s.description)
 		case "decode":
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, true, true)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 		case "encode-wrapped":
-			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewPropertiesEncoder(false)), s.description)
+			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false)), s.description)
 		case "roundtrip":
 			test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true)), s.description)
 

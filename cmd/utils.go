@@ -74,7 +74,7 @@ func configureDecoder() (yqlib.Decoder, error) {
 		return yqlib.NewCSVObjectDecoder('\t'), nil
 	}
 
-	return yqlib.NewYamlDecoder(), nil
+	return yqlib.NewYamlDecoder(yqlib.ConfiguredYamlPreferences), nil
 }
 
 func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {
@@ -105,7 +105,7 @@ func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
 	case yqlib.TSVOutputFormat:
 		return yqlib.NewCsvEncoder('\t')
 	case yqlib.YamlOutputFormat:
-		return yqlib.NewYamlEncoder(indent, colorsEnabled, !noDocSeparators, unwrapScalar)
+		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences)
 	case yqlib.XMLOutputFormat:
 		return yqlib.NewXMLEncoder(indent, yqlib.ConfiguredXMLPreferences)
 	}

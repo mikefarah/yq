@@ -20,9 +20,10 @@ func NewPropertiesDecoder() Decoder {
 	return &propertiesDecoder{d: NewDataTreeNavigator(), finished: false}
 }
 
-func (dec *propertiesDecoder) Init(reader io.Reader) {
+func (dec *propertiesDecoder) Init(reader io.Reader) error {
 	dec.reader = reader
 	dec.finished = false
+	return nil
 }
 
 func parsePropKey(key string) []interface{} {
@@ -78,22 +79,22 @@ func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, c
 	return err
 }
 
-func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
+func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {
 	if dec.finished {
-		return io.EOF
+		return nil, io.EOF
 	}
 	buf := new(bytes.Buffer)
 
 	if _, err := buf.ReadFrom(dec.reader); err != nil {
-		return err
+		return nil, err
 	}
 	if buf.Len() == 0 {
 		dec.finished = true
-		return io.EOF
+		return nil, io.EOF
 	}
 	properties, err := properties.LoadString(buf.String())
 	if err != nil {
-		return err
+		return nil, err
 	}
 	properties.DisableExpansion = true
 
@@ -109,14 +110,17 @@ func (dec *propertiesDecoder) Decode(rootYamlNode *yaml.Node) error {
 
 	for _, key := range properties.Keys() {
 		if err := dec.applyProperty(properties, context, key); err != nil {
-			return err
+			return nil, err
 		}
 
 	}
-
-	rootYamlNode.Kind = yaml.DocumentNode
-	rootYamlNode.Content = []*yaml.Node{rootMap.Node}
 	dec.finished = true
-	return nil
+
+	return &CandidateNode{
+		Node: &yaml.Node{
+			Kind:    yaml.DocumentNode,
+			Content: []*yaml.Node{rootMap.Node},
+		},
+	}, nil
 
 }

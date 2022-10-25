@@ -6,12 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type StringEvaluator interface {
-	Evaluate(expression string, input string, encoder Encoder, leadingContentPreProcessing bool, decoder Decoder) (string, error)
+	Evaluate(expression string, input string, encoder Encoder, decoder Decoder) (string, error)
 }
 
 type stringEvaluator struct {
@@ -25,7 +23,7 @@ func NewStringEvaluator() StringEvaluator {
 	}
 }
 
-func (s *stringEvaluator) Evaluate(expression string, input string, encoder Encoder, leadingContentPreProcessing bool, decoder Decoder) (string, error) {
+func (s *stringEvaluator) Evaluate(expression string, input string, encoder Encoder, decoder Decoder) (string, error) {
 
 	// Use bytes.Buffer for output of string
 	out := new(bytes.Buffer)
@@ -37,16 +35,18 @@ func (s *stringEvaluator) Evaluate(expression string, input string, encoder Enco
 		return "", err
 	}
 
-	reader, leadingContent, err := readString(input, leadingContentPreProcessing)
+	reader, err := readString(input)
 	if err != nil {
 		return "", err
 	}
 
 	var currentIndex uint
-	decoder.Init(reader)
+	err = decoder.Init(reader)
+	if err != nil {
+		return "", err
+	}
 	for {
-		var dataBucket yaml.Node
-		errorReading := decoder.Decode(&dataBucket)
+		candidateNode, errorReading := decoder.Decode()
 
 		if errors.Is(errorReading, io.EOF) {
 			s.fileIndex = s.fileIndex + 1
@@ -54,20 +54,9 @@ func (s *stringEvaluator) Evaluate(expression string, input string, encoder Enco
 		} else if errorReading != nil {
 			return "", fmt.Errorf("bad input '%v': %w", input, errorReading)
 		}
+		candidateNode.Document = currentIndex
+		candidateNode.FileIndex = s.fileIndex
 
-		candidateNode := &CandidateNode{
-			Document:  currentIndex,
-			Node:      &dataBucket,
-			FileIndex: s.fileIndex,
-		}
-		// move document comments into candidate node
-		// otherwise unwrap drops them.
-		candidateNode.TrailingContent = dataBucket.FootComment
-		dataBucket.FootComment = ""
-
-		if currentIndex == 0 {
-			candidateNode.LeadingContent = leadingContent
-		}
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 

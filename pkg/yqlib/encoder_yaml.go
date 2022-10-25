@@ -13,14 +13,14 @@ import (
 type yamlEncoder struct {
 	indent   int
 	colorise bool
-	prefs    yamlPreferences
+	prefs    YamlPreferences
 }
 
-func NewYamlEncoder(indent int, colorise bool, printDocSeparators bool, unwrapScalar bool) Encoder {
+func NewYamlEncoder(indent int, colorise bool, prefs YamlPreferences) Encoder {
 	if indent < 0 {
 		indent = 0
 	}
-	return &yamlEncoder{indent, colorise, printDocSeparators, unwrapScalar}
+	return &yamlEncoder{indent, colorise, prefs}
 }
 
 func (ye *yamlEncoder) CanHandleAliases() bool {
@@ -28,7 +28,7 @@ func (ye *yamlEncoder) CanHandleAliases() bool {
 }
 
 func (ye *yamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
-	if ye.printDocSeparators {
+	if ye.prefs.PrintDocSeparators {
 		log.Debug("-- writing doc sep")
 		if err := writeString(writer, "---\n"); err != nil {
 			return err
@@ -75,7 +75,7 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 
 func (ye *yamlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 
-	if node.Kind == yaml.ScalarNode && ye.unwrapScalar {
+	if node.Kind == yaml.ScalarNode && ye.prefs.UnwrapScalar {
 		return writeString(writer, node.Value+"\n")
 	}
 

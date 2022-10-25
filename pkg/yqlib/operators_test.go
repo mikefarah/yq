@@ -40,21 +40,16 @@ func TestMain(m *testing.M) {
 }
 
 func NewSimpleYamlPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
-	return NewPrinter(NewYamlEncoder(indent, colorsEnabled, printDocSeparators, unwrapScalar), NewSinglePrinterWriter(writer))
+	prefs := NewDefaultYamlPreferences()
+	prefs.PrintDocSeparators = printDocSeparators
+	prefs.UnwrapScalar = unwrapScalar
+	return NewPrinter(NewYamlEncoder(indent, colorsEnabled, prefs), NewSinglePrinterWriter(writer))
 }
 
-func readDocumentWithLeadingContent(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
-	reader, firstFileLeadingContent, err := processReadStream(bufio.NewReader(strings.NewReader(content)))
-	if err != nil {
-		return nil, err
-	}
+func readDocument(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
+	reader := bufio.NewReader(strings.NewReader(content))
 
-	inputs, err := readDocuments(reader, fakefilename, fakeFileIndex, NewYamlDecoder())
-	if err != nil {
-		return nil, err
-	}
-	inputs.Front().Value.(*CandidateNode).LeadingContent = firstFileLeadingContent
-	return inputs, nil
+	return readDocuments(reader, fakefilename, fakeFileIndex, NewYamlDecoder(ConfiguredYamlPreferences))
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
@@ -67,7 +62,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	inputs := list.New()
 
 	if s.document != "" {
-		inputs, err = readDocumentWithLeadingContent(s.document, "sample.yml", 0)
+		inputs, err = readDocument(s.document, "sample.yml", 0)
 
 		if err != nil {
 			t.Error(err, s.document, s.expression)
@@ -75,7 +70,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		}
 
 		if s.document2 != "" {
-			moreInputs, err := readDocumentWithLeadingContent(s.document2, "another.yml", 1)
+			moreInputs, err := readDocument(s.document2, "another.yml", 1)
 			if err != nil {
 				t.Error(err, s.document2, s.expression)
 				return
@@ -176,7 +171,7 @@ func formatYaml(yaml string, filename string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, "", NewYamlDecoder())
+	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -322,13 +317,13 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 	if s.document != "" {
 
-		inputs, err = readDocumentWithLeadingContent(formattedDoc, "sample.yml", 0)
+		inputs, err = readDocument(formattedDoc, "sample.yml", 0)
 		if err != nil {
 			t.Error(err, s.document, s.expression)
 			return
 		}
 		if s.document2 != "" {
-			moreInputs, err := readDocumentWithLeadingContent(formattedDoc2, "another.yml", 1)
+			moreInputs, err := readDocument(formattedDoc2, "another.yml", 1)
 			if err != nil {
 				t.Error(err, s.document, s.expression)
 				return

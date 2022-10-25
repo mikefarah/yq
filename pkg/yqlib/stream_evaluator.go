@@ -14,9 +14,9 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error)
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error
-	EvaluateNew(expression string, printer Printer, leadingContent string) error
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error)
+	EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error
+	EvaluateNew(expression string, printer Printer) error
 }
 
 type streamEvaluator struct {
@@ -28,17 +28,16 @@ func NewStreamEvaluator() StreamEvaluator {
 	return &streamEvaluator{treeNavigator: NewDataTreeNavigator()}
 }
 
-func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadingContent string) error {
+func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {
 	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
 	candidateNode := &CandidateNode{
-		Document:       0,
-		Filename:       "",
-		Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
-		FileIndex:      0,
-		LeadingContent: leadingContent,
+		Document:  0,
+		Filename:  "",
+		Node:      &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		FileIndex: 0,
 	}
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
@@ -50,14 +49,12 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	return printer.PrintResults(result.MatchingNodes)
 }
 
-func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
+func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error {
 	var totalProcessDocs uint
 	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
-
-	var firstFileLeadingContent string
 
 	for _, filename := range filenames {
 		reader, err := readStream(filename)
@@ -78,7 +75,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	if totalProcessDocs == 0 {
-		return s.EvaluateNew(expression, printer, firstFileLeadingContent)
+		return s.EvaluateNew(expression, printer)
 	}
 
 	return nil
@@ -87,7 +84,10 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
 
 	var currentIndex uint
-	decoder.Init(reader)
+	err := decoder.Init(reader)
+	if err != nil {
+		return 0, err
+	}
 	for {
 		candidateNode, errorReading := decoder.Decode()
 

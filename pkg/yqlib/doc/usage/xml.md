@@ -402,7 +402,7 @@ yq -o=xml '.' sample.yml
 ```
 will output
 ```xml
-<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+<!-- inline_cat --><cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->

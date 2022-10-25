@@ -37,7 +37,10 @@ func writeString(writer io.Writer, txt string) error {
 }
 
 func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
-	decoder.Init(reader)
+	err := decoder.Init(reader)
+	if err != nil {
+		return nil, err
+	}
 	inputList := list.New()
 	var currentIndex uint
 

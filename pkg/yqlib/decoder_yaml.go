@@ -13,11 +13,11 @@ import (
 type yamlDecoder struct {
 	decoder yaml.Decoder
 	// work around of various parsing issues by yaml.v3 with document headers
-	prefs          yamlPreferences
+	prefs          YamlPreferences
 	leadingContent string
 }
 
-func NewYamlDecoder(prefs yamlPreferences) Decoder {
+func NewYamlDecoder(prefs YamlPreferences) Decoder {
 	return &yamlDecoder{prefs: prefs}
 }
 
@@ -57,7 +57,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	readerToUse := reader
 	leadingContent := ""
 	var err error
-	if dec.leadingContentPreProcessing {
+	if dec.prefs.LeadingContentPreProcessing {
 		readerToUse, leadingContent, err = dec.processReadStream(bufio.NewReader(reader))
 		if err != nil {
 			return err
