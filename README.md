@@ -76,6 +76,13 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 
 For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
 
+Or, to get the latest release for linux amd64 without knowing the version:
+
+```bash
+wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
+    chmod +x /usr/bin/yq
+```
+
 ### MacOS / Linux via Homebrew:
 Using [Homebrew](https://brew.sh/)
 ```
