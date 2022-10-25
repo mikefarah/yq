@@ -6,6 +6,22 @@ import (
 
 var loadScenarios = []expressionScenario{
 	{
+		skipDoc:     true,
+		description: "Load empty file",
+		expression:  `load("../../examples/empty.yaml")`,
+		expected: []string{
+			"D0, P[], (!!null)::\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Load multiple documents",
+		expression:  `load("../../examples/multiple_docs_small.yaml")`,
+		expected: []string{
+			"D0, P[], ()::- a: Easy! as one two three\n- another:\n    document: here\n- - 1\n  - 2\n",
+		},
+	},
+	{
 		description: "Simple example",
 		document:    `{myFile: "../../examples/thing.yml"}`,
 		expression:  `load(.myFile)`,

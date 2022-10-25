@@ -23,17 +23,29 @@ func ParseData(rawData string) yaml.Node {
 	return parsedData
 }
 
+func printDifference(t *testing.T, expectedValue interface{}, actualValue interface{}) {
+	opts := []write.Option{write.TerminalColor()}
+	var differenceBuffer bytes.Buffer
+	expectedString := fmt.Sprintf("%v", expectedValue)
+	actualString := fmt.Sprintf("%v", actualValue)
+	if err := diff.Text("expected", "actual", expectedString, actualString, bufio.NewWriter(&differenceBuffer), opts...); err != nil {
+		t.Error(err)
+	} else {
+		t.Error(differenceBuffer.String())
+	}
+}
+
 func AssertResult(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	t.Helper()
 	if expectedValue != actualValue {
-		t.Error("Expected <", expectedValue, "> but got <", actualValue, ">", fmt.Sprintf("%T", actualValue))
+		printDifference(t, expectedValue, actualValue)
 	}
 }
 
 func AssertResultComplex(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	t.Helper()
 	if !reflect.DeepEqual(expectedValue, actualValue) {
-		t.Error("\nExpected <", expectedValue, ">\nbut got  <", actualValue, ">", fmt.Sprintf("%T", actualValue))
+		printDifference(t, expectedValue, actualValue)
 	}
 }
 
@@ -41,7 +53,7 @@ func AssertResultComplexWithContext(t *testing.T, expectedValue interface{}, act
 	t.Helper()
 	if !reflect.DeepEqual(expectedValue, actualValue) {
 		t.Error(context)
-		t.Error("\nExpected <", expectedValue, ">\nbut got  <", actualValue, ">", fmt.Sprintf("%T", actualValue))
+		printDifference(t, expectedValue, actualValue)
 	}
 }
 
