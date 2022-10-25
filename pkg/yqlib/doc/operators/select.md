@@ -8,12 +8,6 @@ Select is used to filter arrays and maps by a boolean expression.
 - comparison (`>=`, `<` etc) operators [here](https://mikefarah.gitbook.io/yq/operators/compare)
 - boolean operators (`and`, `or`, `any` etc) [here](https://mikefarah.gitbook.io/yq/operators/boolean-operators)
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Select elements from array using wildcard prefix
 Given a sample.yml file of:
 ```yaml

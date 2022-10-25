@@ -2,12 +2,6 @@
 
 Use the `keys` operator to return map keys or array indices. 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Map keys
 Given a sample.yml file of:
 ```yaml

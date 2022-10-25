@@ -12,12 +12,6 @@ This will do a similar thing to the plain form, however, the RHS expression is r
 ### Flags
 - `c` clobber custom tags
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Create yaml file
 Running
 ```bash

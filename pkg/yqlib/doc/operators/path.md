@@ -7,12 +7,6 @@ You can get the key/index of matching nodes by using the `path` operator to retu
 Use `setpath` to set a value to the path array returned by `path`, and similarly `delpaths` for an array of path arrays.
 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Map path
 Given a sample.yml file of:
 ```yaml

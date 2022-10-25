@@ -5,12 +5,6 @@ Encode and decode to and from JSON. Supports multiple JSON documents in a single
 Note that YAML is a superset of (single document) JSON - so you don't have to use the JSON parser to read JSON when there is only one JSON document in the input. You will probably want to pretty print the result in this case, to get idiomatic YAML styling.
 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Parse json: simple
 JSON is a subset of yaml, so all you need to do is prettify the output
 

@@ -36,12 +36,6 @@ By default - `yq` merge is naive. It merges maps when they match the key name, a
 For more complex array merging (e.g. merging items that match on a certain key) please see the example [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays-of-objects-together-matching-on-a-key)
 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Multiply integers
 Given a sample.yml file of:
 ```yaml

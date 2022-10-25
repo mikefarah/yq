@@ -21,12 +21,6 @@ The not equals `!=` operator returns `false` if the LHS is equal to the RHS.
 - select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Match string
 Given a sample.yml file of:
 ```yaml

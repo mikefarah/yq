@@ -4,12 +4,6 @@ Filter a map by the specified list of keys. Map is returned with the key in the 
 
 Similarly, filter an array by the specified list of indices.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Pick keys from map
 Note that the order of the keys matches the pick order and non existent keys are skipped.
 

@@ -4,12 +4,6 @@ Encode/Decode/Roundtrip to/from a property file. Line comments on value nodes wi
 
 By default, empty maps and arrays are not encoded - see below for an example on how to encode a value for these.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Encode properties
 Note that empty arrays and maps are not encoded by default.
 

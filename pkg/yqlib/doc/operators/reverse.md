@@ -2,12 +2,6 @@
 
 Reverses the order of the items in an array 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Reverse
 Given a sample.yml file of:
 ```yaml
