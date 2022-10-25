@@ -414,11 +414,11 @@ var xmlScenarios = []formatScenario{
 func testXMLScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewYamlEncoder(4, false, true, true)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(4, false, true, true)), s.description)
 	case "encode":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, XMLPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, ConfiguredXMLPreferences)), s.description)
 	case "roundtrip":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewXMLEncoder(2, XMLPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences)), s.description)
 	case "decode-keep-ns":
 		prefs := NewDefaultXmlPreferences()
 		prefs.KeepNamespace = true
@@ -480,7 +480,7 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=xml '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewYamlEncoder(2, false, true, true))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(2, false, true, true))))
 }
 
 func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
@@ -549,7 +549,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, XMLPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewYamlDecoder(), NewXMLEncoder(2, ConfiguredXMLPreferences))))
 }
 
 func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
@@ -567,7 +567,7 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(XMLPreferences), NewXMLEncoder(2, XMLPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", processFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))
 }
 
 func documentXMLSkipDirectrivesScenario(w *bufio.Writer, s formatScenario) {

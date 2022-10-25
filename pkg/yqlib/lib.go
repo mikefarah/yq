@@ -21,34 +21,6 @@ func InitExpressionParser() {
 	}
 }
 
-type xmlPreferences struct {
-	AttributePrefix string
-	ContentName     string
-	StrictMode      bool
-	KeepNamespace   bool
-	UseRawToken     bool
-	ProcInstPrefix  string
-	DirectiveName   string
-	SkipProcInst    bool
-	SkipDirectives  bool
-}
-
-func NewDefaultXmlPreferences() xmlPreferences {
-	return xmlPreferences{
-		AttributePrefix: "+",
-		ContentName:     "+content",
-		StrictMode:      false,
-		KeepNamespace:   true,
-		UseRawToken:     false,
-		ProcInstPrefix:  "+p_",
-		DirectiveName:   "+directive",
-		SkipProcInst:    false,
-		SkipDirectives:  false,
-	}
-}
-
-var XMLPreferences = NewDefaultXmlPreferences()
-
 var log = logging.MustGetLogger("yq-lib")
 
 var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`

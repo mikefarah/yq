@@ -12,10 +12,10 @@ import (
 type xmlEncoder struct {
 	indentString string
 	writer       io.Writer
-	prefs        xmlPreferences
+	prefs        XmlPreferences
 }
 
-func NewXMLEncoder(indent int, prefs xmlPreferences) Encoder {
+func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {

@@ -54,7 +54,7 @@ yq -P sample.json
 			yqlib.InitExpressionParser()
 			if (inputFormat == "x" || inputFormat == "xml") &&
 				outputFormat != "x" && outputFormat != "xml" &&
-				yqlib.XMLPreferences.AttributePrefix == "+" {
+				yqlib.ConfiguredXMLPreferences.AttributePrefix == "+" {
 				yqlib.GetLogger().Warning("The default xml-attribute-prefix will change in the v4.30 to `+@` to avoid " +
 					"naming conflicts with the default content name, directive name and proc inst prefix. If you need to keep " +
 					"`+` please set that value explicityly with --xml-attribute-prefix.")
@@ -73,15 +73,15 @@ yq -P sample.json
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "yaml", "[yaml|y|json|j|props|p|xml|x] output format type.")
 	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "yaml", "[yaml|y|props|p|xml|x] parse format for input. Note that json is a subset of yaml.")
 
-	rootCmd.PersistentFlags().StringVar(&yqlib.XMLPreferences.AttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
-	rootCmd.PersistentFlags().StringVar(&yqlib.XMLPreferences.ContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.XMLPreferences.StrictMode, "xml-strict-mode", false, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.XMLPreferences.KeepNamespace, "xml-keep-namespace", true, "enables keeping namespace after parsing attributes")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.XMLPreferences.UseRawToken, "xml-raw-token", true, "enables using RawToken method instead Token. Commonly disables namespace translations. See https://pkg.go.dev/encoding/xml#Decoder.RawToken for details.")
-	rootCmd.PersistentFlags().StringVar(&yqlib.XMLPreferences.ProcInstPrefix, "xml-proc-inst-prefix", "+p_", "prefix for xml processing instructions (e.g. <?xml version=\"1\"?>)")
-	rootCmd.PersistentFlags().StringVar(&yqlib.XMLPreferences.DirectiveName, "xml-directive-name", "+directive", "name for xml directives (e.g. <!DOCTYPE thing cat>)")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.XMLPreferences.SkipProcInst, "xml-skip-proc-inst", false, "skip over process instructions (e.g. <?xml version=\"1\"?>)")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.XMLPreferences.SkipDirectives, "xml-skip-directives", false, "skip over directives (e.g. <!DOCTYPE thing cat>)")
+	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.AttributePrefix, "xml-attribute-prefix", "+", "prefix for xml attributes")
+	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.ContentName, "xml-content-name", "+content", "name for xml content (if no attribute name is present).")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.StrictMode, "xml-strict-mode", false, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.KeepNamespace, "xml-keep-namespace", true, "enables keeping namespace after parsing attributes")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.UseRawToken, "xml-raw-token", true, "enables using RawToken method instead Token. Commonly disables namespace translations. See https://pkg.go.dev/encoding/xml#Decoder.RawToken for details.")
+	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.ProcInstPrefix, "xml-proc-inst-prefix", "+p_", "prefix for xml processing instructions (e.g. <?xml version=\"1\"?>)")
+	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.DirectiveName, "xml-directive-name", "+directive", "name for xml directives (e.g. <!DOCTYPE thing cat>)")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipProcInst, "xml-skip-proc-inst", false, "skip over process instructions (e.g. <?xml version=\"1\"?>)")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipDirectives, "xml-skip-directives", false, "skip over directives (e.g. <!DOCTYPE thing cat>)")
 
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")

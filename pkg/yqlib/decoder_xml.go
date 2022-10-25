@@ -15,10 +15,10 @@ type xmlDecoder struct {
 	reader       io.Reader
 	readAnything bool
 	finished     bool
-	prefs        xmlPreferences
+	prefs        XmlPreferences
 }
 
-func NewXMLDecoder(prefs xmlPreferences) Decoder {
+func NewXMLDecoder(prefs XmlPreferences) Decoder {
 	return &xmlDecoder{
 		finished: false,
 		prefs:    prefs,
