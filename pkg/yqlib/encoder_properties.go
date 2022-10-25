@@ -75,7 +75,9 @@ func (pe *propertiesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 }
 
 func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node, path string) error {
-	p.SetComment(path, strings.ReplaceAll(headAndLineComment(node), "\n", "\n# "))
+
+	commentsWithSpaces := strings.ReplaceAll(headAndLineComment(node), "\n", "\n ")
+	p.SetComments(path, strings.Split(commentsWithSpaces, "\n"))
 	switch node.Kind {
 	case yaml.ScalarNode:
 		var nodeValue string

@@ -51,8 +51,8 @@ func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, c
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)
 
-	log.Debug("comments: %v", properties.GetComments(key))
-	log.Debug("comment: %v", properties.GetComment(key))
+	IMPROVEMENT - target the key node with the comment, set as a header comment instead.
+
 	rhsNode := &yaml.Node{
 		Value:       value,
 		Tag:         "!!str",
