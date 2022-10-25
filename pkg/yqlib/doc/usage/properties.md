@@ -139,7 +139,8 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    name: Mike Wazowski # comments on values appear
+    name: Mike Wazowski # block comments come through
+    # comments on values appear
     pets:
         - cat # comments on array values appear
     food:
@@ -164,6 +165,7 @@ yq -p=props -o=props '.person.pets.0 = "dog"' sample.properties
 ```
 will output
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 

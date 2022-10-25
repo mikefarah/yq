@@ -36,7 +36,8 @@ person.pets.0 = cat
 person.food.0 = pizza
 `
 
-const expectedUpdatedProperties = `# comments on values appear
+const expectedUpdatedProperties = `# block comments come through
+# comments on values appear
 person.name = Mike Wazowski
 
 # comments on array values appear

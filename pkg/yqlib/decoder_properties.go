@@ -51,11 +51,13 @@ func (dec *propertiesDecoder) applyProperty(properties *properties.Properties, c
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)
 
+	log.Debug("comments: %v", properties.GetComments(key))
+	log.Debug("comment: %v", properties.GetComment(key))
 	rhsNode := &yaml.Node{
 		Value:       value,
 		Tag:         "!!str",
 		Kind:        yaml.ScalarNode,
-		LineComment: dec.processComment(properties.GetComment(key)),
+		LineComment: dec.processComment(strings.Join(properties.GetComments(key), "\n")),
 	}
 
 	rhsNode.Tag = guessTagFromCustomType(rhsNode)
