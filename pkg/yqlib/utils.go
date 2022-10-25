@@ -7,13 +7,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
-func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, string, error) {
+func readStream(filename string) (io.Reader, error) {
 	var reader *bufio.Reader
 	if filename == "-" {
 		reader = bufio.NewReader(os.Stdin)
@@ -22,60 +19,21 @@ func readStream(filename string, leadingContentPreProcessing bool) (io.Reader, s
 		// and ensuring that it's not possible to give a path to a file outside thar directory.
 		file, err := os.Open(filename) // #nosec
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		reader = bufio.NewReader(file)
 	}
+	return reader, nil
 
-	if !leadingContentPreProcessing {
-		return reader, "", nil
-	}
-	return processReadStream(reader)
 }
 
-func readString(input string, leadingContentPreProcessing bool) (io.Reader, string, error) {
-	reader := bufio.NewReader(strings.NewReader(input))
-	if !leadingContentPreProcessing {
-		return reader, "", nil
-	}
-	return processReadStream(reader)
+func readString(input string) (io.Reader, error) {
+	return bufio.NewReader(strings.NewReader(input)), nil
 }
 
 func writeString(writer io.Writer, txt string) error {
 	_, errorWriting := writer.Write([]byte(txt))
 	return errorWriting
-}
-
-func processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
-	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
-	var sb strings.Builder
-	for {
-		peekBytes, err := reader.Peek(3)
-		if errors.Is(err, io.EOF) {
-			// EOF are handled else where..
-			return reader, sb.String(), nil
-		} else if err != nil {
-			return reader, sb.String(), err
-		} else if string(peekBytes) == "---" {
-			_, err := reader.ReadString('\n')
-			sb.WriteString("$yqDocSeperator$\n")
-			if errors.Is(err, io.EOF) {
-				return reader, sb.String(), nil
-			} else if err != nil {
-				return reader, sb.String(), err
-			}
-		} else if commentLineRegEx.MatchString(string(peekBytes)) {
-			line, err := reader.ReadString('\n')
-			sb.WriteString(line)
-			if errors.Is(err, io.EOF) {
-				return reader, sb.String(), nil
-			} else if err != nil {
-				return reader, sb.String(), err
-			}
-		} else {
-			return reader, sb.String(), nil
-		}
-	}
 }
 
 func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
@@ -84,8 +42,7 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 	var currentIndex uint
 
 	for {
-		var dataBucket yaml.Node
-		errorReading := decoder.Decode(&dataBucket)
+		candidateNode, errorReading := decoder.Decode()
 
 		if errors.Is(errorReading, io.EOF) {
 			switch reader := reader.(type) {
@@ -96,18 +53,10 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 		} else if errorReading != nil {
 			return nil, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
-		candidateNode := &CandidateNode{
-			Document:         currentIndex,
-			Filename:         filename,
-			Node:             &dataBucket,
-			FileIndex:        fileIndex,
-			EvaluateTogether: true,
-		}
-
-		//move document comments into candidate node
-		// otherwise unwrap drops them.
-		candidateNode.TrailingContent = dataBucket.FootComment
-		dataBucket.FootComment = ""
+		candidateNode.Document = currentIndex
+		candidateNode.Filename = filename
+		candidateNode.FileIndex = fileIndex
+		candidateNode.EvaluateTogether = true
 
 		inputList.PushBack(candidateNode)
 

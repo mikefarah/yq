@@ -59,18 +59,13 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 
 	var firstFileLeadingContent string
 
-	for index, filename := range filenames {
-		reader, leadingContent, err := readStream(filename, leadingContentPreProcessing)
-		log.Debug("leadingContent: %v", leadingContent)
-
-		if index == 0 {
-			firstFileLeadingContent = leadingContent
-		}
+	for _, filename := range filenames {
+		reader, err := readStream(filename)
 
 		if err != nil {
 			return err
 		}
-		processedDocs, err := s.Evaluate(filename, reader, node, printer, leadingContent, decoder)
+		processedDocs, err := s.Evaluate(filename, reader, node, printer, decoder)
 		if err != nil {
 			return err
 		}
@@ -89,13 +84,12 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error) {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
 
 	var currentIndex uint
 	decoder.Init(reader)
 	for {
-		var dataBucket yaml.Node
-		errorReading := decoder.Decode(&dataBucket)
+		candidateNode, errorReading := decoder.Decode()
 
 		if errors.Is(errorReading, io.EOF) {
 			s.fileIndex = s.fileIndex + 1
@@ -103,21 +97,10 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
+		candidateNode.Document = currentIndex
+		candidateNode.Filename = filename
+		candidateNode.FileIndex = s.fileIndex
 
-		candidateNode := &CandidateNode{
-			Document:  currentIndex,
-			Filename:  filename,
-			Node:      &dataBucket,
-			FileIndex: s.fileIndex,
-		}
-		// move document comments into candidate node
-		// otherwise unwrap drops them.
-		candidateNode.TrailingContent = dataBucket.FootComment
-		dataBucket.FootComment = ""
-
-		if currentIndex == 0 {
-			candidateNode.LeadingContent = leadingContent
-		}
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 

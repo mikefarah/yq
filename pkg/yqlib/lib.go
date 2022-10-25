@@ -21,6 +21,14 @@ func InitExpressionParser() {
 	}
 }
 
+type yamlPreferences struct {
+	LeadingContentPreProcessing bool
+	printDocSeparators          bool
+	unwrapScalar                bool
+}
+
+var YamlPreferences = NewDefaultYamlPreferences()
+
 var log = logging.MustGetLogger("yq-lib")
 
 var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`

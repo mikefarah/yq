@@ -11,10 +11,9 @@ import (
 )
 
 type yamlEncoder struct {
-	indent             int
-	colorise           bool
-	printDocSeparators bool
-	unwrapScalar       bool
+	indent   int
+	colorise bool
+	prefs    yamlPreferences
 }
 
 func NewYamlEncoder(indent int, colorise bool, printDocSeparators bool, unwrapScalar bool) Encoder {
