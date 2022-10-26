@@ -59,7 +59,7 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
 ### wget
-Use wget to download the pre-compiled binaries:
+Use wget to download, gzipped pre-compiled binaries:
 
 #### Compressed via tar.gz
 ```bash
@@ -76,7 +76,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
 
 For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
 
-Or, to get the latest release for linux amd64 without knowing the version:
+Use VERSION=latest to always get the latest version:
 
 ```bash
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
