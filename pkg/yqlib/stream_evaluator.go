@@ -75,6 +75,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	if totalProcessDocs == 0 {
+		// problem is I've already slurped the leading content sadface
 		return s.EvaluateNew(expression, printer)
 	}
 

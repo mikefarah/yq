@@ -15,6 +15,7 @@ type yamlDecoder struct {
 	// work around of various parsing issues by yaml.v3 with document headers
 	prefs          YamlPreferences
 	leadingContent string
+	readAnything   bool
 }
 
 func NewYamlDecoder(prefs YamlPreferences) Decoder {
@@ -64,6 +65,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 		}
 	}
 	dec.leadingContent = leadingContent
+	dec.readAnything = false
 	dec.decoder = *yaml.NewDecoder(readerToUse)
 	return nil
 }
@@ -72,7 +74,12 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	var dataBucket yaml.Node
 
 	err := dec.decoder.Decode(&dataBucket)
-	if err != nil {
+	if errors.Is(err, io.EOF) && dec.leadingContent != "" && !dec.readAnything {
+		// force returning an empty node with a comment.
+		dec.readAnything = true
+		return dec.blankNodeWithComment(), nil
+
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -89,4 +96,14 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	candidateNode.TrailingContent = dataBucket.FootComment
 	dataBucket.FootComment = ""
 	return candidateNode, nil
+}
+
+func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {
+	return &CandidateNode{
+		Document:       0,
+		Filename:       "",
+		Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		FileIndex:      0,
+		LeadingContent: dec.leadingContent,
+	}
 }

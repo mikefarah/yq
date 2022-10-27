@@ -137,7 +137,8 @@ in d before -->
 </cat><!-- after cat -->
 `
 
-const yamlWithComments = `# above_cat
+const yamlWithComments = `# header comment
+# above_cat
 cat: # inline_cat
   # above_array
   array: # inline_array
@@ -147,7 +148,10 @@ cat: # inline_cat
 # below_cat
 `
 
-const expectedXMLWithComments = `<!-- above_cat inline_cat --><cat><!-- above_array inline_array -->
+const expectedXMLWithComments = `<!--
+ header comment
+ above_cat
+ --><!-- inline_cat --><cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->

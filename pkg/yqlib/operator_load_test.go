@@ -7,8 +7,16 @@ import (
 var loadScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
-		description: "Load empty file",
+		description: "Load empty file with a comment",
 		expression:  `load("../../examples/empty.yaml")`,
+		expected: []string{
+			"D0, P[], (doc)::# comment\n\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Load empty file with no comment",
+		expression:  `load("../../examples/empty-no-comment.yaml")`,
 		expected: []string{
 			"D0, P[], (!!null)::\n",
 		},
