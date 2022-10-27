@@ -75,7 +75,6 @@ func (dec *propertiesDecoder) applyPropertyComments(context Context, path []inte
 	return err
 }
 
-// TODO: test comment on array
 func (dec *propertiesDecoder) applyProperty(context Context, properties *properties.Properties, key string) error {
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)

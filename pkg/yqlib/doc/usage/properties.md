@@ -139,10 +139,12 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    name: Mike Wazowski # block comments come through
+    # block comments come through
     # comments on values appear
+    name: Mike Wazowski
     pets:
-        - cat # comments on array values appear
+        # comments on array values appear
+        - cat
     food:
         - pizza
 ```

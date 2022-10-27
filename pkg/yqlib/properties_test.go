@@ -8,6 +8,48 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
+const propertiesWithCommentsOnMap = `this.thing = hi hi
+# important notes
+# about this value
+this.value = cool
+`
+
+const expectedPropertiesWithCommentsOnMapProps = `this.thing = hi hi
+
+# important notes
+# about this value
+this.value = cool
+`
+
+const expectedPropertiesWithCommentsOnMapYaml = `this:
+  thing: hi hi
+  # important notes
+  # about this value
+  value: cool
+`
+
+const propertiesWithCommentInArray = `
+this.array.0 = cat
+# important notes
+# about dogs
+this.array.1 = dog
+`
+
+const expectedPropertiesWithCommentInArrayProps = `this.array.0 = cat
+
+# important notes
+# about dogs
+this.array.1 = dog
+`
+
+const expectedPropertiesWithCommentInArrayYaml = `this:
+  array:
+    - cat
+    # important notes
+    # about dogs
+    - dog
+`
+
 const samplePropertiesYaml = `# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
@@ -46,9 +88,12 @@ person.food.0 = pizza
 `
 
 const expectedDecodedYaml = `person:
-  name: Mike Wazowski # comments on values appear
+  # block comments come through
+  # comments on values appear
+  name: Mike Wazowski
   pets:
-    - cat # comments on array values appear
+    # comments on array values appear
+    - cat
   food:
     - pizza
 `
@@ -115,6 +160,34 @@ var propertyScenarios = []formatScenario{
 		expression:   `.person.pets.0 = "dog"`,
 		expected:     expectedUpdatedProperties,
 		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "comments on arrays roundtrip",
+		input:        propertiesWithCommentInArray,
+		expected:     expectedPropertiesWithCommentInArrayProps,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "comments on arrays decode",
+		input:        propertiesWithCommentInArray,
+		expected:     expectedPropertiesWithCommentInArrayYaml,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "comments on map roundtrip",
+		input:        propertiesWithCommentsOnMap,
+		expected:     expectedPropertiesWithCommentsOnMapProps,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "comments on map decode",
+		input:        propertiesWithCommentsOnMap,
+		expected:     expectedPropertiesWithCommentsOnMapYaml,
+		scenarioType: "decode",
 	},
 	{
 		description:  "Empty doc",

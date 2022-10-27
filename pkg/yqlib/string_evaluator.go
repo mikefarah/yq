@@ -1,11 +1,13 @@
 package yqlib
 
 import (
+	"bufio"
 	"bytes"
 	"container/list"
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 type StringEvaluator interface {
@@ -35,10 +37,7 @@ func (s *stringEvaluator) Evaluate(expression string, input string, encoder Enco
 		return "", err
 	}
 
-	reader, err := readString(input)
-	if err != nil {
-		return "", err
-	}
+	reader := bufio.NewReader(strings.NewReader(input))
 
 	var currentIndex uint
 	err = decoder.Init(reader)

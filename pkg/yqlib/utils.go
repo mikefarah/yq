@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 )
 
 func readStream(filename string) (io.Reader, error) {
@@ -25,10 +24,6 @@ func readStream(filename string) (io.Reader, error) {
 	}
 	return reader, nil
 
-}
-
-func readString(input string) (io.Reader, error) {
-	return bufio.NewReader(strings.NewReader(input)), nil
 }
 
 func writeString(writer io.Writer, txt string) error {

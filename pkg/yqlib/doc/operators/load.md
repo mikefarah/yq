@@ -154,9 +154,7 @@ will output
 cool: things
 more_stuff:
   this:
-    is: a properties file # great huh
-    # things and stuff
-    another: a properties file # another thing
+    is: a properties file
 ```
 
 ## Merge from properties
@@ -175,10 +173,8 @@ yq '. *= load_props("../../examples/small.properties")' sample.yml
 will output
 ```yaml
 this:
-  is: a properties file # great huh
-  # things and stuff
+  is: a properties file
   cool: ay
-  another: a properties file # another thing
 ```
 
 ## Load from base64 encoded file
