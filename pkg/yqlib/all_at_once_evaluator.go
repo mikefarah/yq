@@ -8,7 +8,7 @@ import (
 
 // A yaml expression evaluator that runs the expression once against all files/nodes in memory.
 type Evaluator interface {
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error
+	EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error
 
 	// EvaluateNodes takes an expression and one or more yaml nodes, returning a list of matching candidate nodes
 	EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error)
@@ -46,19 +46,14 @@ func (e *allAtOnceEvaluator) EvaluateCandidateNodes(expression string, inputCand
 	return context.MatchingNodes, nil
 }
 
-func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
+func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error {
 	fileIndex := 0
-	firstFileLeadingContent := ""
 
 	var allDocuments = list.New()
 	for _, filename := range filenames {
-		reader, leadingContent, err := readStream(filename, fileIndex == 0 && leadingContentPreProcessing)
+		reader, err := readStream(filename)
 		if err != nil {
 			return err
-		}
-
-		if fileIndex == 0 {
-			firstFileLeadingContent = leadingContent
 		}
 
 		fileDocuments, err := readDocuments(reader, filename, fileIndex, decoder)
@@ -75,11 +70,9 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 			Filename:       "",
 			Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
 			FileIndex:      0,
-			LeadingContent: firstFileLeadingContent,
+			LeadingContent: "",
 		}
 		allDocuments.PushBack(candidateNode)
-	} else {
-		allDocuments.Front().Value.(*CandidateNode).LeadingContent = firstFileLeadingContent
 	}
 
 	matches, err := e.EvaluateCandidateNodes(expression, allDocuments)

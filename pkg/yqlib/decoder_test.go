@@ -23,7 +23,7 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) s
 	writer := bufio.NewWriter(&output)
 
 	if decoder == nil {
-		decoder = NewYamlDecoder()
+		decoder = NewYamlDecoder(ConfiguredYamlPreferences)
 	}
 
 	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)

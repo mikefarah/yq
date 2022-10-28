@@ -59,6 +59,11 @@ yq -P sample.json
 					"naming conflicts with the default content name, directive name and proc inst prefix. If you need to keep " +
 					"`+` please set that value explicityly with --xml-attribute-prefix.")
 			}
+
+			//copy preference form global setting
+			yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
+
+			yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
 		},
 	}
 
@@ -97,7 +102,7 @@ yq -P sample.json
 	rootCmd.PersistentFlags().BoolVarP(&forceNoColor, "no-colors", "M", false, "force print with no colors")
 	rootCmd.PersistentFlags().StringVarP(&frontMatter, "front-matter", "f", "", "(extract|process) first input as yaml front-matter. Extract will pull out the yaml content, process will run the expression against the yaml content, leaving the remaining data intact")
 	rootCmd.PersistentFlags().StringVarP(&forceExpression, "expression", "", "", "forcibly set the expression argument. Useful when yq argument detection thinks your expression is a file.")
-	rootCmd.PersistentFlags().BoolVarP(&leadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
+	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
 
 	rootCmd.PersistentFlags().StringVarP(&splitFileExp, "split-exp", "s", "", "print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter.")
 	rootCmd.PersistentFlags().StringVarP(&splitFileExpFile, "split-exp-file", "", "", "Use a file to specify the split-exp expression.")

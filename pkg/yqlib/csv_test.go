@@ -136,13 +136,13 @@ var csvScenarios = []formatScenario{
 func testCSVScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "encode-csv":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewCsvEncoder(',')), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(',')), s.description)
 	case "encode-tsv":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(), NewCsvEncoder('\t')), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder('\t')), s.description)
 	case "decode-csv-object":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewYamlEncoder(2, false, true, true)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "decode-tsv-object":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder('\t'), NewYamlEncoder(2, false, true, true)), s.description)
+		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder('\t'), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-csv":
 		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewCsvEncoder(',')), s.description)
 	default:
@@ -171,7 +171,7 @@ func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatTy
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n",
-		processFormatScenario(s, NewCSVObjectDecoder(separator), NewYamlEncoder(s.indent, false, true, true))),
+		processFormatScenario(s, NewCSVObjectDecoder(separator), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))),
 	)
 }
 
@@ -203,7 +203,7 @@ func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType str
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
-		processFormatScenario(s, NewYamlDecoder(), NewCsvEncoder(separator))),
+		processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(separator))),
 	)
 }
 

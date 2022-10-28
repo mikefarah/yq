@@ -14,9 +14,9 @@ import (
 // Uses less memory than loading all documents and running the expression once, but this cannot process
 // cross document expressions.
 type StreamEvaluator interface {
-	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error)
-	EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error
-	EvaluateNew(expression string, printer Printer, leadingContent string) error
+	Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error)
+	EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error
+	EvaluateNew(expression string, printer Printer) error
 }
 
 type streamEvaluator struct {
@@ -28,17 +28,16 @@ func NewStreamEvaluator() StreamEvaluator {
 	return &streamEvaluator{treeNavigator: NewDataTreeNavigator()}
 }
 
-func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadingContent string) error {
+func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error {
 	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
 	candidateNode := &CandidateNode{
-		Document:       0,
-		Filename:       "",
-		Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
-		FileIndex:      0,
-		LeadingContent: leadingContent,
+		Document:  0,
+		Filename:  "",
+		Node:      &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		FileIndex: 0,
 	}
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
@@ -50,27 +49,20 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer, leadin
 	return printer.PrintResults(result.MatchingNodes)
 }
 
-func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, leadingContentPreProcessing bool, decoder Decoder) error {
+func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error {
 	var totalProcessDocs uint
 	node, err := ExpressionParser.ParseExpression(expression)
 	if err != nil {
 		return err
 	}
 
-	var firstFileLeadingContent string
-
-	for index, filename := range filenames {
-		reader, leadingContent, err := readStream(filename, leadingContentPreProcessing)
-		log.Debug("leadingContent: %v", leadingContent)
-
-		if index == 0 {
-			firstFileLeadingContent = leadingContent
-		}
+	for _, filename := range filenames {
+		reader, err := readStream(filename)
 
 		if err != nil {
 			return err
 		}
-		processedDocs, err := s.Evaluate(filename, reader, node, printer, leadingContent, decoder)
+		processedDocs, err := s.Evaluate(filename, reader, node, printer, decoder)
 		if err != nil {
 			return err
 		}
@@ -83,19 +75,22 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	if totalProcessDocs == 0 {
-		return s.EvaluateNew(expression, printer, firstFileLeadingContent)
+		// problem is I've already slurped the leading content sadface
+		return s.EvaluateNew(expression, printer)
 	}
 
 	return nil
 }
 
-func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, leadingContent string, decoder Decoder) (uint, error) {
+func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
 
 	var currentIndex uint
-	decoder.Init(reader)
+	err := decoder.Init(reader)
+	if err != nil {
+		return 0, err
+	}
 	for {
-		var dataBucket yaml.Node
-		errorReading := decoder.Decode(&dataBucket)
+		candidateNode, errorReading := decoder.Decode()
 
 		if errors.Is(errorReading, io.EOF) {
 			s.fileIndex = s.fileIndex + 1
@@ -103,21 +98,10 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
+		candidateNode.Document = currentIndex
+		candidateNode.Filename = filename
+		candidateNode.FileIndex = s.fileIndex
 
-		candidateNode := &CandidateNode{
-			Document:  currentIndex,
-			Filename:  filename,
-			Node:      &dataBucket,
-			FileIndex: s.fileIndex,
-		}
-		// move document comments into candidate node
-		// otherwise unwrap drops them.
-		candidateNode.TrailingContent = dataBucket.FootComment
-		dataBucket.FootComment = ""
-
-		if currentIndex == 0 {
-			candidateNode.LeadingContent = leadingContent
-		}
 		inputList := list.New()
 		inputList.PushBack(candidateNode)
 

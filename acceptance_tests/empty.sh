@@ -9,7 +9,7 @@ EOL
 
 testEmptyEval() {
   X=$(./yq e test.yml)
-  expected=$(cat test.yml)
+  expected="# comment"
   assertEquals 0 $?
   assertEquals "$expected" "$X"
 }

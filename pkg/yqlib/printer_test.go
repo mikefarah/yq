@@ -38,7 +38,7 @@ func TestPrinterMultipleDocsInSequenceOnly(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +76,7 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -118,7 +118,7 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -165,7 +165,7 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -215,7 +215,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -234,7 +234,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -263,7 +263,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, true)
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -294,7 +294,7 @@ func TestPrinterScalarWithLeadingCont(t *testing.T) {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate("sample", strings.NewReader(multiDocSample), node, printer, "# blah\n", NewYamlDecoder())
+	_, err = streamEvaluator.Evaluate("sample", strings.NewReader(multiDocSample), node, printer, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
@@ -316,7 +316,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	// when outputing JSON.
 	printer := NewPrinter(NewJSONEncoder(0, false), NewSinglePrinterWriter(writer))
 
-	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder())
+	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
 	}
