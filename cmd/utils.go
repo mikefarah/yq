@@ -56,7 +56,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	return expression, args, nil
 }
 
-func configureDecoder() (yqlib.Decoder, error) {
+func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 	yqlibInputFormat, err := yqlib.InputFormatFromString(inputFormat)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,9 @@ func configureDecoder() (yqlib.Decoder, error) {
 	case yqlib.TSVObjectInputFormat:
 		return yqlib.NewCSVObjectDecoder('\t'), nil
 	}
-
-	return yqlib.NewYamlDecoder(yqlib.ConfiguredYamlPreferences), nil
+	prefs := yqlib.ConfiguredYamlPreferences
+	prefs.EvaluateTogether = evaluateTogether
+	return yqlib.NewYamlDecoder(prefs), nil
 }
 
 func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {

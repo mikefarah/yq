@@ -16,10 +16,11 @@ type yamlDecoder struct {
 	prefs          YamlPreferences
 	leadingContent string
 	readAnything   bool
+	firstFile      bool
 }
 
 func NewYamlDecoder(prefs YamlPreferences) Decoder {
-	return &yamlDecoder{prefs: prefs}
+	return &yamlDecoder{prefs: prefs, firstFile: true}
 }
 
 func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
@@ -58,7 +59,10 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	readerToUse := reader
 	leadingContent := ""
 	var err error
-	if dec.prefs.LeadingContentPreProcessing {
+	// if we 'evaluating together' - we only process the leading content
+	// of the first file - this ensures comments from subsequent files are
+	// merged together correctly.
+	if dec.prefs.LeadingContentPreProcessing && (!dec.prefs.EvaluateTogether || dec.firstFile) {
 		readerToUse, leadingContent, err = dec.processReadStream(bufio.NewReader(reader))
 		if err != nil {
 			return err
@@ -67,6 +71,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	dec.leadingContent = leadingContent
 	dec.readAnything = false
 	dec.decoder = *yaml.NewDecoder(readerToUse)
+	dec.firstFile = false
 	return nil
 }
 

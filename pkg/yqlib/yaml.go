@@ -4,6 +4,7 @@ type YamlPreferences struct {
 	LeadingContentPreProcessing bool
 	PrintDocSeparators          bool
 	UnwrapScalar                bool
+	EvaluateTogether            bool
 }
 
 func NewDefaultYamlPreferences() YamlPreferences {
@@ -11,6 +12,7 @@ func NewDefaultYamlPreferences() YamlPreferences {
 		LeadingContentPreProcessing: true,
 		PrintDocSeparators:          true,
 		UnwrapScalar:                true,
+		EvaluateTogether:            false,
 	}
 }
 
