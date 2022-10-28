@@ -3,7 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"regexp"
-	"strconv"
 )
 
 type expressionTokeniser interface {
@@ -64,11 +63,11 @@ func unwrap(value string) string {
 func extractNumberParameter(value string) (int, error) {
 	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
 	matches := parameterParser.FindStringSubmatch(value)
-	var indent, errParsingInt = strconv.ParseInt(matches[1], 10, 32)
+	var indent, errParsingInt = parseInt(matches[1])
 	if errParsingInt != nil {
 		return 0, errParsingInt
 	}
-	return int(indent), nil
+	return indent, nil
 }
 
 func hasOptionParameter(value string, option string) bool {
