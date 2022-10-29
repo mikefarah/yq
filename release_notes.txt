@@ -1,7 +1,12 @@
 4.29.1:
   - Fixed Square brackets removing update #1342
+  - Added slice array operator (.[10:15]) #44
   - XML decoder/encoder now parses directives and proc instructions (#1344). Please use the new skip flags [documented here](https://mikefarah.gitbook.io/yq/usage/xml) to ignore them.
+  - XML users note that the default attribute prefix will change to `+@` in the 4.30 release to avoid naming conflicts!
+  - Improved comment handling of decoders (breaking change for yqlib users sorry)
+  - Fixed load operator bug when loading yaml file with multiple documents
   - Bumped Go compiler version
+  - Bumped dependencies
 
 4.28.2:
   - Fixed Github Actions issues (thanks @mattphelps-8451)
