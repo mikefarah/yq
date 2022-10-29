@@ -16,12 +16,6 @@ These are most commonly used with the `select` operator to filter particular nod
 - comparison (`>=`, `<` etc) operators [here](https://mikefarah.gitbook.io/yq/operators/compare)
 - select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## `or` example
 Running
 ```bash

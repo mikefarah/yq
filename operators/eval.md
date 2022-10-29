@@ -6,12 +6,6 @@ Use `eval` to dynamically process an expression - for instance from an environme
 
 Tip: This can be useful way parameterise complex scripts.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Dynamically evaluate a path
 Given a sample.yml file of:
 ```yaml

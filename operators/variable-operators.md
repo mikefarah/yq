@@ -4,12 +4,6 @@ Like the `jq` equivalents, variables are sometimes required for the more complex
 
 Note that there is also an additional `ref` operator that holds a reference (instead of a copy) of the path, allowing you to make multiple changes to the same path.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Single value variable
 Given a sample.yml file of:
 ```yaml

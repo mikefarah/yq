@@ -14,12 +14,6 @@ The following types are currently supported:
 - boolean operators (`and`, `or`, `any` etc) [here](https://mikefarah.gitbook.io/yq/operators/boolean-operators)
 - select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Compare numbers (>)
 Given a sample.yml file of:
 ```yaml

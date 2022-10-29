@@ -21,12 +21,6 @@ Reduce syntax in `yq` is a little different from `jq` - as `yq` (currently) isn'
 
 To that end, the reduce operator is called `ireduce` for backwards compatibility if a `jq` like prefix version of `reduce` is ever added.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Sum numbers
 Given a sample.yml file of:
 ```yaml

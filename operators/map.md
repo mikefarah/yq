@@ -2,12 +2,6 @@
 
 Maps values of an array. Use `map_values` to map values of an object.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Map array
 Given a sample.yml file of:
 ```yaml

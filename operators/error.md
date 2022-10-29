@@ -2,12 +2,6 @@
 
 Use this operation to short-circuit expressions. Useful for validation.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Validate a particular value
 Given a sample.yml file of:
 ```yaml

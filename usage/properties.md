@@ -4,18 +4,12 @@ Encode/Decode/Roundtrip to/from a property file. Line comments on value nodes wi
 
 By default, empty maps and arrays are not encoded - see below for an example on how to encode a value for these.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Encode properties
 Note that empty arrays and maps are not encoded by default.
 
 Given a sample.yml file of:
 ```yaml
-# block comments don't come through
+# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
@@ -31,6 +25,7 @@ yq -o=props sample.yml
 ```
 will output
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 
@@ -44,7 +39,7 @@ Note that string values with blank characters in them are encapsulated with doub
 
 Given a sample.yml file of:
 ```yaml
-# block comments don't come through
+# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
@@ -60,6 +55,7 @@ yq -o=props --unwrapScalar=false sample.yml
 ```
 will output
 ```properties
+# block comments come through
 # comments on values appear
 person.name = "Mike Wazowski"
 
@@ -71,7 +67,7 @@ person.food.0 = pizza
 ## Encode properties: no comments
 Given a sample.yml file of:
 ```yaml
-# block comments don't come through
+# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
@@ -97,7 +93,7 @@ Use a yq expression to set the empty maps and sequences to your desired value.
 
 Given a sample.yml file of:
 ```yaml
-# block comments don't come through
+# block comments come through
 person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
@@ -113,6 +109,7 @@ yq -o=props '(.. | select( (tag == "!!map" or tag =="!!seq") and length == 0)) =
 ```
 will output
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 
@@ -126,6 +123,7 @@ emptyMap =
 ## Decode properties
 Given a sample.properties file of:
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 
@@ -141,9 +139,12 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    name: Mike Wazowski # comments on values appear
+    # block comments come through
+    # comments on values appear
+    name: Mike Wazowski
     pets:
-        - cat # comments on array values appear
+        # comments on array values appear
+        - cat
     food:
         - pizza
 ```
@@ -151,6 +152,7 @@ person:
 ## Roundtrip
 Given a sample.properties file of:
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 
@@ -165,6 +167,7 @@ yq -p=props -o=props '.person.pets.0 = "dog"' sample.properties
 ```
 will output
 ```properties
+# block comments come through
 # comments on values appear
 person.name = Mike Wazowski
 

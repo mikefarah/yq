@@ -19,12 +19,6 @@ For instance to set the `style` of all nodes in a yaml doc, including the map ke
 ```bash
 yq '... style= "flow"' file.yaml
 ```
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Recurse map (values only)
 Given a sample.yml file of:
 ```yaml

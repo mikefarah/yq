@@ -25,12 +25,6 @@ Durations are parsed using golangs built in [ParseDuration](https://pkg.go.dev/t
 
 You can durations to time using the `+` operator.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Format: from standard RFC3339 format
 Providing a single parameter assumes a standard RFC3339 datetime format. If the target format is not a valid yaml datetime format, the result will be a string tagged node.
 

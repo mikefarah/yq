@@ -25,12 +25,6 @@ XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify a
 
 Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Encoding and decoding both assume that the content is a string.
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Encode value as json string
 Given a sample.yml file of:
 ```yaml

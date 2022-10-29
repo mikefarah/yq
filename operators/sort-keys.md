@@ -15,12 +15,6 @@ Note that `yq` does not yet consider anchors when sorting by keys - this may res
 For more advanced sorting, using `to_entries` to convert the map to an array, then sort/process the array as you like (e.g. using `sort_by`) and convert back to a map using `from_entries`.
 See [here](https://mikefarah.gitbook.io/yq/operators/entries#custom-sort-map-keys) for an example. 
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Sort keys of map
 Given a sample.yml file of:
 ```yaml

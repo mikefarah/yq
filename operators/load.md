@@ -45,12 +45,6 @@ this.is = a properties file
 bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ```
 
-{% hint style="warning" %}
-Note that versions prior to 4.18 require the 'eval/e' command to be specified.&#x20;
-
-`yq e <exp> <file>`
-{% endhint %}
-
 ## Simple example
 Given a sample.yml file of:
 ```yaml
