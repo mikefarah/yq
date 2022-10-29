@@ -81,6 +81,7 @@ var lineOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handle
 var columnOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handler: columnOperator}
 
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
+var sliceArrayOpType = &operationType{Type: "SLICE", NumArgs: 0, Precedence: 50, Handler: sliceArrayOperator}
 var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
 var errorOpType = &operationType{Type: "ERROR", NumArgs: 1, Precedence: 50, Handler: errorOperator}
 var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}
@@ -352,8 +353,8 @@ func parseInt(numberString string) (int, error) {
 
 	if err != nil {
 		return 0, err
-	} else if parsed > math.MaxInt {
-		return 0, fmt.Errorf("%v is too big (larger than %v)", parsed, math.MaxInt)
+	} else if parsed > math.MaxInt || parsed < math.MinInt {
+		return 0, fmt.Errorf("%v is not within [%v, %v]", parsed, math.MinInt, math.MaxInt)
 	}
 
 	return int(parsed), err

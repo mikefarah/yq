@@ -15,6 +15,62 @@ type participleLexerScenario struct {
 
 var participleLexerScenarios = []participleLexerScenario{
 	{
+		expression: ".[1:3]",
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: sliceArrayOpType,
+					Value:         "SLICE",
+					StringValue:   ".[1:3]",
+					Preferences:   sliceArrayPreferences{firstNumber: 1, secondNumber: 3, secondNumberDefined: true},
+				},
+			},
+		},
+	},
+	{
+		expression: ".[:3]",
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: sliceArrayOpType,
+					Value:         "SLICE",
+					StringValue:   ".[:3]",
+					Preferences:   sliceArrayPreferences{firstNumber: 0, secondNumber: 3, secondNumberDefined: true},
+				},
+			},
+		},
+	},
+	{
+		expression: ".[1:]",
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: sliceArrayOpType,
+					Value:         "SLICE",
+					StringValue:   ".[1:]",
+					Preferences:   sliceArrayPreferences{firstNumber: 1, secondNumber: 0, secondNumberDefined: false},
+				},
+			},
+		},
+	},
+	{
+		expression: ".[-100:-54]",
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: sliceArrayOpType,
+					Value:         "SLICE",
+					StringValue:   ".[-100:-54]",
+					Preferences:   sliceArrayPreferences{firstNumber: -100, secondNumber: -54, secondNumberDefined: true},
+				},
+			},
+		},
+	},
+	{
 		expression: ".a",
 		tokens: []*token{
 			{
