@@ -12,7 +12,9 @@ const csvSimple = `name,numberOfCats,likesApples,height
 Gary,1,true,168.8
 Samantha's Rabbit,2,false,-188.8
 `
-
+const csvMissing = `name,numberOfCats,likesApples,height
+,null,,168.8
+`
 const expectedUpdatedSimpleCsv = `name,numberOfCats,likesApples,height
 Gary,3,true,168.8
 Samantha's Rabbit,2,false,-188.8
@@ -109,6 +111,13 @@ var csvScenarios = []formatScenario{
 		input:          expectedYamlFromCSVMissingData,
 		expected:       csvSimpleMissingData,
 		scenarioType:   "encode-csv",
+	},
+	{
+		description:  "decode csv missing",
+		skipDoc:      true,
+		input:        csvMissing,
+		expected:     csvMissing,
+		scenarioType: "roundtrip-csv",
 	},
 	{
 		description:    "Parse CSV into an array of objects",

@@ -249,6 +249,12 @@ func guessTagFromCustomType(node *yaml.Node) string {
 }
 
 func parseSnippet(value string) (*yaml.Node, error) {
+	if value == "" {
+		return &yaml.Node{
+			Kind: yaml.ScalarNode,
+			Tag:  "!!null",
+		}, nil
+	}
 	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
 	err := decoder.Init(strings.NewReader(value))
 	if err != nil {
