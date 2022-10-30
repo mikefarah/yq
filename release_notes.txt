@@ -1,3 +1,6 @@
+4.29.2:
+  - Fixed null pointer exception when parsing CSV with empty field #1404
+
 4.29.1:
   - Fixed Square brackets removing update #1342
   - Added slice array operator (.[10:15]) #44
