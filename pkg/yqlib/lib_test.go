@@ -28,6 +28,16 @@ var parseSnippetScenarios = []parseSnippetScenario{
 		},
 	},
 	{
+		snippet: "null",
+		expected: &yaml.Node{
+			Kind:   yaml.ScalarNode,
+			Tag:    "!!null",
+			Value:  "null",
+			Line:   1,
+			Column: 1,
+		},
+	},
+	{
 		snippet: "3",
 		expected: &yaml.Node{
 			Kind:   yaml.ScalarNode,
