@@ -1,5 +1,1 @@
-volumes:
-  beehive-conf:
-    driver: local
-services:
-  - beehive
+["foobar", "foobaz", "blarp"]

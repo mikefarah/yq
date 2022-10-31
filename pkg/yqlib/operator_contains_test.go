@@ -34,6 +34,15 @@ var containsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Array has a subset array",
+		subdescription: "Subtract the superset array from the subset, if there's anything left, it's not a subset",
+		document:       `["foobar", "foobaz", "blarp"]`,
+		expression:     `["baz", "bar"] - . | length == 0`,
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `["dog", "cat", "giraffe"] | contains(["camel"])`,
 		expected: []string{
