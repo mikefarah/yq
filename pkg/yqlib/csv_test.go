@@ -145,15 +145,15 @@ var csvScenarios = []formatScenario{
 func testCSVScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "encode-csv":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(',')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(',')), s.description)
 	case "encode-tsv":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder('\t')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder('\t')), s.description)
 	case "decode-csv-object":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(','), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "decode-tsv-object":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder('\t'), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder('\t'), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-csv":
-		test.AssertResultWithContext(t, s.expected, processFormatScenario(s, NewCSVObjectDecoder(','), NewCsvEncoder(',')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(','), NewCsvEncoder(',')), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -180,7 +180,7 @@ func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatTy
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n",
-		processFormatScenario(s, NewCSVObjectDecoder(separator), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))),
+		mustProcessFormatScenario(s, NewCSVObjectDecoder(separator), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))),
 	)
 }
 
@@ -212,7 +212,7 @@ func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType str
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
-		processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(separator))),
+		mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(separator))),
 	)
 }
 
@@ -244,7 +244,7 @@ func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType 
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
-		processFormatScenario(s, NewCSVObjectDecoder(separator), NewCsvEncoder(separator))),
+		mustProcessFormatScenario(s, NewCSVObjectDecoder(separator), NewCsvEncoder(separator))),
 	)
 }
 

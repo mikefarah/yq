@@ -15,10 +15,10 @@ type formatScenario struct {
 	subdescription string
 	skipDoc        bool
 	scenarioType   string
+	expectedError  string
 }
 
-func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) string {
-
+func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (string, error) {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
@@ -28,7 +28,7 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) s
 
 	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	expression := s.expression
@@ -39,22 +39,31 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) s
 	exp, err := getExpressionParser().ParseExpression(expression)
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, exp)
 
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	printer := NewPrinter(encoder, NewSinglePrinterWriter(writer))
 	err = printer.PrintResults(context.MatchingNodes)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 	writer.Flush()
 
-	return output.String()
+	return output.String(), nil
+}
+
+func mustProcessFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) string {
+
+	result, err := processFormatScenario(s, decoder, encoder)
+	if err != nil {
+		panic(err)
+	}
+	return result
 
 }

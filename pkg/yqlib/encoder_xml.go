@@ -65,7 +65,11 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
-		err = e.encodeTopLevelMap(encoder, unwrapDoc(node))
+		unwrappedNode := unwrapDoc(node)
+		if unwrappedNode.Kind != yaml.MappingNode {
+			return fmt.Errorf("cannot encode %v to XML - only maps can be encoded", unwrappedNode.Tag)
+		}
+		err = e.encodeTopLevelMap(encoder, unwrappedNode)
 		if err != nil {
 			return err
 		}
