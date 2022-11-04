@@ -253,6 +253,15 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Date addition -date only",
+		skipDoc:     true,
+		document:    `a: 2021-01-01`,
+		expression:  `.a += "24h"`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2021-01-02T00:00:00Z\n",
+		},
+	},
+	{
 		description:    "Date addition - custom format",
 		subdescription: "You can add durations to dates. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM GMT`,

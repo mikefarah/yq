@@ -25,7 +25,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Format: get the day of the week",
-		document:    `a: 2001-12-15T02:59:43.1Z`,
+		document:    `a: 2001-12-15`,
 		expression:  `.a | format_datetime("Monday")`,
 		expected: []string{
 			"D0, P[a], (!!str)::Saturday\n",

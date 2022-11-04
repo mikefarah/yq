@@ -103,6 +103,15 @@ var subtractOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Date subtraction - only date",
+		skipDoc:     true,
+		document:    `a: 2021-01-01`,
+		expression:  `.a -= "24h"`,
+		expected: []string{
+			"D0, P[], (doc)::a: 2020-12-31T00:00:00Z\n",
+		},
+	},
+	{
 		description:    "Date subtraction - custom format",
 		subdescription: "Use with_dtf to specify your datetime format. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
 		document:       `a: Saturday, 15-Dec-01 at 6:00AM GMT`,

@@ -92,10 +92,10 @@ func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs
 		rhsTag = guessTagFromCustomType(rhs)
 	}
 
-	isDateTime := lhs.Tag == "!!timestamp"
+	isDateTime := lhsTag == "!!timestamp"
 	// if the lhs is a string, it might be a timestamp in a custom format.
 	if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
-		_, err := time.Parse(context.GetDateTimeLayout(), lhs.Value)
+		_, err := parseDateTime(context.GetDateTimeLayout(), lhs.Value)
 		isDateTime = err == nil
 	}
 
@@ -151,7 +151,7 @@ func subtractDateTime(layout string, target *CandidateNode, lhs *yaml.Node, rhs 
 		return fmt.Errorf("unable to parse duration [%v]: %w", rhs.Value, err)
 	}
 
-	currentTime, err := time.Parse(layout, lhs.Value)
+	currentTime, err := parseDateTime(layout, lhs.Value)
 	if err != nil {
 		return err
 	}

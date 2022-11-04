@@ -135,6 +135,24 @@ will output
 - a: 100
 ```
 
+## Sort by custom date field
+Given a sample.yml file of:
+```yaml
+- a: 12-Jun-2011
+- a: 23-Dec-2010
+- a: 10-Aug-2011
+```
+then
+```bash
+yq 'with_dtf("02-Jan-2006"; sort_by(.a))' sample.yml
+```
+will output
+```yaml
+- a: 23-Dec-2010
+- a: 12-Jun-2011
+- a: 10-Aug-2011
+```
+
 ## Sort, nulls come first
 Given a sample.yml file of:
 ```yaml

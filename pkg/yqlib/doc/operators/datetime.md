@@ -60,7 +60,7 @@ a: 2001-12-15
 ## Format: get the day of the week
 Given a sample.yml file of:
 ```yaml
-a: 2001-12-15T02:59:43.1Z
+a: 2001-12-15
 ```
 then
 ```bash

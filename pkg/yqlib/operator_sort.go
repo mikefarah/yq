@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -48,7 +49,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 			log.Debug("going to compare %v by %v", NodeToString(candidate.CreateReplacement(originalNode)), NodeToString(candidate.CreateReplacement(nodeToCompare)))
 
-			sortableArray[i] = sortableNode{Node: originalNode, NodeToCompare: nodeToCompare}
+			sortableArray[i] = sortableNode{Node: originalNode, NodeToCompare: nodeToCompare, dateTimeLayout: context.GetDateTimeLayout()}
 
 			if nodeToCompare.Kind != yaml.ScalarNode {
 				return Context{}, fmt.Errorf("sort only works for scalars, got %v", nodeToCompare.Tag)
@@ -70,8 +71,9 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 }
 
 type sortableNode struct {
-	Node          *yaml.Node
-	NodeToCompare *yaml.Node
+	Node           *yaml.Node
+	NodeToCompare  *yaml.Node
+	dateTimeLayout string
 }
 
 type sortableNodeArray []sortableNode
@@ -83,15 +85,37 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	lhs := a[i].NodeToCompare
 	rhs := a[j].NodeToCompare
 
-	if lhs.Tag == "!!null" && rhs.Tag != "!!null" {
+	lhsTag := lhs.Tag
+	rhsTag := rhs.Tag
+
+	if !strings.HasPrefix(lhsTag, "!!") {
+		// custom tag - we have to have a guess
+		lhsTag = guessTagFromCustomType(lhs)
+	}
+
+	if !strings.HasPrefix(rhsTag, "!!") {
+		// custom tag - we have to have a guess
+		rhsTag = guessTagFromCustomType(rhs)
+	}
+
+	isDateTime := lhsTag == "!!timestamp" && rhsTag == "!!timestamp"
+	layout := a[i].dateTimeLayout
+	// if the lhs is a string, it might be a timestamp in a custom format.
+	if lhsTag == "!!str" && layout != time.RFC3339 {
+		_, errLhs := parseDateTime(layout, lhs.Value)
+		_, errRhs := parseDateTime(layout, rhs.Value)
+		isDateTime = errLhs == nil && errRhs == nil
+	}
+
+	if lhsTag == "!!null" && rhsTag != "!!null" {
 		return true
-	} else if lhs.Tag != "!!null" && rhs.Tag == "!!null" {
+	} else if lhsTag != "!!null" && rhsTag == "!!null" {
 		return false
-	} else if lhs.Tag == "!!bool" && rhs.Tag != "!!bool" {
+	} else if lhsTag == "!!bool" && rhsTag != "!!bool" {
 		return true
-	} else if lhs.Tag != "!!bool" && rhs.Tag == "!!bool" {
+	} else if lhsTag != "!!bool" && rhsTag == "!!bool" {
 		return false
-	} else if lhs.Tag == "!!bool" && rhs.Tag == "!!bool" {
+	} else if lhsTag == "!!bool" && rhsTag == "!!bool" {
 		lhsTruthy, err := isTruthyNode(lhs)
 		if err != nil {
 			panic(fmt.Errorf("could not parse %v as boolean: %w", lhs.Value, err))
@@ -103,9 +127,19 @@ func (a sortableNodeArray) Less(i, j int) bool {
 		}
 
 		return !lhsTruthy && rhsTruthy
-	} else if lhs.Tag != rhs.Tag || lhs.Tag == "!!str" {
-		return strings.Compare(lhs.Value, rhs.Value) < 0
-	} else if lhs.Tag == "!!int" && rhs.Tag == "!!int" {
+	} else if isDateTime {
+		lhsTime, err := parseDateTime(layout, lhs.Value)
+		if err != nil {
+			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %w", lhs.Value, layout, err)
+			return strings.Compare(lhs.Value, rhs.Value) < 0
+		}
+		rhsTime, err := parseDateTime(layout, rhs.Value)
+		if err != nil {
+			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %w", rhs.Value, layout, err)
+			return strings.Compare(lhs.Value, rhs.Value) < 0
+		}
+		return lhsTime.Before(rhsTime)
+	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		_, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
 			panic(err)
@@ -115,7 +149,7 @@ func (a sortableNodeArray) Less(i, j int) bool {
 			panic(err)
 		}
 		return lhsNum < rhsNum
-	} else if (lhs.Tag == "!!int" || lhs.Tag == "!!float") && (rhs.Tag == "!!int" || rhs.Tag == "!!float") {
+	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
 			panic(err)
@@ -127,5 +161,5 @@ func (a sortableNodeArray) Less(i, j int) bool {
 		return lhsNum < rhsNum
 	}
 
-	return true
+	return strings.Compare(lhs.Value, rhs.Value) < 0
 }

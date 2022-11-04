@@ -54,12 +54,12 @@ func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, 
 }
 
 func compareDateTime(layout string, prefs compareTypePref, lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
-	lhsTime, err := time.Parse(layout, lhs.Value)
+	lhsTime, err := parseDateTime(layout, lhs.Value)
 	if err != nil {
 		return false, err
 	}
 
-	rhsTime, err := time.Parse(layout, rhs.Value)
+	rhsTime, err := parseDateTime(layout, rhs.Value)
 	if err != nil {
 		return false, err
 	}
@@ -81,7 +81,7 @@ func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs 
 	isDateTime := lhs.Tag == "!!timestamp"
 	// if the lhs is a string, it might be a timestamp in a custom format.
 	if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
-		_, err := time.Parse(context.GetDateTimeLayout(), lhs.Value)
+		_, err := parseDateTime(context.GetDateTimeLayout(), lhs.Value)
 		isDateTime = err == nil
 	}
 	if isDateTime {

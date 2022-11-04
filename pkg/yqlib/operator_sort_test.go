@@ -55,6 +55,14 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Sort by custom date field",
+		document:    `[{a: "12-Jun-2011"},{a: "23-Dec-2010"},{a: "10-Aug-2011"}]`,
+		expression:  `with_dtf("02-Jan-2006"; sort_by(.a))`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: \"23-Dec-2010\"}, {a: \"12-Jun-2011\"}, {a: \"10-Aug-2011\"}]\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   "[{a: 1.1},{a: 1.001},{a: 1.01}]",
 		expression: `sort_by(.a)`,

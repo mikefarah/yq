@@ -50,6 +50,17 @@ func nowOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode
 
 }
 
+func parseDateTime(layout string, datestring string) (time.Time, error) {
+
+	parsedTime, err := time.Parse(layout, datestring)
+	if err != nil && layout == time.RFC3339 {
+		// try parsing the date time with only the date
+		return time.Parse("2006-01-02", datestring)
+	}
+	return parsedTime, err
+
+}
+
 func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	format, err := getStringParamter("format", d, context, expressionNode.RHS)
 	layout := context.GetDateTimeLayout()
@@ -62,7 +73,7 @@ func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		parsedTime, err := time.Parse(layout, candidate.Node.Value)
+		parsedTime, err := parseDateTime(layout, candidate.Node.Value)
 		if err != nil {
 			return Context{}, fmt.Errorf("could not parse datetime of [%v]: %w", candidate.GetNicePath(), err)
 		}
@@ -101,7 +112,7 @@ func tzOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode)
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		parsedTime, err := time.Parse(layout, candidate.Node.Value)
+		parsedTime, err := parseDateTime(layout, candidate.Node.Value)
 		if err != nil {
 			return Context{}, fmt.Errorf("could not parse datetime of [%v] using layout [%v]: %w", candidate.GetNicePath(), layout, err)
 		}
