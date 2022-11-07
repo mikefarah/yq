@@ -61,6 +61,9 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 ### wget
 Use wget to download, gzipped pre-compiled binaries:
 
+
+For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
+
 #### Compressed via tar.gz
 ```bash
 wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
@@ -74,9 +77,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /
     chmod +x /usr/bin/yq
 ```
 
-For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
-
-Use VERSION=latest to always get the latest version:
+#### Latest version
 
 ```bash
 wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
