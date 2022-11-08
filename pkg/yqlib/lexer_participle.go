@@ -55,6 +55,8 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("sortKeys", sortKeysOpType),
 	simpleOp("sort_?keys", sortKeysOpType),
 
+	{"ArrayToMap", "array_?to_?map", expressionOpToken(`(.[] | select(. != null) ) as $i ireduce({}; .[$i | key] = $i)`), 0},
+
 	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlOutputFormat), 0},
 	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLOutputFormat), 0},
 	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONOutputFormat), 0},
@@ -288,6 +290,14 @@ func opTokenWithPrefs(opType *operationType, assignOpType *operationType, prefer
 			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
 		}
 		return &token{TokenType: operationToken, Operation: op, AssignOperation: assign}, nil
+	}
+}
+
+func expressionOpToken(expression string) yqAction {
+	return func(rawToken lexer.Token) (*token, error) {
+		prefs := expressionOpPreferences{expression: expression}
+		expressionOp := &Operation{OperationType: expressionOpType, Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: expressionOp}, nil
 	}
 }
 

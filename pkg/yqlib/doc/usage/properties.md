@@ -149,6 +149,23 @@ person:
         - pizza
 ```
 
+## Decode properties - array should be a map
+If you have a numeric map key in your property files, use array_to_map to convert them to maps.
+
+Given a sample.properties file of:
+```properties
+things.10 = mike
+```
+then
+```bash
+yq -p=props '.things |= array_to_map' sample.properties
+```
+will output
+```yaml
+things:
+    10: mike
+```
+
 ## Roundtrip
 Given a sample.properties file of:
 ```properties

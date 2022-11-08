@@ -148,6 +148,14 @@ var propertyScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:    "Decode properties - array should be a map",
+		subdescription: "If you have a numeric map key in your property files, use array_to_map to convert them to maps.",
+		input:          `things.10 = mike`,
+		expression:     `.things |= array_to_map`,
+		expected:       "things:\n  10: mike\n",
+		scenarioType:   "decode",
+	},
+	{
 		description:  "does not expand automatically",
 		skipDoc:      true,
 		input:        "mike = ${dontExpand} this",

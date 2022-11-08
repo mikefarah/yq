@@ -80,6 +80,8 @@ var lengthOpType = &operationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Ha
 var lineOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handler: lineOperator}
 var columnOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handler: columnOperator}
 
+var expressionOpType = &operationType{Type: "EXP", NumArgs: 0, Precedence: 50, Handler: expressionOperator}
+
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
 var sliceArrayOpType = &operationType{Type: "SLICE", NumArgs: 0, Precedence: 50, Handler: sliceArrayOperator}
 var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
