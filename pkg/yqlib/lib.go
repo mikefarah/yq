@@ -263,6 +263,9 @@ func parseSnippet(value string) (*yaml.Node, error) {
 		return nil, err
 	}
 	parsedNode, err := decoder.Decode()
+	if err != nil {
+		return nil, err
+	}
 	if len(parsedNode.Node.Content) == 0 {
 		return nil, fmt.Errorf("bad data")
 	}
