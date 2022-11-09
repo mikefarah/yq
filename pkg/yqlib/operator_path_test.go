@@ -90,9 +90,9 @@ var pathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Set path to extract prune deep paths",
-		subdescription: "Like pick but recursive.",
+		subdescription: "Like pick but recursive. This uses `ireduce` to deeply set the selected paths into an empty object,",
 		document:       documentToPrune,
-		expression:     `(.parentB.child2, .parentC.child1) as $i ireduce({}; setpath($i | path; $i))`,
+		expression:     "(.parentB.child2, .parentC.child1) as $i\n  ireduce({}; setpath($i | path; $i))",
 		expected: []string{
 			"D0, P[], (!!map)::parentB:\n    child2: i am child2\nparentC:\n    child1: me child1\n",
 		},

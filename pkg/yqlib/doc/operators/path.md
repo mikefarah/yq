@@ -123,7 +123,7 @@ a:
 ```
 
 ## Set path to extract prune deep paths
-Like pick but recursive.
+Like pick but recursive. This uses `ireduce` to deeply set the selected paths into an empty object,
 
 Given a sample.yml file of:
 ```yaml
@@ -137,7 +137,8 @@ parentC:
 ```
 then
 ```bash
-yq '(.parentB.child2, .parentC.child1) as $i ireduce({}; setpath($i | path; $i))' sample.yml
+yq '(.parentB.child2, .parentC.child1) as $i
+  ireduce({}; setpath($i | path; $i))' sample.yml
 ```
 will output
 ```yaml
