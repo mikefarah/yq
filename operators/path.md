@@ -122,6 +122,31 @@ a:
   b: things
 ```
 
+## Set path to extract prune deep paths
+Like pick but recursive.
+
+Given a sample.yml file of:
+```yaml
+parentA: bob
+parentB:
+  child1: i am child1
+  child2: i am child2
+parentC:
+  child1: me child1
+  child2: me child2
+```
+then
+```bash
+yq '(.parentB.child2, .parentC.child1) as $i ireduce({}; setpath($i | path; $i))' sample.yml
+```
+will output
+```yaml
+parentB:
+  child2: i am child2
+parentC:
+  child1: me child1
+```
+
 ## Set array path
 Given a sample.yml file of:
 ```yaml
