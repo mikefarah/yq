@@ -94,7 +94,7 @@ See [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays
 
 ## Deeply prune a tree
 
-See [here](https://mikefarah.gitbook.io/yq/operators/path#set-path-to-extract-prune-deep-paths) for a working example.
+See [here](https://mikefarah.gitbook.io/yq/operators/path#set-path-to-prune-deep-paths) for a working example.
 
 ## Creating a new file / working with blank documents
 
