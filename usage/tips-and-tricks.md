@@ -91,6 +91,11 @@ yq ea '(..  lineComment |= filename + ":" + line) | select(fi==0) * select(fi==1
 
 See [here](https://mikefarah.gitbook.io/yq/operators/multiply-merge#merge-arrays-of-objects-together-matching-on-a-key) for a working example.
 
+
+## Deeply prune a tree
+
+See [here](https://mikefarah.gitbook.io/yq/operators/path#set-path-to-extract-prune-deep-paths) for a working example.
+
 ## Creating a new file / working with blank documents
 
 To create a new `yaml` file simply:
