@@ -4,6 +4,16 @@ import (
 	"testing"
 )
 
+var documentToPrune = `
+parentA: bob
+parentB:
+  child1: i am child1
+  child2: i am child2
+parentC:
+  child1: me child1
+  child2: me child2
+`
+
 var pathOperatorScenarios = []expressionScenario{
 	{
 		description: "Map path",
@@ -76,6 +86,15 @@ var pathOperatorScenarios = []expressionScenario{
 		expression:  `setpath(["a", "b"]; "things")`,
 		expected: []string{
 			"D0, P[], ()::a:\n    b: things\n",
+		},
+	},
+	{
+		description:    "Set path to extract prune deep paths",
+		subdescription: "Like pick but recursive.",
+		document:       documentToPrune,
+		expression:     `(.parentB.child2, .parentC.child1) as $i ireduce({}; setpath($i | path; $i))`,
+		expected: []string{
+			"D0, P[], (!!map)::parentB:\n    child2: i am child2\nparentC:\n    child1: me child1\n",
 		},
 	},
 	{
