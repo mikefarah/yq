@@ -122,7 +122,7 @@ a:
   b: things
 ```
 
-## Set path to extract prune deep paths
+## Set path to prune deep paths
 Like pick but recursive. This uses `ireduce` to deeply set the selected paths into an empty object,
 
 Given a sample.yml file of:
