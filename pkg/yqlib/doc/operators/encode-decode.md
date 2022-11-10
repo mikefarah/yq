@@ -337,7 +337,7 @@ Given a sample.yml file of:
 a:
   cool:
     foo: bar
-    +id: hi
+    +@id: hi
 ```
 then
 ```bash
@@ -357,7 +357,7 @@ Given a sample.yml file of:
 a:
   cool:
     foo: bar
-    +id: hi
+    +@id: hi
 ```
 then
 ```bash
@@ -375,7 +375,7 @@ Given a sample.yml file of:
 a:
   cool:
     foo: bar
-    +id: hi
+    +@id: hi
 ```
 then
 ```bash

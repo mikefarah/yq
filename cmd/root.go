@@ -59,10 +59,18 @@ yq -P sample.json
 				return err
 			}
 
-			if (inputFormat == "x" || inputFormat == "xml") &&
-				outputFormatType != yqlib.XMLOutputFormat &&
-				yqlib.ConfiguredXMLPreferences.AttributePrefix == "+" {
-				yqlib.GetLogger().Warning("The default xml-attribute-prefix will change in the v4.30 to `+@` to avoid " +
+			inputFormatType, err := yqlib.InputFormatFromString(inputFormat)
+
+			if err != nil {
+				return err
+			}
+
+			if (inputFormatType == yqlib.XMLInputFormat &&
+				outputFormatType != yqlib.XMLOutputFormat ||
+				inputFormatType != yqlib.XMLInputFormat &&
+					outputFormatType == yqlib.XMLOutputFormat) &&
+				yqlib.ConfiguredXMLPreferences.AttributePrefix == "+@" {
+				yqlib.GetLogger().Warning("The default xml-attribute-prefix has changed in the v4.30 to `+@` to avoid " +
 					"naming conflicts with the default content name, directive name and proc inst prefix. If you need to keep " +
 					"`+` please set that value explicityly with --xml-attribute-prefix.")
 			}

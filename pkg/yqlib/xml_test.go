@@ -58,7 +58,7 @@ cat:
         d:
             # in d before
             z:
-                +sweet: cool
+                +@sweet: cool
             # in d after
         # in y after
     # in_cat_after
@@ -98,11 +98,11 @@ cat:
         d:
             - # in d before
               z:
-                +sweet: cool
+                +@sweet: cool
               # in d after
             - # in d2 before
               z:
-                +sweet: cool2
+                +@sweet: cool2
               # in d2 after
         # in y after
     # in_cat_after
@@ -165,16 +165,16 @@ const inputXMLWithNamespacedAttr = `
 
 const expectedYAMLWithNamespacedAttr = `+p_xml: version="1.0"
 map:
-  +xmlns: some-namespace
-  +xmlns:xsi: some-instance
-  +some-instance:schemaLocation: some-url
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@some-instance:schemaLocation: some-url
 `
 
 const expectedYAMLWithRawNamespacedAttr = `+p_xml: version="1.0"
 map:
-  +xmlns: some-namespace
-  +xmlns:xsi: some-instance
-  +xsi:schemaLocation: some-url
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@xsi:schemaLocation: some-url
 `
 
 const xmlWithCustomDtd = `
@@ -251,13 +251,13 @@ var xmlScenarios = []formatScenario{
 		description:    "Parse xml: attributes",
 		subdescription: "Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
-		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\ncat:\n    +legs: \"4\"\n    legs: \"7\"\n",
+		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\ncat:\n    +@legs: \"4\"\n    legs: \"7\"\n",
 	},
 	{
 		description:    "Parse xml: attributes with content",
 		subdescription: "Content is added as a field, using the default content name of `+content`. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
-		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\ncat:\n    +content: meow\n    +legs: \"4\"\n",
+		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\ncat:\n    +content: meow\n    +@legs: \"4\"\n",
 	},
 	{
 		description:    "Parse xml: custom dtd",
@@ -367,14 +367,14 @@ var xmlScenarios = []formatScenario{
 	{
 		description:    "Encode xml: attributes",
 		subdescription: "Fields with the matching xml-attribute-prefix are assumed to be attributes.",
-		input:          "cat:\n  +name: tiger\n  meows: true\n",
+		input:          "cat:\n  +@name: tiger\n  meows: true\n",
 		expected:       "<cat name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		scenarioType:   "encode",
 	},
 	{
 		description:  "double prefix",
 		skipDoc:      true,
-		input:        "cat:\n  ++@name: tiger\n  meows: true\n",
+		input:        "cat:\n  +@+@name: tiger\n  meows: true\n",
 		expected:     "<cat +@name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
 		scenarioType: "encode",
 	},
@@ -402,7 +402,7 @@ var xmlScenarios = []formatScenario{
 	{
 		description:    "Encode xml: attributes with content",
 		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
-		input:          "cat:\n  +name: tiger\n  +content: cool\n",
+		input:          "cat:\n  +@name: tiger\n  +content: cool\n",
 		expected:       "<cat name=\"tiger\">cool</cat>\n",
 		scenarioType:   "encode",
 	},

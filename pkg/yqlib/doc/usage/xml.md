@@ -128,7 +128,7 @@ will output
 ```yaml
 +p_xml: version="1.0" encoding="UTF-8"
 cat:
-  +legs: "4"
+  +@legs: "4"
   legs: "7"
 ```
 
@@ -149,7 +149,7 @@ will output
 +p_xml: version="1.0" encoding="UTF-8"
 cat:
   +content: meow
-  +legs: "4"
+  +@legs: "4"
 ```
 
 ## Parse xml: custom dtd
@@ -347,7 +347,7 @@ Fields with the matching xml-attribute-prefix are assumed to be attributes.
 Given a sample.yml file of:
 ```yaml
 cat:
-  +name: tiger
+  +@name: tiger
   meows: true
 
 ```
@@ -368,7 +368,7 @@ Fields with the matching xml-content-name is assumed to be content.
 Given a sample.yml file of:
 ```yaml
 cat:
-  +name: tiger
+  +@name: tiger
   +content: cool
 
 ```
