@@ -1,9 +1,10 @@
-4.29.3:
+4.30.1:
   - Can use expressions in slice #1419
   - Fixed unhandled exception when decoding CSV thanks @washanhanzi
   - Added array_to_map operator for #1415
   - Fixed sorting by date #1412
   - Added check to ensure only maps can be encoded to XML #1408
+  - Explicity setting unwrap flag works for json output #437, #1409
   - Bumped go version
 
 
