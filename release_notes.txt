@@ -1,3 +1,13 @@
+4.29.3:
+  - Can use expressions in slice #1419
+  - Fixed unhandled exception when decoding CSV thanks @washanhanzi
+  - Added array_to_map operator for #1415
+  - Fixed sorting by date #1412
+  - Added check to ensure only maps can be encoded to XML #1408
+  - Bumped go version
+
+
+
 4.29.2:
   - Fixed null pointer exception when parsing CSV with empty field #1404
 
