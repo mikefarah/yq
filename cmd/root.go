@@ -35,7 +35,7 @@ yq -P sample.json
 			return evaluateSequence(cmd, args)
 
 		},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			cmd.SetOut(cmd.OutOrStdout())
 
 			var format = logging.MustStringFormatter(
@@ -52,16 +52,23 @@ yq -P sample.json
 
 			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
+
+			outputFormatType, err := yqlib.OutputFormatFromString(outputFormat)
+
+			if err != nil {
+				return err
+			}
+
 			if (inputFormat == "x" || inputFormat == "xml") &&
-				outputFormat != "x" && outputFormat != "xml" &&
+				outputFormatType != yqlib.XMLOutputFormat &&
 				yqlib.ConfiguredXMLPreferences.AttributePrefix == "+" {
 				yqlib.GetLogger().Warning("The default xml-attribute-prefix will change in the v4.30 to `+@` to avoid " +
 					"naming conflicts with the default content name, directive name and proc inst prefix. If you need to keep " +
 					"`+` please set that value explicityly with --xml-attribute-prefix.")
 			}
 
-			if outputFormat == "y" || outputFormat == "yaml" ||
-				outputFormat == "p" || outputFormat == "props" {
+			if outputFormatType == yqlib.YamlOutputFormat ||
+				outputFormatType == yqlib.PropsOutputFormat {
 				unwrapScalar = true
 			}
 			if unwrapScalarFlag.IsExplicitySet() {
@@ -72,6 +79,8 @@ yq -P sample.json
 			yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
 
 			yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
+
+			return nil
 		},
 	}
 
