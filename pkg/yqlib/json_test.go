@@ -85,6 +85,13 @@ var jsonScenarios = []formatScenario{
 		expected:       "D0, P[], (!!map)::cat: meow\n",
 	},
 	{
+		description:   "bad json",
+		skipDoc:       true,
+		input:         `{"a": 1 "b": 2}`,
+		expectedError: `bad file 'sample.yml': invalid character '"' after object key:value pair`,
+		scenarioType:  "decode-error",
+	},
+	{
 		description:    "Parse json: complex",
 		subdescription: "JSON is a subset of yaml, so all you need to do is prettify the output",
 		input:          `{"a":"Easy! as one two three","b":{"c":2,"d":[3,4]}}`,
@@ -303,7 +310,13 @@ func testJSONScenario(t *testing.T, s formatScenario) {
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(0, false, false)), s.description)
 	case "roundtrip-multi":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(2, false, false)), s.description)
-
+	case "decode-error":
+		result, err := processFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(2, false, false))
+		if err == nil {
+			t.Errorf("Expected error '%v' but it worked: %v", s.expectedError, result)
+		} else {
+			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.description)
+		}
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
