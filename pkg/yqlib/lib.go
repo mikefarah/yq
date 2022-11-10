@@ -83,7 +83,6 @@ var columnOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Hand
 var expressionOpType = &operationType{Type: "EXP", NumArgs: 0, Precedence: 50, Handler: expressionOperator}
 
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
-var sliceArrayOpType = &operationType{Type: "SLICE", NumArgs: 0, Precedence: 50, Handler: sliceArrayOperator}
 var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
 var errorOpType = &operationType{Type: "ERROR", NumArgs: 1, Precedence: 50, Handler: errorOperator}
 var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}

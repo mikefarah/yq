@@ -2,43 +2,52 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
 )
 
-type sliceArrayPreferences struct {
-	firstNumber         int
-	secondNumber        int
-	secondNumberDefined bool
+func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, expressionNode *ExpressionNode) (int, error) {
+	result, err := d.GetMatchingNodes(context.SingleChildContext(node), expressionNode)
+	if err != nil {
+		return 0, err
+	}
+	if result.MatchingNodes.Len() != 1 {
+		return 0, fmt.Errorf("expected to find 1 number, got %v instead", result.MatchingNodes.Len())
+	}
+	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
 }
 
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
-	if err != nil {
-		return Context{}, err
-	}
-	prefs := expressionNode.Operation.Preferences.(sliceArrayPreferences)
-	firstNumber := prefs.firstNumber
-	secondNumber := prefs.secondNumber
+	log.Debug("slice array operator!")
+	log.Debug("lhs: %v", expressionNode.LHS.Operation.toString())
+	log.Debug("rhs: %v", expressionNode.RHS.Operation.toString())
 
 	results := list.New()
 
-	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		lhsNode := el.Value.(*CandidateNode)
 		original := unwrapDoc(lhsNode.Node)
 
+		firstNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.LHS)
+
+		if err != nil {
+			return Context{}, err
+		}
 		relativeFirstNumber := firstNumber
 		if relativeFirstNumber < 0 {
 			relativeFirstNumber = len(original.Content) + firstNumber
 		}
 
-		relativeSecondNumber := len(original.Content)
-		if prefs.secondNumberDefined {
-			relativeSecondNumber = secondNumber
-			if relativeSecondNumber < 0 {
-				relativeSecondNumber = len(original.Content) + secondNumber
-			}
+		secondNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.RHS)
+		if err != nil {
+			return Context{}, err
+		}
+
+		relativeSecondNumber := secondNumber
+		if relativeSecondNumber < 0 {
+			relativeSecondNumber = len(original.Content) + secondNumber
 		}
 
 		log.Debug("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)

@@ -5,7 +5,7 @@ import (
 
 	"github.com/alecthomas/repr"
 	"github.com/mikefarah/yq/v4/test"
-	"gopkg.in/yaml.v3"
+	yaml "gopkg.in/yaml.v3"
 )
 
 type participleLexerScenario struct {
@@ -15,58 +15,123 @@ type participleLexerScenario struct {
 
 var participleLexerScenarios = []participleLexerScenario{
 	{
-		expression: ".[1:3]",
-		tokens: []*token{
-			{
-				TokenType: operationToken,
-				Operation: &Operation{
-					OperationType: sliceArrayOpType,
-					Value:         "SLICE",
-					StringValue:   ".[1:3]",
-					Preferences:   sliceArrayPreferences{firstNumber: 1, secondNumber: 3, secondNumberDefined: true},
-				},
-			},
-		},
-	},
-	{
 		expression: ".[:3]",
 		tokens: []*token{
 			{
 				TokenType: operationToken,
 				Operation: &Operation{
-					OperationType: sliceArrayOpType,
-					Value:         "SLICE",
-					StringValue:   ".[:3]",
-					Preferences:   sliceArrayPreferences{firstNumber: 0, secondNumber: 3, secondNumberDefined: true},
+					OperationType: selfReferenceOpType,
+					StringValue:   "SELF",
 				},
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: traverseArrayOpType,
+					StringValue:   "TRAVERSE_ARRAY",
+				},
+			},
+			{
+				TokenType: openCollect,
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: valueOpType,
+					Value:         0,
+					StringValue:   "0",
+					CandidateNode: &CandidateNode{
+						Node: &yaml.Node{
+							Kind:  yaml.ScalarNode,
+							Tag:   "!!int",
+							Value: "0",
+						},
+					},
+				},
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: createMapOpType,
+					Value:         "CREATE_MAP",
+					StringValue:   ":",
+				},
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: valueOpType,
+					Value:         3,
+					StringValue:   "3",
+					CandidateNode: &CandidateNode{
+						Node: &yaml.Node{
+							Kind:  yaml.Kind(8),
+							Tag:   "!!int",
+							Value: "3",
+						},
+					},
+				},
+			},
+			{
+				TokenType:            closeCollect,
+				CheckForPostTraverse: true,
+				Match:                "]",
 			},
 		},
 	},
 	{
-		expression: ".[1:]",
+		expression: ".[-2:]",
 		tokens: []*token{
 			{
 				TokenType: operationToken,
 				Operation: &Operation{
-					OperationType: sliceArrayOpType,
-					Value:         "SLICE",
-					StringValue:   ".[1:]",
-					Preferences:   sliceArrayPreferences{firstNumber: 1, secondNumber: 0, secondNumberDefined: false},
+					OperationType: selfReferenceOpType,
+					StringValue:   "SELF",
 				},
 			},
-		},
-	},
-	{
-		expression: ".[-100:-54]",
-		tokens: []*token{
 			{
 				TokenType: operationToken,
 				Operation: &Operation{
-					OperationType: sliceArrayOpType,
-					Value:         "SLICE",
-					StringValue:   ".[-100:-54]",
-					Preferences:   sliceArrayPreferences{firstNumber: -100, secondNumber: -54, secondNumberDefined: true},
+					OperationType: traverseArrayOpType,
+					StringValue:   "TRAVERSE_ARRAY",
 				},
+			},
+			{
+				TokenType: openCollect,
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: valueOpType,
+					Value:         -2,
+					StringValue:   "-2",
+					CandidateNode: &CandidateNode{
+						Node: &yaml.Node{
+							Kind:  yaml.ScalarNode,
+							Tag:   "!!int",
+							Value: "-2",
+						},
+					},
+				},
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: createMapOpType,
+					Value:         "CREATE_MAP",
+					StringValue:   ":",
+				},
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: lengthOpType,
+				},
+			},
+			{
+				TokenType:            closeCollect,
+				CheckForPostTraverse: true,
+				Match:                "]",
 			},
 		},
 	},

@@ -38,6 +38,15 @@ var sliceArrayScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Inserting into the middle of an array",
+		subdescription: "using an expression to find the index",
+		document:       `[cat, dog, frog, cow]`,
+		expression:     `(.[] | select(. == "dog") | key + 1) as $pos | .[0:($pos)] + ["rabbit"] + .[$pos:]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- cat\n- dog\n- rabbit\n- frog\n- cow\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `[[cat, dog, frog, cow], [apple, banana, grape, mango]]`,
 		expression: `.[] | .[1:3]`,

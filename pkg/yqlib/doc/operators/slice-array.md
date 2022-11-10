@@ -80,3 +80,26 @@ will output
 - frog
 ```
 
+## Inserting into the middle of an array
+using an expression to find the index
+
+Given a sample.yml file of:
+```yaml
+- cat
+- dog
+- frog
+- cow
+```
+then
+```bash
+yq '(.[] | select(. == "dog") | key + 1) as $pos | .[0:($pos)] + ["rabbit"] + .[$pos:]' sample.yml
+```
+will output
+```yaml
+- cat
+- dog
+- rabbit
+- frog
+- cow
+```
+
