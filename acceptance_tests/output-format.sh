@@ -48,6 +48,55 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputYamlRawDefault() {
+  cat >test.yml <<EOL
+a: "cat"
+EOL
+
+  X=$(./yq e  '.a' test.yml)
+  assertEquals "cat" "$X"
+
+  X=$(./yq ea '.a' test.yml)
+  assertEquals "cat" "$X"
+}
+
+testOutputYamlRawOff() {
+  cat >test.yml <<EOL
+a: "cat"
+EOL
+
+  X=$(./yq e -r=false '.a' test.yml)
+  assertEquals "\"cat\"" "$X"
+
+  X=$(./yq ea -r=false '.a' test.yml)
+  assertEquals "\"cat\"" "$X"
+}
+
+testOutputJsonRaw() {
+  cat >test.yml <<EOL
+a: cat
+EOL
+
+  X=$(./yq e -r --output-format=json '.a' test.yml)
+  assertEquals "cat" "$X"
+
+  X=$(./yq ea -r --output-format=json '.a' test.yml)
+  assertEquals "cat" "$X"
+}
+
+testOutputJsonDefault() {
+  cat >test.yml <<EOL
+a: cat
+EOL
+
+  X=$(./yq e --output-format=json '.a' test.yml)
+  assertEquals "\"cat\"" "$X"
+
+  X=$(./yq ea --output-format=json '.a' test.yml)
+  assertEquals "\"cat\"" "$X"
+}
+
+
 testOutputJsonShort() {
   cat >test.yml <<EOL
 a: {b: ["cat"]}
@@ -72,11 +121,11 @@ EOM
 
 testOutputProperties() {
   cat >test.yml <<EOL
-a: {b: {c: ["cat"]}}
+a: {b: {c: ["cat cat"]}}
 EOL
 
   read -r -d '' expected << EOM
-a.b.c.0 = cat
+a.b.c.0 = cat cat
 EOM
 
   X=$(./yq e --output-format=props test.yml)
@@ -86,13 +135,30 @@ EOM
   assertEquals "$expected" "$X"
 }
 
-testOutputPropertiesShort() {
+testOutputPropertiesDontUnwrap() {
   cat >test.yml <<EOL
-a: {b: {c: ["cat"]}}
+a: {b: {c: ["cat cat"]}}
 EOL
 
   read -r -d '' expected << EOM
-a.b.c.0 = cat
+a.b.c.0 = "cat cat"
+EOM
+
+  X=$(./yq e -r=false --output-format=props test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -r=false --output-format=props test.yml)
+  assertEquals "$expected" "$X"
+}
+
+
+testOutputPropertiesShort() {
+  cat >test.yml <<EOL
+a: {b: {c: ["cat cat"]}}
+EOL
+
+  read -r -d '' expected << EOM
+a.b.c.0 = cat cat
 EOM
 
   X=$(./yq e -o=p test.yml)

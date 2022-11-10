@@ -11,6 +11,7 @@ import (
 type jsonEncoder struct {
 	indentString string
 	colorise     bool
+	UnwrapScalar bool
 }
 
 func mapKeysToStrings(node *yaml.Node) {
@@ -28,14 +29,14 @@ func mapKeysToStrings(node *yaml.Node) {
 	}
 }
 
-func NewJSONEncoder(indent int, colorise bool) Encoder {
+func NewJSONEncoder(indent int, colorise bool, unwrapScalar bool) Encoder {
 	var indentString = ""
 
 	for index := 0; index < indent; index++ {
 		indentString = indentString + " "
 	}
 
-	return &jsonEncoder{indentString, colorise}
+	return &jsonEncoder{indentString, colorise, unwrapScalar}
 }
 
 func (je *jsonEncoder) CanHandleAliases() bool {
@@ -51,6 +52,10 @@ func (je *jsonEncoder) PrintLeadingContent(writer io.Writer, content string) err
 }
 
 func (je *jsonEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+
+	if node.Kind == yaml.ScalarNode && je.UnwrapScalar {
+		return writeString(writer, node.Value+"\n")
+	}
 
 	destination := writer
 	tempBuffer := bytes.NewBuffer(nil)
