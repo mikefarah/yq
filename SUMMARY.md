@@ -16,6 +16,7 @@
   * [Add](operators/add.md)
   * [Alternative (Default value)](operators/alternative-default-value.md)
   * [Anchor and Alias Operators](operators/anchor-and-alias-operators.md)
+  * [Array to Map](operators/array-to-map.md)
   * [Assign (Update)](operators/assign-update.md)
   * [Boolean Operators](operators/boolean-operators.md)
   * [Collect into Array](operators/collect-into-array.md)
