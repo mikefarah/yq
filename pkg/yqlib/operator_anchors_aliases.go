@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -243,6 +244,9 @@ func explodeNode(node *yaml.Node, context Context) error {
 func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent Context) error {
 	if alias == nil {
 		return nil
+	}
+	if alias.Kind != yaml.MappingNode {
+		return fmt.Errorf("merge anchor only supports maps, got %v instead", alias.Tag)
 	}
 	for index := 0; index < len(alias.Content); index = index + 2 {
 		keyNode := alias.Content[index]

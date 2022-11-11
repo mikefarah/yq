@@ -37,6 +37,13 @@ thingTwo:
 
 var anchorOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:       true,
+		description:   "merge anchor not map",
+		document:      "a: &a\n  - 0\nc:\n  <<: [*a]\n",
+		expectedError: "merge anchor only supports maps, got !!seq instead",
+		expression:    "explode(.)",
+	},
+	{
 		description:    "Merge one map",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : *CENTER\n  r: 10\n",
