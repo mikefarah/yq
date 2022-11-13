@@ -18,7 +18,7 @@ func NewDefaultXmlPreferences() XmlPreferences {
 		ContentName:     "+content",
 		StrictMode:      false,
 		KeepNamespace:   true,
-		UseRawToken:     false,
+		UseRawToken:     true,
 		ProcInstPrefix:  "+p_",
 		DirectiveName:   "+directive",
 		SkipProcInst:    false,

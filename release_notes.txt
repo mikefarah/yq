@@ -1,3 +1,6 @@
+4.30.2:
+  - Actually updated the default xml prefix :facepalm:
+
 4.30.1:
   - XML users note: the default attribute prefix has change to `+@` to avoid naming conflicts!
   - Can use expressions in slice #1419

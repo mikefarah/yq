@@ -157,17 +157,15 @@ const expectedXMLWithComments = `<!--
 </cat><!-- below_cat -->
 `
 
-const inputXMLWithNamespacedAttr = `
-<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
-</map>
+const inputXMLWithNamespacedAttr = `<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
 `
 
 const expectedYAMLWithNamespacedAttr = `+p_xml: version="1.0"
 map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
-  +@some-instance:schemaLocation: some-url
+  +@xsi:schemaLocation: some-url
 `
 
 const expectedYAMLWithRawNamespacedAttr = `+p_xml: version="1.0"
@@ -175,6 +173,13 @@ map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
   +@xsi:schemaLocation: some-url
+`
+
+const expectedYAMLWithoutRawNamespacedAttr = `+p_xml: version="1.0"
+map:
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@some-instance:schemaLocation: some-url
 `
 
 const xmlWithCustomDtd = `
@@ -267,6 +272,13 @@ var xmlScenarios = []formatScenario{
 		scenarioType:   "roundtrip",
 	},
 	{
+		description:  "Roundtrip with name spaced attributes",
+		skipDoc:      true,
+		input:        inputXMLWithNamespacedAttr,
+		expected:     inputXMLWithNamespacedAttr,
+		scenarioType: "roundtrip",
+	},
+	{
 		description:    "Parse xml: skip custom dtd",
 		subdescription: "DTDs are directives, skip over directives to skip DTDs.",
 		input:          xmlWithCustomDtd,
@@ -323,18 +335,27 @@ var xmlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
-		description:  "Parse xml: keep attribute namespace",
-		skipDoc:      false,
-		input:        inputXMLWithNamespacedAttr,
-		expected:     expectedYAMLWithNamespacedAttr,
-		scenarioType: "decode-keep-ns",
+		description:    "Parse xml: keep attribute namespace",
+		subdescription: fmt.Sprintf(`Defaults to %v`, ConfiguredXMLPreferences.KeepNamespace),
+		skipDoc:        false,
+		input:          inputXMLWithNamespacedAttr,
+		expected:       expectedYAMLWithNamespacedAttr,
+		scenarioType:   "decode-keep-ns",
 	},
 	{
 		description:  "Parse xml: keep raw attribute namespace",
-		skipDoc:      false,
+		skipDoc:      true,
 		input:        inputXMLWithNamespacedAttr,
 		expected:     expectedYAMLWithRawNamespacedAttr,
 		scenarioType: "decode-raw-token",
+	},
+	{
+		description:    "Parse xml: keep raw attribute namespace",
+		subdescription: fmt.Sprintf(`Defaults to %v`, ConfiguredXMLPreferences.UseRawToken),
+		skipDoc:        false,
+		input:          inputXMLWithNamespacedAttr,
+		expected:       expectedYAMLWithoutRawNamespacedAttr,
+		scenarioType:   "decode-raw-token-off",
 	},
 	{
 		description:  "Encode xml: simple",
@@ -452,6 +473,10 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 		prefs := NewDefaultXmlPreferences()
 		prefs.UseRawToken = true
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+	case "decode-raw-token-off":
+		prefs := NewDefaultXmlPreferences()
+		prefs.UseRawToken = false
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-skip-directives":
 		prefs := NewDefaultXmlPreferences()
 		prefs.SkipDirectives = true
@@ -484,7 +509,7 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		documentXMLRoundTripScenario(w, s)
 	case "decode-keep-ns":
 		documentXMLDecodeKeepNsScenario(w, s)
-	case "decode-raw-token":
+	case "decode-raw-token-off":
 		documentXMLDecodeKeepNsRawTokenScenario(w, s)
 	case "roundtrip-skip-directives":
 		documentXMLSkipDirectrivesScenario(w, s)
@@ -528,14 +553,14 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace=false '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 	prefs := NewDefaultXmlPreferences()
-	prefs.KeepNamespace = true
+	prefs.KeepNamespace = false
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
 
 	prefsWithout := NewDefaultXmlPreferences()
-	prefs.KeepNamespace = false
+	prefs.KeepNamespace = true
 	writeOrPanic(w, "instead of\n")
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))
 }
@@ -552,16 +577,16 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-raw-token=false '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	prefs := NewDefaultXmlPreferences()
-	prefs.KeepNamespace = true
+	prefs.UseRawToken = false
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
 
 	prefsWithout := NewDefaultXmlPreferences()
-	prefsWithout.KeepNamespace = false
+	prefsWithout.UseRawToken = true
 
 	writeOrPanic(w, "instead of\n")
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))

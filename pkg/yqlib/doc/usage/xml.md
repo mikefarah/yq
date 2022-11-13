@@ -258,53 +258,53 @@ cat:
 ```
 
 ## Parse xml: keep attribute namespace
+Defaults to true
+
 Given a sample.xml file of:
 ```xml
-
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
-</map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
 
 ```
 then
 ```bash
-yq -p=xml -o=xml --xml-keep-namespace '.' sample.xml
+yq -p=xml -o=xml --xml-keep-namespace=false '.' sample.xml
 ```
 will output
-```xml
-<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
-```
-
-instead of
-```xml
-<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
-```
-
-## Parse xml: keep raw attribute namespace
-Given a sample.xml file of:
-```xml
-
-<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
-</map>
-
-```
-then
-```bash
-yq -p=xml -o=xml --xml-keep-namespace --xml-raw-token '.' sample.xml
-```
-will output
-```xml
-<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
-```
-
-instead of
 ```xml
 <?xml version="1.0"?>
 <map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
+```
+
+instead of
+```xml
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+```
+
+## Parse xml: keep raw attribute namespace
+Defaults to true
+
+Given a sample.xml file of:
+```xml
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+
+```
+then
+```bash
+yq -p=xml -o=xml --xml-raw-token=false '.' sample.xml
+```
+will output
+```xml
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
+```
+
+instead of
+```xml
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
 ```
 
 ## Encode xml: simple
