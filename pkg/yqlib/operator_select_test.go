@@ -76,9 +76,10 @@ var selectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:    true,
-		document:   `[{animal: cat, legs: {cool: true}}, {animal: fish}]`,
-		expression: `(.[] | select(.legs.cool == true).canWalk) = true | (.[] | .alive.things) = "yes"`,
+		description: "select does not update the map",
+		skipDoc:     true,
+		document:    `[{animal: cat, legs: {cool: true}}, {animal: fish}]`,
+		expression:  `(.[] | select(.legs.cool == true).canWalk) = true | (.[] | .alive.things) = "yes"`,
 		expected: []string{
 			"D0, P[], (doc)::[{animal: cat, legs: {cool: true}, canWalk: true, alive: {things: yes}}, {animal: fish, alive: {things: yes}}]\n",
 		},

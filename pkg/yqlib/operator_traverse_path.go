@@ -39,7 +39,7 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 	log.Debug("Traversing %v", NodeToString(matchingNode))
 	value := matchingNode.Node
 
-	if value.Tag == "!!null" && operation.Value != "[]" {
+	if value.Tag == "!!null" && operation.Value != "[]" && !context.DontAutoCreate {
 		log.Debugf("Guessing kind")
 		// we must have added this automatically, lets guess what it should be now
 		switch operation.Value.(type) {

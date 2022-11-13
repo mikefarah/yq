@@ -4,7 +4,7 @@ import "gopkg.in/yaml.v3"
 
 func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
-	return crossFunction(d, context.ReadOnlyClone(), expressionNode, isEquals(false), true)
+	return crossFunction(d, context, expressionNode, isEquals(false), true)
 }
 
 func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {

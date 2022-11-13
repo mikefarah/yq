@@ -9,7 +9,14 @@ var equalsOperatorScenarios = []expressionScenario{
 		skipDoc:    true,
 		expression: ".a == .b",
 		expected: []string{
-			"D0, P[], (!!bool)::true\n",
+			"D0, P[a], (!!bool)::true\n",
+		},
+	},
+	{
+		expression: `(.k | length) == 0`,
+		skipDoc:    true,
+		expected: []string{
+			"D0, P[k], (!!bool)::true\n",
 		},
 	},
 	{
@@ -25,7 +32,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   `a: cat`,
 		expression: ".b == .a",
 		expected: []string{
-			"D0, P[a], (!!bool)::false\n",
+			"D0, P[b], (!!bool)::false\n",
 		},
 	},
 	{
@@ -50,7 +57,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: ".a == .b",
 		expected: []string{
-			"D0, P[], (!!bool)::true\n",
+			"D0, P[a], (!!bool)::true\n",
 		},
 	},
 	{

@@ -16,7 +16,7 @@ type compareTypePref struct {
 func compareOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- compareOperator")
 	prefs := expressionNode.Operation.Preferences.(compareTypePref)
-	return crossFunction(d, context.ReadOnlyClone(), expressionNode, compare(prefs), true)
+	return crossFunction(d, context, expressionNode, compare(prefs), true)
 }
 
 func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
@@ -127,6 +127,10 @@ func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs 
 			return lhs.Value > rhs.Value, nil
 		}
 		return lhs.Value < rhs.Value, nil
+	} else if lhsTag == "!!null" && rhsTag == "!!null" && prefs.OrEqual {
+		return true, nil
+	} else if lhsTag == "!!null" || rhsTag == "!!null" {
+		return false, nil
 	}
 
 	return false, fmt.Errorf("%v not yet supported for comparison", lhs.Tag)

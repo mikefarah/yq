@@ -16,6 +16,13 @@ var compareOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		expression: "(.k | length) >= 0",
+		expected: []string{
+			"D0, P[k], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "a: 5\nb: 4",
 		expression: ".a < .b",
 		expected: []string{
@@ -285,28 +292,28 @@ var compareOperatorScenarios = []expressionScenario{
 		description: "Both sides are null: > is false",
 		expression:  ".a > .b",
 		expected: []string{
-			"D0, P[], (!!bool)::false\n",
+			"D0, P[a], (!!bool)::false\n",
 		},
 	},
 	{
 		skipDoc:    true,
 		expression: ".a < .b",
 		expected: []string{
-			"D0, P[], (!!bool)::false\n",
+			"D0, P[a], (!!bool)::false\n",
 		},
 	},
 	{
 		description: "Both sides are null: >= is true",
 		expression:  ".a >= .b",
 		expected: []string{
-			"D0, P[], (!!bool)::true\n",
+			"D0, P[a], (!!bool)::true\n",
 		},
 	},
 	{
 		skipDoc:    true,
 		expression: ".a <= .b",
 		expected: []string{
-			"D0, P[], (!!bool)::true\n",
+			"D0, P[a], (!!bool)::true\n",
 		},
 	},
 
@@ -350,7 +357,7 @@ var compareOperatorScenarios = []expressionScenario{
 		document:   `a: 5`,
 		expression: ".b <= .a",
 		expected: []string{
-			"D0, P[a], (!!bool)::false\n",
+			"D0, P[b], (!!bool)::false\n",
 		},
 	},
 	{
@@ -358,7 +365,7 @@ var compareOperatorScenarios = []expressionScenario{
 		document:   `a: 5`,
 		expression: ".b < .a",
 		expected: []string{
-			"D0, P[a], (!!bool)::false\n",
+			"D0, P[b], (!!bool)::false\n",
 		},
 	},
 }
