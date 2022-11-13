@@ -109,7 +109,7 @@ EOL
   read -r -d '' expected << EOM
 cat:
   +content: BiBi
-  +legs: "4"
+  +@legs: "4"
 EOM
 
   X=$(./yq e -p=xml test.yml)
@@ -129,9 +129,9 @@ EOL
   read -r -d '' expected << EOM
 +p_xml: version="1.0"
 map:
-  +xmlns: some-namespace
-  +xmlns:xsi: some-instance
-  +xsi:schemaLocation: some-url
+  +@xmlns: some-namespace
+  +@xmlns:xsi: some-instance
+  +@xsi:schemaLocation: some-url
 EOM
 
   X=$(./yq e -p=xml test.yml)
@@ -190,7 +190,7 @@ EOL
   read -r -d '' expected << EOM
 cat:
   +content: BiBi
-  +legs: "4"
+  +@legs: "4"
 EOM
 
   X=$(cat /dev/null | ./yq e -p=xml test.yml)

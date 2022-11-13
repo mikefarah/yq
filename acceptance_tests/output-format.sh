@@ -252,7 +252,7 @@ EOM
 
 testOutputXmComplex() {
   cat >test.yml <<EOL
-a: {b: {c: ["cat", "dog"], +f: meow}}
+a: {b: {c: ["cat", "dog"], +@f: meow}}
 EOL
 
   read -r -d '' expected << EOM
