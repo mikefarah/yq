@@ -18,11 +18,10 @@ jobs:
         id: gen-man-page-md
         run: |
           ./scripts/generate-man-page-md.sh
-          echo "::set-output name=man-page-md::man.md"
 
       - name: Get the version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF##*/}
+        run: echo "VERSION=${GITHUB_REF##*/}" >> "${GITHUB_OUTPUT}"
 
       - name: Generate man page
         uses: docker://pandoc/core:2.14.2
@@ -36,7 +35,7 @@ jobs:
             --variable=header:"yq (https://github.com/mikefarah/yq/) version ${{ steps.get_version.outputs.VERSION }}"
             --variable=author:"Mike Farah"
             --output=yq.1
-            ${{ steps.gen-man-page-md.outputs.man-page-md }}
+            man.md
 
       - name: Cross compile
         run: |
