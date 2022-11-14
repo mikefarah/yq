@@ -1,5 +1,4 @@
 - update release notes
-- increment version in version.go
 - increment version in snapcraft.yaml
 - make sure local build passes
 - run ./scripts/copy-docs.sh (and commit the changed in the yq-book branch)
