@@ -34,6 +34,24 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testLeadingSeperatorWithDirective() {
+  cat >test.yml <<EOL
+%YAML 1.1
+---
+this: should really work
+EOL
+
+  read -r -d '' expected << EOM
+%YAML 1.1
+---
+this: should really work
+EOM
+
+  X=$(./yq < test.yml)
+  assertEquals "$expected" "$X"
+}
+
+
 testLeadingSeperatorPipeIntoEvalSeq() {
   X=$(./yq e - < test.yml)
   expected=$(cat test.yml)
