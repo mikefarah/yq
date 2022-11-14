@@ -621,6 +621,27 @@ var participleLexerScenarios = []participleLexerScenario{
 		},
 	},
 	{
+		expression: `"string with a\n"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: valueOpType,
+					Value:         "string with a\n",
+					StringValue:   "string with a\n",
+					Preferences:   nil,
+					CandidateNode: &CandidateNode{
+						Node: &yaml.Node{
+							Kind:  yaml.ScalarNode,
+							Tag:   "!!str",
+							Value: "string with a\n",
+						},
+					},
+				},
+			},
+		},
+	},
+	{
 		expression: `"string with a \""`,
 		tokens: []*token{
 			{

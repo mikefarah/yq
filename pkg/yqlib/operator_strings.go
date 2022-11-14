@@ -432,6 +432,7 @@ func split(value string, spltStr string) *yaml.Node {
 	var contents []*yaml.Node
 
 	if value != "" {
+		log.Debug("going to spltStr[%v]", spltStr)
 		var newStrings = strings.Split(value, spltStr)
 		contents = make([]*yaml.Node, len(newStrings))
 
