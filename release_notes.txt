@@ -1,3 +1,9 @@
+4.30.3:
+  - Updated release process (automated versioning)
+  - Fixed handling of yaml directives (#1424)
+  - Fixed parsing of newline character in string expression #1430
+  - Fixed length compares to null instead of 0 issue #1427
+
 4.30.2:
   - Actually updated the default xml prefix :facepalm:
 
