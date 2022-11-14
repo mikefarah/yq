@@ -16,7 +16,7 @@ jobs:
 
         - name: Get the version
           id: get_version
-          run: echo ::set-output name=VERSION::${GITHUB_REF##*/}
+          run: echo "VERSION=${GITHUB_REF##*/}" >> "${GITHUB_OUTPUT}"
 
         - name: Update snapcraft version file
           env:
