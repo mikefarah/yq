@@ -268,7 +268,10 @@ func parseSnippet(value string) (*yaml.Node, error) {
 	if len(parsedNode.Node.Content) == 0 {
 		return nil, fmt.Errorf("bad data")
 	}
-	return unwrapDoc(parsedNode.Node), err
+	result := unwrapDoc(parsedNode.Node)
+	result.Line = 0
+	result.Column = 0
+	return result, err
 }
 
 func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
