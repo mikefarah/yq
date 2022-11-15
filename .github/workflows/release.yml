@@ -44,8 +44,6 @@ jobs:
           mkdir -p build
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh
-        env:
-          VERSION: ${{ steps.get_version.outputs.VERSION }}
 
       - name: Release
         uses: softprops/action-gh-release@v1

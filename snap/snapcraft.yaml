@@ -1,18 +1,15 @@
 name: yq
-version: 'v4.30.3'
+version: 'v4.30.4'
 summary: A lightweight and portable command-line YAML processor
 description: |
   The aim of the project is to be the jq or sed of yaml files.
-
 base: core18
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
-
 apps:
   yq:
     command: yq
     plugs: [home]
-
 parts:
   yq:
     plugin: go
