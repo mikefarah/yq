@@ -9,6 +9,8 @@
 
 
 - snapcraft
+  - update snapcraft version
+  - https://snapcraft.io/yq/builds
   - will auto create a candidate, test it works then promote
   - !! need to update v4/stable as well as latest
   
