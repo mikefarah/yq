@@ -79,6 +79,14 @@ const roundTripMultiLineJson = `{
 
 var jsonScenarios = []formatScenario{
 	{
+		description:  "set tags",
+		skipDoc:      true,
+		input:        "[{}]",
+		expression:   `[.. | type]`,
+		scenarioType: "roundtrip-ndjson",
+		expected:     "[\"!!seq\",\"!!map\"]\n",
+	},
+	{
 		description:    "Parse json: simple",
 		subdescription: "JSON is a subset of yaml, so all you need to do is prettify the output",
 		input:          `{"cat": "meow"}`,

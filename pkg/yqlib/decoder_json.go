@@ -60,7 +60,7 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 		}
 	}
 
-	var yamlMap = &yaml.Node{Kind: yaml.MappingNode}
+	var yamlMap = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	for _, keyValuePair := range data.kv {
 		yamlValue, err := dec.convertToYamlNode(&keyValuePair.V)
 		if err != nil {
@@ -74,7 +74,7 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 
 func (dec *jsonDecoder) parseArray(dataArray []*orderedMap) (*yaml.Node, error) {
 
-	var yamlMap = &yaml.Node{Kind: yaml.SequenceNode}
+	var yamlMap = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 
 	for _, value := range dataArray {
 		yamlValue, err := dec.convertToYamlNode(value)
