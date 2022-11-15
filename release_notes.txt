@@ -1,3 +1,6 @@
+4.30.4:
+  - Fixed bug in automated versioning (snap/brew)
+
 4.30.3:
   - Updated release process (automated versioning)
   - Fixed handling of yaml directives (#1424)
