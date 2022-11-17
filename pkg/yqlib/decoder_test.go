@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -62,7 +63,7 @@ func mustProcessFormatScenario(s formatScenario, decoder Decoder, encoder Encode
 
 	result, err := processFormatScenario(s, decoder, encoder)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("Bad scenario %v: %w", s.description, err))
 	}
 	return result
 

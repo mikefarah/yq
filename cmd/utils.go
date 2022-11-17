@@ -72,6 +72,8 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 		return yqlib.NewCSVObjectDecoder(','), nil
 	case yqlib.TSVObjectInputFormat:
 		return yqlib.NewCSVObjectDecoder('\t'), nil
+	case yqlib.TomlInputFormat:
+		return yqlib.NewTomlDecoder(), nil
 	}
 	prefs := yqlib.ConfiguredYamlPreferences
 	prefs.EvaluateTogether = evaluateTogether
