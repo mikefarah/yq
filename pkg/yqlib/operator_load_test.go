@@ -15,6 +15,15 @@ var loadScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Load file with a header comment into an array",
+		document:    `- "../../examples/small.yaml"`,
+		expression:  `.[] |= load(.)`,
+		expected: []string{
+			"D0, P[], (doc)::- # comment\n  # about things\n  a: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Load empty file with no comment",
 		expression:  `load("../../examples/empty-no-comment.yaml")`,
 		expected: []string{

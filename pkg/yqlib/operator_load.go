@@ -9,6 +9,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var LoadYamlPreferences = YamlPreferences{
+	LeadingContentPreProcessing: false,
+	PrintDocSeparators:          true,
+	UnwrapScalar:                true,
+	EvaluateTogether:            false,
+}
+
 type loadPrefs struct {
 	loadAsString bool
 	decoder      Decoder
@@ -43,7 +50,10 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 		// return null candidate
 		return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!null"}}, nil
 	} else if documents.Len() == 1 {
-		return documents.Front().Value.(*CandidateNode), nil
+		candidate := documents.Front().Value.(*CandidateNode)
+		log.Debug("first comment:", candidate.LeadingContent)
+		// candidate.Node.Content[0].Content[0].HeadComment = candidate.LeadingContent
+		return candidate, nil
 
 	} else {
 		sequenceNode := &CandidateNode{Node: &yaml.Node{Kind: yaml.SequenceNode}}

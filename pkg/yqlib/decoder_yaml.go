@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"io"
 	"regexp"
@@ -12,11 +13,15 @@ import (
 
 type yamlDecoder struct {
 	decoder yaml.Decoder
+
+	prefs YamlPreferences
+
 	// work around of various parsing issues by yaml.v3 with document headers
-	prefs          YamlPreferences
 	leadingContent string
-	readAnything   bool
-	firstFile      bool
+	bufferRead     bytes.Buffer
+
+	readAnything bool
+	firstFile    bool
 }
 
 func NewYamlDecoder(prefs YamlPreferences) Decoder {
@@ -59,6 +64,7 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 func (dec *yamlDecoder) Init(reader io.Reader) error {
 	readerToUse := reader
 	leadingContent := ""
+	dec.bufferRead = bytes.Buffer{}
 	var err error
 	// if we 'evaluating together' - we only process the leading content
 	// of the first file - this ensures comments from subsequent files are
@@ -68,6 +74,12 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 		if err != nil {
 			return err
 		}
+	} else if !dec.prefs.LeadingContentPreProcessing {
+		// if we're not process the leading content
+		// keep a copy of what we've read. This is incase its a
+		// doc with only comments - the decoder will return nothing
+		// then we can read the comments from bufferRead
+		readerToUse = io.TeeReader(reader, &dec.bufferRead)
 	}
 	dec.leadingContent = leadingContent
 	dec.readAnything = false
@@ -78,13 +90,20 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 
 func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	var dataBucket yaml.Node
-
 	err := dec.decoder.Decode(&dataBucket)
 	if errors.Is(err, io.EOF) && dec.leadingContent != "" && !dec.readAnything {
 		// force returning an empty node with a comment.
 		dec.readAnything = true
 		return dec.blankNodeWithComment(), nil
-
+	} else if errors.Is(err, io.EOF) && !dec.prefs.LeadingContentPreProcessing && !dec.readAnything {
+		// didn't find any yaml,
+		// check the tee buffer, maybe there were comments
+		dec.readAnything = true
+		dec.leadingContent = dec.bufferRead.String()
+		if dec.leadingContent != "" {
+			return dec.blankNodeWithComment(), nil
+		}
+		return nil, err
 	} else if err != nil {
 		return nil, err
 	}
@@ -97,6 +116,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		candidateNode.LeadingContent = dec.leadingContent
 		dec.leadingContent = ""
 	}
+	dec.readAnything = true
 	// move document comments into candidate node
 	// otherwise unwrap drops them.
 	candidateNode.TrailingContent = dataBucket.FootComment
