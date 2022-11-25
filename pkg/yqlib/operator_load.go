@@ -51,8 +51,6 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 		return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!null"}}, nil
 	} else if documents.Len() == 1 {
 		candidate := documents.Front().Value.(*CandidateNode)
-		log.Debug("first comment:", candidate.LeadingContent)
-		// candidate.Node.Content[0].Content[0].HeadComment = candidate.LeadingContent
 		return candidate, nil
 
 	} else {
