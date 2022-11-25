@@ -245,7 +245,7 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 			}
 		case xml.CharData:
 			// Extract XML data (if any)
-			elem.n.Data = trimNonGraphic(string(se))
+			elem.n.Data = elem.n.Data + trimNonGraphic(string(se))
 			if elem.n.Data != "" {
 				elem.state = "chardata"
 				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)

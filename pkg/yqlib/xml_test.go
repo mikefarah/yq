@@ -234,6 +234,11 @@ const expectedXmlWithProcInstAndDirectives = `<?xml version="1.0"?>
 
 var xmlScenarios = []formatScenario{
 	{
+		skipDoc:  true,
+		input:    "<root>value<!-- comment--> </root>",
+		expected: "root: value # comment\n",
+	},
+	{
 		description:    "Parse xml: simple",
 		subdescription: "Notice how all the values are strings, see the next example on how you can fix that.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
