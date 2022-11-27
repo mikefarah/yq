@@ -3,6 +3,7 @@ package yqlib
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"unicode"
@@ -226,6 +227,8 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 	// That will convert the charset if the provided XML is non-UTF-8
 	xmlDec.CharsetReader = charset.NewReaderLabel
 
+	started := false
+
 	// Create first element from the root node
 	elem := &element{
 		parent: nil,
@@ -269,8 +272,13 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 				elem.n.AddChild(dec.prefs.AttributePrefix+a.Name.Local, &xmlNode{Data: []string{a.Value}})
 			}
 		case xml.CharData:
+
 			// Extract XML data (if any)
 			newBit := trimNonGraphic(string(se))
+			if !started && len(newBit) > 0 {
+				return fmt.Errorf("invalid XML: Encountered chardata [%v] outside of XML node", newBit)
+			}
+
 			if len(newBit) > 0 {
 				elem.n.Data = append(elem.n.Data, newBit)
 				elem.state = "chardata"
@@ -309,6 +317,7 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 				elem.n.AddChild(dec.prefs.DirectiveName, &xmlNode{Data: []string{string(se)}})
 			}
 		}
+		started = true
 	}
 
 	return nil

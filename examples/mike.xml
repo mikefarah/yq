@@ -1,7 +1,5 @@
-<?xml version="1.0"?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
-<apple>
-<?coolioo version="1.0"?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
-<b>things</b>
-</apple>
+date: "2022-11-25"
+raw:
+  id: 1
+  XML: text_outside_1<Tag1 />text_outside_2<Tag2Kling Klong</Tag2>text_outside_3
+  time: 09:19:00

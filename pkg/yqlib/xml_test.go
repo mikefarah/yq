@@ -235,8 +235,14 @@ const expectedXmlWithProcInstAndDirectives = `<?xml version="1.0"?>
 var xmlScenarios = []formatScenario{
 	{
 		skipDoc:  true,
-		input:    "<root>value<!-- comment--> </root>",
+		input:    "  <root>value<!-- comment--> </root>",
 		expected: "root: value # comment\n",
+	},
+	{
+		skipDoc:       true,
+		input:         "value<root>value</root>",
+		expectedError: "bad file 'sample.yml': invalid XML: Encountered chardata [value] outside of XML node",
+		scenarioType:  "decode-error",
 	},
 	{
 		skipDoc:  true,
@@ -502,6 +508,13 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 		prefs := NewDefaultXmlPreferences()
 		prefs.SkipDirectives = true
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs)), s.description)
+	case "decode-error":
+		result, err := processFormatScenario(s, NewXMLDecoder(NewDefaultXmlPreferences()), NewYamlEncoder(2, false, ConfiguredYamlPreferences))
+		if err == nil {
+			t.Errorf("Expected error '%v' but it worked: %v", s.expectedError, result)
+		} else {
+			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.description)
+		}
 	case "encode-error":
 		result, err := processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(2, NewDefaultXmlPreferences()))
 		if err == nil {

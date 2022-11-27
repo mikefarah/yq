@@ -1,3 +1,7 @@
+4.30.5:
+  - Fixed 
+  - Special thanks to Kopfbremse for finding all the bugs
+
 4.30.4:
   - Fixed bug in automated versioning (snap/brew)
 
