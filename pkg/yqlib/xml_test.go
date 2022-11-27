@@ -239,6 +239,16 @@ var xmlScenarios = []formatScenario{
 		expected: "root: value # comment\n",
 	},
 	{
+		skipDoc:  true,
+		input:    "<root> <!-- comment-->value</root>",
+		expected: "\n# comment\nroot: value\n", //needs fix
+	},
+	{
+		skipDoc:  true,
+		input:    "<root>value<!-- comment-->anotherValue </root>",
+		expected: "root:\n    # comment\n    - value\n    - anotherValue\n",
+	},
+	{
 		description:    "Parse xml: simple",
 		subdescription: "Notice how all the values are strings, see the next example on how you can fix that.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
@@ -268,6 +278,12 @@ var xmlScenarios = []formatScenario{
 		subdescription: "Content is added as a field, using the default content name of `+content`. Use `--xml-content-name` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">meow</cat>",
 		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\ncat:\n    +content: meow\n    +@legs: \"4\"\n",
+	},
+	{
+		description:    "Parse xml: content split between comments/children",
+		subdescription: "Multiple content texts are collected into a sequence.",
+		input:          "<root>  value  <!-- comment-->anotherValue <a>frog</a> cool!</root>",
+		expected:       "root:\n    +content: # comment\n        - value\n        - anotherValue\n        - cool!\n    a: frog\n",
 	},
 	{
 		description:    "Parse xml: custom dtd",

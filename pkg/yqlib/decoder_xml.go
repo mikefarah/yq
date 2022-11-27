@@ -53,15 +53,16 @@ func (dec *xmlDecoder) processComment(c string) string {
 }
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
-	log.Debug("createMap: headC: %v, footC: %v", n.HeadComment, n.FootComment)
+	log.Debug("createMap: headC: %v, lineC: %v, footC: %v", n.HeadComment, n.LineComment, n.FootComment)
 	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
 		label := dec.prefs.ContentName
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
+		labelNode.LineComment = dec.processComment(n.LineComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
-		yamlNode.Content = append(yamlNode.Content, labelNode, createScalarNode(n.Data, n.Data))
+		yamlNode.Content = append(yamlNode.Content, labelNode, dec.createValueNodeFromData(n.Data))
 	}
 
 	for i, keyValuePair := range n.Children {
@@ -89,6 +90,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 			// if the value is a scalar, the head comment of the scalar needs to go on the key?
 			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
 			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
+				log.Debug("scalar comment hack")
 				labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
 				children[0].HeadComment = ""
 			}
@@ -103,17 +105,40 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	return yamlNode, nil
 }
 
+func (dec *xmlDecoder) createValueNodeFromData(values []string) *yaml.Node {
+	switch len(values) {
+	case 0:
+		return createScalarNode(nil, "")
+	case 1:
+		return createScalarNode(values[0], values[0])
+	default:
+		content := make([]*yaml.Node, 0)
+		for _, value := range values {
+			content = append(content, createScalarNode(value, value))
+		}
+		return &yaml.Node{
+			Kind:    yaml.SequenceNode,
+			Tag:     "!!seq",
+			Content: content,
+		}
+	}
+}
+
 func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
 	if len(n.Children) > 0 {
 		return dec.createMap(n)
 	}
-	scalar := createScalarNode(n.Data, n.Data)
-	if n.Data == "" {
-		scalar = createScalarNode(nil, "")
-	}
-	log.Debug("scalar headC: %v, footC: %v", n.HeadComment, n.FootComment)
+
+	scalar := dec.createValueNodeFromData(n.Data)
+
+	log.Debug("scalar (%v), headC: %v, lineC: %v, footC: %v", scalar.Tag, n.HeadComment, n.LineComment, n.FootComment)
 	scalar.HeadComment = dec.processComment(n.HeadComment)
 	scalar.LineComment = dec.processComment(n.LineComment)
+	if scalar.Tag == "!!seq" {
+		scalar.Content[0].HeadComment = scalar.LineComment
+		scalar.LineComment = ""
+	}
+
 	scalar.FootComment = dec.processComment(n.FootComment)
 
 	return scalar, nil
@@ -156,7 +181,7 @@ type xmlNode struct {
 	HeadComment string
 	FootComment string
 	LineComment string
-	Data        string
+	Data        []string
 }
 
 type xmlChildrenKv struct {
@@ -241,12 +266,13 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 						a.Name.Local = a.Name.Space + ":" + a.Name.Local
 					}
 				}
-				elem.n.AddChild(dec.prefs.AttributePrefix+a.Name.Local, &xmlNode{Data: a.Value})
+				elem.n.AddChild(dec.prefs.AttributePrefix+a.Name.Local, &xmlNode{Data: []string{a.Value}})
 			}
 		case xml.CharData:
 			// Extract XML data (if any)
-			elem.n.Data = elem.n.Data + trimNonGraphic(string(se))
-			if elem.n.Data != "" {
+			newBit := trimNonGraphic(string(se))
+			if len(newBit) > 0 {
+				elem.n.Data = append(elem.n.Data, newBit)
 				elem.state = "chardata"
 				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)
 			}
@@ -276,11 +302,11 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 		case xml.ProcInst:
 			if !dec.prefs.SkipProcInst {
-				elem.n.AddChild(dec.prefs.ProcInstPrefix+se.Target, &xmlNode{Data: string(se.Inst)})
+				elem.n.AddChild(dec.prefs.ProcInstPrefix+se.Target, &xmlNode{Data: []string{string(se.Inst)}})
 			}
 		case xml.Directive:
 			if !dec.prefs.SkipDirectives {
-				elem.n.AddChild(dec.prefs.DirectiveName, &xmlNode{Data: string(se)})
+				elem.n.AddChild(dec.prefs.DirectiveName, &xmlNode{Data: []string{string(se)}})
 			}
 		}
 	}
