@@ -235,13 +235,13 @@ func guessTagFromCustomType(node *yaml.Node) string {
 	if strings.HasPrefix(node.Tag, "!!") {
 		return node.Tag
 	} else if node.Value == "" {
-		log.Warning("node has no value to guess the type with")
+		log.Debug("guessTagFromCustomType: node has no value to guess the type with")
 		return node.Tag
 	}
 	dataBucket, errorReading := parseSnippet(node.Value)
 
 	if errorReading != nil {
-		log.Warning("could not guess underlying tag type %v", errorReading)
+		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return node.Tag
 	}
 	guessedTag := unwrapDoc(dataBucket).Tag

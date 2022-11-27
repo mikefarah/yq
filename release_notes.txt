@@ -1,6 +1,12 @@
 4.30.5:
-  - Fixed 
-  - Special thanks to Kopfbremse for finding all the bugs
+  - XML Decoder: Comment parsing tweak 
+  - XML Decoder: Fixed processing comments in empty XML #1446
+  - XML Decoder: Checking for invalid content outside of a root node #1448
+  - XML Decoder: Fixed issue where content surrounding tags are lost #1447
+  - XML Decoder: Fixed xml decode bug when there is content after a comment
+  - Fixed loading yaml with header issue #1445
+  - guessTagFromCustomType warning log is now a debug.
+  - Special thanks to @Kopfbremse for reporting XML issues!
 
 4.30.4:
   - Fixed bug in automated versioning (snap/brew)
