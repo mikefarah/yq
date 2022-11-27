@@ -152,6 +152,27 @@ cat:
   +@legs: "4"
 ```
 
+## Parse xml: content split between comments/children
+Multiple content texts are collected into a sequence.
+
+Given a sample.xml file of:
+```xml
+<root>  value  <!-- comment-->anotherValue <a>frog</a> cool!</root>
+```
+then
+```bash
+yq -p=xml '.' sample.xml
+```
+will output
+```yaml
+root:
+  +content: # comment
+    - value
+    - anotherValue
+    - cool!
+  a: frog
+```
+
 ## Parse xml: custom dtd
 DTD entities are processed as directives.
 
