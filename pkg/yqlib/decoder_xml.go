@@ -58,6 +58,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
+		log.Debug("creating content node for map")
 		label := dec.prefs.ContentName
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
@@ -87,13 +88,21 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 				return nil, err
 			}
 		} else {
+			log.Debug("before hack, this is the data len: %", len(children[0].Data))
 			// comment hack for maps of scalars
 			// if the value is a scalar, the head comment of the scalar needs to go on the key?
 			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
 			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
-				log.Debug("scalar comment hack")
-				labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
-				children[0].HeadComment = ""
+				if len(children[0].Data) > 0 {
+
+					log.Debug("scalar comment hack")
+					labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
+					children[0].HeadComment = ""
+				} else {
+					// child is null, put the headComment as a linecomment for reasons
+					children[0].LineComment = children[0].HeadComment
+					children[0].HeadComment = ""
+				}
 			}
 			valueNode, err = dec.convertToYamlNode(children[0])
 			if err != nil {

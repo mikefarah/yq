@@ -251,6 +251,11 @@ var xmlScenarios = []formatScenario{
 	},
 	{
 		skipDoc:  true,
+		input:    "<root> <!-- comment--></root>",
+		expected: "root: # comment\n",
+	},
+	{
+		skipDoc:  true,
 		input:    "<root>value<!-- comment-->anotherValue </root>",
 		expected: "root:\n    # comment\n    - value\n    - anotherValue\n",
 	},
