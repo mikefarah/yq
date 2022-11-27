@@ -246,8 +246,8 @@ var xmlScenarios = []formatScenario{
 	},
 	{
 		skipDoc:  true,
-		input:    "<root> <!-- comment-->value</root>",
-		expected: "\n# comment\nroot: value\n", //needs fix
+		input:    "<root><!-- comment-->value</root>",
+		expected: "# comment\nroot: value\n",
 	},
 	{
 		skipDoc:  true,

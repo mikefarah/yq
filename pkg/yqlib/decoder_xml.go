@@ -88,15 +88,14 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 				return nil, err
 			}
 		} else {
-			log.Debug("before hack, this is the data len: %", len(children[0].Data))
 			// comment hack for maps of scalars
 			// if the value is a scalar, the head comment of the scalar needs to go on the key?
 			// add tests for <z/> as well as multiple <ds> of inputXmlWithComments > yaml
 			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
 				if len(children[0].Data) > 0 {
 
-					log.Debug("scalar comment hack")
-					labelNode.HeadComment = labelNode.HeadComment + "\n" + strings.TrimSpace(children[0].HeadComment)
+					log.Debug("scalar comment hack, currentlabel [%v]", labelNode.HeadComment)
+					labelNode.HeadComment = joinComments([]string{labelNode.HeadComment, strings.TrimSpace(children[0].HeadComment)}, "\n")
 					children[0].HeadComment = ""
 				} else {
 					// child is null, put the headComment as a linecomment for reasons
@@ -311,10 +310,10 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 			} else if elem.state == "chardata" {
 				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
-				elem.n.LineComment = joinFilter([]string{elem.n.LineComment, commentStr})
+				elem.n.LineComment = joinComments([]string{elem.n.LineComment, commentStr}, " ")
 			} else {
 				log.Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
-				elem.n.HeadComment = joinFilter([]string{elem.n.HeadComment, commentStr})
+				elem.n.HeadComment = joinComments([]string{elem.n.HeadComment, commentStr}, " ")
 			}
 
 		case xml.ProcInst:
@@ -339,21 +338,21 @@ func applyFootComment(elem *element, commentStr string) {
 		lastChildIndex := len(elem.n.Children) - 1
 		childKv := elem.n.Children[lastChildIndex]
 		log.Debug("got a foot comment for %v: [%v]", childKv.K, commentStr)
-		childKv.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+		childKv.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
 	} else {
 		log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
-		elem.n.FootComment = joinFilter([]string{elem.n.FootComment, commentStr})
+		elem.n.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
 	}
 }
 
-func joinFilter(rawStrings []string) string {
+func joinComments(rawStrings []string, joinStr string) string {
 	stringsToJoin := make([]string, 0)
 	for _, str := range rawStrings {
 		if str != "" {
 			stringsToJoin = append(stringsToJoin, str)
 		}
 	}
-	return strings.Join(stringsToJoin, " ")
+	return strings.Join(stringsToJoin, joinStr)
 }
 
 // trimNonGraphic returns a slice of the string s, with all leading and trailing
