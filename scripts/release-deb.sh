@@ -228,30 +228,27 @@ RUN apt-get -qq -y --no-install-recommends install \
     libdistro-info-perl \
     pandoc \
     rsync \
-    sensible-utils && \
+    sensible-utils \
+    sudo && \
   apt-get clean && \
   rm -rf /tmp/* /var/tmp/*
 
 COPY --from=golang /usr/local/go /usr/local/go
 
 # build debian package as yq user
-RUN useradd -ms /bin/bash yq && \
-  mkdir /home/yq/src && chown -R yq: /home/yq/src && \
-  mkdir /home/yq/output && chown -R yq: /home/yq/output
+RUN adduser --gecos yq --disabled-password yq && \
+  mkdir /home/yq/src && \
+  mkdir /home/yq/output
 
 ADD ./build/dput.cf /etc/dput.cf
 ADD ./build/build.sh /usr/bin/build.sh
-RUN chmod +x /usr/bin/build.sh && chown -R yq: /usr/bin/build.sh
-
-USER yq
+RUN chmod +x /usr/bin/build.sh
 
 WORKDIR /home/yq/src
 VOLUME ["/home/yq/src"]
 
 # dir where output packages are finally left
 VOLUME ["/home/yq/output"]
-
-CMD ["/usr/bin/build.sh"]
 EOF
 
 DOCKER_BUILDKIT=1 docker build --pull -f "${blddir}"/Dockerfile -t "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" .
@@ -260,5 +257,4 @@ docker run --rm -i \
   -v "${srcdir}":/home/yq/src:delegated \
   -v "${OUTPUT}":/home/yq/output \
   -v "${HOME}"/.gnupg:/home/yq/.gnupg:delegated \
-  -u "$(id -u)" \
-  "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+  "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" bash -c "sed -i -E \"s/^(yq):(x?):([0-9]+):([0-9]+):(.*):(.*):(.*)$/\1:\2:$(id -u):$(id -g):\5:\6:\7/\" /etc/passwd && chown -R yq:yq /home/yq && sudo -u yq /usr/bin/build.sh"
