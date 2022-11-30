@@ -17,6 +17,7 @@ VERSION=
 DISTRIBUTION=
 DO_SIGN=
 PASSPHRASE=
+PLATFORM="$(uname -m)"
 
 show_help() {
   echo "  usage: $(basename "$0") VERSION [options...]"
@@ -39,6 +40,7 @@ show_help() {
   echo "    --ppa PPA                   Push resultant files to indicated ppa. This option should be given along with a signing key."
   echo "                                  Otherwise, the server could reject the package building. Default is set to 'rmescandon/yq'"
   echo "    --passphrase PASSPHRASE     Passphrase to decrypt the signage key"
+  echo "    --platform PLATFORM         Targeting platform. Default to $(uname -m)"
   exit 1
 }
 # read input args
@@ -83,6 +85,10 @@ while [ $# -ne 0 ]; do
       shift
       PASSPHRASE="$1"
       ;;
+    --platform)
+      shift
+      PLATFORM="$1"
+      ;;
     *)
       if [ -z "$VERSION" ]; then
         VERSION="$1"
@@ -94,6 +100,19 @@ while [ $# -ne 0 ]; do
 done
 
 [ -n "$VERSION" ] || (echo "error - you have to provide a version" && show_help)
+
+case $PLATFORM in
+  x86_64)
+    PLATFORM="amd64"
+    ;;
+  aarch64)
+    PLATFORM="arm64"
+    ;;
+  *)
+    echo "error - unsupported platform $PLATFORM "
+    exit 1
+    ;;
+esac
 
 if [ -n "$OUTPUT" ]; then
   OUTPUT="$(realpath "$OUTPUT")"
@@ -213,8 +232,8 @@ FROM base as golang
 RUN apt-get -qq -y --no-install-recommends install \
     ca-certificates \
     wget
-RUN wget "https://golang.org/dl/go${GOVERSION}.linux-amd64.tar.gz" -4
-RUN tar -C /usr/local -xvf "go${GOVERSION}.linux-amd64.tar.gz"
+RUN wget "https://golang.org/dl/go${GOVERSION}.linux-${PLATFORM}.tar.gz" -4
+RUN tar -C /usr/local -xvf "go${GOVERSION}.linux-${PLATFORM}.tar.gz"
 
 FROM base
 RUN apt-get -qq -y --no-install-recommends install \
@@ -251,9 +270,9 @@ VOLUME ["/home/yq/src"]
 VOLUME ["/home/yq/output"]
 EOF
 
-DOCKER_BUILDKIT=1 docker build --pull -f "${blddir}"/Dockerfile -t "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" .
+DOCKER_BUILDKIT=1 docker build --platform linux/${PLATFORM} --pull -f "${blddir}"/Dockerfile -t "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}" .
 
-docker run --rm -i \
+docker run --rm -i --platform linux/${PLATFORM} \
   -v "${srcdir}":/home/yq/src:delegated \
   -v "${OUTPUT}":/home/yq/output \
   -v "${HOME}"/.gnupg:/home/yq/.gnupg:delegated \
