@@ -157,7 +157,7 @@ fi
 gbp dch --ignore-branch --no-multimaint -N "$VERSION" -s "\$SINCE" -D "\$DISTRIBUTION"
 
 # using -d to prevent failing when searching for golang dep on control file
-params=("-d" "-S")
+params=("-d")
 
 # add the -sa option for signing along with the key to use when provided key id
 if [ -n "$DO_SIGN" ]; then
