@@ -131,7 +131,7 @@ cat << EOF > ${blddir}/build.sh
 #!/bin/bash 
 set -e -o pipefail
 
-PATH=$PATH:/usr/local/go/bin
+PATH=\$PATH:/usr/local/go/bin
 export GPG_TTY=$(tty)
 
 go mod vendor
