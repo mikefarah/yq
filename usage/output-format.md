@@ -4,15 +4,15 @@ description: Flags to control yaml and json output format
 
 # Output format
 
-These flags are available for all `yq` commands.&#x20;
+These flags are available for all `yq` commands.
 
 ## Color
 
-By default, `yq` prints with colours if it detects a terminal. You can manully this by using either
+By default, `yq` prints with colours if it detects a terminal. You can manually change this by using either
 
-The `--colors/-C`flag to force print with colors.&#x20;
+The `--colors/-C` flag to force print with colors.
 
-The \``--no-colors/-M` flag to force print without colours
+The `--no-colors/-M` flag to force print without colours
 
 ## Pretty Print
 
@@ -20,7 +20,7 @@ To print out idiomatic `yaml` use the `--prettyPrint/-P` flag. Note that this is
 
 ## Indent
 
-Use the indent flag `--indent/-I` to control the number of spaces used for indentation. This also works for JSON output. The default value is 2.&#x20;
+Use the indent flag `--indent/-I` to control the number of spaces used for indentation. This also works for JSON output. The default value is 2.
 
 Note that lists are indented at the same level as the map key at indent level 2, but are more deeply indented at indent level 4 and greater. This is (currently) a quirk of the underlying [yaml parser](https://github.com/go-yaml/yaml/tree/v3).
 
