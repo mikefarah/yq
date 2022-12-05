@@ -130,7 +130,7 @@ See the [multiply documentation](https://mikefarah.gitbook.io/yq/operators/multi
 
 ### Prefix yaml
 
-Use the [Create / Collect Into Object ](broken-reference)operator to create a new object with the desired prefix.&#x20;
+Use the [Create / Collect Into Object ](broken-reference)operator to create a new object with the desired prefix.
 
 v3:
 

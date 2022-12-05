@@ -8,7 +8,7 @@ description: >-
 
 Note that (as of 4.18.1) this is the default command when none is supplied to yq.
 
-## Usage:&#x20;
+## Usage:
 
 ```bash
 yq eval [expression] [yaml_file1]... [flags]
