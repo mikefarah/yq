@@ -108,7 +108,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document2:  docNoComments,
 		expression: `select(fi == 0) * select(fi == 1)`,
 		expected: []string{
-			"D0, P[], (!!map)::# here\na: apple\nb: banana\n",
+			"D0, P[], (!!map)::# here\n\na: apple\nb: banana\n",
 		},
 	},
 	{
@@ -126,7 +126,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document2:  docWithHeader,
 		expression: `select(fi == 0) * select(fi == 1)`,
 		expected: []string{
-			"D0, P[], (!!map)::# here\nb: banana\na: apple\n",
+			"D0, P[], (!!map)::# here\n\nb: banana\na: apple\n",
 		},
 	},
 	{

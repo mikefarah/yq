@@ -34,6 +34,64 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+
+testLeadingSeperatorWithNewlinesNewDoc() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+
+
+---
+a: test
+---
+b: cool
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+
+
+---
+a: thing
+---
+b: cool
+EOM
+
+  X=$(./yq e '(select(di == 0) | .a) = "thing"' - < test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testLeadingSeperatorWithNewlinesMoreComments() {
+  cat >test.yml <<EOL
+# hi peeps
+# cool
+
+---
+# great
+
+a: test
+---
+b: cool
+EOL
+
+  read -r -d '' expected << EOM
+# hi peeps
+# cool
+
+---
+# great
+
+a: thing
+---
+b: cool
+EOM
+
+  X=$(./yq e '(select(di == 0) | .a) = "thing"' - < test.yml)
+  assertEquals "$expected" "$X"
+}
+
+
 testLeadingSeperatorWithDirective() {
   cat >test.yml <<EOL
 %YAML 1.1

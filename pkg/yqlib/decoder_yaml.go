@@ -39,6 +39,14 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 			return reader, sb.String(), nil
 		} else if err != nil {
 			return reader, sb.String(), err
+		} else if string(peekBytes[0]) == "\n" {
+			_, err := reader.ReadString('\n')
+			sb.WriteString("\n")
+			if errors.Is(err, io.EOF) {
+				return reader, sb.String(), nil
+			} else if err != nil {
+				return reader, sb.String(), err
+			}
 		} else if string(peekBytes) == "---" {
 			_, err := reader.ReadString('\n')
 			sb.WriteString("$yqDocSeperator$\n")

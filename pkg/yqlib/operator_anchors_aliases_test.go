@@ -12,8 +12,7 @@ var specDocument = `- &CENTER { x: 1, y: 2 }
 
 var expectedSpecResult = "D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"
 
-var simpleArrayRef = `
-item_value: &item_value
+var simpleArrayRef = `item_value: &item_value
   value: true
 
 thingOne:

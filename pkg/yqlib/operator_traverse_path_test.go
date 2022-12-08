@@ -4,8 +4,7 @@ import (
 	"testing"
 )
 
-var mergeDocSample = `
-foo: &foo
+var mergeDocSample = `foo: &foo
   a: foo_a
   thing: foo_thing
   c: foo_c

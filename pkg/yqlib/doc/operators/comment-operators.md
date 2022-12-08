@@ -247,6 +247,7 @@ Note the use of `...` to ensure key nodes are included.
 Given a sample.yml file of:
 ```yaml
 # hi
+
 a: cat # comment
 # great
 b: # key comment
@@ -265,6 +266,7 @@ b:
 Given a sample.yml file of:
 ```yaml
 # welcome!
+
 a: cat # meow
 # have a great day
 ```
@@ -293,6 +295,7 @@ yq '. | head_comment' sample.yml
 will output
 ```yaml
 welcome!
+
 ```
 
 ## Head comment with document split
