@@ -8,7 +8,7 @@ require (
 	github.com/elliotchance/orderedmap v1.5.0
 	github.com/fatih/color v1.13.0
 	github.com/goccy/go-json v0.10.0
-	github.com/goccy/go-yaml v1.9.6
+	github.com/goccy/go-yaml v1.9.7
 	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.6
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
