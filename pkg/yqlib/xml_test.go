@@ -260,6 +260,11 @@ var xmlScenarios = []formatScenario{
 		expected: "root:\n    # comment\n    - value\n    - anotherValue\n",
 	},
 	{
+		skipDoc:  true,
+		input:    "<root><cats><cat>quick</cat><cat>soft</cat><!-- kitty_comment--><cat>squishy</cat></cats></root>",
+		expected: "root:\n    cats:\n        cat:\n            - quick\n            - soft\n            # kitty_comment\n            - squishy\n",
+	},
+	{
 		description:    "Parse xml: simple",
 		subdescription: "Notice how all the values are strings, see the next example on how you can fix that.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat>\n  <says>meow</says>\n  <legs>4</legs>\n  <cute>true</cute>\n</cat>",
