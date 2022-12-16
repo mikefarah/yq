@@ -58,7 +58,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
-		log.Debug("creating content node for map")
+		log.Debugf("creating content node for map: %v", dec.prefs.ContentName)
 		label := dec.prefs.ContentName
 		labelNode := createScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
@@ -78,7 +78,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 			labelNode.HeadComment = dec.processComment(n.HeadComment)
 
 		}
-
+		log.Debugf("label=%v, i=%v, keyValuePair.FootComment: %v", label, i, keyValuePair.FootComment)
 		labelNode.FootComment = dec.processComment(keyValuePair.FootComment)
 
 		log.Debug("len of children in %v is %v", label, len(children))
@@ -337,8 +337,14 @@ func applyFootComment(elem *element, commentStr string) {
 	if len(elem.n.Children) > 0 {
 		lastChildIndex := len(elem.n.Children) - 1
 		childKv := elem.n.Children[lastChildIndex]
-		log.Debug("got a foot comment for %v: [%v]", childKv.K, commentStr)
-		childKv.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
+		log.Debug("got a foot comment, putting on last child for %v: [%v]", childKv.K, commentStr)
+		// if it's an array of scalars, put the foot comment on the scalar itself
+		if len(childKv.V) > 0 && len(childKv.V[0].Children) == 0 {
+			nodeToUpdate := childKv.V[len(childKv.V)-1]
+			nodeToUpdate.FootComment = joinComments([]string{nodeToUpdate.FootComment, commentStr}, " ")
+		} else {
+			childKv.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
+		}
 	} else {
 		log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
 		elem.n.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
