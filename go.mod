@@ -10,11 +10,8 @@ require (
 	github.com/goccy/go-json v0.10.0
 	github.com/goccy/go-yaml v1.9.7
 	github.com/jinzhu/copier v0.3.5
-
 	github.com/magiconair/properties v1.8.7
-
 	github.com/pelletier/go-toml/v2 v2.0.6
-
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
