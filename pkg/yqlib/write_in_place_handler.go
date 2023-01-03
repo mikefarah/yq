@@ -34,6 +34,10 @@ func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err = changeOwner(info, file); err != nil {
+		return nil, err
+	}
 	log.Debug("WriteInPlaceHandler: writing to tempfile: %v", file.Name())
 	w.tempFile = file
 	return file, err
