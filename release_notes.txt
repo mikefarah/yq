@@ -1,3 +1,7 @@
+(not yet released):
+  - Ownership of file now maintained in linux (thanks @vaguecoder) #1473
+  - Bumped dependency versions
+
 4.30.6:
   - Fixed xml comment in array of scalars #1465
   - Include blank new lines in leading header preprocessing #1462
