@@ -499,3 +499,43 @@ b: !goat
   dog: woof
 ```
 
+## Merging a null with a map
+Running
+```bash
+yq --null-input 'null * {"some": "thing"}'
+```
+will output
+```yaml
+some: thing
+```
+
+## Merging a map with null
+Running
+```bash
+yq --null-input '{"some": "thing"} * null'
+```
+will output
+```yaml
+some: thing
+```
+
+## Merging an null with an array
+Running
+```bash
+yq --null-input 'null * ["some"]'
+```
+will output
+```yaml
+- some
+```
+
+## Merging an array with null
+Running
+```bash
+yq --null-input '["some"] * null'
+```
+will output
+```yaml
+- some
+```
+
