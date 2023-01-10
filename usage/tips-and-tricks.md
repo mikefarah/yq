@@ -55,6 +55,16 @@ The `strenv` operator is a great way to handle special characters in strings:
 VAL='.a |!@  == "string2"' yq '.a = strenv(VAL)' example.yaml
 ```
 
+## Update multiple files
+
+`yq` doesn't have a way of updating multiple files in a single command (yet?) - but you can use your shell's built in tools like `find`:
+
+```
+find *.yaml -exec yq '. += "cow"' -i {} \;
+```
+
+This will run the `'. += "cow"'` expression against every matching file, and update it in place (`-i`).
+
 ## String blocks and newline issues
 There are a couple of tricks to getting the right string representation, take a look at [string operators](https://mikefarah.gitbook.io/yq/operators/string-operators#string-blocks-bash-and-newlines) for more details:
 
