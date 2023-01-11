@@ -102,6 +102,14 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Prepend to existing array",
+		document:    `a: [dog]`,
+		expression:  `.a = ["cat"] + .a`,
+		expected: []string{
+			"D0, P[], (doc)::a: [cat, dog]\n",
+		},
+	},
+	{
 		skipDoc:        true,
 		description:    "Concatenate to existing array",
 		subdescription: "does not modify original",
