@@ -61,7 +61,7 @@ var participleLexerScenarios = []participleLexerScenario{
 				TokenType: operationToken,
 				Operation: &Operation{
 					OperationType: valueOpType,
-					Value:         3,
+					Value:         int64(3),
 					StringValue:   "3",
 					CandidateNode: &CandidateNode{
 						Node: &yaml.Node{
@@ -103,7 +103,7 @@ var participleLexerScenarios = []participleLexerScenario{
 				TokenType: operationToken,
 				Operation: &Operation{
 					OperationType: valueOpType,
-					Value:         -2,
+					Value:         int64(-2),
 					StringValue:   "-2",
 					CandidateNode: &CandidateNode{
 						Node: &yaml.Node{
