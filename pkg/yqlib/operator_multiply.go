@@ -195,7 +195,7 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	} else {
 		log.Debugf("merge - assignmentOp := &Operation{OperationType: assignAttributesOpType}")
 	}
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhs}
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,

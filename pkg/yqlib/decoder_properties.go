@@ -63,7 +63,7 @@ func (dec *propertiesDecoder) applyPropertyComments(context Context, path []inte
 
 	rhsCandidateNode.Node.Tag = guessTagFromCustomType(rhsCandidateNode.Node)
 
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhsCandidateNode}
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
@@ -102,7 +102,7 @@ func (dec *propertiesDecoder) applyProperty(context Context, properties *propert
 
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhsCandidateNode}
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,

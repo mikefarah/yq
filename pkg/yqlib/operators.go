@@ -41,9 +41,9 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 		if err != nil {
 			return Context{}, err
 		}
-		valueCopyExp := &ExpressionNode{Operation: &Operation{OperationType: valueOpType, CandidateNode: clone}}
+		valueCopyExp := &ExpressionNode{Operation: &Operation{OperationType: referenceOpType, CandidateNode: clone}}
 
-		valueExpression := &ExpressionNode{Operation: &Operation{OperationType: valueOpType, CandidateNode: candidate}}
+		valueExpression := &ExpressionNode{Operation: &Operation{OperationType: referenceOpType, CandidateNode: candidate}}
 
 		assignmentOpNode := &ExpressionNode{Operation: assignmentOp, LHS: valueExpression, RHS: calculation(valueCopyExp, expressionNode.RHS)}
 
