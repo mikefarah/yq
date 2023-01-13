@@ -56,6 +56,24 @@ var sliceArrayScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "second index beyond array clamps",
+		document:    `[cat]`,
+		expression:  `.[:3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "first index beyond array returns nothing",
+		document:    `[cat]`,
+		expression:  `.[3:]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `[[cat, dog, frog, cow], [apple, banana, grape, mango]]`,
 		expression: `.[] | .[-2:-1]`,
