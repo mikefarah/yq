@@ -1,6 +1,9 @@
-(not yet released):
-  - Ownership of file now maintained in linux (thanks @vaguecoder) #1473
-  - Bumped dependency versions
+4.30.7:
+ - Fixed bug in splice operator #1511
+ - Fixed value operator bug  #1515
+ - Fixed handling of merging null #1501
+ - Ownership of file now maintained in linux (thanks @vaguecoder) #1473
+ - Bumped dependency versions
 
 4.30.6:
   - Fixed xml comment in array of scalars #1465
