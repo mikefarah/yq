@@ -42,6 +42,35 @@ You can create a bash array named `actions` by:
 edit
 ```
 
+
+## yq in a bash loop
+
+For a given yaml file like:
+```
+identities:
+- arn: "arn:aws:iam::ARN1"
+  group: "system:masters"
+  user: "user1"
+- arn: "arn:aws:iam::ARN2"
+  group: "system:masters"
+  user: "user2"
+```
+
+You can loop over the results in a bash loop like:
+
+```
+# load array into a bash array
+# output each entry as a single line json
+readarray identityMappings < <(yq -o=j -I=0 '.identities[]' test.yml )
+
+for identityMapping in "${identityMappings[@]}"; do
+    # identity mapping is a single json snippet representing a single entry
+    roleArn=$(echo "$identityMapping" | yq '.arn' -)
+    echo "roleArn: $roleArn"
+done
+
+```
+
 ## Set contents from another file
 
 Use the [load](https://mikefarah.gitbook.io/yq/operators/load) operator to load contents from another file.
