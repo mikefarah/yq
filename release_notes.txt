@@ -1,3 +1,7 @@
+4.30.8:
+ - Log info message when unable to chown file in linux (e.g. snap confinement) #1521
+
+
 4.30.7:
  - Fixed bug in splice operator #1511
  - Fixed value operator bug  #1515
