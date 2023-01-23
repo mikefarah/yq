@@ -27,6 +27,7 @@ const (
 	TSVOutputFormat
 	XMLOutputFormat
 	Base64OutputFormat
+	UriOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {

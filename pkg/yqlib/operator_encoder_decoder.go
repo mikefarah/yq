@@ -26,6 +26,8 @@ func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 		return NewXMLEncoder(indent, ConfiguredXMLPreferences)
 	case Base64OutputFormat:
 		return NewBase64Encoder()
+	case UriOutputFormat:
+		return NewUriEncoder()
 	}
 	panic("invalid encoder")
 }
@@ -113,6 +115,8 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		decoder = NewCSVObjectDecoder(',')
 	case TSVObjectInputFormat:
 		decoder = NewCSVObjectDecoder('\t')
+	case UriInputFormat:
+		decoder = NewUriDecoder()
 	}
 
 	var results = list.New()

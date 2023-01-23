@@ -15,6 +15,7 @@ const (
 	JsonInputFormat
 	CSVObjectInputFormat
 	TSVObjectInputFormat
+	UriInputFormat
 )
 
 type Decoder interface {

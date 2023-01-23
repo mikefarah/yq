@@ -242,6 +242,22 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Encode a string to uri",
+		document:    "coolData: this has & special () characters *",
+		expression:  ".coolData | @uri",
+		expected: []string{
+			"D0, P[coolData], (!!str)::this+has+%26+special+%28%29+characters+%2A\n",
+		},
+	},
+	{
+		description: "Decode a URI to a string",
+		document:    "this+has+%26+special+%28%29+characters+%2A",
+		expression:  "@urid",
+		expected: []string{
+			"D0, P[], (!!str)::this has & special () characters *\n",
+		},
+	},
+	{
 		description:    "Decode a base64 encoded string",
 		subdescription: "Decoded data is assumed to be a string.",
 		document:       "coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J+Yig==",
