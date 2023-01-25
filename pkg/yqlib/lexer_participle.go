@@ -78,8 +78,8 @@ var participleYqRules = []*participleYqRule{
 	{"Base64d", `@base64d`, decodeOp(Base64InputFormat), 0},
 	{"Base64", `@base64`, encodeWithIndent(Base64OutputFormat, 0), 0},
 
-	{"Urld", `@urid`, decodeOp(UriInputFormat), 0},
-	{"Url", `@uri`, encodeWithIndent(UriOutputFormat, 0), 0},
+	{"Urid", `@urid`, decodeOp(UriInputFormat), 0},
+	{"Uri", `@uri`, encodeWithIndent(UriOutputFormat, 0), 0},
 
 	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
 

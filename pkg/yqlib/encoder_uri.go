@@ -30,7 +30,7 @@ func (e *uriEncoder) PrintLeadingContent(writer io.Writer, content string) error
 func (e *uriEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
 	node := unwrapDoc(originalNode)
 	if guessTagFromCustomType(node) != "!!str" {
-		return fmt.Errorf("cannot encode %v as url, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
+		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 	_, err := writer.Write([]byte(url.QueryEscape(originalNode.Value)))
 	return err
