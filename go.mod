@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/repr v0.2.0
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.5.0
-	github.com/fatih/color v1.13.0
+	github.com/fatih/color v1.14.1
 	github.com/goccy/go-json v0.10.0
 	github.com/goccy/go-yaml v1.9.8
 	github.com/jinzhu/copier v0.3.5
@@ -21,9 +21,9 @@ require (
 
 require (
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
-	github.com/mattn/go-colorable v0.1.12 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
+	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 )
