@@ -3,7 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
-	"time"
 
 	yaml "gopkg.in/yaml.v3"
 )
@@ -80,7 +79,7 @@ func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs 
 
 	isDateTime := lhs.Tag == "!!timestamp"
 	// if the lhs is a string, it might be a timestamp in a custom format.
-	if lhsTag == "!!str" && context.GetDateTimeLayout() != time.RFC3339 {
+	if lhsTag == "!!str" {
 		_, err := parseDateTime(context.GetDateTimeLayout(), lhs.Value)
 		isDateTime = err == nil
 	}
