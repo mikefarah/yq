@@ -41,10 +41,18 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "From Unix",
-		subdescription: "Converts from unix time",
+		subdescription: "Converts from unix time. Note, you don't have to pipe through the tz operator :)",
 		expression:     `1675301929 | from_unix | tz("UTC")`,
 		expected: []string{
 			"D0, P[], (!!timestamp)::2023-02-02T01:38:49Z\n",
+		},
+	},
+	{
+		description:    "To Unix",
+		subdescription: "Converts to unix time",
+		expression:     `now | to_unix`,
+		expected: []string{
+			"D0, P[], (!!int)::1621386123\n",
 		},
 	},
 	{

@@ -170,3 +170,29 @@ func fromUnixOp(d *dataTreeNavigator, context Context, expressionNode *Expressio
 
 	return context.ChildContext(results), nil
 }
+
+func toUnixOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	layout := context.GetDateTimeLayout()
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
+		parsedTime, err := parseDateTime(layout, candidate.Node.Value)
+		if err != nil {
+			return Context{}, fmt.Errorf("could not parse datetime of [%v] using layout [%v]: %w", candidate.GetNicePath(), layout, err)
+		}
+
+		node := &yaml.Node{
+			Kind:  yaml.ScalarNode,
+			Tag:   "!!int",
+			Value: fmt.Sprintf("%v", parsedTime.Unix()),
+		}
+
+		results.PushBack(candidate.CreateReplacement(node))
+	}
+
+	return context.ChildContext(results), nil
+}

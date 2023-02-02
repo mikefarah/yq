@@ -46,6 +46,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("now", nowOpType),
 	simpleOp("tz", tzOpType),
 	simpleOp("from_?unix", fromUnixOpType),
+	simpleOp("to_?unix", toUnixOpType),
 	simpleOp("with_dtf", withDtFormatOpType),
 	simpleOp("error", errorOpType),
 	simpleOp("sortKeys", sortKeysOpType),
