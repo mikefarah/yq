@@ -14,7 +14,7 @@ require (
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
-	golang.org/x/net v0.0.0-20220906165146-f3363e06e74c
+	golang.org/x/net v0.1.1-0.20221104162952-702349b0e862
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -24,7 +24,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	golang.org/x/sys v0.3.0 // indirect
-	golang.org/x/text v0.3.8 // indirect
+	golang.org/x/text v0.4.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 )
 
