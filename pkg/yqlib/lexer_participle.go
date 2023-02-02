@@ -45,6 +45,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("format_datetime", formatDateTimeOpType),
 	simpleOp("now", nowOpType),
 	simpleOp("tz", tzOpType),
+	simpleOp("from_?unix", fromUnixOpType),
 	simpleOp("with_dtf", withDtFormatOpType),
 	simpleOp("error", errorOpType),
 	simpleOp("sortKeys", sortKeysOpType),

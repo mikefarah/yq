@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -122,6 +123,46 @@ func tzOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode)
 			Kind:  yaml.ScalarNode,
 			Tag:   candidate.Node.Tag,
 			Value: tzTime.Format(layout),
+		}
+
+		results.PushBack(candidate.CreateReplacement(node))
+	}
+
+	return context.ChildContext(results), nil
+}
+
+func parseUnixTime(unixTime string) (time.Time, error) {
+	seconds, err := strconv.ParseFloat(unixTime, 64)
+
+	if err != nil {
+		return time.Now(), err
+	}
+
+	return time.UnixMilli(int64(seconds * 1000)), nil
+}
+
+func fromUnixOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
+		actualTag := guessTagFromCustomType(candidate.Node)
+
+		if actualTag != "!!int" && guessTagFromCustomType(candidate.Node) != "!!float" {
+			return Context{}, fmt.Errorf("from_unix only works on numbers, found %v instead", candidate.Node.Tag)
+		}
+
+		parsedTime, err := parseUnixTime(candidate.Node.Value)
+		if err != nil {
+			return Context{}, err
+		}
+
+		node := &yaml.Node{
+			Kind:  yaml.ScalarNode,
+			Tag:   "!!timestamp",
+			Value: parsedTime.Format(time.RFC3339),
 		}
 
 		results.PushBack(candidate.CreateReplacement(node))

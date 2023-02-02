@@ -86,6 +86,18 @@ a: cool
 updated: 2021-05-19T01:02:03Z
 ```
 
+## From Unix
+Converts from unix time
+
+Running
+```bash
+yq --null-input '1675301929 | from_unix'
+```
+will output
+```yaml
+2023-02-02T12:38:49+11:00
+```
+
 ## Timezone: from standard RFC3339 format
 Returns a new datetime in the specified timezone. Specify standard IANA Time Zone format or 'utc', 'local'. When given a single parameter, this assumes the datetime is in RFC3339 format.
 
