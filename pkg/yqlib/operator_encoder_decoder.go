@@ -28,6 +28,8 @@ func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 		return NewBase64Encoder()
 	case UriOutputFormat:
 		return NewUriEncoder()
+	case ShOutputFormat:
+		return NewShEncoder()
 	}
 	panic("invalid encoder")
 }

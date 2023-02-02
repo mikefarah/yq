@@ -80,6 +80,7 @@ var participleYqRules = []*participleYqRule{
 
 	{"Urid", `@urid`, decodeOp(UriInputFormat), 0},
 	{"Uri", `@uri`, encodeWithIndent(UriOutputFormat, 0), 0},
+	{"SH", `@sh`, encodeWithIndent(ShOutputFormat, 0), 0},
 
 	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
 

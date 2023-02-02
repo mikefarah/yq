@@ -28,6 +28,7 @@ const (
 	XMLOutputFormat
 	Base64OutputFormat
 	UriOutputFormat
+	ShOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {

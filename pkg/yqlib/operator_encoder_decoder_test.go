@@ -258,6 +258,15 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Encode a string to sh",
+		subdescription: "Sh/Bash friendly string",
+		document:       "coolData: strings with spaces and a 'quote'",
+		expression:     ".coolData | @sh",
+		expected: []string{
+			"D0, P[coolData], (!!str)::'strings with spaces and a \\'quote\\''\n",
+		},
+	},
+	{
 		description:    "Decode a base64 encoded string",
 		subdescription: "Decoded data is assumed to be a string.",
 		document:       "coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J+Yig==",

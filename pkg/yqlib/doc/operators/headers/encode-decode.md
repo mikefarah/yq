@@ -17,6 +17,7 @@ These operators are useful to process yaml documents that have stringified embed
 | XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
 | URI | @urid | @uri |
+| Shell |  | @sh |
 
 
 See CSV and TSV [documentation](https://mikefarah.gitbook.io/yq/usage/csv-tsv) for accepted formats.

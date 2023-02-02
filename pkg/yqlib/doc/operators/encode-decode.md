@@ -17,6 +17,7 @@ These operators are useful to process yaml documents that have stringified embed
 | XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
 | URI | @urid | @uri |
+| Shell |  | @sh |
 
 
 See CSV and TSV [documentation](https://mikefarah.gitbook.io/yq/usage/csv-tsv) for accepted formats.
@@ -462,6 +463,22 @@ yq '@urid' sample.yml
 will output
 ```yaml
 this has & special () characters *
+```
+
+## Encode a string to sh
+Sh/Bash friendly string
+
+Given a sample.yml file of:
+```yaml
+coolData: strings with spaces and a 'quote'
+```
+then
+```bash
+yq '.coolData | @sh' sample.yml
+```
+will output
+```yaml
+'strings with spaces and a \'quote\''
 ```
 
 ## Decode a base64 encoded string
