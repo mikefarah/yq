@@ -42,9 +42,9 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	{
 		description:    "From Unix",
 		subdescription: "Converts from unix time",
-		expression:     `1675301929 | from_unix`,
+		expression:     `1675301929 | from_unix | tz("UTC")`,
 		expected: []string{
-			"D0, P[], (!!timestamp)::2023-02-02T12:38:49+11:00\n",
+			"D0, P[], (!!timestamp)::2023-02-02T01:38:49Z\n",
 		},
 	},
 	{

@@ -91,11 +91,11 @@ Converts from unix time
 
 Running
 ```bash
-yq --null-input '1675301929 | from_unix'
+yq --null-input '1675301929 | from_unix | tz("UTC")'
 ```
 will output
 ```yaml
-2023-02-02T12:38:49+11:00
+2023-02-02T01:38:49Z
 ```
 
 ## Timezone: from standard RFC3339 format
