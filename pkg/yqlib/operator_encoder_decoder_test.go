@@ -263,7 +263,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       "coolData: strings with spaces and a 'quote'",
 		expression:     ".coolData | @sh",
 		expected: []string{
-			"D0, P[coolData], (!!str)::'strings with spaces and a \\'quote\\''\n",
+			"D0, P[coolData], (!!str)::strings' with spaces and a '\\'quote\\'\n",
 		},
 	},
 	{

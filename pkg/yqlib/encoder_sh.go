@@ -9,7 +9,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-var pattern = regexp.MustCompile(`[^\w@%+=:,./-]`)
+var unsafeChars = regexp.MustCompile(`[^\w@%+=:,./-]`)
 
 type shEncoder struct {
 }
@@ -36,9 +36,39 @@ func (e *shEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
 		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 
-	value := originalNode.Value
-	if pattern.MatchString(value) {
-		value = "'" + strings.ReplaceAll(value, "'", "\\'") + "'"
+	return writeString(writer, e.encode(originalNode.Value))
+}
+
+// put any shell-unsafe characters into a single-quoted block, close the block lazily
+func (e *shEncoder) encode(input string) string {
+	const quote = '\''
+	var inQuoteBlock = false
+	var encoded strings.Builder
+	encoded.Grow(len(input))
+
+	for _, ir := range input {
+		// open or close a single-quote block
+		if ir == quote {
+			if inQuoteBlock {
+				// get out of a quote block for an input quote
+				encoded.WriteRune(quote)
+				inQuoteBlock = !inQuoteBlock
+			}
+			// escape the quote with a backslash
+			encoded.WriteRune('\\')
+		} else {
+			if unsafeChars.MatchString(string(ir)) && !inQuoteBlock {
+				// start a quote block on an unsafe character
+				encoded.WriteRune(quote)
+				inQuoteBlock = !inQuoteBlock
+			}
+		}
+		// pass on the input character
+		encoded.WriteRune(ir)
 	}
-	return writeString(writer, value)
+	// close any pending quote block
+	if inQuoteBlock {
+		encoded.WriteRune(quote)
+	}
+	return encoded.String()
 }
