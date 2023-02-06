@@ -12,10 +12,11 @@ import (
 var unsafeChars = regexp.MustCompile(`[^\w@%+=:,./-]`)
 
 type shEncoder struct {
+	quoteAll bool
 }
 
 func NewShEncoder() Encoder {
-	return &shEncoder{}
+	return &shEncoder{false}
 }
 
 func (e *shEncoder) CanHandleAliases() bool {
@@ -39,7 +40,7 @@ func (e *shEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
 	return writeString(writer, e.encode(originalNode.Value))
 }
 
-// put any shell-unsafe characters into a single-quoted block, close the block lazily
+// put any (shell-unsafe) characters into a single-quoted block, close the block lazily
 func (e *shEncoder) encode(input string) string {
 	const quote = '\''
 	var inQuoteBlock = false
@@ -57,8 +58,8 @@ func (e *shEncoder) encode(input string) string {
 			// escape the quote with a backslash
 			encoded.WriteRune('\\')
 		} else {
-			if unsafeChars.MatchString(string(ir)) && !inQuoteBlock {
-				// start a quote block on an unsafe character
+			if e.shouldQuote(ir) && !inQuoteBlock {
+				// start a quote block for any (unsafe) characters
 				encoded.WriteRune(quote)
 				inQuoteBlock = !inQuoteBlock
 			}
@@ -71,4 +72,8 @@ func (e *shEncoder) encode(input string) string {
 		encoded.WriteRune(quote)
 	}
 	return encoded.String()
+}
+
+func (e *shEncoder) shouldQuote(ir rune) bool {
+	return e.quoteAll || unsafeChars.MatchString(string(ir))
 }
