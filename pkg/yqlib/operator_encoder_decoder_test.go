@@ -267,6 +267,16 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Encode a string to sh",
+		subdescription: "Watch out for stray '' (empty strings)",
+		document:       "coolData: \"'starts, contains more '' and ends with a quote'\"",
+		expression:     ".coolData | @sh",
+		expected: []string{
+			"D0, P[coolData], (!!str)::\\'starts,' contains more '\\'\\'' and ends with a quote'\\'\n",
+		},
+		skipDoc: true,
+	},
+	{
 		description:    "Decode a base64 encoded string",
 		subdescription: "Decoded data is assumed to be a string.",
 		document:       "coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J+Yig==",
