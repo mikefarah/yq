@@ -90,6 +90,9 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 	}
 
 	printer := yqlib.NewPrinter(encoder, printerWriter)
+	if nulSepOutput {
+		printer.SetNulSepOutput(true)
+	}
 
 	if frontMatter != "" {
 		frontMatterHandler := yqlib.NewFrontMatterHandler(args[0])
