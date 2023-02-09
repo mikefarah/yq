@@ -263,8 +263,18 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       "coolData: strings with spaces and a 'quote'",
 		expression:     ".coolData | @sh",
 		expected: []string{
-			"D0, P[coolData], (!!str)::'strings with spaces and a \\'quote\\''\n",
+			"D0, P[coolData], (!!str)::strings' with spaces and a '\\'quote\\'\n",
 		},
+	},
+	{
+		description:    "Encode a string to sh",
+		subdescription: "Watch out for stray '' (empty strings)",
+		document:       "coolData: \"'starts, contains more '' and ends with a quote'\"",
+		expression:     ".coolData | @sh",
+		expected: []string{
+			"D0, P[coolData], (!!str)::\\'starts,' contains more '\\'\\'' and ends with a quote'\\'\n",
+		},
+		skipDoc: true,
 	},
 	{
 		description:    "Decode a base64 encoded string",

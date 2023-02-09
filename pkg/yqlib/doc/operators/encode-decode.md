@@ -478,7 +478,7 @@ yq '.coolData | @sh' sample.yml
 ```
 will output
 ```yaml
-'strings with spaces and a \'quote\''
+strings' with spaces and a '\'quote\'
 ```
 
 ## Decode a base64 encoded string
