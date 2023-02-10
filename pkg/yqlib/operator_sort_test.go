@@ -12,6 +12,32 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Sort by multiple fields",
+		document:    "[{a: dog},{a: cat, b: banana},{a: cat, b: apple}]",
+		expression:  `sort_by(.a, .b)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: cat, b: apple}, {a: cat, b: banana}, {a: dog}]\n",
+		},
+	},
+	{
+		description: "Sort by multiple fields",
+		skipDoc:     true,
+		document:    "[{a: dog, b: good},{a: cat, c: things},{a: cat, b: apple}]",
+		expression:  `sort_by(.a, .b)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: cat, c: things}, {a: cat, b: apple}, {a: dog, b: good}]\n",
+		},
+	},
+	{
+		description: "Sort by multiple fields",
+		skipDoc:     true,
+		document:    "[{a: dog, b: 0.1},{a: cat, b: 0.01},{a: cat, b: 0.001}]",
+		expression:  `sort_by(.a, .b)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{a: cat, b: 0.001}, {a: cat, b: 0.01}, {a: dog, b: 0.1}]\n",
+		},
+	},
+	{
 		description:    "Sort descending by string field",
 		subdescription: "Use sort with reverse to sort in descending order.",
 		document:       "[{a: banana},{a: cat},{a: apple}]",

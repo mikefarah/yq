@@ -25,6 +25,28 @@ will output
 - a: cat
 ```
 
+## Sort by multiple fields
+Given a sample.yml file of:
+```yaml
+- a: dog
+- a: cat
+  b: banana
+- a: cat
+  b: apple
+```
+then
+```bash
+yq 'sort_by(.a, .b)' sample.yml
+```
+will output
+```yaml
+- a: cat
+  b: apple
+- a: cat
+  b: banana
+- a: dog
+```
+
 ## Sort descending by string field
 Use sort with reverse to sort in descending order.
 
