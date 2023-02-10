@@ -135,6 +135,7 @@ var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, 
 var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 50, Handler: sortByOperator}
 var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 50, Handler: reverseOperator}
 var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 50, Handler: sortOperator}
+var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 50, Handler: shuffleOperator}
 
 var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: sortKeysOperator}
 
