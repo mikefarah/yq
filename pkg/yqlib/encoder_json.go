@@ -14,21 +14,6 @@ type jsonEncoder struct {
 	UnwrapScalar bool
 }
 
-func mapKeysToStrings(node *yaml.Node) {
-
-	if node.Kind == yaml.MappingNode {
-		for index, child := range node.Content {
-			if index%2 == 0 { // its a map key
-				child.Tag = "!!str"
-			}
-		}
-	}
-
-	for _, child := range node.Content {
-		mapKeysToStrings(child)
-	}
-}
-
 func NewJSONEncoder(indent int, colorise bool, unwrapScalar bool) Encoder {
 	var indentString = ""
 
