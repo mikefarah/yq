@@ -62,6 +62,9 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 		return nil, err
 	}
 	yqlibDecoder, err := createDecoder(yqlibInputFormat, evaluateTogether)
+	if yqlibDecoder == nil {
+		return nil, fmt.Errorf("no support for %s input format", inputFormat)
+	}
 	return yqlibDecoder, err
 }
 
@@ -108,6 +111,9 @@ func configureEncoder() (yqlib.Encoder, error) {
 		return nil, err
 	}
 	yqlibEncoder, err := createEncoder(yqlibOutputFormat)
+	if yqlibEncoder == nil {
+		return nil, fmt.Errorf("no support for %s output format", outputFormat)
+	}
 	return yqlibEncoder, err
 }
 

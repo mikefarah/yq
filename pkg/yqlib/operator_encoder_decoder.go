@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"container/list"
+	"errors"
 	"regexp"
 	"strings"
 
@@ -39,6 +40,9 @@ func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string,
 	log.Debug("printing with indent: %v", prefs.indent)
 
 	encoder := configureEncoder(prefs.format, prefs.indent)
+	if encoder == nil {
+		return "", errors.New("no support for output format")
+	}
 
 	printer := NewPrinter(encoder, NewSinglePrinterWriter(bufio.NewWriter(&output)))
 	err := printer.PrintResults(candidate.AsList())
@@ -127,6 +131,9 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
 
 	decoder := createDecoder(preferences.format)
+	if decoder == nil {
+		return Context{}, errors.New("no support for input format")
+	}
 
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

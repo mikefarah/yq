@@ -1,3 +1,5 @@
+//go:build !yq_noxml
+
 package yqlib
 
 import (

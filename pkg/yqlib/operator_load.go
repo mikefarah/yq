@@ -34,6 +34,9 @@ func loadString(filename string) (*CandidateNode, error) {
 }
 
 func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
+	if decoder == nil {
+		return nil, fmt.Errorf("could not load %s", filename)
+	}
 
 	file, err := os.Open(filename) // #nosec
 	if err != nil {
