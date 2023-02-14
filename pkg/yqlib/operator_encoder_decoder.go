@@ -98,13 +98,11 @@ type decoderPreferences struct {
 	format InputFormat
 }
 
-/* takes a string and decodes it back into an object */
-func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
-
+func createDecoder(format InputFormat) Decoder {
 	var decoder Decoder
-	switch preferences.format {
+	switch format {
+	case JsonInputFormat:
+		decoder = NewJSONDecoder()
 	case YamlInputFormat:
 		decoder = NewYamlDecoder(ConfiguredYamlPreferences)
 	case XMLInputFormat:
@@ -120,6 +118,15 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	case UriInputFormat:
 		decoder = NewUriDecoder()
 	}
+	return decoder
+}
+
+/* takes a string and decodes it back into an object */
+func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
+
+	decoder := createDecoder(preferences.format)
 
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
