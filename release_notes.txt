@@ -1,3 +1,12 @@
+4.31.1:
+  - Added shuffle command #1503
+  - Added ability to sort by multiple fields #1541
+  - Added @sh encoder #1526
+  - Added @uri/@urid encoder/decoder #1529
+  - Fixed date comparison with string date #1537
+  - Added from_unix/to_unix Operators
+  - Bumped dependency versions
+
 4.30.8:
  - Log info message when unable to chown file in linux (e.g. snap confinement) #1521
 
