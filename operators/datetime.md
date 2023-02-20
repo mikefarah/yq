@@ -86,6 +86,30 @@ a: cool
 updated: 2021-05-19T01:02:03Z
 ```
 
+## From Unix
+Converts from unix time. Note, you don't have to pipe through the tz operator :)
+
+Running
+```bash
+yq --null-input '1675301929 | from_unix | tz("UTC")'
+```
+will output
+```yaml
+2023-02-02T01:38:49Z
+```
+
+## To Unix
+Converts to unix time
+
+Running
+```bash
+yq --null-input 'now | to_unix'
+```
+will output
+```yaml
+1621386123
+```
+
 ## Timezone: from standard RFC3339 format
 Returns a new datetime in the specified timezone. Specify standard IANA Time Zone format or 'utc', 'local'. When given a single parameter, this assumes the datetime is in RFC3339 format.
 

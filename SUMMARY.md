@@ -51,6 +51,7 @@
   * [Reduce](operators/reduce.md)
   * [Reverse](operators/reverse.md)
   * [Select](operators/select.md)
+  * [Shuffle](operators/shuffle.md)
   * [Slice Array](operators/slice-array.md)
   * [Sort](operators/sort.md)
   * [Sort Keys](operators/sort-keys.md)
