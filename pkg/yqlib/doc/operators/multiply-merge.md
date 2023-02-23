@@ -329,16 +329,7 @@ idPath=".a"  originalPath=".myArray"  otherPath=".newArray" yq eval-all '
 ```
 will output
 ```yaml
-myArray:
-  - a: apple
-    b: appleB2
-  - a: kiwi
-    b: kiwiB
-  - a: banana
-    b: bananaB
-    c: bananaC
-  - a: dingo
-    c: dingoC
+myArray: []
 something: else
 ```
 

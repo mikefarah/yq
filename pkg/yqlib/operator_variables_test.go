@@ -39,9 +39,9 @@ var variableOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `[1, 2]`,
-		expression: `[.[] as $f | $f + 1]`,
+		expression: `.[] | . as $f | select($f == 2)`,
 		expected: []string{
-			"D0, P[], (!!seq)::- 2\n- 3\n",
+			"D0, P[1], (!!int)::2\n",
 		},
 	},
 	{

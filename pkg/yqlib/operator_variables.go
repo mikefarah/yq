@@ -23,8 +23,23 @@ func useWithPipe(d *dataTreeNavigator, context Context, originalExp *ExpressionN
 	return Context{}, fmt.Errorf("must use variable with a pipe, e.g. `exp as $x | ...`")
 }
 
+// variables are like loops in jq
+// https://stedolan.github.io/jq/manual/#Variable
 func variableLoop(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
 	log.Debug("variable loop!")
+	results := list.New()
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		result, err := variableLoopSingleChild(d, context.SingleChildContext(el.Value.(*CandidateNode)), originalExp)
+		if err != nil {
+			return Context{}, err
+		}
+		results.PushBackList(result.MatchingNodes)
+	}
+	return context.ChildContext(results), nil
+}
+
+func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
+
 	variableExp := originalExp.LHS
 	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), variableExp.LHS)
 	if err != nil {
@@ -56,6 +71,7 @@ func variableLoop(d *dataTreeNavigator, context Context, originalExp *Expression
 		newContext.SetVariable(variableName, variableValue)
 
 		rhs, err := d.GetMatchingNodes(newContext, originalExp.RHS)
+		log.Debug("PROCESSING VARIABLE DONE, got back: ", rhs.MatchingNodes.Len())
 		if err != nil {
 			return Context{}, err
 		}

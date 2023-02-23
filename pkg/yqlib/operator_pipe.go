@@ -6,10 +6,6 @@ func pipeOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		return variableLoop(d, context, expressionNode)
 	}
 
-	//lhs may update the variable context, we should pass that into the RHS
-	// BUT we still return the original context back (see jq)
-	// https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...
-
 	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
