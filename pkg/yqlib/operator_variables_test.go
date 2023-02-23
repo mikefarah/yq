@@ -8,7 +8,7 @@ var variableOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: `.a.b as $foo`,
+		expression: `.a.b as $foo | .`,
 		expected: []string{
 			"D0, P[], (doc)::{}\n",
 		},
@@ -16,7 +16,7 @@ var variableOperatorScenarios = []expressionScenario{
 	{
 		document:      "a: [cat]",
 		skipDoc:       true,
-		expression:    "(.[] | {.name: .}) as $item",
+		expression:    "(.[] | {.name: .}) as $item | .",
 		expectedError: `cannot index array with 'name' (strconv.ParseInt: parsing "name": invalid syntax)`,
 	},
 	{
@@ -34,6 +34,14 @@ var variableOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[0], (!!str)::cat\n",
 			"D0, P[1], (!!str)::dog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, 2]`,
+		expression: `[.[] as $f | $f + 1]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 2\n- 3\n",
 		},
 	},
 	{
