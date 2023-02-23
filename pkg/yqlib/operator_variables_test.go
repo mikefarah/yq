@@ -45,6 +45,14 @@ var variableOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `[1, 2]`,
+		expression: `[.[] | . as $f | $f + 1]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 2\n- 3\n",
+		},
+	},
+	{
 		description:    "Using variables as a lookup",
 		subdescription: "Example taken from [jq](https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...)",
 		document: `{"posts": [{"title": "First post", "author": "anon"},
