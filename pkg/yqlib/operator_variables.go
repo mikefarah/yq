@@ -28,6 +28,17 @@ func useWithPipe(d *dataTreeNavigator, context Context, originalExp *ExpressionN
 func variableLoop(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
 	log.Debug("variable loop!")
 	results := list.New()
+	var evaluateAllTogether = true
+	for matchEl := context.MatchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
+		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
+		if !evaluateAllTogether {
+			break
+		}
+	}
+	if evaluateAllTogether {
+		return variableLoopSingleChild(d, context, originalExp)
+	}
+
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		result, err := variableLoopSingleChild(d, context.SingleChildContext(el.Value.(*CandidateNode)), originalExp)
 		if err != nil {
@@ -56,17 +67,17 @@ func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp 
 
 	// now we loop over lhs, set variable to each result and calculate originalExp.Rhs
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+		log.Debug("PROCESSING VARIABLE: ", NodeToString(el.Value.(*CandidateNode)))
 		var variableValue = list.New()
 		if prefs.IsReference {
 			variableValue.PushBack(el.Value)
 		} else {
-			copy, err := el.Value.(*CandidateNode).Copy()
+			candidateCopy, err := el.Value.(*CandidateNode).Copy()
 			if err != nil {
 				return Context{}, err
 			}
-			variableValue.PushBack(copy)
+			variableValue.PushBack(candidateCopy)
 		}
-		log.Debug("PROCESSING VARIABLE: ", NodeToString(el.Value.(*CandidateNode)))
 		newContext := context.ChildContext(context.MatchingNodes)
 		newContext.SetVariable(variableName, variableValue)
 
