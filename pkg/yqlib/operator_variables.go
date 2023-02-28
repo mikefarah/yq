@@ -19,24 +19,81 @@ type assignVarPreferences struct {
 	IsReference bool
 }
 
-func assignVariableOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.LHS)
+func useWithPipe(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
+	return Context{}, fmt.Errorf("must use variable with a pipe, e.g. `exp as $x | ...`")
+}
+
+// variables are like loops in jq
+// https://stedolan.github.io/jq/manual/#Variable
+func variableLoop(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
+	log.Debug("variable loop!")
+	results := list.New()
+	var evaluateAllTogether = true
+	for matchEl := context.MatchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
+		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
+		if !evaluateAllTogether {
+			break
+		}
+	}
+	if evaluateAllTogether {
+		return variableLoopSingleChild(d, context, originalExp)
+	}
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		result, err := variableLoopSingleChild(d, context.SingleChildContext(el.Value.(*CandidateNode)), originalExp)
+		if err != nil {
+			return Context{}, err
+		}
+		results.PushBackList(result.MatchingNodes)
+	}
+	return context.ChildContext(results), nil
+}
+
+func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
+
+	variableExp := originalExp.LHS
+	lhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), variableExp.LHS)
 	if err != nil {
 		return Context{}, err
 	}
-	if expressionNode.RHS.Operation.OperationType.Type != "GET_VARIABLE" {
+	if variableExp.RHS.Operation.OperationType.Type != "GET_VARIABLE" {
 		return Context{}, fmt.Errorf("RHS of 'as' operator must be a variable name e.g. $foo")
 	}
-	variableName := expressionNode.RHS.Operation.StringValue
+	variableName := variableExp.RHS.Operation.StringValue
 
-	prefs := expressionNode.Operation.Preferences.(assignVarPreferences)
+	prefs := variableExp.Operation.Preferences.(assignVarPreferences)
 
-	var variableValue *list.List
-	if prefs.IsReference {
-		variableValue = lhs.MatchingNodes
-	} else {
-		variableValue = lhs.DeepClone().MatchingNodes
+	results := list.New()
+
+	// now we loop over lhs, set variable to each result and calculate originalExp.Rhs
+	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+		log.Debug("PROCESSING VARIABLE: ", NodeToString(el.Value.(*CandidateNode)))
+		var variableValue = list.New()
+		if prefs.IsReference {
+			variableValue.PushBack(el.Value)
+		} else {
+			candidateCopy, err := el.Value.(*CandidateNode).Copy()
+			if err != nil {
+				return Context{}, err
+			}
+			variableValue.PushBack(candidateCopy)
+		}
+		newContext := context.ChildContext(context.MatchingNodes)
+		newContext.SetVariable(variableName, variableValue)
+
+		rhs, err := d.GetMatchingNodes(newContext, originalExp.RHS)
+		log.Debug("PROCESSING VARIABLE DONE, got back: ", rhs.MatchingNodes.Len())
+		if err != nil {
+			return Context{}, err
+		}
+		results.PushBackList(rhs.MatchingNodes)
 	}
-	context.SetVariable(variableName, variableValue)
-	return context, nil
+
+	// if there is no LHS - then I guess we just calculate originalExp.Rhs
+	if lhs.MatchingNodes.Len() == 0 {
+		return d.GetMatchingNodes(context, originalExp.RHS)
+	}
+
+	return context.ChildContext(results), nil
+
 }

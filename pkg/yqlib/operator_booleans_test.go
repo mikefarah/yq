@@ -102,7 +102,7 @@ var booleanOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `[{pet: cat}]`,
-		expression: `any_c(.name == "harry") as $c`,
+		expression: `any_c(.name == "harry") as $c | .`,
 		expected: []string{
 			"D0, P[], (doc)::[{pet: cat}]\n",
 		},
@@ -110,9 +110,17 @@ var booleanOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `[{pet: cat}]`,
-		expression: `all_c(.name == "harry") as $c`,
+		expression: `any_c(.name == "harry") as $c | $c`,
 		expected: []string{
-			"D0, P[], (doc)::[{pet: cat}]\n",
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[{pet: cat}]`,
+		expression: `all_c(.name == "harry") as $c | $c`,
+		expected: []string{
+			"D0, P[], (!!bool)::false\n",
 		},
 	},
 	{
@@ -185,7 +193,7 @@ var booleanOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: `(.a.b or .c) as $x`,
+		expression: `(.a.b or .c) as $x | .`,
 		expected: []string{
 			"D0, P[], (doc)::{}\n",
 		},
@@ -193,7 +201,7 @@ var booleanOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: `(.a.b and .c) as $x`,
+		expression: `(.a.b and .c) as $x | .`,
 		expected: []string{
 			"D0, P[], (doc)::{}\n",
 		},
