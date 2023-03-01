@@ -19,8 +19,6 @@ type xmlEncoder struct {
 	leadingContent string
 }
 
-var commentPrefix = regexp.MustCompile(`(^|\n)\s*#`)
-
 func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
 	var indentString = ""
 
@@ -39,7 +37,7 @@ func (e *xmlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 }
 
 func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
-	e.leadingContent = commentPrefix.ReplaceAllString(content, "\n")
+	e.leadingContent = content
 	return nil
 }
 
@@ -48,9 +46,36 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	// hack so we can manually add newlines to procInst and directives
 	e.writer = writer
 	encoder.Indent("", e.indentString)
+	var newLine xml.CharData = []byte("\n")
+
+	mapNode := unwrapDoc(node)
+	if mapNode.Tag == "!!map" {
+		// make sure <?xml .. ?> processing instructions are encoded first
+		for i := 0; i < len(mapNode.Content); i += 2 {
+			key := mapNode.Content[i]
+			value := mapNode.Content[i+1]
+
+			if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+				name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
+				procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
+				if err := encoder.EncodeToken(procInst); err != nil {
+					return err
+				}
+				if _, err := e.writer.Write([]byte("\n")); err != nil {
+					log.Warning("Unable to write newline, skipping: %w", err)
+				}
+			}
+		}
+	}
 
 	if e.leadingContent != "" {
+
+		// remove first and last newlines if present
 		err := e.encodeComment(encoder, e.leadingContent)
+		if err != nil {
+			return err
+		}
+		err = encoder.EncodeToken(newLine)
 		if err != nil {
 			return err
 		}
@@ -89,29 +114,12 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	default:
 		return fmt.Errorf("unsupported type %v", node.Tag)
 	}
-	var charData xml.CharData = []byte("\n")
-	return encoder.EncodeToken(charData)
+
+	return encoder.EncodeToken(newLine)
 
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) error {
-	// make sure <?xml .. ?> processing instructions are encoded first
-	for i := 0; i < len(node.Content); i += 2 {
-		key := node.Content[i]
-		value := node.Content[i+1]
-
-		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
-			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)
-			procInst := xml.ProcInst{Target: name, Inst: []byte(value.Value)}
-			if err := encoder.EncodeToken(procInst); err != nil {
-				return err
-			}
-			if _, err := e.writer.Write([]byte("\n")); err != nil {
-				log.Warning("Unable to write newline, skipping: %w", err)
-			}
-		}
-	}
-
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -125,6 +133,13 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yaml.Node) er
 		err := e.encodeComment(encoder, headAndLineComment(key))
 		if err != nil {
 			return err
+		}
+		if headAndLineComment(key) != "" {
+			var newLine xml.CharData = []byte("\n")
+			err = encoder.EncodeToken(newLine)
+			if err != nil {
+				return err
+			}
 		}
 
 		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
@@ -206,12 +221,33 @@ func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yaml.Node, start xml.S
 	return fmt.Errorf("unsupported type %v", node.Tag)
 }
 
+var xmlEncodeMultilineCommentRegex = regexp.MustCompile(`(^|\n) *# ?(.*)`)
+var xmlEncodeSingleLineCommentRegex = regexp.MustCompile(`^\s*#(.*)\n?`)
+var chompRegexp = regexp.MustCompile(`\n$`)
+
 func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) error {
 	if commentStr != "" {
-		log.Debugf("encoding comment %v", commentStr)
-		if !strings.HasSuffix(commentStr, " ") {
-			commentStr = commentStr + " "
+		log.Debugf("got comment [%v]", commentStr)
+		// multi line string
+		if len(commentStr) > 2 && strings.Contains(commentStr[1:len(commentStr)-1], "\n") {
+			commentStr = chompRegexp.ReplaceAllString(commentStr, "")
+			log.Debugf("chompRegexp [%v]", commentStr)
+			commentStr = xmlEncodeMultilineCommentRegex.ReplaceAllString(commentStr, "$1$2")
+			log.Debugf("processed multine [%v]", commentStr)
+			// if the first line is non blank, add a space
+			if commentStr[0] != '\n' && commentStr[0] != ' ' {
+				commentStr = " " + commentStr
+			}
+
+		} else {
+			commentStr = xmlEncodeSingleLineCommentRegex.ReplaceAllString(commentStr, "$1")
 		}
+
+		if !strings.HasSuffix(commentStr, " ") && !strings.HasSuffix(commentStr, "\n") {
+			commentStr = commentStr + " "
+			log.Debugf("added suffix [%v]", commentStr)
+		}
+		log.Debugf("encoding comment [%v]", commentStr)
 
 		var comment xml.Comment = []byte(commentStr)
 		err := encoder.EncodeToken(comment)

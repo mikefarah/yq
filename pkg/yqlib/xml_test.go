@@ -10,6 +10,29 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
+const yamlInputWithProcInstAndHeadComment = `# cats
++p_xml: version="1.0"
+this: is some xml`
+
+const expectedXmlProcInstAndHeadComment = `<?xml version="1.0"?>
+<!-- cats -->
+<this>is some xml</this>
+`
+
+const xmlProcInstAndHeadCommentBlock = `<?xml version="1.0"?>
+<!--
+cats
+-->
+<this>is some xml</this>
+`
+
+const expectedYamlProcInstAndHeadCommentBlock = `#
+# cats
+#
++p_xml: version="1.0"
+this: is some xml
+`
+
 const inputXMLWithComments = `
 <!-- before cat -->
 <cat>
@@ -128,7 +151,8 @@ cat:
 # after cat
 `
 
-const expectedRoundtripXMLWithComments = `<!-- before cat --><cat><!-- in cat before -->
+const expectedRoundtripXMLWithComments = `<!-- before cat -->
+<cat><!-- in cat before -->
   <x>3<!-- multi
 line comment 
 for x --></x><!-- before y -->
@@ -139,8 +163,10 @@ in d before -->
 </cat><!-- after cat -->
 `
 
-const yamlWithComments = `# header comment
+const yamlWithComments = `#
+# header comment
 # above_cat
+#
 cat: # inline_cat
   # above_array
   array: # inline_array
@@ -151,9 +177,11 @@ cat: # inline_cat
 `
 
 const expectedXMLWithComments = `<!--
- header comment
- above_cat
- --><!-- inline_cat --><cat><!-- above_array inline_array -->
+header comment
+above_cat
+-->
+<!-- inline_cat -->
+<cat><!-- above_array inline_array -->
   <array>val1<!-- inline_val1 --></array>
   <array><!-- above_val2 -->val2<!-- inline_val2 --></array>
 </cat><!-- below_cat -->
@@ -265,6 +293,41 @@ var xmlScenarios = []formatScenario{
 		skipDoc:  true,
 		input:    "<root><cats><cat>quick</cat><cat>soft</cat><!-- kitty_comment--><cat>squishy</cat></cats></root>",
 		expected: "root:\n    cats:\n        cat:\n            - quick\n            - soft\n            # kitty_comment\n\n            - squishy\n",
+	},
+	{
+		description:  "ProcInst with head comment",
+		skipDoc:      true,
+		input:        yamlInputWithProcInstAndHeadComment,
+		expected:     expectedXmlProcInstAndHeadComment,
+		scenarioType: "encode",
+	},
+	{
+		description:  "ProcInst with head comment round trip",
+		skipDoc:      true,
+		input:        expectedXmlProcInstAndHeadComment,
+		expected:     expectedXmlProcInstAndHeadComment,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "ProcInst with block head comment to yaml",
+		skipDoc:      true,
+		input:        xmlProcInstAndHeadCommentBlock,
+		expected:     expectedYamlProcInstAndHeadCommentBlock,
+		scenarioType: "decode",
+	},
+	{
+		description:  "ProcInst with block head comment from yaml",
+		skipDoc:      true,
+		input:        expectedYamlProcInstAndHeadCommentBlock,
+		expected:     xmlProcInstAndHeadCommentBlock,
+		scenarioType: "encode",
+	},
+	{
+		description:  "ProcInst with head comment round trip block",
+		skipDoc:      true,
+		input:        xmlProcInstAndHeadCommentBlock,
+		expected:     xmlProcInstAndHeadCommentBlock,
+		scenarioType: "roundtrip",
 	},
 	{
 		description:    "Parse xml: simple",
@@ -465,6 +528,41 @@ var xmlScenarios = []formatScenario{
 		input:          "cat:\n  +@name: tiger\n  +content: cool\n",
 		expected:       "<cat name=\"tiger\">cool</cat>\n",
 		scenarioType:   "encode",
+	},
+	{
+		description:  "round trip multiline 1",
+		skipDoc:      true,
+		input:        "<x><!-- cats --></x>\n",
+		expected:     "<x><!-- cats --></x>\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "round trip multiline 2",
+		skipDoc:      true,
+		input:        "<x><!--\n cats\n --></x>\n",
+		expected:     "<x><!--\ncats\n--></x>\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "round trip multiline 3",
+		skipDoc:      true,
+		input:        "<x><!--\n\tcats\n --></x>\n",
+		expected:     "<x><!--\n\tcats\n--></x>\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "round trip multiline 4",
+		skipDoc:      true,
+		input:        "<x><!--\n\tcats\n\tdogs\n--></x>\n",
+		expected:     "<x><!--\n\tcats\n\tdogs\n--></x>\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "round trip multiline 5",
+		skipDoc:      true, // pity spaces aren't kept atm.
+		input:        "<x><!--\ncats\ndogs\n--></x>\n",
+		expected:     "<x><!--\ncats\ndogs\n--></x>\n",
+		scenarioType: "roundtrip",
 	},
 	{
 		description:    "Encode xml: comments",
