@@ -1,3 +1,9 @@
+4.31.2 (draft):
+  - Fixed variable handling #1458, #1566
+  - Fixed merged anchor reference problem #1482
+  - Allow build without json and xml support (#1556) Thanks @afbjorklund
+  - Bumped dependencies
+
 4.31.1:
   - Added shuffle command #1503
   - Added ability to sort by multiple fields #1541
