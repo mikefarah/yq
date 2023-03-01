@@ -338,7 +338,7 @@ func deepCloneWithOptions(node *yaml.Node, cloneContent bool) *yaml.Node {
 		Tag:         node.Tag,
 		Value:       node.Value,
 		Anchor:      node.Anchor,
-		Alias:       deepClone(node.Alias),
+		Alias:       node.Alias,
 		HeadComment: node.HeadComment,
 		LineComment: node.LineComment,
 		FootComment: node.FootComment,

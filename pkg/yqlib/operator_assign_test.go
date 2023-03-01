@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+var mergeAnchorAssign = `a: &a
+  x: OriginalValue
+b:
+  <<: *a`
+
 var assignOperatorScenarios = []expressionScenario{
 	{
 		description: "Create yaml file",
@@ -18,6 +23,14 @@ var assignOperatorScenarios = []expressionScenario{
 		expression: `.a |= .b`,
 		expected: []string{
 			"D0, P[], (doc)::a: null\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeAnchorAssign,
+		expression: `.c = .b | .a.x = "ModifiedValue" | explode(.)`,
+		expected: []string{
+			"D0, P[], (doc)::a:\n    x: ModifiedValue\nb:\n    x: ModifiedValue\nc:\n    x: ModifiedValue\n",
 		},
 	},
 	{
