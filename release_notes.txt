@@ -1,6 +1,7 @@
 4.31.2 (draft):
   - Fixed variable handling #1458, #1566
   - Fixed merged anchor reference problem #1482
+  - Fixed xml encoding of ProcInst #1563, improved XML comment handling
   - Allow build without json and xml support (#1556) Thanks @afbjorklund
   - Bumped dependencies
 
