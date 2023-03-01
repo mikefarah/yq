@@ -61,7 +61,15 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 	if err != nil {
 		return nil, err
 	}
-	switch yqlibInputFormat {
+	yqlibDecoder, err := createDecoder(yqlibInputFormat, evaluateTogether)
+	if yqlibDecoder == nil {
+		return nil, fmt.Errorf("no support for %s input format", inputFormat)
+	}
+	return yqlibDecoder, err
+}
+
+func createDecoder(format yqlib.InputFormat, evaluateTogether bool) (yqlib.Decoder, error) {
+	switch format {
 	case yqlib.XMLInputFormat:
 		return yqlib.NewXMLDecoder(yqlib.ConfiguredXMLPreferences), nil
 	case yqlib.PropertiesInputFormat:
@@ -72,10 +80,12 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 		return yqlib.NewCSVObjectDecoder(','), nil
 	case yqlib.TSVObjectInputFormat:
 		return yqlib.NewCSVObjectDecoder('\t'), nil
+	case yqlib.YamlInputFormat:
+		prefs := yqlib.ConfiguredYamlPreferences
+		prefs.EvaluateTogether = evaluateTogether
+		return yqlib.NewYamlDecoder(prefs), nil
 	}
-	prefs := yqlib.ConfiguredYamlPreferences
-	prefs.EvaluateTogether = evaluateTogether
-	return yqlib.NewYamlDecoder(prefs), nil
+	return nil, fmt.Errorf("invalid decoder: %v", format)
 }
 
 func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {
@@ -95,22 +105,34 @@ func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yq
 	return printerWriter, nil
 }
 
-func configureEncoder(format yqlib.PrinterOutputFormat) yqlib.Encoder {
+func configureEncoder() (yqlib.Encoder, error) {
+	yqlibOutputFormat, err := yqlib.OutputFormatFromString(outputFormat)
+	if err != nil {
+		return nil, err
+	}
+	yqlibEncoder, err := createEncoder(yqlibOutputFormat)
+	if yqlibEncoder == nil {
+		return nil, fmt.Errorf("no support for %s output format", outputFormat)
+	}
+	return yqlibEncoder, err
+}
+
+func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	switch format {
 	case yqlib.JSONOutputFormat:
-		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar)
+		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil
 	case yqlib.PropsOutputFormat:
-		return yqlib.NewPropertiesEncoder(unwrapScalar)
+		return yqlib.NewPropertiesEncoder(unwrapScalar), nil
 	case yqlib.CSVOutputFormat:
-		return yqlib.NewCsvEncoder(',')
+		return yqlib.NewCsvEncoder(','), nil
 	case yqlib.TSVOutputFormat:
-		return yqlib.NewCsvEncoder('\t')
+		return yqlib.NewCsvEncoder('\t'), nil
 	case yqlib.YamlOutputFormat:
-		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences)
+		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences), nil
 	case yqlib.XMLOutputFormat:
-		return yqlib.NewXMLEncoder(indent, yqlib.ConfiguredXMLPreferences)
+		return yqlib.NewXMLEncoder(indent, yqlib.ConfiguredXMLPreferences), nil
 	}
-	panic("invalid encoder")
+	return nil, fmt.Errorf("invalid encoder: %v", format)
 }
 
 // this is a hack to enable backwards compatibility with githubactions (which pipe /dev/null into everything)

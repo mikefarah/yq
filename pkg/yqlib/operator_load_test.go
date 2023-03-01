@@ -74,9 +74,10 @@ var loadScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Load from XML",
-		document:    "cool: things",
-		expression:  `.more_stuff = load_xml("../../examples/small.xml")`,
+		requiresFormat: "xml",
+		description:    "Load from XML",
+		document:       "cool: things",
+		expression:     `.more_stuff = load_xml("../../examples/small.xml")`,
 		expected: []string{
 			"D0, P[], (doc)::cool: things\nmore_stuff:\n    this: is some xml\n",
 		},

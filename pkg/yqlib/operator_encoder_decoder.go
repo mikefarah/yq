@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"container/list"
+	"errors"
 	"regexp"
 	"strings"
 
@@ -39,6 +40,9 @@ func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string,
 	log.Debug("printing with indent: %v", prefs.indent)
 
 	encoder := configureEncoder(prefs.format, prefs.indent)
+	if encoder == nil {
+		return "", errors.New("no support for output format")
+	}
 
 	printer := NewPrinter(encoder, NewSinglePrinterWriter(bufio.NewWriter(&output)))
 	err := printer.PrintResults(candidate.AsList())
@@ -98,13 +102,11 @@ type decoderPreferences struct {
 	format InputFormat
 }
 
-/* takes a string and decodes it back into an object */
-func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-
-	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
-
+func createDecoder(format InputFormat) Decoder {
 	var decoder Decoder
-	switch preferences.format {
+	switch format {
+	case JsonInputFormat:
+		decoder = NewJSONDecoder()
 	case YamlInputFormat:
 		decoder = NewYamlDecoder(ConfiguredYamlPreferences)
 	case XMLInputFormat:
@@ -119,6 +121,18 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		decoder = NewCSVObjectDecoder('\t')
 	case UriInputFormat:
 		decoder = NewUriDecoder()
+	}
+	return decoder
+}
+
+/* takes a string and decodes it back into an object */
+func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+
+	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
+
+	decoder := createDecoder(preferences.format)
+	if decoder == nil {
+		return Context{}, errors.New("no support for input format")
 	}
 
 	var results = list.New()

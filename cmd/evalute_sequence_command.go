@@ -93,7 +93,10 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 	if err != nil {
 		return err
 	}
-	encoder := configureEncoder(format)
+	encoder, err := configureEncoder()
+	if err != nil {
+		return err
+	}
 
 	printer := yqlib.NewPrinter(encoder, printerWriter)
 
