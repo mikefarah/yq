@@ -25,7 +25,7 @@ type Decoder interface {
 
 func InputFormatFromString(format string) (InputFormat, error) {
 	switch format {
-	case "yaml", "y":
+	case "yaml", "yml", "y":
 		return YamlInputFormat, nil
 	case "xml", "x":
 		return XMLInputFormat, nil
