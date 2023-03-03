@@ -75,7 +75,12 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 		return err
 	}
 
-	decoder, err := configureDecoder(true, args[0])
+	inputFilename := ""
+	if len(args) > 0 {
+		inputFilename = args[0]
+	}
+
+	decoder, err := configureDecoder(true, inputFilename)
 	if err != nil {
 		return err
 	}
