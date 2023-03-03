@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
@@ -58,13 +57,10 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 }
 
 func configureDecoder(evaluateTogether bool, inputFilename string) (yqlib.Decoder, error) {
-	if inputFormat == "" && inputFilename != "" {
-		nPos := strings.LastIndex(inputFilename, ".")
-		if nPos > -1 {
-			inputFormat = inputFilename[nPos+1:]
-		} else {
-			inputFormat = inputFormatDefault
-		}
+	if inputFormat == "" {
+		inputFormat = yqlib.InputFormatFromFilename(inputFilename, inputFormatDefault)
+	} else {
+		yqlib.GetLogger().Debugf("user specified inputFormat '%s'", inputFormat)
 	}
 	yqlibInputFormat, err := yqlib.InputFormatFromString(inputFormat)
 	if err != nil {

@@ -8,7 +8,7 @@ var writeInplace = false
 var outputToJSON = false
 var outputFormat = "yaml"
 var inputFormatDefault = "yaml"
-var inputFormat = "" // default to "" so that we can (lazily) detect inputFormat from input filename
+var inputFormat = ""
 
 var exitStatus = false
 var forceColor = false

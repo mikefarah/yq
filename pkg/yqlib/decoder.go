@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 type InputFormat uint
@@ -29,7 +30,7 @@ func InputFormatFromString(format string) (InputFormat, error) {
 		return YamlInputFormat, nil
 	case "xml", "x":
 		return XMLInputFormat, nil
-	case "props", "p":
+	case "properties", "props", "p":
 		return PropertiesInputFormat, nil
 	case "json", "ndjson", "j":
 		return JsonInputFormat, nil
@@ -40,4 +41,19 @@ func InputFormatFromString(format string) (InputFormat, error) {
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml|props]", format)
 	}
+}
+
+func InputFormatFromFilename(filename string, defaultFormat string) string {
+	if filename != "" {
+		GetLogger().Debugf("checking filename '%s' for inputFormat", filename)
+		nPos := strings.LastIndex(filename, ".")
+		if nPos > -1 {
+			inputFormat := filename[nPos+1:]
+			GetLogger().Debugf("detected inputFormat '%s'", inputFormat)
+			return inputFormat
+		}
+	}
+
+	GetLogger().Debugf("using default inputFormat '%s'", defaultFormat)
+	return defaultFormat
 }
