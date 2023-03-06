@@ -22,9 +22,6 @@ func InitExpressionParser() {
 }
 
 var log = logging.MustGetLogger("yq-lib")
-func init() {
-	logging.SetLevel(logging.DEBUG, "yq-lib")
-}
 
 var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
 
