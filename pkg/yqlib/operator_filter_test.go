@@ -10,8 +10,7 @@ var filterOperatorScenarios = []expressionScenario{
 		document:   `[1,2,3]`,
 		expression: `filter(. < 3)`,
 		expected: []string{
-			"D0, P[], (!!seq)::- 1\n",
-			"D0, P[], (!!seq)::- 2\n",
+			"D0, P[], (!!seq)::[1, 2]\n",
 		},
 	},
 	{
@@ -19,8 +18,7 @@ var filterOperatorScenarios = []expressionScenario{
 		document:    `[1,2,3]`,
 		expression:  `filter(. > 1)`,
 		expected: []string{
-			"D0, P[], (!!seq)::- 2\n",
-			"D0, P[], (!!seq)::- 3\n",
+			"D0, P[], (!!seq)::[2, 3]\n",
 		},
 	},
 	{
@@ -29,6 +27,7 @@ var filterOperatorScenarios = []expressionScenario{
 		document:    `[1,2,3]`,
 		expression:  `filter(. > 4)`,
 		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 	{
@@ -37,6 +36,7 @@ var filterOperatorScenarios = []expressionScenario{
 		document:    `[]`,
 		expression:  `filter(. > 1)`,
 		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 }

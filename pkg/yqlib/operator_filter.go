@@ -23,15 +23,15 @@ func filterOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		for resultEl := filtered.MatchingNodes.Front(); resultEl != nil; resultEl = resultEl.Next() {
 			result := resultEl.Value.(*CandidateNode)
 			log.Warningf("filtered %#v", result)
-			selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-			childCtx := context.SingleReadonlyChildContext(result)
-			collected, err := collectTogether(d, childCtx, selfExpression)
-			if err != nil {
-				return Context{}, err
-			}
-			collected.Node.Style = unwrapDoc(result.Node).Style
-			results.PushBack(collected)
 		}
+
+		selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
+		collected, err := collectTogether(d, filtered, selfExpression)
+		if err != nil {
+			return Context{}, err
+		}
+		collected.Node.Style = unwrapDoc(candidate.Node).Style
+		results.PushBack(collected)
 	}
 	return context.ChildContext(results), nil
 }
