@@ -37,6 +37,7 @@ var participleYqRules = []*participleYqRule{
 
 	{"MapValues", `map_?values`, opToken(mapValuesOpType), 0},
 	simpleOp("map", mapOpType),
+	simpleOp("filter", filterOpType),
 	simpleOp("pick", pickOpType),
 
 	{"FlattenWithDepth", `flatten\([0-9]+\)`, flattenWithDepth(), 0},
