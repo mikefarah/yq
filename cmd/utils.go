@@ -56,7 +56,12 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	return expression, args, nil
 }
 
-func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
+func configureDecoder(evaluateTogether bool, inputFilename string) (yqlib.Decoder, error) {
+	if inputFormat == "" {
+		inputFormat = yqlib.InputFormatFromFilename(inputFilename, inputFormatDefault)
+	} else {
+		yqlib.GetLogger().Debugf("user specified inputFormat '%s'", inputFormat)
+	}
 	yqlibInputFormat, err := yqlib.InputFormatFromString(inputFormat)
 	if err != nil {
 		return nil, err
