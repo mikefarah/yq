@@ -212,6 +212,8 @@ var participleYqRules = []*participleYqRule{
 
 	{"Divide", `\/`, opToken(divideOpType), 0},
 
+	{"Modulo", `%`, opToken(moduloOpType), 0},
+
 	{"AddAssign", `\+=`, opToken(addAssignOpType), 0},
 	{"Add", `\+`, opToken(addOpType), 0},
 

@@ -64,6 +64,8 @@ var multiplyAssignOpType = &operationType{Type: "MULTIPLY_ASSIGN", NumArgs: 2, P
 
 var divideOpType = &operationType{Type: "DIVIDE", NumArgs: 2, Precedence: 42, Handler: divideOperator}
 
+var moduloOpType = &operationType{Type: "MODULO", NumArgs: 2, Precedence: 42, Handler: moduloOperator}
+
 var addOpType = &operationType{Type: "ADD", NumArgs: 2, Precedence: 42, Handler: addOperator}
 var subtractOpType = &operationType{Type: "SUBTRACT", NumArgs: 2, Precedence: 42, Handler: subtractOperator}
 var alternativeOpType = &operationType{Type: "ALTERNATIVE", NumArgs: 2, Precedence: 42, Handler: alternativeOperator}
