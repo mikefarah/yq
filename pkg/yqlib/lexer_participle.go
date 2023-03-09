@@ -210,6 +210,8 @@ var participleYqRules = []*participleYqRule{
 	{"MultiplyAssign", `\*=[\+|\?cdn]*`, multiplyWithPrefs(multiplyAssignOpType), 0},
 	{"Multiply", `\*[\+|\?cdn]*`, multiplyWithPrefs(multiplyOpType), 0},
 
+	{"Divide", `\/`, opToken(divideOpType), 0},
+
 	{"AddAssign", `\+=`, opToken(addAssignOpType), 0},
 	{"Add", `\+`, opToken(addOpType), 0},
 
