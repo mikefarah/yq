@@ -40,6 +40,15 @@ var divideOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Number division by zero",
+		subdescription: "Dividing by zero results in +Inf or -Inf",
+		document:       `{a: 1, b: -1}`,
+		expression:     `.a = .a / 0 | .b = .b / 0`,
+		expected: []string{
+			"D0, P[], (doc)::{a: !!float +Inf, b: !!float -Inf}\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Custom types: that are really strings",
 		document:    "a: !horse cat_meow\nb: !goat _",

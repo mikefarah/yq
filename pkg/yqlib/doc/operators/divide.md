@@ -36,3 +36,21 @@ a: 4.8
 b: 2.5
 ```
 
+## Number division by zero
+Dividing by zero results in +Inf or -Inf
+
+Given a sample.yml file of:
+```yaml
+a: 1
+b: -1
+```
+then
+```bash
+yq '.a = .a / 0 | .b = .b / 0' sample.yml
+```
+will output
+```yaml
+a: !!float +Inf
+b: !!float -Inf
+```
+
