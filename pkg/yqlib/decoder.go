@@ -39,7 +39,7 @@ func InputFormatFromString(format string) (InputFormat, error) {
 	case "tsv", "t":
 		return TSVObjectInputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml|props]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
 	}
 }
 

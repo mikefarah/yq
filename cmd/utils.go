@@ -70,8 +70,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		//
 		outputFormat = yqlib.FormatFromFilename(inputFilename)
 		if inputFilename != "-" {
-			yqlib.GetLogger().Warning("yq default output is now 'auto' (based on the filename extension)")
-			yqlib.GetLogger().Warning("For backwards compatibility 'yaml' has been set as the output format. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
+			yqlib.GetLogger().Warning("yq default output is now 'auto' (based on the filename extension). Normally yq would output '%v', but for backwards compatibility 'yaml' has been set. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
 		}
 		outputFormat = "yaml"
 	}
