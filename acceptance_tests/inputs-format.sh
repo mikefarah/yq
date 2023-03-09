@@ -120,7 +120,7 @@ EOM
 }
 
 testInputXmlNamespaces() {
-  cat >test.yml <<EOL
+  cat >test.xml <<EOL
 <?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
 </map>
@@ -134,10 +134,10 @@ map:
   +@xsi:schemaLocation: some-url
 EOM
 
-  X=$(./yq e -p=xml test.yml)
+  X=$(./yq e -p=xml test.xml)
   assertEquals "$expected" "$X"
 
-  X=$(./yq ea -p=xml test.yml)
+  X=$(./yq ea -p=xml test.xml)
   assertEquals "$expected" "$X"
 }
 
