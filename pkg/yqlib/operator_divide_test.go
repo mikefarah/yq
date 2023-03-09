@@ -69,9 +69,9 @@ var divideOperatorScenarios = []expressionScenario{
 		skipDoc:     true,
 		description: "Custom types: that are really ints",
 		document:    "a: !horse 2\nb: !goat 3",
-		expression:  `.a += .b`,
+		expression:  `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse 5\nb: !goat 3\n",
+			"D0, P[], (doc)::a: !horse 0.6666666666666666\nb: !goat 3\n",
 		},
 	},
 	{
