@@ -68,6 +68,9 @@ func moduloScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *
 		if err != nil {
 			return err
 		}
+		if rhsNum == 0 {
+			return fmt.Errorf("cannot modulo by 0")
+		}
 		remainder := lhsNum % rhsNum
 
 		target.Node.Tag = lhs.Tag

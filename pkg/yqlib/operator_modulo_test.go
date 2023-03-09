@@ -41,6 +41,22 @@ var moduloOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Number modulo - int by zero",
+		subdescription: "If the lhs is an int and rhs is a 0 the result is an error.",
+		document:       `{a: 1, b: 0}`,
+		expression:     `.a = .a % .b`,
+		expectedError:  "cannot modulo by 0",
+	},
+	{
+		description:    "Number modulo - float by zero",
+		subdescription: "If the lhs is a float and rhs is a 0 the result is NaN.",
+		document:       `{a: 1.1, b: 0}`,
+		expression:     `.a = .a % .b`,
+		expected: []string{
+			"D0, P[], (doc)::{a: !!float NaN, b: 0}\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Custom types: that are really numbers",
 		document:    "a: !horse 333.975\nb: !goat 299.2",
