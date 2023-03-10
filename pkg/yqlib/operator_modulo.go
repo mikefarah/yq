@@ -31,9 +31,7 @@ func modulo(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Cand
 		return nil, fmt.Errorf("%v (%v) cannot modulo by %v (%v)", lhsNode.Tag, lhs.GetNicePath(), rhs.Node.Tag, rhs.GetNicePath())
 	}
 
-	target := lhs.CreateReplacement(&yaml.Node{
-		Anchor: lhs.Node.Anchor,
-	})
+	target := &yaml.Node{}
 
 	if lhsNode.Kind == yaml.ScalarNode && rhs.Node.Kind == yaml.ScalarNode {
 		if err := moduloScalars(context, target, lhsNode, rhs.Node); err != nil {
@@ -43,10 +41,10 @@ func modulo(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Cand
 		return nil, fmt.Errorf("%v (%v) cannot modulo by %v (%v)", lhsNode.Tag, lhs.GetNicePath(), rhs.Node.Tag, rhs.GetNicePath())
 	}
 
-	return target, nil
+	return lhs.CreateReplacement(target), nil
 }
 
-func moduloScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func moduloScalars(context Context, target *yaml.Node, lhs *yaml.Node, rhs *yaml.Node) error {
 	lhsTag := lhs.Tag
 	rhsTag := guessTagFromCustomType(rhs)
 	lhsIsCustom := false
@@ -57,8 +55,8 @@ func moduloScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *
 	}
 
 	if lhsTag == "!!int" && rhsTag == "!!int" {
-		target.Node.Kind = yaml.ScalarNode
-		target.Node.Style = lhs.Style
+		target.Kind = yaml.ScalarNode
+		target.Style = lhs.Style
 
 		format, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
@@ -73,11 +71,11 @@ func moduloScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *
 		}
 		remainder := lhsNum % rhsNum
 
-		target.Node.Tag = lhs.Tag
-		target.Node.Value = fmt.Sprintf(format, remainder)
+		target.Tag = lhs.Tag
+		target.Value = fmt.Sprintf(format, remainder)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
-		target.Node.Kind = yaml.ScalarNode
-		target.Node.Style = lhs.Style
+		target.Kind = yaml.ScalarNode
+		target.Style = lhs.Style
 
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
@@ -89,11 +87,11 @@ func moduloScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *
 		}
 		remainder := math.Mod(lhsNum, rhsNum)
 		if lhsIsCustom {
-			target.Node.Tag = lhs.Tag
+			target.Tag = lhs.Tag
 		} else {
-			target.Node.Tag = "!!float"
+			target.Tag = "!!float"
 		}
-		target.Node.Value = fmt.Sprintf("%v", remainder)
+		target.Value = fmt.Sprintf("%v", remainder)
 	} else {
 		return fmt.Errorf("%v cannot modulo by %v", lhsTag, rhsTag)
 	}
