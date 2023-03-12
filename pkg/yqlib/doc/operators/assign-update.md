@@ -250,7 +250,7 @@ a: !cat woof
 b: !dog woof
 ```
 
-## Custom types: clovver
+## Custom types: clobber
 Use the `c` option to clobber custom tags
 
 Given a sample.yml file of:

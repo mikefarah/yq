@@ -230,7 +230,7 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Custom types: clovver",
+		description:    "Custom types: clobber",
 		subdescription: "Use the `c` option to clobber custom tags",
 		document:       "a: !cat meow\nb: !dog woof",
 		expression:     `.a =c .b`,
