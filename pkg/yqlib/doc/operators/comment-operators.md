@@ -8,7 +8,7 @@ Like the `=` and `|=` assign operators, the same syntax applies when updating co
 This will set the LHS nodes' comments equal to the expression on the RHS. The RHS is run against the matching nodes in the pipeline
 
 ### relative form: `|=` 
-Similar to the plain form, however the RHS evaluates against each matching LHS node! This is useful if you want to set the comments as a relative expression of the node, for instance its value or path.
+This is similar to the plain form, but it evaluates the RHS with _each matching LHS node as context_. This is useful if you want to set the comments as a relative expression of the node, for instance its value or path.
 
 ## Set line comment
 Set the comment on the key node for more reliability (see below).
