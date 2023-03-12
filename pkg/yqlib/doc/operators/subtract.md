@@ -1,6 +1,6 @@
 # Subtract
 
-You can use subtract to subtract numbers, as well as removing elements from an array.
+You can use subtract to subtract numbers as well as remove elements from an array.
 
 ## Array subtraction
 Running
