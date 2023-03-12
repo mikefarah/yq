@@ -477,7 +477,7 @@ b: !goat
 ```
 
 ## Custom types: clobber tags
-Use the `c` option to clobber custom tags. Note that the second tag is now used
+Use the `c` option to clobber custom tags. Note that the second tag is now used.
 
 Given a sample.yml file of:
 ```yaml
