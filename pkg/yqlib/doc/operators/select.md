@@ -62,7 +62,7 @@ going
 ```
 
 ## Select elements from array with regular expression
-See more regular expression examples under the `string` operator docs.
+See more regular expression examples under the [`string` operator docs](https://mikefarah.gitbook.io/yq/operators/string-operators).
 
 Given a sample.yml file of:
 ```yaml
