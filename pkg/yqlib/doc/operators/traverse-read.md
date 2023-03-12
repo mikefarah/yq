@@ -51,7 +51,7 @@ will output
 ```
 
 ## Special characters
-Use quotes with brackets around path elements with special characters
+Use quotes with square brackets around path elements with special characters
 
 Given a sample.yml file of:
 ```yaml
@@ -83,7 +83,7 @@ apple
 ```
 
 ## Keys with spaces
-Use quotes with brackets around path elements with special characters
+Use quotes with square brackets around path elements with special characters
 
 Given a sample.yml file of:
 ```yaml
