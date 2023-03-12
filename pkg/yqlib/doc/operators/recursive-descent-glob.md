@@ -1,6 +1,6 @@
 # Recursive Descent (Glob)
 
-This operator recursively matches (or globs) all children nodes given of a particular element, including that node itself. This is most often used to apply a filter recursively against all matches. It can be used in either the 
+This operator recursively matches (or globs) all children nodes given of a particular element, including that node itself. This is most often used to apply a filter recursively against all matches.
 
 ## match values form `..`
 This will, like the `jq` equivalent, recursively match all _value_ nodes. Use it to find/manipulate particular values.
