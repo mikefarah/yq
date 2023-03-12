@@ -36,7 +36,7 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "from_entries with numeric key indexes",
+		description:    "from_entries with numeric key indices",
 		subdescription: "from_entries always creates a map, even for numeric keys",
 		document:       `[a,b]`,
 		expression:     `to_entries | from_entries`,
