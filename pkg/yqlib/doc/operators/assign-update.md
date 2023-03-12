@@ -203,7 +203,7 @@ a:
 ```
 
 ## Update node value that has an anchor
-Anchor will remaple
+Anchor will remain
 
 Given a sample.yml file of:
 ```yaml

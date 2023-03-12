@@ -196,7 +196,7 @@ var assignOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:           "Update node value that has an anchor",
-		subdescription:        "Anchor will remaple",
+		subdescription:        "Anchor will remain",
 		dontFormatInputForDoc: true,
 		document:              `a: &cool cat`,
 		expression:            `.a = "dog"`,
