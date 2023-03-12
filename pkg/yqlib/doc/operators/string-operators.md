@@ -1,7 +1,7 @@
 # String Operators
 
 ## RegEx
-This uses golangs native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
+This uses Golang's native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
 
 Case insensitive tip: prefix the regex with `(?i)` - e.g. `test("(?i)cats)"`.
 

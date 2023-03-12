@@ -17,11 +17,11 @@ See the [library docs](https://pkg.go.dev/time#pkg-constants) for examples of fo
 
 
 ## Timezones
-This uses golangs built in LoadLocation function to parse timezones strings. See the [library docs](https://pkg.go.dev/time#LoadLocation) for more details.
+This uses Golang's built in LoadLocation function to parse timezones strings. See the [library docs](https://pkg.go.dev/time#LoadLocation) for more details.
 
 
 ## Durations
-Durations are parsed using golangs built in [ParseDuration](https://pkg.go.dev/time#ParseDuration) function.
+Durations are parsed using Golang's built in [ParseDuration](https://pkg.go.dev/time#ParseDuration) function.
 
 You can durations to time using the `+` operator.
 
