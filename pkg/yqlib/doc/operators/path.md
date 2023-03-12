@@ -123,7 +123,7 @@ a:
 ```
 
 ## Set path to prune deep paths
-Like pick but recursive. This uses `ireduce` to deeply set the selected paths into an empty object,
+Like pick but recursive. This uses `ireduce` to deeply set the selected paths into an empty object.
 
 Given a sample.yml file of:
 ```yaml
