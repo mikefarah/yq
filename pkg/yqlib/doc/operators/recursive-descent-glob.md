@@ -12,7 +12,7 @@ yq '.. style= "flow"' file.yaml
 ```
 
 ## match values and map keys form `...`
-The also includes map keys in the results set. This is particularly useful in YAML as unlike JSON, map keys can have their own styling, tags and use anchors and aliases.
+The also includes map keys in the results set. This is particularly useful in YAML as unlike JSON, map keys can have their own styling and tags and also use anchors and aliases.
 
 For instance to set the `style` of all nodes in a yaml doc, including the map keys:
 
