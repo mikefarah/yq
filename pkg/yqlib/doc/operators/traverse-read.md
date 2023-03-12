@@ -1,6 +1,6 @@
 # Traverse (Read)
 
-This is the simplest (and perhaps most used) operator, it is used to navigate deeply into yaml structures.
+This is the simplest (and perhaps most used) operator. It is used to navigate deeply into yaml structures.
 
 ## Simple map navigation
 Given a sample.yml file of:
