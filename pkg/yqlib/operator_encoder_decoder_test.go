@@ -179,7 +179,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Encode array of array scalars as tsv string",
+		description:    "Encode array of arrays as tsv string",
 		subdescription: "Scalars are strings, numbers and booleans.",
 		document:       `[[cat, "thing1,thing2", true, 3.40], [dog, thing3, false, 12]]`,
 		expression:     `@tsv`,
