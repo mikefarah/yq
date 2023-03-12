@@ -3,7 +3,7 @@
 Various operators for parsing and manipulating dates. 
 
 ## Date time formattings
-This uses the golangs built in time library for parsing and formatting date times.
+This uses Golang's built in time library for parsing and formatting date times.
 
 When not specified, the RFC3339 standard is assumed `2006-01-02T15:04:05Z07:00` for parsing.
 
