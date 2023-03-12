@@ -298,7 +298,7 @@ false
 ```
 
 ## Substitute / Replace string
-This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)
+This uses Golang's regex, described [here](https://github.com/google/re2/wiki/Syntax)
 Note the use of `|=` to run in context of the current string value.
 
 Given a sample.yml file of:
@@ -315,7 +315,7 @@ a: cats are great
 ```
 
 ## Substitute / Replace string with regex
-This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)
+This uses Golang's regex, described [here](https://github.com/google/re2/wiki/Syntax)
 Note the use of `|=` to run in context of the current string value.
 
 Given a sample.yml file of:
