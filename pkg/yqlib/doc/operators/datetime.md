@@ -23,7 +23,7 @@ This uses Golang's built in LoadLocation function to parse timezones strings. Se
 ## Durations
 Durations are parsed using Golang's built in [ParseDuration](https://pkg.go.dev/time#ParseDuration) function.
 
-You can durations to time using the `+` operator.
+You can add durations to time using the `+` operator.
 
 ## Format: from standard RFC3339 format
 Providing a single parameter assumes a standard RFC3339 datetime format. If the target format is not a valid yaml datetime format, the result will be a string tagged node.
