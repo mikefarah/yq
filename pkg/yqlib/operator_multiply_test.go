@@ -420,7 +420,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Merge, deeply merging arrays",
-		subdescription: "Merging arrays deeply means arrays are merge like objects, with indexes as their key. In this case, we merge the first item in the array, and do nothing with the second.",
+		subdescription: "Merging arrays deeply means arrays are merged like objects, with indices as their key. In this case, we merge the first item in the array and do nothing with the second.",
 		document:       `{a: [{name: fred, age: 12}, {name: bob, age: 32}], b: [{name: fred, age: 34}]}`,
 		expression:     `.a *d .b`,
 		expected: []string{

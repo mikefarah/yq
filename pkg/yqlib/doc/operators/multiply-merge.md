@@ -250,7 +250,7 @@ thing:
 ```
 
 ## Merge, deeply merging arrays
-Merging arrays deeply means arrays are merge like objects, with indexes as their key. In this case, we merge the first item in the array, and do nothing with the second.
+Merging arrays deeply means arrays are merged like objects, with indices as their key. In this case, we merge the first item in the array and do nothing with the second.
 
 Given a sample.yml file of:
 ```yaml
