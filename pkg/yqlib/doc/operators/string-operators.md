@@ -15,7 +15,7 @@ Capture returns named RegEx capture groups in a map. Can be more convenient than
 Returns true if the string matches the RegEx, false otherwise.
 
 ## sub(regEx, replacement)
-Substitutes matched substrings. The first parameter is the regEx to match substrings within the original string. The second is a what to replace those matches with. This can refer to capture groups from the first RegEx.
+Substitutes matched substrings. The first parameter is the regEx to match substrings within the original string. The second parameter specifies what to replace those matches with. This can refer to capture groups from the first RegEx.
 
 ## String blocks, bash and newlines
 Bash is notorious for chomping on precious trailing newline characters, making it tricky to set strings with newlines properly. In particular, the `$( exp )` _will trim trailing newlines_.
