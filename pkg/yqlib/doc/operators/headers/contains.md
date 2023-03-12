@@ -4,7 +4,7 @@ This returns `true` if the context contains the passed in parameter, and false o
 
 {% hint style="warning" %}
 
-_Note_ that, just like jq, when checking if an array of strings `contains` another, this will use `contains` and _not_ equals to check each string. This means an array like `contains(["cat"])` will return true for an array `["cats"]`.
+_Note_ that, just like jq, when checking if an array of strings `contains` another, this will use `contains` and _not_ equals to check each string. This means an expression like `contains(["cat"])` will return true for an array `["cats"]`.
 
 See the "Array has a subset array" example below on how to check for a subset.
 
