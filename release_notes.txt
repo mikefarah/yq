@@ -27,7 +27,7 @@
 
 4.30.6:
   - Fixed xml comment in array of scalars #1465
-  - Include blank new lines in leading header preprocessing #1462
+  - Include blank newlines in leading header preprocessing #1462
   - Added aarch64 build (#1261)
   - Bumped dependency versions (#1453)
 

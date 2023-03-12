@@ -27,7 +27,7 @@ a: |
   cat
 ```
 
-Using `$( exp )` wont work, as it will trim the trailing new line.
+Using `$( exp )` wont work, as it will trim the trailing newline.
 
 ```
 m=$(echo "cat\n") yq -n '.a = strenv(m)'
@@ -49,7 +49,7 @@ a: |
   cat
 ```
 
-Similarly, if you're trying to set the content from a file, and want a trailing new line:
+Similarly, if you're trying to set the content from a file, and want a trailing newline:
 
 ```
 IFS= read -rd '' output < <(cat my_file)
