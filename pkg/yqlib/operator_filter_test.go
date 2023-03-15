@@ -7,22 +7,22 @@ import (
 var filterOperatorScenarios = []expressionScenario{
 	{
 		description: "Filter array",
-		document:   `[1,2,3]`,
-		expression: `filter(. < 3)`,
+		document:    `[1,2,3]`,
+		expression:  `filter(. < 3)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[1, 2]\n",
 		},
 	},
 	{
-		skipDoc: true,
-		document:    `[1,2,3]`,
-		expression:  `filter(. > 1)`,
+		skipDoc:    true,
+		document:   `[1,2,3]`,
+		expression: `filter(. > 1)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[2, 3]\n",
 		},
 	},
 	{
-		skipDoc: true,
+		skipDoc:     true,
 		description: "Filter array to empty",
 		document:    `[1,2,3]`,
 		expression:  `filter(. > 4)`,
@@ -31,7 +31,7 @@ var filterOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc: true,
+		skipDoc:     true,
 		description: "Filter empty array",
 		document:    `[]`,
 		expression:  `filter(. > 1)`,

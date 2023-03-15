@@ -30,4 +30,3 @@ func filterOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	}
 	return context.ChildContext(results), nil
 }
-
