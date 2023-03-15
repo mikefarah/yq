@@ -56,8 +56,6 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 
 ## Install
 
-Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method.
-
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
 ### wget
@@ -230,6 +228,8 @@ go install github.com/mikefarah/yq/v4@latest
 
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
+
+> Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method.
 
 
 ### Nix
