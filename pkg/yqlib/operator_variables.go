@@ -82,10 +82,11 @@ func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp 
 		newContext.SetVariable(variableName, variableValue)
 
 		rhs, err := d.GetMatchingNodes(newContext, originalExp.RHS)
-		log.Debug("PROCESSING VARIABLE DONE, got back: ", rhs.MatchingNodes.Len())
+
 		if err != nil {
 			return Context{}, err
 		}
+		log.Debug("PROCESSING VARIABLE DONE, got back: ", rhs.MatchingNodes.Len())
 		results.PushBackList(rhs.MatchingNodes)
 	}
 

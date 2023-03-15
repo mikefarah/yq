@@ -14,6 +14,12 @@ var variableOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:       true,
+		document:      `{}`,
+		expression:    `.a.b as $foo`,
+		expectedError: "must use variable with a pipe, e.g. `exp as $x | ...`",
+	},
+	{
 		document:      "a: [cat]",
 		skipDoc:       true,
 		expression:    "(.[] | {.name: .}) as $item | .",
