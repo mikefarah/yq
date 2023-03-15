@@ -60,8 +60,14 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 		log.Debugf("Multiplying LHS: %v", lhs.Node.Tag)
 		log.Debugf("-          RHS: %v", rhs.Node.Tag)
 
-		if lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode ||
-			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) {
+		if rhs.Node.Tag == "!!null" {
+			return lhs.Copy()
+		}
+
+		if (lhs.Node.Kind == yaml.MappingNode && rhs.Node.Kind == yaml.MappingNode) ||
+			(lhs.Node.Tag == "!!null" && rhs.Node.Kind == yaml.MappingNode) ||
+			(lhs.Node.Kind == yaml.SequenceNode && rhs.Node.Kind == yaml.SequenceNode) ||
+			(lhs.Node.Tag == "!!null" && rhs.Node.Kind == yaml.SequenceNode) {
 			var newBlank = CandidateNode{}
 			err := copier.CopyWithOption(&newBlank, lhs, copier.Option{IgnoreEmpty: true, DeepCopy: true})
 			if err != nil {
@@ -189,7 +195,7 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	} else {
 		log.Debugf("merge - assignmentOp := &Operation{OperationType: assignAttributesOpType}")
 	}
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhs}
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhs}
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,

@@ -8,15 +8,17 @@ var prefix = "D0, P[], (doc)::a:\n    cool:\n        bob: dylan\n"
 
 var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
-		description: "Encode value as json string",
-		document:    `{a: {cool: "thing"}}`,
-		expression:  `.b = (.a | to_json)`,
+		requiresFormat: "json",
+		description:    "Encode value as json string",
+		document:       `{a: {cool: "thing"}}`,
+		expression:     `.b = (.a | to_json)`,
 		expected: []string{
 			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{\n  \"cool\": \"thing\"\n}\n"}
 `,
 		},
 	},
 	{
+		requiresFormat: "json",
 		description:    "Encode value as json string, on one line",
 		subdescription: "Pass in a 0 indent to print json on a single line.",
 		document:       `{a: {cool: "thing"}}`,
@@ -27,6 +29,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		requiresFormat: "json",
 		description:    "Encode value as json string, on one line shorthand",
 		subdescription: "Pass in a 0 indent to print json on a single line.",
 		document:       `{a: {cool: "thing"}}`,
@@ -37,6 +40,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		requiresFormat: "json",
 		description:    "Decode a json encoded string",
 		subdescription: "Keep in mind JSON is a subset of YAML. If you want idiomatic yaml, pipe through the style operator to clear out the JSON styling.",
 		document:       `a: '{"cool":"thing"}'`,
@@ -193,33 +197,37 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Encode value as xml string",
-		document:    `{a: {cool: {foo: "bar", +@id: hi}}}`,
-		expression:  `.a | to_xml`,
+		requiresFormat: "xml",
+		description:    "Encode value as xml string",
+		document:       `{a: {cool: {foo: "bar", +@id: hi}}}`,
+		expression:     `.a | to_xml`,
 		expected: []string{
 			"D0, P[a], (!!str)::<cool id=\"hi\">\n  <foo>bar</foo>\n</cool>\n\n",
 		},
 	},
 	{
-		description: "Encode value as xml string on a single line",
-		document:    `{a: {cool: {foo: "bar", +@id: hi}}}`,
-		expression:  `.a | @xml`,
+		requiresFormat: "xml",
+		description:    "Encode value as xml string on a single line",
+		document:       `{a: {cool: {foo: "bar", +@id: hi}}}`,
+		expression:     `.a | @xml`,
 		expected: []string{
 			"D0, P[a], (!!str)::<cool id=\"hi\"><foo>bar</foo></cool>\n\n",
 		},
 	},
 	{
-		description: "Encode value as xml string with custom indentation",
-		document:    `{a: {cool: {foo: "bar", +@id: hi}}}`,
-		expression:  `{"cat": .a | to_xml(1)}`,
+		requiresFormat: "xml",
+		description:    "Encode value as xml string with custom indentation",
+		document:       `{a: {cool: {foo: "bar", +@id: hi}}}`,
+		expression:     `{"cat": .a | to_xml(1)}`,
 		expected: []string{
 			"D0, P[], (!!map)::cat: |\n    <cool id=\"hi\">\n     <foo>bar</foo>\n    </cool>\n",
 		},
 	},
 	{
-		description: "Decode a xml encoded string",
-		document:    `a: "<foo>bar</foo>"`,
-		expression:  `.b = (.a | from_xml)`,
+		requiresFormat: "xml",
+		description:    "Decode a xml encoded string",
+		document:       `a: "<foo>bar</foo>"`,
+		expression:     `.b = (.a | from_xml)`,
 		expected: []string{
 			"D0, P[], (doc)::a: \"<foo>bar</foo>\"\nb:\n    foo: bar\n",
 		},
@@ -240,6 +248,41 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::YTogYXBwbGUK\n",
 		},
+	},
+	{
+		description: "Encode a string to uri",
+		document:    "coolData: this has & special () characters *",
+		expression:  ".coolData | @uri",
+		expected: []string{
+			"D0, P[coolData], (!!str)::this+has+%26+special+%28%29+characters+%2A\n",
+		},
+	},
+	{
+		description: "Decode a URI to a string",
+		document:    "this+has+%26+special+%28%29+characters+%2A",
+		expression:  "@urid",
+		expected: []string{
+			"D0, P[], (!!str)::this has & special () characters *\n",
+		},
+	},
+	{
+		description:    "Encode a string to sh",
+		subdescription: "Sh/Bash friendly string",
+		document:       "coolData: strings with spaces and a 'quote'",
+		expression:     ".coolData | @sh",
+		expected: []string{
+			"D0, P[coolData], (!!str)::strings' with spaces and a '\\'quote\\'\n",
+		},
+	},
+	{
+		description:    "Encode a string to sh",
+		subdescription: "Watch out for stray '' (empty strings)",
+		document:       "coolData: \"'starts, contains more '' and ends with a quote'\"",
+		expression:     ".coolData | @sh",
+		expected: []string{
+			"D0, P[coolData], (!!str)::\\'starts,' contains more '\\'\\'' and ends with a quote'\\'\n",
+		},
+		skipDoc: true,
 	},
 	{
 		description:    "Decode a base64 encoded string",
@@ -268,9 +311,10 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "empty xml decode",
-		skipDoc:     true,
-		expression:  `"" | @xmld`,
+		requiresFormat: "xml",
+		description:    "empty xml decode",
+		skipDoc:        true,
+		expression:     `"" | @xmld`,
 		expected: []string{
 			"D0, P[], (!!null)::\n",
 		},

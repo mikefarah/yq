@@ -28,6 +28,7 @@ type expressionScenario struct {
 	skipDoc               bool
 	expectedError         string
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
+	requiresFormat        string
 }
 
 func TestMain(m *testing.M) {
@@ -103,6 +104,23 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		return
 	}
 
+	if s.requiresFormat != "" {
+		format := s.requiresFormat
+		inputFormat, err := InputFormatFromString(format)
+		if err != nil {
+			t.Error(err)
+		}
+		if decoder := createDecoder(inputFormat); decoder == nil {
+			t.Skipf("no support for %s input format", format)
+		}
+		outputFormat, err := OutputFormatFromString(format)
+		if err != nil {
+			t.Error(err)
+		}
+		if encoder := configureEncoder(outputFormat, 4); encoder == nil {
+			t.Skipf("no support for %s output format", format)
+		}
+	}
 	if err != nil {
 		t.Error(fmt.Errorf("%w: %v: %v", err, s.description, s.expression))
 		return

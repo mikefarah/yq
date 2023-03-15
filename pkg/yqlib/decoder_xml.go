@@ -1,3 +1,5 @@
+//go:build !yq_noxml
+
 package yqlib
 
 import (
@@ -5,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -46,11 +49,19 @@ func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
 	return yamlNode, nil
 }
 
+var decoderCommentPrefix = regexp.MustCompile(`(^|\n)([[:alpha:]])`)
+
 func (dec *xmlDecoder) processComment(c string) string {
 	if c == "" {
 		return ""
 	}
-	return "#" + strings.TrimRight(c, " ")
+	//need to replace "cat " with "# cat"
+	// "\ncat\n" with "\n cat\n"
+	// ensure non-empty comments starting with newline have a space in front
+
+	replacement := decoderCommentPrefix.ReplaceAllString(c, "$1 $2")
+	replacement = "#" + strings.ReplaceAll(strings.TrimRight(replacement, " "), "\n", "\n#")
+	return replacement
 }
 
 func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
@@ -75,6 +86,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 		var err error
 
 		if i == 0 {
+			log.Debugf("head comment here")
 			labelNode.HeadComment = dec.processComment(n.HeadComment)
 
 		}

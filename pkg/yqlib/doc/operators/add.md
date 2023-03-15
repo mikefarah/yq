@@ -86,6 +86,23 @@ will output
 a: ['dog', 'cat']
 ```
 
+## Prepend to existing array
+Given a sample.yml file of:
+```yaml
+a:
+  - dog
+```
+then
+```bash
+yq '.a = ["cat"] + .a' sample.yml
+```
+will output
+```yaml
+a:
+  - cat
+  - dog
+```
+
 ## Add new object to array
 Given a sample.yml file of:
 ```yaml

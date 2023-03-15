@@ -13,6 +13,28 @@ var valueOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		document:   `[1,2,3]`,
+		expression: `.[] | "foo"`,
+		expected: []string{
+			"D0, P[], (!!str)::foo\n",
+			"D0, P[], (!!str)::foo\n",
+			"D0, P[], (!!str)::foo\n",
+		},
+	},
+	{
+		document:   `[1,2,3]`,
+		expression: `[.[] | "foo"] | .[0] = "cat"`,
+		expected: []string{
+			"D0, P[], (!!seq)::- cat\n- foo\n- foo\n",
+		},
+	},
+	{
+		expression: `"foo"`,
+		expected: []string{
+			"D0, P[], (!!str)::foo\n",
+		},
+	},
+	{
 		document:   ``,
 		expression: `0x9f`,
 		expected: []string{

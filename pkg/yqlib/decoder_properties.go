@@ -63,7 +63,7 @@ func (dec *propertiesDecoder) applyPropertyComments(context Context, path []inte
 
 	rhsCandidateNode.Node.Tag = guessTagFromCustomType(rhsCandidateNode.Node)
 
-	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhsCandidateNode}
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
@@ -93,7 +93,27 @@ func (dec *propertiesDecoder) applyProperty(context Context, properties *propert
 		Kind:  yaml.ScalarNode,
 	}
 
-	return dec.d.DeeplyAssign(context, path, rhsNode)
+	rhsNode.Tag = guessTagFromCustomType(rhsNode)
+
+	rhsCandidateNode := &CandidateNode{
+		Path: path,
+		Node: rhsNode,
+	}
+
+	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
+
+	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
+
+	assignmentOpNode := &ExpressionNode{
+		Operation: assignmentOp,
+		LHS:       createTraversalTree(path, traversePreferences{}, false),
+		RHS:       &ExpressionNode{Operation: rhsOp},
+	}
+
+	_, err := dec.d.GetMatchingNodes(context, assignmentOpNode)
+	// toml?
+	// return dec.d.DeeplyAssign(context, path, rhsNode)
+	return err
 }
 
 func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {

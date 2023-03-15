@@ -1,3 +1,5 @@
+//go:build !yq_nojson
+
 package yqlib
 
 import (

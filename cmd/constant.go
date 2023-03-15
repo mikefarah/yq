@@ -6,8 +6,10 @@ var unwrapScalar = false
 
 var writeInplace = false
 var outputToJSON = false
-var outputFormat = "yaml"
-var inputFormat = "yaml"
+
+var outputFormat = ""
+
+var inputFormat = ""
 
 var exitStatus = false
 var forceColor = false

@@ -34,7 +34,7 @@ var addOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: "(.a + .b) as $x",
+		expression: "(.a + .b) as $x | .",
 		expected: []string{
 			"D0, P[], (doc)::{}\n",
 		},
@@ -99,6 +99,14 @@ var addOperatorScenarios = []expressionScenario{
 		expression:            `.a += "cat"`,
 		expected: []string{
 			"D0, P[], (doc)::a: ['dog', 'cat']\n",
+		},
+	},
+	{
+		description: "Prepend to existing array",
+		document:    `a: [dog]`,
+		expression:  `.a = ["cat"] + .a`,
+		expected: []string{
+			"D0, P[], (doc)::a: [cat, dog]\n",
 		},
 	},
 	{

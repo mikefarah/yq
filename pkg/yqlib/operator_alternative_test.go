@@ -16,7 +16,7 @@ var alternativeOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		expression: `(.b // "hello") as $x`,
+		expression: `(.b // "hello") as $x | .`,
 		document:   `a: bridge`,
 		expected: []string{
 			"D0, P[], (doc)::a: bridge\n",

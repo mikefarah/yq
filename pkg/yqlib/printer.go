@@ -27,15 +27,17 @@ const (
 	TSVOutputFormat
 	XMLOutputFormat
 	Base64OutputFormat
+	UriOutputFormat
+	ShOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 	switch format {
-	case "yaml", "y":
+	case "yaml", "y", "yml":
 		return YamlOutputFormat, nil
 	case "json", "j":
 		return JSONOutputFormat, nil
-	case "props", "p":
+	case "props", "p", "properties":
 		return PropsOutputFormat, nil
 	case "csv", "c":
 		return CSVOutputFormat, nil

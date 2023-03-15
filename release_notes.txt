@@ -1,3 +1,30 @@
+4.31.2:
+  - Fixed variable handling #1458, #1566
+  - Fixed merged anchor reference problem #1482
+  - Fixed xml encoding of ProcInst #1563, improved XML comment handling
+  - Allow build without json and xml support (#1556) Thanks @afbjorklund
+  - Bumped dependencies
+
+4.31.1:
+  - Added shuffle command #1503
+  - Added ability to sort by multiple fields #1541
+  - Added @sh encoder #1526
+  - Added @uri/@urid encoder/decoder #1529
+  - Fixed date comparison with string date #1537
+  - Added from_unix/to_unix Operators
+  - Bumped dependency versions
+
+4.30.8:
+ - Log info message when unable to chown file in linux (e.g. snap confinement) #1521
+
+
+4.30.7:
+ - Fixed bug in splice operator #1511
+ - Fixed value operator bug  #1515
+ - Fixed handling of merging null #1501
+ - Ownership of file now maintained in linux (thanks @vaguecoder) #1473
+ - Bumped dependency versions
+
 4.30.6:
   - Fixed xml comment in array of scalars #1465
   - Include blank new lines in leading header preprocessing #1462

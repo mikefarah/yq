@@ -23,6 +23,13 @@ var compareOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		expression: `"2022-01-30T15:53:09Z" > "2020-01-30T15:53:09Z"`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "a: 5\nb: 4",
 		expression: ".a < .b",
 		expected: []string{

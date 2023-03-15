@@ -37,6 +37,7 @@ var participleYqRules = []*participleYqRule{
 
 	{"MapValues", `map_?values`, opToken(mapValuesOpType), 0},
 	simpleOp("map", mapOpType),
+	simpleOp("filter", filterOpType),
 	simpleOp("pick", pickOpType),
 
 	{"FlattenWithDepth", `flatten\([0-9]+\)`, flattenWithDepth(), 0},
@@ -45,8 +46,11 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("format_datetime", formatDateTimeOpType),
 	simpleOp("now", nowOpType),
 	simpleOp("tz", tzOpType),
+	simpleOp("from_?unix", fromUnixOpType),
+	simpleOp("to_?unix", toUnixOpType),
 	simpleOp("with_dtf", withDtFormatOpType),
 	simpleOp("error", errorOpType),
+	simpleOp("shuffle", shuffleOpType),
 	simpleOp("sortKeys", sortKeysOpType),
 	simpleOp("sort_?keys", sortKeysOpType),
 
@@ -77,6 +81,10 @@ var participleYqRules = []*participleYqRule{
 
 	{"Base64d", `@base64d`, decodeOp(Base64InputFormat), 0},
 	{"Base64", `@base64`, encodeWithIndent(Base64OutputFormat, 0), 0},
+
+	{"Urid", `@urid`, decodeOp(UriInputFormat), 0},
+	{"Uri", `@uri`, encodeWithIndent(UriOutputFormat, 0), 0},
+	{"SH", `@sh`, encodeWithIndent(ShOutputFormat, 0), 0},
 
 	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
 

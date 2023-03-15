@@ -40,6 +40,22 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "From Unix",
+		subdescription: "Converts from unix time. Note, you don't have to pipe through the tz operator :)",
+		expression:     `1675301929 | from_unix | tz("UTC")`,
+		expected: []string{
+			"D0, P[], (!!timestamp)::2023-02-02T01:38:49Z\n",
+		},
+	},
+	{
+		description:    "To Unix",
+		subdescription: "Converts to unix time",
+		expression:     `now | to_unix`,
+		expected: []string{
+			"D0, P[], (!!int)::1621386123\n",
+		},
+	},
+	{
 		description:    "Timezone: from standard RFC3339 format",
 		subdescription: "Returns a new datetime in the specified timezone. Specify standard IANA Time Zone format or 'utc', 'local'. When given a single parameter, this assumes the datetime is in RFC3339 format.",
 

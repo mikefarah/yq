@@ -8,7 +8,7 @@ var subtractOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{}`,
-		expression: "(.a - .b) as $x",
+		expression: "(.a - .b) as $x | .",
 		expected: []string{
 			"D0, P[], (doc)::{}\n",
 		},

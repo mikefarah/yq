@@ -579,6 +579,41 @@ var multiplyOperatorScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: {a: apple is included, b: cool.}\n",
 		},
 	},
+	{
+		description: "Merging a null with a map",
+		expression:  `null * {"some": "thing"}`,
+		expected: []string{
+			"D0, P[], (!!map)::some: thing\n",
+		},
+	},
+	{
+		description: "Merging a map with null",
+		expression:  `{"some": "thing"} * null`,
+		expected: []string{
+			"D0, P[], (!!map)::some: thing\n",
+		},
+	},
+	{
+		description: "Merging an null with an array",
+		expression:  `null * ["some"]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- some\n",
+		},
+	},
+	{
+		description: "Merging an array with null",
+		expression:  `["some"] * null`,
+		expected: []string{
+			"D0, P[], (!!seq)::- some\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `null * null`,
+		expected: []string{
+			"D0, P[], (!!null)::null\n",
+		},
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {

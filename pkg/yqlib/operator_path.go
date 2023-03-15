@@ -81,7 +81,7 @@ func setPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			return Context{}, fmt.Errorf("SETPATH: expected single value on RHS but found %v", targetContextValue.MatchingNodes.Len())
 		}
 
-		rhsOp := &Operation{OperationType: valueOpType, CandidateNode: targetContextValue.MatchingNodes.Front().Value.(*CandidateNode)}
+		rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: targetContextValue.MatchingNodes.Front().Value.(*CandidateNode)}
 
 		assignmentOpNode := &ExpressionNode{
 			Operation: assignmentOp,
