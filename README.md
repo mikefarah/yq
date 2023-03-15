@@ -229,7 +229,7 @@ go install github.com/mikefarah/yq/v4@latest
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
-> Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method.
+_Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method._
 
 
 ### Nix
