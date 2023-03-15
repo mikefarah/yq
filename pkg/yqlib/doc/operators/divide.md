@@ -19,7 +19,7 @@ c:
 ```
 
 ## Number division
-The result during divison is calculated as a float
+The result during division is calculated as a float
 
 Given a sample.yml file of:
 ```yaml

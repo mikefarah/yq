@@ -32,7 +32,7 @@ var divideOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Number division",
-		subdescription: "The result during divison is calculated as a float",
+		subdescription: "The result during division is calculated as a float",
 		document:       `{a: 12, b: 2.5}`,
 		expression:     `.a = .a / .b`,
 		expected: []string{

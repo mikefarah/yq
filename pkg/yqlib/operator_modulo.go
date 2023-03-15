@@ -9,12 +9,6 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
-func createModuloOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
-	return &ExpressionNode{Operation: &Operation{OperationType: moduloOpType},
-		LHS: lhs,
-		RHS: rhs}
-}
-
 func moduloOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("Modulo operator")
 
@@ -34,7 +28,7 @@ func modulo(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Cand
 	target := &yaml.Node{}
 
 	if lhsNode.Kind == yaml.ScalarNode && rhs.Node.Kind == yaml.ScalarNode {
-		if err := moduloScalars(context, target, lhsNode, rhs.Node); err != nil {
+		if err := moduloScalars(target, lhsNode, rhs.Node); err != nil {
 			return nil, err
 		}
 	} else {
@@ -44,7 +38,7 @@ func modulo(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Cand
 	return lhs.CreateReplacement(target), nil
 }
 
-func moduloScalars(context Context, target *yaml.Node, lhs *yaml.Node, rhs *yaml.Node) error {
+func moduloScalars(target *yaml.Node, lhs *yaml.Node, rhs *yaml.Node) error {
 	lhsTag := lhs.Tag
 	rhsTag := guessTagFromCustomType(rhs)
 	lhsIsCustom := false
