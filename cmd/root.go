@@ -66,7 +66,7 @@ yq -P sample.json
 	}
 
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "auto", "[auto|a|yaml|y|json|j|props|p|xml|x] output format type.")
-	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "auto", "[auto|a|yaml|y|props|p|xml|x|toml|t] parse format for input. Note that json is a subset of yaml.")
+	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "auto", "[auto|a|yaml|y|props|p|xml|x|toml] parse format for input. Note that json is a subset of yaml.")
 
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.AttributePrefix, "xml-attribute-prefix", yqlib.ConfiguredXMLPreferences.AttributePrefix, "prefix for xml attributes")
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.ContentName, "xml-content-name", yqlib.ConfiguredXMLPreferences.ContentName, "name for xml content (if no attribute name is present).")

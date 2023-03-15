@@ -61,7 +61,12 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 
 		inputFormat = yqlib.FormatFromFilename(inputFilename)
 		if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
-			outputFormat = yqlib.FormatFromFilename(inputFilename)
+			if inputFormat == "toml" {
+				// toml not yet supported for output
+				outputFormat = "yaml"
+			} else {
+				outputFormat = yqlib.FormatFromFilename(inputFilename)
+			}
 		}
 	} else if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
 		// backwards compatibility -
