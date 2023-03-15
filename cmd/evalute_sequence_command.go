@@ -100,12 +100,7 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 
 	printer := yqlib.NewPrinter(encoder, printerWriter)
 
-	inputFilename := ""
-	if len(args) > 0 {
-		inputFilename = args[0]
-	}
-
-	decoder, err := configureDecoder(false, inputFilename)
+	decoder, err := configureDecoder(false)
 	if err != nil {
 		return err
 	}

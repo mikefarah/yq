@@ -15,8 +15,11 @@ testInputJson() {
 EOL
 
   read -r -d '' expected << EOM
-mike:
-  things: cool
+{
+  "mike": {
+    "things": "cool"
+  }
+}
 EOM
 
   X=$(./yq test.json)
@@ -26,17 +29,36 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputJsonOutputYaml() {
+  cat >test.json <<EOL
+{ "mike" : { "things": "cool" } }
+EOL
+
+  read -r -d '' expected << EOM
+mike:
+  things: cool
+EOM
+
+  X=$(./yq test.json -oy)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea test.json -oy)
+  assertEquals "$expected" "$X"
+}
+
 testInputProperties() {
   cat >test.properties <<EOL
 mike.things = hello
 EOL
 
   read -r -d '' expected << EOM
-mike:
-  things: hello
+mike.things = hello
 EOM
 
   X=$(./yq e test.properties)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq test.properties)
   assertEquals "$expected" "$X"
 
   X=$(./yq ea test.properties)
@@ -49,8 +71,7 @@ mike.things = hello
 EOL
 
   read -r -d '' expected << EOM
-mike:
-  things: hello
+mike.things = hello
 EOM
 
   X=$(cat /dev/null | ./yq e test.properties)
@@ -68,10 +89,9 @@ banana,4
 EOL
 
   read -r -d '' expected << EOM
-- fruit: apple
-  yumLevel: 5
-- fruit: banana
-  yumLevel: 4
+fruit,yumLevel
+apple,5
+banana,4
 EOM
 
   X=$(./yq e test.csv)
@@ -83,12 +103,9 @@ EOM
 
 testInputCSVUTF8() {
   read -r -d '' expected << EOM
-- id: 1
-  first: john
-  last: smith
-- id: 1
-  first: jane
-  last: smith
+id,first,last
+1,john,smith
+1,jane,smith
 EOM
 
   X=$(./yq utf8.csv)
@@ -103,10 +120,9 @@ banana	4
 EOL
 
   read -r -d '' expected << EOM
-- fruit: apple
-  yumLevel: 5
-- fruit: banana
-  yumLevel: 4
+fruit	yumLevel
+apple	5
+banana	4
 EOM
 
   X=$(./yq e test.tsv)
@@ -125,9 +141,7 @@ testInputXml() {
 EOL
 
   read -r -d '' expected << EOM
-cat:
-  +content: BiBi
-  +@legs: "4"
+<cat legs="4">BiBi</cat>
 EOM
 
   X=$(./yq e test.xml)
@@ -145,11 +159,8 @@ testInputXmlNamespaces() {
 EOL
 
   read -r -d '' expected << EOM
-+p_xml: version="1.0"
-map:
-  +@xmlns: some-namespace
-  +@xmlns:xsi: some-instance
-  +@xsi:schemaLocation: some-url
+<?xml version="1.0"?>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
 EOM
 
   X=$(./yq e test.xml)
@@ -159,25 +170,6 @@ EOM
   assertEquals "$expected" "$X"
 }
 
-testInputXmlRoundtrip() {
-  cat >test.xml <<EOL
-<?xml version="1.0"?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">Meow</map>
-EOL
-
-  read -r -d '' expected << EOM
-<?xml version="1.0"?>
-<!DOCTYPE config SYSTEM "/etc/iwatch/iwatch.dtd" >
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">Meow</map>
-EOM
-
-  X=$(./yq -o=xml test.xml)
-  assertEquals "$expected" "$X"
-
-  X=$(./yq ea -o=xml test.xml)
-  assertEquals "$expected" "$X"
-}
 
 
 testInputXmlStrict() {
@@ -192,11 +184,11 @@ testInputXmlStrict() {
 </root>
 EOL
 
-  X=$(./yq --xml-strict-mode test.xml -o=xml 2>&1)
+  X=$(./yq --xml-strict-mode test.xml  2>&1)
   assertEquals 1 $?
   assertEquals "Error: bad file 'test.xml': XML syntax error on line 7: invalid character entity &writer;" "$X"
 
-  X=$(./yq ea --xml-strict-mode test.xml -o=xml 2>&1)
+  X=$(./yq ea --xml-strict-mode test.xml  2>&1)
   assertEquals "Error: bad file 'test.xml': XML syntax error on line 7: invalid character entity &writer;" "$X"
 }
 
@@ -206,9 +198,7 @@ testInputXmlGithubAction() {
 EOL
 
   read -r -d '' expected << EOM
-cat:
-  +content: BiBi
-  +@legs: "4"
+<cat legs="4">BiBi</cat>
 EOM
 
   X=$(cat /dev/null | ./yq e test.xml)

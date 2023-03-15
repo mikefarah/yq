@@ -53,15 +53,52 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		return "", nil, fmt.Errorf("cannot pass files in when using null-input flag")
 	}
 
+	inputFilename := ""
+	if len(args) > 0 {
+		inputFilename = args[0]
+	}
+	if inputFormat == "" || inputFormat == "auto" || inputFormat == "a" {
+
+		inputFormat = yqlib.FormatFromFilename(inputFilename)
+		if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
+			outputFormat = yqlib.FormatFromFilename(inputFilename)
+		}
+	} else if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
+		// backwards compatibility -
+		// before this was introduced, `yq -pcsv things.csv`
+		// would produce *yaml* output.
+		//
+		outputFormat = yqlib.FormatFromFilename(inputFilename)
+		if inputFilename != "-" {
+			yqlib.GetLogger().Warning("yq default output is now 'auto' (based on the filename extension). Normally yq would output '%v', but for backwards compatibility 'yaml' has been set. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
+		}
+		outputFormat = "yaml"
+	}
+
+	outputFormatType, err := yqlib.OutputFormatFromString(outputFormat)
+
+	if err != nil {
+		return "", nil, err
+	}
+	yqlib.GetLogger().Debug("Using outputformat %v", outputFormat)
+
+	if outputFormatType == yqlib.YamlOutputFormat ||
+		outputFormatType == yqlib.PropsOutputFormat {
+		unwrapScalar = true
+	}
+	if unwrapScalarFlag.IsExplicitySet() {
+		unwrapScalar = unwrapScalarFlag.IsSet()
+	}
+
+	//copy preference form global setting
+	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
+
+	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
+
 	return expression, args, nil
 }
 
-func configureDecoder(evaluateTogether bool, inputFilename string) (yqlib.Decoder, error) {
-	if inputFormat == "" {
-		inputFormat = yqlib.InputFormatFromFilename(inputFilename, inputFormatDefault)
-	} else {
-		yqlib.GetLogger().Debugf("user specified inputFormat '%s'", inputFormat)
-	}
+func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 	yqlibInputFormat, err := yqlib.InputFormatFromString(inputFormat)
 	if err != nil {
 		return nil, err

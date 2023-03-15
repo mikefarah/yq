@@ -39,21 +39,22 @@ func InputFormatFromString(format string) (InputFormat, error) {
 	case "tsv", "t":
 		return TSVObjectInputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|xml|props]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
 	}
 }
 
-func InputFormatFromFilename(filename string, defaultFormat string) string {
+func FormatFromFilename(filename string) string {
+
 	if filename != "" {
-		GetLogger().Debugf("checking filename '%s' for inputFormat", filename)
+		GetLogger().Debugf("checking file extension '%s' for auto format detection", filename)
 		nPos := strings.LastIndex(filename, ".")
 		if nPos > -1 {
-			inputFormat := filename[nPos+1:]
-			GetLogger().Debugf("detected inputFormat '%s'", inputFormat)
-			return inputFormat
+			format := filename[nPos+1:]
+			GetLogger().Debugf("detected format '%s'", format)
+			return format
 		}
 	}
 
-	GetLogger().Debugf("using default inputFormat '%s'", defaultFormat)
-	return defaultFormat
+	GetLogger().Debugf("using default inputFormat 'yaml'")
+	return "yaml"
 }
