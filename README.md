@@ -56,11 +56,7 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 
 ## Install
 
-{% hint style="warning" %}
-
 Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method.
-
-{% endhint %}
 
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
