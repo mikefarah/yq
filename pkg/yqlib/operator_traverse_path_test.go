@@ -116,7 +116,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Special characters",
-		subdescription: "Use quotes with brackets around path elements with special characters",
+		subdescription: "Use quotes with square brackets around path elements with special characters",
 		document:       `{"{}": frog}`,
 		expression:     `.["{}"]`,
 		expected: []string{
@@ -133,7 +133,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Keys with spaces",
-		subdescription: "Use quotes with brackets around path elements with special characters",
+		subdescription: "Use quotes with square brackets around path elements with special characters",
 		document:       `{"red rabbit": frog}`,
 		expression:     `.["red rabbit"]`,
 		expected: []string{

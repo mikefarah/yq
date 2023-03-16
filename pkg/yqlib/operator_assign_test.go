@@ -196,7 +196,7 @@ var assignOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:           "Update node value that has an anchor",
-		subdescription:        "Anchor will remaple",
+		subdescription:        "Anchor will remain",
 		dontFormatInputForDoc: true,
 		document:              `a: &cool cat`,
 		expression:            `.a = "dog"`,
@@ -230,7 +230,7 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Custom types: clovver",
+		description:    "Custom types: clobber",
 		subdescription: "Use the `c` option to clobber custom tags",
 		document:       "a: !cat meow\nb: !dog woof",
 		expression:     `.a =c .b`,

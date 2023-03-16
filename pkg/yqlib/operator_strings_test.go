@@ -205,7 +205,7 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Substitute / Replace string",
-		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)\nNote the use of `|=` to run in context of the current string value.",
+		subdescription: "This uses Golang's regex, described [here](https://github.com/google/re2/wiki/Syntax).\nNote the use of `|=` to run in context of the current string value.",
 		document:       `a: dogs are great`,
 		expression:     `.a |= sub("dogs", "cats")`,
 		expected: []string{
@@ -214,7 +214,7 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Substitute / Replace string with regex",
-		subdescription: "This uses golang regex, described [here](https://github.com/google/re2/wiki/Syntax)\nNote the use of `|=` to run in context of the current string value.",
+		subdescription: "This uses Golang's regex, described [here](https://github.com/google/re2/wiki/Syntax).\nNote the use of `|=` to run in context of the current string value.",
 		document:       "a: cat\nb: heat",
 		expression:     `.[] |= sub("(a)", "${1}r")`,
 		expected: []string{

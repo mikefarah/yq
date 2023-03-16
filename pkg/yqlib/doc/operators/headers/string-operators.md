@@ -1,7 +1,7 @@
 # String Operators
 
 ## RegEx
-This uses golangs native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
+This uses Golang's native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
 
 Case insensitive tip: prefix the regex with `(?i)` - e.g. `test("(?i)cats)"`.
 
@@ -15,7 +15,7 @@ Capture returns named RegEx capture groups in a map. Can be more convenient than
 Returns true if the string matches the RegEx, false otherwise.
 
 ## sub(regEx, replacement)
-Substitutes matched substrings. The first parameter is the regEx to match substrings within the original string. The second is a what to replace those matches with. This can refer to capture groups from the first RegEx.
+Substitutes matched substrings. The first parameter is the regEx to match substrings within the original string. The second parameter specifies what to replace those matches with. This can refer to capture groups from the first RegEx.
 
 ## String blocks, bash and newlines
 Bash is notorious for chomping on precious trailing newline characters, making it tricky to set strings with newlines properly. In particular, the `$( exp )` _will trim trailing newlines_.
@@ -27,7 +27,7 @@ a: |
   cat
 ```
 
-Using `$( exp )` wont work, as it will trim the trailing new line.
+Using `$( exp )` wont work, as it will trim the trailing newline.
 
 ```
 m=$(echo "cat\n") yq -n '.a = strenv(m)'
@@ -49,7 +49,7 @@ a: |
   cat
 ```
 
-Similarly, if you're trying to set the content from a file, and want a trailing new line:
+Similarly, if you're trying to set the content from a file, and want a trailing newline:
 
 ```
 IFS= read -rd '' output < <(cat my_file)

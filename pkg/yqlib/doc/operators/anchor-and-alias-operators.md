@@ -302,7 +302,7 @@ foobar:
 ```
 
 ## Dereference and update a field
-`Use explode with multiply to dereference an object
+Use explode with multiply to dereference an object
 
 Given a sample.yml file of:
 ```yaml

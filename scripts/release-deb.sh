@@ -28,7 +28,7 @@ show_help() {
   echo "    -h, --help		              Shows this help"
   echo "    -d, --distribution DISTRO   The distribution to use for the changelog generation. If not provided, last changelog entry"
   echo "                                  distribution is considered"
-  echo "    --goversion VERSION         The version of golang to use. Default to $GOVERSION"
+  echo "    --goversion VERSION         The version of Golang to use. Default to $GOVERSION"
   echo "    -k, --sign-key KEYID        Sign the package sources with the provided gpg key id (long format). When not provided this"
   echo "                                  paramater, the generated sources are not signed"
   echo "    -s, --sign                  Sign the package sources with a gpg key of the maintainer"
@@ -156,7 +156,7 @@ fi
 # generate changelog
 gbp dch --ignore-branch --no-multimaint -N "$VERSION" -s "\$SINCE" -D "\$DISTRIBUTION"
 
-# using -d to prevent failing when searching for golang dep on control file
+# using -d to prevent failing when searching for Golang dep on control file
 params=("-d" "-S")
 
 # add the -sa option for signing along with the key to use when provided key id
@@ -208,7 +208,7 @@ RUN set -e \
   && sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list \
   && apt-get -qq update
 
-# install golang on its $GOVERSION
+# install Golang on its $GOVERSION
 FROM base as golang
 RUN apt-get -qq -y --no-install-recommends install \
     ca-certificates \
