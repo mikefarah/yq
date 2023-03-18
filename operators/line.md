@@ -29,7 +29,7 @@ b:
 ```
 then
 ```bash
-yq '.b | key| line' sample.yml
+yq '.b | key | line' sample.yml
 ```
 will output
 ```yaml
