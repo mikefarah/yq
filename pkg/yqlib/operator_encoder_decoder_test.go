@@ -311,6 +311,14 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "base64 missing padding test",
+		skipDoc:     true,
+		expression:  `"Y2F0cw" | @base64d`,
+		expected: []string{
+			"D0, P[], (!!str)::cats\n",
+		},
+	},
+	{
 		requiresFormat: "xml",
 		description:    "empty xml decode",
 		skipDoc:        true,
