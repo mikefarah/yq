@@ -1,3 +1,14 @@
+4.32.1:
+  - Added support for _reading_ TOML! (not output yet)
+  - Added divide and modulo operators (#1593) - thanks @teejaded!
+  - Add support for decoding base64 strings without padding (#1555) - thanks @teejaded!
+  - Add filter operation (#1588) - thanks @rbren!
+  - Detect input format based on file name extension (#1582) - thanks @ryenus!
+  - Auto output format when input format is automatically detected
+  - Fixed npe in log #1596
+  - Improved binary file size! 
+  - Bumped dependency versions
+
 4.31.2:
   - Fixed variable handling #1458, #1566
   - Fixed merged anchor reference problem #1482
