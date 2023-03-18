@@ -1,6 +1,7 @@
 # Modulo
 
 Arithmetic modulo operator, returns the remainder from dividing two numbers.
+
 ## Number modulo - int
 If the lhs and rhs are ints then the expression will be calculated with ints.
 
