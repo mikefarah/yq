@@ -1,5 +1,4 @@
 4.32.1:
-  - Added support for _reading_ TOML! (not output yet)
   - Added divide and modulo operators (#1593) - thanks @teejaded!
   - Add support for decoding base64 strings without padding (#1555) - thanks @teejaded!
   - Add filter operation (#1588) - thanks @rbren!
