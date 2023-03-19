@@ -10,6 +10,10 @@ import (
 	"gopkg.in/op/go-logging.v1"
 )
 
+func isAutomaticOutputFormat() bool {
+	return outputFormat == "" || outputFormat == "auto" || outputFormat == "a"
+}
+
 func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	cmd.SilenceUsage = true
 
@@ -60,10 +64,20 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	if inputFormat == "" || inputFormat == "auto" || inputFormat == "a" {
 
 		inputFormat = yqlib.FormatFromFilename(inputFilename)
-		if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
-			outputFormat = yqlib.FormatFromFilename(inputFilename)
+
+		_, err := yqlib.InputFormatFromString(inputFormat)
+		if err != nil {
+			// unknown file type, default to yaml
+			yqlib.GetLogger().Debug("Unknown file format extension '%v', defaulting to yaml", inputFormat)
+			inputFormat = "yaml"
+			if isAutomaticOutputFormat() {
+				outputFormat = "yaml"
+			}
+		} else if isAutomaticOutputFormat() {
+			// automatic input worked, we can do it for output too unless specified
+			outputFormat = inputFormat
 		}
-	} else if outputFormat == "" || outputFormat == "auto" || outputFormat == "a" {
+	} else if isAutomaticOutputFormat() {
 		// backwards compatibility -
 		// before this was introduced, `yq -pcsv things.csv`
 		// would produce *yaml* output.
@@ -80,7 +94,8 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	if err != nil {
 		return "", nil, err
 	}
-	yqlib.GetLogger().Debug("Using outputformat %v", outputFormat)
+	yqlib.GetLogger().Debug("Using input format %v", inputFormat)
+	yqlib.GetLogger().Debug("Using output format %v", outputFormat)
 
 	if outputFormatType == yqlib.YamlOutputFormat ||
 		outputFormatType == yqlib.PropsOutputFormat {
