@@ -1,3 +1,6 @@
+4.32.2:
+  - Fixed behaviour for unknown file types (defaults to yaml) #1609
+
 4.32.1:
   - Added divide and modulo operators (#1593) - thanks @teejaded!
   - Add support for decoding base64 strings without padding (#1555) - thanks @teejaded!
