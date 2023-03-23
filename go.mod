@@ -7,7 +7,7 @@ require (
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.5.0
 	github.com/fatih/color v1.15.0
-	github.com/goccy/go-json v0.10.1
+	github.com/goccy/go-json v0.10.2
 	github.com/goccy/go-yaml v1.10.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/magiconair/properties v1.8.7
