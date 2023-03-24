@@ -2,6 +2,7 @@
 
 setUp() {
   rm test*.yml 2>/dev/null || true
+  rm test*.toml 2>/dev/null || true
   rm test*.tfstate 2>/dev/null || true
   rm test*.json 2>/dev/null || true
   rm test*.properties 2>/dev/null || true
@@ -27,6 +28,26 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea test.json)
+  assertEquals "$expected" "$X"
+}
+
+testInputToml() {
+  cat >test.toml <<EOL
+[owner]
+name = "Tom Preston-Werner"
+dob = 1979-05-27T07:32:00-08:00
+EOL
+
+  read -r -d '' expected << EOM
+owner:
+  name: Tom Preston-Werner
+  dob: 1979-05-27T07:32:00-08:00
+EOM
+
+  X=$(./yq -oy test.toml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -oy test.toml)
   assertEquals "$expected" "$X"
 }
 

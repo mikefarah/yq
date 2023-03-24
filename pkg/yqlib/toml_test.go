@@ -1,6 +1,8 @@
 package yqlib
 
 import (
+	"bufio"
+	"fmt"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -81,19 +83,19 @@ var tomlScenarios = []formatScenario{
 		scenarioType:  "decode-error",
 	},
 	{
-		description:  "Simple",
+		description:  "Parse: Simple",
 		input:        "A = \"hello\"\nB = 12\n",
 		expected:     "A: hello\nB: 12\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "Deep paths",
+		description:  "Parse: Deep paths",
 		input:        "person.name = \"hello\"\nperson.address = \"12 cat st\"\n",
 		expected:     "person:\n  name: hello\n  address: 12 cat st\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "Simpl nested",
+		skipDoc:      true,
 		input:        `A.B = "hello"`,
 		expected:     "A:\n  B: hello\n",
 		scenarioType: "decode",
@@ -149,8 +151,7 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
-		skipDoc:      true,
-		description:  "inline table",
+		description:  "Parse: inline table",
 		input:        `name = { first = "Tom", last = "Preston-Werner" }`,
 		expected:     "name:\n  first: Tom\n  last: Preston-Werner\n",
 		scenarioType: "decode",
@@ -162,13 +163,13 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
-		skipDoc:      true,
+		description:  "Parse: Array Table",
 		input:        sampleArrayTable,
 		expected:     sampleArrayTableExpected,
 		scenarioType: "decode",
 	},
 	{
-		description:  "example with header",
+		description:  "Parse: with header",
 		input:        sampleWithHeader,
 		expected:     expectedSampleWithHeader,
 		scenarioType: "decode",
@@ -189,13 +190,50 @@ func testTomlScenario(t *testing.T, s formatScenario) {
 	}
 }
 
+func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.toml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```toml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.toml\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
+}
+
+func documentTomlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+	s := i.(formatScenario)
+
+	if s.skipDoc {
+		return
+	}
+	switch s.scenarioType {
+	case "", "decode":
+		documentTomlDecodeScenario(w, s)
+
+	default:
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
+	}
+}
+
 func TestTomlScenarios(t *testing.T) {
 	for _, tt := range tomlScenarios {
 		testTomlScenario(t, tt)
 	}
-	// genericScenarios := make([]interface{}, len(xmlScenarios))
-	// for i, s := range xmlScenarios {
-	// 	genericScenarios[i] = s
-	// }
-	// documentScenarios(t, "usage", "xml", genericScenarios, documentXMLScenario)
+	genericScenarios := make([]interface{}, len(tomlScenarios))
+	for i, s := range tomlScenarios {
+		genericScenarios[i] = s
+	}
+	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
 }

@@ -75,6 +75,9 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 			}
 		} else if isAutomaticOutputFormat() {
 			// automatic input worked, we can do it for output too unless specified
+			if inputFormat == "toml" {
+				return "", nil, fmt.Errorf("toml is not yet supported as an output format. Please specify another output format using the [--output-format/-o] flag")
+			}
 			outputFormat = inputFormat
 		}
 	} else if isAutomaticOutputFormat() {
