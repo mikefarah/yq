@@ -4,7 +4,7 @@ WORKDIR /go/src/mikefarah/yq
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build .
+RUN CGO_ENABLED=0 go build -ldflags "-s -w" .
 # RUN ./scripts/test.sh -- this too often times out in the github pipeline.
 RUN ./scripts/acceptance.sh
 

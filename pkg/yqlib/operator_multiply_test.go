@@ -420,7 +420,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Merge, deeply merging arrays",
-		subdescription: "Merging arrays deeply means arrays are merge like objects, with indexes as their key. In this case, we merge the first item in the array, and do nothing with the second.",
+		subdescription: "Merging arrays deeply means arrays are merged like objects, with indices as their key. In this case, we merge the first item in the array and do nothing with the second.",
 		document:       `{a: [{name: fred, age: 12}, {name: bob, age: 32}], b: [{name: fred, age: 34}]}`,
 		expression:     `.a *d .b`,
 		expected: []string{
@@ -525,7 +525,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Custom types: clobber tags",
-		subdescription: "Use the `c` option to clobber custom tags. Note that the second tag is now used",
+		subdescription: "Use the `c` option to clobber custom tags. Note that the second tag is now used.",
 		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
 		expression:     ".a *=c .b",
 		expected: []string{
@@ -535,7 +535,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:        true,
 		description:    "Custom types: clobber tags - *=",
-		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used",
+		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used.",
 		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
 		expression:     ".a =c .a *c .b",
 		expected: []string{
@@ -545,7 +545,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:        true,
 		description:    "Custom types: dont clobber tags - *=",
-		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used",
+		subdescription: "Use the `c` option to clobber custom tags - on both the `=` and `*` operator. Note that the second tag is now used.",
 		document:       "a: !horse {cat: meow}\nb: !goat {dog: woof}",
 		expression:     ".a *= .b",
 		expected: []string{

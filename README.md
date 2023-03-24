@@ -229,6 +229,8 @@ go install github.com/mikefarah/yq/v4@latest
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
+_Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method._
+
 
 ### Nix
 
@@ -285,15 +287,6 @@ Supported by @herbygillot (https://ports.macports.org/maintainer/github/herbygil
 Supported by Tuan Hoang
 https://pkgs.alpinelinux.org/package/edge/community/x86/yq
 
-
-### On Ubuntu 16.04 or higher from Debian package:
-```sh
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CC86BB64
-sudo add-apt-repository ppa:rmescandon/yq
-sudo apt update
-sudo apt install yq -y
-```
-Supported by @rmescandon (https://launchpad.net/~rmescandon/+archive/ubuntu/yq)
 
 ## Features
 - [Detailed documentation with many examples](https://mikefarah.gitbook.io/yq/)

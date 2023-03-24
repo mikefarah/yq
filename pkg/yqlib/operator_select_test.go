@@ -57,7 +57,7 @@ var selectOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Select elements from array with regular expression",
-		subdescription: "See more regular expression examples under the `string` operator docs.",
+		subdescription: "See more regular expression examples under the [`string` operator docs](https://mikefarah.gitbook.io/yq/operators/string-operators).",
 		document:       `[this_0, not_this, nor_0_this, thisTo_4]`,
 		expression:     `.[] | select(test("[a-zA-Z]+_[0-9]$"))`,
 		expected: []string{

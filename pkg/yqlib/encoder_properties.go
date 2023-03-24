@@ -51,7 +51,7 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 
 		if errors.Is(errReading, io.EOF) {
 			if readline != "" {
-				// the last comment we read didn't have a new line, put one in
+				// the last comment we read didn't have a newline, put one in
 				if err := writeString(writer, "\n"); err != nil {
 					return err
 				}

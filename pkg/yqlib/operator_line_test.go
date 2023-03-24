@@ -17,7 +17,7 @@ var lineOperatorScenarios = []expressionScenario{
 		description:    "Returns line of _key_ node",
 		subdescription: "Pipe through the key operator to get the line of the key",
 		document:       "a: cat\nb:\n   c: cat",
-		expression:     `.b | key| line`,
+		expression:     `.b | key | line`,
 		expected: []string{
 			"D0, P[b], (!!int)::2\n",
 		},

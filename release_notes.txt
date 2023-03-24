@@ -1,3 +1,16 @@
+4.32.2:
+  - Fixed behaviour for unknown file types (defaults to yaml) #1609
+
+4.32.1:
+  - Added divide and modulo operators (#1593) - thanks @teejaded!
+  - Add support for decoding base64 strings without padding (#1555) - thanks @teejaded!
+  - Add filter operation (#1588) - thanks @rbren!
+  - Detect input format based on file name extension (#1582) - thanks @ryenus!
+  - Auto output format when input format is automatically detected
+  - Fixed npe in log #1596
+  - Improved binary file size! 
+  - Bumped dependency versions
+
 4.31.2:
   - Fixed variable handling #1458, #1566
   - Fixed merged anchor reference problem #1482
@@ -27,7 +40,7 @@
 
 4.30.6:
   - Fixed xml comment in array of scalars #1465
-  - Include blank new lines in leading header preprocessing #1462
+  - Include blank newlines in leading header preprocessing #1462
   - Added aarch64 build (#1261)
   - Bumped dependency versions (#1453)
 
@@ -171,7 +184,7 @@
 
 4.24.1:
   - Added comparison operators! (#94)
-  - Bumped golang to 1.18 (#1153)
+  - Bumped Golang to 1.18 (#1153)
   - XML parser no longer runs in strict mode (added new flag to run in strict mode) (#1155)
 
 4.23.1:

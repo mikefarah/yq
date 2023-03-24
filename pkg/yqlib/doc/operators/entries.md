@@ -67,7 +67,7 @@ a: 1
 b: 2
 ```
 
-## from_entries with numeric key indexes
+## from_entries with numeric key indices
 from_entries always creates a map, even for numeric keys
 
 Given a sample.yml file of:

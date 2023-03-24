@@ -14,6 +14,14 @@ var filterOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Filter map values",
+		document:    `{c: {things: cool, frog: yes}, d: {things: hot, frog: false}}`,
+		expression:  `filter(.things == "cool")`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{things: cool, frog: yes}]\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `[1,2,3]`,
 		expression: `filter(. > 1)`,

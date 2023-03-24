@@ -179,7 +179,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Encode array of array scalars as tsv string",
+		description:    "Encode array of arrays as tsv string",
 		subdescription: "Scalars are strings, numbers and booleans.",
 		document:       `[[cat, "thing1,thing2", true, 3.40], [dog, thing3, false, 12]]`,
 		expression:     `@tsv`,
@@ -308,6 +308,22 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		expression:  `"" | @base64d`,
 		expected: []string{
 			"D0, P[], (!!str)::\n",
+		},
+	},
+	{
+		description: "base64 missing padding test",
+		skipDoc:     true,
+		expression:  `"Y2F0cw" | @base64d`,
+		expected: []string{
+			"D0, P[], (!!str)::cats\n",
+		},
+	},
+	{
+		description: "base64 missing padding test",
+		skipDoc:     true,
+		expression:  `"cats" | @base64 | @base64d`,
+		expected: []string{
+			"D0, P[], (!!str)::cats\n",
 		},
 	},
 	{

@@ -34,7 +34,7 @@ var pickOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Pick indices from array",
-		subdescription: "Note that the order of the indexes matches the pick order and non existent indexes are skipped.",
+		subdescription: "Note that the order of the indices matches the pick order and non existent indices are skipped.",
 		document:       `[cat, leopard, lion]`,
 		expression:     `pick([2, 0, 734, -5])`,
 		expected: []string{

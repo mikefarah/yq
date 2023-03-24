@@ -27,7 +27,7 @@ myMap:
 ```
 
 ## Pick indices from array
-Note that the order of the indexes matches the pick order and non existent indexes are skipped.
+Note that the order of the indices matches the pick order and non existent indices are skipped.
 
 Given a sample.yml file of:
 ```yaml

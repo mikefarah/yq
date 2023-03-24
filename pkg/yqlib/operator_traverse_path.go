@@ -89,7 +89,7 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 		return Context{}, err
 	}
 
-	// rhs is a collect expression that will yield indexes to retrieve of the arrays
+	// rhs is a collect expression that will yield indices to retrieve of the arrays
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 
@@ -267,7 +267,7 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *yaml.Nod
 
 func doTraverseMap(newMatches *orderedmap.OrderedMap, candidate *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
 	// value.Content is a concatenated array of key, value,
-	// so keys are in the even indexes, values in odd.
+	// so keys are in the even indices, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
 	// if we don't find a match directly on this node first.
 

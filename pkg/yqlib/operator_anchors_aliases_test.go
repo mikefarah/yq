@@ -228,7 +228,7 @@ foobar:
 	},
 	{
 		description:    "Dereference and update a field",
-		subdescription: "`Use explode with multiply to dereference an object",
+		subdescription: "Use explode with multiply to dereference an object",
 		document:       simpleArrayRef,
 		expression:     `.thingOne |= explode(.) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},

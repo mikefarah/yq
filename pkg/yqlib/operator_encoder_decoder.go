@@ -79,13 +79,13 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 			original := originalList.Front().Value.(*CandidateNode)
 			originalNode := unwrapDoc(original.Node)
-			// original block did not have a new line at the end, get rid of this one too
+			// original block did not have a newline at the end, get rid of this one too
 			if !endWithNewLine.MatchString(originalNode.Value) {
 				stringValue = chomper.ReplaceAllString(stringValue, "")
 			}
 		}
 
-		// dont print a new line when printing json on a single line.
+		// dont print a newline when printing json on a single line.
 		if (preferences.format == JSONOutputFormat && preferences.indent == 0) ||
 			preferences.format == CSVOutputFormat ||
 			preferences.format == TSVOutputFormat {

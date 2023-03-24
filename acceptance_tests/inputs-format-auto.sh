@@ -2,6 +2,7 @@
 
 setUp() {
   rm test*.yml 2>/dev/null || true
+  rm test*.tfstate 2>/dev/null || true
   rm test*.json 2>/dev/null || true
   rm test*.properties 2>/dev/null || true
   rm test*.csv 2>/dev/null || true
@@ -26,6 +27,22 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea test.json)
+  assertEquals "$expected" "$X"
+}
+
+testInputTfstate() {
+  cat >test.tfstate <<EOL
+{ "mike" : { "things": "cool" } }
+EOL
+
+  read -r -d '' expected << EOM
+{"mike": {"things": "cool"}}
+EOM
+
+  X=$(./yq test.tfstate)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea test.tfstate)
   assertEquals "$expected" "$X"
 }
 

@@ -7,6 +7,7 @@ export GIT_DESCRIBE = $(shell git describe --tags --always)
 LDFLAGS :=
 LDFLAGS += -X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY}
 LDFLAGS += -X main.GitDescribe=${GIT_DESCRIBE}
+LDFLAGS += -w -s
 
 GITHUB_TOKEN ?=
 
