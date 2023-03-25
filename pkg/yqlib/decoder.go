@@ -16,6 +16,7 @@ const (
 	JsonInputFormat
 	CSVObjectInputFormat
 	TSVObjectInputFormat
+	TomlInputFormat
 	UriInputFormat
 )
 
@@ -38,8 +39,10 @@ func InputFormatFromString(format string) (InputFormat, error) {
 		return CSVObjectInputFormat, nil
 	case "tsv", "t":
 		return TSVObjectInputFormat, nil
+	case "toml":
+		return TomlInputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml|toml]", format)
 	}
 }
 
