@@ -78,6 +78,9 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 			if inputFormat == "toml" {
 				return "", nil, fmt.Errorf("toml is not yet supported as an output format. Please specify another output format using the [--output-format/-o] flag")
 			}
+			if inputFormat == "json" {
+				yqlib.GetLogger().Warning("JSON file output is now JSON by default (instead of yaml). Use '-oy' or '--output-format=yaml' for yaml output")
+			}
 			outputFormat = inputFormat
 		}
 	} else if isAutomaticOutputFormat() {
