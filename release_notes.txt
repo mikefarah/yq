@@ -1,3 +1,7 @@
+4.33.1:
+  - Added read-only TOML support! #1364. Thanks @pelletier for making your API available in your toml lib :)
+  - Added warning when auto detect by file type is outputs JSON (#1608)
+
 4.32.2:
   - Fixed behaviour for unknown file types (defaults to yaml) #1609
 
