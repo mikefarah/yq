@@ -163,6 +163,14 @@ var propertyScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "print scalar",
+		skipDoc:      true,
+		input:        "mike = cat",
+		expression:   ".mike",
+		expected:     "cat\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "Roundtrip",
 		input:        expectedPropertiesUnwrapped,
 		expression:   `.person.pets.0 = "dog"`,
