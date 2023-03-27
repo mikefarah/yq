@@ -103,6 +103,10 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*yaml.Node) 
 }
 
 func (e *csvEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
+	if originalNode.Kind == yaml.ScalarNode {
+		return writeString(writer, originalNode.Value+"\n")
+	}
+
 	csvWriter := csv.NewWriter(writer)
 	csvWriter.Comma = e.separator
 

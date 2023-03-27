@@ -127,6 +127,14 @@ var csvScenarios = []formatScenario{
 		scenarioType:   "decode-csv-object",
 	},
 	{
+		description:  "Scalar roundtrip",
+		skipDoc:      true,
+		input:        "mike\ncat",
+		expression:   ".[0].mike",
+		expected:     "cat\n",
+		scenarioType: "roundtrip-csv",
+	},
+	{
 		description:    "Parse TSV into an array of objects",
 		subdescription: "First row is assumed to be the header row.",
 		input:          tsvSimple,

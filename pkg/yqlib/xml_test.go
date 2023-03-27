@@ -302,6 +302,14 @@ var xmlScenarios = []formatScenario{
 		scenarioType: "encode",
 	},
 	{
+		description:  "Scalar roundtrip",
+		skipDoc:      true,
+		input:        "<mike>cat</mike>",
+		expression:   ".mike",
+		expected:     "cat",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "ProcInst with head comment round trip",
 		skipDoc:      true,
 		input:        expectedXmlProcInstAndHeadComment,
