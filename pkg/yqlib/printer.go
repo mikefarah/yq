@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"container/list"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ type Printer interface {
 	PrintedAnything() bool
 	//e.g. when given a front-matter doc, like jekyll
 	SetAppendix(reader io.Reader)
+	SetNulSepOutput(nulSepOutput bool)
 }
 
 type PrinterOutputFormat uint32
@@ -59,6 +61,7 @@ type resultsPrinter struct {
 	printedMatches    bool
 	treeNavigator     DataTreeNavigator
 	appendixReader    io.Reader
+	nulSepOutput      bool
 }
 
 func NewPrinter(encoder Encoder, printerWriter PrinterWriter) Printer {
@@ -67,7 +70,14 @@ func NewPrinter(encoder Encoder, printerWriter PrinterWriter) Printer {
 		printerWriter:     printerWriter,
 		firstTimePrinting: true,
 		treeNavigator:     NewDataTreeNavigator(),
+		nulSepOutput:      false,
 	}
+}
+
+func (p *resultsPrinter) SetNulSepOutput(nulSepOutput bool) {
+	log.Debug("Setting NUL separator output")
+
+	p.nulSepOutput = nulSepOutput
 }
 
 func (p *resultsPrinter) SetAppendix(reader io.Reader) {
@@ -82,6 +92,16 @@ func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
 	p.printedMatches = p.printedMatches || (node.Tag != "!!null" &&
 		(node.Tag != "!!bool" || node.Value != "false"))
 	return p.encoder.Encode(writer, node)
+}
+
+func removeLastEOL(b *bytes.Buffer) {
+	data := b.Bytes()
+	n := len(data)
+	if n >= 2 && data[n-2] == '\r' && data[n-1] == '\n' {
+		b.Truncate(n - 2)
+	} else if n >= 1 && (data[n-1] == '\r' || data[n-1] == '\n') {
+		b.Truncate(n - 1)
+	}
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
@@ -128,16 +148,38 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			}
 		}
 
-		if err := p.encoder.PrintLeadingContent(writer, mappedDoc.LeadingContent); err != nil {
+		var destination io.Writer = writer
+		tempBuffer := bytes.NewBuffer(nil)
+		if p.nulSepOutput {
+			destination = tempBuffer
+		}
+
+		if err := p.encoder.PrintLeadingContent(destination, mappedDoc.LeadingContent); err != nil {
 			return err
 		}
 
-		if err := p.printNode(mappedDoc.Node, writer); err != nil {
+		if err := p.printNode(mappedDoc.Node, destination); err != nil {
 			return err
 		}
 
-		if err := p.encoder.PrintLeadingContent(writer, mappedDoc.TrailingContent); err != nil {
+		if err := p.encoder.PrintLeadingContent(destination, mappedDoc.TrailingContent); err != nil {
 			return err
+		}
+
+		if p.nulSepOutput {
+			removeLastEOL(tempBuffer)
+			tempBufferBytes := tempBuffer.Bytes()
+			if bytes.IndexByte(tempBufferBytes, 0) != -1 {
+				return fmt.Errorf(
+					"Can't serialize value because it contains NUL char and you are using NUL separated output",
+				)
+			}
+			if _, err := writer.Write(tempBufferBytes); err != nil {
+				return err
+			}
+			if _, err := writer.Write([]byte{0}); err != nil {
+				return err
+			}
 		}
 
 		p.previousDocIndex = mappedDoc.Document

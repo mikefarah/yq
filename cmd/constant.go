@@ -18,6 +18,7 @@ var colorsEnabled = false
 var indent = 2
 var noDocSeparators = false
 var nullInput = false
+var nulSepOutput = false
 var verbose = false
 var version = false
 var prettyPrint = false
