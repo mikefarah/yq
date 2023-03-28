@@ -9,7 +9,7 @@ confinement: strict
 apps:
   yq:
     command: yq
-    plugs: [home]
+    plugs: [home, removable-media]
 parts:
   yq:
     plugin: go
