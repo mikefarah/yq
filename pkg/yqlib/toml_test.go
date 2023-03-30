@@ -170,6 +170,7 @@ var tomlScenarios = []formatScenario{
 	},
 	{
 		description:  "Parse: with header",
+		skipDoc:      true,
 		input:        sampleWithHeader,
 		expected:     expectedSampleWithHeader,
 		scenarioType: "decode",

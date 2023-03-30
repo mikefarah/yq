@@ -88,24 +88,3 @@ owner:
       suburb: nice
 ```
 
-## Parse: with header
-Given a sample.toml file of:
-```toml
-
-[servers]
-
-[servers.alpha]
-ip = "10.0.0.1"
-
-```
-then
-```bash
-yq -oy '.' sample.toml
-```
-will output
-```yaml
-servers:
-  alpha:
-    ip: 10.0.0.1
-```
-
