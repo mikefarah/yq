@@ -76,6 +76,7 @@
 * [Working with JSON](usage/convert.md)
 * [Working with Properties](usage/properties.md)
 * [Working with XML](usage/xml.md)
+* [Working with TOML](usage/toml.md)
 * [Front Matter](usage/front-matter.md)
 * [Split into multiple files](usage/split-into-multiple-files.md)
 * [GitHub Action](usage/github-action.md)
