@@ -27,6 +27,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	log.Debugf("-- collectOperation")
 
 	if context.MatchingNodes.Len() == 0 {
+		log.Debugf("nothing to collect")
 		node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Value: "[]"}
 		candidate := &CandidateNode{Node: node}
 		return context.SingleChildContext(candidate), nil
@@ -41,6 +42,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	}
 
 	if evaluateAllTogether {
+		log.Debugf("collect together")
 		collectedNode, err := collectTogether(d, context, expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
@@ -56,6 +58,8 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		collectedNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 		collectCandidate := candidate.CreateReplacement(collectedNode)
 
+		log.Debugf("collect rhs: %v", expressionNode.RHS.Operation.toString())
+
 		collectExpResults, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
@@ -66,6 +70,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			log.Debugf("found this: %v", NodeToString(resultC))
 			collectedNode.Content = append(collectedNode.Content, unwrapDoc(resultC.Node))
 		}
+		log.Debugf("done collect rhs: %v", expressionNode.RHS.Operation.toString())
 
 		results.PushBack(collectCandidate)
 	}

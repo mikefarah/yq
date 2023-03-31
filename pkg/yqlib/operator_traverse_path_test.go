@@ -36,6 +36,13 @@ steps:
 
 var traversePathOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:     true,
+		description: "splat empty map",
+		document:    "{}",
+		expression:  ".[]",
+		expected:    []string{},
+	},
+	{
 		skipDoc:    true,
 		document:   `[[1]]`,
 		expression: `.[0][0]`,

@@ -80,6 +80,8 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	// BUT we still return the original context back (see jq)
 	// https://stedolan.github.io/jq/manual/#Variable/SymbolicBindingOperator:...as$identifier|...
 
+	log.Debugf("--traverseArrayOperator")
+
 	if expressionNode.RHS != nil && expressionNode.RHS.RHS != nil && expressionNode.RHS.RHS.Operation.OperationType == createMapOpType {
 		return sliceArrayOperator(d, context, expressionNode.RHS.RHS)
 	}
@@ -102,6 +104,8 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 		prefs = expressionNode.Operation.Preferences.(traversePreferences)
 	}
 	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Content
+
+	log.Debugf("indicesToTraverse %v", len(indicesToTraverse))
 
 	//now we traverse the result of the lhs against the indices we found
 	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, prefs)
@@ -231,7 +235,8 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *yaml.Nod
 		return nil, err
 	}
 
-	if !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
+	if !splat && !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
+		log.Debugf("no matches, creating one")
 		//no matches, create one automagically
 		valueNode := &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode, Value: "null"}
 
