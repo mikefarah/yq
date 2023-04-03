@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/goccy/go-json"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type jsonDecoder struct {
@@ -38,14 +37,12 @@ func (dec *jsonDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	return &CandidateNode{
-		Node: &yaml.Node{
-			Kind:    yaml.DocumentNode,
-			Content: []*yaml.Node{node},
-		},
+		Kind:    DocumentNode,
+		Content: []*CandidateNode{node},
 	}, nil
 }
 
-func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) {
+func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*CandidateNode, error) {
 	if data.kv == nil {
 		switch rawData := data.altVal.(type) {
 		case nil:
@@ -62,7 +59,7 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 		}
 	}
 
-	var yamlMap = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+	var yamlMap = &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 	for _, keyValuePair := range data.kv {
 		yamlValue, err := dec.convertToYamlNode(&keyValuePair.V)
 		if err != nil {
@@ -74,9 +71,9 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 
 }
 
-func (dec *jsonDecoder) parseArray(dataArray []*orderedMap) (*yaml.Node, error) {
+func (dec *jsonDecoder) parseArray(dataArray []*orderedMap) (*CandidateNode, error) {
 
-	var yamlMap = &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	var yamlMap = &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 
 	for _, value := range dataArray {
 		yamlValue, err := dec.convertToYamlNode(value)

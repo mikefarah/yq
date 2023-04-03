@@ -202,7 +202,7 @@ func recurseNodeArrayEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	return true
 }
 
-func findInArray(array *yaml.Node, item *yaml.Node) int {
+func findInArray(array *CandidateNode, item *CandidateNode) int {
 
 	for index := 0; index < len(array.Content); index = index + 1 {
 		if recursiveNodeEqual(array.Content[index], item) {
@@ -212,7 +212,7 @@ func findInArray(array *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
-func findKeyInMap(dataMap *yaml.Node, item *yaml.Node) int {
+func findKeyInMap(dataMap *CandidateNode, item *CandidateNode) int {
 
 	for index := 0; index < len(dataMap.Content); index = index + 2 {
 		if recursiveNodeEqual(dataMap.Content[index], item) {
@@ -222,7 +222,7 @@ func findKeyInMap(dataMap *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
-func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recurseNodeObjectEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false
 	}
@@ -253,7 +253,7 @@ func guessTagFromCustomType(node *yaml.Node) string {
 		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return node.Tag
 	}
-	guessedTag := unwrapDoc(dataBucket).Tag
+	guessedTag := dataBucket.unwrapDocument().Tag
 	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
 	return guessedTag
 }
@@ -406,7 +406,7 @@ func createValueOperation(value interface{}, stringValue string) *Operation {
 		OperationType: valueOpType,
 		Value:         value,
 		StringValue:   stringValue,
-		CandidateNode: &CandidateNode{Node: node},
+		CandidateNode: node,
 	}
 }
 
@@ -443,13 +443,12 @@ func NodeToString(node *CandidateNode) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
 		return ""
 	}
-	value := node.Node
-	if value == nil {
+	if node == nil {
 		return "-- nil --"
 	}
 	buf := new(bytes.Buffer)
 	encoder := yaml.NewEncoder(buf)
-	errorEncoding := encoder.Encode(value)
+	errorEncoding := encoder.Encode(node)
 	if errorEncoding != nil {
 		log.Error("Error debugging node, %v", errorEncoding.Error())
 	}
@@ -457,10 +456,10 @@ func NodeToString(node *CandidateNode) string {
 	if errorClosingEncoder != nil {
 		log.Error("Error closing encoder: ", errorClosingEncoder.Error())
 	}
-	tag := value.Tag
-	if value.Kind == yaml.DocumentNode {
+	tag := node.Tag
+	if node.Kind == DocumentNode {
 		tag = "doc"
-	} else if value.Kind == yaml.AliasNode {
+	} else if node.Kind == AliasNode {
 		tag = "alias"
 	}
 	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())

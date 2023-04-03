@@ -95,6 +95,27 @@ var jsonScenarios = []formatScenario{
 		expected:       "D0, P[], (!!map)::cat: meow\n",
 	},
 	{
+		skipDoc:     true,
+		description: "Parse json: simple: key",
+		input:       `{"cat": "meow"}`,
+		expression:  ".cat | key",
+		expected:    "D0, P[], (!!str)::cat\n",
+	},
+	{
+		skipDoc:     true,
+		description: "Parse json: simple: parent",
+		input:       `{"cat": "meow"}`,
+		expression:  ".cat | parent",
+		expected:    "D0, P[], (!!str)::cat\n",
+	},
+	{
+		skipDoc:     true,
+		description: "Parse json: simple: path",
+		input:       `{"cat": "meow"}`,
+		expression:  ".cat | path",
+		expected:    "D0, P[], (!!str)::cat\n",
+	},
+	{
 		description:   "bad json",
 		skipDoc:       true,
 		input:         `{"a": 1 "b": 2}`,
