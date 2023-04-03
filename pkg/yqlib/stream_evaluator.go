@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 // A yaml expression evaluator that runs the expression multiple times for each given yaml document.
@@ -36,7 +34,8 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	candidateNode := &CandidateNode{
 		Document:  0,
 		Filename:  "",
-		Node:      &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		Kind:      DocumentNode,
+		Content:   []*CandidateNode{createScalarNode(nil, "")},
 		FileIndex: 0,
 	}
 	inputList := list.New()

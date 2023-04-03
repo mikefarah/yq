@@ -389,25 +389,6 @@ func createStringScalarNode(stringValue string) *yaml.Node {
 	return node
 }
 
-func createScalarNode(value interface{}, stringValue string) *yaml.Node {
-	var node = &yaml.Node{Kind: yaml.ScalarNode}
-	node.Value = stringValue
-
-	switch value.(type) {
-	case float32, float64:
-		node.Tag = "!!float"
-	case int, int64, int32:
-		node.Tag = "!!int"
-	case bool:
-		node.Tag = "!!bool"
-	case string:
-		node.Tag = "!!str"
-	case nil:
-		node.Tag = "!!null"
-	}
-	return node
-}
-
 func headAndLineComment(node *yaml.Node) string {
 	return headComment(node) + lineComment(node)
 }

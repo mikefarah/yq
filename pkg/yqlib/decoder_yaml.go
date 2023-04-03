@@ -96,6 +96,80 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
+func (dec *yamlDecoder) convertKind(oKind yaml.Kind) Kind {
+	switch oKind {
+	case yaml.DocumentNode:
+		return DocumentNode
+	case yaml.SequenceNode:
+		return SequenceNode
+	case yaml.MappingNode:
+		return MappingNode
+	case yaml.ScalarNode:
+		return ScalarNode
+	case yaml.AliasNode:
+		return AliasNode
+	}
+	return ScalarNode
+}
+
+func (dec *yamlDecoder) convertStyle(oStyle yaml.Style) Style {
+	switch oStyle {
+	case yaml.TaggedStyle:
+		return TaggedStyle
+	case yaml.DoubleQuotedStyle:
+		return DoubleQuotedStyle
+	case yaml.SingleQuotedStyle:
+		return SingleQuotedStyle
+	case yaml.LiteralStyle:
+		return LiteralStyle
+	case yaml.FoldedStyle:
+		return FoldedStyle
+	case yaml.FlowStyle:
+		return FlowStyle
+	}
+	return 0
+}
+
+func (dec *yamlDecoder) ConvertToCandidateNode(yamlNode *yaml.Node) *CandidateNode {
+	kids := make([]*CandidateNode, len(yamlNode.Content))
+	for i, v := range yamlNode.Content {
+		kids[i] = dec.ConvertToCandidateNode(v)
+	}
+
+	return &CandidateNode{
+		Kind:  dec.convertKind(yamlNode.Kind),
+		Style: dec.convertStyle(yamlNode.Style),
+
+		Tag:     yamlNode.Tag,
+		Value:   yamlNode.Value,
+		Anchor:  yamlNode.Anchor,
+		Alias:   dec.ConvertToCandidateNode(yamlNode.Alias),
+		Content: kids,
+
+		HeadComment: yamlNode.HeadComment,
+		LineComment: yamlNode.LineComment,
+		FootComment: yamlNode.FootComment,
+
+		// Parent: yamlNode.Parent,
+		// Key:    yamlNode.Key,
+
+		// LeadingContent:  yamlNode.LeadingContent,
+		// TrailingContent: yamlNode.TrailingContent,
+
+		// Path:     yamlNode.Path,
+		// Document: yamlNode.Document,
+		// Filename: yamlNode.Filename,
+
+		Line:   yamlNode.Line,
+		Column: yamlNode.Column,
+
+		// FileIndex:        yamlNode.FileIndex,
+		// EvaluateTogether: yamlNode.EvaluateTogether,
+		// IsMapKey:         yamlNode.IsMapKey,
+	}
+
+}
+
 func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	var dataBucket yaml.Node
 	err := dec.decoder.Decode(&dataBucket)
@@ -116,9 +190,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	candidateNode := &CandidateNode{
-		Node: &dataBucket,
-	}
+	candidateNode := dec.ConvertToCandidateNode(&dataBucket)
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent
@@ -136,7 +208,8 @@ func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {
 	return &CandidateNode{
 		Document:       0,
 		Filename:       "",
-		Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
+		Kind:           DocumentNode,
+		Content:        []*CandidateNode{createScalarNode(nil, "")},
 		FileIndex:      0,
 		LeadingContent: dec.leadingContent,
 	}
