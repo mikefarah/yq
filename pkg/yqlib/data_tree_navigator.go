@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	logging "gopkg.in/op/go-logging.v1"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type DataTreeNavigator interface {
@@ -13,7 +12,7 @@ type DataTreeNavigator interface {
 	// a new context of matching candidates
 	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
 
-	DeeplyAssign(context Context, path []interface{}, rhsNode *yaml.Node) error
+	DeeplyAssign(context Context, rhsNode *CandidateNode) error
 }
 
 type dataTreeNavigator struct {
@@ -23,12 +22,7 @@ func NewDataTreeNavigator() DataTreeNavigator {
 	return &dataTreeNavigator{}
 }
 
-func (d *dataTreeNavigator) DeeplyAssign(context Context, path []interface{}, rhsNode *yaml.Node) error {
-
-	rhsCandidateNode := &CandidateNode{
-		Path: path,
-		Node: rhsNode,
-	}
+func (d *dataTreeNavigator) DeeplyAssign(context Context, rhsCandidateNode *CandidateNode) error {
 
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
@@ -36,7 +30,7 @@ func (d *dataTreeNavigator) DeeplyAssign(context Context, path []interface{}, rh
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
-		LHS:       createTraversalTree(path, traversePreferences{}, false),
+		LHS:       createTraversalTree(rhsCandidateNode.Path, traversePreferences{}, false),
 		RHS:       &ExpressionNode{Operation: rhsOp},
 	}
 

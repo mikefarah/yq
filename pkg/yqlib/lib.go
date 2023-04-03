@@ -258,10 +258,10 @@ func guessTagFromCustomType(node *yaml.Node) string {
 	return guessedTag
 }
 
-func parseSnippet(value string) (*yaml.Node, error) {
+func parseSnippet(value string) (*CandidateNode, error) {
 	if value == "" {
-		return &yaml.Node{
-			Kind: yaml.ScalarNode,
+		return &CandidateNode{
+			Kind: ScalarNode,
 			Tag:  "!!null",
 		}, nil
 	}
@@ -274,10 +274,10 @@ func parseSnippet(value string) (*yaml.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(parsedNode.Node.Content) == 0 {
+	if len(parsedNode.Content) == 0 {
 		return nil, fmt.Errorf("bad data")
 	}
-	result := unwrapDoc(parsedNode.Node)
+	result := parsedNode.unwrapDocument()
 	result.Line = 0
 	result.Column = 0
 	return result, err
@@ -380,13 +380,6 @@ func parseInt(numberString string) (int, error) {
 	}
 
 	return int(parsed), err
-}
-
-func createStringScalarNode(stringValue string) *yaml.Node {
-	var node = &yaml.Node{Kind: yaml.ScalarNode}
-	node.Value = stringValue
-	node.Tag = "!!str"
-	return node
 }
 
 func headAndLineComment(node *yaml.Node) string {

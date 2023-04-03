@@ -35,6 +35,13 @@ func createIntegerScalarNode(num int) *CandidateNode {
 	}
 }
 
+func createStringScalarNode(stringValue string) *CandidateNode {
+	var node = &CandidateNode{Kind: ScalarNode}
+	node.Value = stringValue
+	node.Tag = "!!str"
+	return node
+}
+
 func createScalarNode(value interface{}, stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
@@ -137,36 +144,37 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return n.Tag
 	}
-	guessedTag := unwrapDoc(dataBucket).Tag
+	guessedTag := dataBucket.unwrapDocument().Tag
 	log.Info("im guessing the tag %v is a %v", n.Tag, guessedTag)
 	return guessedTag
 }
 
-func (n *CandidateNode) CreateChildInMap(key *CandidateNode) *CandidateNode {
-	var value interface{}
-	if key != nil {
-		value = key.Value
-	}
-	return &CandidateNode{
-		Path:      n.createChildPath(value),
-		Parent:    n,
-		Key:       key,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
-	}
-}
+// func (n *CandidateNode) CreateChildInMap(key *CandidateNode) *CandidateNode {
+// 	var value interface{}
+// 	if key != nil {
+// 		value = key.Value
+// 	}
+// 	return &CandidateNode{
+// 		Path:   n.createChildPath(value),
+// 		Parent: n,
+// 		Key:    key,
 
-func (n *CandidateNode) CreateChildInArray(index int) *CandidateNode {
-	return &CandidateNode{
-		Path:      n.createChildPath(index),
-		Parent:    n,
-		Key:       createIntegerScalarNode(index),
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
-	}
-}
+// 		Document:  n.Document,
+// 		Filename:  n.Filename,
+// 		FileIndex: n.FileIndex,
+// 	}
+// }
+
+// func (n *CandidateNode) CreateChildInArray(index int) *CandidateNode {
+// 	return &CandidateNode{
+// 		Path:      n.createChildPath(index),
+// 		Parent:    n,
+// 		Key:       createIntegerScalarNode(index),
+// 		Document:  n.Document,
+// 		Filename:  n.Filename,
+// 		FileIndex: n.FileIndex,
+// 	}
+// }
 
 func (n *CandidateNode) CreateReplacement() *CandidateNode {
 	return &CandidateNode{

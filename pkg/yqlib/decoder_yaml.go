@@ -130,43 +130,64 @@ func (dec *yamlDecoder) convertStyle(oStyle yaml.Style) Style {
 	return 0
 }
 
-func (dec *yamlDecoder) ConvertToCandidateNode(yamlNode *yaml.Node) *CandidateNode {
-	kids := make([]*CandidateNode, len(yamlNode.Content))
-	for i, v := range yamlNode.Content {
-		kids[i] = dec.ConvertToCandidateNode(v)
-	}
+func (dec *yamlDecoder) ConvertToCandidateNode(parent *CandidateNode, path []interface{}, yamlNode *yaml.Node) *CandidateNode {
 
-	return &CandidateNode{
+	candidateNode := &CandidateNode{
 		Kind:  dec.convertKind(yamlNode.Kind),
 		Style: dec.convertStyle(yamlNode.Style),
 
-		Tag:     yamlNode.Tag,
-		Value:   yamlNode.Value,
-		Anchor:  yamlNode.Anchor,
-		Alias:   dec.ConvertToCandidateNode(yamlNode.Alias),
-		Content: kids,
+		Tag:    yamlNode.Tag,
+		Value:  yamlNode.Value,
+		Anchor: yamlNode.Anchor,
+
+		// not sure on this - check
+		Alias: dec.ConvertToCandidateNode(parent, path, yamlNode.Alias),
 
 		HeadComment: yamlNode.HeadComment,
 		LineComment: yamlNode.LineComment,
 		FootComment: yamlNode.FootComment,
+		Path:        path,
 
-		// Parent: yamlNode.Parent,
-		// Key:    yamlNode.Key,
+		Parent: parent,
 
-		// LeadingContent:  yamlNode.LeadingContent,
-		// TrailingContent: yamlNode.TrailingContent,
-
-		// Path:     yamlNode.Path,
-		// Document: yamlNode.Document,
-		// Filename: yamlNode.Filename,
+		Document: parent.Document,
+		Filename: parent.Filename,
 
 		Line:   yamlNode.Line,
 		Column: yamlNode.Column,
 
-		// FileIndex:        yamlNode.FileIndex,
-		// EvaluateTogether: yamlNode.EvaluateTogether,
-		// IsMapKey:         yamlNode.IsMapKey,
+		FileIndex: parent.FileIndex,
 	}
+
+	kids := make([]*CandidateNode, len(yamlNode.Content))
+
+	if yamlNode.Kind == yaml.MappingNode {
+		// children are key, values
+		for i := 0; i < len(yamlNode.Content); i = i + 2 {
+			key := yamlNode.Content[i]
+			value := yamlNode.Content[i+1]
+
+			childPath := parent.createChildPath(key.Value)
+			keyNode := dec.ConvertToCandidateNode(parent, childPath, key)
+			keyNode.IsMapKey = true
+
+			valueNode := dec.ConvertToCandidateNode(parent, childPath, value)
+			valueNode.Key = keyNode
+
+			kids[i] = keyNode
+			kids[i+1] = valueNode
+		}
+	} else {
+		// its just an normal array
+		for i, v := range yamlNode.Content {
+			childPath := parent.createChildPath(i)
+			kids[i] = dec.ConvertToCandidateNode(parent, childPath, v)
+		}
+	}
+
+	candidateNode.Content = kids
+
+	return candidateNode
 
 }
 
@@ -190,7 +211,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	candidateNode := dec.ConvertToCandidateNode(&dataBucket)
+	candidateNode := dec.ConvertToCandidateNode(&CandidateNode{}, make([]interface{}, 0), &dataBucket)
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent

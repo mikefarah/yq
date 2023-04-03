@@ -6,7 +6,6 @@ import (
 	"io"
 
 	"github.com/dimchansky/utfbom"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type csvObjectDecoder struct {
@@ -28,7 +27,7 @@ func (dec *csvObjectDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *csvObjectDecoder) convertToYamlNode(content string) *yaml.Node {
+func (dec *csvObjectDecoder) convertToNode(content string) *CandidateNode {
 	node, err := parseSnippet(content)
 	if err != nil {
 		return createScalarNode(content, content)
@@ -36,14 +35,14 @@ func (dec *csvObjectDecoder) convertToYamlNode(content string) *yaml.Node {
 	return node
 }
 
-func (dec *csvObjectDecoder) createObject(headerRow []string, contentRow []string) *yaml.Node {
-	objectNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+func (dec *csvObjectDecoder) createObject(headerRow []string, contentRow []string) *CandidateNode {
+	objectNode := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 	for i, header := range headerRow {
 		objectNode.Content = append(
 			objectNode.Content,
 			createScalarNode(header, header),
-			dec.convertToYamlNode(contentRow[i]))
+			dec.convertToNode(contentRow[i]))
 	}
 	return objectNode
 }
@@ -58,7 +57,7 @@ func (dec *csvObjectDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	rootArray := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	rootArray := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 
 	contentRow, err := dec.reader.Read()
 
@@ -73,9 +72,7 @@ func (dec *csvObjectDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	return &CandidateNode{
-		Node: &yaml.Node{
-			Kind:    yaml.DocumentNode,
-			Content: []*yaml.Node{rootArray},
-		},
+		Kind:    DocumentNode,
+		Content: []*CandidateNode{rootArray},
 	}, nil
 }

@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"io"
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type base64Padder struct {
@@ -70,11 +68,5 @@ func (dec *base64Decoder) Decode() (*CandidateNode, error) {
 		}
 	}
 	dec.readAnything = true
-	return &CandidateNode{
-		Node: &yaml.Node{
-			Kind:  yaml.ScalarNode,
-			Tag:   "!!str",
-			Value: buf.String(),
-		},
-	}, nil
+	return createStringScalarNode(buf.String()), nil
 }
