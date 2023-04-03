@@ -95,6 +95,13 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "Encode: Scalar",
+		input:        "person.name = \"hello\"\nperson.address = \"12 cat st\"\n",
+		expression:   ".person.name",
+		expected:     "hello\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		skipDoc:      true,
 		input:        `A.B = "hello"`,
 		expected:     "A:\n  B: hello\n",
@@ -188,6 +195,8 @@ func testTomlScenario(t *testing.T, s formatScenario) {
 		} else {
 			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.description)
 		}
+	case "roundtrip":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewTomlEncoder()), s.description)
 	}
 }
 
@@ -213,6 +222,28 @@ func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
 }
 
+func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.toml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```toml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq '%v' sample.toml\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewTomlEncoder())))
+}
+
 func documentTomlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
@@ -222,6 +253,8 @@ func documentTomlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	switch s.scenarioType {
 	case "", "decode":
 		documentTomlDecodeScenario(w, s)
+	case "roundtrip":
+		documentTomlRoundtripScenario(w, s)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))

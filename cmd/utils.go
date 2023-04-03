@@ -75,9 +75,6 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 			}
 		} else if isAutomaticOutputFormat() {
 			// automatic input worked, we can do it for output too unless specified
-			if inputFormat == "toml" {
-				return "", nil, fmt.Errorf("toml is not yet supported as an output format. Please specify another output format using the [--output-format/-o] flag")
-			}
 			if inputFormat == "json" {
 				yqlib.GetLogger().Warning("JSON file output is now JSON by default (instead of yaml). Use '-oy' or '--output-format=yaml' for yaml output")
 			}
@@ -196,6 +193,8 @@ func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences), nil
 	case yqlib.XMLOutputFormat:
 		return yqlib.NewXMLEncoder(indent, yqlib.ConfiguredXMLPreferences), nil
+	case yqlib.TomlOutputFormat:
+		return yqlib.NewTomlEncoder(), nil
 	}
 	return nil, fmt.Errorf("invalid encoder: %v", format)
 }

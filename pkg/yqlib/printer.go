@@ -31,6 +31,7 @@ const (
 	Base64OutputFormat
 	UriOutputFormat
 	ShOutputFormat
+	TomlOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
@@ -47,6 +48,8 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 		return TSVOutputFormat, nil
 	case "xml", "x":
 		return XMLOutputFormat, nil
+	case "toml":
+		return TomlOutputFormat, nil
 	default:
 		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
 	}
