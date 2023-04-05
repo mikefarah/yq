@@ -47,7 +47,7 @@ yq -i '
 
 Convert JSON to YAML
 ```bash
-yq -P sample.json
+yq -Poy sample.json
 ```
 
 See the [documentation](https://mikefarah.gitbook.io/yq/) for more examples.
