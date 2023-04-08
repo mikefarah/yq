@@ -18,7 +18,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 			return Context{}, err
 		}
 		if rhs.MatchingNodes.Front() != nil {
-			aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+			aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 	}
 
@@ -38,13 +38,13 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 				return Context{}, err
 			}
 			if rhs.MatchingNodes.Front() != nil {
-				aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+				aliasName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 			}
 		}
 
 		if aliasName != "" {
-			candidate.Node.Kind = yaml.AliasNode
-			candidate.Node.Value = aliasName
+			candidate.Kind = AliasNode
+			candidate.Value = aliasName
 		}
 	}
 	return context, nil
@@ -56,8 +56,7 @@ func getAliasOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Node.Value, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.Value)
 		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil
@@ -75,7 +74,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 		}
 
 		if rhs.MatchingNodes.Front() != nil {
-			anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+			anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 	}
 
@@ -96,11 +95,11 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 			}
 
 			if rhs.MatchingNodes.Front() != nil {
-				anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+				anchorName = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 			}
 		}
 
-		candidate.Node.Anchor = anchorName
+		candidate.Anchor = anchorName
 	}
 	return context, nil
 }
@@ -111,9 +110,8 @@ func getAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		anchor := candidate.Node.Anchor
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: anchor, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		anchor := candidate.Anchor
+		result := candidate.CreateReplacement(ScalarNode, "!!str", anchor)
 		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil
@@ -131,7 +129,7 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			return Context{}, err
 		}
 		for childEl := rhs.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
-			err = explodeNode(childEl.Value.(*CandidateNode).Node, context)
+			err = explodeNode(childEl.Value.(*CandidateNode), context)
 			if err != nil {
 				return Context{}, err
 			}
@@ -142,7 +140,7 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	return context, nil
 }
 
-func reconstructAliasedMap(node *yaml.Node, context Context) error {
+func reconstructAliasedMap(node *CandidateNode, context Context) error {
 	var newContent = list.New()
 	// can I short cut here by prechecking if there's an anchor in the map?
 	// no it needs to recurse in overrideEntry.
@@ -157,7 +155,7 @@ func reconstructAliasedMap(node *yaml.Node, context Context) error {
 				return err
 			}
 		} else {
-			if valueNode.Kind == yaml.SequenceNode {
+			if valueNode.Kind == SequenceNode {
 				log.Debugf("an alias merge list!")
 				for index := len(valueNode.Content) - 1; index >= 0; index = index - 1 {
 					aliasNode := valueNode.Content[index]
@@ -175,19 +173,19 @@ func reconstructAliasedMap(node *yaml.Node, context Context) error {
 			}
 		}
 	}
-	node.Content = make([]*yaml.Node, newContent.Len())
+	node.Content = make([]*CandidateNode, newContent.Len())
 	index := 0
 	for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
-		node.Content[index] = newEl.Value.(*yaml.Node)
+		node.Content[index] = newEl.Value.(*CandidateNode)
 		index++
 	}
 	return nil
 }
 
-func explodeNode(node *yaml.Node, context Context) error {
+func explodeNode(node *CandidateNode, context Context) error {
 	node.Anchor = ""
 	switch node.Kind {
-	case yaml.SequenceNode, yaml.DocumentNode:
+	case SequenceNode, DocumentNode:
 		for index, contentNode := range node.Content {
 			log.Debugf("exploding index %v", index)
 			errorInContent := explodeNode(contentNode, context)
@@ -196,18 +194,18 @@ func explodeNode(node *yaml.Node, context Context) error {
 			}
 		}
 		return nil
-	case yaml.AliasNode:
+	case AliasNode:
 		log.Debugf("its an alias!")
 		if node.Alias != nil {
 			node.Kind = node.Alias.Kind
 			node.Style = node.Alias.Style
 			node.Tag = node.Alias.Tag
-			node.Content = deepCloneContent(node.Alias.Content)
+			node.Content = node.CopyChildren()
 			node.Value = node.Alias.Value
 			node.Alias = nil
 		}
 		return nil
-	case yaml.MappingNode:
+	case MappingNode:
 		// //check the map has an alias in it
 		hasAlias := false
 		for index := 0; index < len(node.Content); index = index + 2 {
@@ -241,11 +239,11 @@ func explodeNode(node *yaml.Node, context Context) error {
 	}
 }
 
-func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent Context) error {
+func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newContent Context) error {
 	if alias == nil {
 		return nil
 	}
-	if alias.Kind != yaml.MappingNode {
+	if alias.Kind != MappingNode {
 		return fmt.Errorf("merge anchor only supports maps, got %v instead", alias.Tag)
 	}
 	for index := 0; index < len(alias.Content); index = index + 2 {
@@ -260,7 +258,7 @@ func applyAlias(node *yaml.Node, alias *yaml.Node, aliasIndex int, newContent Co
 	return nil
 }
 
-func overrideEntry(node *yaml.Node, key *yaml.Node, value *yaml.Node, startIndex int, newContent Context) error {
+func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode, startIndex int, newContent Context) error {
 
 	err := explodeNode(value, newContent)
 
