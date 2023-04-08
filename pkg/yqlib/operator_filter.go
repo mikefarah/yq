@@ -25,7 +25,7 @@ func filterOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		if err != nil {
 			return Context{}, err
 		}
-		collected.Node.Style = unwrapDoc(candidate.Node).Style
+		collected.Style = candidate.unwrapDocument().Style
 		results.PushBack(collected)
 	}
 	return context.ChildContext(results), nil

@@ -218,6 +218,19 @@ func (n *CandidateNode) CopyChildren() []*CandidateNode {
 }
 
 func (n *CandidateNode) Copy() *CandidateNode {
+	return n.doCopy(true)
+}
+
+func (n *CandidateNode) CopyWithoutContent() *CandidateNode {
+	return n.doCopy(false)
+}
+
+func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
+	var content []*CandidateNode
+	if cloneContent {
+		content = n.CopyChildren()
+	}
+
 	return &CandidateNode{
 		Kind:  n.Kind,
 		Style: n.Style,
@@ -229,7 +242,7 @@ func (n *CandidateNode) Copy() *CandidateNode {
 		// ok not to clone this,
 		// as its a reference to somewhere else.
 		Alias:   n.Alias,
-		Content: n.CopyChildren(),
+		Content: content,
 
 		HeadComment: n.HeadComment,
 		LineComment: n.LineComment,

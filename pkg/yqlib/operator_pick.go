@@ -3,33 +3,31 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
-func pickMap(original *yaml.Node, indices *yaml.Node) *yaml.Node {
+func pickMap(original *CandidateNode, indices *CandidateNode) *CandidateNode {
 
-	filteredContent := make([]*yaml.Node, 0)
+	filteredContent := make([]*CandidateNode, 0)
 	for index := 0; index < len(indices.Content); index = index + 1 {
 		keyToFind := indices.Content[index]
 
 		indexInMap := findKeyInMap(original, keyToFind)
 		if indexInMap > -1 {
-			clonedKey := deepClone(original.Content[indexInMap])
-			clonedValue := deepClone(original.Content[indexInMap+1])
+			clonedKey := original.Content[indexInMap].Copy()
+			clonedValue := original.Content[indexInMap+1].Copy()
 			filteredContent = append(filteredContent, clonedKey, clonedValue)
 		}
 	}
 
-	newNode := deepCloneNoContent(original)
+	newNode := original.CopyWithoutContent()
 	newNode.Content = filteredContent
 
 	return newNode
 }
 
-func pickSequence(original *yaml.Node, indices *yaml.Node) (*yaml.Node, error) {
+func pickSequence(original *CandidateNode, indices *CandidateNode) (*CandidateNode, error) {
 
-	filteredContent := make([]*yaml.Node, 0)
+	filteredContent := make([]*CandidateNode, 0)
 	for index := 0; index < len(indices.Content); index = index + 1 {
 		indexInArray, err := parseInt(indices.Content[index].Value)
 		if err != nil {
@@ -37,11 +35,11 @@ func pickSequence(original *yaml.Node, indices *yaml.Node) (*yaml.Node, error) {
 		}
 
 		if indexInArray > -1 && indexInArray < len(original.Content) {
-			filteredContent = append(filteredContent, deepClone(original.Content[indexInArray]))
+			filteredContent = append(filteredContent, original.Content[indexInArray].Copy())
 		}
 	}
 
-	newNode := deepCloneNoContent(original)
+	newNode := original.CopyWithoutContent()
 	newNode.Content = filteredContent
 
 	return newNode, nil
@@ -55,21 +53,21 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	if err != nil {
 		return Context{}, err
 	}
-	indicesToPick := &yaml.Node{}
+	indicesToPick := &CandidateNode{}
 	if contextIndicesToPick.MatchingNodes.Len() > 0 {
-		indicesToPick = contextIndicesToPick.MatchingNodes.Front().Value.(*CandidateNode).Node
+		indicesToPick = contextIndicesToPick.MatchingNodes.Front().Value.(*CandidateNode)
 	}
 
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
+		node := candidate.unwrapDocument()
 
-		var replacement *yaml.Node
-		if node.Kind == yaml.MappingNode {
+		var replacement *CandidateNode
+		if node.Kind == MappingNode {
 			replacement = pickMap(node, indicesToPick)
-		} else if node.Kind == yaml.SequenceNode {
+		} else if node.Kind == SequenceNode {
 			replacement, err = pickSequence(node, indicesToPick)
 			if err != nil {
 				return Context{}, err
@@ -79,7 +77,9 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 			return Context{}, fmt.Errorf("cannot pick indicies from type %v (%v)", node.Tag, candidate.GetNicePath())
 		}
 
-		results.PushBack(candidate.CreateReplacementWithDocWrappers(replacement))
+		replacement.LeadingContent = candidate.LeadingContent
+		replacement.TrailingContent = candidate.TrailingContent
+		results.PushBack(replacement)
 	}
 
 	return context.ChildContext(results), nil

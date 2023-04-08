@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"container/list"
 	"regexp"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type commentOpPreferences struct {
@@ -35,7 +33,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		}
 
 		if rhs.MatchingNodes.Front() != nil {
-			comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+			comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 	}
 
@@ -49,25 +47,25 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 			}
 
 			if rhs.MatchingNodes.Front() != nil {
-				comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+				comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 			}
 		}
 
 		log.Debugf("Setting comment of : %v", candidate.GetKey())
 		if preferences.LineComment {
-			candidate.Node.LineComment = comment
+			candidate.LineComment = comment
 		}
 		if preferences.HeadComment {
-			candidate.Node.HeadComment = comment
+			candidate.HeadComment = comment
 			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
-		if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode && comment != "" {
+		if preferences.FootComment && candidate.Kind == DocumentNode && comment != "" {
 			candidate.TrailingContent = "# " + comment
-		} else if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode {
+		} else if preferences.FootComment && candidate.Kind == DocumentNode {
 			candidate.TrailingContent = comment
 
-		} else if preferences.FootComment && candidate.Node.Kind != yaml.DocumentNode {
-			candidate.Node.FootComment = comment
+		} else if preferences.FootComment && candidate.Kind != DocumentNode {
+			candidate.FootComment = comment
 			candidate.TrailingContent = ""
 		}
 
@@ -91,7 +89,7 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		candidate := el.Value.(*CandidateNode)
 		comment := ""
 		if preferences.LineComment {
-			comment = candidate.Node.LineComment
+			comment = candidate.LineComment
 		} else if preferences.HeadComment && candidate.LeadingContent != "" {
 			var chompRegexp = regexp.MustCompile(`\n$`)
 			var output bytes.Buffer
@@ -106,11 +104,11 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 			comment = output.String()
 			comment = chompRegexp.ReplaceAllString(comment, "")
 		} else if preferences.HeadComment {
-			comment = candidate.Node.HeadComment
-		} else if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode && candidate.TrailingContent != "" {
+			comment = candidate.HeadComment
+		} else if preferences.FootComment && candidate.Kind == DocumentNode && candidate.TrailingContent != "" {
 			comment = candidate.TrailingContent
 		} else if preferences.FootComment {
-			comment = candidate.Node.FootComment
+			comment = candidate.FootComment
 		}
 		comment = startCommentCharaterRegExp.ReplaceAllString(comment, "")
 		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
