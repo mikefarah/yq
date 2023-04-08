@@ -12,11 +12,7 @@ func columnOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		result := candidate.CreateReplacement()
-		result.Kind = ScalarNode
-		result.Value = fmt.Sprintf("%v", candidate.Column)
-		result.Tag = "!!int"
-
+		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", candidate.Column))
 		results.PushBack(result)
 	}
 

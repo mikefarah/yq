@@ -28,10 +28,7 @@ func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			length = 0
 		}
 
-		result := candidate.CreateReplacement()
-		result.Kind = ScalarNode
-		result.Value = fmt.Sprintf("%v", length)
-		result.Tag = "!!int"
+		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", length))
 		results.PushBack(result)
 	}
 

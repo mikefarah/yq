@@ -55,8 +55,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		collectedNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
-		collectCandidate := candidate.CreateReplacement(collectedNode)
+		collectCandidate := candidate.CreateReplacement(SequenceNode, "!!seq", "")
 
 		log.Debugf("collect rhs: %v", expressionNode.RHS.Operation.toString())
 
@@ -68,7 +67,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for result := collectExpResults.MatchingNodes.Front(); result != nil; result = result.Next() {
 			resultC := result.Value.(*CandidateNode)
 			log.Debugf("found this: %v", NodeToString(resultC))
-			collectedNode.Content = append(collectedNode.Content, unwrapDoc(resultC.Node))
+			collectCandidate.Content = append(collectCandidate.Content, resultC.unwrapDocument())
 		}
 		log.Debugf("done collect rhs: %v", expressionNode.RHS.Operation.toString())
 

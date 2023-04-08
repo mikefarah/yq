@@ -176,7 +176,7 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 // 	}
 // }
 
-func (n *CandidateNode) CreateReplacement() *CandidateNode {
+func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *CandidateNode {
 	return &CandidateNode{
 		Path:      n.createChildPath(nil),
 		Parent:    n.Parent,
@@ -185,15 +185,18 @@ func (n *CandidateNode) CreateReplacement() *CandidateNode {
 		Document:  n.Document,
 		Filename:  n.Filename,
 		FileIndex: n.FileIndex,
+		Kind:      kind,
+		Tag:       tag,
+		Value:     value,
 	}
 }
 
-// func (n *CandidateNode) CreateReplacementWithDocWrappers(node *yaml.Node) *CandidateNode {
-// 	replacement := n.CreateReplacement(node)
-// 	replacement.LeadingContent = n.LeadingContent
-// 	replacement.TrailingContent = n.TrailingContent
-// 	return replacement
-// }
+func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, value string) *CandidateNode {
+	replacement := n.CreateReplacement(kind, tag, value)
+	replacement.LeadingContent = n.LeadingContent
+	replacement.TrailingContent = n.TrailingContent
+	return replacement
+}
 
 func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
 	if path == nil {
