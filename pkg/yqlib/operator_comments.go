@@ -115,8 +115,9 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		comment = startCommentCharaterRegExp.ReplaceAllString(comment, "")
 		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
 
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement()
+		result.Kind = ScalarNode
+		result.Tag = "!!str"
 		result.LeadingContent = "" // don't include the leading yaml content when retrieving a comment
 		results.PushBack(result)
 	}

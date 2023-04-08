@@ -189,7 +189,7 @@ type Operation struct {
 	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs
 }
 
-func recurseNodeArrayEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recurseNodeArrayEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false
 	}
@@ -283,17 +283,17 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	return result, err
 }
 
-func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if lhs.Kind != rhs.Kind {
 		return false
 	}
 
-	if lhs.Kind == yaml.ScalarNode {
+	if lhs.Kind == ScalarNode {
 		//process custom tags of scalar nodes.
 		//dont worry about matching tags of maps or arrays.
 
-		lhsTag := guessTagFromCustomType(lhs)
-		rhsTag := guessTagFromCustomType(rhs)
+		lhsTag := lhs.guessTagFromCustomType()
+		rhsTag := rhs.guessTagFromCustomType()
 
 		if lhsTag != rhsTag {
 			return false
@@ -303,11 +303,11 @@ func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	if lhs.Tag == "!!null" {
 		return true
 
-	} else if lhs.Kind == yaml.ScalarNode {
+	} else if lhs.Kind == ScalarNode {
 		return lhs.Value == rhs.Value
-	} else if lhs.Kind == yaml.SequenceNode {
+	} else if lhs.Kind == SequenceNode {
 		return recurseNodeArrayEqual(lhs, rhs)
-	} else if lhs.Kind == yaml.MappingNode {
+	} else if lhs.Kind == MappingNode {
 		return recurseNodeObjectEqual(lhs, rhs)
 	}
 	return false
@@ -382,19 +382,19 @@ func parseInt(numberString string) (int, error) {
 	return int(parsed), err
 }
 
-func headAndLineComment(node *yaml.Node) string {
+func headAndLineComment(node *CandidateNode) string {
 	return headComment(node) + lineComment(node)
 }
 
-func headComment(node *yaml.Node) string {
+func headComment(node *CandidateNode) string {
 	return strings.Replace(node.HeadComment, "#", "", 1)
 }
 
-func lineComment(node *yaml.Node) string {
+func lineComment(node *CandidateNode) string {
 	return strings.Replace(node.LineComment, "#", "", 1)
 }
 
-func footComment(node *yaml.Node) string {
+func footComment(node *CandidateNode) string {
 	return strings.Replace(node.FootComment, "#", "", 1)
 }
 

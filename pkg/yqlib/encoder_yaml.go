@@ -73,9 +73,9 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 	return nil
 }
 
-func (ye *yamlEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
-	if node.Kind == yaml.ScalarNode && ye.prefs.UnwrapScalar {
+	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
 		return writeString(writer, node.Value+"\n")
 	}
 

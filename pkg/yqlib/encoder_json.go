@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/goccy/go-json"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type jsonEncoder struct {
@@ -38,9 +37,9 @@ func (je *jsonEncoder) PrintLeadingContent(writer io.Writer, content string) err
 	return nil
 }
 
-func (je *jsonEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
-	if node.Kind == yaml.ScalarNode && je.UnwrapScalar {
+	if node.Kind == ScalarNode && je.UnwrapScalar {
 		return writeString(writer, node.Value+"\n")
 	}
 
@@ -58,6 +57,7 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	// firstly, convert all map keys to strings
 	mapKeysToStrings(node)
 	errorDecoding := node.Decode(&dataBucket)
+
 	if errorDecoding != nil {
 		return errorDecoding
 	}

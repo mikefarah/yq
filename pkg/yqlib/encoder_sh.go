@@ -5,8 +5,6 @@ import (
 	"io"
 	"regexp"
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 var unsafeChars = regexp.MustCompile(`[^\w@%+=:,./-]`)
@@ -31,9 +29,9 @@ func (e *shEncoder) PrintLeadingContent(writer io.Writer, content string) error 
 	return nil
 }
 
-func (e *shEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
-	node := unwrapDoc(originalNode)
-	if guessTagFromCustomType(node) != "!!str" {
+func (e *shEncoder) Encode(writer io.Writer, originalNode *CandidateNode) error {
+	node := originalNode.unwrapDocument()
+	if node.guessTagFromCustomType() != "!!str" {
 		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 
