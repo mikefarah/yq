@@ -3,23 +3,21 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
-func parseStyle(customStyle string) (yaml.Style, error) {
+func parseStyle(customStyle string) (Style, error) {
 	if customStyle == "tagged" {
-		return yaml.TaggedStyle, nil
+		return TaggedStyle, nil
 	} else if customStyle == "double" {
-		return yaml.DoubleQuotedStyle, nil
+		return DoubleQuotedStyle, nil
 	} else if customStyle == "single" {
-		return yaml.SingleQuotedStyle, nil
+		return SingleQuotedStyle, nil
 	} else if customStyle == "literal" {
-		return yaml.LiteralStyle, nil
+		return LiteralStyle, nil
 	} else if customStyle == "folded" {
-		return yaml.FoldedStyle, nil
+		return FoldedStyle, nil
 	} else if customStyle == "flow" {
-		return yaml.FlowStyle, nil
+		return FlowStyle, nil
 	} else if customStyle != "" {
 		return 0, fmt.Errorf("Unknown style %v", customStyle)
 	}
@@ -29,7 +27,7 @@ func parseStyle(customStyle string) (yaml.Style, error) {
 func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignStyleOperator: %v")
-	var style yaml.Style
+	var style Style
 	if !expressionNode.Operation.UpdateAssign {
 		rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 		if err != nil {
@@ -37,7 +35,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 
 		if rhs.MatchingNodes.Front() != nil {
-			style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
+			style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Value)
 			if err != nil {
 				return Context{}, err
 			}
@@ -60,14 +58,14 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 			}
 
 			if rhs.MatchingNodes.Front() != nil {
-				style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
+				style, err = parseStyle(rhs.MatchingNodes.Front().Value.(*CandidateNode).Value)
 				if err != nil {
 					return Context{}, err
 				}
 			}
 		}
 
-		candidate.Node.Style = style
+		candidate.Style = style
 	}
 
 	return context, nil
@@ -81,26 +79,25 @@ func getStyleOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		var style string
-		switch candidate.Node.Style {
-		case yaml.TaggedStyle:
+		switch candidate.Style {
+		case TaggedStyle:
 			style = "tagged"
-		case yaml.DoubleQuotedStyle:
+		case DoubleQuotedStyle:
 			style = "double"
-		case yaml.SingleQuotedStyle:
+		case SingleQuotedStyle:
 			style = "single"
-		case yaml.LiteralStyle:
+		case LiteralStyle:
 			style = "literal"
-		case yaml.FoldedStyle:
+		case FoldedStyle:
 			style = "folded"
-		case yaml.FlowStyle:
+		case FlowStyle:
 			style = "flow"
 		case 0:
 			style = ""
 		default:
 			style = "<unknown>"
 		}
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: style, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", style)
 		results.PushBack(result)
 	}
 

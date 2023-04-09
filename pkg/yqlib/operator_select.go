@@ -23,7 +23,7 @@ func selectOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		for resultEl := rhs.MatchingNodes.Front(); resultEl != nil; resultEl = resultEl.Next() {
 			result := resultEl.Value.(*CandidateNode)
-			includeResult, errDecoding = isTruthy(result)
+			includeResult, errDecoding = isTruthyNode(result)
 			log.Debugf("isTruthy %v", includeResult)
 			if errDecoding != nil {
 				return Context{}, errDecoding

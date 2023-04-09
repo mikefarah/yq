@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func sortOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -26,9 +24,9 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidateNode := unwrapDoc(candidate.Node)
+		candidateNode := candidate.unwrapDocument()
 
-		if candidateNode.Kind != yaml.SequenceNode {
+		if candidateNode.Kind != SequenceNode {
 			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
 		}
 
@@ -36,8 +34,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		for i, originalNode := range candidateNode.Content {
 
-			childCandidate := candidate.CreateChildInArray(i, originalNode)
-			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(childCandidate), expressionNode.RHS)
+			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(originalNode), expressionNode.RHS)
 			if err != nil {
 				return Context{}, err
 			}
@@ -48,19 +45,20 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		sort.Stable(sortableArray)
 
-		sortedList := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Style: candidateNode.Style}
-		sortedList.Content = make([]*yaml.Node, len(candidateNode.Content))
+		sortedList := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
+
+		sortedList.Content = make([]*CandidateNode, len(candidateNode.Content))
 
 		for i, sortedNode := range sortableArray {
 			sortedList.Content[i] = sortedNode.Node
 		}
-		results.PushBack(candidate.CreateReplacementWithDocWrappers(sortedList))
+		results.PushBack(sortedList)
 	}
 	return context.ChildContext(results), nil
 }
 
 type sortableNode struct {
-	Node           *yaml.Node
+	Node           *CandidateNode
 	CompareContext Context
 	dateTimeLayout string
 }
@@ -79,7 +77,7 @@ func (a sortableNodeArray) Less(i, j int) bool {
 		lhs := lhsEl.Value.(*CandidateNode)
 		rhs := rhsEl.Value.(*CandidateNode)
 
-		result := a.compare(lhs.Node, rhs.Node, a[i].dateTimeLayout)
+		result := a.compare(lhs, rhs, a[i].dateTimeLayout)
 
 		if result < 0 {
 			return true
@@ -92,18 +90,18 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	return false
 }
 
-func (a sortableNodeArray) compare(lhs *yaml.Node, rhs *yaml.Node, dateTimeLayout string) int {
+func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateTimeLayout string) int {
 	lhsTag := lhs.Tag
 	rhsTag := rhs.Tag
 
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = guessTagFromCustomType(lhs)
+		lhsTag = lhs.guessTagFromCustomType()
 	}
 
 	if !strings.HasPrefix(rhsTag, "!!") {
 		// custom tag - we have to have a guess
-		rhsTag = guessTagFromCustomType(rhs)
+		rhsTag = rhs.guessTagFromCustomType()
 	}
 
 	isDateTime := lhsTag == "!!timestamp" && rhsTag == "!!timestamp"

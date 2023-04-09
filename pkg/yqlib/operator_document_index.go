@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	"gopkg.in/yaml.v3"
 )
 
 func getDocumentIndexOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -12,8 +10,7 @@ func getDocumentIndexOperator(d *dataTreeNavigator, context Context, expressionN
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", candidate.Document), Tag: "!!int"}
-		scalar := candidate.CreateReplacement(node)
+		scalar := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", candidate.Document))
 		results.PushBack(scalar)
 	}
 	return context.ChildContext(results), nil

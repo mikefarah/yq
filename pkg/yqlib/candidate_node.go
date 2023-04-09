@@ -191,10 +191,11 @@ func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *
 	}
 }
 
-func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, value string) *CandidateNode {
-	replacement := n.CreateReplacement(kind, tag, value)
+func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, style Style) *CandidateNode {
+	replacement := n.CreateReplacement(kind, tag, "")
 	replacement.LeadingContent = n.LeadingContent
 	replacement.TrailingContent = n.TrailingContent
+	replacement.Style = style
 	return replacement
 }
 

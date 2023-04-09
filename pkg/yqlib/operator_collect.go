@@ -2,12 +2,10 @@ package yqlib
 
 import (
 	"container/list"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func collectTogether(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (*CandidateNode, error) {
-	collectedNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+	collectedNode := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		collectExpResults, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode)
@@ -17,10 +15,10 @@ func collectTogether(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for result := collectExpResults.MatchingNodes.Front(); result != nil; result = result.Next() {
 			resultC := result.Value.(*CandidateNode)
 			log.Debugf("found this: %v", NodeToString(resultC))
-			collectedNode.Content = append(collectedNode.Content, unwrapDoc(resultC.Node))
+			collectedNode.Content = append(collectedNode.Content, resultC.unwrapDocument())
 		}
 	}
-	return &CandidateNode{Node: collectedNode}, nil
+	return collectedNode, nil
 }
 
 func collectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -28,9 +26,8 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 
 	if context.MatchingNodes.Len() == 0 {
 		log.Debugf("nothing to collect")
-		node := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Value: "[]"}
-		candidate := &CandidateNode{Node: node}
-		return context.SingleChildContext(candidate), nil
+		node := &CandidateNode{Kind: SequenceNode, Tag: "!!seq", Value: "[]"}
+		return context.SingleChildContext(node), nil
 	}
 
 	var evaluateAllTogether = true

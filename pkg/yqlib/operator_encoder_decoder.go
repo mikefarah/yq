@@ -7,8 +7,6 @@ import (
 	"errors"
 	"regexp"
 	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
 func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
@@ -78,7 +76,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		if originalList != nil && originalList.Len() > 0 && hasOnlyOneNewLine.MatchString(stringValue) {
 
 			original := originalList.Front().Value.(*CandidateNode)
-			originalNode := unwrapDoc(original.Node)
+			originalNode := original.unwrapDocument()
 			// original block did not have a newline at the end, get rid of this one too
 			if !endWithNewLine.MatchString(originalNode.Value) {
 				stringValue = chomper.ReplaceAllString(stringValue, "")
@@ -92,8 +90,7 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			stringValue = chomper.ReplaceAllString(stringValue, "")
 		}
 
-		stringContentNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: stringValue}
-		results.PushBack(candidate.CreateReplacement(stringContentNode))
+		results.PushBack(candidate.CreateReplacement(ScalarNode, "!!str", stringValue))
 	}
 	return context.ChildContext(results), nil
 }
@@ -141,9 +138,9 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		context.SetVariable("decoded: "+candidate.GetKey(), candidate.AsList())
 
-		log.Debugf("got: [%v]", candidate.Node.Value)
+		log.Debugf("got: [%v]", candidate.Value)
 
-		err := decoder.Init(strings.NewReader(unwrapDoc(candidate.Node).Value))
+		err := decoder.Init(strings.NewReader(candidate.unwrapDocument().Value))
 		if err != nil {
 			return Context{}, err
 		}
@@ -153,9 +150,15 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			return Context{}, errorReading
 		}
 		//first node is a doc
-		node := unwrapDoc(decodedNode.Node)
+		node := decodedNode.unwrapDocument()
+		node.Path = candidate.Path
+		node.Key = candidate.Key
+		node.Parent = candidate.Parent
+		node.Document = candidate.Document
+		node.FileIndex = candidate.FileIndex
+		node.Filename = candidate.Filename
 
-		results.PushBack(candidate.CreateReplacement(node))
+		results.PushBack(node)
 	}
 	return context.ChildContext(results), nil
 }

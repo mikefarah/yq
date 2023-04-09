@@ -8,9 +8,8 @@ type assignPreferences struct {
 
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		rhs.Node = unwrapDoc(rhs.Node)
-		if !prefs.OnlyWriteNull || lhs.Node.Tag == "!!null" {
-			lhs.UpdateFrom(rhs, prefs)
+		if !prefs.OnlyWriteNull || lhs.Tag == "!!null" {
+			lhs.UpdateFrom(rhs.unwrapDocument(), prefs)
 		}
 		return lhs, nil
 	}
@@ -60,8 +59,7 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 		if first != nil {
 			rhsCandidate := first.Value.(*CandidateNode)
-			rhsCandidate.Node = unwrapDoc(rhsCandidate.Node)
-			candidate.UpdateFrom(rhsCandidate, prefs)
+			candidate.UpdateFrom(rhsCandidate.unwrapDocument(), prefs)
 		}
 	}
 
@@ -92,7 +90,7 @@ func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionN
 			if expressionNode.Operation.Preferences != nil {
 				prefs = expressionNode.Operation.Preferences.(assignPreferences)
 			}
-			if !prefs.OnlyWriteNull || candidate.Node.Tag == "!!null" {
+			if !prefs.OnlyWriteNull || candidate.Tag == "!!null" {
 				candidate.UpdateAttributesFrom(first.Value.(*CandidateNode), prefs)
 			}
 		}
