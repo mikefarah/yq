@@ -51,7 +51,6 @@ func (dec *propertiesDecoder) applyPropertyComments(context Context, path []inte
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
 	rhsCandidateNode := &CandidateNode{
-		Path:        path,
 		Tag:         "!!str",
 		Value:       fmt.Sprintf("%v", path[len(path)-1]),
 		HeadComment: dec.processComment(strings.Join(comments, "\n")),
@@ -86,9 +85,8 @@ func (dec *propertiesDecoder) applyProperty(context Context, properties *propert
 
 	rhsNode := createStringScalarNode(value)
 	rhsNode.Tag = rhsNode.guessTagFromCustomType()
-	rhsNode.Path = path
 
-	return dec.d.DeeplyAssign(context, rhsNode)
+	return dec.d.DeeplyAssign(context, path, rhsNode)
 }
 
 func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {

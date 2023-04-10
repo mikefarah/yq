@@ -35,7 +35,8 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 
 		parentNode := candidate.Parent
-		childPath := candidate.Path[len(candidate.Path)-1]
+		parentPath := parentNode.GetPath()
+		childPath := parentPath[len(parentPath)-1]
 
 		if parentNode.Kind == MappingNode {
 			deleteFromMap(candidate.Parent, childPath)
@@ -60,7 +61,7 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 
 		shouldDelete := key.Value == childPath
 
-		log.Debugf("shouldDelete %v ? %v", value.GetKey(), shouldDelete)
+		log.Debugf("shouldDelete %v ? %v", value.ToDebugString(), shouldDelete)
 
 		if !shouldDelete {
 			newContents = append(newContents, key, value)

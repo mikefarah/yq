@@ -62,12 +62,11 @@ func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode 
 	if err != nil {
 		return err
 	}
-	valueNode.Path = path
 
 	context := Context{}
 	context = context.SingleChildContext(rootMap)
 
-	return dec.d.DeeplyAssign(context, valueNode)
+	return dec.d.DeeplyAssign(context, path, valueNode)
 }
 
 func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode *toml.Node) (bool, error) {
@@ -279,7 +278,6 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	tableNodeValue := &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
-		Path: fullPath,
 	}
 
 	tableValue := dec.parser.Expression()
@@ -296,7 +294,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	c := Context{}
 
 	c = c.SingleChildContext(dec.rootMap)
-	err = dec.d.DeeplyAssign(c, tableNodeValue)
+	err = dec.d.DeeplyAssign(c, fullPath, tableNodeValue)
 	if err != nil {
 		return false, err
 	}
@@ -305,7 +303,6 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 
 func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode *CandidateNode) error {
 	rhsCandidateNode := &CandidateNode{
-		Path:    path,
 		Kind:    SequenceNode,
 		Tag:     "!!seq",
 		Content: []*CandidateNode{rhsNode},
@@ -341,7 +338,6 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	tableNodeValue := &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
-		Path: fullPath,
 	}
 
 	tableValue := dec.parser.Expression()

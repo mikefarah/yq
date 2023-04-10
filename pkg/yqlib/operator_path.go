@@ -156,9 +156,11 @@ func getPathOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		candidate := el.Value.(*CandidateNode)
 		node := candidate.CreateReplacement(SequenceNode, "!!seq", "")
 
-		content := make([]*CandidateNode, len(candidate.Path))
-		for pathIndex := 0; pathIndex < len(candidate.Path); pathIndex++ {
-			path := candidate.Path[pathIndex]
+		path := candidate.GetPath()
+
+		content := make([]*CandidateNode, len(path))
+		for pathIndex := 0; pathIndex < len(path); pathIndex++ {
+			path := path[pathIndex]
 			content[pathIndex] = createPathNodeFor(path)
 		}
 		node.Content = content

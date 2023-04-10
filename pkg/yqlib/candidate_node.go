@@ -81,8 +81,7 @@ type CandidateNode struct {
 	LeadingContent  string
 	TrailingContent string
 
-	Path     []interface{} /// the path we took to get to this node
-	Document uint          // the document index of this node
+	Document uint // the document index of this node
 	Filename string
 
 	Line   int
@@ -95,13 +94,13 @@ type CandidateNode struct {
 	IsMapKey         bool
 }
 
-func (n *CandidateNode) GetKey() string {
-	keyPrefix := ""
-	if n.IsMapKey {
-		keyPrefix = "key-"
-	}
-	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
-}
+// func (n *CandidateNode) GetKey() string {
+// 	keyPrefix := ""
+// 	if n.IsMapKey {
+// 		keyPrefix = "key-"
+// 	}
+// 	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
+// }
 
 func (n *CandidateNode) unwrapDocument() *CandidateNode {
 	if n.Kind == DocumentNode {
@@ -114,15 +113,47 @@ func (n *CandidateNode) GetNiceTag() string {
 	return n.unwrapDocument().Tag
 }
 
-func (n *CandidateNode) GetNicePath() string {
-	if n.Path != nil && len(n.Path) >= 0 {
-		pathStr := make([]string, len(n.Path))
-		for i, v := range n.Path {
-			pathStr[i] = fmt.Sprintf("%v", v)
-		}
-		return strings.Join(pathStr, ".")
+func (n *CandidateNode) getParsedKey() interface{} {
+	if n.Key == nil {
+		return nil
 	}
-	return ""
+	if n.Key.Tag == "!!str" {
+		return n.Key.Value
+	}
+	index, err := parseInt(n.Key.Value)
+	if err != nil {
+		return n.Key.Value
+	}
+	return index
+
+}
+
+func (n *CandidateNode) GetPath() []interface{} {
+	if n.Parent != nil {
+		return append(n.Parent.GetPath(), n.getParsedKey())
+	}
+	return []interface{}{n.getParsedKey()}
+}
+
+func (n *CandidateNode) GetNicePath() string {
+	var sb strings.Builder
+	path := n.GetPath()
+	for i, element := range path {
+		elementStr := fmt.Sprintf("%v", element)
+		switch element.(type) {
+		case int:
+			sb.WriteString("[" + elementStr + "]")
+		default:
+			if i == 0 {
+				sb.WriteString(elementStr)
+			} else if strings.ContainsRune(elementStr, '.') {
+				sb.WriteString("[" + elementStr + "]")
+			} else {
+				sb.WriteString("." + elementStr)
+			}
+		}
+	}
+	return sb.String()
 }
 
 func (n *CandidateNode) AsList() *list.List {
@@ -178,7 +209,6 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 
 func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *CandidateNode {
 	return &CandidateNode{
-		Path:      n.createChildPath(nil),
 		Parent:    n.Parent,
 		Key:       n.Key,
 		IsMapKey:  n.IsMapKey,
@@ -197,20 +227,6 @@ func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, 
 	replacement.TrailingContent = n.TrailingContent
 	replacement.Style = style
 	return replacement
-}
-
-func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
-	if path == nil {
-		newPath := make([]interface{}, len(n.Path))
-		copy(newPath, n.Path)
-		return newPath
-	}
-
-	//don't use append as they may actually modify the path of the orignal node!
-	newPath := make([]interface{}, len(n.Path)+1)
-	copy(newPath, n.Path)
-	newPath[len(n.Path)] = path
-	return newPath
 }
 
 func (n *CandidateNode) CopyChildren() []*CandidateNode {
@@ -258,7 +274,6 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		LeadingContent:  n.LeadingContent,
 		TrailingContent: n.TrailingContent,
 
-		Path:     n.Path,
 		Document: n.Document,
 		Filename: n.Filename,
 
@@ -290,7 +305,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
-	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.GetKey(), other.GetKey())
+	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.Key.Value, other.Key.Value)
 	if n.Kind != other.Kind {
 		// clear out the contents when switching to a different type
 		// e.g. map to array
