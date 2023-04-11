@@ -16,6 +16,13 @@ var collectObjectOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		expression: `({} + {}) | (.b = 3)`,
+		expected: []string{
+			"D0, P[], (!!map)::b: 3\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   "a: []",
 		expression: `.a += [{"key": "att2", "value": "val2"}]`,
 		expected: []string{
