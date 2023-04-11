@@ -1,3 +1,9 @@
+4.33.3:
+  - Fixed bug when splatting empty array #1613
+  - Added scalar output for TOML (#1617)
+  - Fixed passing of readonly context in pipe (partial fix for #1631)
+  - Bumped dependency versions
+
 4.33.2:
   - Add ``--nul-output|-0`` flag to separate element with NUL character (#1550) Thanks @vaab!
   - Add removable-media interface plug declaration to the snap packaging(#1618) Thanks @brlin-tw!
