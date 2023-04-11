@@ -35,7 +35,7 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 		candidateNode := el.Value.(*CandidateNode)
 		for i := 0; i < len(first.Content); i++ {
 
-			rotated[i].PushBack(candidateNode.CreateChildInArray(i, candidateNode.Content[i]))
+			rotated[i].PushBack(candidateNode.Content[i])
 		}
 	}
 
@@ -62,10 +62,6 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 	splatted, err := splat(context.SingleChildContext(candidate),
 		traversePreferences{DontFollowAlias: true, IncludeMapKeys: false})
 
-	for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
-		splatEl.Value.(*CandidateNode).Path = nil
-	}
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -81,8 +77,6 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 		for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
 			splatCandidate := splatEl.Value.(*CandidateNode)
 			newCandidate := aggCandidate.Copy()
-
-			newCandidate.Path = nil
 
 			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, context, newCandidate, splatCandidate)
 			if err != nil {

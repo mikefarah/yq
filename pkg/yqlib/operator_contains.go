@@ -3,15 +3,13 @@ package yqlib
 import (
 	"fmt"
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func containsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, containsWithNodes, false)
 }
 
-func containsArrayElement(array *yaml.Node, item *yaml.Node) (bool, error) {
+func containsArrayElement(array *CandidateNode, item *CandidateNode) (bool, error) {
 	for index := 0; index < len(array.Content); index = index + 1 {
 		containedInArray, err := contains(array.Content[index], item)
 		if err != nil {
@@ -24,8 +22,8 @@ func containsArrayElement(array *yaml.Node, item *yaml.Node) (bool, error) {
 	return false, nil
 }
 
-func containsArray(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
-	if rhs.Kind != yaml.SequenceNode {
+func containsArray(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
+	if rhs.Kind != SequenceNode {
 		return containsArrayElement(lhs, rhs)
 	}
 	for index := 0; index < len(rhs.Content); index = index + 1 {
@@ -40,8 +38,8 @@ func containsArray(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
 	return true, nil
 }
 
-func containsObject(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
-	if rhs.Kind != yaml.MappingNode {
+func containsObject(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
+	if rhs.Kind != MappingNode {
 		return false, nil
 	}
 	for index := 0; index < len(rhs.Content); index = index + 2 {
@@ -68,21 +66,21 @@ func containsObject(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
 	return true, nil
 }
 
-func containsScalars(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
+func containsScalars(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
 	if lhs.Tag == "!!str" {
 		return strings.Contains(lhs.Value, rhs.Value), nil
 	}
 	return lhs.Value == rhs.Value, nil
 }
 
-func contains(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
+func contains(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
 	switch lhs.Kind {
-	case yaml.MappingNode:
+	case MappingNode:
 		return containsObject(lhs, rhs)
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return containsArray(lhs, rhs)
-	case yaml.ScalarNode:
-		if rhs.Kind != yaml.ScalarNode || lhs.Tag != rhs.Tag {
+	case ScalarNode:
+		if rhs.Kind != ScalarNode || lhs.Tag != rhs.Tag {
 			return false, nil
 		}
 		if lhs.Tag == "!!null" {
@@ -94,15 +92,15 @@ func contains(lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
 	return false, fmt.Errorf("%v not yet supported for contains", lhs.Tag)
 }
 
-func containsWithNodes(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs.Node = unwrapDoc(lhs.Node)
-	rhs.Node = unwrapDoc(rhs.Node)
+func containsWithNodes(d *dataTreeNavigator, context Context, lhsW *CandidateNode, rhsW *CandidateNode) (*CandidateNode, error) {
+	lhs := lhsW.unwrapDocument()
+	rhs := rhsW.unwrapDocument()
 
-	if lhs.Node.Kind != rhs.Node.Kind {
-		return nil, fmt.Errorf("%v cannot check contained in %v", rhs.Node.Tag, lhs.Node.Tag)
+	if lhs.Kind != rhs.Kind {
+		return nil, fmt.Errorf("%v cannot check contained in %v", rhs.Tag, lhs.Tag)
 	}
 
-	result, err := contains(lhs.Node, rhs.Node)
+	result, err := contains(lhs, rhs)
 	if err != nil {
 		return nil, err
 	}

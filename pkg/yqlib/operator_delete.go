@@ -61,7 +61,7 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 
 		shouldDelete := key.Value == childPath
 
-		log.Debugf("shouldDelete %v ? %v", value.ToDebugString(), shouldDelete)
+		log.Debugf("shouldDelete %v ? %v", NodeToString(value), shouldDelete)
 
 		if !shouldDelete {
 			newContents = append(newContents, key, value)

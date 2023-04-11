@@ -151,7 +151,6 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 		//first node is a doc
 		node := decodedNode.unwrapDocument()
-		node.Path = candidate.Path
 		node.Key = candidate.Key
 		node.Parent = candidate.Parent
 		node.Document = candidate.Document

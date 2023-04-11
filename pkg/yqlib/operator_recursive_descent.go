@@ -2,8 +2,6 @@ package yqlib
 
 import (
 	"container/list"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type recursiveDescentPreferences struct {
@@ -25,15 +23,13 @@ func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionN
 
 func recursiveDecent(results *list.List, context Context, preferences recursiveDescentPreferences) error {
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-
-		candidate.Node = unwrapDoc(candidate.Node)
+		candidate := el.Value.(*CandidateNode).unwrapDocument()
 
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 
-		if candidate.Node.Kind != yaml.AliasNode && len(candidate.Node.Content) > 0 &&
-			(preferences.RecurseArray || candidate.Node.Kind != yaml.SequenceNode) {
+		if candidate.Kind != AliasNode && len(candidate.Content) > 0 &&
+			(preferences.RecurseArray || candidate.Kind != SequenceNode) {
 
 			children, err := splat(context.SingleChildContext(candidate), preferences.TraversePreferences)
 

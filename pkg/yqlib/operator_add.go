@@ -48,10 +48,10 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 	lhsNode := lhs
 
 	if lhsNode.Tag == "!!null" {
-		return lhs.CreateReplacement(rhs), nil
+		return lhs.CopyAsReplacement(rhs), nil
 	}
 
-	target := lhs.CreateReplacement(&yaml{
+	target := lhs.CopyAsReplacement(&CandidateNode{
 		Anchor: lhs.Anchor,
 	})
 

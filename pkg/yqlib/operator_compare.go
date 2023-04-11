@@ -40,9 +40,9 @@ func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, 
 			return nil, fmt.Errorf("arrays not yet supported for comparison")
 		default:
 			if rhsU.Kind != ScalarNode {
-				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhsU.Tag, rhs.Path, lhsU.Tag)
+				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhsU.Tag, rhs.GetNicePath(), lhsU.Tag)
 			}
-			target := lhs.CreateReplacement()
+			target := lhs.CopyWithoutContent()
 			boolV, err := compareScalars(context, prefs, lhsU, rhsU)
 
 			return createBooleanCandidate(target, boolV), err

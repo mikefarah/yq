@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type Printer interface {
@@ -91,7 +89,7 @@ func (p *resultsPrinter) PrintedAnything() bool {
 	return p.printedMatches
 }
 
-func (p *resultsPrinter) printNode(node *yaml.Node, writer io.Writer) error {
+func (p *resultsPrinter) printNode(node *CandidateNode, writer io.Writer) error {
 	p.printedMatches = p.printedMatches || (node.Tag != "!!null" &&
 		(node.Tag != "!!bool" || node.Value != "false"))
 	return p.encoder.Encode(writer, node)
@@ -161,7 +159,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return err
 		}
 
-		if err := p.printNode(mappedDoc.Node, destination); err != nil {
+		if err := p.printNode(mappedDoc, destination); err != nil {
 			return err
 		}
 

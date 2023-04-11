@@ -462,7 +462,7 @@ func NodeToString(node *CandidateNode) string {
 	} else if node.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.GetNicePath(), tag, buf.String())
 }
 
 func KindString(kind yaml.Kind) string {

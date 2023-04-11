@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, expressionNode *ExpressionNode) (int, error) {
@@ -15,7 +13,7 @@ func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, 
 	if result.MatchingNodes.Len() != 1 {
 		return 0, fmt.Errorf("expected to find 1 number, got %v instead", result.MatchingNodes.Len())
 	}
-	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value)
+	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Value)
 }
 
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -27,8 +25,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		lhsNode := el.Value.(*CandidateNode)
-		original := unwrapDoc(lhsNode.Node)
+		lhsNode := el.Value.(*CandidateNode).unwrapDocument()
 
 		firstNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.LHS)
 
@@ -37,7 +34,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		}
 		relativeFirstNumber := firstNumber
 		if relativeFirstNumber < 0 {
-			relativeFirstNumber = len(original.Content) + firstNumber
+			relativeFirstNumber = len(lhsNode.Content) + firstNumber
 		}
 
 		secondNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.RHS)
@@ -47,24 +44,21 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 
 		relativeSecondNumber := secondNumber
 		if relativeSecondNumber < 0 {
-			relativeSecondNumber = len(original.Content) + secondNumber
-		} else if relativeSecondNumber > len(original.Content) {
-			relativeSecondNumber = len(original.Content)
+			relativeSecondNumber = len(lhsNode.Content) + secondNumber
+		} else if relativeSecondNumber > len(lhsNode.Content) {
+			relativeSecondNumber = len(lhsNode.Content)
 		}
 
 		log.Debug("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
 
-		var newResults []*yaml.Node
+		var newResults []*CandidateNode
 		for i := relativeFirstNumber; i < relativeSecondNumber; i++ {
-			newResults = append(newResults, original.Content[i])
+			newResults = append(newResults, lhsNode.Content[i])
 		}
 
-		slicedArrayNode := &yaml.Node{
-			Kind:    yaml.SequenceNode,
-			Tag:     original.Tag,
-			Content: newResults,
-		}
-		results.PushBack(lhsNode.CreateReplacement(slicedArrayNode))
+		sliceArrayNode := lhsNode.CreateReplacement(SequenceNode, lhsNode.Tag, "")
+		sliceArrayNode.Content = newResults
+		results.PushBack(sliceArrayNode)
 
 	}
 

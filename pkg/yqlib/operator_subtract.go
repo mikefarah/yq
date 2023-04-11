@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"gopkg.in/yaml.v3"
 )
 
 func createSubtractOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
@@ -26,50 +24,50 @@ func subtractOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 }
 
 func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	newLHSArray := make([]*yaml.Node, 0)
+	newLHSArray := make([]*CandidateNode, 0)
 
-	for lindex := 0; lindex < len(lhs.Node.Content); lindex = lindex + 1 {
+	for lindex := 0; lindex < len(lhs.Content); lindex = lindex + 1 {
 		shouldInclude := true
-		for rindex := 0; rindex < len(rhs.Node.Content) && shouldInclude; rindex = rindex + 1 {
-			if recursiveNodeEqual(lhs.Node.Content[lindex], rhs.Node.Content[rindex]) {
+		for rindex := 0; rindex < len(rhs.Content) && shouldInclude; rindex = rindex + 1 {
+			if recursiveNodeEqual(lhs.Content[lindex], rhs.Content[rindex]) {
 				shouldInclude = false
 			}
 		}
 		if shouldInclude {
-			newLHSArray = append(newLHSArray, lhs.Node.Content[lindex])
+			newLHSArray = append(newLHSArray, lhs.Content[lindex])
 		}
 	}
-	lhs.Node.Content = newLHSArray
+	lhs.Content = newLHSArray
 	return lhs, nil
 }
 
 func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs.Node = unwrapDoc(lhs.Node)
-	rhs.Node = unwrapDoc(rhs.Node)
+	lhs = lhs.unwrapDocument()
+	rhs = rhs.unwrapDocument()
 
-	lhsNode := lhs.Node
+	lhsNode := lhs
 
 	if lhsNode.Tag == "!!null" {
-		return lhs.CreateReplacement(rhs.Node), nil
+		return lhs.CopyAsReplacement(rhs), nil
 	}
 
-	target := lhs.CreateReplacement(&yaml.Node{})
+	target := lhs.CopyWithoutContent()
 
 	switch lhsNode.Kind {
-	case yaml.MappingNode:
+	case MappingNode:
 		return nil, fmt.Errorf("maps not yet supported for subtraction")
-	case yaml.SequenceNode:
-		if rhs.Node.Kind != yaml.SequenceNode {
-			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+	case SequenceNode:
+		if rhs.Kind != SequenceNode {
+			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag)
 		}
 		return subtractArray(lhs, rhs)
-	case yaml.ScalarNode:
-		if rhs.Node.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Node.Tag, rhs.Path, lhsNode.Tag)
+	case ScalarNode:
+		if rhs.Kind != ScalarNode {
+			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag)
 		}
-		target.Node.Kind = yaml.ScalarNode
-		target.Node.Style = lhsNode.Style
-		if err := subtractScalars(context, target, lhsNode, rhs.Node); err != nil {
+		target.Kind = ScalarNode
+		target.Style = lhsNode.Style
+		if err := subtractScalars(context, target, lhsNode, rhs); err != nil {
 			return nil, err
 		}
 	}
@@ -77,19 +75,19 @@ func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Ca
 	return target, nil
 }
 
-func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func subtractScalars(context Context, target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	lhsTag := lhs.Tag
 	rhsTag := rhs.Tag
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = guessTagFromCustomType(lhs)
+		lhsTag = lhs.guessTagFromCustomType()
 		lhsIsCustom = true
 	}
 
 	if !strings.HasPrefix(rhsTag, "!!") {
 		// custom tag - we have to have a guess
-		rhsTag = guessTagFromCustomType(rhs)
+		rhsTag = rhs.guessTagFromCustomType()
 	}
 
 	isDateTime := lhsTag == "!!timestamp"
@@ -113,8 +111,8 @@ func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs
 			return err
 		}
 		result := lhsNum - rhsNum
-		target.Node.Tag = lhs.Tag
-		target.Node.Value = fmt.Sprintf(format, result)
+		target.Tag = lhs.Tag
+		target.Value = fmt.Sprintf(format, result)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
@@ -126,11 +124,11 @@ func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs
 		}
 		result := lhsNum - rhsNum
 		if lhsIsCustom {
-			target.Node.Tag = lhs.Tag
+			target.Tag = lhs.Tag
 		} else {
-			target.Node.Tag = "!!float"
+			target.Tag = "!!float"
 		}
-		target.Node.Value = fmt.Sprintf("%v", result)
+		target.Value = fmt.Sprintf("%v", result)
 	} else {
 		return fmt.Errorf("%v cannot be added to %v", lhs.Tag, rhs.Tag)
 	}
@@ -138,7 +136,7 @@ func subtractScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs
 	return nil
 }
 
-func subtractDateTime(layout string, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func subtractDateTime(layout string, target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	var durationStr string
 	if strings.HasPrefix(rhs.Value, "-") {
 		durationStr = rhs.Value[1:]
@@ -157,6 +155,6 @@ func subtractDateTime(layout string, target *CandidateNode, lhs *yaml.Node, rhs 
 	}
 
 	newTime := currentTime.Add(duration)
-	target.Node.Value = newTime.Format(layout)
+	target.Value = newTime.Format(layout)
 	return nil
 }

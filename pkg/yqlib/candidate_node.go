@@ -94,13 +94,17 @@ type CandidateNode struct {
 	IsMapKey         bool
 }
 
-// func (n *CandidateNode) GetKey() string {
-// 	keyPrefix := ""
-// 	if n.IsMapKey {
-// 		keyPrefix = "key-"
-// 	}
-// 	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
-// }
+func (n *CandidateNode) GetKey() string {
+	keyPrefix := ""
+	if n.IsMapKey {
+		keyPrefix = "key-"
+	}
+	key := ""
+	if n.Key != nil {
+		key = n.Key.Value
+	}
+	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, key)
+}
 
 func (n *CandidateNode) unwrapDocument() *CandidateNode {
 	if n.Kind == DocumentNode {
@@ -196,29 +200,25 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 // 	}
 // }
 
-// func (n *CandidateNode) CreateChildInArray(index int) *CandidateNode {
-// 	return &CandidateNode{
-// 		Path:      n.createChildPath(index),
-// 		Parent:    n,
-// 		Key:       createIntegerScalarNode(index),
-// 		Document:  n.Document,
-// 		Filename:  n.Filename,
-// 		FileIndex: n.FileIndex,
-// 	}
-// }
-
 func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *CandidateNode {
-	return &CandidateNode{
-		Parent:    n.Parent,
-		Key:       n.Key,
-		IsMapKey:  n.IsMapKey,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
-		Kind:      kind,
-		Tag:       tag,
-		Value:     value,
+	node := &CandidateNode{
+		Kind:  kind,
+		Tag:   tag,
+		Value: value,
 	}
+	n.CopyAsReplacement(node)
+	return node
+}
+
+func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *CandidateNode {
+	copy := replacement.Copy()
+	copy.Parent = n.Parent
+	copy.Key = n.Key
+	copy.IsMapKey = n.IsMapKey
+	copy.Document = n.Document
+	copy.Filename = n.Filename
+	copy.FileIndex = n.FileIndex
+	return copy
 }
 
 func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, style Style) *CandidateNode {

@@ -1,7 +1,5 @@
 package yqlib
 
-import "gopkg.in/yaml.v3"
-
 func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- equalsOperation")
 	return crossFunction(d, context, expressionNode, isEquals(false), true)
@@ -16,7 +14,7 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 			return createBooleanCandidate(owner, !flip), nil
 		} else if lhs == nil {
 			log.Debugf("lhs nil, but rhs is not")
-			rhsNode := unwrapDoc(rhs.Node)
+			rhsNode := rhs.unwrapDocument()
 			value := rhsNode.Tag == "!!null"
 			if flip {
 				value = !value
@@ -24,7 +22,7 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 			return createBooleanCandidate(rhs, value), nil
 		} else if rhs == nil {
 			log.Debugf("lhs not nil, but rhs is")
-			lhsNode := unwrapDoc(lhs.Node)
+			lhsNode := lhs.unwrapDocument()
 			value := lhsNode.Tag == "!!null"
 			if flip {
 				value = !value
@@ -32,12 +30,12 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 			return createBooleanCandidate(lhs, value), nil
 		}
 
-		lhsNode := unwrapDoc(lhs.Node)
-		rhsNode := unwrapDoc(rhs.Node)
+		lhsNode := lhs.unwrapDocument()
+		rhsNode := rhs.unwrapDocument()
 
 		if lhsNode.Tag == "!!null" {
 			value = (rhsNode.Tag == "!!null")
-		} else if lhsNode.Kind == yaml.ScalarNode && rhsNode.Kind == yaml.ScalarNode {
+		} else if lhsNode.Kind == ScalarNode && rhsNode.Kind == ScalarNode {
 			value = matchKey(lhsNode.Value, rhsNode.Value)
 		}
 		log.Debugf("%v == %v ? %v", NodeToString(lhs), NodeToString(rhs), value)
