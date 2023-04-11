@@ -20,7 +20,7 @@ func yamlToJSON(sampleYaml string, indent int) string {
 	if err != nil {
 		panic(err)
 	}
-	node := inputs.Front().Value.(*CandidateNode).Node
+	node := inputs.Front().Value.(*CandidateNode)
 	err = jsonEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)

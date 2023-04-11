@@ -49,7 +49,7 @@ func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *Ex
 			log.Debug(NodeToString(el.Value.(*CandidateNode)))
 		}
 	}
-	log.Debug(">>")
+	log.Debug("carr on>>")
 	handler := expressionNode.Operation.OperationType.Handler
 	if handler != nil {
 		return handler(d, context, expressionNode)

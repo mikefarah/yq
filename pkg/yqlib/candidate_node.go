@@ -27,14 +27,6 @@ const (
 	FlowStyle
 )
 
-func createIntegerScalarNode(num int) *CandidateNode {
-	return &CandidateNode{
-		Kind:  ScalarNode,
-		Tag:   "!!int",
-		Value: fmt.Sprintf("%v", num),
-	}
-}
-
 func createStringScalarNode(stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
@@ -94,6 +86,15 @@ type CandidateNode struct {
 	IsMapKey         bool
 }
 
+func (n *CandidateNode) CreateChild() *CandidateNode {
+	return &CandidateNode{
+		Parent:    n,
+		Document:  n.Document,
+		Filename:  n.Filename,
+		FileIndex: n.FileIndex,
+	}
+}
+
 func (n *CandidateNode) GetKey() string {
 	keyPrefix := ""
 	if n.IsMapKey {
@@ -136,7 +137,11 @@ func (n *CandidateNode) GetPath() []interface{} {
 	if n.Parent != nil {
 		return append(n.Parent.GetPath(), n.getParsedKey())
 	}
-	return []interface{}{n.getParsedKey()}
+	key := n.getParsedKey()
+	if key != nil {
+		return []interface{}{key}
+	}
+	return make([]interface{}, 0)
 }
 
 func (n *CandidateNode) GetNicePath() string {
@@ -184,41 +189,24 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 	return guessedTag
 }
 
-// func (n *CandidateNode) CreateChildInMap(key *CandidateNode) *CandidateNode {
-// 	var value interface{}
-// 	if key != nil {
-// 		value = key.Value
-// 	}
-// 	return &CandidateNode{
-// 		Path:   n.createChildPath(value),
-// 		Parent: n,
-// 		Key:    key,
-
-// 		Document:  n.Document,
-// 		Filename:  n.Filename,
-// 		FileIndex: n.FileIndex,
-// 	}
-// }
-
 func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *CandidateNode {
 	node := &CandidateNode{
 		Kind:  kind,
 		Tag:   tag,
 		Value: value,
 	}
-	n.CopyAsReplacement(node)
-	return node
+	return n.CopyAsReplacement(node)
 }
 
 func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *CandidateNode {
-	copy := replacement.Copy()
-	copy.Parent = n.Parent
-	copy.Key = n.Key
-	copy.IsMapKey = n.IsMapKey
-	copy.Document = n.Document
-	copy.Filename = n.Filename
-	copy.FileIndex = n.FileIndex
-	return copy
+	newCopy := replacement.Copy()
+	newCopy.Parent = n.Parent
+	newCopy.Key = n.Key
+	newCopy.IsMapKey = n.IsMapKey
+	newCopy.Document = n.Document
+	newCopy.Filename = n.Filename
+	newCopy.FileIndex = n.FileIndex
+	return newCopy
 }
 
 func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, style Style) *CandidateNode {
@@ -230,10 +218,15 @@ func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, 
 }
 
 func (n *CandidateNode) CopyChildren() []*CandidateNode {
+	log.Debug("n? %v", n)
+	log.Debug("n.Content %v", n.Content)
+	log.Debug("n.Content %v", len(n.Content))
 	clonedKids := make([]*CandidateNode, len(n.Content))
+	log.Debug("created clone")
 	for i, child := range n.Content {
 		clonedKids[i] = child.Copy()
 	}
+	log.Debug("finishing clone")
 	return clonedKids
 }
 
@@ -249,6 +242,11 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 	var content []*CandidateNode
 	if cloneContent {
 		content = n.CopyChildren()
+	}
+
+	var copyKey *CandidateNode
+	if n.Key != nil {
+		copyKey = n.Key.Copy()
 	}
 
 	return &CandidateNode{
@@ -269,7 +267,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		FootComment: n.FootComment,
 
 		Parent: n.Parent,
-		Key:    n.Key.Copy(),
+		Key:    copyKey,
 
 		LeadingContent:  n.LeadingContent,
 		TrailingContent: n.TrailingContent,

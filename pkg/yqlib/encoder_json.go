@@ -56,11 +56,11 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	var dataBucket orderedMap
 	// firstly, convert all map keys to strings
 	mapKeysToStrings(node)
-	errorDecoding := node.Decode(&dataBucket)
+	// errorDecoding := node.Decode(&dataBucket)
 
-	if errorDecoding != nil {
-		return errorDecoding
-	}
+	// if errorDecoding != nil {
+	// 	return errorDecoding
+	// }
 	err := encoder.Encode(dataBucket)
 	if err != nil {
 		return err

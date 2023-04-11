@@ -96,104 +96,10 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *yamlDecoder) convertKind(oKind yaml.Kind) Kind {
-	switch oKind {
-	case yaml.DocumentNode:
-		return DocumentNode
-	case yaml.SequenceNode:
-		return SequenceNode
-	case yaml.MappingNode:
-		return MappingNode
-	case yaml.ScalarNode:
-		return ScalarNode
-	case yaml.AliasNode:
-		return AliasNode
-	}
-	return ScalarNode
-}
-
-func (dec *yamlDecoder) convertStyle(oStyle yaml.Style) Style {
-	switch oStyle {
-	case yaml.TaggedStyle:
-		return TaggedStyle
-	case yaml.DoubleQuotedStyle:
-		return DoubleQuotedStyle
-	case yaml.SingleQuotedStyle:
-		return SingleQuotedStyle
-	case yaml.LiteralStyle:
-		return LiteralStyle
-	case yaml.FoldedStyle:
-		return FoldedStyle
-	case yaml.FlowStyle:
-		return FlowStyle
-	}
-	return 0
-}
-
-func (dec *yamlDecoder) ConvertToCandidateNode(parent *CandidateNode, path []interface{}, yamlNode *yaml.Node) *CandidateNode {
-
-	candidateNode := &CandidateNode{
-		Kind:  dec.convertKind(yamlNode.Kind),
-		Style: dec.convertStyle(yamlNode.Style),
-
-		Tag:    yamlNode.Tag,
-		Value:  yamlNode.Value,
-		Anchor: yamlNode.Anchor,
-
-		// not sure on this - check
-		Alias: dec.ConvertToCandidateNode(parent, path, yamlNode.Alias),
-
-		HeadComment: yamlNode.HeadComment,
-		LineComment: yamlNode.LineComment,
-		FootComment: yamlNode.FootComment,
-		Path:        path,
-
-		Parent: parent,
-
-		Document: parent.Document,
-		Filename: parent.Filename,
-
-		Line:   yamlNode.Line,
-		Column: yamlNode.Column,
-
-		FileIndex: parent.FileIndex,
-	}
-
-	kids := make([]*CandidateNode, len(yamlNode.Content))
-
-	if yamlNode.Kind == yaml.MappingNode {
-		// children are key, values
-		for i := 0; i < len(yamlNode.Content); i = i + 2 {
-			key := yamlNode.Content[i]
-			value := yamlNode.Content[i+1]
-
-			childPath := parent.createChildPath(key.Value)
-			keyNode := dec.ConvertToCandidateNode(parent, childPath, key)
-			keyNode.IsMapKey = true
-
-			valueNode := dec.ConvertToCandidateNode(parent, childPath, value)
-			valueNode.Key = keyNode
-
-			kids[i] = keyNode
-			kids[i+1] = valueNode
-		}
-	} else {
-		// its just an normal array
-		for i, v := range yamlNode.Content {
-			childPath := parent.createChildPath(i)
-			kids[i] = dec.ConvertToCandidateNode(parent, childPath, v)
-		}
-	}
-
-	candidateNode.Content = kids
-
-	return candidateNode
-
-}
-
 func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
-	var dataBucket yaml.Node
-	err := dec.decoder.Decode(&dataBucket)
+	var candidateNode CandidateNode
+	err := dec.decoder.Decode(&candidateNode)
+	log.Debugf("decoded the yaml")
 	if errors.Is(err, io.EOF) && dec.leadingContent != "" && !dec.readAnything {
 		// force returning an empty node with a comment.
 		dec.readAnything = true
@@ -211,8 +117,6 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	candidateNode := dec.ConvertToCandidateNode(&CandidateNode{}, make([]interface{}, 0), &dataBucket)
-
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent
 		dec.leadingContent = ""
@@ -220,9 +124,9 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	dec.readAnything = true
 	// move document comments into candidate node
 	// otherwise unwrap drops them.
-	candidateNode.TrailingContent = dataBucket.FootComment
-	dataBucket.FootComment = ""
-	return candidateNode, nil
+	candidateNode.TrailingContent = candidateNode.FootComment
+	candidateNode.FootComment = ""
+	return &candidateNode, nil
 }
 
 func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {

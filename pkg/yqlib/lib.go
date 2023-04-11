@@ -2,7 +2,6 @@
 package yqlib
 
 import (
-	"bytes"
 	"container/list"
 	"fmt"
 	"math"
@@ -446,23 +445,23 @@ func NodeToString(node *CandidateNode) string {
 	if node == nil {
 		return "-- nil --"
 	}
-	buf := new(bytes.Buffer)
-	encoder := yaml.NewEncoder(buf)
-	errorEncoding := encoder.Encode(node)
-	if errorEncoding != nil {
-		log.Error("Error debugging node, %v", errorEncoding.Error())
-	}
-	errorClosingEncoder := encoder.Close()
-	if errorClosingEncoder != nil {
-		log.Error("Error closing encoder: ", errorClosingEncoder.Error())
-	}
+	// buf := new(bytes.Buffer)
+	// encoder := yaml.NewEncoder(buf)
+	// errorEncoding := encoder.Encode(node)
+	// if errorEncoding != nil {
+	// log.Error("Error debugging node, %v", errorEncoding.Error())
+	// }
+	// errorClosingEncoder := encoder.Close()
+	// if errorClosingEncoder != nil {
+	// log.Error("Error closing encoder: ", errorClosingEncoder.Error())
+	// }
 	tag := node.Tag
 	if node.Kind == DocumentNode {
 		tag = "doc"
 	} else if node.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.GetNicePath(), tag, buf.String())
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.GetNicePath(), tag, node.Value)
 }
 
 func KindString(kind yaml.Kind) string {

@@ -18,7 +18,7 @@ func yamlToProps(sampleYaml string, unwrapScalar bool) string {
 	if err != nil {
 		panic(err)
 	}
-	node := inputs.Front().Value.(*CandidateNode).Node
+	node := inputs.Front().Value.(*CandidateNode)
 	err = propsEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)
