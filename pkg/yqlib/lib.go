@@ -239,24 +239,6 @@ func recurseNodeObjectEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	return true
 }
 
-func guessTagFromCustomType(node *yaml.Node) string {
-	if strings.HasPrefix(node.Tag, "!!") {
-		return node.Tag
-	} else if node.Value == "" {
-		log.Debug("guessTagFromCustomType: node has no value to guess the type with")
-		return node.Tag
-	}
-	dataBucket, errorReading := parseSnippet(node.Value)
-
-	if errorReading != nil {
-		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
-		return node.Tag
-	}
-	guessedTag := dataBucket.unwrapDocument().Tag
-	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
-	return guessedTag
-}
-
 func parseSnippet(value string) (*CandidateNode, error) {
 	if value == "" {
 		return &CandidateNode{
@@ -272,9 +254,6 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	parsedNode, err := decoder.Decode()
 	if err != nil {
 		return nil, err
-	}
-	if len(parsedNode.Content) == 0 {
-		return nil, fmt.Errorf("bad data")
 	}
 	result := parsedNode.unwrapDocument()
 	result.Line = 0

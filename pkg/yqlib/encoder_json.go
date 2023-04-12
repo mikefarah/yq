@@ -38,6 +38,8 @@ func (je *jsonEncoder) PrintLeadingContent(writer io.Writer, content string) err
 }
 
 func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+	log.Debugf("I need to encode %v", NodeToString(node))
+	log.Debugf("kids %v", len(node.Content))
 
 	if node.Kind == ScalarNode && je.UnwrapScalar {
 		return writeString(writer, node.Value+"\n")
@@ -53,15 +55,15 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 	encoder.SetIndent("", je.indentString)
 
-	var dataBucket orderedMap
+	// var dataBucket orderedMap
 	// firstly, convert all map keys to strings
-	mapKeysToStrings(node)
+	// mapKeysToStrings(node)
 	// errorDecoding := node.Decode(&dataBucket)
 
 	// if errorDecoding != nil {
 	// 	return errorDecoding
 	// }
-	err := encoder.Encode(dataBucket)
+	err := encoder.Encode(node)
 	if err != nil {
 		return err
 	}

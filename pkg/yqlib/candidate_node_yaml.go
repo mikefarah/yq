@@ -103,6 +103,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 		o.copyFromYamlNode(node)
 		return nil
 	case yaml.ScalarNode:
+		log.Debugf("its a scalar")
 		o.Kind = ScalarNode
 		o.copyFromYamlNode(node)
 		return nil
@@ -178,6 +179,7 @@ func (o *CandidateNode) MarshalYAML() (interface{}, error) {
 		o.copyToYamlNode(target)
 		return target, nil
 	case ScalarNode:
+		log.Debug("encoding scalar: %v", o.Value)
 		target := &yaml.Node{Kind: yaml.ScalarNode}
 		o.copyToYamlNode(target)
 		return target, nil
@@ -195,6 +197,8 @@ func (o *CandidateNode) MarshalYAML() (interface{}, error) {
 			if err != nil {
 				return nil, err
 			}
+			log.Debug("child type %v", child.Tag)
+			log.Debug("child is doc %v", child.Kind == yaml.DocumentNode)
 			target.Content[i] = child
 		}
 		return target, nil

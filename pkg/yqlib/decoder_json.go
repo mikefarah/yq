@@ -25,13 +25,14 @@ func (dec *jsonDecoder) Init(reader io.Reader) error {
 func (dec *jsonDecoder) Decode() (*CandidateNode, error) {
 
 	var dataBucket orderedMap
-	log.Debug("going to decode")
+	log.Debug("going to decode json")
 	err := dec.decoder.Decode(&dataBucket)
 	if err != nil {
 		return nil, err
 	}
+	log.Debug("convert to yaml")
 	node, err := dec.convertToYamlNode(&dataBucket)
-
+	log.Debug("done, %w", err)
 	if err != nil {
 		return nil, err
 	}

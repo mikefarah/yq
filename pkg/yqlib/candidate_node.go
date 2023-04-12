@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -169,6 +170,24 @@ func (n *CandidateNode) AsList() *list.List {
 	elMap := list.New()
 	elMap.PushBack(n)
 	return elMap
+}
+
+func (n *CandidateNode) GetValueRep() (interface{}, error) {
+	// TODO: handle booleans, ints, etc
+	realTag := n.guessTagFromCustomType()
+
+	switch realTag {
+	case "!!int":
+		_, val, err := parseInt64(n.Value)
+		return val, err
+	case "!!float":
+		// need to test this
+		return strconv.ParseFloat(n.Value, 64)
+	case "!!bool":
+		return isTruthyNode(n)
+	}
+
+	return n.Value, nil
 }
 
 func (n *CandidateNode) guessTagFromCustomType() string {

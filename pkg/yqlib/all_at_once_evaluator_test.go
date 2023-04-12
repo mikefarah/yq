@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 var evaluateNodesScenario = []expressionScenario{
@@ -35,7 +34,7 @@ var evaluateNodesScenario = []expressionScenario{
 
 func TestAllAtOnceEvaluateNodes(t *testing.T) {
 	var evaluator = NewAllAtOnceEvaluator()
-	logging.SetLevel(logging.DEBUG, "")
+	// logging.SetLevel(logging.DEBUG, "")
 	for _, tt := range evaluateNodesScenario {
 		decoder := NewYamlDecoder(NewDefaultYamlPreferences())
 		reader := bufio.NewReader(strings.NewReader(tt.document))

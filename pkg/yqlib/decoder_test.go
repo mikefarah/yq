@@ -27,10 +27,13 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 		decoder = NewYamlDecoder(ConfiguredYamlPreferences)
 	}
 
+	log.Debugf("reading docs")
 	inputs, err := readDocuments(strings.NewReader(s.input), "sample.yml", 0, decoder)
 	if err != nil {
 		return "", err
 	}
+
+	log.Debugf("read the documents")
 
 	expression := s.expression
 	if expression == "" {
@@ -44,6 +47,8 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 	}
 
 	context, err := NewDataTreeNavigator().GetMatchingNodes(Context{MatchingNodes: inputs}, exp)
+
+	log.Debugf("Going to print: %v", NodesToString(context.MatchingNodes))
 
 	if err != nil {
 		return "", err

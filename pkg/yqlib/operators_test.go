@@ -31,7 +31,7 @@ type expressionScenario struct {
 }
 
 func TestMain(m *testing.M) {
-	logging.SetLevel(logging.ERROR, "")
+	logging.SetLevel(logging.DEBUG, "")
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
@@ -130,6 +130,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 func resultToString(t *testing.T, n *CandidateNode) string {
 	var valueBuffer bytes.Buffer
+	log.Debugf("printing result %v", NodeToString(n))
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
 
 	err := printer.PrintResults(n.AsList())
