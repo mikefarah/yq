@@ -29,6 +29,7 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 			return buf.Bytes(), err
 		}
 		err = enc.Encode(value)
+		log.Debugf("cool I handled that")
 		return buf.Bytes(), err
 	case MappingNode:
 		log.Debugf("MarshalJSON MappingNode")
@@ -46,11 +47,13 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 			}
 		}
 		buf.WriteByte('}')
+		return buf.Bytes(), nil
 	case SequenceNode:
 		log.Debugf("MarshalJSON SequenceNode")
 		err := enc.Encode(o.Content)
 		return buf.Bytes(), err
+	default:
+		err := enc.Encode(nil)
+		return buf.Bytes(), err
 	}
-	log.Debug("none of those things?")
-	return buf.Bytes(), nil
 }

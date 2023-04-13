@@ -11,7 +11,8 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-func yamlToJSON(sampleYaml string, indent int) string {
+func yamlToJSON(t *testing.T, sampleYaml string, indent int) string {
+	t.Helper()
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
@@ -22,7 +23,7 @@ func yamlToJSON(sampleYaml string, indent int) string {
 	}
 	node := inputs.Front().Value.(*CandidateNode)
 	log.Debugf("%v", NodeToString(node))
-	log.Debugf("Content[0] %v", NodeToString(node.Content[0]))
+	// log.Debugf("Content[0] %v", NodeToString(node.Content[0]))
 
 	err = jsonEncoder.Encode(writer, node)
 	if err != nil {
@@ -49,31 +50,31 @@ banana:
     }
   ]
 }`
-	var actualJSON = yamlToJSON(sampleYaml, 2)
+	var actualJSON = yamlToJSON(t, sampleYaml, 2)
 	test.AssertResult(t, expectedJSON, actualJSON)
 }
 
 func TestJsonNullInArray(t *testing.T) {
 	var sampleYaml = `[null]`
-	var actualJSON = yamlToJSON(sampleYaml, 0)
+	var actualJSON = yamlToJSON(t, sampleYaml, 0)
 	test.AssertResult(t, sampleYaml, actualJSON)
 }
 
 func TestJsonNull(t *testing.T) {
 	var sampleYaml = `null`
-	var actualJSON = yamlToJSON(sampleYaml, 0)
+	var actualJSON = yamlToJSON(t, sampleYaml, 0)
 	test.AssertResult(t, sampleYaml, actualJSON)
 }
 
 func TestJsonNullInObject(t *testing.T) {
 	var sampleYaml = `{x: null}`
-	var actualJSON = yamlToJSON(sampleYaml, 0)
+	var actualJSON = yamlToJSON(t, sampleYaml, 0)
 	test.AssertResult(t, `{"x":null}`, actualJSON)
 }
 
 func TestJsonEncoderDoesNotEscapeHTMLChars(t *testing.T) {
 	var sampleYaml = `build: "( ./lint && ./format && ./compile ) < src.code"`
 	var expectedJSON = `{"build":"( ./lint && ./format && ./compile ) < src.code"}`
-	var actualJSON = yamlToJSON(sampleYaml, 0)
+	var actualJSON = yamlToJSON(t, sampleYaml, 0)
 	test.AssertResult(t, expectedJSON, actualJSON)
 }
