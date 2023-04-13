@@ -21,6 +21,9 @@ func yamlToJSON(sampleYaml string, indent int) string {
 		panic(err)
 	}
 	node := inputs.Front().Value.(*CandidateNode)
+	log.Debugf("%v", NodeToString(node))
+	log.Debugf("Content[0] %v", NodeToString(node.Content[0]))
+
 	err = jsonEncoder.Encode(writer, node)
 	if err != nil {
 		panic(err)

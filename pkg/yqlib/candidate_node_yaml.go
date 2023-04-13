@@ -78,59 +78,76 @@ func (o *CandidateNode) copyToYamlNode(node *yaml.Node) {
 	node.Column = o.Column
 }
 
+func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node) (*CandidateNode, error) {
+	newChild := o.CreateChild()
+
+	// null yaml.Nodes to not end up calling UnmarshalYAML
+	// so we call it explicitly
+	if childNode.Tag == "!!null" {
+		newChild.Kind = ScalarNode
+		newChild.copyFromYamlNode(childNode)
+		return newChild, nil
+	}
+
+	err := childNode.Decode(newChild)
+	return newChild, err
+}
+
 func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
-	log.Debugf("unmarshalling %v", node.Tag)
+	log.Debugf("UnmarshalYAML %v", node.Tag)
 	switch node.Kind {
 	case yaml.DocumentNode:
+		log.Debugf("UnmarshalYAML -  a document")
 		o.Kind = DocumentNode
 		o.copyFromYamlNode(node)
 		if len(node.Content) == 0 {
 			return nil
 		}
 
-		singleChild := &CandidateNode{
-			Parent: o,
-		}
-		err := node.Content[0].Decode(singleChild)
+		singleChild, err := o.decodeIntoChild(node.Content[0])
+
 		if err != nil {
 			return err
 		}
 		o.Content = []*CandidateNode{singleChild}
 		return nil
 	case yaml.AliasNode:
-		log.Debug("decoding alias from yaml: %v", o.Tag)
+		log.Debug("UnmarshalYAML - alias from yaml: %v", o.Tag)
 		o.Kind = AliasNode
 		o.copyFromYamlNode(node)
 		return nil
 	case yaml.ScalarNode:
-		log.Debugf("its a scalar")
+		log.Debugf("UnmarshalYAML -  a scalar")
 		o.Kind = ScalarNode
 		o.copyFromYamlNode(node)
 		return nil
 	case yaml.MappingNode:
+		log.Debugf("UnmarshalYAML -  a mapping node")
 		o.Kind = MappingNode
 		o.copyFromYamlNode(node)
 		o.Content = make([]*CandidateNode, len(node.Content))
 		for i := 0; i < len(node.Content); i += 2 {
-			keyNode := o.CreateChild()
-			keyNode.IsMapKey = true
-			err := node.Content[i].Decode(keyNode)
+
+			keyNode, err := o.decodeIntoChild(node.Content[i])
 			if err != nil {
 				return err
 			}
 
-			valueNode := o.CreateChild()
-			valueNode.Key = keyNode
-			err = node.Content[i+1].Decode(valueNode)
+			keyNode.IsMapKey = true
+
+			valueNode, err := o.decodeIntoChild(node.Content[i+1])
 			if err != nil {
 				return err
 			}
+
+			valueNode.Key = keyNode
 
 			o.Content[i] = keyNode
 			o.Content[i+1] = valueNode
 		}
 		return nil
 	case yaml.SequenceNode:
+		log.Debugf("UnmarshalYAML -  a sequence: %v", len(node.Content))
 		o.Kind = SequenceNode
 		o.copyFromYamlNode(node)
 		o.Content = make([]*CandidateNode, len(node.Content))
@@ -141,16 +158,17 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 			keyNode.Kind = ScalarNode
 			keyNode.Value = fmt.Sprintf("%v", i)
 
-			valueNode := o.CreateChild()
-			valueNode.Key = keyNode
-			err := node.Content[i].Decode(valueNode)
+			valueNode, err := o.decodeIntoChild(node.Content[i])
 			if err != nil {
 				return err
 			}
+
+			valueNode.Key = keyNode
 			o.Content[i] = valueNode
 		}
 		return nil
 	case 0:
+		log.Debugf("UnmarshalYAML -  errr.. %v", node.Tag)
 		// not sure when this happens
 		o.copyFromYamlNode(node)
 		return nil

@@ -174,6 +174,7 @@ func (n *CandidateNode) AsList() *list.List {
 
 func (n *CandidateNode) GetValueRep() (interface{}, error) {
 	// TODO: handle booleans, ints, etc
+	log.Debugf("GetValueRep for %v value: %v", n.GetNicePath(), n.Value)
 	realTag := n.guessTagFromCustomType()
 
 	switch realTag {
