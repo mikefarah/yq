@@ -24,22 +24,21 @@ func (dec *jsonDecoder) Init(reader io.Reader) error {
 
 func (dec *jsonDecoder) Decode() (*CandidateNode, error) {
 
-	var dataBucket orderedMap
-	log.Debug("going to decode json")
+	var dataBucket CandidateNode
 	err := dec.decoder.Decode(&dataBucket)
 	if err != nil {
 		return nil, err
 	}
-	log.Debug("convert to yaml")
-	node, err := dec.convertToYamlNode(&dataBucket)
-	log.Debug("done, %w", err)
-	if err != nil {
-		return nil, err
-	}
+	// log.Debug("convert to yaml")
+	// node, err := dec.convertToYamlNode(&dataBucket)
+	// log.Debug("done, %w", err)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return &CandidateNode{
 		Kind:    DocumentNode,
-		Content: []*CandidateNode{node},
+		Content: []*CandidateNode{&dataBucket},
 	}, nil
 }
 

@@ -2,9 +2,122 @@ package yqlib
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"io"
 
 	"github.com/goccy/go-json"
 )
+
+func (o *CandidateNode) setScalarFromJson(value interface{}) error {
+	o.Kind = ScalarNode
+	switch rawData := value.(type) {
+	case nil:
+		o.Tag = "!!null"
+		o.Value = "null"
+	case float64, float32:
+		o.Value = fmt.Sprintf("%v", value)
+		o.Tag = "!!float"
+		// json decoder returns ints as float.
+		if value == float64(int(rawData.(float64))) {
+			// aha it's an int disguised as a float
+			o.Tag = "!!int"
+		}
+	case int, int64, int32:
+		o.Value = fmt.Sprintf("%v", value)
+		o.Tag = "!!int"
+	case bool:
+		o.Value = fmt.Sprintf("%v", value)
+		o.Tag = "!!bool"
+	case string:
+		o.Value = rawData
+		o.Tag = "!!str"
+	default:
+		return fmt.Errorf("unrecognised type :( %v", rawData)
+	}
+	return nil
+}
+
+func (o *CandidateNode) UnmarshalJSON(data []byte) error {
+	log.Debug("UnmarshalJSON")
+	switch data[0] {
+	case '{':
+		log.Debug("UnmarshalJSON -  its a map!")
+		// its a map
+		o.Kind = MappingNode
+		o.Tag = "!!map"
+
+		dec := json.NewDecoder(bytes.NewReader(data))
+		_, err := dec.Token() // open object
+		if err != nil {
+			return err
+		}
+
+		// cycle through k/v
+		var tok json.Token
+		for tok, err = dec.Token(); err == nil; tok, err = dec.Token() {
+			// we can expect two types: string or Delim. Delim automatically means
+			// that it is the closing bracket of the object, whereas string means
+			// that there is another key.
+			if _, ok := tok.(json.Delim); ok {
+				break
+			}
+
+			childKey := o.CreateChild()
+			childKey.IsMapKey = true
+			childKey.Value = tok.(string)
+			childKey.Kind = ScalarNode
+			childKey.Tag = "!!str"
+
+			childValue := o.CreateChild()
+			childValue.Key = childKey
+
+			if err := dec.Decode(childValue); err != nil {
+				return err
+			}
+
+			o.Content = append(o.Content, childKey, childValue)
+		}
+		// unexpected error
+		if err != nil && !errors.Is(err, io.EOF) {
+			return err
+		}
+		return nil
+	case '[':
+		log.Debug("UnmarshalJSON -  its an array!")
+		var children []*CandidateNode
+		if err := json.Unmarshal(data, &children); err != nil {
+			return err
+		}
+		// now we put the children into the content, and set a key value for them
+		for i, child := range children {
+			childKey := o.CreateChild()
+			childKey.Kind = ScalarNode
+			childKey.Tag = "!!int"
+			childKey.Value = fmt.Sprintf("%v", i)
+
+			child.Parent = o
+			child.Document = o.Document
+			child.FileIndex = o.FileIndex
+			child.Filename = o.Filename
+			child.Key = childKey
+			o.Content[i] = child
+		}
+		return nil
+	}
+	log.Debug("UnmarshalJSON -  its a scalar!")
+	// otherwise, must be a scalar
+	var scalar interface{}
+	err := json.Unmarshal(data, &scalar)
+
+	if err != nil {
+		return err
+	}
+	log.Debug("UnmarshalJSON -  scalar is %v", scalar)
+
+	return o.setScalarFromJson(scalar)
+
+}
 
 func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 	log.Debugf("MarshalJSON %v", NodeToString(o))

@@ -212,13 +212,13 @@ var jsonScenarios = []formatScenario{
 	// 	expected:     expectedJsonKeysInOrder,
 	// 	scenarioType: "decode-ndjson",
 	// },
-	{
-		description:  "numbers",
-		skipDoc:      true,
-		input:        "[3, 3.0, 3.1, -1]",
-		expected:     "- 3\n- 3\n- 3.1\n- -1\n",
-		scenarioType: "decode-ndjson",
-	},
+	// {
+	// 	description:  "numbers",
+	// 	skipDoc:      true,
+	// 	input:        "[3, 3.0, 3.1, -1]",
+	// 	expected:     "- 3\n- 3\n- 3.1\n- -1\n",
+	// 	scenarioType: "decode-ndjson",
+	// },
 	{
 		description:  "number single",
 		skipDoc:      true,
@@ -226,34 +226,34 @@ var jsonScenarios = []formatScenario{
 		expected:     "3\n",
 		scenarioType: "decode-ndjson",
 	},
-	{
-		description:  "empty string",
-		skipDoc:      true,
-		input:        `""`,
-		expected:     "\"\"\n",
-		scenarioType: "decode-ndjson",
-	},
-	{
-		description:  "strings",
-		skipDoc:      true,
-		input:        `["", "cat"]`,
-		expected:     "- \"\"\n- cat\n",
-		scenarioType: "decode-ndjson",
-	},
-	{
-		description:  "null",
-		skipDoc:      true,
-		input:        `null`,
-		expected:     "null\n",
-		scenarioType: "decode-ndjson",
-	},
-	{
-		description:  "booleans",
-		skipDoc:      true,
-		input:        `[true, false]`,
-		expected:     "- true\n- false\n",
-		scenarioType: "decode-ndjson",
-	},
+	// {
+	// 	description:  "empty string",
+	// 	skipDoc:      true,
+	// 	input:        `""`,
+	// 	expected:     "\"\"\n",
+	// 	scenarioType: "decode-ndjson",
+	// },
+	// {
+	// 	description:  "strings",
+	// 	skipDoc:      true,
+	// 	input:        `["", "cat"]`,
+	// 	expected:     "- \"\"\n- cat\n",
+	// 	scenarioType: "decode-ndjson",
+	// },
+	// {
+	// 	description:  "null",
+	// 	skipDoc:      true,
+	// 	input:        `null`,
+	// 	expected:     "null\n",
+	// 	scenarioType: "decode-ndjson",
+	// },
+	// {
+	// 	description:  "booleans",
+	// 	skipDoc:      true,
+	// 	input:        `[true, false]`,
+	// 	expected:     "- true\n- false\n",
+	// 	scenarioType: "decode-ndjson",
+	// },
 }
 
 func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent int) {

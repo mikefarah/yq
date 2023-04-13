@@ -33,7 +33,7 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 		return "", err
 	}
 
-	log.Debugf("read the documents")
+	log.Debugf("done reading the documents")
 
 	expression := s.expression
 	if expression == "" {

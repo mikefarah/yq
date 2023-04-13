@@ -324,7 +324,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
-	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.Key.Value, other.Key.Value)
+	log.Debug("UpdateAttributesFrom: n: %v other: %v", NodeToString(n), NodeToString(other))
 	if n.Kind != other.Kind {
 		// clear out the contents when switching to a different type
 		// e.g. map to array

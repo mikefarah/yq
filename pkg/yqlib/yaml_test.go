@@ -6,7 +6,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var yamlScenarios = []formatScenario{
+var yamlFormatScenarios = []formatScenario{
 	{
 		description: "basic - null",
 		skipDoc:     true,
@@ -51,12 +51,27 @@ var yamlScenarios = []formatScenario{
 	},
 }
 
+var yamlParseScenarios = []expressionScenario{
+	{
+		document: `a: hello # things`,
+		expected: []string{
+			"D0, P[], (doc)::a: hello #things\n",
+		},
+	},
+}
+
 func testYamlScenario(t *testing.T, s formatScenario) {
 	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 }
 
-func TestYamlScenarios(t *testing.T) {
-	for _, tt := range yamlScenarios {
+func TestYamlParseScenarios(t *testing.T) {
+	for _, tt := range yamlParseScenarios {
+		testScenario(t, &tt)
+	}
+}
+
+func TestYamlFormatScenarios(t *testing.T) {
+	for _, tt := range yamlFormatScenarios {
 		testYamlScenario(t, tt)
 	}
 }

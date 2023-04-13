@@ -178,26 +178,29 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 }
 
 func (o *CandidateNode) MarshalYAML() (interface{}, error) {
-	log.Debug("encoding to yaml: %v", o.Tag)
+	log.Debug("MarshalYAML to yaml: %v", o.Tag)
 	switch o.Kind {
 	case DocumentNode:
+		log.Debug("MarshalYAML its a document")
 		target := &yaml.Node{Kind: yaml.DocumentNode}
 		o.copyToYamlNode(target)
 
 		singleChild := &yaml.Node{}
 		err := singleChild.Encode(o.Content[0])
+
+		log.Debug("MarshalYAML its a document - singChild is %v", singleChild.Tag)
 		if err != nil {
 			return nil, err
 		}
 		target.Content = []*yaml.Node{singleChild}
 		return target, nil
 	case AliasNode:
-		log.Debug("encoding alias to yaml: %v", o.Tag)
+		log.Debug("MarshalYAML - alias to yaml: %v", o.Tag)
 		target := &yaml.Node{Kind: yaml.AliasNode}
 		o.copyToYamlNode(target)
 		return target, nil
 	case ScalarNode:
-		log.Debug("encoding scalar: %v", o.Value)
+		log.Debug("MarshalYAML - scalar: %v", o.Value)
 		target := &yaml.Node{Kind: yaml.ScalarNode}
 		o.copyToYamlNode(target)
 		return target, nil
