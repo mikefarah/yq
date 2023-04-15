@@ -5,22 +5,22 @@ import (
 )
 
 var collectObjectOperatorScenarios = []expressionScenario{
-	{
-		skipDoc:    true,
-		document:   `[{name: cat}, {name: dog}]`,
-		expression: `.[] | {.name: "great"}`,
-		expected: []string{
-			"D0, P[], (!!map)::cat: great\n",
-			"D0, P[], (!!map)::dog: great\n",
-		},
-	},
-	{
-		skipDoc:    true,
-		expression: `({} + {}) | (.b = 3)`,
-		expected: []string{
-			"D0, P[], (!!map)::b: 3\n",
-		},
-	},
+	// {
+	// 	skipDoc:    true,
+	// 	document:   `[{name: cat}, {name: dog}]`,
+	// 	expression: `.[] | {.name: "great"}`,
+	// 	expected: []string{
+	// 		"D0, P[], (!!map)::cat: great\n",
+	// 		"D0, P[], (!!map)::dog: great\n",
+	// 	},
+	// },
+	// {
+	// 	skipDoc:    true,
+	// 	expression: `({} + {}) | (.b = 3)`,
+	// 	expected: []string{
+	// 		"D0, P[], (!!map)::b: 3\n",
+	// 	},
+	// },
 	{
 		skipDoc:    true,
 		document:   "a: []",

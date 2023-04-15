@@ -424,16 +424,6 @@ func NodeToString(node *CandidateNode) string {
 	if node == nil {
 		return "-- nil --"
 	}
-	// buf := new(bytes.Buffer)
-	// encoder := yaml.NewEncoder(buf)
-	// errorEncoding := encoder.Encode(node)
-	// if errorEncoding != nil {
-	// log.Error("Error debugging node, %v", errorEncoding.Error())
-	// }
-	// errorClosingEncoder := encoder.Close()
-	// if errorClosingEncoder != nil {
-	// log.Error("Error closing encoder: ", errorClosingEncoder.Error())
-	// }
 	tag := node.Tag
 	if node.Kind == DocumentNode {
 		tag = "doc"

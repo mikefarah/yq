@@ -80,10 +80,6 @@ then
 yq 'contains({"foo": 12, "bar": [{"barp": 15}]})' sample.yml
 ```
 will output
-```yaml
-false
-```
-
 ## String contains substring
 Given a sample.yml file of:
 ```yaml

@@ -40,7 +40,7 @@ yq '(.a | key) line_comment="single"' sample.yml
 ```
 will output
 ```yaml
-a: # single
+a:
   b: things
 ```
 
@@ -74,34 +74,6 @@ then
 yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
 ```
 will output
-```yaml
-- p: ""
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
-- p: hello
-  isKey: true
-  hc: ""
-  lc: hello-world-comment
-  fc: ""
-- p: hello
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
-- p: hello.message
-  isKey: true
-  hc: ""
-  lc: ""
-  fc: ""
-- p: hello.message
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
-```
-
 ## Retrieve comment - map key example
 From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment
 
@@ -134,29 +106,6 @@ then
 yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
 ```
 will output
-```yaml
-- p: ""
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
-- p: name
-  isKey: true
-  hc: ""
-  lc: ""
-  fc: ""
-- p: name
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
-- p: name.0
-  isKey: false
-  hc: under-name-comment
-  lc: ""
-  fc: ""
-```
-
 ## Retrieve comment - array example
 From the previous example, we know that the comment is on the first child as a headComment
 
@@ -205,7 +154,6 @@ yq '(.a | key) head_comment="single"' sample.yml
 will output
 ```yaml
 f: foo
-# single
 a:
   b: cat
 ```
@@ -258,6 +206,8 @@ yq '... comments=""' sample.yml
 ```
 will output
 ```yaml
+# hi
+
 a: cat
 b:
 ```

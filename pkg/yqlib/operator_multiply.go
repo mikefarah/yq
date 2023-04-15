@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/jinzhu/copier"
 )
 
 type multiplyPreferences struct {
@@ -67,16 +65,14 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			(lhs.Tag == "!!null" && rhs.Kind == MappingNode) ||
 			(lhs.Kind == SequenceNode && rhs.Kind == SequenceNode) ||
 			(lhs.Tag == "!!null" && rhs.Kind == SequenceNode) {
-			var newBlank = CandidateNode{}
-			err := copier.CopyWithOption(&newBlank, lhs, copier.Option{IgnoreEmpty: true, DeepCopy: true})
-			if err != nil {
-				return nil, err
-			}
+
+			var newBlank = lhs.Copy()
+
 			newBlank.LeadingContent = leadingContent
 			newBlank.HeadComment = headComment
 			newBlank.FootComment = footComment
 
-			return mergeObjects(d, context.WritableClone(), &newBlank, rhs, preferences)
+			return mergeObjects(d, context.WritableClone(), newBlank, rhs, preferences)
 		}
 		return multiplyScalars(lhs, rhs)
 	}
