@@ -51,9 +51,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 		return lhs.CopyAsReplacement(rhs), nil
 	}
 
-	target := lhs.CopyAsReplacement(&CandidateNode{
-		Anchor: lhs.Anchor,
-	})
+	target := lhs.CopyWithoutContent()
 
 	switch lhsNode.Kind {
 	case MappingNode:
@@ -159,8 +157,10 @@ func addDateTimes(layout string, target *CandidateNode, lhs *CandidateNode, rhs 
 }
 
 func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
+	log.Debugf("adding sequences! target: %v; lhs %v; rhs: %v", NodeToString(target), NodeToString(lhs), NodeToString(rhs))
 	target.Kind = SequenceNode
 	if len(lhs.Content) > 0 {
+		log.Debugf("copy lhs style")
 		target.Style = lhs.Style
 	}
 	target.Tag = lhs.Tag

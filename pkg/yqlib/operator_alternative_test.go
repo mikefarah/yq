@@ -11,7 +11,7 @@ var alternativeOperatorScenarios = []expressionScenario{
 		expression: `.b // .c`,
 		document:   `a: bridge`,
 		expected: []string{
-			"D0, P[c], (!!null)::null\n",
+			"D0, P[], (!!null)::null\n",
 		},
 	},
 	{
@@ -100,7 +100,7 @@ var alternativeOperatorScenarios = []expressionScenario{
 		expression:     "(.a // (.a = 0)) += 1",
 		document:       `b: camel`,
 		expected: []string{
-			"D0, P[], (!!map)::b: camel\na: 1\n",
+			"D0, P[], (doc)::b: camel\na: 1\n",
 		},
 	},
 }

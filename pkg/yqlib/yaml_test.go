@@ -77,6 +77,12 @@ var yamlParseScenarios = []expressionScenario{
 			"D0, P[], (doc)::a: [1, 2]\n",
 		},
 	},
+	{
+		document: `a: !horse [a]`,
+		expected: []string{
+			"D0, P[], (doc)::a: !horse [a]\n",
+		},
+	},
 }
 
 func testYamlScenario(t *testing.T, s formatScenario) {

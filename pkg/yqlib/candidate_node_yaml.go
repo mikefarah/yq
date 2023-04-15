@@ -20,8 +20,10 @@ func MapYamlStyle(original yaml.Style) Style {
 		return FoldedStyle
 	case yaml.FlowStyle:
 		return FlowStyle
+	case 0:
+		return 0
 	}
-	return 0
+	return Style(original)
 }
 
 func MapToYamlStyle(original Style) yaml.Style {
@@ -38,8 +40,10 @@ func MapToYamlStyle(original Style) yaml.Style {
 		return yaml.FoldedStyle
 	case FlowStyle:
 		return yaml.FlowStyle
+	case 0:
+		return 0
 	}
-	return 0
+	return yaml.Style(original)
 }
 
 func (o *CandidateNode) copyFromYamlNode(node *yaml.Node, anchorMap map[string]*CandidateNode) {
@@ -161,7 +165,10 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 	case yaml.SequenceNode:
 		log.Debugf("UnmarshalYAML -  a sequence: %v", len(node.Content))
 		o.Kind = SequenceNode
+
 		o.copyFromYamlNode(node, anchorMap)
+		log.Debugf("node Style: %v", node.Style)
+		log.Debugf("o Style: %v", o.Style)
 		o.Content = make([]*CandidateNode, len(node.Content))
 		for i := 0; i < len(node.Content); i += 1 {
 			keyNode := o.CreateChild()
@@ -222,6 +229,8 @@ func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 		}
 		target := &yaml.Node{Kind: targetKind}
 		o.copyToYamlNode(target)
+		log.Debugf("original style: %v", o.Style)
+		log.Debugf("original: %v, tag: %v, style: %v, kind: %v", NodeToString(o), target.Tag, target.Style, target.Kind == yaml.SequenceNode)
 		target.Content = make([]*yaml.Node, len(o.Content))
 		for i := 0; i < len(o.Content); i += 1 {
 
