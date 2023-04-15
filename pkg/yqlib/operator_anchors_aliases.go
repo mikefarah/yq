@@ -181,11 +181,12 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 }
 
 func explodeNode(node *CandidateNode, context Context) error {
+	log.Debugf("explodeNode -  %v", NodeToString(node))
 	node.Anchor = ""
 	switch node.Kind {
 	case SequenceNode, DocumentNode:
 		for index, contentNode := range node.Content {
-			log.Debugf("exploding index %v", index)
+			log.Debugf("explodeNode -  index %v", index)
 			errorInContent := explodeNode(contentNode, context)
 			if errorInContent != nil {
 				return errorInContent
@@ -193,15 +194,16 @@ func explodeNode(node *CandidateNode, context Context) error {
 		}
 		return nil
 	case AliasNode:
-		log.Debugf("its an alias!")
+		log.Debugf("explodeNode - an alias to %v", NodeToString(node.Alias))
 		if node.Alias != nil {
 			node.Kind = node.Alias.Kind
 			node.Style = node.Alias.Style
 			node.Tag = node.Alias.Tag
-			node.Content = node.CopyChildren()
+			node.Content = node.Alias.CopyChildren()
 			node.Value = node.Alias.Value
 			node.Alias = nil
 		}
+		log.Debug("now I'm %v", NodeToString(node))
 		return nil
 	case MappingNode:
 		// //check the map has an alias in it

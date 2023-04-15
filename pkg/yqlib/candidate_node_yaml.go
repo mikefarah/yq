@@ -230,8 +230,6 @@ func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 			if err != nil {
 				return nil, err
 			}
-			log.Debug("child type %v", child.Tag)
-			log.Debug("child is doc %v", child.Kind == yaml.DocumentNode)
 			target.Content[i] = child
 		}
 		return target, nil

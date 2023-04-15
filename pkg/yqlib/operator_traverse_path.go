@@ -244,11 +244,9 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 		matchingNode.Content = append(matchingNode.Content, keyNode, valueNode)
 
 		if prefs.IncludeMapKeys {
-			log.Debug("including key")
 			newMatches.Set(keyNode.GetKey(), keyNode)
 		}
 		if !prefs.DontIncludeMapValues {
-			log.Debug("including value")
 			newMatches.Set(valueNode.GetKey(), valueNode)
 		}
 	}

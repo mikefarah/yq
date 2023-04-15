@@ -239,9 +239,6 @@ func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, 
 }
 
 func (n *CandidateNode) CopyChildren() []*CandidateNode {
-	log.Debug("n? %v", n)
-	log.Debug("n.Content %v", n.Content)
-	log.Debug("n.Content %v", len(n.Content))
 	clonedKids := make([]*CandidateNode, len(n.Content))
 	log.Debug("created clone")
 	for i, child := range n.Content {

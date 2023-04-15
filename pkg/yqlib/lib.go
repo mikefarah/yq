@@ -440,7 +440,11 @@ func NodeToString(node *CandidateNode) string {
 	} else if node.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, %v (%v)::%v`, node.Document, node.GetNicePath(), KindString(node.Kind), tag, node.Value)
+	valueToUse := node.Value
+	if valueToUse == "" {
+		valueToUse = fmt.Sprintf("%v kids", len(node.Content))
+	}
+	return fmt.Sprintf(`D%v, P%v, %v (%v)::%v`, node.Document, node.GetNicePath(), KindString(node.Kind), tag, valueToUse)
 }
 func KindString(kind Kind) string {
 	switch kind {
