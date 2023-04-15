@@ -54,10 +54,8 @@ func (o *CandidateNode) copyFromYamlNode(node *yaml.Node, anchorMap map[string]*
 		log.Debug("set anchor %v to %v", o.Anchor, NodeToString(o))
 	}
 
-	// o.Alias = TODO - find Alias in our own structure
-	// might need to be a post process thing
-
-	if node.Alias != nil && node.Alias.Value != "" {
+	// its a single alias
+	if node.Alias != nil && node.Alias.Anchor != "" {
 		o.Alias = anchorMap[node.Alias.Anchor]
 		log.Debug("set alias to %v", NodeToString(anchorMap[node.Alias.Anchor]))
 	}
