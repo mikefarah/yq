@@ -135,7 +135,7 @@ func (n *CandidateNode) getParsedKey() interface{} {
 }
 
 func (n *CandidateNode) GetPath() []interface{} {
-	if n.Parent != nil {
+	if n.Parent != nil && n.getParsedKey() != nil {
 		return append(n.Parent.GetPath(), n.getParsedKey())
 	}
 	key := n.getParsedKey()

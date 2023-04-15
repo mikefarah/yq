@@ -90,7 +90,13 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	encoder.SetIndent(ye.indent)
 
-	if err := encoder.Encode(node.unwrapDocument()); err != nil {
+	target, err := node.MarshalYAML()
+
+	if err != nil {
+		return err
+	}
+
+	if err := encoder.Encode(target); err != nil {
 		return err
 	}
 

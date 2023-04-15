@@ -97,8 +97,8 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 }
 
 func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
-	var candidateNode CandidateNode
-	err := dec.decoder.Decode(&candidateNode)
+	var yamlNode yaml.Node
+	err := dec.decoder.Decode(&yamlNode)
 
 	if errors.Is(err, io.EOF) && dec.leadingContent != "" && !dec.readAnything {
 		// force returning an empty node with a comment.
@@ -116,6 +116,9 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	} else if err != nil {
 		return nil, err
 	}
+
+	candidateNode := CandidateNode{}
+	candidateNode.UnmarshalYAML(&yamlNode)
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent

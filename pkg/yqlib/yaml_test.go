@@ -49,13 +49,32 @@ var yamlFormatScenarios = []formatScenario{
 		input:       "3.1",
 		expected:    "3.1\n",
 	},
+	{
+		description: "basic - float",
+		skipDoc:     true,
+		input:       "[1, 2]",
+		expected:    "[1, 2]\n",
+	},
 }
 
 var yamlParseScenarios = []expressionScenario{
 	{
 		document: `a: hello # things`,
 		expected: []string{
-			"D0, P[], (doc)::a: hello #things\n",
+			"D0, P[], (doc)::a: hello # things\n",
+		},
+	},
+	{
+		document:   "a: &a apple\nb: *a",
+		expression: ".b",
+		expected: []string{
+			"D0, P[b], (!!str)::apple\n",
+		},
+	},
+	{
+		document: `a: [1,2]`,
+		expected: []string{
+			"D0, P[], (doc)::a: [1, 2]\n",
 		},
 	},
 }

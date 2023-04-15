@@ -51,7 +51,6 @@ func (o *CandidateNode) copyFromYamlNode(node *yaml.Node) {
 
 	// o.Alias = TODO - find Alias in our own structure
 	// might need to be a post process thing
-
 	o.HeadComment = node.HeadComment
 	o.LineComment = node.LineComment
 	o.FootComment = node.FootComment
@@ -71,6 +70,7 @@ func (o *CandidateNode) copyToYamlNode(node *yaml.Node) {
 	// might need to be a post process thing
 
 	node.HeadComment = o.HeadComment
+
 	node.LineComment = o.LineComment
 	node.FootComment = o.FootComment
 
@@ -89,7 +89,7 @@ func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node) (*CandidateNode, e
 		return newChild, nil
 	}
 
-	err := childNode.Decode(newChild)
+	err := newChild.UnmarshalYAML(childNode)
 	return newChild, err
 }
 
@@ -110,6 +110,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 			return err
 		}
 		o.Content = []*CandidateNode{singleChild}
+		log.Debugf("UnmarshalYAML -  finished document node")
 		return nil
 	case yaml.AliasNode:
 		log.Debug("UnmarshalYAML - alias from yaml: %v", o.Tag)
@@ -145,6 +146,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 			o.Content[i] = keyNode
 			o.Content[i+1] = valueNode
 		}
+		log.Debugf("UnmarshalYAML -  finished mapping node")
 		return nil
 	case yaml.SequenceNode:
 		log.Debugf("UnmarshalYAML -  a sequence: %v", len(node.Content))
@@ -168,16 +170,16 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 		}
 		return nil
 	case 0:
-		log.Debugf("UnmarshalYAML -  errr.. %v", node.Tag)
 		// not sure when this happens
 		o.copyFromYamlNode(node)
+		log.Debugf("UnmarshalYAML -  errr.. %v", NodeToString(o))
 		return nil
 	default:
 		return fmt.Errorf("orderedMap: invalid yaml node")
 	}
 }
 
-func (o *CandidateNode) MarshalYAML() (interface{}, error) {
+func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 	log.Debug("MarshalYAML to yaml: %v", o.Tag)
 	switch o.Kind {
 	case DocumentNode:
@@ -185,10 +187,9 @@ func (o *CandidateNode) MarshalYAML() (interface{}, error) {
 		target := &yaml.Node{Kind: yaml.DocumentNode}
 		o.copyToYamlNode(target)
 
-		singleChild := &yaml.Node{}
-		err := singleChild.Encode(o.Content[0])
+		singleChild, err := o.Content[0].MarshalYAML()
 
-		log.Debug("MarshalYAML its a document - singChild is %v", singleChild.Tag)
+		log.Debug("MarshalYAML its a document - singChild is %v", singleChild)
 		if err != nil {
 			return nil, err
 		}
@@ -213,8 +214,9 @@ func (o *CandidateNode) MarshalYAML() (interface{}, error) {
 		o.copyToYamlNode(target)
 		target.Content = make([]*yaml.Node, len(o.Content))
 		for i := 0; i < len(o.Content); i += 1 {
-			child := &yaml.Node{}
-			err := child.Encode(o.Content[i])
+
+			child, err := o.Content[i].MarshalYAML()
+
 			if err != nil {
 				return nil, err
 			}

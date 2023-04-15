@@ -440,20 +440,19 @@ func NodeToString(node *CandidateNode) string {
 	} else if node.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.GetNicePath(), tag, node.Value)
+	return fmt.Sprintf(`D%v, P%v, %v (%v)::%v`, node.Document, node.GetNicePath(), KindString(node.Kind), tag, node.Value)
 }
-
-func KindString(kind yaml.Kind) string {
+func KindString(kind Kind) string {
 	switch kind {
-	case yaml.ScalarNode:
+	case ScalarNode:
 		return "ScalarNode"
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return "SequenceNode"
-	case yaml.MappingNode:
+	case MappingNode:
 		return "MappingNode"
-	case yaml.DocumentNode:
+	case DocumentNode:
 		return "DocumentNode"
-	case yaml.AliasNode:
+	case AliasNode:
 		return "AliasNode"
 	default:
 		return "unknown!"
