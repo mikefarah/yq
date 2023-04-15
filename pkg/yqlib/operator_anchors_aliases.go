@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -240,9 +238,11 @@ func explodeNode(node *CandidateNode, context Context) error {
 }
 
 func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newContent Context) error {
+	log.Debug("alias is nil ?")
 	if alias == nil {
 		return nil
 	}
+	log.Debug("alias: %v", NodeToString(alias))
 	if alias.Kind != MappingNode {
 		return fmt.Errorf("merge anchor only supports maps, got %v instead", alias.Tag)
 	}
@@ -268,8 +268,8 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 
 	for newEl := newContent.MatchingNodes.Front(); newEl != nil; newEl = newEl.Next() {
 		valueEl := newEl.Next() // move forward twice
-		keyNode := newEl.Value.(*yaml.Node)
-		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*yaml.Node).Value)
+		keyNode := newEl.Value.(*CandidateNode)
+		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*CandidateNode).Value)
 		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
 			log.Debugf("overridign new content")
 			valueEl.Value = value

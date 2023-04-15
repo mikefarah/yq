@@ -66,7 +66,7 @@ var yamlParseScenarios = []expressionScenario{
 	},
 	{
 		document:   "a: &a apple\nb: *a",
-		expression: ".b",
+		expression: ".b | explode(.)",
 		expected: []string{
 			"D0, P[b], (!!str)::apple\n",
 		},

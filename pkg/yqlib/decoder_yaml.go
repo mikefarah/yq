@@ -118,7 +118,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	candidateNode := CandidateNode{}
-	candidateNode.UnmarshalYAML(&yamlNode)
+	candidateNode.UnmarshalYAML(&yamlNode, make(map[string]*CandidateNode))
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent

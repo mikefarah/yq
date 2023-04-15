@@ -42,15 +42,26 @@ func MapToYamlStyle(original Style) yaml.Style {
 	return 0
 }
 
-func (o *CandidateNode) copyFromYamlNode(node *yaml.Node) {
+func (o *CandidateNode) copyFromYamlNode(node *yaml.Node, anchorMap map[string]*CandidateNode) {
 	o.Style = MapYamlStyle(node.Style)
 
 	o.Tag = node.Tag
 	o.Value = node.Value
 	o.Anchor = node.Anchor
 
+	if o.Anchor != "" {
+		anchorMap[o.Anchor] = o
+		log.Debug("set anchor %v to %v", o.Anchor, NodeToString(o))
+	}
+
 	// o.Alias = TODO - find Alias in our own structure
 	// might need to be a post process thing
+
+	if node.Alias != nil && node.Alias.Value != "" {
+		o.Alias = anchorMap[node.Alias.Anchor]
+		log.Debug("set alias to %v", NodeToString(anchorMap[node.Alias.Anchor]))
+	}
+
 	o.HeadComment = node.HeadComment
 	o.LineComment = node.LineComment
 	o.FootComment = node.FootComment
@@ -78,33 +89,34 @@ func (o *CandidateNode) copyToYamlNode(node *yaml.Node) {
 	node.Column = o.Column
 }
 
-func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node) (*CandidateNode, error) {
+func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node, anchorMap map[string]*CandidateNode) (*CandidateNode, error) {
 	newChild := o.CreateChild()
 
 	// null yaml.Nodes to not end up calling UnmarshalYAML
 	// so we call it explicitly
 	if childNode.Tag == "!!null" {
 		newChild.Kind = ScalarNode
-		newChild.copyFromYamlNode(childNode)
+		newChild.copyFromYamlNode(childNode, anchorMap)
 		return newChild, nil
 	}
 
-	err := newChild.UnmarshalYAML(childNode)
+	err := newChild.UnmarshalYAML(childNode, anchorMap)
 	return newChild, err
 }
 
-func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
+func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*CandidateNode) error {
+
 	log.Debugf("UnmarshalYAML %v", node.Tag)
 	switch node.Kind {
 	case yaml.DocumentNode:
 		log.Debugf("UnmarshalYAML -  a document")
 		o.Kind = DocumentNode
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		if len(node.Content) == 0 {
 			return nil
 		}
 
-		singleChild, err := o.decodeIntoChild(node.Content[0])
+		singleChild, err := o.decodeIntoChild(node.Content[0], anchorMap)
 
 		if err != nil {
 			return err
@@ -115,28 +127,28 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 	case yaml.AliasNode:
 		log.Debug("UnmarshalYAML - alias from yaml: %v", o.Tag)
 		o.Kind = AliasNode
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		return nil
 	case yaml.ScalarNode:
 		log.Debugf("UnmarshalYAML -  a scalar")
 		o.Kind = ScalarNode
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		return nil
 	case yaml.MappingNode:
 		log.Debugf("UnmarshalYAML -  a mapping node")
 		o.Kind = MappingNode
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		o.Content = make([]*CandidateNode, len(node.Content))
 		for i := 0; i < len(node.Content); i += 2 {
 
-			keyNode, err := o.decodeIntoChild(node.Content[i])
+			keyNode, err := o.decodeIntoChild(node.Content[i], anchorMap)
 			if err != nil {
 				return err
 			}
 
 			keyNode.IsMapKey = true
 
-			valueNode, err := o.decodeIntoChild(node.Content[i+1])
+			valueNode, err := o.decodeIntoChild(node.Content[i+1], anchorMap)
 			if err != nil {
 				return err
 			}
@@ -151,7 +163,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 	case yaml.SequenceNode:
 		log.Debugf("UnmarshalYAML -  a sequence: %v", len(node.Content))
 		o.Kind = SequenceNode
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		o.Content = make([]*CandidateNode, len(node.Content))
 		for i := 0; i < len(node.Content); i += 1 {
 			keyNode := o.CreateChild()
@@ -160,7 +172,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 			keyNode.Kind = ScalarNode
 			keyNode.Value = fmt.Sprintf("%v", i)
 
-			valueNode, err := o.decodeIntoChild(node.Content[i])
+			valueNode, err := o.decodeIntoChild(node.Content[i], anchorMap)
 			if err != nil {
 				return err
 			}
@@ -171,7 +183,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node) error {
 		return nil
 	case 0:
 		// not sure when this happens
-		o.copyFromYamlNode(node)
+		o.copyFromYamlNode(node, anchorMap)
 		log.Debugf("UnmarshalYAML -  errr.. %v", NodeToString(o))
 		return nil
 	default:
