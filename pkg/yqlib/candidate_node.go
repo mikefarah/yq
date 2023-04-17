@@ -120,6 +120,9 @@ func (n *CandidateNode) GetNiceTag() string {
 }
 
 func (n *CandidateNode) getParsedKey() interface{} {
+	if n.IsMapKey {
+		return n.Value
+	}
 	if n.Key == nil {
 		return nil
 	}
@@ -170,6 +173,13 @@ func (n *CandidateNode) AsList() *list.List {
 	elMap := list.New()
 	elMap.PushBack(n)
 	return elMap
+}
+
+func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) {
+	value := rawValue.unwrapDocument()
+	value.Key = rawKey.unwrapDocument()
+	value.Key.IsMapKey = true
+	n.Content = append(n.Content, value.Key, value)
 }
 
 func (n *CandidateNode) GetValueRep() (interface{}, error) {

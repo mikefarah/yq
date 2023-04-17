@@ -159,9 +159,9 @@ func addDateTimes(layout string, target *CandidateNode, lhs *CandidateNode, rhs 
 func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	log.Debugf("adding sequences! target: %v; lhs %v; rhs: %v", NodeToString(target), NodeToString(lhs), NodeToString(rhs))
 	target.Kind = SequenceNode
-	if len(lhs.Content) > 0 {
-		log.Debugf("copy lhs style")
-		target.Style = lhs.Style
+	if len(lhs.Content) == 0 {
+		log.Debugf("dont copy lhs style")
+		target.Style = 0
 	}
 	target.Tag = lhs.Tag
 
@@ -178,6 +178,11 @@ func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode)
 func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 	lhs := lhsC
 	rhs := rhsC
+
+	if len(lhs.Content) == 0 {
+		log.Debugf("dont copy lhs style")
+		target.Style = 0
+	}
 
 	target.Content = make([]*CandidateNode, len(lhs.Content))
 	copy(target.Content, lhs.Content)

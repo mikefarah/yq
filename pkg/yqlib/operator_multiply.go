@@ -54,8 +54,8 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 		leadingContent, headComment, footComment := getComments(lhs, rhs)
 		lhs = lhs.unwrapDocument()
 		rhs = rhs.unwrapDocument()
-		log.Debugf("Multiplying LHS: %v", lhs.Tag)
-		log.Debugf("-          RHS: %v", rhs.Tag)
+		log.Debugf("Multiplying LHS: %v", NodeToString(lhs))
+		log.Debugf("-          RHS: %v", NodeToString(rhs))
 
 		if rhs.Tag == "!!null" {
 			return lhs.Copy(), nil
@@ -93,7 +93,7 @@ func multiplyScalars(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, er
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		return multiplyFloats(lhs, rhs, lhsIsCustom)
 	}
-	return nil, fmt.Errorf("Cannot multiply %v with %v", lhs.Tag, rhs.Tag)
+	return nil, fmt.Errorf("cannot multiply %v with %v", lhs.Tag, rhs.Tag)
 }
 
 func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode, lhsIsCustom bool) (*CandidateNode, error) {
@@ -152,10 +152,14 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 	var pathIndexToStartFrom int
 	if results.Front() != nil {
 		pathIndexToStartFrom = len(results.Front().Value.(*CandidateNode).GetPath())
+		log.Debugf("pathIndexToStartFrom: %v", pathIndexToStartFrom)
 	}
 
 	for el := results.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		log.Debugf("*** going to applied assignment to LHS: %v with RHS: %v", NodeToString(lhs), NodeToString(candidate))
+
 		if candidate.Tag == "!!merge" {
 			continue
 		}
@@ -164,13 +168,14 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 		if err != nil {
 			return nil, err
 		}
+
+		log.Debugf("*** applied assignment to LHS: %v", NodeToString(lhs))
 	}
 	return lhs, nil
 }
 
 func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
 	shouldAppendArrays := preferences.AppendArrays
-	log.Debugf("merge - applyAssignment lhs %v, rhs: %v", lhs.GetKey(), rhs.GetKey())
 
 	lhsPath := rhs.GetPath()[pathIndexToStartFrom:]
 	log.Debugf("merge - lhsPath %v", lhsPath)

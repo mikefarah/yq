@@ -22,6 +22,7 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 
 	if context.MatchingNodes.Len() == 0 {
 		candidate := &CandidateNode{Kind: MappingNode, Tag: "!!map", Value: "{}"}
+		log.Debugf("-- collectObjectOperation - starting with empty map")
 		return context.SingleChildContext(candidate), nil
 	}
 	first := context.MatchingNodes.Front().Value.(*CandidateNode)
@@ -38,6 +39,7 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 			rotated[i].PushBack(candidateNode.Content[i])
 		}
 	}
+	log.Debugf("-- collectObjectOperation, lenght of rotated is %v", len(rotated))
 
 	newObject := list.New()
 	for i := 0; i < len(first.Content); i++ {
@@ -58,6 +60,7 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 	}
 
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
+	log.Debugf("-- collectObjectOperation - collect %v", NodeToString(candidate))
 
 	splatted, err := splat(context.SingleChildContext(candidate),
 		traversePreferences{DontFollowAlias: true, IncludeMapKeys: false})
@@ -67,6 +70,7 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 	}
 
 	if context.MatchingNodes.Len() == 0 {
+		log.Debugf("-- collectObjectOperation - collect context is empty, next")
 		return collect(d, splatted, remainingMatches)
 	}
 
@@ -79,6 +83,7 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 			newCandidate := aggCandidate.Copy()
 
 			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, context, newCandidate, splatCandidate)
+
 			if err != nil {
 				return Context{}, err
 			}

@@ -13,6 +13,22 @@ var createMapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "sets key properly",
+		expression:  `("frog": "jumps") | .[0][0] | .frog`,
+		expected: []string{
+			"D0, P[frog], (!!str)::jumps\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "sets key properly on map",
+		expression:  `{"frog": "jumps"} | .frog`,
+		expected: []string{
+			"D0, P[frog], (!!str)::jumps\n",
+		},
+	},
+	{
 		document:   `{name: Mike, age: 32}`,
 		expression: `.name: .age`,
 		expected: []string{

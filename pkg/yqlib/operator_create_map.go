@@ -51,12 +51,9 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 	mapPairs, err := crossFunction(d, context.ChildContext(matches), expressionNode,
 		func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := CandidateNode{Kind: MappingNode, Tag: "!!map"}
-			log.Debugf("LHS:", NodeToString(lhs))
-			log.Debugf("RHS:", NodeToString(rhs))
-			node.Content = []*CandidateNode{
-				lhs.unwrapDocument(),
-				rhs.unwrapDocument(),
-			}
+
+			node.AddKeyValueChild(lhs, rhs)
+
 			node.Document = document
 
 			return &node, nil
