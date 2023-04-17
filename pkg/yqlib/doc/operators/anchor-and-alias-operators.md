@@ -27,7 +27,9 @@ will output
 ```yaml
 item_value: &item_value
   value: true
-thingOne: false
+thingOne:
+  name: item_1
+  value: false
 thingTwo:
   name: item_2
   !!merge <<: *item_value

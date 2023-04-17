@@ -138,10 +138,11 @@ func (n *CandidateNode) getParsedKey() interface{} {
 }
 
 func (n *CandidateNode) GetPath() []interface{} {
-	if n.Parent != nil && n.getParsedKey() != nil {
-		return append(n.Parent.GetPath(), n.getParsedKey())
-	}
 	key := n.getParsedKey()
+	if n.Parent != nil && key != nil {
+		return append(n.Parent.GetPath(), key)
+	}
+
 	if key != nil {
 		return []interface{}{key}
 	}
@@ -153,6 +154,8 @@ func (n *CandidateNode) GetNicePath() string {
 	path := n.GetPath()
 	for i, element := range path {
 		elementStr := fmt.Sprintf("%v", element)
+		log.Debugf("element: %v", element)
+		log.Debugf("elementStr: %v", elementStr)
 		switch element.(type) {
 		case int:
 			sb.WriteString("[" + elementStr + "]")
@@ -176,10 +179,15 @@ func (n *CandidateNode) AsList() *list.List {
 }
 
 func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) {
-	value := rawValue.unwrapDocument()
-	value.Key = rawKey.unwrapDocument()
-	value.Key.IsMapKey = true
-	n.Content = append(n.Content, value.Key, value)
+	key := rawKey.unwrapDocument().Copy()
+	key.Parent = n
+	key.IsMapKey = true
+
+	value := rawValue.unwrapDocument().Copy()
+	value.Parent = n
+	value.Key = key
+
+	n.Content = append(n.Content, key, value)
 }
 
 func (n *CandidateNode) GetValueRep() (interface{}, error) {
@@ -233,10 +241,16 @@ func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *Candidate
 	newCopy := replacement.Copy()
 	newCopy.Parent = n.Parent
 	newCopy.Key = n.Key
+
 	newCopy.IsMapKey = n.IsMapKey
+	log.Debugf("n path: %v", n.GetNicePath())
+	log.Debugf("HERE**************")
+	log.Debugf("newCopy path: %v", newCopy.GetNicePath())
+
 	newCopy.Document = n.Document
 	newCopy.Filename = n.Filename
 	newCopy.FileIndex = n.FileIndex
+
 	return newCopy
 }
 
@@ -275,7 +289,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		copyKey = n.Key.Copy()
 	}
 
-	return &CandidateNode{
+	clone := &CandidateNode{
 		Kind:  n.Kind,
 		Style: n.Style,
 
@@ -308,6 +322,12 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		EvaluateTogether: n.EvaluateTogether,
 		IsMapKey:         n.IsMapKey,
 	}
+
+	for _, newChild := range content {
+		newChild.Parent = clone
+	}
+
+	return clone
 }
 
 // updates this candidate from the given candidate node

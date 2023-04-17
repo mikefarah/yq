@@ -29,6 +29,22 @@ var createMapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		document:   `{name: Mike, pets: [cat, dog]}`,
+		expression: `(.name: .pets.[]) | .[0][0] | ..`,
+		expected: []string{
+			"D0, P[], (!!map)::Mike: cat\n",
+			"D0, P[Mike], (!!str)::cat\n",
+		},
+	},
+	{
+		description: "check path of nested child",
+		document:    "pets:\n  cows: value",
+		expression:  `("b":.pets) | .[0][0] | .b.cows`,
+		expected: []string{
+			"D0, P[b cows], (!!str)::value\n",
+		},
+	},
+	{
 		document:   `{name: Mike, age: 32}`,
 		expression: `.name: .age`,
 		expected: []string{

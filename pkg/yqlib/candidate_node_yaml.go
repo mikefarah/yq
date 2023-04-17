@@ -172,7 +172,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 		o.Content = make([]*CandidateNode, len(node.Content))
 		for i := 0; i < len(node.Content); i += 1 {
 			keyNode := o.CreateChild()
-			keyNode.IsMapKey = true // can't remember if we need this for sequences
+			keyNode.IsMapKey = true
 			keyNode.Tag = "!!int"
 			keyNode.Kind = ScalarNode
 			keyNode.Value = fmt.Sprintf("%v", i)

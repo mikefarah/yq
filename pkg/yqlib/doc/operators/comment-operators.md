@@ -74,6 +74,39 @@ then
 yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
 ```
 will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello
+  isKey: null
+  true: null
+  hc: null
+  "": null
+  lc: null
+  hello-world-comment: null
+  fc: null
+- p: hello
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: hello.message
+  isKey: null
+  true: null
+  hc: null
+  "": null
+  lc: null
+  fc: null
+- p: hello.message
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+```
+
 ## Retrieve comment - map key example
 From the previous example, we know that the comment is on the 'hello' _key_ as a lineComment
 
@@ -106,6 +139,31 @@ then
 yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lineComment, "fc": footComment}]' sample.yml
 ```
 will output
+```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name
+  isKey: null
+  true: null
+  hc: null
+  "": null
+  lc: null
+  fc: null
+- p: name
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
+- p: name.0
+  isKey: false
+  hc: under-name-comment
+  lc: ""
+  fc: ""
+```
+
 ## Retrieve comment - array example
 From the previous example, we know that the comment is on the first child as a headComment
 

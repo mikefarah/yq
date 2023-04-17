@@ -95,6 +95,7 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 			childKey.Kind = ScalarNode
 			childKey.Tag = "!!int"
 			childKey.Value = fmt.Sprintf("%v", i)
+			childKey.IsMapKey = true
 
 			child.Parent = o
 			child.Document = o.Document
