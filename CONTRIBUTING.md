@@ -12,7 +12,7 @@
 
 # Documentation
 
-The documentation is a bit of a mixed bag (sorry in advanced, I do plan on simplifying it...) - with some parts automatically generated and stiched together and some statically defined.
+The documentation is a bit of a mixed bag (sorry in advance, I do plan on simplifying it...) - with some parts automatically generated and stiched together and some statically defined.
 
 Documentation is written in markdown, and is published in the 'gitbook' branch.
 
