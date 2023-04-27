@@ -61,7 +61,7 @@ func TestShellVariablesEncoderKeyPrintableNonAlphaNumeric(t *testing.T) {
 }
 
 func TestShellVariablesEncoderKeyPrintableNonAscii(t *testing.T) {
-	assertEncodesTo(t, `"bèll": ring!`, "bell='ring!'")
+	assertEncodesTo(t, `"b\u00e9ll": ring!`, "bell='ring!'")
 }
 
 func TestShellVariablesEncoderRootKeyStartingWithDigit(t *testing.T) {
@@ -70,6 +70,14 @@ func TestShellVariablesEncoderRootKeyStartingWithDigit(t *testing.T) {
 
 func TestShellVariablesEncoderEmptyValue(t *testing.T) {
 	assertEncodesTo(t, "empty:", "empty=")
+}
+
+func TestShellVariablesEncoderEmptyArray(t *testing.T) {
+	assertEncodesTo(t, "empty: []", "")
+}
+
+func TestShellVariablesEncoderEmptyMap(t *testing.T) {
+	assertEncodesTo(t, "empty: {}", "")
 }
 
 func TestShellVariablesEncoderScalarNode(t *testing.T) {
