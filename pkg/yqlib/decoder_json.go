@@ -46,6 +46,9 @@ func (dec *jsonDecoder) Decode() (*CandidateNode, error) {
 }
 
 func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) {
+	if data == nil {
+		return createScalarNode(nil, "null"), nil
+	}
 	if data.kv == nil {
 		switch rawData := data.altVal.(type) {
 		case nil:
