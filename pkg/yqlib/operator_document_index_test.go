@@ -45,7 +45,7 @@ var documentIndexScenarios = []expressionScenario{
 		expression:  `.a | ({"match": ., "doc": document_index})`,
 		expected: []string{
 			"D0, P[], (!!map)::match: cat\ndoc: 0\n",
-			"D0, P[], (!!map)::match: frog\ndoc: 1\n",
+			"D1, P[], (!!map)::match: frog\ndoc: 1\n",
 		},
 	},
 }

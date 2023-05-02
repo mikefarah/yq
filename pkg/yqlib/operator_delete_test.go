@@ -100,7 +100,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:   `{a: {a1: fred, a2: frood}}`,
 		expression: `del(.. | select(.=="frood"))`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: {a1: fred}}\n",
+			"D0, P[], (doc)::{a: {a1: fred}}\n",
 		},
 	},
 	{
@@ -131,16 +131,14 @@ var deleteOperatorScenarios = []expressionScenario{
 		skipDoc:    true,
 		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
 		expression: `del(..)`,
-		expected: []string{
-			"D0, P[], (!!map)::{}\n",
-		},
+		expected:   []string{},
 	},
 	{
 		skipDoc:    true,
 		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
 		expression: `del(.. | select(tag == "!!map") | (.b.thing1,.thing2))`,
 		expected: []string{
-			"D0, P[], (!!map)::a: {thing1: yep, thing3: hi, b: {great: huh}}\n",
+			"D0, P[], (doc)::a: {thing1: yep, thing3: hi, b: {great: huh}}\n",
 		},
 	},
 	{
@@ -172,7 +170,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `{a: {name: frog, b: {name: blog, age: 12}}}`,
 		expression:  `del(.. | select(has("name")).name)`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: {b: {age: 12}}}\n",
+			"D0, P[], (doc)::{a: {b: {age: 12}}}\n",
 		},
 	},
 }

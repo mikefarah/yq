@@ -5,8 +5,7 @@ Similar to the same named functions in `jq` these functions convert to/from an o
 ## to_entries Map
 Given a sample.yml file of:
 ```yaml
-a: 1
-b: 2
+{a: 1, b: 2}
 ```
 then
 ```bash
@@ -23,8 +22,7 @@ will output
 ## to_entries Array
 Given a sample.yml file of:
 ```yaml
-- a
-- b
+[a, b]
 ```
 then
 ```bash
@@ -41,7 +39,7 @@ will output
 ## to_entries null
 Given a sample.yml file of:
 ```yaml
-null
+[]
 ```
 then
 ```bash
@@ -49,13 +47,13 @@ yq 'to_entries' sample.yml
 ```
 will output
 ```yaml
+[]
 ```
 
 ## from_entries map
 Given a sample.yml file of:
 ```yaml
-a: 1
-b: 2
+{a: 1, b: 2}
 ```
 then
 ```bash
@@ -63,8 +61,10 @@ yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
-a: 1
-b: 2
+- a
+- 1
+- b
+- 2
 ```
 
 ## from_entries with numeric key indices
@@ -72,8 +72,7 @@ from_entries always creates a map, even for numeric keys
 
 Given a sample.yml file of:
 ```yaml
-- a
-- b
+[a, b]
 ```
 then
 ```bash
@@ -81,15 +80,16 @@ yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
-0: a
-1: b
+- 0
+- a
+- 1
+- b
 ```
 
 ## Use with_entries to update keys
 Given a sample.yml file of:
 ```yaml
-a: 1
-b: 2
+{a: 1, b: 2}
 ```
 then
 ```bash
@@ -97,8 +97,10 @@ yq 'with_entries(.key |= "KEY_" + .)' sample.yml
 ```
 will output
 ```yaml
-KEY_a: 1
-KEY_b: 2
+- KEY_a
+- 1
+- KEY_b
+- 2
 ```
 
 ## Custom sort map keys
@@ -106,9 +108,7 @@ Use to_entries to convert to an array of key/value pairs, sort the array using s
 
 Given a sample.yml file of:
 ```yaml
-a: 1
-c: 3
-b: 2
+{a: 1, c: 3, b: 2}
 ```
 then
 ```bash
@@ -116,18 +116,19 @@ yq 'to_entries | sort_by(.key) | reverse | from_entries' sample.yml
 ```
 will output
 ```yaml
-c: 3
-b: 2
-a: 1
+!!tag
+- c
+- 3
+- b
+- 2
+- a
+- 1
 ```
 
 ## Use with_entries to filter the map
 Given a sample.yml file of:
 ```yaml
-a:
-  b: bird
-c:
-  d: dog
+{a: {b: bird}, c: {d: dog}}
 ```
 then
 ```bash
@@ -135,7 +136,7 @@ yq 'with_entries(select(.value | has("b")))' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: bird
+- a
+- {b: bird}
 ```
 

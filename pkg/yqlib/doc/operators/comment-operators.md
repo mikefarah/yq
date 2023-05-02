@@ -31,8 +31,7 @@ will output
   lc: ""
   fc: ""
 - p: hello
-  isKey: null
-  true: null
+  isKey: true
   hc: ""
   lc: hello-world-comment
   fc: ""
@@ -42,8 +41,7 @@ will output
   lc: ""
   fc: ""
 - p: hello.message
-  isKey: null
-  true: null
+  isKey: true
   hc: ""
   lc: ""
   fc: ""
