@@ -23,7 +23,7 @@ func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionN
 
 func recursiveDecent(results *list.List, context Context, preferences recursiveDescentPreferences) error {
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode).unwrapDocument()
+		candidate := el.Value.(*CandidateNode)
 
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)

@@ -15,9 +15,7 @@ Array is equal or subset of
 
 Given a sample.yml file of:
 ```yaml
-- foobar
-- foobaz
-- blarp
+[foobar, foobaz, blarp]
 ```
 then
 ```bash
@@ -33,9 +31,7 @@ Subtract the superset array from the subset, if there's anything left, it's not 
 
 Given a sample.yml file of:
 ```yaml
-- foobar
-- foobaz
-- blarp
+[foobar, foobaz, blarp]
 ```
 then
 ```bash
@@ -49,12 +45,7 @@ false
 ## Object included in array
 Given a sample.yml file of:
 ```yaml
-"foo": 12
-"bar":
-  - 1
-  - 2
-  - "barp": 12
-    "blip": 13
+{"foo": 12, "bar": [1, 2, {"barp": 12, "blip": 13}]}
 ```
 then
 ```bash
@@ -68,22 +59,21 @@ true
 ## Object not included in array
 Given a sample.yml file of:
 ```yaml
-"foo": 12
-"bar":
-  - 1
-  - 2
-  - "barp": 12
-    "blip": 13
+{"foo": 12, "bar": [1, 2, {"barp": 12, "blip": 13}]}
 ```
 then
 ```bash
 yq 'contains({"foo": 12, "bar": [{"barp": 15}]})' sample.yml
 ```
 will output
+```yaml
+false
+```
+
 ## String contains substring
 Given a sample.yml file of:
 ```yaml
-foobar
+"foobar"
 ```
 then
 ```bash
@@ -97,7 +87,7 @@ true
 ## String equals string
 Given a sample.yml file of:
 ```yaml
-meow
+"meow"
 ```
 then
 ```bash

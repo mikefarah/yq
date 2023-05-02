@@ -63,7 +63,6 @@ func (o *CandidateNode) copyFromYamlNode(node *yaml.Node, anchorMap map[string]*
 		o.Alias = anchorMap[node.Alias.Anchor]
 		log.Debug("set alias to %v", NodeToString(anchorMap[node.Alias.Anchor]))
 	}
-
 	o.HeadComment = node.HeadComment
 	o.LineComment = node.LineComment
 	o.FootComment = node.FootComment
@@ -107,7 +106,6 @@ func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node, anchorMap map[stri
 }
 
 func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*CandidateNode) error {
-
 	log.Debugf("UnmarshalYAML %v", node.Tag)
 	switch node.Kind {
 	case yaml.DocumentNode:

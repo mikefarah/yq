@@ -20,8 +20,9 @@ type yamlDecoder struct {
 	leadingContent string
 	bufferRead     bytes.Buffer
 
-	readAnything bool
-	firstFile    bool
+	readAnything  bool
+	firstFile     bool
+	documentIndex uint
 }
 
 func NewYamlDecoder(prefs YamlPreferences) Decoder {
@@ -93,6 +94,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	dec.readAnything = false
 	dec.decoder = *yaml.NewDecoder(readerToUse)
 	dec.firstFile = false
+	dec.documentIndex = 0
 	return nil
 }
 
@@ -117,14 +119,18 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	candidateNode := CandidateNode{}
-	candidateNode.UnmarshalYAML(&yamlNode, make(map[string]*CandidateNode))
+	candidateNode := CandidateNode{Document: dec.documentIndex}
+	err = candidateNode.UnmarshalYAML(&yamlNode, make(map[string]*CandidateNode))
+	if err != nil {
+		return nil, err
+	}
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent
 		dec.leadingContent = ""
 	}
 	dec.readAnything = true
+	dec.documentIndex++
 	// move document comments into candidate node
 	// otherwise unwrap drops them.
 	candidateNode.TrailingContent = candidateNode.FootComment

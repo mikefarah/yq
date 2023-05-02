@@ -28,7 +28,7 @@ func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		candidate := el.Value.(*CandidateNode)
 
 		if candidate.Key != nil {
-			results.PushBack(candidate.Key.Copy())
+			results.PushBack(candidate.Key)
 		}
 	}
 

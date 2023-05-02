@@ -37,8 +37,12 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		}
 	}
 
+	log.Debugf("AssignComments comment is %v", comment)
+
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		log.Debugf("AssignComments lhs %v", NodeToString(candidate))
 
 		if expressionNode.Operation.UpdateAssign {
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
@@ -53,6 +57,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 		log.Debugf("Setting comment of : %v", candidate.GetKey())
 		if preferences.LineComment {
+			log.Debugf("Setting line comment of : %v to %v", candidate.GetKey(), comment)
 			candidate.LineComment = comment
 		}
 		if preferences.HeadComment {
@@ -60,10 +65,11 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
 		if preferences.FootComment && candidate.Kind == DocumentNode && comment != "" {
+			log.Debugf("AssignComments - setting line comment to %v", comment)
 			candidate.TrailingContent = "# " + comment
 		} else if preferences.FootComment && candidate.Kind == DocumentNode {
+			log.Debugf("AssignComments - setting line comment to %v", comment)
 			candidate.TrailingContent = comment
-
 		} else if preferences.FootComment && candidate.Kind != DocumentNode {
 			candidate.FootComment = comment
 			candidate.TrailingContent = ""
@@ -89,6 +95,7 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		candidate := el.Value.(*CandidateNode)
 		comment := ""
 		if preferences.LineComment {
+			log.Debugf("Reading line comment of : %v to %v", candidate.GetKey(), candidate.LineComment)
 			comment = candidate.LineComment
 		} else if preferences.HeadComment && candidate.LeadingContent != "" {
 			var chompRegexp = regexp.MustCompile(`\n$`)
@@ -114,6 +121,10 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
 
 		result := candidate.CreateReplacement(ScalarNode, "!!str", comment)
+		if candidate.IsMapKey {
+			result.IsMapKey = false
+			result.Key = candidate
+		}
 		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil

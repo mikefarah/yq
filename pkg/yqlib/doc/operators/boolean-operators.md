@@ -39,12 +39,7 @@ false
 ## Matching nodes with select, equals and or
 Given a sample.yml file of:
 ```yaml
-- a: bird
-  b: dog
-- a: frog
-  b: bird
-- a: cat
-  b: fly
+[{a: bird, b: dog}, {a: frog, b: bird}, {a: cat, b: fly}]
 ```
 then
 ```bash
@@ -52,17 +47,14 @@ yq '[.[] | select(.a == "cat" or .b == "dog")]' sample.yml
 ```
 will output
 ```yaml
-- a: bird
-  b: dog
-- a: cat
-  b: fly
+- {a: bird, b: dog}
+- {a: cat, b: fly}
 ```
 
 ## `any` returns true if any boolean in a given array is true
 Given a sample.yml file of:
 ```yaml
-- false
-- true
+[false, true]
 ```
 then
 ```bash
@@ -110,8 +102,7 @@ b: false
 ## `all` returns true if all booleans in a given array are true
 Given a sample.yml file of:
 ```yaml
-- true
-- true
+[true, true]
 ```
 then
 ```bash

@@ -184,7 +184,13 @@ func createBooleanCandidate(owner *CandidateNode, value bool) *CandidateNode {
 	if !value {
 		valString = "false"
 	}
-	return owner.CreateReplacement(ScalarNode, "!!bool", valString)
+	noob := owner.CreateReplacement(ScalarNode, "!!bool", valString)
+	if owner.IsMapKey {
+		noob.IsMapKey = false
+		noob.Key = owner
+	}
+
+	return noob
 }
 
 func createTraversalTree(path []interface{}, traversePrefs traversePreferences, targetKey bool) *ExpressionNode {

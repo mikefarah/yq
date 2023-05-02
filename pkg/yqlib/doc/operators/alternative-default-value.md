@@ -5,7 +5,7 @@ This operator is used to provide alternative (or default) values when a particul
 ## LHS is defined
 Given a sample.yml file of:
 ```yaml
-a: bridge
+{a: bridge}
 ```
 then
 ```bash
@@ -33,7 +33,7 @@ hello
 ## LHS is null
 Given a sample.yml file of:
 ```yaml
-a: ~
+{a: ~}
 ```
 then
 ```bash
@@ -47,7 +47,7 @@ hello
 ## LHS is false
 Given a sample.yml file of:
 ```yaml
-a: false
+{a: false}
 ```
 then
 ```bash
@@ -61,8 +61,7 @@ hello
 ## RHS is an expression
 Given a sample.yml file of:
 ```yaml
-a: false
-b: cat
+{a: false, b: cat}
 ```
 then
 ```bash
