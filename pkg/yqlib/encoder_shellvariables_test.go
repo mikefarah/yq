@@ -68,6 +68,14 @@ func TestShellVariablesEncoderRootKeyStartingWithDigit(t *testing.T) {
 	assertEncodesTo(t, "1a: onea", "_1a=onea")
 }
 
+func TestShellVariablesEncoderRootKeyStartingWithUnderscore(t *testing.T) {
+	assertEncodesTo(t, "_key: value", "_key=value")
+}
+
+func TestShellVariablesEncoderChildStartingWithUnderscore(t *testing.T) {
+	assertEncodesTo(t, "root:\n _child: value", "root__child=value")
+}
+
 func TestShellVariablesEncoderEmptyValue(t *testing.T) {
 	assertEncodesTo(t, "empty:", "empty=")
 }

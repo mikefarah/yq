@@ -32,7 +32,7 @@ func (pe *shellVariablesEncoder) PrintLeadingContent(_ io.Writer, _ string) erro
 func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 
 	mapKeysToStrings(node)
-	err := pe.doEncode(&writer, node, "", nil)
+	err := pe.doEncode(&writer, node, "")
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *yaml.Node) error
 	return err
 }
 
-func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path string, _ *yaml.Node) error {
+func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path string) error {
 
 	// Note this drops all comments.
 
@@ -56,10 +56,10 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path st
 		_, err := io.WriteString(*w, nonemptyPath+"="+quoteValue(node.Value)+"\n")
 		return err
 	case yaml.DocumentNode:
-		return pe.doEncode(w, node.Content[0], path, node)
+		return pe.doEncode(w, node.Content[0], path)
 	case yaml.SequenceNode:
 		for index, child := range node.Content {
-			err := pe.doEncode(w, child, appendPath(path, index), nil)
+			err := pe.doEncode(w, child, appendPath(path, index))
 			if err != nil {
 				return err
 			}
@@ -69,14 +69,14 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path st
 		for index := 0; index < len(node.Content); index = index + 2 {
 			key := node.Content[index]
 			value := node.Content[index+1]
-			err := pe.doEncode(w, value, appendPath(path, key.Value), key)
+			err := pe.doEncode(w, value, appendPath(path, key.Value))
 			if err != nil {
 				return err
 			}
 		}
 		return nil
 	case yaml.AliasNode:
-		return pe.doEncode(w, node.Alias, path, nil)
+		return pe.doEncode(w, node.Alias, path)
 	default:
 		return fmt.Errorf("Unsupported node %v", node.Tag)
 	}
@@ -145,7 +145,7 @@ func quoteValue(value string) string {
 }
 
 func isAlphaOrUnderscore(r rune) bool {
-	return ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z')
+	return ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z') || r == '_'
 }
 
 func isAlphaNumericOrUnderscore(r rune) bool {
