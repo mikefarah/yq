@@ -93,6 +93,11 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 		}
 		// now we put the children into the content, and set a key value for them
 		for i, child := range children {
+
+			if child == nil {
+				// need to represent it as a null scalar
+				child = createScalarNode(nil, "null")
+			}
 			childKey := o.CreateChild()
 			childKey.Kind = ScalarNode
 			childKey.Tag = "!!int"

@@ -30,6 +30,7 @@ const (
 	UriOutputFormat
 	ShOutputFormat
 	TomlOutputFormat
+	ShellVariablesOutputFormat
 )
 
 func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
@@ -48,8 +49,10 @@ func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
 		return XMLOutputFormat, nil
 	case "toml":
 		return TomlOutputFormat, nil
+	case "shell", "s", "sh":
+		return ShellVariablesOutputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml|toml|shell]", format)
 	}
 }
 
