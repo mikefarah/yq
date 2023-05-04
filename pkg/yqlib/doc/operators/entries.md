@@ -61,10 +61,8 @@ yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
-- a
-- 1
-- b
-- 2
+a: 1
+b: 2
 ```
 
 ## from_entries with numeric key indices
@@ -80,10 +78,8 @@ yq 'to_entries | from_entries' sample.yml
 ```
 will output
 ```yaml
-- 0
-- a
-- 1
-- b
+0: a
+1: b
 ```
 
 ## Use with_entries to update keys
@@ -97,10 +93,8 @@ yq 'with_entries(.key |= "KEY_" + .)' sample.yml
 ```
 will output
 ```yaml
-- KEY_a
-- 1
-- KEY_b
-- 2
+KEY_a: 1
+KEY_b: 2
 ```
 
 ## Custom sort map keys
@@ -116,13 +110,9 @@ yq 'to_entries | sort_by(.key) | reverse | from_entries' sample.yml
 ```
 will output
 ```yaml
-!!tag
-- c
-- 3
-- b
-- 2
-- a
-- 1
+c: 3
+b: 2
+a: 1
 ```
 
 ## Use with_entries to filter the map
@@ -136,7 +126,6 @@ yq 'with_entries(select(.value | has("b")))' sample.yml
 ```
 will output
 ```yaml
-- a
-- {b: bird}
+a: {b: bird}
 ```
 

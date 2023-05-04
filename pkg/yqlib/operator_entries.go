@@ -88,7 +88,7 @@ func parseEntry(candidateNode *CandidateNode, position int) (*CandidateNode, *Ca
 }
 
 func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
-	var node = candidateNode.CopyWithoutContent()
+	var node = candidateNode.unwrapDocument().CopyWithoutContent()
 
 	var contents = candidateNode.unwrapDocument().Content
 
@@ -100,6 +100,8 @@ func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
 
 		node.Content = append(node.Content, key, value)
 	}
+	node.Kind = MappingNode
+	node.Tag = "!!map"
 	return node, nil
 }
 
