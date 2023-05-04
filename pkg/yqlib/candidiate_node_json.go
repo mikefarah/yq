@@ -84,6 +84,8 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	case '[':
+		o.Kind = SequenceNode
+		o.Tag = "!!seq"
 		log.Debug("UnmarshalJSON -  its an array!")
 		var children []*CandidateNode
 		if err := json.Unmarshal(data, &children); err != nil {
@@ -102,7 +104,7 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 			child.FileIndex = o.FileIndex
 			child.Filename = o.Filename
 			child.Key = childKey
-			o.Content[i] = child
+			o.Content = append(o.Content, child)
 		}
 		return nil
 	}
@@ -143,7 +145,6 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 			return buf.Bytes(), err
 		}
 		err = enc.Encode(value)
-		log.Debugf("cool I handled that")
 		return buf.Bytes(), err
 	case MappingNode:
 		log.Debugf("MarshalJSON MappingNode")
