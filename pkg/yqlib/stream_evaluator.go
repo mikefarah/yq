@@ -32,11 +32,11 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 		return err
 	}
 	candidateNode := &CandidateNode{
-		Document:  0,
-		Filename:  "",
+		document:  0,
+		filename:  "",
 		Kind:      DocumentNode,
 		Content:   []*CandidateNode{createScalarNode(nil, "")},
-		FileIndex: 0,
+		fileIndex: 0,
 	}
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
@@ -97,9 +97,9 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
-		candidateNode.Document = currentIndex
-		candidateNode.Filename = filename
-		candidateNode.FileIndex = s.fileIndex
+		candidateNode.document = currentIndex
+		candidateNode.filename = filename
+		candidateNode.fileIndex = s.fileIndex
 
 		inputList := list.New()
 		inputList.PushBack(candidateNode)

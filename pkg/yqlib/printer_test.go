@@ -125,20 +125,20 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 
 	el := inputs.Front()
 	elNode := el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 0
+	elNode.document = 0
+	elNode.fileIndex = 0
 	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 1
+	elNode.document = 0
+	elNode.fileIndex = 1
 	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 2
+	elNode.document = 0
+	elNode.fileIndex = 2
 	sample3 := nodeToList(elNode)
 
 	err = printer.PrintResults(sample1)
@@ -172,22 +172,22 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 
 	el := inputs.Front()
 	elNode := el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 0
+	elNode.document = 0
+	elNode.fileIndex = 0
 	elNode.LeadingContent = "# go cats\n$yqDocSeperator$\n"
 	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 1
+	elNode.document = 0
+	elNode.fileIndex = 1
 	elNode.LeadingContent = "$yqDocSeperator$\n"
 	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
-	elNode.Document = 0
-	elNode.FileIndex = 2
+	elNode.document = 0
+	elNode.fileIndex = 2
 	elNode.LeadingContent = "$yqDocSeperator$\n# cool\n"
 	sample3 := nodeToList(elNode)
 

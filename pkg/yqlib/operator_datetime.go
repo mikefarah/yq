@@ -87,10 +87,8 @@ func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *Expre
 				Value: formattedTimeStr,
 			}
 		}
-		node.Document = candidate.Document
 		node.Parent = candidate.Parent
 		node.Key = candidate.Key
-		node.FileIndex = candidate.FileIndex
 		results.PushBack(node)
 	}
 

@@ -128,15 +128,15 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 
 	if p.firstTimePrinting {
 		node := matchingNodes.Front().Value.(*CandidateNode)
-		p.previousDocIndex = node.Document
-		p.previousFileIndex = node.FileIndex
+		p.previousDocIndex = node.GetDocument()
+		p.previousFileIndex = node.GetFileIndex()
 		p.firstTimePrinting = false
 	}
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 
 		mappedDoc := el.Value.(*CandidateNode)
-		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v, mappedDoc.Document: %v", p.firstTimePrinting, p.previousDocIndex, mappedDoc.Document)
+		log.Debug("-- print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v", p.firstTimePrinting, p.previousDocIndex)
 		log.Debug("%v", NodeToString(mappedDoc))
 		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc)
 		if errorWriting != nil {
@@ -146,7 +146,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeperator\$`)
 		commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
 
-		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && !commentStartsWithSeparator {
+		if (p.previousDocIndex != mappedDoc.GetDocument() || p.previousFileIndex != mappedDoc.GetFileIndex()) && !commentStartsWithSeparator {
 			if err := p.encoder.PrintDocumentSeparator(writer); err != nil {
 				return err
 			}
@@ -186,7 +186,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			}
 		}
 
-		p.previousDocIndex = mappedDoc.Document
+		p.previousDocIndex = mappedDoc.GetDocument()
 		if err := writer.Flush(); err != nil {
 			return err
 		}

@@ -119,7 +119,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	candidateNode := CandidateNode{Document: dec.documentIndex}
+	candidateNode := CandidateNode{document: dec.documentIndex}
 	err = candidateNode.UnmarshalYAML(&yamlNode, make(map[string]*CandidateNode))
 	if err != nil {
 		return nil, err
@@ -140,11 +140,11 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 
 func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {
 	return &CandidateNode{
-		Document:       0,
-		Filename:       "",
+		document:       0,
+		filename:       "",
 		Kind:           DocumentNode,
 		Content:        []*CandidateNode{createScalarNode(nil, "")},
-		FileIndex:      0,
+		fileIndex:      0,
 		LeadingContent: dec.leadingContent,
 	}
 }

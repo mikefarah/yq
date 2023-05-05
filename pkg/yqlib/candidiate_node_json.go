@@ -105,9 +105,6 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 			childKey.IsMapKey = true
 
 			child.Parent = o
-			child.Document = o.Document
-			child.FileIndex = o.FileIndex
-			child.Filename = o.Filename
 			child.Key = childKey
 			o.Content = append(o.Content, child)
 		}

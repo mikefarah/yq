@@ -54,7 +54,6 @@ yq eval-all 'file_index' sample.yml another.yml
 will output
 ```yaml
 0
----
 1
 ```
 

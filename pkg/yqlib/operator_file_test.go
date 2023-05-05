@@ -44,7 +44,7 @@ var fileOperatorScenarios = []expressionScenario{
 		document:   "a: cat\nb: dog",
 		expression: `.. lineComment |= filename`,
 		expected: []string{
-			"D0, P[], (!!map)::a: cat # sample.yml\nb: dog # sample.yml\n",
+			"D0, P[], (doc)::a: cat # sample.yml\nb: dog # sample.yml\n",
 		},
 	},
 }

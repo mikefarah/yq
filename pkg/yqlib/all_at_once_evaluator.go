@@ -64,11 +64,11 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 
 	if allDocuments.Len() == 0 {
 		candidateNode := &CandidateNode{
-			Document:       0,
-			Filename:       "",
+			document:       0,
+			filename:       "",
 			Kind:           DocumentNode,
 			Content:        []*CandidateNode{createScalarNode(nil, "")},
-			FileIndex:      0,
+			fileIndex:      0,
 			LeadingContent: "",
 		}
 		allDocuments.PushBack(candidateNode)

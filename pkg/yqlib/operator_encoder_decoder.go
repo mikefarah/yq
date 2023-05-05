@@ -153,9 +153,6 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		node := decodedNode.unwrapDocument()
 		node.Key = candidate.Key
 		node.Parent = candidate.Parent
-		node.Document = candidate.Document
-		node.FileIndex = candidate.FileIndex
-		node.Filename = candidate.Filename
 
 		results.PushBack(node)
 	}

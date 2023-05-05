@@ -74,13 +74,13 @@ type CandidateNode struct {
 	LeadingContent  string
 	TrailingContent string
 
-	Document uint // the document index of this node
-	Filename string
+	document uint // the document index of this node
+	filename string
 
 	Line   int
 	Column int
 
-	FileIndex int
+	fileIndex int
 	// when performing op against all nodes given, this will treat all the nodes as one
 	// (e.g. top level cross document merge). This property does not propagate to child nodes.
 	EvaluateTogether bool
@@ -89,11 +89,42 @@ type CandidateNode struct {
 
 func (n *CandidateNode) CreateChild() *CandidateNode {
 	return &CandidateNode{
-		Parent:    n,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
+		Parent: n,
 	}
+}
+
+func (n *CandidateNode) SetDocument(idx uint) {
+	n.document = idx
+}
+
+func (n *CandidateNode) GetDocument() uint {
+	// defer to parent
+	if n.Parent != nil {
+		return n.Parent.GetDocument()
+	}
+	return n.document
+}
+
+func (n *CandidateNode) SetFilename(name string) {
+	n.filename = name
+}
+
+func (n *CandidateNode) GetFilename() string {
+	if n.Parent != nil {
+		return n.Parent.GetFilename()
+	}
+	return n.filename
+}
+
+func (n *CandidateNode) SetFileIndex(idx int) {
+	n.fileIndex = idx
+}
+
+func (n *CandidateNode) GetFileIndex() int {
+	if n.Parent != nil {
+		return n.Parent.GetFileIndex()
+	}
+	return n.fileIndex
 }
 
 func (n *CandidateNode) GetKey() string {
@@ -105,7 +136,7 @@ func (n *CandidateNode) GetKey() string {
 	if n.Key != nil {
 		key = n.Key.Value
 	}
-	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, key)
+	return fmt.Sprintf("%v%v - %v", keyPrefix, n.GetDocument(), key)
 }
 
 func (n *CandidateNode) unwrapDocument() *CandidateNode {
@@ -192,9 +223,6 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 
 func (n *CandidateNode) SetParent(parent *CandidateNode) {
 	n.Parent = parent
-	n.Document = parent.Document
-	n.Filename = parent.Filename
-	n.FileIndex = parent.FileIndex
 }
 
 func (n *CandidateNode) AddChildren(children []*CandidateNode) {
@@ -282,13 +310,6 @@ func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *Candidate
 	newCopy.Key = n.Key
 
 	newCopy.IsMapKey = n.IsMapKey
-	log.Debugf("n path: %v", n.GetNicePath())
-	log.Debugf("HERE**************")
-	log.Debugf("newCopy path: %v", newCopy.GetNicePath())
-
-	newCopy.Document = n.Document
-	newCopy.Filename = n.Filename
-	newCopy.FileIndex = n.FileIndex
 
 	return newCopy
 }
@@ -340,13 +361,13 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		LeadingContent:  n.LeadingContent,
 		TrailingContent: n.TrailingContent,
 
-		Document: n.Document,
-		Filename: n.Filename,
+		document:  n.document,
+		filename:  n.filename,
+		fileIndex: n.fileIndex,
 
 		Line:   n.Line,
 		Column: n.Column,
 
-		FileIndex:        n.FileIndex,
 		EvaluateTogether: n.EvaluateTogether,
 		IsMapKey:         n.IsMapKey,
 	}

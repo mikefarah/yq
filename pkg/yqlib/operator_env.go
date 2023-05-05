@@ -35,7 +35,9 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		return Context{}, fmt.Errorf("value for env variable '%v' not provided in env()", envName)
 	} else {
 		decoder := NewYamlDecoder(ConfiguredYamlPreferences)
-		decoder.Init(strings.NewReader(rawValue))
+		if err := decoder.Init(strings.NewReader(rawValue)); err != nil {
+			return Context{}, err
+		}
 		result, err := decoder.Decode()
 
 		if err != nil {

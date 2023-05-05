@@ -53,8 +53,8 @@ func (s *stringEvaluator) Evaluate(expression string, input string, encoder Enco
 		} else if errorReading != nil {
 			return "", fmt.Errorf("bad input '%v': %w", input, errorReading)
 		}
-		candidateNode.Document = currentIndex
-		candidateNode.FileIndex = s.fileIndex
+		candidateNode.document = currentIndex
+		candidateNode.fileIndex = s.fileIndex
 
 		inputList := list.New()
 		inputList.PushBack(candidateNode)

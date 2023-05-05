@@ -10,8 +10,6 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	//each matchingNodes entry should turn into a sequence of keys to create.
 	//then collect object should do a cross function of the same index sequence for all matches.
 
-	var document uint
-
 	sequences := list.New()
 
 	if context.MatchingNodes.Len() > 0 {
@@ -33,7 +31,6 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	}
 
 	node := listToNodeSeq(sequences)
-	node.Document = document
 
 	return context.SingleChildContext(node), nil
 
@@ -41,10 +38,15 @@ func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 
 func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateNode, expressionNode *ExpressionNode) (*CandidateNode, error) {
 	var document uint
+	var filename string
+	var fileIndex int
+
 	var matches = list.New()
 
 	if matchingNode != nil {
-		document = matchingNode.Document
+		document = matchingNode.GetDocument()
+		filename = matchingNode.GetFilename()
+		fileIndex = matchingNode.GetFileIndex()
 		matches.PushBack(matchingNode)
 	}
 
@@ -58,7 +60,9 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 
 			node.AddKeyValueChild(lhs, rhs)
 
-			node.Document = document
+			node.document = document
+			node.fileIndex = fileIndex
+			node.filename = filename
 
 			return node, nil
 		}, false)
@@ -68,7 +72,9 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 	}
 	innerList := listToNodeSeq(mapPairs.MatchingNodes)
 	innerList.Style = FlowStyle
-	innerList.Document = document
+	innerList.document = document
+	innerList.fileIndex = fileIndex
+	innerList.filename = filename
 	return innerList, nil
 }
 

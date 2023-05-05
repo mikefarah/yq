@@ -40,6 +40,18 @@ var valueRepScenarios = []valueRepScenario{
 	},
 }
 
+func TestCandidateNodeChildWhenParentUpdated(t *testing.T) {
+	parent := CandidateNode{}
+	child := parent.CreateChild()
+	parent.SetDocument(1)
+	parent.SetFileIndex(2)
+	parent.SetFilename("meow")
+	test.AssertResultWithContext(t, "meow", child.GetFilename(), "filename")
+	test.AssertResultWithContext(t, 2, child.GetFileIndex(), "fileindex")
+	test.AssertResultWithContext(t, uint(1), child.GetDocument(), "document index")
+
+}
+
 func TestCandidateNodeGetValueRepScenarios(t *testing.T) {
 	for _, tt := range valueRepScenarios {
 		node := CandidateNode{Value: tt.input, Tag: tt.tag}

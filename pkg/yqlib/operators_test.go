@@ -31,7 +31,7 @@ type expressionScenario struct {
 }
 
 func TestMain(m *testing.M) {
-	logging.SetLevel(logging.DEBUG, "")
+	logging.SetLevel(logging.ERROR, "")
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
@@ -79,11 +79,11 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		}
 	} else {
 		candidateNode := &CandidateNode{
-			Document:  0,
-			Filename:  "",
+			document:  0,
+			filename:  "",
 			Tag:       "!!null",
 			Kind:      ScalarNode,
-			FileIndex: 0,
+			fileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
 
@@ -145,7 +145,7 @@ func resultToString(t *testing.T, n *CandidateNode) string {
 	} else if n.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.Document, n.GetPath(), tag, valueBuffer.String())
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.GetDocument(), n.GetPath(), tag, valueBuffer.String())
 }
 
 func resultsToString(t *testing.T, results *list.List) []string {
@@ -351,11 +351,11 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 		}
 	} else {
 		candidateNode := &CandidateNode{
-			Document:  0,
-			Filename:  "",
+			document:  0,
+			filename:  "",
 			Tag:       "!!null",
 			Kind:      ScalarNode,
-			FileIndex: 0,
+			fileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
 

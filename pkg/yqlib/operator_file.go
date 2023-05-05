@@ -12,7 +12,7 @@ func getFilenameOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.Filename)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.GetFilename())
 		results.PushBack(result)
 	}
 
@@ -26,7 +26,7 @@ func getFileIndexOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", candidate.FileIndex))
+		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", candidate.GetFileIndex()))
 		results.PushBack(result)
 	}
 
