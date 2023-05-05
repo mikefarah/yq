@@ -157,7 +157,7 @@ var envOperatorScenarios = []expressionScenario{
 		document:             "# abc\n{v: \"${myenv}\"}\n# xyz\n",
 		expression:           `(.. | select(tag == "!!str")) |= envsubst`,
 		expected: []string{
-			"D0, P[], (!!map)::# abc\n{v: \"cat meow\"}\n# xyz\n",
+			"D0, P[], (doc)::# abc\n{v: \"cat meow\"}\n# xyz\n",
 		},
 	},
 }

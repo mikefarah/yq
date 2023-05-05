@@ -11,7 +11,7 @@ var alternativeOperatorScenarios = []expressionScenario{
 		expression: `.b // .c`,
 		document:   `a: bridge`,
 		expected: []string{
-			"D0, P[], (!!null)::null\n",
+			"D0, P[c], (!!null)::null\n",
 		},
 	},
 	{

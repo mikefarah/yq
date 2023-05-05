@@ -180,14 +180,53 @@ func (n *CandidateNode) AsList() *list.List {
 
 func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) {
 	key := rawKey.unwrapDocument().Copy()
-	key.Parent = n
+	key.SetParent(n)
 	key.IsMapKey = true
 
 	value := rawValue.unwrapDocument().Copy()
-	value.Parent = n
+	value.SetParent(n)
 	value.Key = key
 
 	n.Content = append(n.Content, key, value)
+}
+
+func (n *CandidateNode) SetParent(parent *CandidateNode) {
+	n.Parent = parent
+	n.Document = parent.Document
+	n.Filename = parent.Filename
+	n.FileIndex = parent.FileIndex
+}
+
+func (n *CandidateNode) AddChildren(children []*CandidateNode) {
+	if n.Kind == MappingNode {
+		for i := 0; i < len(children); i += 2 {
+			key := children[i]
+			value := children[i+1]
+
+			keyClone := key.Copy()
+			keyClone.SetParent(n)
+
+			valueClone := value.Copy()
+			valueClone.SetParent(n)
+			valueClone.Key = keyClone
+			n.Content = append(n.Content, keyClone, valueClone)
+		}
+
+	} else {
+		for _, rawChild := range children {
+			value := rawChild.unwrapDocument().Copy()
+			value.SetParent(n)
+			if value.Key != nil {
+				value.Key.SetParent(n)
+			} else {
+				index := len(n.Content)
+				keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
+				keyNode.SetParent(n)
+				value.Key = keyNode
+			}
+			n.Content = append(n.Content, value)
+		}
+	}
 }
 
 func (n *CandidateNode) GetValueRep() (interface{}, error) {
@@ -262,14 +301,6 @@ func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, 
 	return replacement
 }
 
-func (n *CandidateNode) CopyChildren() []*CandidateNode {
-	clonedKids := make([]*CandidateNode, len(n.Content))
-	for i, child := range n.Content {
-		clonedKids[i] = child.Copy()
-	}
-	return clonedKids
-}
-
 func (n *CandidateNode) Copy() *CandidateNode {
 	return n.doCopy(true)
 }
@@ -280,9 +311,6 @@ func (n *CandidateNode) CopyWithoutContent() *CandidateNode {
 
 func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 	var content []*CandidateNode
-	if cloneContent {
-		content = n.CopyChildren()
-	}
 
 	var copyKey *CandidateNode
 	if n.Key != nil {
@@ -323,8 +351,8 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		IsMapKey:         n.IsMapKey,
 	}
 
-	for _, newChild := range content {
-		newChild.Parent = clone
+	if cloneContent {
+		clone.AddChildren(n.Content)
 	}
 
 	return clone
@@ -340,7 +368,9 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 		n.Style = other.Style
 	}
 
-	n.Content = other.CopyChildren()
+	n.Content = make([]*CandidateNode, 0)
+	n.AddChildren(other.Content)
+
 	n.Kind = other.Kind
 	n.Value = other.Value
 

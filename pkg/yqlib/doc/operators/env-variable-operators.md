@@ -95,10 +95,7 @@ The env variable can be any valid yq expression.
 
 Given a sample.yml file of:
 ```yaml
-a:
-  b:
-    - name: dog
-    - name: cat
+{a: {b: [{name: dog}, {name: cat}]}}
 ```
 then
 ```bash
@@ -106,17 +103,13 @@ pathEnv=".a.b[0].name"  valueEnv="moo" yq 'eval(strenv(pathEnv)) = strenv(valueE
 ```
 will output
 ```yaml
-a:
-  b:
-    - name: moo
-    - name: cat
+{a: {b: [{name: moo}, {name: cat}]}}
 ```
 
 ## Dynamic key lookup with environment variable
 Given a sample.yml file of:
 ```yaml
-cat: meow
-dog: woof
+{cat: meow, dog: woof}
 ```
 then
 ```bash
@@ -220,7 +213,7 @@ Error: variable ${myEmptyEnv} set but empty
 ## Replace string environment variable in document
 Given a sample.yml file of:
 ```yaml
-v: ${myenv}
+{v: '${myenv}'}
 ```
 then
 ```bash
@@ -228,7 +221,7 @@ myenv="cat meow" yq '.v |= envsubst' sample.yml
 ```
 will output
 ```yaml
-v: cat meow
+{v: 'cat meow'}
 ```
 
 ## (Default) Return all envsubst errors

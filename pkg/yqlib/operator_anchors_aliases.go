@@ -199,7 +199,7 @@ func explodeNode(node *CandidateNode, context Context) error {
 			node.Kind = node.Alias.Kind
 			node.Style = node.Alias.Style
 			node.Tag = node.Alias.Tag
-			node.Content = node.Alias.CopyChildren()
+			node.AddChildren(node.Alias.Content)
 			node.Value = node.Alias.Value
 			node.Alias = nil
 		}

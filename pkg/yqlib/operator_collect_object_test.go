@@ -7,6 +7,20 @@ import (
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		expression: `{"name": "mike"} | .name`,
+		expected: []string{
+			"D0, P[name], (!!str)::mike\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `{"person": {"names": ["mike"]}} | .person.names[0]`,
+		expected: []string{
+			"D0, P[person names 0], (!!str)::mike\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[{name: cat}, {name: dog}]`,
 		expression: `.[] | {.name: "great"}`,
 		expected: []string{

@@ -9,11 +9,7 @@ Tip: This can be a useful way to parameterise complex scripts.
 ## Dynamically evaluate a path
 Given a sample.yml file of:
 ```yaml
-pathExp: .a.b[] | select(.name == "cat")
-a:
-  b:
-    - name: dog
-    - name: cat
+{pathExp: '.a.b[] | select(.name == "cat")', a: {b: [{name: dog}, {name: cat}]}}
 ```
 then
 ```bash
@@ -21,7 +17,7 @@ yq 'eval(.pathExp)' sample.yml
 ```
 will output
 ```yaml
-name: cat
+{name: cat}
 ```
 
 ## Dynamically update a path from an environment variable
@@ -29,10 +25,7 @@ The env variable can be any valid yq expression.
 
 Given a sample.yml file of:
 ```yaml
-a:
-  b:
-    - name: dog
-    - name: cat
+{a: {b: [{name: dog}, {name: cat}]}}
 ```
 then
 ```bash
@@ -40,9 +33,6 @@ pathEnv=".a.b[0].name"  valueEnv="moo" yq 'eval(strenv(pathEnv)) = strenv(valueE
 ```
 will output
 ```yaml
-a:
-  b:
-    - name: moo
-    - name: cat
+{a: {b: [{name: moo}, {name: cat}]}}
 ```
 

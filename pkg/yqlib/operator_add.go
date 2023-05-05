@@ -170,7 +170,8 @@ func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode)
 		return err
 	}
 
-	target.Content = append(lhs.CopyChildren(), extraNodes...)
+	target.AddChildren(lhs.Content)
+	target.AddChildren(extraNodes)
 	return nil
 
 }

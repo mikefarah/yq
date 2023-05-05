@@ -10,6 +10,7 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 		value := false
 		log.Debugf("-- isEquals cross function")
 		if lhs == nil && rhs == nil {
+			log.Debugf("-- both are nil")
 			owner := &CandidateNode{}
 			return createBooleanCandidate(owner, !flip), nil
 		} else if lhs == nil {

@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"os"
+	"strings"
 
 	parse "github.com/a8m/envsubst/parse"
 )
@@ -31,9 +32,10 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 			Value: rawValue,
 		}
 	} else if rawValue == "" {
-		return Context{}, fmt.Errorf("Value for env variable '%v' not provided in env()", envName)
+		return Context{}, fmt.Errorf("value for env variable '%v' not provided in env()", envName)
 	} else {
 		decoder := NewYamlDecoder(ConfiguredYamlPreferences)
+		decoder.Init(strings.NewReader(rawValue))
 		result, err := decoder.Decode()
 
 		if err != nil {

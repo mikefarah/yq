@@ -203,7 +203,13 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*CandidateNode
 				node.Style = 0
 			}
 
-			node.Content = append(node.Content, &CandidateNode{Tag: "!!null", Kind: ScalarNode, Value: "null"})
+			valueNode := node.CreateChild()
+			valueNode.Kind = ScalarNode
+			valueNode.Tag = "!!null"
+			valueNode.Value = "null"
+			valueNode.Key = createScalarNode(contentLength, fmt.Sprintf("%v", contentLength))
+
+			node.Content = append(node.Content, valueNode)
 			contentLength = len(node.Content)
 		}
 
@@ -235,7 +241,11 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 	if !splat && !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
 		log.Debugf("no matches, creating one")
 		//no matches, create one automagically
-		valueNode := &CandidateNode{Tag: "!!null", Kind: ScalarNode, Value: "null"}
+		valueNode := matchingNode.CreateChild()
+		valueNode.Kind = ScalarNode
+		valueNode.Tag = "!!null"
+		valueNode.Value = "null"
+		valueNode.Key = keyNode
 
 		if len(matchingNode.Content) == 0 {
 			matchingNode.Style = 0

@@ -37,6 +37,30 @@ steps:
 var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
+		description: "dynamically set parent and key",
+		expression:  `.a.b.c = 3 | .a.b.c`,
+		expected: []string{
+			"D0, P[a b c], (!!int)::3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "dynamically set parent and key in array",
+		expression:  `.a.b[0] = 3 | .a.b[0]`,
+		expected: []string{
+			"D0, P[a b 0], (!!int)::3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "dynamically set parent and key",
+		expression:  `.a.b = ["x","y"] | .a.b[1]`,
+		expected: []string{
+			"D0, P[a b 1], (!!str)::y\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "splat empty map",
 		document:    "{}",
 		expression:  ".[]",
