@@ -57,7 +57,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		}
 
 		sliceArrayNode := lhsNode.CreateReplacement(SequenceNode, lhsNode.Tag, "")
-		sliceArrayNode.Content = newResults
+		sliceArrayNode.AddChildren(newResults)
 		results.PushBack(sliceArrayNode)
 
 	}

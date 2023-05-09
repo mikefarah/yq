@@ -171,11 +171,9 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 			}
 		}
 	}
-	node.Content = make([]*CandidateNode, newContent.Len())
-	index := 0
+	node.Content = make([]*CandidateNode, 0)
 	for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
-		node.Content[index] = newEl.Value.(*CandidateNode)
-		index++
+		node.AddChild(newEl.Value.(*CandidateNode))
 	}
 	return nil
 }

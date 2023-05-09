@@ -24,7 +24,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 		key := contents[index]
 		value := contents[index+1]
 
-		sequence.Content = append(sequence.Content, entrySeqFor(key, value))
+		sequence.AddChild(entrySeqFor(key, value))
 	}
 	return sequence
 }
@@ -37,7 +37,7 @@ func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 		key := &CandidateNode{Kind: ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", index)}
 		value := contents[index]
 
-		sequence.Content = append(sequence.Content, entrySeqFor(key, value))
+		sequence.AddChild(entrySeqFor(key, value))
 	}
 	return sequence
 }
@@ -98,7 +98,7 @@ func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
 			return nil, err
 		}
 
-		node.Content = append(node.Content, key, value)
+		node.AddKeyValueChild(key, value)
 	}
 	node.Kind = MappingNode
 	node.Tag = "!!map"

@@ -48,7 +48,7 @@ bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ## Simple example
 Given a sample.yml file of:
 ```yaml
-myFile: ../../examples/thing.yml
+{myFile: ../../examples/thing.yml}
 ```
 then
 ```bash
@@ -65,8 +65,7 @@ Note that you can modify the filename in the load operator if needed.
 
 Given a sample.yml file of:
 ```yaml
-something:
-  file: thing.yml
+{something: {file: thing.yml}}
 ```
 then
 ```bash
@@ -74,9 +73,7 @@ yq '.something |= load("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
-something:
-  a: apple is included
-  b: cool.
+{something: {a: apple is included, b: cool.}}
 ```
 
 ## Replace _all_ nodes with referenced file
@@ -84,11 +81,7 @@ Recursively match all the nodes (`..`) and then filter the ones that have a 'fil
 
 Given a sample.yml file of:
 ```yaml
-something:
-  file: thing.yml
-over:
-  here:
-    - file: thing.yml
+{something: {file: thing.yml}, over: {here: [{file: thing.yml}]}}
 ```
 then
 ```bash
@@ -96,13 +89,7 @@ yq '(.. | select(has("file"))) |= load("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
-something:
-  a: apple is included
-  b: cool.
-over:
-  here:
-    - a: apple is included
-      b: cool.
+{something: {a: apple is included, b: cool.}, over: {here: [{a: apple is included, b: cool.}]}}
 ```
 
 ## Replace node with referenced file as string
@@ -110,8 +97,7 @@ This will work for any text based file
 
 Given a sample.yml file of:
 ```yaml
-something:
-  file: thing.yml
+{something: {file: thing.yml}}
 ```
 then
 ```bash
@@ -119,9 +105,7 @@ yq '.something |= load_str("../../examples/" + .file)' sample.yml
 ```
 will output
 ```yaml
-something: |-
-  a: apple is included
-  b: cool.
+{something: "a: apple is included\nb: cool."}
 ```
 
 ## Load from XML
@@ -172,9 +156,7 @@ yq '. *= load_props("../../examples/small.properties")' sample.yml
 ```
 will output
 ```yaml
-this:
-  is: a properties file
-  cool: ay
+is
 ```
 
 ## Load from base64 encoded file

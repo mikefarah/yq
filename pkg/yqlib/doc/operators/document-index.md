@@ -85,7 +85,6 @@ will output
 ```yaml
 match: cat
 doc: 0
----
 match: frog
 doc: 1
 ```

@@ -55,14 +55,6 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	encoder.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 	encoder.SetIndent("", je.indentString)
 
-	// var dataBucket orderedMap
-	// firstly, convert all map keys to strings
-	// mapKeysToStrings(node)
-	// errorDecoding := node.Decode(&dataBucket)
-
-	// if errorDecoding != nil {
-	// 	return errorDecoding
-	// }
 	err := encoder.Encode(node)
 	if err != nil {
 		return err

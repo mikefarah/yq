@@ -71,7 +71,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:    `foo bar foo`,
 		expression:  `match("foo")`,
 		expected: []string{
-			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
+			"D0, P[], (!!map)::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
 		},
 	},
 	{
@@ -79,7 +79,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:   `!horse foo bar foo`,
 		expression: `match("foo")`,
 		expected: []string{
-			"D0, P[], ()::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
+			"D0, P[], (!!map)::string: foo\noffset: 0\nlength: 3\ncaptures: []\n",
 		},
 	},
 	{
@@ -111,7 +111,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:    `xyzzy-14`,
 		expression:  `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")`,
 		expected: []string{
-			"D0, P[], ()::a: xyzzy\nn: \"14\"\n",
+			"D0, P[], (!!map)::a: xyzzy\nn: \"14\"\n",
 		},
 	},
 	{
@@ -119,7 +119,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:   `!horse xyzzy-14`,
 		expression: `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")`,
 		expected: []string{
-			"D0, P[], ()::a: xyzzy\nn: \"14\"\n",
+			"D0, P[], (!!map)::a: xyzzy\nn: \"14\"\n",
 		},
 	},
 	{
@@ -128,7 +128,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:    `xyzzy-14`,
 		expression:  `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)(?P<bar123>bar)?")`,
 		expected: []string{
-			"D0, P[], ()::a: xyzzy\nn: \"14\"\nbar123: null\n",
+			"D0, P[], (!!map)::a: xyzzy\nn: \"14\"\nbar123: null\n",
 		},
 	},
 	{
@@ -136,7 +136,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:    `cat cat`,
 		expression:  `match("cat")`,
 		expected: []string{
-			"D0, P[], ()::string: cat\noffset: 0\nlength: 3\ncaptures: []\n",
+			"D0, P[], (!!map)::string: cat\noffset: 0\nlength: 3\ncaptures: []\n",
 		},
 	},
 	{

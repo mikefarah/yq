@@ -20,7 +20,7 @@ func pickMap(original *CandidateNode, indices *CandidateNode) *CandidateNode {
 	}
 
 	newNode := original.CopyWithoutContent()
-	newNode.Content = filteredContent
+	newNode.AddChildren(filteredContent)
 
 	return newNode
 }
@@ -40,7 +40,7 @@ func pickSequence(original *CandidateNode, indices *CandidateNode) (*CandidateNo
 	}
 
 	newNode := original.CopyWithoutContent()
-	newNode.Content = filteredContent
+	newNode.AddChildren(filteredContent)
 
 	return newNode, nil
 }

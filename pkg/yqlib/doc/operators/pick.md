@@ -31,9 +31,7 @@ Note that the order of the indices matches the pick order and non existent indic
 
 Given a sample.yml file of:
 ```yaml
-- cat
-- leopard
-- lion
+[cat, leopard, lion]
 ```
 then
 ```bash
@@ -41,7 +39,6 @@ yq 'pick([2, 0, 734, -5])' sample.yml
 ```
 will output
 ```yaml
-- lion
-- cat
+[lion, cat]
 ```
 

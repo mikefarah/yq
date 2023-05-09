@@ -65,89 +65,105 @@ because	excel	is	cool
 `
 
 var csvScenarios = []formatScenario{
-	// {
-	// 	description:  "Encode CSV simple",
-	// 	input:        csvTestSimpleYaml,
-	// 	expected:     expectedSimpleCsv,
-	// 	scenarioType: "encode-csv",
-	// },
-	// {
-	// 	description:  "Encode TSV simple",
-	// 	input:        csvTestSimpleYaml,
-	// 	expected:     tsvTestExpectedSimpleCsv,
-	// 	scenarioType: "encode-tsv",
-	// },
-	// {
-	// 	description:  "Encode Empty",
-	// 	skipDoc:      true,
-	// 	input:        `[]`,
-	// 	expected:     "",
-	// 	scenarioType: "encode-csv",
-	// },
-	// {
-	// 	description:  "Comma in value",
-	// 	skipDoc:      true,
-	// 	input:        `["comma, in, value", things]`,
-	// 	expected:     "\"comma, in, value\",things\n",
-	// 	scenarioType: "encode-csv",
-	// },
-	// {
-	// 	description:  "Encode array of objects to csv",
-	// 	input:        expectedYamlFromCSV,
-	// 	expected:     csvSimple,
-	// 	scenarioType: "encode-csv",
-	// },
-	// {
-	// 	description:    "Encode array of objects to custom csv format",
-	// 	subdescription: "Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Pick the columns and call the header whatever you like.",
-	// 	input:          expectedYamlFromCSV,
-	// 	expected:       csvSimpleShort,
-	// 	expression:     `[["Name", "Number of Cats"]] +  [.[] | [.name, .numberOfCats ]]`,
-	// 	scenarioType:   "encode-csv",
-	// },
-	// {
-	// 	description:    "Encode array of objects to csv - missing fields behaviour",
-	// 	subdescription: "First entry is used to determine the headers, and it is missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank",
-	// 	input:          expectedYamlFromCSVMissingData,
-	// 	expected:       csvSimpleMissingData,
-	// 	scenarioType:   "encode-csv",
-	// },
-	// {
-	// 	description:  "decode csv missing",
-	// 	skipDoc:      true,
-	// 	input:        csvMissing,
-	// 	expected:     csvMissing,
-	// 	scenarioType: "roundtrip-csv",
-	// },
-	// {
-	// 	description:    "Parse CSV into an array of objects",
-	// 	subdescription: "First row is assumed to be the header row.",
-	// 	input:          csvSimple,
-	// 	expected:       expectedYamlFromCSV,
-	// 	scenarioType:   "decode-csv-object",
-	// },
-	// {
-	// 	description:  "Scalar roundtrip",
-	// 	skipDoc:      true,
-	// 	input:        "mike\ncat",
-	// 	expression:   ".[0].mike",
-	// 	expected:     "cat\n",
-	// 	scenarioType: "roundtrip-csv",
-	// },
-	// {
-	// 	description:    "Parse TSV into an array of objects",
-	// 	subdescription: "First row is assumed to be the header row.",
-	// 	input:          tsvSimple,
-	// 	expected:       expectedYamlFromCSV,
-	// 	scenarioType:   "decode-tsv-object",
-	// },
-	// {
-	// 	description:  "Round trip",
-	// 	input:        csvSimple,
-	// 	expected:     expectedUpdatedSimpleCsv,
-	// 	expression:   `(.[] | select(.name == "Gary") | .numberOfCats) = 3`,
-	// 	scenarioType: "roundtrip-csv",
-	// },
+	{
+		description:  "Encode CSV simple",
+		input:        csvTestSimpleYaml,
+		expected:     expectedSimpleCsv,
+		scenarioType: "encode-csv",
+	},
+	{
+		description:  "Encode TSV simple",
+		input:        csvTestSimpleYaml,
+		expected:     tsvTestExpectedSimpleCsv,
+		scenarioType: "encode-tsv",
+	},
+	{
+		description:  "Encode Empty",
+		skipDoc:      true,
+		input:        `[]`,
+		expected:     "",
+		scenarioType: "encode-csv",
+	},
+	{
+		description:  "Comma in value",
+		skipDoc:      true,
+		input:        `["comma, in, value", things]`,
+		expected:     "\"comma, in, value\",things\n",
+		scenarioType: "encode-csv",
+	},
+	{
+		description:  "Encode array of objects to csv",
+		input:        expectedYamlFromCSV,
+		expected:     csvSimple,
+		scenarioType: "encode-csv",
+	},
+	{
+		description:    "Encode array of objects to custom csv format",
+		subdescription: "Add the header row manually, then the we convert each object into an array of values - resulting in an array of arrays. Pick the columns and call the header whatever you like.",
+		input:          expectedYamlFromCSV,
+		expected:       csvSimpleShort,
+		expression:     `[["Name", "Number of Cats"]] +  [.[] | [.name, .numberOfCats ]]`,
+		scenarioType:   "encode-csv",
+	},
+	{
+		description:    "Encode array of objects to csv - missing fields behaviour",
+		subdescription: "First entry is used to determine the headers, and it is missing 'likesApples', so it is not included in the csv. Second entry does not have 'numberOfCats' so that is blank",
+		input:          expectedYamlFromCSVMissingData,
+		expected:       csvSimpleMissingData,
+		scenarioType:   "encode-csv",
+	},
+	{
+		description:  "decode csv missing",
+		skipDoc:      true,
+		input:        csvMissing,
+		expected:     csvMissing,
+		scenarioType: "roundtrip-csv",
+	},
+	{
+		description:  "decode csv key",
+		skipDoc:      true,
+		input:        csvSimple,
+		expression:   ".[0].name | key",
+		expected:     "name\n",
+		scenarioType: "decode-csv-object",
+	},
+	{
+		description:  "decode csv parent",
+		skipDoc:      true,
+		input:        csvSimple,
+		expression:   ".[0].name | parent | .height",
+		expected:     "168.8\n",
+		scenarioType: "decode-csv-object",
+	},
+	{
+		description:    "Parse CSV into an array of objects",
+		subdescription: "First row is assumed to be the header row.",
+		input:          csvSimple,
+		expected:       expectedYamlFromCSV,
+		scenarioType:   "decode-csv-object",
+	},
+	{
+		description:  "Scalar roundtrip",
+		skipDoc:      true,
+		input:        "mike\ncat",
+		expression:   ".[0].mike",
+		expected:     "cat\n",
+		scenarioType: "roundtrip-csv",
+	},
+	{
+		description:    "Parse TSV into an array of objects",
+		subdescription: "First row is assumed to be the header row.",
+		input:          tsvSimple,
+		expected:       expectedYamlFromCSV,
+		scenarioType:   "decode-tsv-object",
+	},
+	{
+		description:  "Round trip",
+		input:        csvSimple,
+		expected:     expectedUpdatedSimpleCsv,
+		expression:   `(.[] | select(.name == "Gary") | .numberOfCats) = 3`,
+		scenarioType: "roundtrip-csv",
+	},
 }
 
 func testCSVScenario(t *testing.T, s formatScenario) {
@@ -286,5 +302,5 @@ func TestCSVScenarios(t *testing.T) {
 	for i, s := range csvScenarios {
 		genericScenarios[i] = s
 	}
-	// documentScenarios(t, "usage", "csv-tsv", genericScenarios, documentCSVScenario)
+	documentScenarios(t, "usage", "csv-tsv", genericScenarios, documentCSVScenario)
 }

@@ -37,6 +37,7 @@ func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, erro
 			newLHSArray = append(newLHSArray, lhs.Content[lindex])
 		}
 	}
+	// removing children from LHS, parent hasn't changed
 	lhs.Content = newLHSArray
 	return lhs, nil
 }

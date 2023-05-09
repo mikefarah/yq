@@ -91,11 +91,7 @@ will output
 ## Join strings
 Given a sample.yml file of:
 ```yaml
-- cat
-- meow
-- 1
-- null
-- true
+[cat, meow, 1, null, true]
 ```
 then
 ```bash
@@ -109,10 +105,7 @@ cat; meow; 1; ; true
 ## Trim strings
 Given a sample.yml file of:
 ```yaml
-- ' cat'
-- 'dog '
-- ' cow cow '
-- horse
+[' cat', 'dog ', ' cow cow ', horse]
 ```
 then
 ```bash
@@ -284,8 +277,7 @@ Like jq's equivalent, this works like match but only returns true/false instead 
 
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
+[cat, dog]
 ```
 then
 ```bash
@@ -354,7 +346,7 @@ b: !goat heart
 ## Split strings
 Given a sample.yml file of:
 ```yaml
-cat; meow; 1; ; true
+"cat; meow; 1; ; true"
 ```
 then
 ```bash
@@ -372,7 +364,7 @@ will output
 ## Split strings one match
 Given a sample.yml file of:
 ```yaml
-word
+"word"
 ```
 then
 ```bash

@@ -6,7 +6,6 @@ import (
 
 	"github.com/jinzhu/copier"
 	logging "gopkg.in/op/go-logging.v1"
-	"gopkg.in/yaml.v3"
 )
 
 type operatorHandler func(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error)
@@ -50,13 +49,6 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 		}
 	}
 	return context, nil
-}
-
-func unwrapDoc(node *yaml.Node) *yaml.Node {
-	if node.Kind == yaml.DocumentNode {
-		return node.Content[0]
-	}
-	return node
 }
 
 func emptyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

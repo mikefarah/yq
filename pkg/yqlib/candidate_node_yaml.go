@@ -168,7 +168,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 		log.Debugf("node Style: %v", node.Style)
 		log.Debugf("o Style: %v", o.Style)
 		o.Content = make([]*CandidateNode, len(node.Content))
-		for i := 0; i < len(node.Content); i += 1 {
+		for i := 0; i < len(node.Content); i++ {
 			keyNode := o.CreateChild()
 			keyNode.IsMapKey = true
 			keyNode.Tag = "!!int"
@@ -230,7 +230,7 @@ func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 		log.Debugf("original style: %v", o.Style)
 		log.Debugf("original: %v, tag: %v, style: %v, kind: %v", NodeToString(o), target.Tag, target.Style, target.Kind == yaml.SequenceNode)
 		target.Content = make([]*yaml.Node, len(o.Content))
-		for i := 0; i < len(o.Content); i += 1 {
+		for i := 0; i < len(o.Content); i++ {
 
 			child, err := o.Content[i].MarshalYAML()
 

@@ -34,12 +34,14 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
-		for i := 0; i < len(first.Content); i++ {
 
+		for i := 0; i < len(first.Content); i++ {
+			log.Debugf("rotate[%v] = %v", i, NodeToString(candidateNode.Content[i]))
+			log.Debugf("children:\n%v", NodeContentToString(candidateNode.Content[i], 0))
 			rotated[i].PushBack(candidateNode.Content[i])
 		}
 	}
-	log.Debugf("-- collectObjectOperation, lenght of rotated is %v", len(rotated))
+	log.Debugf("-- collectObjectOperation, length of rotated is %v", len(rotated))
 
 	newObject := list.New()
 	for i := 0; i < len(first.Content); i++ {
@@ -80,7 +82,9 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 		aggCandidate := el.Value.(*CandidateNode)
 		for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
 			splatCandidate := splatEl.Value.(*CandidateNode)
+			log.Debugf("-- collectObjectOperation; splatCandidate: %v", NodeToString(splatCandidate))
 			newCandidate := aggCandidate.Copy()
+			log.Debugf("-- collectObjectOperation; aggCandidate: %v", NodeToString(aggCandidate))
 
 			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, context, newCandidate, splatCandidate)
 

@@ -42,7 +42,7 @@ func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*CandidateNode, error) 
 		if err != nil {
 			return nil, err
 		}
-		yamlNode.Content = append(yamlNode.Content, yamlChild)
+		yamlNode.AddChild(yamlChild)
 	}
 
 	return yamlNode, nil
@@ -74,7 +74,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
 		labelNode.LineComment = dec.processComment(n.LineComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
-		yamlNode.Content = append(yamlNode.Content, labelNode, dec.createValueNodeFromData(n.Data))
+		yamlNode.AddKeyValueChild(labelNode, dec.createValueNodeFromData(n.Data))
 	}
 
 	for i, keyValuePair := range n.Children {
@@ -119,7 +119,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
 				return nil, err
 			}
 		}
-		yamlNode.Content = append(yamlNode.Content, labelNode, valueNode)
+		yamlNode.AddKeyValueChild(labelNode, valueNode)
 	}
 
 	return yamlNode, nil

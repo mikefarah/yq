@@ -6,6 +6,16 @@ import (
 
 var tagOperatorScenarios = []expressionScenario{
 	{
+		description:    "tag of key is not a key",
+		subdescription: "so it should have 'a' as the path",
+		skipDoc:        true,
+		document:       "a: frog\n",
+		expression:     `.a | key | tag`,
+		expected: []string{
+			"D0, P[a], (!!str)::!!str\n",
+		},
+	},
+	{
 		description: "Get tag",
 		document:    `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
 		expression:  `.. | tag`,
@@ -69,7 +79,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `(.. | select(tag == "!!int")) tag= "!!str"`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: cat, b: \"5\", c: 3.2, e: true}\n",
+			"D0, P[], (doc)::{a: cat, b: \"5\", c: 3.2, e: true}\n",
 		},
 	},
 	{

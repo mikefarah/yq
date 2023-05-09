@@ -39,10 +39,7 @@ func (dec *csvObjectDecoder) createObject(headerRow []string, contentRow []strin
 	objectNode := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 	for i, header := range headerRow {
-		objectNode.Content = append(
-			objectNode.Content,
-			createScalarNode(header, header),
-			dec.convertToNode(contentRow[i]))
+		objectNode.AddKeyValueChild(createScalarNode(header, header), dec.convertToNode(contentRow[i]))
 	}
 	return objectNode
 }
@@ -63,7 +60,7 @@ func (dec *csvObjectDecoder) Decode() (*CandidateNode, error) {
 
 	for err == nil && len(contentRow) > 0 {
 		log.Debugf("Adding contentRow: %v", contentRow)
-		rootArray.Content = append(rootArray.Content, dec.createObject(headerRow, contentRow))
+		rootArray.AddChild(dec.createObject(headerRow, contentRow))
 		contentRow, err = dec.reader.Read()
 		log.Debugf("Read next contentRow: %v, %v", contentRow, err)
 	}

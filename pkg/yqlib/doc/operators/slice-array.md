@@ -7,10 +7,7 @@ You may leave out the first or second number, which will will refer to the start
 ## Slicing arrays
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
-- frog
-- cow
+[cat, dog, frog, cow]
 ```
 then
 ```bash
@@ -27,10 +24,7 @@ Starts from the start of the array
 
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
-- frog
-- cow
+[cat, dog, frog, cow]
 ```
 then
 ```bash
@@ -47,10 +41,7 @@ Finishes at the end of the array
 
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
-- frog
-- cow
+[cat, dog, frog, cow]
 ```
 then
 ```bash
@@ -65,10 +56,7 @@ will output
 ## Slicing arrays - use negative numbers to count backwards from the end
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
-- frog
-- cow
+[cat, dog, frog, cow]
 ```
 then
 ```bash
@@ -85,10 +73,7 @@ using an expression to find the index
 
 Given a sample.yml file of:
 ```yaml
-- cat
-- dog
-- frog
-- cow
+[cat, dog, frog, cow]
 ```
 then
 ```bash

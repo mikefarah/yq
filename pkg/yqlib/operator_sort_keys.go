@@ -46,5 +46,8 @@ func sortKeys(node *CandidateNode) {
 		sortedContent[index*2] = keyBucket[keyString]
 		sortedContent[1+(index*2)] = valueBucket[keyString]
 	}
+
+	// re-arranging children, no need to update their parent
+	// relationship
 	node.Content = sortedContent
 }

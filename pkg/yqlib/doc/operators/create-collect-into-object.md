@@ -56,7 +56,6 @@ will output
 ```yaml
 Mike: cat
 Mike: dog
----
 Rosey: monkey
 Rosey: sheep
 ```

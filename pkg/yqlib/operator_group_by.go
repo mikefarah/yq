@@ -45,7 +45,7 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 		candidateNode := candidate.unwrapDocument()
 
 		if candidateNode.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("Only arrays are supported for group by")
+			return Context{}, fmt.Errorf("only arrays are supported for group by")
 		}
 
 		newMatches, err := processIntoGroups(d, context, expressionNode.RHS, candidateNode)
@@ -59,10 +59,10 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 			groupResultNode := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 			groupList := groupEl.Value.(*list.List)
 			for groupItem := groupList.Front(); groupItem != nil; groupItem = groupItem.Next() {
-				groupResultNode.Content = append(groupResultNode.Content, groupItem.Value.(*CandidateNode))
+				groupResultNode.AddChild(groupItem.Value.(*CandidateNode))
 			}
 
-			resultNode.Content = append(resultNode.Content, groupResultNode)
+			resultNode.AddChild(groupResultNode)
 		}
 
 		results.PushBack(resultNode)

@@ -191,16 +191,13 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 		match, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
 			captureNode := &CandidateNode{Kind: MappingNode}
-			captureNode.Content = addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1])
-			capturesListNode.Content = append(capturesListNode.Content, captureNode)
+			captureNode.AddChildren(addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1]))
+			capturesListNode.AddChild(captureNode)
 		}
 
 		node := candidate.CreateReplacement(MappingNode, "!!map", "")
-		node.Content = addMatch(node.Content, match, allIndices[i][0], "")
-		node.Content = append(node.Content,
-			createScalarNode("captures", "captures"),
-			capturesListNode,
-		)
+		node.AddChildren(addMatch(node.Content, match, allIndices[i][0], ""))
+		node.AddKeyValueChild(createScalarNode("captures", "captures"), capturesListNode)
 		results.PushBack(node)
 
 	}
@@ -222,20 +219,18 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 
 		_, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
-			capturesNode.Content = append(capturesNode.Content,
-				createScalarNode(subNames[j+1], subNames[j+1]))
+
+			keyNode := createScalarNode(subNames[j+1], subNames[j+1])
+			var valueNode *CandidateNode
 
 			offset := allIndices[i][2+j*2]
 			// offset of -1 means there was no match, force a null value like jq
 			if offset < 0 {
-				capturesNode.Content = append(capturesNode.Content,
-					createScalarNode(nil, "null"),
-				)
+				valueNode = createScalarNode(nil, "null")
 			} else {
-				capturesNode.Content = append(capturesNode.Content,
-					createScalarNode(submatch, submatch),
-				)
+				valueNode = createScalarNode(submatch, submatch)
 			}
+			capturesNode.AddKeyValueChild(keyNode, valueNode)
 		}
 
 		results.PushBack(capturesNode)
@@ -416,11 +411,11 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 
 		if node.guessTagFromCustomType() != "!!str" {
-			return Context{}, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
+			return Context{}, fmt.Errorf("cannot split %v, can only split strings", node.Tag)
 		}
 		kind, tag, content := split(node.Value, splitStr)
 		result := candidate.CreateReplacement(kind, tag, "")
-		result.Content = content
+		result.AddChildren(content)
 		results.PushBack(result)
 	}
 

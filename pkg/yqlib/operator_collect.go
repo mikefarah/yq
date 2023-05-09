@@ -15,8 +15,7 @@ func collectTogether(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for result := collectExpResults.MatchingNodes.Front(); result != nil; result = result.Next() {
 			resultC := result.Value.(*CandidateNode)
 			log.Debugf("found this: %v", NodeToString(resultC))
-			collectedNode.AddChildren([]*CandidateNode{resultC})
-			// collectedNode.Content = append(collectedNode.Content, resultC.unwrapDocument())
+			collectedNode.AddChild(resultC)
 		}
 	}
 	return collectedNode, nil
@@ -65,8 +64,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for result := collectExpResults.MatchingNodes.Front(); result != nil; result = result.Next() {
 			resultC := result.Value.(*CandidateNode)
 			log.Debugf("found this: %v", NodeToString(resultC))
-			collectCandidate.AddChildren([]*CandidateNode{resultC})
-			// collectCandidate.Content = append(collectCandidate.Content, resultC.unwrapDocument())
+			collectCandidate.AddChild(resultC)
 		}
 		log.Debugf("done collect rhs: %v", expressionNode.RHS.Operation.toString())
 

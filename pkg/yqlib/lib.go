@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	logging "gopkg.in/op/go-logging.v1"
-	yaml "gopkg.in/yaml.v3"
 )
 
 var ExpressionParser ExpressionParserInterface
@@ -291,45 +290,6 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	return false
 }
 
-func deepCloneContent(content []*yaml.Node) []*yaml.Node {
-	clonedContent := make([]*yaml.Node, len(content))
-	for i, child := range content {
-		clonedContent[i] = deepClone(child)
-	}
-	return clonedContent
-}
-
-func deepCloneNoContent(node *yaml.Node) *yaml.Node {
-	return deepCloneWithOptions(node, false)
-}
-func deepClone(node *yaml.Node) *yaml.Node {
-	return deepCloneWithOptions(node, true)
-}
-
-func deepCloneWithOptions(node *yaml.Node, cloneContent bool) *yaml.Node {
-	if node == nil {
-		return nil
-	}
-	var clonedContent []*yaml.Node
-	if cloneContent {
-		clonedContent = deepCloneContent(node.Content)
-	}
-	return &yaml.Node{
-		Content:     clonedContent,
-		Kind:        node.Kind,
-		Style:       node.Style,
-		Tag:         node.Tag,
-		Value:       node.Value,
-		Anchor:      node.Anchor,
-		Alias:       node.Alias,
-		HeadComment: node.HeadComment,
-		LineComment: node.LineComment,
-		FootComment: node.FootComment,
-		Line:        node.Line,
-		Column:      node.Column,
-	}
-}
-
 // yaml numbers can be hex encoded...
 func parseInt64(numberString string) (string, int64, error) {
 	if strings.HasPrefix(numberString, "0x") ||
@@ -436,6 +396,24 @@ func NodeToString(node *CandidateNode) string {
 	}
 	return fmt.Sprintf(`D%v, P%v, %v (%v)::%v`, node.GetDocument(), node.GetNicePath(), KindString(node.Kind), tag, valueToUse)
 }
+
+func NodeContentToString(node *CandidateNode, depth int) string {
+	if !log.IsEnabledFor(logging.DEBUG) {
+		return ""
+	}
+	var sb strings.Builder
+	for _, child := range node.Content {
+		for i := 0; i < depth; i++ {
+			sb.WriteString(" ")
+		}
+		sb.WriteString("- ")
+		sb.WriteString(NodeToString(child))
+		sb.WriteString("\n")
+		sb.WriteString(NodeContentToString(child, depth+1))
+	}
+	return sb.String()
+}
+
 func KindString(kind Kind) string {
 	switch kind {
 	case ScalarNode:

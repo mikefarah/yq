@@ -4,7 +4,6 @@ func matchKey(name string, pattern string) (matched bool) {
 	if pattern == "" {
 		return name == pattern
 	}
-	log.Debug("pattern: %v", pattern)
 	if pattern == "*" {
 		log.Debug("wild!")
 		return true

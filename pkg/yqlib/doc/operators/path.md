@@ -10,8 +10,7 @@ Use `setpath` to set a value to the path array returned by `path`, and similarly
 ## Map path
 Given a sample.yml file of:
 ```yaml
-a:
-  b: cat
+{a: {b: cat}}
 ```
 then
 ```bash
@@ -26,8 +25,7 @@ will output
 ## Get map key
 Given a sample.yml file of:
 ```yaml
-a:
-  b: cat
+{a: {b: cat}}
 ```
 then
 ```bash
@@ -41,9 +39,7 @@ b
 ## Array path
 Given a sample.yml file of:
 ```yaml
-a:
-  - cat
-  - dog
+{a: [cat, dog]}
 ```
 then
 ```bash
@@ -58,9 +54,7 @@ will output
 ## Get array index
 Given a sample.yml file of:
 ```yaml
-a:
-  - cat
-  - dog
+{a: [cat, dog]}
 ```
 then
 ```bash
@@ -74,10 +68,7 @@ will output
 ## Print path and value
 Given a sample.yml file of:
 ```yaml
-a:
-  - cat
-  - dog
-  - frog
+{a: [cat, dog, frog]}
 ```
 then
 ```bash
@@ -98,8 +89,7 @@ will output
 ## Set path
 Given a sample.yml file of:
 ```yaml
-a:
-  b: cat
+{a: {b: cat}}
 ```
 then
 ```bash
@@ -107,8 +97,7 @@ yq 'setpath(["a", "b"]; "things")' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: things
+{a: {b: things}}
 ```
 
 ## Set on empty document
@@ -183,10 +172,7 @@ Notice delpaths takes an _array_ of paths.
 
 Given a sample.yml file of:
 ```yaml
-a:
-  b: cat
-  c: dog
-  d: frog
+{a: {b: cat, c: dog, d: frog}}
 ```
 then
 ```bash
@@ -194,8 +180,7 @@ yq 'delpaths([["a", "c"], ["a", "d"]])' sample.yml
 ```
 will output
 ```yaml
-a:
-  b: cat
+{a: {b: cat}}
 ```
 
 ## Delete array path

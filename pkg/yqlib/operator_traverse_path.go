@@ -203,13 +203,8 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*CandidateNode
 				node.Style = 0
 			}
 
-			valueNode := node.CreateChild()
-			valueNode.Kind = ScalarNode
-			valueNode.Tag = "!!null"
-			valueNode.Value = "null"
-			valueNode.Key = createScalarNode(contentLength, fmt.Sprintf("%v", contentLength))
-
-			node.Content = append(node.Content, valueNode)
+			valueNode := createScalarNode(nil, "null")
+			node.AddChild(valueNode)
 			contentLength = len(node.Content)
 		}
 
@@ -251,7 +246,7 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 			matchingNode.Style = 0
 		}
 
-		matchingNode.Content = append(matchingNode.Content, keyNode, valueNode)
+		matchingNode.AddKeyValueChild(keyNode, valueNode)
 
 		if prefs.IncludeMapKeys {
 			newMatches.Set(keyNode.GetKey(), keyNode)
@@ -281,11 +276,10 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 		key := contents[index]
 		value := contents[index+1]
 
-		log.Debug("checking %v (%v)", key.Value, key.Tag)
 		//skip the 'merge' tag, find a direct match first
 		if key.Tag == "!!merge" && !prefs.DontFollowAlias {
 			log.Debug("Merge anchor")
-			err := traverseMergeAnchor(newMatches, node, value, wantedKey, prefs, splat)
+			err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
 			if err != nil {
 				return err
 			}
@@ -305,17 +299,16 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, originalCandidate *CandidateNode, value *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
 	switch value.Kind {
 	case AliasNode:
 		if value.Alias.Kind != MappingNode {
 			return fmt.Errorf("can only use merge anchors with maps (!!map), but got %v", value.Alias.Tag)
 		}
-		// candidateNode := originalCandidate.CreateReplacement(value.Alias)
 		return doTraverseMap(newMatches, value.Alias, wantedKey, prefs, splat)
 	case SequenceNode:
 		for _, childValue := range value.Content {
-			err := traverseMergeAnchor(newMatches, originalCandidate, childValue, wantedKey, prefs, splat)
+			err := traverseMergeAnchor(newMatches, childValue, wantedKey, prefs, splat)
 			if err != nil {
 				return err
 			}

@@ -28,7 +28,8 @@ func flatten(node *CandidateNode, depth int) {
 			newSeq = append(newSeq, content[i])
 		}
 	}
-	node.Content = newSeq
+	node.Content = make([]*CandidateNode, 0)
+	node.AddChildren(newSeq)
 }
 
 func flattenOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -40,7 +41,7 @@ func flattenOp(d *dataTreeNavigator, context Context, expressionNode *Expression
 		candidate := el.Value.(*CandidateNode)
 		candidateNode := candidate.unwrapDocument()
 		if candidateNode.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("Only arrays are supported for flatten")
+			return Context{}, fmt.Errorf("only arrays are supported for flatten")
 		}
 
 		flatten(candidateNode, depth)

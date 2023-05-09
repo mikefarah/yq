@@ -10,9 +10,7 @@ Note that at this stage, `yq` only sorts scalar fields.
 ## Sort by string field
 Given a sample.yml file of:
 ```yaml
-- a: banana
-- a: cat
-- a: apple
+[{a: banana}, {a: cat}, {a: apple}]
 ```
 then
 ```bash
@@ -20,19 +18,13 @@ yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
-- a: apple
-- a: banana
-- a: cat
+[{a: apple}, {a: banana}, {a: cat}]
 ```
 
 ## Sort by multiple fields
 Given a sample.yml file of:
 ```yaml
-- a: dog
-- a: cat
-  b: banana
-- a: cat
-  b: apple
+[{a: dog}, {a: cat, b: banana}, {a: cat, b: apple}]
 ```
 then
 ```bash
@@ -40,11 +32,7 @@ yq 'sort_by(.a, .b)' sample.yml
 ```
 will output
 ```yaml
-- a: cat
-  b: apple
-- a: cat
-  b: banana
-- a: dog
+[{a: cat, b: apple}, {a: cat, b: banana}, {a: dog}]
 ```
 
 ## Sort descending by string field
@@ -52,9 +40,7 @@ Use sort with reverse to sort in descending order.
 
 Given a sample.yml file of:
 ```yaml
-- a: banana
-- a: cat
-- a: apple
+[{a: banana}, {a: cat}, {a: apple}]
 ```
 then
 ```bash
@@ -62,9 +48,7 @@ yq 'sort_by(.a) | reverse' sample.yml
 ```
 will output
 ```yaml
-- a: cat
-- a: banana
-- a: apple
+[{a: cat}, {a: banana}, {a: apple}]
 ```
 
 ## Sort array in place
@@ -114,14 +98,7 @@ Note the order of the elements in unchanged when equal in sorting.
 
 Given a sample.yml file of:
 ```yaml
-- a: banana
-  b: 1
-- a: banana
-  b: 2
-- a: banana
-  b: 3
-- a: banana
-  b: 4
+[{a: banana, b: 1}, {a: banana, b: 2}, {a: banana, b: 3}, {a: banana, b: 4}]
 ```
 then
 ```bash
@@ -129,22 +106,13 @@ yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
-- a: banana
-  b: 1
-- a: banana
-  b: 2
-- a: banana
-  b: 3
-- a: banana
-  b: 4
+[{a: banana, b: 1}, {a: banana, b: 2}, {a: banana, b: 3}, {a: banana, b: 4}]
 ```
 
 ## Sort by numeric field
 Given a sample.yml file of:
 ```yaml
-- a: 10
-- a: 100
-- a: 1
+[{a: 10}, {a: 100}, {a: 1}]
 ```
 then
 ```bash
@@ -152,17 +120,13 @@ yq 'sort_by(.a)' sample.yml
 ```
 will output
 ```yaml
-- a: 1
-- a: 10
-- a: 100
+[{a: 1}, {a: 10}, {a: 100}]
 ```
 
 ## Sort by custom date field
 Given a sample.yml file of:
 ```yaml
-- a: 12-Jun-2011
-- a: 23-Dec-2010
-- a: 10-Aug-2011
+[{a: 12-Jun-2011}, {a: 23-Dec-2010}, {a: 10-Aug-2011}]
 ```
 then
 ```bash
@@ -170,21 +134,13 @@ yq 'with_dtf("02-Jan-2006"; sort_by(.a))' sample.yml
 ```
 will output
 ```yaml
-- a: 23-Dec-2010
-- a: 12-Jun-2011
-- a: 10-Aug-2011
+[{a: 23-Dec-2010}, {a: 12-Jun-2011}, {a: 10-Aug-2011}]
 ```
 
 ## Sort, nulls come first
 Given a sample.yml file of:
 ```yaml
-- 8
-- 3
-- null
-- 6
-- true
-- false
-- cat
+[8, 3, null, 6, true, false, cat]
 ```
 then
 ```bash
@@ -192,12 +148,6 @@ yq 'sort' sample.yml
 ```
 will output
 ```yaml
-- null
-- false
-- true
-- 3
-- 6
-- 8
-- cat
+[null, false, true, 3, 6, 8, cat]
 ```
 

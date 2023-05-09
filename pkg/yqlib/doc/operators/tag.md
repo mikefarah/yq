@@ -5,11 +5,7 @@ The tag operator can be used to get or set the tag of nodes (e.g. `!!str`, `!!in
 ## Get tag
 Given a sample.yml file of:
 ```yaml
-a: cat
-b: 5
-c: 3.2
-e: true
-f: []
+{a: cat, b: 5, c: 3.2, e: true, f: []}
 ```
 then
 ```bash
@@ -28,11 +24,7 @@ will output
 ## type is an alias for tag
 Given a sample.yml file of:
 ```yaml
-a: cat
-b: 5
-c: 3.2
-e: true
-f: []
+{a: cat, b: 5, c: 3.2, e: true, f: []}
 ```
 then
 ```bash
@@ -51,7 +43,7 @@ will output
 ## Set custom tag
 Given a sample.yml file of:
 ```yaml
-a: str
+{a: str}
 ```
 then
 ```bash
@@ -59,16 +51,13 @@ yq '.a tag = "!!mikefarah"' sample.yml
 ```
 will output
 ```yaml
-a: !!mikefarah str
+{a: !!mikefarah str}
 ```
 
 ## Find numbers and convert them to strings
 Given a sample.yml file of:
 ```yaml
-a: cat
-b: 5
-c: 3.2
-e: true
+{a: cat, b: 5, c: 3.2, e: true}
 ```
 then
 ```bash
@@ -76,9 +65,6 @@ yq '(.. | select(tag == "!!int")) tag= "!!str"' sample.yml
 ```
 will output
 ```yaml
-a: cat
-b: "5"
-c: 3.2
-e: true
+{a: cat, b: "5", c: 3.2, e: true}
 ```
 

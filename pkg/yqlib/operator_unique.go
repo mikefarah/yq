@@ -51,7 +51,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 		}
 		resultNode := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
 		for el := newMatches.Front(); el != nil; el = el.Next() {
-			resultNode.Content = append(resultNode.Content, el.Value.(*CandidateNode))
+			resultNode.AddChild(el.Value.(*CandidateNode))
 		}
 
 		results.PushBack(resultNode)

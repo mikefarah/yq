@@ -38,7 +38,11 @@ func TestAllAtOnceEvaluateNodes(t *testing.T) {
 	for _, tt := range evaluateNodesScenario {
 		decoder := NewYamlDecoder(NewDefaultYamlPreferences())
 		reader := bufio.NewReader(strings.NewReader(tt.document))
-		decoder.Init(reader)
+		err := decoder.Init(reader)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 		candidateNode, errorReading := decoder.Decode()
 
 		if errorReading != nil {

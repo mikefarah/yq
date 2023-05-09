@@ -19,7 +19,7 @@ var columnOperatorScenarios = []expressionScenario{
 		document:       "a: cat\nb: bob",
 		expression:     `.b | key | column`,
 		expected: []string{
-			"D0, P[1], (!!int)::1\n",
+			"D0, P[b], (!!int)::1\n",
 		},
 	},
 	{
@@ -27,7 +27,7 @@ var columnOperatorScenarios = []expressionScenario{
 		document:    "a: cat",
 		expression:  `.a | key | column`,
 		expected: []string{
-			"D0, P[1], (!!int)::1\n",
+			"D0, P[a], (!!int)::1\n",
 		},
 	},
 	{

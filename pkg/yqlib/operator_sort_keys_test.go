@@ -27,7 +27,7 @@ var sortKeysOperatorScenarios = []expressionScenario{
 		document:       `{bParent: {c: dog, array: [3,1,2]}, aParent: {z: donkey, x: [{c: yum, b: delish}, {b: ew, a: apple}]}}`,
 		expression:     `sort_keys(..)`,
 		expected: []string{
-			"D0, P[], (!!map)::{aParent: {x: [{b: delish, c: yum}, {a: apple, b: ew}], z: donkey}, bParent: {array: [3, 1, 2], c: dog}}\n",
+			"D0, P[], (doc)::{aParent: {x: [{b: delish, c: yum}, {a: apple, b: ew}], z: donkey}, bParent: {array: [3, 1, 2], c: dog}}\n",
 		},
 	},
 }

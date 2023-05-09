@@ -6,23 +6,23 @@ import (
 	"strings"
 )
 
-func isTruthyNode(candidate *CandidateNode) (bool, error) {
+func isTruthyNode(candidate *CandidateNode) bool {
 	if candidate == nil {
-		return false, nil
+		return false
 	}
 	node := candidate.unwrapDocument()
 	if node.Tag == "!!null" {
-		return false, nil
+		return false
 	}
 	if node.Kind == ScalarNode && node.Tag == "!!bool" {
 		// yes/y/true/on
 		return (strings.EqualFold(node.Value, "y") ||
 			strings.EqualFold(node.Value, "yes") ||
 			strings.EqualFold(node.Value, "on") ||
-			strings.EqualFold(node.Value, "true")), nil
+			strings.EqualFold(node.Value, "true"))
 
 	}
-	return true, nil
+	return true
 }
 
 func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
@@ -38,10 +38,7 @@ func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
 
 func returnRhsTruthy(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	owner := getOwner(lhs, rhs)
-	rhsBool, err := isTruthyNode(rhs)
-	if err != nil {
-		return nil, err
-	}
+	rhsBool := isTruthyNode(rhs)
 
 	return createBooleanCandidate(owner, rhsBool), nil
 }
@@ -51,7 +48,7 @@ func returnLHSWhen(targetBool bool) func(lhs *CandidateNode) (*CandidateNode, er
 		var err error
 		var lhsBool bool
 
-		if lhsBool, err = isTruthyNode(lhs); err != nil || lhsBool != targetBool {
+		if lhsBool = isTruthyNode(lhs); lhsBool != targetBool {
 			return nil, err
 		}
 		owner := &CandidateNode{}
@@ -79,11 +76,7 @@ func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressio
 			}
 		}
 
-		truthy, err := isTruthyNode(node)
-		if err != nil {
-			return false, err
-		}
-		if truthy == wantBool {
+		if isTruthyNode(node) == wantBool {
 			return true, nil
 		}
 	}
@@ -153,10 +146,7 @@ func notOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debug("notOperation checking %v", candidate)
-		truthy, errDecoding := isTruthyNode(candidate)
-		if errDecoding != nil {
-			return Context{}, errDecoding
-		}
+		truthy := isTruthyNode(candidate)
 		result := createBooleanCandidate(candidate, !truthy)
 		results.PushBack(result)
 	}

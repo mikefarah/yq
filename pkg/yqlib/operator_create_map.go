@@ -85,7 +85,7 @@ func listToNodeSeq(list *list.List) *CandidateNode {
 	for entry := list.Front(); entry != nil; entry = entry.Next() {
 		entryCandidate := entry.Value.(*CandidateNode)
 		log.Debugf("Collecting %v into sequence", NodeToString(entryCandidate))
-		node.Content = append(node.Content, entryCandidate)
+		node.AddChild(entryCandidate)
 	}
 	return &node
 }

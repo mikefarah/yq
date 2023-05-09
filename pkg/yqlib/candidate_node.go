@@ -185,8 +185,6 @@ func (n *CandidateNode) GetNicePath() string {
 	path := n.GetPath()
 	for i, element := range path {
 		elementStr := fmt.Sprintf("%v", element)
-		log.Debugf("element: %v", element)
-		log.Debugf("elementStr: %v", elementStr)
 		switch element.(type) {
 		case int:
 			sb.WriteString("[" + elementStr + "]")
@@ -209,6 +207,10 @@ func (n *CandidateNode) AsList() *list.List {
 	return elMap
 }
 
+func (n *CandidateNode) SetParent(parent *CandidateNode) {
+	n.Parent = parent
+}
+
 func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) {
 	key := rawKey.unwrapDocument().Copy()
 	key.SetParent(n)
@@ -221,8 +223,18 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 	n.Content = append(n.Content, key, value)
 }
 
-func (n *CandidateNode) SetParent(parent *CandidateNode) {
-	n.Parent = parent
+func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
+	value := rawChild.unwrapDocument().Copy()
+	value.SetParent(n)
+	if value.Key != nil {
+		value.Key.SetParent(n)
+	} else {
+		index := len(n.Content)
+		keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
+		keyNode.SetParent(n)
+		value.Key = keyNode
+	}
+	n.Content = append(n.Content, value)
 }
 
 func (n *CandidateNode) AddChildren(children []*CandidateNode) {
@@ -230,29 +242,12 @@ func (n *CandidateNode) AddChildren(children []*CandidateNode) {
 		for i := 0; i < len(children); i += 2 {
 			key := children[i]
 			value := children[i+1]
-
-			keyClone := key.Copy()
-			keyClone.SetParent(n)
-
-			valueClone := value.Copy()
-			valueClone.SetParent(n)
-			valueClone.Key = keyClone
-			n.Content = append(n.Content, keyClone, valueClone)
+			n.AddKeyValueChild(key, value)
 		}
 
 	} else {
 		for _, rawChild := range children {
-			value := rawChild.unwrapDocument().Copy()
-			value.SetParent(n)
-			if value.Key != nil {
-				value.Key.SetParent(n)
-			} else {
-				index := len(n.Content)
-				keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
-				keyNode.SetParent(n)
-				value.Key = keyNode
-			}
-			n.Content = append(n.Content, value)
+			n.AddChild(rawChild)
 		}
 	}
 }
@@ -269,7 +264,7 @@ func (n *CandidateNode) GetValueRep() (interface{}, error) {
 		// need to test this
 		return strconv.ParseFloat(n.Value, 64)
 	case "!!bool":
-		return isTruthyNode(n)
+		return isTruthyNode(n), nil
 	case "!!null":
 		return nil, nil
 	}
@@ -307,9 +302,12 @@ func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *
 func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *CandidateNode {
 	newCopy := replacement.Copy()
 	newCopy.Parent = n.Parent
-	newCopy.Key = n.Key
 
-	newCopy.IsMapKey = n.IsMapKey
+	if n.IsMapKey {
+		newCopy.Key = n
+	} else {
+		newCopy.Key = n.Key
+	}
 
 	return newCopy
 }

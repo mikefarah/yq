@@ -57,7 +57,7 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 	} else {
 		sequenceNode := &CandidateNode{Kind: SequenceNode}
 		for doc := documents.Front(); doc != nil; doc = doc.Next() {
-			sequenceNode.Content = append(sequenceNode.Content, doc.Value.(*CandidateNode).unwrapDocument())
+			sequenceNode.AddChild(doc.Value.(*CandidateNode).unwrapDocument())
 		}
 		return sequenceNode, nil
 	}
@@ -81,7 +81,7 @@ func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 			return Context{}, err
 		}
 		if rhs.MatchingNodes.Front() == nil {
-			return Context{}, fmt.Errorf("Filename expression returned nil")
+			return Context{}, fmt.Errorf("filename expression returned nil")
 		}
 		nameCandidateNode := rhs.MatchingNodes.Front().Value.(*CandidateNode)
 

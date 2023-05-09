@@ -47,7 +47,7 @@ func divideScalars(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode
 		tKind, tTag, res := split(lhs.Value, rhs.Value)
 		target.Kind = tKind
 		target.Tag = tTag
-		target.Content = res
+		target.AddChildren(res)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		target.Kind = ScalarNode
 		target.Style = lhs.Style

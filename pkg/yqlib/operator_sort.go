@@ -47,10 +47,8 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		sortedList := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
 
-		sortedList.Content = make([]*CandidateNode, len(candidateNode.Content))
-
-		for i, sortedNode := range sortableArray {
-			sortedList.Content[i] = sortedNode.Node
+		for _, sortedNode := range sortableArray {
+			sortedList.AddChild(sortedNode.Node)
 		}
 		results.PushBack(sortedList)
 	}
@@ -122,15 +120,9 @@ func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateT
 	} else if lhsTag != "!!bool" && rhsTag == "!!bool" {
 		return 1
 	} else if lhsTag == "!!bool" && rhsTag == "!!bool" {
-		lhsTruthy, err := isTruthyNode(lhs)
-		if err != nil {
-			panic(fmt.Errorf("could not parse %v as boolean: %w", lhs.Value, err))
-		}
+		lhsTruthy := isTruthyNode(lhs)
 
-		rhsTruthy, err := isTruthyNode(rhs)
-		if err != nil {
-			panic(fmt.Errorf("could not parse %v as boolean: %w", rhs.Value, err))
-		}
+		rhsTruthy := isTruthyNode(rhs)
 		if lhsTruthy == rhsTruthy {
 			return 0
 		} else if lhsTruthy {

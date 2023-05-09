@@ -17,20 +17,17 @@ func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return compoundAssignFunction(d, context, expressionNode, createAddOp)
 }
 
-func toNodes(candidate *CandidateNode, lhs *CandidateNode) ([]*CandidateNode, error) {
-	if candidate.Tag == "!!null" {
-		return []*CandidateNode{}, nil
-	}
+func toNodes(candidate *CandidateNode, lhs *CandidateNode) []*CandidateNode {
 	clone := candidate.Copy()
 
 	switch candidate.Kind {
 	case SequenceNode:
-		return clone.Content, nil
+		return clone.Content
 	default:
 		if len(lhs.Content) > 0 {
 			clone.Style = lhs.Content[0].Style
 		}
-		return []*CandidateNode{clone}, nil
+		return []*CandidateNode{clone}
 	}
 
 }
@@ -60,10 +57,7 @@ func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *Candida
 		}
 		addMaps(target, lhs, rhs)
 	case SequenceNode:
-		if err := addSequences(target, lhs, rhs); err != nil {
-			return nil, err
-		}
-
+		addSequences(target, lhs, rhs)
 	case ScalarNode:
 		if rhs.Kind != ScalarNode {
 			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
@@ -156,7 +150,7 @@ func addDateTimes(layout string, target *CandidateNode, lhs *CandidateNode, rhs 
 
 }
 
-func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
+func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) {
 	log.Debugf("adding sequences! target: %v; lhs %v; rhs: %v", NodeToString(target), NodeToString(lhs), NodeToString(rhs))
 	target.Kind = SequenceNode
 	if len(lhs.Content) == 0 {
@@ -165,15 +159,10 @@ func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode)
 	}
 	target.Tag = lhs.Tag
 
-	extraNodes, err := toNodes(rhs, lhs)
-	if err != nil {
-		return err
-	}
+	extraNodes := toNodes(rhs, lhs)
 
 	target.AddChildren(lhs.Content)
 	target.AddChildren(extraNodes)
-	return nil
-
 }
 
 func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
@@ -185,8 +174,8 @@ func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 		target.Style = 0
 	}
 
-	target.Content = make([]*CandidateNode, len(lhs.Content))
-	copy(target.Content, lhs.Content)
+	target.Content = make([]*CandidateNode, 0)
+	target.AddChildren(lhs.Content)
 
 	for index := 0; index < len(rhs.Content); index = index + 2 {
 		key := rhs.Content[index]
@@ -196,10 +185,12 @@ func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
 		log.Debug("indexInLhs %v", indexInLHS)
 		if indexInLHS < 0 {
 			// not in there, append it
-			target.Content = append(target.Content, key, value)
+			target.AddKeyValueChild(key, value)
 		} else {
 			// it's there, replace it
-			target.Content[indexInLHS+1] = value
+			oldValue := target.Content[indexInLHS+1]
+			newValueCopy := oldValue.CopyAsReplacement(value)
+			target.Content[indexInLHS+1] = newValueCopy
 		}
 	}
 	target.Kind = MappingNode
