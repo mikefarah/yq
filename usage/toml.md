@@ -38,6 +38,22 @@ person:
   address: 12 cat st
 ```
 
+## Encode: Scalar
+Given a sample.toml file of:
+```toml
+person.name = "hello"
+person.address = "12 cat st"
+
+```
+then
+```bash
+yq '.person.name' sample.toml
+```
+will output
+```yaml
+hello
+```
+
 ## Parse: inline table
 Given a sample.toml file of:
 ```toml
