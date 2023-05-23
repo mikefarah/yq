@@ -14,7 +14,7 @@ You can load files of the following supported types:
 | Plain String | load_str |
 | Base64 | load_base64 |
 
-Note that base64 only works for base64 encoded utf-8 strings.
+Note that load_base64 only works for base64 encoded utf-8 strings.
 
 ## Samples files for tests:
 
