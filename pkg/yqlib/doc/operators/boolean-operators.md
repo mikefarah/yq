@@ -26,6 +26,24 @@ will output
 true
 ```
 
+## "yes" and "no" are strings
+In the yaml 1.2 standard, support for yes/no as booleans was dropped - they are now considered strings. See '10.2.1.2. Boolean' in https://yaml.org/spec/1.2.2/
+
+Given a sample.yml file of:
+```yaml
+- yes
+- no
+```
+then
+```bash
+yq '.[] | tag' sample.yml
+```
+will output
+```yaml
+!!str
+!!str
+```
+
 ## `and` example
 Running
 ```bash
