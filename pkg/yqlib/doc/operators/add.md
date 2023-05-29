@@ -9,6 +9,56 @@ Add behaves differently according to the type of the LHS:
 Use `+=` as a relative append assign for things like increment. Note that `.a += .x` is equivalent to running `.a = .a + .x`.
 
 
+## Concatenate arrays
+Given a sample.yml file of:
+```yaml
+{a: [1, 2], b: [3, 4]}
+```
+then
+```bash
+yq '.a + .b' sample.yml
+```
+will output
+```yaml
+[1, 2, 3, 4]
+```
+
+## Concatenate to existing array
+Note that the styling of `a` is kept.
+
+Given a sample.yml file of:
+```yaml
+a: [1,2]
+b:
+  - 3
+  - 4
+```
+then
+```bash
+yq '.a += .b' sample.yml
+```
+will output
+```yaml
+a: [1, 2, 3, 4]
+b:
+  - 3
+  - 4
+```
+
+## Concatenate null to array
+Given a sample.yml file of:
+```yaml
+{a: [1, 2]}
+```
+then
+```bash
+yq '.a + null' sample.yml
+```
+will output
+```yaml
+[1, 2, null]
+```
+
 ## Append to existing array
 Note that the styling is copied from existing array elements
 

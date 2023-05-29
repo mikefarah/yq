@@ -234,19 +234,18 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 	}
 
 	if !splat && !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
-		log.Debugf("no matches, creating one")
+		log.Debugf("no matches, creating one for %v", NodeToString(keyNode))
 		//no matches, create one automagically
 		valueNode := matchingNode.CreateChild()
 		valueNode.Kind = ScalarNode
 		valueNode.Tag = "!!null"
 		valueNode.Value = "null"
-		valueNode.Key = keyNode
 
 		if len(matchingNode.Content) == 0 {
 			matchingNode.Style = 0
 		}
 
-		matchingNode.AddKeyValueChild(keyNode, valueNode)
+		keyNode, valueNode = matchingNode.AddKeyValueChild(keyNode, valueNode)
 
 		if prefs.IncludeMapKeys {
 			newMatches.Set(keyNode.GetKey(), keyNode)

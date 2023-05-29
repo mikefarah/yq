@@ -211,7 +211,7 @@ func (n *CandidateNode) SetParent(parent *CandidateNode) {
 	n.Parent = parent
 }
 
-func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) {
+func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) (*CandidateNode, *CandidateNode) {
 	key := rawKey.unwrapDocument().Copy()
 	key.SetParent(n)
 	key.IsMapKey = true
@@ -221,6 +221,7 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 	value.Key = key
 
 	n.Content = append(n.Content, key, value)
+	return key, value
 }
 
 func (n *CandidateNode) AddChild(rawChild *CandidateNode) {

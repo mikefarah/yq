@@ -5,83 +5,83 @@ import (
 )
 
 var addOperatorScenarios = []expressionScenario{
-	// {
-	// 	skipDoc:    true,
-	// 	document:   `[{a: foo, b: bar}, {a: 1, b: 2}]`,
-	// 	expression: ".[] | .a + .b",
-	// 	expected: []string{
-	// 		"D0, P[0 a], (!!str)::foobar\n",
-	// 		"D0, P[1 a], (!!int)::3\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	document:   `a: key`,
-	// 	expression: `. += {"key": "b"}`,
-	// 	expected: []string{
-	// 		"D0, P[], (!!map)::a: key\nkey: b\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	document:   `[[c], [b]]`,
-	// 	expression: `.[] | . += "a"`,
-	// 	expected: []string{
-	// 		"D0, P[0], (!!seq)::[c, a]\n",
-	// 		"D0, P[1], (!!seq)::[b, a]\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	document:   `{}`,
-	// 	expression: "(.a + .b) as $x | .",
-	// 	expected: []string{
-	// 		"D0, P[], (doc)::{}\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	document:   `a: 0`,
-	// 	expression: ".a += .b.c",
-	// 	expected: []string{
-	// 		"D0, P[], (doc)::a: 0\n",
-	// 	},
-	// },
+	{
+		skipDoc:    true,
+		document:   `[{a: foo, b: bar}, {a: 1, b: 2}]`,
+		expression: ".[] | .a + .b",
+		expected: []string{
+			"D0, P[0 a], (!!str)::foobar\n",
+			"D0, P[1 a], (!!int)::3\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: key`,
+		expression: `. += {"key": "b"}`,
+		expected: []string{
+			"D0, P[], (!!map)::a: key\nkey: b\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[[c], [b]]`,
+		expression: `.[] | . += "a"`,
+		expected: []string{
+			"D0, P[0], (!!seq)::[c, a]\n",
+			"D0, P[1], (!!seq)::[b, a]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		expression: "(.a + .b) as $x | .",
+		expected: []string{
+			"D0, P[], (doc)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: 0`,
+		expression: ".a += .b.c",
+		expected: []string{
+			"D0, P[], (doc)::a: 0\n",
+		},
+	},
 
-	// {
-	// 	description: "Concatenate arrays",
-	// 	document:    `{a: [1,2], b: [3,4]}`,
-	// 	expression:  `.a + .b`,
-	// 	expected: []string{
-	// 		"D0, P[a], (!!seq)::[1, 2, 3, 4]\n",
-	// 	},
-	// },
-	// {
-	// 	description:           "Concatenate to existing array",
-	// 	subdescription:        "Note that the styling of `a` is kept.",
-	// 	document:              "a: [1,2]\nb:\n  - 3\n  - 4",
-	// 	dontFormatInputForDoc: true,
-	// 	expression:            `.a += .b`,
-	// 	expected: []string{
-	// 		"D0, P[], (doc)::a: [1, 2, 3, 4]\nb:\n    - 3\n    - 4\n",
-	// 	},
-	// },
-	// {
-	// 	skipDoc:    true,
-	// 	expression: `[1] + ([2], [3])`,
-	// 	expected: []string{
-	// 		"D0, P[], (!!seq)::- 1\n- 2\n",
-	// 		"D0, P[], (!!seq)::- 1\n- 3\n",
-	// 	},
-	// },
-	// {
-	// 	description: "Concatenate null to array",
-	// 	document:    `{a: [1,2]}`,
-	// 	expression:  `.a + null`,
-	// 	expected: []string{
-	// 		"D0, P[a], (!!seq)::[1, 2]\n",
-	// 	},
-	// },
+	{
+		description: "Concatenate arrays",
+		document:    `{a: [1,2], b: [3,4]}`,
+		expression:  `.a + .b`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[1, 2, 3, 4]\n",
+		},
+	},
+	{
+		description:           "Concatenate to existing array",
+		subdescription:        "Note that the styling of `a` is kept.",
+		document:              "a: [1,2]\nb:\n  - 3\n  - 4",
+		dontFormatInputForDoc: true,
+		expression:            `.a += .b`,
+		expected: []string{
+			"D0, P[], (doc)::a: [1, 2, 3, 4]\nb:\n    - 3\n    - 4\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `[1] + ([2], [3])`,
+		expected: []string{
+			"D0, P[], (!!seq)::- 1\n- 2\n",
+			"D0, P[], (!!seq)::- 1\n- 3\n",
+		},
+	},
+	{
+		description: "Concatenate null to array",
+		document:    `{a: [1,2]}`,
+		expression:  `.a + null`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[1, 2]\n",
+		},
+	},
 	{
 		skipDoc:     true,
 		description: "Concatenate to empty array",
