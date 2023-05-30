@@ -13,9 +13,9 @@ yq 'group_by(.foo)' sample.yml
 ```
 will output
 ```yaml
-- - [{foo: 1, bar: 10}, {foo: 3, bar: 100}, {foo: 1, bar: 1}]
-  - [{foo: 1, bar: 10}, {foo: 3, bar: 100}, {foo: 1, bar: 1}]
-- - [{foo: 1, bar: 10}, {foo: 3, bar: 100}, {foo: 1, bar: 1}]
+- - {foo: 1, bar: 10}
+  - {foo: 1, bar: 1}
+- - {foo: 3, bar: 100}
 ```
 
 ## Group by field, with nuls
@@ -29,10 +29,10 @@ yq 'group_by(.foo)' sample.yml
 ```
 will output
 ```yaml
-- - [{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]
-  - [{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]
-- - [{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]
-  - [{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]
-- - [{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]
+- - {cat: dog}
+  - {no: foo for you}
+- - {foo: 1, bar: 10}
+  - {foo: 1, bar: 1}
+- - {foo: 3, bar: 100}
 ```
 

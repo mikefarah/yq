@@ -30,7 +30,7 @@ func processIntoGroups(d *dataTreeNavigator, context Context, rhsExp *Expression
 			groupList = list.New()
 			newMatches.Set(keyValue, groupList)
 		}
-		groupList.(*list.List).PushBack(node)
+		groupList.(*list.List).PushBack(child)
 	}
 	return newMatches, nil
 }
