@@ -131,7 +131,7 @@ will output
 - p: a
   isKey: false
   tag: '!!map'
-- p: a.c
+- p: a.b
   isKey: true
   tag: '!!str'
 - p: a.b
@@ -139,6 +139,9 @@ will output
   tag: '!!seq'
 - p: a.b.0
   isKey: false
+  tag: '!!str'
+- p: a.c
+  isKey: true
   tag: '!!str'
 - p: a.c
   isKey: false

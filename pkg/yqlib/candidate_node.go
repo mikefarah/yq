@@ -130,7 +130,7 @@ func (n *CandidateNode) GetFileIndex() int {
 func (n *CandidateNode) GetKey() string {
 	keyPrefix := ""
 	if n.IsMapKey {
-		keyPrefix = "key-"
+		keyPrefix = fmt.Sprintf("key-%v-", n.Value)
 	}
 	key := ""
 	if n.Key != nil {

@@ -61,7 +61,7 @@ var loadScenarios = []expressionScenario{
 		document:       `{something: {file: "thing.yml"}, over: {here: [{file: "thing.yml"}]}}`,
 		expression:     `(.. | select(has("file"))) |= load("../../examples/" + .file)`,
 		expected: []string{
-			"D0, P[], (!!map)::{something: {a: apple is included, b: cool.}, over: {here: [{a: apple is included, b: cool.}]}}\n",
+			"D0, P[], (doc)::{something: {a: apple is included, b: cool.}, over: {here: [{a: apple is included, b: cool.}]}}\n",
 		},
 	},
 	{
