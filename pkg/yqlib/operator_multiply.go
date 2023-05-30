@@ -33,25 +33,28 @@ func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	return crossFunction(d, context, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)), false)
 }
 
-func getComments(lhs *CandidateNode, rhs *CandidateNode) (leadingContent string, headComment string, footComment string) {
+func getComments(lhs *CandidateNode, rhs *CandidateNode) (leadingContent string, headComment string, footComment string, trailingContent string) {
 	leadingContent = rhs.LeadingContent
 	headComment = rhs.HeadComment
 	footComment = rhs.FootComment
+	trailingContent = rhs.TrailingContent
 	if lhs.HeadComment != "" || lhs.LeadingContent != "" {
 		headComment = lhs.HeadComment
 		leadingContent = lhs.LeadingContent
 	}
 
-	if lhs.FootComment != "" {
+	if lhs.FootComment != "" || lhs.TrailingContent != "" {
 		footComment = lhs.FootComment
+		trailingContent = lhs.TrailingContent
 	}
-	return leadingContent, headComment, footComment
+
+	return leadingContent, headComment, footComment, trailingContent
 }
 
 func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		// need to do this before unWrapping the potential document node
-		leadingContent, headComment, footComment := getComments(lhs, rhs)
+		leadingContent, headComment, footComment, trailingContent := getComments(lhs, rhs)
 		lhs = lhs.unwrapDocument()
 		rhs = rhs.unwrapDocument()
 		log.Debugf("Multiplying LHS: %v", NodeToString(lhs))
@@ -71,6 +74,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 			newBlank.LeadingContent = leadingContent
 			newBlank.HeadComment = headComment
 			newBlank.FootComment = footComment
+			newBlank.TrailingContent = trailingContent
 
 			return mergeObjects(d, context.WritableClone(), newBlank, rhs, preferences)
 		}

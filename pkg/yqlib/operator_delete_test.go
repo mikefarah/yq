@@ -129,6 +129,12 @@ var deleteOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `a: null`,
+		expression: `del(..)`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
 		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
 		expression: `del(..)`,
 		expected:   []string{},

@@ -26,7 +26,8 @@ will output
 ## Collect many
 Given a sample.yml file of:
 ```yaml
-{a: cat, b: dog}
+a: cat
+b: dog
 ```
 then
 ```bash

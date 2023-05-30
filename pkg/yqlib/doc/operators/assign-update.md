@@ -27,7 +27,9 @@ x: frog
 ## Update node to be the child value
 Given a sample.yml file of:
 ```yaml
-{a: {b: {g: foof}}}
+a:
+  b:
+    g: foof
 ```
 then
 ```bash
@@ -35,13 +37,16 @@ yq '.a |= .b' sample.yml
 ```
 will output
 ```yaml
-{a: {g: foof}}
+a:
+  g: foof
 ```
 
 ## Double elements in an array
 Given a sample.yml file of:
 ```yaml
-[1, 2, 3]
+- 1
+- 2
+- 3
 ```
 then
 ```bash
@@ -49,7 +54,9 @@ yq '.[] |= . * 2' sample.yml
 ```
 will output
 ```yaml
-[2, 4, 6]
+- 2
+- 4
+- 6
 ```
 
 ## Update node from another file
@@ -57,11 +64,11 @@ Note this will also work when the second file is a scalar (string/number)
 
 Given a sample.yml file of:
 ```yaml
-{a: apples}
+a: apples
 ```
 And another sample another.yml file of:
 ```yaml
-{b: bob}
+b: bob
 ```
 then
 ```bash
@@ -69,13 +76,16 @@ yq eval-all 'select(fileIndex==0).a = select(fileIndex==1) | select(fileIndex==0
 ```
 will output
 ```yaml
-{a: {b: bob}}
+a:
+  b: bob
 ```
 
 ## Update node to be the sibling value
 Given a sample.yml file of:
 ```yaml
-{a: {b: child}, b: sibling}
+a:
+  b: child
+b: sibling
 ```
 then
 ```bash
@@ -83,13 +93,16 @@ yq '.a = .b' sample.yml
 ```
 will output
 ```yaml
-{a: sibling, b: sibling}
+a: sibling
+b: sibling
 ```
 
 ## Updated multiple paths
 Given a sample.yml file of:
 ```yaml
-{a: fieldA, b: fieldB, c: fieldC}
+a: fieldA
+b: fieldB
+c: fieldC
 ```
 then
 ```bash
@@ -97,13 +110,16 @@ yq '(.a, .c) = "potato"' sample.yml
 ```
 will output
 ```yaml
-{a: potato, b: fieldB, c: potato}
+a: potato
+b: fieldB
+c: potato
 ```
 
 ## Update string value
 Given a sample.yml file of:
 ```yaml
-{a: {b: apple}}
+a:
+  b: apple
 ```
 then
 ```bash
@@ -111,7 +127,8 @@ yq '.a.b = "frog"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: frog}}
+a:
+  b: frog
 ```
 
 ## Update string value via |=
@@ -119,7 +136,8 @@ Note there is no difference between `=` and `|=` when the RHS is a scalar
 
 Given a sample.yml file of:
 ```yaml
-{a: {b: apple}}
+a:
+  b: apple
 ```
 then
 ```bash
@@ -127,7 +145,8 @@ yq '.a.b |= "frog"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: frog}}
+a:
+  b: frog
 ```
 
 ## Update deeply selected results
@@ -135,7 +154,9 @@ Note that the LHS is wrapped in brackets! This is to ensure we don't first filte
 
 Given a sample.yml file of:
 ```yaml
-{a: {b: apple, c: cactus}}
+a:
+  b: apple
+  c: cactus
 ```
 then
 ```bash
@@ -143,13 +164,17 @@ yq '(.a[] | select(. == "apple")) = "frog"' sample.yml
 ```
 will output
 ```yaml
-{a: {b: frog, c: cactus}}
+a:
+  b: frog
+  c: cactus
 ```
 
 ## Update array values
 Given a sample.yml file of:
 ```yaml
-[candy, apple, sandy]
+- candy
+- apple
+- sandy
 ```
 then
 ```bash
@@ -157,7 +182,9 @@ yq '(.[] | select(. == "*andy")) = "bogs"' sample.yml
 ```
 will output
 ```yaml
-[bogs, apple, bogs]
+- bogs
+- apple
+- bogs
 ```
 
 ## Update empty object

@@ -7,7 +7,7 @@ returns length of string
 
 Given a sample.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 then
 ```bash
@@ -21,7 +21,7 @@ will output
 ## null length
 Given a sample.yml file of:
 ```yaml
-{a: null}
+a: null
 ```
 then
 ```bash
@@ -37,7 +37,8 @@ returns number of entries
 
 Given a sample.yml file of:
 ```yaml
-{a: cat, c: dog}
+a: cat
+c: dog
 ```
 then
 ```bash
@@ -53,7 +54,10 @@ returns number of elements
 
 Given a sample.yml file of:
 ```yaml
-[2, 4, 6, 8]
+- 2
+- 4
+- 6
+- 8
 ```
 then
 ```bash

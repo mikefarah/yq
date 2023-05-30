@@ -5,7 +5,8 @@ This is the simplest (and perhaps most used) operator. It is used to navigate de
 ## Simple map navigation
 Given a sample.yml file of:
 ```yaml
-{a: {b: apple}}
+a:
+  b: apple
 ```
 then
 ```bash
@@ -13,7 +14,7 @@ yq '.a' sample.yml
 ```
 will output
 ```yaml
-{b: apple}
+b: apple
 ```
 
 ## Splat
@@ -21,7 +22,8 @@ Often used to pipe children into other operators
 
 Given a sample.yml file of:
 ```yaml
-[{b: apple}, {c: banana}]
+- b: apple
+- c: banana
 ```
 then
 ```bash
@@ -29,8 +31,8 @@ yq '.[]' sample.yml
 ```
 will output
 ```yaml
-{b: apple}
-{c: banana}
+b: apple
+c: banana
 ```
 
 ## Optional Splat
@@ -38,7 +40,7 @@ Just like splat, but won't error if you run it against scalars
 
 Given a sample.yml file of:
 ```yaml
-"cat"
+cat
 ```
 then
 ```bash
@@ -53,7 +55,7 @@ Use quotes with square brackets around path elements with special characters
 
 Given a sample.yml file of:
 ```yaml
-{"{}": frog}
+"{}": frog
 ```
 then
 ```bash
@@ -85,7 +87,7 @@ Use quotes with square brackets around path elements with special characters
 
 Given a sample.yml file of:
 ```yaml
-{"red rabbit": frog}
+"red rabbit": frog
 ```
 then
 ```bash
@@ -101,7 +103,9 @@ Expressions within [] can be used to dynamically lookup / calculate keys
 
 Given a sample.yml file of:
 ```yaml
-{b: apple, apple: crispy yum, banana: soft yum}
+b: apple
+apple: crispy yum
+banana: soft yum
 ```
 then
 ```bash
@@ -117,7 +121,7 @@ Nodes are added dynamically while traversing
 
 Given a sample.yml file of:
 ```yaml
-{c: banana}
+c: banana
 ```
 then
 ```bash
@@ -133,7 +137,9 @@ Like jq, does not output an error when the yaml is not an array or object as exp
 
 Given a sample.yml file of:
 ```yaml
-[1, 2, 3]
+- 1
+- 2
+- 3
 ```
 then
 ```bash
@@ -146,7 +152,9 @@ will output
 ## Wildcard matching
 Given a sample.yml file of:
 ```yaml
-{a: {cat: apple, mad: things}}
+a:
+  cat: apple
+  mad: things
 ```
 then
 ```bash
@@ -161,7 +169,9 @@ things
 ## Aliases
 Given a sample.yml file of:
 ```yaml
-{a: &cat {c: frog}, b: *cat}
+a: &cat
+  c: frog
+b: *cat
 ```
 then
 ```bash
@@ -175,7 +185,9 @@ will output
 ## Traversing aliases with splat
 Given a sample.yml file of:
 ```yaml
-{a: &cat {c: frog}, b: *cat}
+a: &cat
+  c: frog
+b: *cat
 ```
 then
 ```bash
@@ -189,7 +201,9 @@ frog
 ## Traversing aliases explicitly
 Given a sample.yml file of:
 ```yaml
-{a: &cat {c: frog}, b: *cat}
+a: &cat
+  c: frog
+b: *cat
 ```
 then
 ```bash
@@ -203,7 +217,9 @@ frog
 ## Traversing arrays by index
 Given a sample.yml file of:
 ```yaml
-[1, 2, 3]
+- 1
+- 2
+- 3
 ```
 then
 ```bash
@@ -231,7 +247,7 @@ cat
 ## Maps with numeric keys
 Given a sample.yml file of:
 ```yaml
-{2: cat}
+2: cat
 ```
 then
 ```bash
@@ -245,7 +261,7 @@ cat
 ## Maps with non existing numeric keys
 Given a sample.yml file of:
 ```yaml
-{a: b}
+a: b
 ```
 then
 ```bash
@@ -452,7 +468,10 @@ foobarList_c
 ## Select multiple indices
 Given a sample.yml file of:
 ```yaml
-{a: [a, b, c]}
+a:
+  - a
+  - b
+  - c
 ```
 then
 ```bash

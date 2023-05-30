@@ -13,7 +13,7 @@ yq eval-all 'select(fi == 0) * select(filename == "file2.yaml")' file1.yaml file
 ## Get filename
 Given a sample.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 then
 ```bash
@@ -27,7 +27,7 @@ sample.yml
 ## Get file index
 Given a sample.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 then
 ```bash
@@ -41,11 +41,11 @@ will output
 ## Get file indices of multiple documents
 Given a sample.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 And another sample another.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 then
 ```bash
@@ -60,7 +60,7 @@ will output
 ## Get file index alias
 Given a sample.yml file of:
 ```yaml
-{a: cat}
+a: cat
 ```
 then
 ```bash

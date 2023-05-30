@@ -50,7 +50,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		log.Debugf("Setting style of : %v", candidate.GetKey())
+		log.Debugf("Setting style of : %v", NodeToString(candidate))
 		if expressionNode.Operation.UpdateAssign {
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
 			if err != nil {

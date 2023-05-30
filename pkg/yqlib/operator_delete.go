@@ -17,24 +17,23 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 		if candidate.Kind == DocumentNode {
 			//need to delete this node from context.
-			newResults := list.New()
-			for item := context.MatchingNodes.Front(); item != nil; item = item.Next() {
-				nodeInContext := item.Value.(*CandidateNode)
-				if nodeInContext != candidate {
-					newResults.PushBack(nodeInContext)
-				} else {
-					log.Info("Need to delete this %v", NodeToString(nodeInContext))
-				}
-			}
-			return context.ChildContext(newResults), nil
+			return removeFromContext(context, candidate)
 		} else if candidate.Parent == nil {
 			//problem: context may already be '.a' and then I pass in '.a.a2'.
 			// should pass in .a2.
 			log.Info("Could not find parent of %v", NodeToString(candidate))
 			return context, nil
 		}
+		log.Debugf("processing deletion of candidate %v", NodeToString(candidate))
 
 		parentNode := candidate.Parent
+
+		if parentNode != nil && parentNode.Kind == DocumentNode {
+			log.Debugf("it has a document parent")
+
+			return removeFromContext(context, candidate.Parent)
+		}
+
 		candidatePath := candidate.GetPath()
 		childPath := candidatePath[len(candidatePath)-1]
 
@@ -47,6 +46,19 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 	}
 	return context, nil
+}
+
+func removeFromContext(context Context, candidate *CandidateNode) (Context, error) {
+	newResults := list.New()
+	for item := context.MatchingNodes.Front(); item != nil; item = item.Next() {
+		nodeInContext := item.Value.(*CandidateNode)
+		if nodeInContext != candidate {
+			newResults.PushBack(nodeInContext)
+		} else {
+			log.Info("Need to delete this %v", NodeToString(nodeInContext))
+		}
+	}
+	return context.ChildContext(newResults), nil
 }
 
 func deleteFromMap(candidate *CandidateNode, childPath interface{}) {

@@ -143,7 +143,8 @@ a: &cat
 ## Get alias
 Given a sample.yml file of:
 ```yaml
-{b: &billyBob meow, a: *billyBob}
+b: &billyBob meow
+a: *billyBob
 ```
 then
 ```bash
@@ -157,7 +158,8 @@ billyBob
 ## Set alias
 Given a sample.yml file of:
 ```yaml
-{b: &meow purr, a: cat}
+b: &meow purr
+a: cat
 ```
 then
 ```bash
@@ -165,13 +167,15 @@ yq '.a alias = "meow"' sample.yml
 ```
 will output
 ```yaml
-{b: &meow purr, a: *meow}
+b: &meow purr
+a: *meow
 ```
 
 ## Set alias to blank does nothing
 Given a sample.yml file of:
 ```yaml
-{b: &meow purr, a: cat}
+b: &meow purr
+a: cat
 ```
 then
 ```bash
@@ -179,13 +183,16 @@ yq '.a alias = ""' sample.yml
 ```
 will output
 ```yaml
-{b: &meow purr, a: cat}
+b: &meow purr
+a: cat
 ```
 
 ## Set alias relatively using assign-update
 Given a sample.yml file of:
 ```yaml
-{b: &meow purr, a: {f: meow}}
+b: &meow purr
+a:
+  f: meow
 ```
 then
 ```bash
@@ -193,13 +200,16 @@ yq '.a alias |= .f' sample.yml
 ```
 will output
 ```yaml
-{b: &meow purr, a: *meow}
+b: &meow purr
+a: *meow
 ```
 
 ## Explode alias and anchor
 Given a sample.yml file of:
 ```yaml
-{f: {a: &a cat, b: *a}}
+f:
+  a: &a cat
+  b: *a
 ```
 then
 ```bash
@@ -207,7 +217,9 @@ yq 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-{f: {a: cat, b: cat}}
+f:
+  a: cat
+  b: cat
 ```
 
 ## Explode with no aliases or anchors
@@ -227,7 +239,9 @@ a: mike
 ## Explode with alias keys
 Given a sample.yml file of:
 ```yaml
-{f: {a: &a cat, *a: b}}
+f:
+  a: &a cat
+  *a: b
 ```
 then
 ```bash
@@ -235,7 +249,9 @@ yq 'explode(.f)' sample.yml
 ```
 will output
 ```yaml
-{f: {a: cat, cat: b}}
+f:
+  a: cat
+  cat: b
 ```
 
 ## Explode with merge anchors

@@ -18,7 +18,9 @@ See [here](https://mikefarah.gitbook.io/yq/operators/entries#custom-sort-map-key
 ## Sort keys of map
 Given a sample.yml file of:
 ```yaml
-{c: frog, a: blah, b: bing}
+c: frog
+a: blah
+b: bing
 ```
 then
 ```bash
@@ -26,7 +28,9 @@ yq 'sort_keys(.)' sample.yml
 ```
 will output
 ```yaml
-{a: blah, b: bing, c: frog}
+a: blah
+b: bing
+c: frog
 ```
 
 ## Sort keys recursively
@@ -34,7 +38,19 @@ Note the array elements are left unsorted, but maps inside arrays are sorted
 
 Given a sample.yml file of:
 ```yaml
-{bParent: {c: dog, array: [3, 1, 2]}, aParent: {z: donkey, x: [{c: yum, b: delish}, {b: ew, a: apple}]}}
+bParent:
+  c: dog
+  array:
+    - 3
+    - 1
+    - 2
+aParent:
+  z: donkey
+  x:
+    - c: yum
+      b: delish
+    - b: ew
+      a: apple
 ```
 then
 ```bash
@@ -42,6 +58,18 @@ yq 'sort_keys(..)' sample.yml
 ```
 will output
 ```yaml
-{aParent: {x: [{b: delish, c: yum}, {a: apple, b: ew}], z: donkey}, bParent: {array: [3, 1, 2], c: dog}}
+aParent:
+  x:
+    - b: delish
+      c: yum
+    - a: apple
+      b: ew
+  z: donkey
+bParent:
+  array:
+    - 3
+    - 1
+    - 2
+  c: dog
 ```
 

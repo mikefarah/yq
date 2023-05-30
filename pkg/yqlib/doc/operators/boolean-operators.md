@@ -31,7 +31,8 @@ In the yaml 1.2 standard, support for yes/no as booleans was dropped - they are 
 
 Given a sample.yml file of:
 ```yaml
-[yes, no]
+- yes
+- no
 ```
 then
 ```bash
@@ -56,7 +57,12 @@ false
 ## Matching nodes with select, equals and or
 Given a sample.yml file of:
 ```yaml
-[{a: bird, b: dog}, {a: frog, b: bird}, {a: cat, b: fly}]
+- a: bird
+  b: dog
+- a: frog
+  b: bird
+- a: cat
+  b: fly
 ```
 then
 ```bash
@@ -64,14 +70,17 @@ yq '[.[] | select(.a == "cat" or .b == "dog")]' sample.yml
 ```
 will output
 ```yaml
-- {a: bird, b: dog}
-- {a: cat, b: fly}
+- a: bird
+  b: dog
+- a: cat
+  b: fly
 ```
 
 ## `any` returns true if any boolean in a given array is true
 Given a sample.yml file of:
 ```yaml
-[false, true]
+- false
+- true
 ```
 then
 ```bash
@@ -119,7 +128,8 @@ b: false
 ## `all` returns true if all booleans in a given array are true
 Given a sample.yml file of:
 ```yaml
-[true, true]
+- true
+- true
 ```
 then
 ```bash

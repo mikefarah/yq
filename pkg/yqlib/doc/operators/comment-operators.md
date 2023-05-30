@@ -222,6 +222,7 @@ yq '. foot_comment=.a' sample.yml
 will output
 ```yaml
 a: cat
+
 # cat
 ```
 
@@ -258,6 +259,8 @@ yq '... comments=""' sample.yml
 ```
 will output
 ```yaml
+# hi
+
 a: cat
 b:
 ```

@@ -64,13 +64,13 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 			candidate.HeadComment = comment
 			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
-		if preferences.FootComment && candidate.Kind == DocumentNode && comment != "" {
-			log.Debugf("AssignComments - setting line comment to %v", comment)
-			candidate.TrailingContent = "# " + comment
-		} else if preferences.FootComment && candidate.Kind == DocumentNode {
-			log.Debugf("AssignComments - setting line comment to %v", comment)
-			candidate.TrailingContent = comment
-		} else if preferences.FootComment && candidate.Kind != DocumentNode {
+		// if preferences.FootComment && candidate.Kind == DocumentNode && comment != "" {
+		// 	log.Debugf("AssignComments - setting line comment to %v", comment)
+		// 	candidate.TrailingContent = "# " + comment
+		// } else if preferences.FootComment && candidate.Kind == DocumentNode {
+		// 	log.Debugf("AssignComments - setting line comment to %v", comment)
+		// 	candidate.TrailingContent = comment
+		if preferences.FootComment { //&& candidate.Kind != DocumentNode {
 			candidate.FootComment = comment
 			candidate.TrailingContent = ""
 		}

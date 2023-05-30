@@ -389,9 +389,9 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 	}
 
 	n.Content = make([]*CandidateNode, 0)
+	n.Kind = other.Kind
 	n.AddChildren(other.Content)
 
-	n.Kind = other.Kind
 	n.Value = other.Value
 
 	n.UpdateAttributesFrom(other, prefs)

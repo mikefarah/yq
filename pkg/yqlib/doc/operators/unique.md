@@ -8,7 +8,10 @@ Note that unique maintains the original order of the array.
 
 Given a sample.yml file of:
 ```yaml
-[2, 1, 3, 2]
+- 2
+- 1
+- 3
+- 2
 ```
 then
 ```bash
@@ -16,7 +19,9 @@ yq 'unique' sample.yml
 ```
 will output
 ```yaml
-[2, 1, 3]
+- 2
+- 1
+- 3
 ```
 
 ## Unique nulls
@@ -24,7 +29,10 @@ Unique works on the node value, so it considers different representations of nul
 
 Given a sample.yml file of:
 ```yaml
-[~, null, ~, null]
+- ~
+- null
+- ~
+- null
 ```
 then
 ```bash
@@ -32,7 +40,8 @@ yq 'unique' sample.yml
 ```
 will output
 ```yaml
-[~, null]
+- ~
+- null
 ```
 
 ## Unique all nulls
@@ -40,7 +49,10 @@ Run against the node tag to unique all the nulls
 
 Given a sample.yml file of:
 ```yaml
-[~, null, ~, null]
+- ~
+- null
+- ~
+- null
 ```
 then
 ```bash
@@ -48,13 +60,18 @@ yq 'unique_by(tag)' sample.yml
 ```
 will output
 ```yaml
-[~]
+- ~
 ```
 
 ## Unique array object fields
 Given a sample.yml file of:
 ```yaml
-[{name: harry, pet: cat}, {name: billy, pet: dog}, {name: harry, pet: dog}]
+- name: harry
+  pet: cat
+- name: billy
+  pet: dog
+- name: harry
+  pet: dog
 ```
 then
 ```bash
@@ -62,6 +79,9 @@ yq 'unique_by(.name)' sample.yml
 ```
 will output
 ```yaml
-[{name: harry, pet: cat}, {name: billy, pet: dog}]
+- name: harry
+  pet: cat
+- name: billy
+  pet: dog
 ```
 

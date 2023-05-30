@@ -28,7 +28,9 @@ Note that order of the keys does not matter
 
 Given a sample.yml file of:
 ```yaml
-[{a: b, c: d}, {a: b}]
+- a: b
+  c: d
+- a: b
 ```
 then
 ```bash
@@ -36,7 +38,7 @@ yq '. - [{"c": "d", "a": "b"}]' sample.yml
 ```
 will output
 ```yaml
-[{a: b}]
+- a: b
 ```
 
 ## Number subtraction - float
@@ -44,7 +46,8 @@ If the lhs or rhs are floats then the expression will be calculated with floats.
 
 Given a sample.yml file of:
 ```yaml
-{a: 3, b: 4.5}
+a: 3
+b: 4.5
 ```
 then
 ```bash
@@ -52,7 +55,8 @@ yq '.a = .a - .b' sample.yml
 ```
 will output
 ```yaml
-{a: -1.5, b: 4.5}
+a: -1.5
+b: 4.5
 ```
 
 ## Number subtraction - int
@@ -60,7 +64,8 @@ If both the lhs and rhs are ints then the expression will be calculated with int
 
 Given a sample.yml file of:
 ```yaml
-{a: 3, b: 4}
+a: 3
+b: 4
 ```
 then
 ```bash
@@ -68,13 +73,15 @@ yq '.a = .a - .b' sample.yml
 ```
 will output
 ```yaml
-{a: -1, b: 4}
+a: -1
+b: 4
 ```
 
 ## Decrement numbers
 Given a sample.yml file of:
 ```yaml
-{a: 3, b: 5}
+a: 3
+b: 5
 ```
 then
 ```bash
@@ -82,7 +89,8 @@ yq '.[] -= 1' sample.yml
 ```
 will output
 ```yaml
-{a: 2, b: 4}
+a: 2
+b: 4
 ```
 
 ## Date subtraction

@@ -5,7 +5,8 @@ Use the `keys` operator to return map keys or array indices.
 ## Map keys
 Given a sample.yml file of:
 ```yaml
-{dog: woof, cat: meow}
+dog: woof
+cat: meow
 ```
 then
 ```bash
@@ -20,7 +21,8 @@ will output
 ## Array keys
 Given a sample.yml file of:
 ```yaml
-[apple, banana]
+- apple
+- banana
 ```
 then
 ```bash
@@ -35,7 +37,9 @@ will output
 ## Retrieve array key
 Given a sample.yml file of:
 ```yaml
-[1, 2, 3]
+- 1
+- 2
+- 3
 ```
 then
 ```bash

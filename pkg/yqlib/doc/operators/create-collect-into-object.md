@@ -15,7 +15,7 @@ will output
 ## Wrap (prefix) existing object
 Given a sample.yml file of:
 ```yaml
-{name: Mike}
+name: Mike
 ```
 then
 ```bash
@@ -23,13 +23,17 @@ yq '{"wrap": .}' sample.yml
 ```
 will output
 ```yaml
-wrap: {name: Mike}
+wrap:
+  name: Mike
 ```
 
 ## Using splat to create multiple objects
 Given a sample.yml file of:
 ```yaml
-{name: Mike, pets: [cat, dog]}
+name: Mike
+pets:
+  - cat
+  - dog
 ```
 then
 ```bash
@@ -44,9 +48,15 @@ Mike: dog
 ## Working with multiple documents
 Given a sample.yml file of:
 ```yaml
-{name: Mike, pets: [cat, dog]}
+name: Mike
+pets:
+  - cat
+  - dog
 ---
-{name: Rosey, pets: [monkey, sheep]}
+name: Rosey
+pets:
+  - monkey
+  - sheep
 ```
 then
 ```bash

@@ -30,7 +30,8 @@ Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Enco
 ## Encode value as json string
 Given a sample.yml file of:
 ```yaml
-{a: {cool: thing}}
+a:
+  cool: thing
 ```
 then
 ```bash
@@ -38,7 +39,12 @@ yq '.b = (.a | to_json)' sample.yml
 ```
 will output
 ```yaml
-{a: {cool: thing}, b: "{\n  \"cool\": \"thing\"\n}\n"}
+a:
+  cool: thing
+b: |
+  {
+    "cool": "thing"
+  }
 ```
 
 ## Encode value as json string, on one line
@@ -46,7 +52,8 @@ Pass in a 0 indent to print json on a single line.
 
 Given a sample.yml file of:
 ```yaml
-{a: {cool: thing}}
+a:
+  cool: thing
 ```
 then
 ```bash
@@ -54,7 +61,9 @@ yq '.b = (.a | to_json(0))' sample.yml
 ```
 will output
 ```yaml
-{a: {cool: thing}, b: '{"cool":"thing"}'}
+a:
+  cool: thing
+b: '{"cool":"thing"}'
 ```
 
 ## Encode value as json string, on one line shorthand
@@ -62,7 +71,8 @@ Pass in a 0 indent to print json on a single line.
 
 Given a sample.yml file of:
 ```yaml
-{a: {cool: thing}}
+a:
+  cool: thing
 ```
 then
 ```bash
@@ -70,7 +80,9 @@ yq '.b = (.a | @json)' sample.yml
 ```
 will output
 ```yaml
-{a: {cool: thing}, b: '{"cool":"thing"}'}
+a:
+  cool: thing
+b: '{"cool":"thing"}'
 ```
 
 ## Decode a json encoded string
@@ -92,7 +104,8 @@ cool: thing
 ## Encode value as props string
 Given a sample.yml file of:
 ```yaml
-{a: {cool: thing}}
+a:
+  cool: thing
 ```
 then
 ```bash
@@ -100,7 +113,10 @@ yq '.b = (.a | @props)' sample.yml
 ```
 will output
 ```yaml
-{a: {cool: thing}, b: "cool = thing\n"}
+a:
+  cool: thing
+b: |
+  cool = thing
 ```
 
 ## Decode props encoded string
@@ -257,7 +273,10 @@ Scalars are strings, numbers and booleans.
 
 Given a sample.yml file of:
 ```yaml
-[cat, 'thing1,thing2', true, 3.40]
+- cat
+- thing1,thing2
+- true
+- 3.40
 ```
 then
 ```bash
@@ -271,7 +290,14 @@ cat,"thing1,thing2",true,3.40
 ## Encode array of arrays as csv string
 Given a sample.yml file of:
 ```yaml
-[[cat, 'thing1,thing2', true, 3.40], [dog, thing3, false, 12]]
+- - cat
+  - thing1,thing2
+  - true
+  - 3.40
+- - dog
+  - thing3
+  - false
+  - 12
 ```
 then
 ```bash
@@ -288,7 +314,14 @@ Scalars are strings, numbers and booleans.
 
 Given a sample.yml file of:
 ```yaml
-[[cat, 'thing1,thing2', true, 3.40], [dog, thing3, false, 12]]
+- - cat
+  - thing1,thing2
+  - true
+  - 3.40
+- - dog
+  - thing3
+  - false
+  - 12
 ```
 then
 ```bash
@@ -303,7 +336,10 @@ dog	thing3	false	12
 ## Encode value as xml string
 Given a sample.yml file of:
 ```yaml
-{a: {cool: {foo: bar, +@id: hi}}}
+a:
+  cool:
+    foo: bar
+    +@id: hi
 ```
 then
 ```bash
@@ -320,7 +356,10 @@ will output
 ## Encode value as xml string on a single line
 Given a sample.yml file of:
 ```yaml
-{a: {cool: {foo: bar, +@id: hi}}}
+a:
+  cool:
+    foo: bar
+    +@id: hi
 ```
 then
 ```bash
@@ -335,7 +374,10 @@ will output
 ## Encode value as xml string with custom indentation
 Given a sample.yml file of:
 ```yaml
-{a: {cool: {foo: bar, +@id: hi}}}
+a:
+  cool:
+    foo: bar
+    +@id: hi
 ```
 then
 ```bash

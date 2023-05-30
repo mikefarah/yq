@@ -21,7 +21,8 @@ cat
 ## Multi value variable
 Given a sample.yml file of:
 ```yaml
-[cat, dog]
+- cat
+- dog
 ```
 then
 ```bash
@@ -38,7 +39,14 @@ Example taken from [jq](https://stedolan.github.io/jq/manual/#Variable/SymbolicB
 
 Given a sample.yml file of:
 ```yaml
-{"posts": [{"title": First post, "author": anon}, {"title": A well-written article, "author": person1}], "realnames": {"anon": Anonymous Coward, "person1": Person McPherson}}
+"posts":
+  - "title": First post
+    "author": anon
+  - "title": A well-written article
+    "author": person1
+"realnames":
+  "anon": Anonymous Coward
+  "person1": Person McPherson
 ```
 then
 ```bash
