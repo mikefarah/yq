@@ -31,8 +31,7 @@ In the yaml 1.2 standard, support for yes/no as booleans was dropped - they are 
 
 Given a sample.yml file of:
 ```yaml
-- yes
-- no
+[yes, no]
 ```
 then
 ```bash

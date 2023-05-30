@@ -56,7 +56,7 @@ yq '.a + null' sample.yml
 ```
 will output
 ```yaml
-[1, 2, null]
+[1, 2]
 ```
 
 ## Append to existing array

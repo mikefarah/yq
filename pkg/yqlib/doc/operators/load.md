@@ -158,7 +158,9 @@ yq '. *= load_props("../../examples/small.properties")' sample.yml
 ```
 will output
 ```yaml
-is
+this:
+  is: a properties file
+  cool: ay
 ```
 
 ## Load from base64 encoded file

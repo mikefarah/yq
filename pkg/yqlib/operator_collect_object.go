@@ -49,7 +49,19 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 		if err != nil {
 			return Context{}, err
 		}
-		newObject.PushBackList(additions.MatchingNodes)
+		// we should reset the parents and keys of these top level nodes,
+		// as they are new
+		for el := additions.MatchingNodes.Front(); el != nil; el = el.Next() {
+			addition := el.Value.(*CandidateNode)
+			additionCopy := addition.Copy()
+
+			additionCopy.SetParent(nil)
+			additionCopy.Key = nil
+
+			log.Debugf("-- collectObjectOperation, adding result %v", NodeToString(additionCopy))
+
+			newObject.PushBack(additionCopy)
+		}
 	}
 
 	return context.ChildContext(newObject), nil

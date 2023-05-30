@@ -17,7 +17,7 @@ var createMapOperatorScenarios = []expressionScenario{
 		description: "sets key properly",
 		expression:  `("frog": "jumps") | .[0][0] | .frog`,
 		expected: []string{
-			"D0, P[frog], (!!str)::jumps\n",
+			"D0, P[0 0 frog], (!!str)::jumps\n",
 		},
 	},
 	{
@@ -32,8 +32,8 @@ var createMapOperatorScenarios = []expressionScenario{
 		document:   `{name: Mike, pets: [cat, dog]}`,
 		expression: `(.name: .pets.[]) | .[0][0] | ..`,
 		expected: []string{
-			"D0, P[], (!!map)::Mike: cat\n",
-			"D0, P[Mike], (!!str)::cat\n",
+			"D0, P[0 0], (!!map)::Mike: cat\n",
+			"D0, P[0 0 Mike], (!!str)::cat\n",
 		},
 	},
 	{
@@ -41,7 +41,7 @@ var createMapOperatorScenarios = []expressionScenario{
 		document:    "pets:\n  cows: value",
 		expression:  `("b":.pets) | .[0][0] | .b.cows`,
 		expected: []string{
-			"D0, P[b cows], (!!str)::value\n",
+			"D0, P[0 0 b cows], (!!str)::value\n",
 		},
 	},
 	{

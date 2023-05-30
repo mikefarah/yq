@@ -18,6 +18,10 @@ func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 }
 
 func toNodes(candidate *CandidateNode, lhs *CandidateNode) []*CandidateNode {
+	if candidate.Tag == "!!null" {
+		return []*CandidateNode{}
+	}
+
 	clone := candidate.Copy()
 
 	switch candidate.Kind {
