@@ -99,8 +99,6 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateN
 		}
 		_, _, err := p.Set(path, nodeValue)
 		return err
-	case DocumentNode:
-		return pe.doEncode(p, node.Content[0], path, node)
 	case SequenceNode:
 		return pe.encodeArray(p, node.Content, path)
 	case MappingNode:

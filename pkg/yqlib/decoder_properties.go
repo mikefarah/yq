@@ -124,9 +124,6 @@ func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {
 	}
 	dec.finished = true
 
-	return &CandidateNode{
-		Kind:    DocumentNode,
-		Content: []*CandidateNode{rootMap},
-	}, nil
+	return rootMap, nil
 
 }

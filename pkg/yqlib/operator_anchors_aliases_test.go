@@ -24,7 +24,7 @@ thingTwo:
   <<: *item_value
 `
 
-var expectedUpdatedArrayRef = `D0, P[], (doc)::item_value: &item_value
+var expectedUpdatedArrayRef = `D0, P[], (!!map)::item_value: &item_value
     value: true
 thingOne:
     name: item_1
@@ -34,7 +34,7 @@ thingTwo:
     !!merge <<: *item_value
 `
 
-var explodeMergeAnchorsExpected = `D0, P[], (doc)::foo:
+var explodeMergeAnchorsExpected = `D0, P[], (!!map)::foo:
     a: foo_a
     thing: foo_thing
     c: foo_c
@@ -95,7 +95,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `a: cat`,
 		expression:  `.a anchor = "foobar"`,
 		expected: []string{
-			"D0, P[], (doc)::a: &foobar cat\n",
+			"D0, P[], (!!map)::a: &foobar cat\n",
 		},
 	},
 	{
@@ -103,7 +103,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `a: {b: cat}`,
 		expression:  `.a anchor |= .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: &cat {b: cat}\n",
+			"D0, P[], (!!map)::a: &cat {b: cat}\n",
 		},
 	},
 	{
@@ -111,7 +111,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:   `a: {c: cat}`,
 		expression: `.a anchor |= .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: {c: cat}\n",
+			"D0, P[], (!!map)::a: {c: cat}\n",
 		},
 	},
 	{
@@ -119,7 +119,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:   `a: {c: cat}`,
 		expression: `.a anchor = .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: {c: cat}\n",
+			"D0, P[], (!!map)::a: {c: cat}\n",
 		},
 	},
 	{
@@ -135,7 +135,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `{b: &meow purr, a: cat}`,
 		expression:  `.a alias = "meow"`,
 		expected: []string{
-			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
+			"D0, P[], (!!map)::{b: &meow purr, a: *meow}\n",
 		},
 	},
 	{
@@ -143,7 +143,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `{b: &meow purr, a: cat}`,
 		expression:  `.a alias = ""`,
 		expected: []string{
-			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
+			"D0, P[], (!!map)::{b: &meow purr, a: cat}\n",
 		},
 	},
 	{
@@ -151,7 +151,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:   `{b: &meow purr, a: cat}`,
 		expression: `.a alias = .c`,
 		expected: []string{
-			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
+			"D0, P[], (!!map)::{b: &meow purr, a: cat}\n",
 		},
 	},
 	{
@@ -159,7 +159,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:   `{b: &meow purr, a: cat}`,
 		expression: `.a alias |= .c`,
 		expected: []string{
-			"D0, P[], (doc)::{b: &meow purr, a: cat}\n",
+			"D0, P[], (!!map)::{b: &meow purr, a: cat}\n",
 		},
 	},
 	{
@@ -167,7 +167,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `{b: &meow purr, a: {f: meow}}`,
 		expression:  `.a alias |= .f`,
 		expected: []string{
-			"D0, P[], (doc)::{b: &meow purr, a: *meow}\n",
+			"D0, P[], (!!map)::{b: &meow purr, a: *meow}\n",
 		},
 	},
 	// {
@@ -202,7 +202,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `{f : {a: &a cat, b: *a}}`,
 		expression:  `explode(.f)`,
 		expected: []string{
-			"D0, P[], (doc)::{f: {a: cat, b: cat}}\n",
+			"D0, P[], (!!map)::{f: {a: cat, b: cat}}\n",
 		},
 	},
 	{
@@ -210,7 +210,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `a: mike`,
 		expression:  `explode(.a)`,
 		expected: []string{
-			"D0, P[], (doc)::a: mike\n",
+			"D0, P[], (!!map)::a: mike\n",
 		},
 	},
 	{
@@ -218,7 +218,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:    `{f : {a: &a cat, *a: b}}`,
 		expression:  `explode(.f)`,
 		expected: []string{
-			"D0, P[], (doc)::{f: {a: cat, cat: b}}\n",
+			"D0, P[], (!!map)::{f: {a: cat, cat: b}}\n",
 		},
 	},
 	{
@@ -252,7 +252,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a: *b}}`,
 		expression: `explode(.f)`,
 		expected: []string{
-			"D0, P[], (doc)::{f: {a: cat, b: {foo: cat}, cat: {foo: cat}}}\n",
+			"D0, P[], (!!map)::{f: {a: cat, b: {foo: cat}, cat: {foo: cat}}}\n",
 		},
 	},
 	{

@@ -10,7 +10,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: "(.a - .b) as $x | .",
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -64,7 +64,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       `{a: 3, b: 4.5}`,
 		expression:     `.a = .a - .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: -1.5, b: 4.5}\n",
+			"D0, P[], (!!map)::{a: -1.5, b: 4.5}\n",
 		},
 	},
 	{
@@ -73,7 +73,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       `{a: 3, b: 4}`,
 		expression:     `.a = .a - .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: -1, b: 4}\n",
+			"D0, P[], (!!map)::{a: -1, b: 4}\n",
 		},
 	},
 	{
@@ -81,7 +81,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:    `{a: 3, b: 5}`,
 		expression:  `.[] -= 1`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 2, b: 4}\n",
+			"D0, P[], (!!map)::{a: 2, b: 4}\n",
 		},
 	},
 	{
@@ -90,7 +90,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       `a: 2021-01-01T03:10:00Z`,
 		expression:     `.a -= "3h10m"`,
 		expected: []string{
-			"D0, P[], (doc)::a: 2021-01-01T00:00:00Z\n",
+			"D0, P[], (!!map)::a: 2021-01-01T00:00:00Z\n",
 		},
 	},
 	{
@@ -99,7 +99,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:    `a: 2021-01-01`,
 		expression:  `.a -= "24h"`,
 		expected: []string{
-			"D0, P[], (doc)::a: 2020-12-31T00:00:00Z\n",
+			"D0, P[], (!!map)::a: 2020-12-31T00:00:00Z\n",
 		},
 	},
 	{
@@ -108,7 +108,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       `a: Saturday, 15-Dec-01 at 6:00AM GMT`,
 		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a -= "3h1m")`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 2:59AM GMT\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 2:59AM GMT\n",
 		},
 	},
 	{
@@ -118,7 +118,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       `a: !cat Saturday, 15-Dec-01 at 6:00AM GMT`,
 		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST", .a -= "3h1m")`,
 		expected: []string{
-			"D0, P[], (doc)::a: !cat Saturday, 15-Dec-01 at 2:59AM GMT\n",
+			"D0, P[], (!!map)::a: !cat Saturday, 15-Dec-01 at 2:59AM GMT\n",
 		},
 	},
 	{
@@ -127,7 +127,7 @@ var subtractOperatorScenarios = []expressionScenario{
 		document:       "a: !horse 2\nb: !goat 1",
 		expression:     `.a -= .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse 1\nb: !goat 1\n",
+			"D0, P[], (!!map)::a: !horse 1\nb: !goat 1\n",
 		},
 	},
 	{

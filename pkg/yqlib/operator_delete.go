@@ -15,24 +15,13 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
-		if candidate.Kind == DocumentNode {
-			//need to delete this node from context.
+		if candidate.Parent == nil {
+			// must be a top level thing, delete it
 			return removeFromContext(context, candidate)
-		} else if candidate.Parent == nil {
-			//problem: context may already be '.a' and then I pass in '.a.a2'.
-			// should pass in .a2.
-			log.Info("Could not find parent of %v", NodeToString(candidate))
-			return context, nil
 		}
 		log.Debugf("processing deletion of candidate %v", NodeToString(candidate))
 
 		parentNode := candidate.Parent
-
-		if parentNode != nil && parentNode.Kind == DocumentNode {
-			log.Debugf("it has a document parent")
-
-			return removeFromContext(context, candidate.Parent)
-		}
 
 		candidatePath := candidate.GetPath()
 		childPath := candidatePath[len(candidatePath)-1]

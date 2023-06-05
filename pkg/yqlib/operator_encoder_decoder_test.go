@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var prefix = "D0, P[], (doc)::a:\n    cool:\n        bob: dylan\n"
+var prefix = "D0, P[], (!!map)::a:\n    cool:\n        bob: dylan\n"
 
 var encoderDecoderOperatorScenarios = []expressionScenario{
 	{
@@ -13,7 +13,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       `{a: {cool: "thing"}}`,
 		expression:     `.b = (.a | to_json)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{\n  \"cool\": \"thing\"\n}\n"}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: "{\n  \"cool\": \"thing\"\n}\n"}
 `,
 		},
 	},
@@ -24,7 +24,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       `{a: {cool: "thing"}}`,
 		expression:     `.b = (.a | to_json(0))`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: '{"cool":"thing"}'}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: '{"cool":"thing"}'}
 `,
 		},
 	},
@@ -35,7 +35,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       `{a: {cool: "thing"}}`,
 		expression:     `.b = (.a | @json)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: '{"cool":"thing"}'}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: '{"cool":"thing"}'}
 `,
 		},
 	},
@@ -54,7 +54,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:   `{a: {cool: "thing"}}`,
 		expression: `.b = (.a | to_props)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: "cool = thing\n"}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: "cool = thing\n"}
 `,
 		},
 	},
@@ -63,7 +63,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `{a: {cool: "thing"}}`,
 		expression:  `.b = (.a | @props)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: "cool = thing\n"}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: "cool = thing\n"}
 `,
 		},
 	},
@@ -72,7 +72,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `a: "cats=great\ndogs=cool as well"`,
 		expression:  `.a |= @propsd`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    cats: great\n    dogs: cool as well\n",
+			"D0, P[], (!!map)::a:\n    cats: great\n    dogs: cool as well\n",
 		},
 	},
 	{
@@ -80,7 +80,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `a: "cats,dogs\ngreat,cool as well"`,
 		expression:  `.a |= @csvd`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    - cats: great\n      dogs: cool as well\n",
+			"D0, P[], (!!map)::a:\n    - cats: great\n      dogs: cool as well\n",
 		},
 	},
 	{
@@ -88,7 +88,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `a: "cats	dogs\ngreat	cool as well"`,
 		expression:  `.a |= @tsvd`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    - cats: great\n      dogs: cool as well\n",
+			"D0, P[], (!!map)::a:\n    - cats: great\n      dogs: cool as well\n",
 		},
 	},
 	{
@@ -122,7 +122,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:   `{a: {cool: "thing"}}`,
 		expression: `.b = (.a | to_yaml)`,
 		expected: []string{
-			`D0, P[], (doc)::{a: {cool: "thing"}, b: "{cool: \"thing\"}\n"}
+			`D0, P[], (!!map)::{a: {cool: "thing"}, b: "{cool: \"thing\"}\n"}
 `,
 		},
 	},
@@ -131,7 +131,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:    `a: "foo: bar"`,
 		expression:  `.b = (.a | from_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: \"foo: bar\"\nb:\n    foo: bar\n",
+			"D0, P[], (!!map)::a: \"foo: bar\"\nb:\n    foo: bar\n",
 		},
 	},
 	{
@@ -140,7 +140,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:              "a: |\n  foo: bar\n  baz: dog\n",
 		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: |\n    foo: cat\n    baz: dog\n",
+			"D0, P[], (!!map)::a: |\n    foo: cat\n    baz: dog\n",
 		},
 	},
 	{
@@ -149,7 +149,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:              "a: |-\n  foo: bar\n  baz: dog\n",
 		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: |-\n    foo: cat\n    baz: dog\n",
+			"D0, P[], (!!map)::a: |-\n    foo: cat\n    baz: dog\n",
 		},
 	},
 	{
@@ -158,7 +158,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:              "a: 'foo: bar'",
 		expression:            `.a |= (from_yaml | .foo = "cat" | to_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: 'foo: cat'\n",
+			"D0, P[], (!!map)::a: 'foo: cat'\n",
 		},
 	},
 	{
@@ -193,7 +193,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:              "a: \"foo: bar\"",
 		expression:            `.a |= (from_yaml | .foo = {"a": "frog"} | to_yaml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: \"foo:\\n  a: frog\"\n",
+			"D0, P[], (!!map)::a: \"foo:\\n  a: frog\"\n",
 		},
 	},
 	{
@@ -229,7 +229,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       `a: "<foo>bar</foo>"`,
 		expression:     `.b = (.a | from_xml)`,
 		expected: []string{
-			"D0, P[], (doc)::a: \"<foo>bar</foo>\"\nb:\n    foo: bar\n",
+			"D0, P[], (!!map)::a: \"<foo>bar</foo>\"\nb:\n    foo: bar\n",
 		},
 	},
 	{
@@ -299,7 +299,7 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		document:       "coolData: YTogYXBwbGUK",
 		expression:     ".coolData |= (@base64d | from_yaml)",
 		expected: []string{
-			"D0, P[], (doc)::coolData:\n    a: apple\n",
+			"D0, P[], (!!map)::coolData:\n    a: apple\n",
 		},
 	},
 	{

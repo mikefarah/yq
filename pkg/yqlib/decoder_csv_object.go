@@ -68,8 +68,5 @@ func (dec *csvObjectDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	return &CandidateNode{
-		Kind:    DocumentNode,
-		Content: []*CandidateNode{rootArray},
-	}, nil
+	return rootArray, nil
 }

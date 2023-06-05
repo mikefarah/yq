@@ -31,7 +31,6 @@ yq '..' sample.yml
 will output
 ```yaml
 a: frog
-a: frog
 frog
 ```
 
@@ -93,7 +92,6 @@ yq '...' sample.yml
 will output
 ```yaml
 a: frog
-a: frog
 a
 frog
 ```
@@ -111,9 +109,6 @@ yq '[..]' sample.yml
 ```
 will output
 ```yaml
-- a: &cat
-    c: frog
-  b: *cat
 - a: &cat
     c: frog
   b: *cat

@@ -63,14 +63,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 	}
 
 	if allDocuments.Len() == 0 {
-		candidateNode := &CandidateNode{
-			document:       0,
-			filename:       "",
-			Kind:           DocumentNode,
-			Content:        []*CandidateNode{createScalarNode(nil, "")},
-			fileIndex:      0,
-			LeadingContent: "",
-		}
+		candidateNode := createScalarNode(nil, "")
 		allDocuments.PushBack(candidateNode)
 	}
 

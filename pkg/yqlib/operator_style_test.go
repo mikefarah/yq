@@ -10,7 +10,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `a: {b: thing, c: something}`,
 		expression:  `.a.b = "new" | .a.b style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+			"D0, P[], (!!map)::a: {b: \"new\", c: something}\n",
 		},
 	},
 	{
@@ -18,7 +18,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `a: {b: thing, c: something}`,
 		expression:  `with(.a.b ; . = "new" | . style="double")`,
 		expected: []string{
-			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+			"D0, P[], (!!map)::a: {b: \"new\", c: something}\n",
 		},
 	},
 	{
@@ -26,7 +26,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="tagged"`,
 		expected: []string{
-			"D0, P[], (doc)::!!map\na: !!str cat\nb: !!int 5\nc: !!float 3.2\ne: !!bool true\n",
+			"D0, P[], (!!map)::!!map\na: !!str cat\nb: !!int 5\nc: !!float 3.2\ne: !!bool true\n",
 		},
 	},
 	{
@@ -34,7 +34,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::a: \"cat\"\nb: \"5\"\nc: \"3.2\"\ne: \"true\"\n",
+			"D0, P[], (!!map)::a: \"cat\"\nb: \"5\"\nc: \"3.2\"\ne: \"true\"\n",
 		},
 	},
 	{
@@ -42,7 +42,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `... style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::\"a\": \"cat\"\n\"b\": \"5\"\n\"c\": \"3.2\"\n\"e\": \"true\"\n",
+			"D0, P[], (!!map)::\"a\": \"cat\"\n\"b\": \"5\"\n\"c\": \"3.2\"\n\"e\": \"true\"\n",
 		},
 	},
 	{
@@ -50,7 +50,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:   "bing: &foo frog\na:\n  c: cat\n  <<: [*foo]",
 		expression: `(... | select(tag=="!!str")) style="single"`,
 		expected: []string{
-			"D0, P[], (doc)::'bing': &foo 'frog'\n'a':\n    'c': 'cat'\n    !!merge <<: [*foo]\n",
+			"D0, P[], (!!map)::'bing': &foo 'frog'\n'a':\n    'c': 'cat'\n    !!merge <<: [*foo]\n",
 		},
 	},
 	{
@@ -58,7 +58,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="single"`,
 		expected: []string{
-			"D0, P[], (doc)::a: 'cat'\nb: '5'\nc: '3.2'\ne: 'true'\n",
+			"D0, P[], (!!map)::a: 'cat'\nb: '5'\nc: '3.2'\ne: 'true'\n",
 		},
 	},
 	{
@@ -66,7 +66,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="literal"`,
 		expected: []string{
-			`D0, P[], (doc)::a: |-
+			`D0, P[], (!!map)::a: |-
     cat
 b: |-
     5
@@ -82,7 +82,7 @@ e: |-
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="folded"`,
 		expected: []string{
-			`D0, P[], (doc)::a: >-
+			`D0, P[], (!!map)::a: >-
     cat
 b: >-
     5
@@ -98,7 +98,7 @@ e: >-
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `.. style="flow"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: cat, b: 5, c: 3.2, e: true}\n",
+			"D0, P[], (!!map)::{a: cat, b: 5, c: 3.2, e: true}\n",
 		},
 	},
 	{
@@ -107,7 +107,7 @@ e: >-
 		document:       `{a: cat, "b": 5, 'c': 3.2, "e": true}`,
 		expression:     `... style=""`,
 		expected: []string{
-			"D0, P[], (doc)::a: cat\nb: 5\nc: 3.2\ne: true\n",
+			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
 		},
 	},
 	{
@@ -115,7 +115,7 @@ e: >-
 		document:    `{a: single, b: double}`,
 		expression:  `.[] style |= .`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'single', b: \"double\"}\n",
+			"D0, P[], (!!map)::{a: 'single', b: \"double\"}\n",
 		},
 	},
 	{
@@ -123,7 +123,7 @@ e: >-
 		document:   `{a: cat, b: double}`,
 		expression: `.a style=.b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: \"cat\", b: double}\n",
+			"D0, P[], (!!map)::{a: \"cat\", b: double}\n",
 		},
 	},
 	{

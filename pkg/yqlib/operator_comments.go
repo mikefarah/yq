@@ -112,7 +112,7 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 			comment = chompRegexp.ReplaceAllString(comment, "")
 		} else if preferences.HeadComment {
 			comment = candidate.HeadComment
-		} else if preferences.FootComment && candidate.Kind == DocumentNode && candidate.TrailingContent != "" {
+		} else if preferences.FootComment && candidate.TrailingContent != "" {
 			comment = candidate.TrailingContent
 		} else if preferences.FootComment {
 			comment = candidate.FootComment

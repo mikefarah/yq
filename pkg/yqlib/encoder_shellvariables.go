@@ -54,8 +54,6 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+quoteValue(node.Value)+"\n")
 		return err
-	case DocumentNode:
-		return pe.doEncode(w, node.Content[0], path)
 	case SequenceNode:
 		for index, child := range node.Content {
 			err := pe.doEncode(w, child, appendPath(path, index))

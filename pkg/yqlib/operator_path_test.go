@@ -78,7 +78,7 @@ var pathOperatorScenarios = []expressionScenario{
 		document:    `{a: {b: cat}}`,
 		expression:  `setpath(["a", "b"]; "things")`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: things}}\n",
+			"D0, P[], (!!map)::{a: {b: things}}\n",
 		},
 	},
 	{
@@ -102,7 +102,7 @@ var pathOperatorScenarios = []expressionScenario{
 		document:    `a: [cat, frog]`,
 		expression:  `setpath(["a", 0]; "things")`,
 		expected: []string{
-			"D0, P[], (doc)::a: [things, frog]\n",
+			"D0, P[], (!!map)::a: [things, frog]\n",
 		},
 	},
 	{
@@ -118,7 +118,7 @@ var pathOperatorScenarios = []expressionScenario{
 		document:       `{a: {b: cat, c: dog, d: frog}}`,
 		expression:     `delpaths([["a", "c"], ["a", "d"]])`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: cat}}\n",
+			"D0, P[], (!!map)::{a: {b: cat}}\n",
 		},
 	},
 	{
@@ -126,7 +126,7 @@ var pathOperatorScenarios = []expressionScenario{
 		document:    `a: [cat, frog]`,
 		expression:  `delpaths([["a", 0]])`,
 		expected: []string{
-			"D0, P[], (doc)::a: [frog]\n",
+			"D0, P[], (!!map)::a: [frog]\n",
 		},
 	},
 	{

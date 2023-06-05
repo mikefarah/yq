@@ -64,10 +64,6 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 		log.Debug("its an alias!")
 		matchingNode = matchingNode.Alias
 		return traverse(context, matchingNode, operation)
-	case DocumentNode:
-		log.Debug("digging into doc node")
-
-		return traverse(context, matchingNode.Content[0], operation)
 	default:
 		return list.New(), nil
 	}
@@ -146,8 +142,6 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 		return traverseArrayWithIndices(matchingNode, indicesToTraverse, prefs)
 	} else if matchingNode.Kind == MappingNode {
 		return traverseMapWithIndices(context, matchingNode, indicesToTraverse, prefs)
-	} else if matchingNode.Kind == DocumentNode {
-		return traverseArrayIndices(context, matchingNode.Content[0], indicesToTraverse, prefs)
 	}
 	log.Debugf("OperatorArrayTraverse skipping %v as its a %v", matchingNode, matchingNode.Tag)
 	return list.New(), nil

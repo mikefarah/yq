@@ -29,8 +29,5 @@ func (dec *jsonDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 
-	return &CandidateNode{
-		Kind:    DocumentNode,
-		Content: []*CandidateNode{&dataBucket},
-	}, nil
+	return &dataBucket, nil
 }

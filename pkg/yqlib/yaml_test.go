@@ -61,7 +61,7 @@ var yamlParseScenarios = []expressionScenario{
 	{
 		document: `a: hello # things`,
 		expected: []string{
-			"D0, P[], (doc)::a: hello # things\n",
+			"D0, P[], (!!map)::a: hello # things\n",
 		},
 	},
 	{
@@ -74,13 +74,13 @@ var yamlParseScenarios = []expressionScenario{
 	{
 		document: `a: [1,2]`,
 		expected: []string{
-			"D0, P[], (doc)::a: [1, 2]\n",
+			"D0, P[], (!!map)::a: [1, 2]\n",
 		},
 	},
 	{
 		document: `a: !horse [a]`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse [a]\n",
+			"D0, P[], (!!map)::a: !horse [a]\n",
 		},
 	},
 }

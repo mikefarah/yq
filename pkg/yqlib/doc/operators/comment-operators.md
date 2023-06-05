@@ -80,11 +80,6 @@ will output
   hc: ""
   lc: ""
   fc: ""
-- p: ""
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
 - p: hello
   isKey: true
   hc: ""
@@ -145,11 +140,6 @@ will output
   hc: ""
   lc: ""
   fc: ""
-- p: ""
-  isKey: false
-  hc: ""
-  lc: ""
-  fc: ""
 - p: name
   isKey: true
   hc: ""
@@ -197,7 +187,6 @@ yq '. head_comment="single"' sample.yml
 will output
 ```yaml
 # single
-
 a: cat
 ```
 

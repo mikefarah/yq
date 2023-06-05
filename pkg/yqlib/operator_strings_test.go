@@ -209,7 +209,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:       `a: dogs are great`,
 		expression:     `.a |= sub("dogs", "cats")`,
 		expected: []string{
-			"D0, P[], (doc)::a: cats are great\n",
+			"D0, P[], (!!map)::a: cats are great\n",
 		},
 	},
 	{
@@ -218,7 +218,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:       "a: cat\nb: heat",
 		expression:     `.[] |= sub("(a)", "${1}r")`,
 		expected: []string{
-			"D0, P[], (doc)::a: cart\nb: heart\n",
+			"D0, P[], (!!map)::a: cart\nb: heart\n",
 		},
 	},
 	{
@@ -227,7 +227,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		document:       "a: !horse cat\nb: !goat heat",
 		expression:     `.[] |= sub("(a)", "${1}r")`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse cart\nb: !goat heart\n",
+			"D0, P[], (!!map)::a: !horse cart\nb: !goat heart\n",
 		},
 	},
 	{

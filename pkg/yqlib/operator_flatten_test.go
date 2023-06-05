@@ -11,7 +11,7 @@ var flattenOperatorScenarios = []expressionScenario{
 		document:       `[1, [2], [[3]]]`,
 		expression:     `flatten`,
 		expected: []string{
-			"D0, P[], (doc)::[1, 2, 3]\n",
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
 		},
 	},
 	{
@@ -19,7 +19,7 @@ var flattenOperatorScenarios = []expressionScenario{
 		document:    `[1, [2], [[3]]]`,
 		expression:  `flatten(1)`,
 		expected: []string{
-			"D0, P[], (doc)::[1, 2, [3]]\n",
+			"D0, P[], (!!seq)::[1, 2, [3]]\n",
 		},
 	},
 	{
@@ -27,7 +27,7 @@ var flattenOperatorScenarios = []expressionScenario{
 		document:    `[[]]`,
 		expression:  `flatten`,
 		expected: []string{
-			"D0, P[], (doc)::[]\n",
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 	{
@@ -35,7 +35,7 @@ var flattenOperatorScenarios = []expressionScenario{
 		document:    `[{foo: bar}, [{foo: baz}]]`,
 		expression:  `flatten`,
 		expected: []string{
-			"D0, P[], (doc)::[{foo: bar}, {foo: baz}]\n",
+			"D0, P[], (!!seq)::[{foo: bar}, {foo: baz}]\n",
 		},
 	},
 }

@@ -385,9 +385,7 @@ func NodeToString(node *CandidateNode) string {
 		return "-- nil --"
 	}
 	tag := node.Tag
-	if node.Kind == DocumentNode {
-		tag = "doc"
-	} else if node.Kind == AliasNode {
+	if node.Kind == AliasNode {
 		tag = "alias"
 	}
 	valueToUse := node.Value
@@ -422,8 +420,6 @@ func KindString(kind Kind) string {
 		return "SequenceNode"
 	case MappingNode:
 		return "MappingNode"
-	case DocumentNode:
-		return "DocumentNode"
 	case AliasNode:
 		return "AliasNode"
 	default:

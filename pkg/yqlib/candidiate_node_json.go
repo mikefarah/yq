@@ -132,10 +132,10 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 	enc.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 
 	switch o.Kind {
-	case DocumentNode:
-		log.Debugf("MarshalJSON DocumentNode")
-		err := enc.Encode(o.Content[0])
-		return buf.Bytes(), err
+	// case DocumentNode:
+	// 	log.Debugf("MarshalJSON DocumentNode")
+	// 	err := enc.Encode(o.Content[0])
+	// 	return buf.Bytes(), err
 	case AliasNode:
 		log.Debugf("MarshalJSON AliasNode")
 		err := enc.Encode(o.Alias)

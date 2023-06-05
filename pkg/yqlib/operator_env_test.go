@@ -60,7 +60,7 @@ var envOperatorScenarios = []expressionScenario{
 		environmentVariables: map[string]string{"pathEnv": ".a.b[0].name", "valueEnv": "moo"},
 		expression:           `eval(strenv(pathEnv)) = strenv(valueEnv)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: [{name: moo}, {name: cat}]}}\n",
+			"D0, P[], (!!map)::{a: {b: [{name: moo}, {name: cat}]}}\n",
 		},
 	},
 	{
@@ -136,7 +136,7 @@ var envOperatorScenarios = []expressionScenario{
 		document:             "{v: \"${myenv}\"}",
 		expression:           `.v |= envsubst`,
 		expected: []string{
-			"D0, P[], (doc)::{v: \"cat meow\"}\n",
+			"D0, P[], (!!map)::{v: \"cat meow\"}\n",
 		},
 	},
 	{
@@ -157,7 +157,7 @@ var envOperatorScenarios = []expressionScenario{
 		document:             "# abc\n{v: \"${myenv}\"}\n# xyz\n",
 		expression:           `(.. | select(tag == "!!str")) |= envsubst`,
 		expected: []string{
-			"D0, P[], (doc)::# abc\n{v: \"cat meow\"}\n# xyz\n",
+			"D0, P[], (!!map)::# abc\n{v: \"cat meow\"}\n# xyz\n",
 		},
 	},
 }

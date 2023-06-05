@@ -239,7 +239,7 @@ var jsonScenarios = []formatScenario{
 		description:  "empty string",
 		skipDoc:      true,
 		input:        `""`,
-		expected:     "\"\"\n",
+		expected:     "\n",
 		scenarioType: "decode-ndjson",
 	},
 	{

@@ -242,10 +242,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 		return nil, io.EOF
 	}
 
-	return &CandidateNode{
-		Kind:    DocumentNode,
-		Content: []*CandidateNode{dec.rootMap},
-	}, deferredError
+	return dec.rootMap, deferredError
 
 }
 

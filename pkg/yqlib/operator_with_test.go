@@ -8,7 +8,7 @@ var withOperatorScenarios = []expressionScenario{
 		document:    `a: {deeply: {nested: value}}`,
 		expression:  `with(.a.deeply.nested; . = "newValue" | . style="single")`,
 		expected: []string{
-			"D0, P[], (doc)::a: {deeply: {nested: 'newValue'}}\n",
+			"D0, P[], (!!map)::a: {deeply: {nested: 'newValue'}}\n",
 		},
 	},
 	{
@@ -16,7 +16,7 @@ var withOperatorScenarios = []expressionScenario{
 		document:    `a: {deeply: {nested: value, other: thing}}`,
 		expression:  `with(.a.deeply; .nested = "newValue" | .other= "newThing")`,
 		expected: []string{
-			"D0, P[], (doc)::a: {deeply: {nested: newValue, other: newThing}}\n",
+			"D0, P[], (!!map)::a: {deeply: {nested: newValue, other: newThing}}\n",
 		},
 	},
 	{
@@ -25,7 +25,7 @@ var withOperatorScenarios = []expressionScenario{
 		document:       `myArray: [{a: apple},{a: banana}]`,
 		expression:     `with(.myArray[]; .b = .a + " yum")`,
 		expected: []string{
-			"D0, P[], (doc)::myArray: [{a: apple, b: apple yum}, {a: banana, b: banana yum}]\n",
+			"D0, P[], (!!map)::myArray: [{a: apple, b: apple yum}, {a: banana, b: banana yum}]\n",
 		},
 	},
 	{
@@ -35,7 +35,7 @@ var withOperatorScenarios = []expressionScenario{
 		document:       `myArray: [{a: apple},{a: banana}]`,
 		expression:     `with(.myArray[]; .a += .a)`,
 		expected: []string{
-			"D0, P[], (doc)::myArray: [{a: appleapple}, {a: bananabanana}]\n",
+			"D0, P[], (!!map)::myArray: [{a: appleapple}, {a: bananabanana}]\n",
 		},
 	},
 }

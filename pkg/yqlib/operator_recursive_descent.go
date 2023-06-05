@@ -25,11 +25,6 @@ func recursiveDecent(results *list.List, context Context, preferences recursiveD
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		if candidate.Kind == DocumentNode {
-			results.PushBack(candidate)
-			candidate = candidate.unwrapDocument()
-		}
-
 		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 

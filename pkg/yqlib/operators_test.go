@@ -140,9 +140,7 @@ func resultToString(t *testing.T, n *CandidateNode) string {
 	}
 
 	tag := n.Tag
-	if n.Kind == DocumentNode {
-		tag = "doc"
-	} else if n.Kind == AliasNode {
+	if n.Kind == AliasNode {
 		tag = "alias"
 	}
 	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.GetDocument(), n.GetPath(), tag, valueBuffer.String())

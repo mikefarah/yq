@@ -182,7 +182,7 @@ func explodeNode(node *CandidateNode, context Context) error {
 	log.Debugf("explodeNode -  %v", NodeToString(node))
 	node.Anchor = ""
 	switch node.Kind {
-	case SequenceNode, DocumentNode:
+	case SequenceNode:
 		for index, contentNode := range node.Content {
 			log.Debugf("explodeNode -  index %v", index)
 			errorInContent := explodeNode(contentNode, context)

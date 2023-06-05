@@ -43,7 +43,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:   "b: hi",
 		expression: `select(.a or .b)`,
 		expected: []string{
-			"D0, P[], (doc)::b: hi\n",
+			"D0, P[], (!!map)::b: hi\n",
 		},
 	},
 	{
@@ -51,7 +51,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:   "b: hi",
 		expression: `select((.a and .b) | not)`,
 		expected: []string{
-			"D0, P[], (doc)::b: hi\n",
+			"D0, P[], (!!map)::b: hi\n",
 		},
 	},
 	{
@@ -106,7 +106,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:    "a: [rad, awesome]\nb: [meh, whatever]",
 		expression:  `.[] |= any_c(. == "awesome")`,
 		expected: []string{
-			"D0, P[], (doc)::a: true\nb: false\n",
+			"D0, P[], (!!map)::a: true\nb: false\n",
 		},
 	},
 	{
@@ -114,7 +114,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:   `[{pet: cat}]`,
 		expression: `any_c(.name == "harry") as $c | .`,
 		expected: []string{
-			"D0, P[], (doc)::[{pet: cat}]\n",
+			"D0, P[], (!!seq)::[{pet: cat}]\n",
 		},
 	},
 	{
@@ -170,7 +170,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:    "a: [rad, awesome]\nb: [meh, 12]",
 		expression:  `.[] |= all_c(tag == "!!str")`,
 		expected: []string{
-			"D0, P[], (doc)::a: true\nb: false\n",
+			"D0, P[], (!!map)::a: true\nb: false\n",
 		},
 	},
 	{
@@ -205,7 +205,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `(.a.b or .c) as $x | .`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -213,7 +213,7 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `(.a.b and .c) as $x | .`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{

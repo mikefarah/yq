@@ -188,10 +188,7 @@ func (dec *xmlDecoder) Decode() (*CandidateNode, error) {
 	dec.readAnything = true
 	dec.finished = true
 
-	return &CandidateNode{
-		Kind:    DocumentNode,
-		Content: []*CandidateNode{firstNode},
-	}, nil
+	return firstNode, nil
 }
 
 type xmlNode struct {

@@ -11,7 +11,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       `a: 2001-12-15T02:59:43.1Z`,
 		expression:     `.a |= format_datetime("Monday, 02-Jan-06 at 3:04PM")`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 2:59AM\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 2:59AM\n",
 		},
 	},
 	{
@@ -20,7 +20,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM`,
 		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM"; format_datetime("2006-01-02"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: 2001-12-15\n",
+			"D0, P[], (!!map)::a: 2001-12-15\n",
 		},
 	},
 	{
@@ -36,7 +36,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:    "a: cool",
 		expression:  `.updated = now`,
 		expected: []string{
-			"D0, P[], (doc)::a: cool\nupdated: 2021-05-19T01:02:03Z\n",
+			"D0, P[], (!!map)::a: cool\nupdated: 2021-05-19T01:02:03Z\n",
 		},
 	},
 	{
@@ -62,7 +62,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:   "a: cool",
 		expression: `.updated = (now | tz("Australia/Sydney"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: cool\nupdated: 2021-05-19T11:02:03+10:00\n",
+			"D0, P[], (!!map)::a: cool\nupdated: 2021-05-19T11:02:03+10:00\n",
 		},
 	},
 	{
@@ -71,7 +71,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       "a: Saturday, 15-Dec-01 at 2:59AM GMT",
 		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
 	},
 	{
@@ -80,7 +80,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       "a: Saturday, 15-Dec-01 at 2:59AM GMT",
 		expression:     `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; tz("Australia/Sydney"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
 	},
 	{
@@ -88,7 +88,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:    `a: 2021-01-01T00:00:00Z`,
 		expression:  `.a += "3h10m"`,
 		expected: []string{
-			"D0, P[], (doc)::a: 2021-01-01T03:10:00Z\n",
+			"D0, P[], (!!map)::a: 2021-01-01T03:10:00Z\n",
 		},
 	},
 	{
@@ -97,7 +97,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       `a: 2021-01-01T03:10:00Z`,
 		expression:     `.a -= "3h10m"`,
 		expected: []string{
-			"D0, P[], (doc)::a: 2021-01-01T00:00:00Z\n",
+			"D0, P[], (!!map)::a: 2021-01-01T00:00:00Z\n",
 		},
 	},
 	{
@@ -105,7 +105,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:    `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
 		expression:  `with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a += "3h1m")`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 6:00AM GMT\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 6:00AM GMT\n",
 		},
 	},
 	{
@@ -114,7 +114,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM GMT`,
 		expression:     `with_dtf("Monday, 02-Jan-06 at 3:04PM MST"; .a = (.a + "3h1m" | tz("Australia/Perth")))`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 2:00PM AWST\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 2:00PM AWST\n",
 		},
 	},
 	{
@@ -123,7 +123,7 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		document:    "a: Saturday, 15-Dec-01 at 2:59AM GMT",
 		expression:  `.a |= with_dtf("Monday, 02-Jan-06 at 3:04PM MST", tz("Australia/Sydney"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
+			"D0, P[], (!!map)::a: Saturday, 15-Dec-01 at 1:59PM AEDT\n",
 		},
 	},
 }

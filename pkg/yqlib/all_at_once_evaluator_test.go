@@ -20,7 +20,7 @@ var evaluateNodesScenario = []expressionScenario{
 		document:   `a: hello`,
 		expression: `.`,
 		expected: []string{
-			"D0, P[], (doc)::a: hello\n",
+			"D0, P[], (!!map)::a: hello\n",
 		},
 	},
 	{

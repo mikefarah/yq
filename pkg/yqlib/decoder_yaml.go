@@ -120,10 +120,14 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	candidateNode := CandidateNode{document: dec.documentIndex}
-	err = candidateNode.UnmarshalYAML(&yamlNode, make(map[string]*CandidateNode))
+	// don't bother with the DocumentNode
+	err = candidateNode.UnmarshalYAML(yamlNode.Content[0], make(map[string]*CandidateNode))
 	if err != nil {
 		return nil, err
 	}
+
+	candidateNode.HeadComment = yamlNode.HeadComment + candidateNode.HeadComment
+	candidateNode.FootComment = yamlNode.FootComment + candidateNode.FootComment
 
 	if dec.leadingContent != "" {
 		candidateNode.LeadingContent = dec.leadingContent
@@ -139,12 +143,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 }
 
 func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {
-	return &CandidateNode{
-		document:       0,
-		filename:       "",
-		Kind:           DocumentNode,
-		Content:        []*CandidateNode{createScalarNode(nil, "")},
-		fileIndex:      0,
-		LeadingContent: dec.leadingContent,
-	}
+	node := createScalarNode(nil, "")
+	node.LeadingContent = dec.leadingContent
+	return node
 }

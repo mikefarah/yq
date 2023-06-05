@@ -11,7 +11,7 @@ var pickOperatorScenarios = []expressionScenario{
 		document:       "myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeek}\n",
 		expression:     `.myMap |= pick(["hamster", "cat", "goat"])`,
 		expected: []string{
-			"D0, P[], (doc)::myMap: {hamster: squeek, cat: meow}\n",
+			"D0, P[], (!!map)::myMap: {hamster: squeek, cat: meow}\n",
 		},
 	},
 	{
@@ -20,7 +20,7 @@ var pickOperatorScenarios = []expressionScenario{
 		document:    "!things myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeek}\n",
 		expression:  `.myMap |= pick(["hamster", "cat", "goat"])`,
 		expected: []string{
-			"D0, P[], (doc)::!things myMap: {hamster: squeek, cat: meow}\n",
+			"D0, P[], (!!map)::!things myMap: {hamster: squeek, cat: meow}\n",
 		},
 	},
 	{
@@ -29,7 +29,7 @@ var pickOperatorScenarios = []expressionScenario{
 		document:    "# abc\nmyMap: {cat: meow, dog: bark, thing: hamster, hamster: squeek}\n# xyz\n",
 		expression:  `.myMap |= pick(["hamster", "cat", "goat"])`,
 		expected: []string{
-			"D0, P[], (doc)::# abc\nmyMap: {hamster: squeek, cat: meow}\n# xyz\n",
+			"D0, P[], (!!map)::# abc\nmyMap: {hamster: squeek, cat: meow}\n# xyz\n",
 		},
 	},
 	{

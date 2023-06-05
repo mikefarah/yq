@@ -19,7 +19,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: "(.a / .b) as $x | .",
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -27,7 +27,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:    `{a: cat_meow, b: _}`,
 		expression:  `.c = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: cat_meow, b: _, c: [cat, meow]}\n",
+			"D0, P[], (!!map)::{a: cat_meow, b: _, c: [cat, meow]}\n",
 		},
 	},
 	{
@@ -36,7 +36,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:       `{a: 12, b: 2.5}`,
 		expression:     `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 4.8, b: 2.5}\n",
+			"D0, P[], (!!map)::{a: 4.8, b: 2.5}\n",
 		},
 	},
 	{
@@ -45,7 +45,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:       `{a: 1, b: -1}`,
 		expression:     `.a = .a / 0 | .b = .b / 0`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!float +Inf, b: !!float -Inf}\n",
+			"D0, P[], (!!map)::{a: !!float +Inf, b: !!float -Inf}\n",
 		},
 	},
 	{
@@ -54,7 +54,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:    "a: !horse cat_meow\nb: !goat _",
 		expression:  `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse\n    - cat\n    - meow\nb: !goat _\n",
+			"D0, P[], (!!map)::a: !horse\n    - cat\n    - meow\nb: !goat _\n",
 		},
 	},
 	{
@@ -63,7 +63,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:    "a: !horse 1.2\nb: !goat 2.3",
 		expression:  `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse 0.5217391304347826\nb: !goat 2.3\n",
+			"D0, P[], (!!map)::a: !horse 0.5217391304347826\nb: !goat 2.3\n",
 		},
 	},
 	{
@@ -71,7 +71,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:   "a: 2\nb: !goat 2.3",
 		expression: `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: 0.8695652173913044\nb: !goat 2.3\n",
+			"D0, P[], (!!map)::a: 0.8695652173913044\nb: !goat 2.3\n",
 		},
 	},
 	{
@@ -80,7 +80,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:    "a: !horse 2\nb: !goat 3",
 		expression:  `.a = .a / .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse 0.6666666666666666\nb: !goat 3\n",
+			"D0, P[], (!!map)::a: !horse 0.6666666666666666\nb: !goat 3\n",
 		},
 	},
 	{
@@ -89,7 +89,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:    "a: &horse [1]",
 		expression:  `.a[1] = .a[0] / 2`,
 		expected: []string{
-			"D0, P[], (doc)::a: &horse [1, 0.5]\n",
+			"D0, P[], (!!map)::a: &horse [1, 0.5]\n",
 		},
 	},
 	{

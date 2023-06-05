@@ -10,8 +10,7 @@ import (
 type Kind uint32
 
 const (
-	DocumentNode Kind = 1 << iota
-	SequenceNode
+	SequenceNode Kind = 1 << iota
 	MappingNode
 	ScalarNode
 	AliasNode
@@ -140,9 +139,9 @@ func (n *CandidateNode) GetKey() string {
 }
 
 func (n *CandidateNode) unwrapDocument() *CandidateNode {
-	if n.Kind == DocumentNode {
-		return n.Content[0]
-	}
+	// if n.Kind == DocumentNode {
+	// 	return n.Content[0]
+	// }
 	return n
 }
 

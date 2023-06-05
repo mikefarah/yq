@@ -10,7 +10,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -18,7 +18,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -26,7 +26,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[]`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::[]\n",
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 	{
@@ -34,7 +34,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[]`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::[]\n",
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 	{
@@ -42,7 +42,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `cat`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::cat\n",
+			"D0, P[], (!!str)::cat\n",
 		},
 	},
 	{
@@ -50,7 +50,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `cat`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::cat\n",
+			"D0, P[], (!!str)::cat\n",
 		},
 	},
 	{
@@ -58,7 +58,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:    `{a: frog}`,
 		expression:  `..`,
 		expected: []string{
-			"D0, P[], (doc)::{a: frog}\n",
+			"D0, P[], (!!map)::{a: frog}\n",
 			"D0, P[a], (!!str)::frog\n",
 		},
 	},
@@ -86,7 +86,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:       `{a: frog}`,
 		expression:     `...`,
 		expected: []string{
-			"D0, P[], (doc)::{a: frog}\n",
+			"D0, P[], (!!map)::{a: frog}\n",
 			"D0, P[a], (!!str)::a\n",
 			"D0, P[a], (!!str)::frog\n",
 		},
@@ -96,7 +96,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `{a: {b: apple}}`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: apple}}\n",
+			"D0, P[], (!!map)::{a: {b: apple}}\n",
 			"D0, P[a], (!!map)::{b: apple}\n",
 			"D0, P[a b], (!!str)::apple\n",
 		},
@@ -106,7 +106,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `{a: {b: apple}}`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: apple}}\n",
+			"D0, P[], (!!map)::{a: {b: apple}}\n",
 			"D0, P[a], (!!str)::a\n",
 			"D0, P[a], (!!map)::{b: apple}\n",
 			"D0, P[a b], (!!str)::b\n",
@@ -118,7 +118,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[1,2,3]`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::[1, 2, 3]\n",
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
 			"D0, P[0], (!!int)::1\n",
 			"D0, P[1], (!!int)::2\n",
 			"D0, P[2], (!!int)::3\n",
@@ -129,7 +129,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[1,2,3]`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::[1, 2, 3]\n",
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
 			"D0, P[0], (!!int)::1\n",
 			"D0, P[1], (!!int)::2\n",
 			"D0, P[2], (!!int)::3\n",
@@ -140,7 +140,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[{a: cat},2,true]`,
 		expression: `..`,
 		expected: []string{
-			"D0, P[], (doc)::[{a: cat}, 2, true]\n",
+			"D0, P[], (!!seq)::[{a: cat}, 2, true]\n",
 			"D0, P[0], (!!map)::{a: cat}\n",
 			"D0, P[0 a], (!!str)::cat\n",
 			"D0, P[1], (!!int)::2\n",
@@ -152,7 +152,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `[{a: cat},2,true]`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::[{a: cat}, 2, true]\n",
+			"D0, P[], (!!seq)::[{a: cat}, 2, true]\n",
 			"D0, P[0], (!!map)::{a: cat}\n",
 			"D0, P[0 a], (!!str)::a\n",
 			"D0, P[0 a], (!!str)::cat\n",
@@ -173,7 +173,7 @@ var recursiveDescentOperatorScenarios = []expressionScenario{
 		document:   `{a: &cat {c: frog}, b: *cat}`,
 		expression: `...`,
 		expected: []string{
-			"D0, P[], (doc)::{a: &cat {c: frog}, b: *cat}\n",
+			"D0, P[], (!!map)::{a: &cat {c: frog}, b: *cat}\n",
 			"D0, P[a], (!!str)::a\n",
 			"D0, P[a], (!!map)::&cat {c: frog}\n",
 			"D0, P[a c], (!!str)::c\n",

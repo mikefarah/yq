@@ -28,7 +28,7 @@ var documentIndexScenarios = []expressionScenario{
 		document:    "a: cat\n---\na: frog\n",
 		expression:  `select(document_index == 1)`,
 		expected: []string{
-			"D1, P[], (doc)::a: frog\n",
+			"D1, P[], (!!map)::a: frog\n",
 		},
 	},
 	{
@@ -36,7 +36,7 @@ var documentIndexScenarios = []expressionScenario{
 		document:    "a: cat\n---\na: frog\n",
 		expression:  `select(di == 1)`,
 		expected: []string{
-			"D1, P[], (doc)::a: frog\n",
+			"D1, P[], (!!map)::a: frog\n",
 		},
 	},
 	{

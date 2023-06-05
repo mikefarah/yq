@@ -54,7 +54,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:   `32`,
 		expression: `. tag= "!!str"`,
 		expected: []string{
-			"D0, P[], (doc)::\"32\"\n",
+			"D0, P[], (!!str)::32\n",
 		},
 	},
 	{
@@ -62,7 +62,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: str}`,
 		expression:  `.a tag = "!!mikefarah"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!mikefarah str}\n",
+			"D0, P[], (!!map)::{a: !!mikefarah str}\n",
 		},
 	},
 	{
@@ -71,7 +71,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: str}`,
 		expression:  `.a type = "!!mikefarah"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!mikefarah str}\n",
+			"D0, P[], (!!map)::{a: !!mikefarah str}\n",
 		},
 	},
 	{
@@ -79,7 +79,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
 		expression:  `(.. | select(tag == "!!int")) tag= "!!str"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: cat, b: \"5\", c: 3.2, e: true}\n",
+			"D0, P[], (!!map)::{a: cat, b: \"5\", c: 3.2, e: true}\n",
 		},
 	},
 	{
@@ -87,7 +87,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:   `{a: "!!frog", b: "!!customTag"}`,
 		expression: `.[] tag |= .`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!frog \"!!frog\", b: !!customTag \"!!customTag\"}\n",
+			"D0, P[], (!!map)::{a: !!frog \"!!frog\", b: !!customTag \"!!customTag\"}\n",
 		},
 	},
 }

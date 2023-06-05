@@ -85,23 +85,6 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		if err != nil {
 			return err
 		}
-	case DocumentNode:
-		err := e.encodeComment(encoder, headAndLineComment(node))
-		if err != nil {
-			return err
-		}
-		unwrappedNode := node.unwrapDocument()
-		if unwrappedNode.Kind != MappingNode {
-			return fmt.Errorf("cannot encode %v to XML - only maps can be encoded", unwrappedNode.Tag)
-		}
-		err = e.encodeTopLevelMap(encoder, unwrappedNode)
-		if err != nil {
-			return err
-		}
-		err = e.encodeComment(encoder, footComment(node))
-		if err != nil {
-			return err
-		}
 	case ScalarNode:
 		var charData xml.CharData = []byte(node.Value)
 		err := encoder.EncodeToken(charData)

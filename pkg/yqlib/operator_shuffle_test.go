@@ -17,7 +17,7 @@ var shuffleOperatorScenarios = []expressionScenario{
 		document:    "cool: [1, 2, 3, 4, 5]",
 		expression:  `.cool |= shuffle`,
 		expected: []string{
-			"D0, P[], (doc)::cool: [5, 2, 4, 1, 3]\n",
+			"D0, P[], (!!map)::cool: [5, 2, 4, 1, 3]\n",
 		},
 	},
 }

@@ -31,13 +31,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	if err != nil {
 		return err
 	}
-	candidateNode := &CandidateNode{
-		document:  0,
-		filename:  "",
-		Kind:      DocumentNode,
-		Content:   []*CandidateNode{createScalarNode(nil, "")},
-		fileIndex: 0,
-	}
+	candidateNode := createScalarNode(nil, "")
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
 

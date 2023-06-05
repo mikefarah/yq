@@ -22,7 +22,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: `.a |= .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: null\n",
+			"D0, P[], (!!map)::a: null\n",
 		},
 	},
 	{
@@ -30,7 +30,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   mergeAnchorAssign,
 		expression: `.c = .b | .a.x = "ModifiedValue" | explode(.)`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    x: ModifiedValue\nb:\n    x: ModifiedValue\nc:\n    x: ModifiedValue\n",
+			"D0, P[], (!!map)::a:\n    x: ModifiedValue\nb:\n    x: ModifiedValue\nc:\n    x: ModifiedValue\n",
 		},
 	},
 	{
@@ -38,7 +38,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: `.a = .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: null\n",
+			"D0, P[], (!!map)::a: null\n",
 		},
 	},
 	{
@@ -47,7 +47,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    "a: cat",
 		expression:  `.a = [.a]`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    - cat\n",
+			"D0, P[], (!!map)::a:\n    - cat\n",
 		},
 	},
 	{
@@ -56,7 +56,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `a: "3"`,
 		expression:  `.a = 3`,
 		expected: []string{
-			"D0, P[], (doc)::a: 3\n",
+			"D0, P[], (!!map)::a: 3\n",
 		},
 	},
 	{
@@ -65,7 +65,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `a: "true"`,
 		expression:  `.a = true`,
 		expected: []string{
-			"D0, P[], (doc)::a: true\n",
+			"D0, P[], (!!map)::a: true\n",
 		},
 	},
 	{
@@ -74,7 +74,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `a: !cat "meow"`,
 		expression:  `.a = "woof"`,
 		expected: []string{
-			"D0, P[], (doc)::a: !cat \"woof\"\n",
+			"D0, P[], (!!map)::a: !cat \"woof\"\n",
 		},
 	},
 	{
@@ -82,7 +82,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `{a: {b: {g: foof}}}`,
 		expression:  `.a |= .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {g: foof}}\n",
+			"D0, P[], (!!map)::{a: {g: foof}}\n",
 		},
 	},
 	{
@@ -90,7 +90,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `[1,2,3]`,
 		expression:  `.[] |= . * 2`,
 		expected: []string{
-			"D0, P[], (doc)::[2, 4, 6]\n",
+			"D0, P[], (!!seq)::[2, 4, 6]\n",
 		},
 	},
 	{
@@ -100,7 +100,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document2:      "{b: bob}",
 		expression:     `select(fileIndex==0).a = select(fileIndex==1) | select(fileIndex==0)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: bob}}\n",
+			"D0, P[], (!!map)::{a: {b: bob}}\n",
 		},
 	},
 	{
@@ -108,7 +108,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `{a: {b: child}, b: sibling}`,
 		expression:  `.a = .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: sibling, b: sibling}\n",
+			"D0, P[], (!!map)::{a: sibling, b: sibling}\n",
 		},
 	},
 	{
@@ -116,7 +116,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `{a: fieldA, b: fieldB, c: fieldC}`,
 		expression:  `(.a, .c) = "potato"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: potato, b: fieldB, c: potato}\n",
+			"D0, P[], (!!map)::{a: potato, b: fieldB, c: potato}\n",
 		},
 	},
 	{
@@ -124,7 +124,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `{a: {b: apple}}`,
 		expression:  `.a.b = "frog"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: frog}}\n",
+			"D0, P[], (!!map)::{a: {b: frog}}\n",
 		},
 	},
 	{
@@ -133,7 +133,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:       `{a: {b: apple}}`,
 		expression:     `.a.b |= "frog"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: frog}}\n",
+			"D0, P[], (!!map)::{a: {b: frog}}\n",
 		},
 	},
 	{
@@ -149,7 +149,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   `{a: {b: apple}}`,
 		expression: `.a.b |= 5`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: 5}}\n",
+			"D0, P[], (!!map)::{a: {b: 5}}\n",
 		},
 	},
 	{
@@ -157,7 +157,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   `{a: {b: apple}}`,
 		expression: `.a.b |= 3.142`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: 3.142}}\n",
+			"D0, P[], (!!map)::{a: {b: 3.142}}\n",
 		},
 	},
 	{
@@ -166,7 +166,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:       `{a: {b: apple, c: cactus}}`,
 		expression:     `(.a[] | select(. == "apple")) = "frog"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: frog, c: cactus}}\n",
+			"D0, P[], (!!map)::{a: {b: frog, c: cactus}}\n",
 		},
 	},
 	{
@@ -174,7 +174,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   `{a: {b: apple, c: cactus}}`,
 		expression: `(.a.[] | select(. == "apple")) = "frog"`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: frog, c: cactus}}\n",
+			"D0, P[], (!!map)::{a: {b: frog, c: cactus}}\n",
 		},
 	},
 	{
@@ -182,7 +182,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    `[candy, apple, sandy]`,
 		expression:  `(.[] | select(. == "*andy")) = "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::[bogs, apple, bogs]\n",
+			"D0, P[], (!!seq)::[bogs, apple, bogs]\n",
 		},
 	},
 	{
@@ -191,7 +191,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:              `{}`,
 		expression:            `.a.b |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    b: bogs\n",
+			"D0, P[], (!!map)::a:\n    b: bogs\n",
 		},
 	},
 	{
@@ -201,7 +201,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:              `a: &cool cat`,
 		expression:            `.a = "dog"`,
 		expected: []string{
-			"D0, P[], (doc)::a: &cool dog\n",
+			"D0, P[], (!!map)::a: &cool dog\n",
 		},
 	},
 	{
@@ -210,7 +210,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:              `{}`,
 		expression:            `.a.b.[0] |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    b:\n        - bogs\n",
+			"D0, P[], (!!map)::a:\n    b:\n        - bogs\n",
 		},
 	},
 	{
@@ -218,7 +218,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `.a.b.[1].c |= "bogs"`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    b:\n        - null\n        - c: bogs\n",
+			"D0, P[], (!!map)::a:\n    b:\n        - null\n        - c: bogs\n",
 		},
 	},
 	{
@@ -226,7 +226,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:    "a: !cat meow\nb: !dog woof",
 		expression:  `.a = .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !cat woof\nb: !dog woof\n",
+			"D0, P[], (!!map)::a: !cat woof\nb: !dog woof\n",
 		},
 	},
 	{
@@ -235,7 +235,7 @@ var assignOperatorScenarios = []expressionScenario{
 		document:       "a: !cat meow\nb: !dog woof",
 		expression:     `.a =c .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !dog woof\nb: !dog woof\n",
+			"D0, P[], (!!map)::a: !dog woof\nb: !dog woof\n",
 		},
 	},
 }
