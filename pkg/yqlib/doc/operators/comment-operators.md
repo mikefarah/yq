@@ -80,6 +80,11 @@ will output
   hc: ""
   lc: ""
   fc: ""
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
 - p: hello
   isKey: true
   hc: ""
@@ -135,6 +140,11 @@ yq '[... | {"p": path | join("."), "isKey": is_key, "hc": headComment, "lc": lin
 ```
 will output
 ```yaml
+- p: ""
+  isKey: false
+  hc: ""
+  lc: ""
+  fc: ""
 - p: ""
   isKey: false
   hc: ""
@@ -259,8 +269,6 @@ yq '... comments=""' sample.yml
 ```
 will output
 ```yaml
-# hi
-
 a: cat
 b:
 ```
