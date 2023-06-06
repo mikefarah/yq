@@ -93,7 +93,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		}
 		return encoder.Flush()
 	default:
-		return fmt.Errorf("unsupported type %v", node.Tag)
+		return fmt.Errorf("cannot encode %v to XML - only maps can be encoded", node.Tag)
 	}
 
 	return encoder.EncodeToken(newLine)

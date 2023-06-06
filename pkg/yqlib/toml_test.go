@@ -107,7 +107,7 @@ var tomlScenarios = []formatScenario{
 		description:  "Parse: include parent information",
 		input:        "person.name = \"hello\"\nperson.address = \"12 cat st\"\n",
 		expression:   ".person.name | parent",
-		expected:     "person\n",
+		expected:     "name: hello\naddress: 12 cat st\n",
 		scenarioType: "decode",
 	},
 	{

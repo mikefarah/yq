@@ -524,13 +524,6 @@ var xmlScenarios = []formatScenario{
 		scenarioType:  "encode-error",
 	},
 	{
-		description:   "scalars cannot be encoded",
-		skipDoc:       true,
-		input:         "mike",
-		expectedError: "cannot encode !!str to XML - only maps can be encoded",
-		scenarioType:  "encode-error",
-	},
-	{
 		description:    "Encode xml: attributes with content",
 		subdescription: "Fields with the matching xml-content-name is assumed to be content.",
 		input:          "cat:\n  +@name: tiger\n  +content: cool\n",

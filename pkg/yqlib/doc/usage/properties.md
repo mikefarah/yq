@@ -83,7 +83,6 @@ yq -o=props '... comments = ""' sample.yml
 ```
 will output
 ```properties
-# block comments come through
 person.name = Mike Wazowski
 person.pets.0 = cat
 person.food.0 = pizza

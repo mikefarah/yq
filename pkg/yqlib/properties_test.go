@@ -98,6 +98,16 @@ const expectedDecodedYaml = `person:
     - pizza
 `
 
+const expectedDecodedPersonYaml = `# block comments come through
+# comments on values appear
+name: Mike Wazowski
+pets:
+  # comments on array values appear
+  - cat
+food:
+  - pizza
+`
+
 const expectedPropertiesNoComments = `person.name = Mike Wazowski
 person.pets.0 = cat
 person.food.0 = pizza
@@ -153,7 +163,7 @@ var propertyScenarios = []formatScenario{
 		description:  "Decode properties - keeps key information",
 		input:        expectedPropertiesUnwrapped,
 		expression:   ".person.name | key",
-		expected:     "name",
+		expected:     "name\n",
 		scenarioType: "decode",
 	},
 	{
@@ -161,7 +171,7 @@ var propertyScenarios = []formatScenario{
 		description:  "Decode properties - keeps parent information",
 		input:        expectedPropertiesUnwrapped,
 		expression:   ".person.name | parent",
-		expected:     "name",
+		expected:     expectedDecodedPersonYaml,
 		scenarioType: "decode",
 	},
 	{
@@ -169,7 +179,7 @@ var propertyScenarios = []formatScenario{
 		description:  "Decode properties - keeps path information",
 		input:        expectedPropertiesUnwrapped,
 		expression:   ".person.name | path",
-		expected:     "name",
+		expected:     "- person\n- name\n",
 		scenarioType: "decode",
 	},
 
