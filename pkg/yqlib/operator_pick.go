@@ -78,7 +78,6 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		}
 
 		replacement.LeadingContent = candidate.LeadingContent
-		replacement.TrailingContent = candidate.TrailingContent
 		results.PushBack(replacement)
 	}
 

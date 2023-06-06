@@ -162,7 +162,7 @@ var commentOperatorScenarios = []expressionScenario{
 		document:    `a: cat`,
 		expression:  `. foot_comment=.a`,
 		expected: []string{
-			"D0, P[], (!!map)::a: cat\n\n# cat\n",
+			"D0, P[], (!!map)::a: cat\n# cat\n",
 		},
 	},
 	{
@@ -258,6 +258,24 @@ var commentOperatorScenarios = []expressionScenario{
 		expression:            `. | foot_comment`,
 		expected: []string{
 			"D0, P[], (!!str)::have a great day\nno really\n",
+		},
+	},
+	{
+		description: "leading spaces",
+		skipDoc:     true,
+		document:    " # hi",
+		expression:  `.`,
+		expected: []string{
+			"D0, P[], (!!null):: # hi\n\n",
+		},
+	},
+	{
+		description: "directive",
+		skipDoc:     true,
+		document:    "%YAML 1.1\n# hi\n",
+		expression:  `.`,
+		expected: []string{
+			"D0, P[], (!!null)::%YAML 1.1\n# hi\n\n",
 		},
 	},
 }

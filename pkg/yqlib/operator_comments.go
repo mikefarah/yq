@@ -64,15 +64,8 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 			candidate.HeadComment = comment
 			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
-		// if preferences.FootComment && candidate.Kind == DocumentNode && comment != "" {
-		// 	log.Debugf("AssignComments - setting line comment to %v", comment)
-		// 	candidate.TrailingContent = "# " + comment
-		// } else if preferences.FootComment && candidate.Kind == DocumentNode {
-		// 	log.Debugf("AssignComments - setting line comment to %v", comment)
-		// 	candidate.TrailingContent = comment
-		if preferences.FootComment { //&& candidate.Kind != DocumentNode {
+		if preferences.FootComment {
 			candidate.FootComment = comment
-			candidate.TrailingContent = ""
 		}
 
 	}
@@ -112,8 +105,6 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 			comment = chompRegexp.ReplaceAllString(comment, "")
 		} else if preferences.HeadComment {
 			comment = candidate.HeadComment
-		} else if preferences.FootComment && candidate.TrailingContent != "" {
-			comment = candidate.TrailingContent
 		} else if preferences.FootComment {
 			comment = candidate.FootComment
 		}

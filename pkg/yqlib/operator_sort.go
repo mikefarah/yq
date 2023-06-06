@@ -45,7 +45,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		sort.Stable(sortableArray)
 
-		sortedList := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
+		sortedList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
 
 		for _, sortedNode := range sortableArray {
 			sortedList.AddChild(sortedNode.Node)

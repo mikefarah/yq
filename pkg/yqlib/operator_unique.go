@@ -49,7 +49,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 				newMatches.Set(keyValue, child)
 			}
 		}
-		resultNode := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
+		resultNode := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
 		for el := newMatches.Front(); el != nil; el = el.Next() {
 			resultNode.AddChild(el.Value.(*CandidateNode))
 		}

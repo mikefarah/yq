@@ -166,10 +166,6 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return err
 		}
 
-		if err := p.encoder.PrintLeadingContent(destination, mappedDoc.TrailingContent); err != nil {
-			return err
-		}
-
 		if p.nulSepOutput {
 			removeLastEOL(tempBuffer)
 			tempBufferBytes := tempBuffer.Bytes()

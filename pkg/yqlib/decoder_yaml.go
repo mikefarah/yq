@@ -135,10 +135,6 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	}
 	dec.readAnything = true
 	dec.documentIndex++
-	// move document comments into candidate node
-	// otherwise unwrap drops them.
-	candidateNode.TrailingContent = candidateNode.FootComment
-	candidateNode.FootComment = ""
 	return &candidateNode, nil
 }
 

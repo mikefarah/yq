@@ -221,7 +221,6 @@ yq '. foot_comment=.a' sample.yml
 will output
 ```yaml
 a: cat
-
 # cat
 ```
 

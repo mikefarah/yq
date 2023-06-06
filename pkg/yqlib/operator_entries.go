@@ -17,7 +17,7 @@ func entrySeqFor(key *CandidateNode, value *CandidateNode) *CandidateNode {
 }
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = candidateNode.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", 0)
+	var sequence = candidateNode.CreateReplacementWithComments(SequenceNode, "!!seq", 0)
 
 	var contents = candidateNode.unwrapDocument().Content
 	for index := 0; index < len(contents); index = index + 2 {
@@ -30,7 +30,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 }
 
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
-	var sequence = candidateNode.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", 0)
+	var sequence = candidateNode.CreateReplacementWithComments(SequenceNode, "!!seq", 0)
 
 	var contents = candidateNode.unwrapDocument().Content
 	for index := 0; index < len(contents); index = index + 1 {
@@ -158,8 +158,13 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 		if err != nil {
 			return Context{}, err
 		}
+		log.Debug("candidate %v", NodeToString(candidate))
+		log.Debug("candidate leading content: %v", candidate.LeadingContent)
 		collected.LeadingContent = candidate.LeadingContent
-		collected.TrailingContent = candidate.TrailingContent
+		log.Debug("candidate FootComment: [%v]", candidate.FootComment)
+
+		collected.HeadComment = candidate.HeadComment
+		collected.FootComment = candidate.FootComment
 
 		log.Debugf("**** collected %v", collected.LeadingContent)
 

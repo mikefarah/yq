@@ -17,7 +17,7 @@ func reverseOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
 		}
 
-		reverseList := candidate.CreateReplacementWithDocWrappers(SequenceNode, "!!seq", candidateNode.Style)
+		reverseList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
 		reverseContent := make([]*CandidateNode, len(candidateNode.Content))
 
 		for i, originalNode := range candidateNode.Content {

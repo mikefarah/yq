@@ -70,8 +70,7 @@ type CandidateNode struct {
 	Parent *CandidateNode // parent node
 	Key    *CandidateNode // node key, if this is a value from a map (or index in an array)
 
-	LeadingContent  string
-	TrailingContent string
+	LeadingContent string
 
 	document uint // the document index of this node
 	filename string
@@ -312,10 +311,12 @@ func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *Candidate
 	return newCopy
 }
 
-func (n *CandidateNode) CreateReplacementWithDocWrappers(kind Kind, tag string, style Style) *CandidateNode {
+func (n *CandidateNode) CreateReplacementWithComments(kind Kind, tag string, style Style) *CandidateNode {
 	replacement := n.CreateReplacement(kind, tag, "")
 	replacement.LeadingContent = n.LeadingContent
-	replacement.TrailingContent = n.TrailingContent
+	replacement.HeadComment = n.HeadComment
+	replacement.LineComment = n.LineComment
+	replacement.FootComment = n.FootComment
 	replacement.Style = style
 	return replacement
 }
@@ -356,8 +357,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		Parent: n.Parent,
 		Key:    copyKey,
 
-		LeadingContent:  n.LeadingContent,
-		TrailingContent: n.TrailingContent,
+		LeadingContent: n.LeadingContent,
 
 		document:  n.document,
 		filename:  n.filename,
@@ -427,9 +427,6 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 
 	if other.FootComment != "" {
 		n.FootComment = other.FootComment
-	}
-	if other.TrailingContent != "" {
-		n.TrailingContent = other.TrailingContent
 	}
 	if other.HeadComment != "" {
 		n.HeadComment = other.HeadComment

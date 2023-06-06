@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"regexp"
 	"strings"
 
 	yaml "gopkg.in/yaml.v3"
@@ -41,6 +42,8 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 	// log.Debug("headcommentwas [%v]", content)
 	reader := bufio.NewReader(strings.NewReader(content))
 
+	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+
 	for {
 
 		readline, errReading := reader.ReadString('\n')
@@ -54,6 +57,9 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 			}
 
 		} else {
+			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRegEx.MatchString(readline) {
+				readline = "# " + readline
+			}
 			if err := writeString(writer, readline); err != nil {
 				return err
 			}
@@ -95,7 +101,14 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return err
 	}
 
+	trailingContent := target.FootComment
+	target.FootComment = ""
+
 	if err := encoder.Encode(target); err != nil {
+		return err
+	}
+
+	if err := ye.PrintLeadingContent(destination, trailingContent); err != nil {
 		return err
 	}
 
