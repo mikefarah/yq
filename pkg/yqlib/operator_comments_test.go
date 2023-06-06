@@ -266,7 +266,25 @@ var commentOperatorScenarios = []expressionScenario{
 		document:    " # hi",
 		expression:  `.`,
 		expected: []string{
-			"D0, P[], (!!null):: # hi\n\n",
+			"D0, P[], (!!null):: # hi\n",
+		},
+	},
+	{
+		description: "string spaces",
+		skipDoc:     true,
+		document:    "# hi\ncat\n",
+		expression:  `.`,
+		expected: []string{
+			"D0, P[], (!!str)::# hi\ncat\n",
+		},
+	},
+	{
+		description: "leading spaces with new line",
+		skipDoc:     true,
+		document:    " # hi\n",
+		expression:  `.`,
+		expected: []string{
+			"D0, P[], (!!null):: # hi\n",
 		},
 	},
 	{
@@ -275,7 +293,7 @@ var commentOperatorScenarios = []expressionScenario{
 		document:    "%YAML 1.1\n# hi\n",
 		expression:  `.`,
 		expected: []string{
-			"D0, P[], (!!null)::%YAML 1.1\n# hi\n\n",
+			"D0, P[], (!!null)::%YAML 1.1\n# hi\n",
 		},
 	},
 }

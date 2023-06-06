@@ -10,7 +10,7 @@ var loadScenarios = []expressionScenario{
 		description: "Load empty file with a comment",
 		expression:  `load("../../examples/empty.yaml")`,
 		expected: []string{
-			"D0, P[], (!!null)::# comment\n\n",
+			"D0, P[], (!!null)::# comment\n",
 		},
 	},
 	{
