@@ -39,12 +39,11 @@ func flattenOp(d *dataTreeNavigator, context Context, expressionNode *Expression
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
-		if candidateNode.Kind != SequenceNode {
+		if candidate.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("only arrays are supported for flatten")
 		}
 
-		flatten(candidateNode, depth)
+		flatten(candidate, depth)
 
 	}
 

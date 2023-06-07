@@ -76,9 +76,8 @@ func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		if originalList != nil && originalList.Len() > 0 && hasOnlyOneNewLine.MatchString(stringValue) {
 
 			original := originalList.Front().Value.(*CandidateNode)
-			originalNode := original.unwrapDocument()
 			// original block did not have a newline at the end, get rid of this one too
-			if !endWithNewLine.MatchString(originalNode.Value) {
+			if !endWithNewLine.MatchString(original.Value) {
 				stringValue = chomper.ReplaceAllString(stringValue, "")
 			}
 		}
@@ -140,17 +139,15 @@ func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		log.Debugf("got: [%v]", candidate.Value)
 
-		err := decoder.Init(strings.NewReader(candidate.unwrapDocument().Value))
+		err := decoder.Init(strings.NewReader(candidate.Value))
 		if err != nil {
 			return Context{}, err
 		}
 
-		decodedNode, errorReading := decoder.Decode()
+		node, errorReading := decoder.Decode()
 		if errorReading != nil {
 			return Context{}, errorReading
 		}
-		//first node is a doc
-		node := decodedNode.unwrapDocument()
 		node.Key = candidate.Key
 		node.Parent = candidate.Parent
 

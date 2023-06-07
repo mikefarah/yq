@@ -61,8 +61,7 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 
 		var replacement *CandidateNode
 		if node.Kind == MappingNode {
@@ -74,10 +73,10 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 			}
 
 		} else {
-			return Context{}, fmt.Errorf("cannot pick indicies from type %v (%v)", node.Tag, candidate.GetNicePath())
+			return Context{}, fmt.Errorf("cannot pick indices from type %v (%v)", node.Tag, node.GetNicePath())
 		}
 
-		replacement.LeadingContent = candidate.LeadingContent
+		replacement.LeadingContent = node.LeadingContent
 		results.PushBack(replacement)
 	}
 

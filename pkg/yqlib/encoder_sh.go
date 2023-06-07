@@ -29,13 +29,12 @@ func (e *shEncoder) PrintLeadingContent(writer io.Writer, content string) error 
 	return nil
 }
 
-func (e *shEncoder) Encode(writer io.Writer, originalNode *CandidateNode) error {
-	node := originalNode.unwrapDocument()
+func (e *shEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if node.guessTagFromCustomType() != "!!str" {
 		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 
-	return writeString(writer, e.encode(originalNode.Value))
+	return writeString(writer, e.encode(node.Value))
 }
 
 // put any (shell-unsafe) characters into a single-quoted block, close the block lazily

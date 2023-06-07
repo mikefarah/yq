@@ -53,8 +53,6 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		// need to do this before unWrapping the potential document node
 		leadingContent, headComment, footComment := getComments(lhs, rhs)
-		lhs = lhs.unwrapDocument()
-		rhs = rhs.unwrapDocument()
 		log.Debugf("Multiplying LHS: %v", NodeToString(lhs))
 		log.Debugf("-          RHS: %v", NodeToString(rhs))
 

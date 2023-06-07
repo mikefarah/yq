@@ -26,10 +26,8 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		// grab the first value
-		candidateNode := candidate.unwrapDocument()
-		var contents = candidateNode.Content
-		switch candidateNode.Kind {
+		var contents = candidate.Content
+		switch candidate.Kind {
 		case MappingNode:
 			candidateHasKey := false
 			for index := 0; index < len(contents) && !candidateHasKey; index = index + 2 {

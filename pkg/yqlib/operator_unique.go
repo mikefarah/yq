@@ -21,14 +21,13 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
 
-		if candidateNode.Kind != SequenceNode {
+		if candidate.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("Only arrays are supported for unique")
 		}
 
 		var newMatches = orderedmap.NewOrderedMap()
-		for _, child := range candidateNode.Content {
+		for _, child := range candidate.Content {
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.RHS)
 
 			if err != nil {
@@ -49,7 +48,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 				newMatches.Set(keyValue, child)
 			}
 		}
-		resultNode := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
+		resultNode := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidate.Style)
 		for el := newMatches.Front(); el != nil; el = el.Next() {
 			resultNode.AddChild(el.Value.(*CandidateNode))
 		}

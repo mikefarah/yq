@@ -30,20 +30,17 @@ func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, 
 			return createBooleanCandidate(lhs, false), nil
 		}
 
-		lhsU := lhs.unwrapDocument()
-		rhsU := rhs.unwrapDocument()
-
-		switch lhsU.Kind {
+		switch lhs.Kind {
 		case MappingNode:
 			return nil, fmt.Errorf("maps not yet supported for comparison")
 		case SequenceNode:
 			return nil, fmt.Errorf("arrays not yet supported for comparison")
 		default:
-			if rhsU.Kind != ScalarNode {
-				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhsU.Tag, rhs.GetNicePath(), lhsU.Tag)
+			if rhs.Kind != ScalarNode {
+				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhs.Tag)
 			}
 			target := lhs.CopyWithoutContent()
-			boolV, err := compareScalars(context, prefs, lhsU, rhsU)
+			boolV, err := compareScalars(context, prefs, lhs, rhs)
 
 			return createBooleanCandidate(target, boolV), err
 		}

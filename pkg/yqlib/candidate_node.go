@@ -137,17 +137,6 @@ func (n *CandidateNode) GetKey() string {
 	return fmt.Sprintf("%v%v - %v", keyPrefix, n.GetDocument(), key)
 }
 
-func (n *CandidateNode) unwrapDocument() *CandidateNode {
-	// if n.Kind == DocumentNode {
-	// 	return n.Content[0]
-	// }
-	return n
-}
-
-func (n *CandidateNode) GetNiceTag() string {
-	return n.unwrapDocument().Tag
-}
-
 func (n *CandidateNode) getParsedKey() interface{} {
 	if n.IsMapKey {
 		return n.Value
@@ -210,11 +199,11 @@ func (n *CandidateNode) SetParent(parent *CandidateNode) {
 }
 
 func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) (*CandidateNode, *CandidateNode) {
-	key := rawKey.unwrapDocument().Copy()
+	key := rawKey.Copy()
 	key.SetParent(n)
 	key.IsMapKey = true
 
-	value := rawValue.unwrapDocument().Copy()
+	value := rawValue.Copy()
 	value.SetParent(n)
 	value.Key = key
 
@@ -223,7 +212,7 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 }
 
 func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
-	value := rawChild.unwrapDocument().Copy()
+	value := rawChild.Copy()
 	value.SetParent(n)
 	if value.Key != nil {
 		value.Key.SetParent(n)
@@ -284,7 +273,7 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return n.Tag
 	}
-	guessedTag := dataBucket.unwrapDocument().Tag
+	guessedTag := dataBucket.Tag
 	log.Info("im guessing the tag %v is a %v", n.Tag, guessedTag)
 	return guessedTag
 }

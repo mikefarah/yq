@@ -25,7 +25,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		lhsNode := el.Value.(*CandidateNode).unwrapDocument()
+		lhsNode := el.Value.(*CandidateNode)
 
 		firstNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.LHS)
 

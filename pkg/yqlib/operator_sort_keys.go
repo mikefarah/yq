@@ -14,7 +14,7 @@ func sortKeysOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 		}
 
 		for childEl := rhs.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
-			node := childEl.Value.(*CandidateNode).unwrapDocument()
+			node := childEl.Value.(*CandidateNode)
 			if node.Kind == MappingNode {
 				sortKeys(node)
 			}

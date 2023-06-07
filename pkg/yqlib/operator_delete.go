@@ -50,9 +50,8 @@ func removeFromContext(context Context, candidate *CandidateNode) (Context, erro
 	return context.ChildContext(newResults), nil
 }
 
-func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
+func deleteFromMap(node *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromMap")
-	node := candidate.unwrapDocument()
 	contents := node.Content
 	newContents := make([]*CandidateNode, 0)
 
@@ -71,9 +70,8 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 	node.Content = newContents
 }
 
-func deleteFromArray(candidate *CandidateNode, childPath interface{}) {
+func deleteFromArray(node *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromArray")
-	node := candidate.unwrapDocument()
 	contents := node.Content
 	newContents := make([]*CandidateNode, 0)
 

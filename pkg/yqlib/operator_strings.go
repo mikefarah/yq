@@ -14,15 +14,13 @@ type changeCasePrefs struct {
 func trimSpaceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot trim %v, can only operate on strings. ", node.Tag)
 		}
 
-		newStringNode := candidate.CreateReplacement(ScalarNode, node.Tag, strings.TrimSpace(node.Value))
+		newStringNode := node.CreateReplacement(ScalarNode, node.Tag, strings.TrimSpace(node.Value))
 		newStringNode.Style = node.Style
 		results.PushBack(newStringNode)
 
@@ -36,9 +34,7 @@ func changeCaseOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	prefs := expressionNode.Operation.Preferences.(changeCasePrefs)
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot change case with %v, can only operate on strings. ", node.Tag)
@@ -50,7 +46,7 @@ func changeCaseOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		} else {
 			value = strings.ToLower(node.Value)
 		}
-		newStringNode := candidate.CreateReplacement(ScalarNode, node.Tag, value)
+		newStringNode := node.CreateReplacement(ScalarNode, node.Tag, value)
 		newStringNode.Style = node.Style
 		results.PushBack(newStringNode)
 
@@ -110,14 +106,12 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
-
+		node := el.Value.(*CandidateNode)
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		result := candidate.CreateReplacement(substitute(node.Value, regEx, replacementText))
+		result := node.CreateReplacement(substitute(node.Value, regEx, replacementText))
 		results.PushBack(result)
 	}
 
@@ -291,14 +285,12 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
-
+		node := el.Value.(*CandidateNode)
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		match(matchPrefs, regEx, candidate, node.Value, results)
+		match(matchPrefs, regEx, node, node.Value, results)
 	}
 
 	return context.ChildContext(results), nil
@@ -313,13 +305,11 @@ func captureOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
-
+		node := el.Value.(*CandidateNode)
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
-		capture(matchPrefs, regEx, candidate, node.Value, results)
+		capture(matchPrefs, regEx, node, node.Value, results)
 
 	}
 
@@ -335,14 +325,12 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
-
+		node := el.Value.(*CandidateNode)
 		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 		matches := regEx.FindStringSubmatch(node.Value)
-		results.PushBack(createBooleanCandidate(candidate, len(matches) > 0))
+		results.PushBack(createBooleanCandidate(node, len(matches) > 0))
 
 	}
 
@@ -364,12 +352,11 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 		if node.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("cannot join with %v, can only join arrays of scalars", node.Tag)
 		}
-		result := candidate.CreateReplacement(join(node.Content, joinStr))
+		result := node.CreateReplacement(join(node.Content, joinStr))
 		results.PushBack(result)
 	}
 
@@ -404,8 +391,7 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 		if node.Tag == "!!null" {
 			continue
 		}
@@ -414,7 +400,7 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 			return Context{}, fmt.Errorf("cannot split %v, can only split strings", node.Tag)
 		}
 		kind, tag, content := split(node.Value, splitStr)
-		result := candidate.CreateReplacement(kind, tag, "")
+		result := node.CreateReplacement(kind, tag, "")
 		result.AddChildren(content)
 		results.PushBack(result)
 	}

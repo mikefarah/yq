@@ -42,7 +42,7 @@ func keysOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode).unwrapDocument()
+		candidate := el.Value.(*CandidateNode)
 
 		var targetNode *CandidateNode
 		if candidate.Kind == MappingNode {

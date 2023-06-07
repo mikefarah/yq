@@ -92,10 +92,7 @@ func contains(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
 	return false, fmt.Errorf("%v not yet supported for contains", lhs.Tag)
 }
 
-func containsWithNodes(d *dataTreeNavigator, context Context, lhsW *CandidateNode, rhsW *CandidateNode) (*CandidateNode, error) {
-	lhs := lhsW.unwrapDocument()
-	rhs := rhsW.unwrapDocument()
-
+func containsWithNodes(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	if lhs.Kind != rhs.Kind {
 		return nil, fmt.Errorf("%v cannot check contained in %v", rhs.Tag, lhs.Tag)
 	}

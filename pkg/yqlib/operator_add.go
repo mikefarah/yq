@@ -43,9 +43,6 @@ func addOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs = lhs.unwrapDocument()
-	rhs = rhs.unwrapDocument()
-
 	lhsNode := lhs
 
 	if lhsNode.Tag == "!!null" {

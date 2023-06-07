@@ -57,7 +57,7 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 	} else {
 		sequenceNode := &CandidateNode{Kind: SequenceNode}
 		for doc := documents.Front(); doc != nil; doc = doc.Next() {
-			sequenceNode.AddChild(doc.Value.(*CandidateNode).unwrapDocument())
+			sequenceNode.AddChild(doc.Value.(*CandidateNode))
 		}
 		return sequenceNode, nil
 	}

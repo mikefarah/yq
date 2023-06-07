@@ -6,11 +6,10 @@ import (
 	"strings"
 )
 
-func isTruthyNode(candidate *CandidateNode) bool {
-	if candidate == nil {
+func isTruthyNode(node *CandidateNode) bool {
+	if node == nil {
 		return false
 	}
-	node := candidate.unwrapDocument()
 	if node.Tag == "!!null" {
 		return false
 	}
@@ -88,11 +87,10 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
-		if candidateNode.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		if candidate.Kind != SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidate.Tag)
 		}
-		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidateNode)
+		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidate)
 		if err != nil {
 			return Context{}, err
 		}
@@ -107,11 +105,10 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
-		if candidateNode.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		if candidate.Kind != SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidate.Tag)
 		}
-		booleanResult, err := findBoolean(true, d, context, expressionNode.RHS, candidateNode)
+		booleanResult, err := findBoolean(true, d, context, expressionNode.RHS, candidate)
 		if err != nil {
 			return Context{}, err
 		}

@@ -18,13 +18,11 @@ func shuffleOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidateNode := candidate.unwrapDocument()
-
-		if candidateNode.Kind != SequenceNode {
-			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
+		if candidate.Kind != SequenceNode {
+			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.Tag)
 		}
 
-		result := candidateNode.Copy()
+		result := candidate.Copy()
 
 		a := result.Content
 

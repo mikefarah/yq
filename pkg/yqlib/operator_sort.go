@@ -24,15 +24,13 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidateNode := candidate.unwrapDocument()
-
-		if candidateNode.Kind != SequenceNode {
-			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
+		if candidate.Kind != SequenceNode {
+			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.Tag)
 		}
 
-		sortableArray := make(sortableNodeArray, len(candidateNode.Content))
+		sortableArray := make(sortableNodeArray, len(candidate.Content))
 
-		for i, originalNode := range candidateNode.Content {
+		for i, originalNode := range candidate.Content {
 
 			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(originalNode), expressionNode.RHS)
 			if err != nil {
@@ -45,7 +43,7 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		sort.Stable(sortableArray)
 
-		sortedList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
+		sortedList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidate.Style)
 
 		for _, sortedNode := range sortableArray {
 			sortedList.AddChild(sortedNode.Node)

@@ -43,32 +43,27 @@ func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, erro
 }
 
 func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs = lhs.unwrapDocument()
-	rhs = rhs.unwrapDocument()
-
-	lhsNode := lhs
-
-	if lhsNode.Tag == "!!null" {
+	if lhs.Tag == "!!null" {
 		return lhs.CopyAsReplacement(rhs), nil
 	}
 
 	target := lhs.CopyWithoutContent()
 
-	switch lhsNode.Kind {
+	switch lhs.Kind {
 	case MappingNode:
 		return nil, fmt.Errorf("maps not yet supported for subtraction")
 	case SequenceNode:
 		if rhs.Kind != SequenceNode {
-			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag)
+			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhs.Tag)
 		}
 		return subtractArray(lhs, rhs)
 	case ScalarNode:
 		if rhs.Kind != ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag)
+			return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhs.Tag)
 		}
 		target.Kind = ScalarNode
-		target.Style = lhsNode.Style
-		if err := subtractScalars(context, target, lhsNode, rhs); err != nil {
+		target.Style = lhs.Style
+		if err := subtractScalars(context, target, lhs, rhs); err != nil {
 			return nil, err
 		}
 	}

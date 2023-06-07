@@ -19,7 +19,7 @@ func entrySeqFor(key *CandidateNode, value *CandidateNode) *CandidateNode {
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = candidateNode.CreateReplacementWithComments(SequenceNode, "!!seq", 0)
 
-	var contents = candidateNode.unwrapDocument().Content
+	var contents = candidateNode.Content
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
@@ -32,7 +32,7 @@ func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {
 func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 	var sequence = candidateNode.CreateReplacementWithComments(SequenceNode, "!!seq", 0)
 
-	var contents = candidateNode.unwrapDocument().Content
+	var contents = candidateNode.Content
 	for index := 0; index < len(contents); index = index + 1 {
 		key := &CandidateNode{Kind: ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", index)}
 		value := contents[index]
@@ -46,16 +46,15 @@ func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
 
-		switch candidateNode.Kind {
+		switch candidate.Kind {
 		case MappingNode:
 			results.PushBack(toEntriesFromMap(candidate))
 
 		case SequenceNode:
 			results.PushBack(toEntriesfromSeq(candidate))
 		default:
-			if candidateNode.Tag != "!!null" {
+			if candidate.Tag != "!!null" {
 				return Context{}, fmt.Errorf("%v has no keys", candidate.Tag)
 			}
 		}
@@ -88,9 +87,9 @@ func parseEntry(candidateNode *CandidateNode, position int) (*CandidateNode, *Ca
 }
 
 func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
-	var node = candidateNode.unwrapDocument().CopyWithoutContent()
+	var node = candidateNode.CopyWithoutContent()
 
-	var contents = candidateNode.unwrapDocument().Content
+	var contents = candidateNode.Content
 
 	for index := 0; index < len(contents); index = index + 1 {
 		key, value, err := parseEntry(contents[index], index)
@@ -109,9 +108,8 @@ func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
 
-		switch candidateNode.Kind {
+		switch candidate.Kind {
 		case SequenceNode:
 			mapResult, err := fromEntries(candidate)
 			if err != nil {

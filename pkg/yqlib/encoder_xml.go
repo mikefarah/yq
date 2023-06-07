@@ -46,12 +46,11 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	encoder.Indent("", e.indentString)
 	var newLine xml.CharData = []byte("\n")
 
-	mapNode := node.unwrapDocument()
-	if mapNode.Tag == "!!map" {
+	if node.Tag == "!!map" {
 		// make sure <?xml .. ?> processing instructions are encoded first
-		for i := 0; i < len(mapNode.Content); i += 2 {
-			key := mapNode.Content[i]
-			value := mapNode.Content[i+1]
+		for i := 0; i < len(node.Content); i += 2 {
+			key := node.Content[i]
+			value := node.Content[i+1]
 
 			if key.Value == (e.prefs.ProcInstPrefix + "xml") {
 				name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)

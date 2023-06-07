@@ -100,16 +100,15 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*CandidateNo
 	return nil
 }
 
-func (e *csvEncoder) Encode(writer io.Writer, originalNode *CandidateNode) error {
-	if originalNode.Kind == ScalarNode {
-		return writeString(writer, originalNode.Value+"\n")
+func (e *csvEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+	if node.Kind == ScalarNode {
+		return writeString(writer, node.Value+"\n")
 	}
 
 	csvWriter := csv.NewWriter(writer)
 	csvWriter.Comma = e.separator
 
 	// node must be a sequence
-	node := originalNode.unwrapDocument()
 	if node.Kind != SequenceNode {
 		return fmt.Errorf("csv encoding only works for arrays, got: %v", node.Tag)
 	} else if len(node.Content) == 0 {

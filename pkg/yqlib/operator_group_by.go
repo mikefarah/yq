@@ -42,13 +42,12 @@ func groupBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionNo
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := candidate.unwrapDocument()
 
-		if candidateNode.Kind != SequenceNode {
+		if candidate.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("only arrays are supported for group by")
 		}
 
-		newMatches, err := processIntoGroups(d, context, expressionNode.RHS, candidateNode)
+		newMatches, err := processIntoGroups(d, context, expressionNode.RHS, candidate)
 
 		if err != nil {
 			return Context{}, err

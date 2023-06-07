@@ -9,7 +9,7 @@ type assignPreferences struct {
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		if !prefs.OnlyWriteNull || lhs.Tag == "!!null" {
-			lhs.UpdateFrom(rhs.unwrapDocument(), prefs)
+			lhs.UpdateFrom(rhs, prefs)
 		}
 		return lhs, nil
 	}
@@ -59,7 +59,7 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 		if first != nil {
 			rhsCandidate := first.Value.(*CandidateNode)
-			candidate.UpdateFrom(rhsCandidate.unwrapDocument(), prefs)
+			candidate.UpdateFrom(rhsCandidate, prefs)
 		}
 	}
 

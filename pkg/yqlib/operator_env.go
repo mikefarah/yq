@@ -38,12 +38,12 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if err := decoder.Init(strings.NewReader(rawValue)); err != nil {
 			return Context{}, err
 		}
-		result, err := decoder.Decode()
+		var err error
+		node, err = decoder.Decode()
 
 		if err != nil {
 			return Context{}, err
 		}
-		node = result.unwrapDocument()
 
 	}
 	log.Debug("ENV tag", node.Tag)
@@ -70,8 +70,7 @@ func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 	}
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := candidate.unwrapDocument()
+		node := el.Value.(*CandidateNode)
 		if node.Tag != "!!str" {
 			log.Warning("EnvSubstOperator, env name:", node.Tag, node.Value)
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
@@ -81,7 +80,7 @@ func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 		if err != nil {
 			return Context{}, err
 		}
-		result := candidate.CreateReplacement(ScalarNode, "!!str", value)
+		result := node.CreateReplacement(ScalarNode, "!!str", value)
 		results.PushBack(result)
 	}
 

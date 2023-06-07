@@ -11,19 +11,18 @@ func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		targetNode := candidate.unwrapDocument()
 		var length int
-		switch targetNode.Kind {
+		switch candidate.Kind {
 		case ScalarNode:
-			if targetNode.Tag == "!!null" {
+			if candidate.Tag == "!!null" {
 				length = 0
 			} else {
-				length = len(targetNode.Value)
+				length = len(candidate.Value)
 			}
 		case MappingNode:
-			length = len(targetNode.Content) / 2
+			length = len(candidate.Content) / 2
 		case SequenceNode:
-			length = len(targetNode.Content)
+			length = len(candidate.Content)
 		default:
 			length = 0
 		}

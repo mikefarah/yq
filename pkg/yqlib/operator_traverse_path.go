@@ -166,10 +166,9 @@ func traverseMapWithIndices(context Context, candidate *CandidateNode, indices [
 	return matchingNodeMap, nil
 }
 
-func traverseArrayWithIndices(candidate *CandidateNode, indices []*CandidateNode, prefs traversePreferences) (*list.List, error) {
+func traverseArrayWithIndices(node *CandidateNode, indices []*CandidateNode, prefs traversePreferences) (*list.List, error) {
 	log.Debug("traverseArrayWithIndices")
 	var newMatches = list.New()
-	node := candidate.unwrapDocument()
 	if len(indices) == 0 {
 		log.Debug("splatting")
 		var index int

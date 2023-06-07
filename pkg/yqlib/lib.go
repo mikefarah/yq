@@ -250,11 +250,10 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	parsedNode, err := decoder.Decode()
+	result, err := decoder.Decode()
 	if err != nil {
 		return nil, err
 	}
-	result := parsedNode.unwrapDocument()
 	result.Line = 0
 	result.Column = 0
 	return result, err

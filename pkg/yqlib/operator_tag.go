@@ -39,7 +39,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 				tag = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 			}
 		}
-		candidate.unwrapDocument().Tag = tag
+		candidate.Tag = tag
 	}
 
 	return context, nil
@@ -52,7 +52,7 @@ func getTagOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.unwrapDocument().Tag)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.Tag)
 		results.PushBack(result)
 	}
 

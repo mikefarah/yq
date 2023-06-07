@@ -11,17 +11,15 @@ func reverseOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidateNode := candidate.unwrapDocument()
-
-		if candidateNode.Kind != SequenceNode {
-			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
+		if candidate.Kind != SequenceNode {
+			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.Tag)
 		}
 
-		reverseList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidateNode.Style)
-		reverseContent := make([]*CandidateNode, len(candidateNode.Content))
+		reverseList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidate.Style)
+		reverseContent := make([]*CandidateNode, len(candidate.Content))
 
-		for i, originalNode := range candidateNode.Content {
-			reverseContent[len(candidateNode.Content)-i-1] = originalNode
+		for i, originalNode := range candidate.Content {
+			reverseContent[len(candidate.Content)-i-1] = originalNode
 		}
 		reverseList.AddChildren(reverseContent)
 		results.PushBack(reverseList)
