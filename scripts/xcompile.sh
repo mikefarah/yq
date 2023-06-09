@@ -17,8 +17,4 @@ zip yq_windows_amd64.zip yq_windows_amd64.exe
 
 rm yq.1
 
-rhash -r -a . -o checksums
-
-rhash --list-hashes > checksums_hashes_order
-
-cp ../scripts/extract-checksum.sh .
+rhash -r -a --bsd . -o checksums
