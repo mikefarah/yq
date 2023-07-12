@@ -1,3 +1,7 @@
+4.34.2:
+  - Bumped dependencies
+
+
 4.34.1:
   - Added shell output format thanks @giorgiga
   - Fixed nil pointer dereference (#1649) thanks @ArthurFritz
