@@ -331,3 +331,48 @@ thingTwo:
   !!merge <<: *item_value
 ```
 
+## Add Anchor to array
+Given a sample.yml file of:
+```yaml
+anchorList:
+  - &one first
+  - &two second
+```
+then
+```bash
+yq '.anchorList += "third" | (.anchorList[-1] anchor="three")' sample.yml
+```
+will output
+```yaml
+anchorList:
+  - &one first
+  - &two second
+  - &three third
+```
+
+## Add Alias to array
+Given a sample.yml file of:
+```yaml
+anchorList:
+  - &one first
+  - &two second
+  - &three third
+anchorRefList:
+  - *one
+  - *two
+```
+then
+```bash
+yq '.anchorRefList += "TMP" | (.anchorRefList[-1] anchor="three")' sample.yml
+```
+will output
+```yaml
+anchorList:
+  - &one first
+  - &two second
+  - &three third
+anchorRefList:
+  - *one
+  - *two
+  - *three
+```
