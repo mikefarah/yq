@@ -62,7 +62,7 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 Use wget to download, gzipped pre-compiled binaries:
 
 
-For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
+For instance, VERSION=v4.32.2 and BINARY=yq_linux_amd64
 
 #### Compressed via tar.gz
 ```bash
