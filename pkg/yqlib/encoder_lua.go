@@ -89,6 +89,22 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
 	return writeString(writer, "}")
 }
 
+func needsQuoting(s string) bool {
+	// [%a_][%w_]*
+	for i, c := range s {
+		if i == 0 {
+			if !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
+				return true
+			}
+		} else {
+			if !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 	err := writeString(writer, "{")
 	if err != nil {
@@ -102,6 +118,11 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 				return err
 			}
 			err = writeString(writer, ";")
+			if err != nil {
+				return err
+			}
+		} else if child.Tag == "!!str" && !needsQuoting(child.Value) {
+			err = writeString(writer, child.Value+"=")
 			if err != nil {
 				return err
 			}
