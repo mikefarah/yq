@@ -57,7 +57,15 @@ func NewLuaEncoder(prefs LuaPreferences) Encoder {
 		"\\", "\\\\",
 		"\177", "\\127",
 	)
-	return &luaEncoder{prefs.DocPrefix, prefs.DocSuffix, prefs.UnquotedKeys, escape}
+	unescape := strings.NewReplacer(
+		"\\'", "'",
+		"\\\"", "\"",
+		"\\n", "\n",
+		"\\r", "\r",
+		"\\t", "\t",
+		"\\\\", "\\",
+	)
+	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), prefs.UnquotedKeys, escape}
 }
 
 func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
