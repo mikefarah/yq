@@ -18,7 +18,7 @@ func (le *luaEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func NewLuaEncoder() Encoder {
+func NewLuaEncoder(prefs LuaPreferences) Encoder {
 	escape := strings.NewReplacer(
 		"\000", "\\000",
 		"\001", "\\001",
@@ -57,7 +57,7 @@ func NewLuaEncoder() Encoder {
 		"\\", "\\\\",
 		"\177", "\\127",
 	)
-	return &luaEncoder{"return ", ";\n", false, escape}
+	return &luaEncoder{prefs.DocPrefix, prefs.DocSuffix, prefs.UnquotedKeys, escape}
 }
 
 func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
