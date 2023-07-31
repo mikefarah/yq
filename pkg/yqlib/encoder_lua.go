@@ -10,6 +10,7 @@ import (
 type luaEncoder struct {
 	docPrefix string
 	docSuffix string
+	unquoted  bool
 	escape    *strings.Replacer
 }
 
@@ -56,7 +57,7 @@ func NewLuaEncoder() Encoder {
 		"\\", "\\\\",
 		"\177", "\\127",
 	)
-	return &luaEncoder{"return ", ";\n", escape}
+	return &luaEncoder{"return ", ";\n", false, escape}
 }
 
 func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
@@ -131,7 +132,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 			if err != nil {
 				return err
 			}
-		} else if child.Tag == "!!str" && !needsQuoting(child.Value) {
+		} else if le.unquoted && child.Tag == "!!str" && !needsQuoting(child.Value) {
 			err = writeString(writer, child.Value+"=")
 			if err != nil {
 				return err
