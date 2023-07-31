@@ -90,6 +90,16 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
 }
 
 func needsQuoting(s string) bool {
+	// known keywords as of Lua 5.4
+	switch s {
+	case "do", "and", "else", "break",
+		"if", "end", "goto", "false",
+		"in", "for", "then", "local",
+		"or", "nil", "true", "until",
+		"elseif", "function", "not",
+		"repeat", "return", "while":
+		return true
+	}
 	// [%a_][%w_]*
 	for i, c := range s {
 		if i == 0 {
