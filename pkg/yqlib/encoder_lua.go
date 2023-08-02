@@ -197,7 +197,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 				return writeString(writer, node.Value)
 			}
 		default:
-			return writeString(writer, node.Value)
+			panic("Lua encoder NYI -- " + node.ShortTag())
 		}
 	case yaml.DocumentNode:
 		err := writeString(writer, le.docPrefix)
