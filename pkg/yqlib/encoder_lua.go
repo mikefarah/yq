@@ -175,6 +175,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 		case "!!str":
 			return le.encodeString(writer, node)
 		case "!!null":
+			// TODO reject invalid use as a table key
 			return writeString(writer, "nil")
 		case "!!bool":
 			// Yaml 1.2 has case variation e.g. True, FALSE etc but Lua only has
