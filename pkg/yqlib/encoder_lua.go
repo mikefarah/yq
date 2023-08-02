@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"fmt"
 	"io"
 	"strings"
 
@@ -183,7 +184,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!int":
 			if strings.HasPrefix(node.Value, "0o") {
-				panic("Lua encoder NYI -- octal") // FIXME
+				return fmt.Errorf("Lua encoder NYI -- octal") // FIXME
 			}
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!float":
@@ -198,7 +199,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 				return writeString(writer, node.Value)
 			}
 		default:
-			panic("Lua encoder NYI -- " + node.ShortTag())
+			return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
 		}
 	case yaml.DocumentNode:
 		err := writeString(writer, le.docPrefix)
@@ -211,7 +212,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 		}
 		return writeString(writer, le.docSuffix)
 	default:
-		panic("Lua encoder NYI -- " + node.ShortTag())
+		return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
 	}
 }
 
