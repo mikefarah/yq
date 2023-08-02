@@ -190,7 +190,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 		}
 		return writeString(writer, le.docSuffix)
 	default:
-		return writeString(writer, "nil --[[ encoder NYI -- "+node.ShortTag()+" ]]")
+		panic("Lua encoder NYI -- " + node.ShortTag())
 	}
 }
 
