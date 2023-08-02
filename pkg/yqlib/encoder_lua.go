@@ -180,6 +180,22 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			// Yaml 1.2 has case variation e.g. True, FALSE etc but Lua only has
 			// lower case
 			return writeString(writer, strings.ToLower(node.Value))
+		case "!!int":
+			if strings.HasPrefix(node.Value, "0o") {
+				panic("Lua encoder NYI -- octal") // FIXME
+			}
+			return writeString(writer, strings.ToLower(node.Value))
+		case "!!float":
+			switch strings.ToLower(node.Value) {
+			case ".inf":
+				return writeString(writer, "(1/0)")
+			case "-.inf":
+				return writeString(writer, "(-1/0)")
+			case ".nan":
+				return writeString(writer, "(0/0)")
+			default:
+				return writeString(writer, node.Value)
+			}
 		default:
 			return writeString(writer, node.Value)
 		}
