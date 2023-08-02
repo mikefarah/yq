@@ -176,6 +176,10 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return le.encodeString(writer, node)
 		case "!!null":
 			return writeString(writer, "nil")
+		case "!!bool":
+			// Yaml 1.2 has case variation e.g. True, FALSE etc but Lua only has
+			// lower case
+			return writeString(writer, strings.ToLower(node.Value))
 		default:
 			return writeString(writer, node.Value)
 		}
