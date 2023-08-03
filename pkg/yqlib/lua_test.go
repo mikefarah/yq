@@ -10,7 +10,6 @@ import (
 
 var luaScenarios = []formatScenario{
 	{
-		skipDoc:      true,
 		description:  "Basic example",
 		input:        "hello: world\n? look: non-string keys\n: True\nnumbers: [123,456]\n",
 		expected:     "return {[\"hello\"]=\"world\";[{[\"look\"]=\"non-string keys\";}]=true;[\"numbers\"]={123,456,};};\n",
@@ -76,9 +75,29 @@ func documentLuaScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
+	case "encode":
+		documentLuaEncodeScenario(w, s)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
+}
+
+func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.yml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq -o=lua '.' sample.yml\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(ConfiguredLuaPreferences))))
 }
 
 func TestLuaScenarios(t *testing.T) {
