@@ -184,7 +184,12 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!int":
 			if strings.HasPrefix(node.Value, "0o") {
-				return fmt.Errorf("Lua encoder NYI -- octal") // FIXME
+				var octalValue int
+				err := node.Decode(&octalValue)
+				if err != nil {
+					return err
+				}
+				return writeString(writer, fmt.Sprintf("%d", octalValue))
 			}
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!float":

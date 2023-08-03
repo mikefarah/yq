@@ -46,8 +46,8 @@ var luaScenarios = []formatScenario{
 	{
 		skipDoc:      true,
 		description:  "Scalar int",
-		input:        "- 1\n- 2\n- 0x10\n- -999\n",
-		expected:     "return {1,2,0x10,-999,};\n",
+		input:        "- 1\n- 2\n- 0x10\n- 0o30\n- -999\n",
+		expected:     "return {1,2,0x10,24,-999,};\n",
 		scenarioType: "encode",
 	},
 	{
