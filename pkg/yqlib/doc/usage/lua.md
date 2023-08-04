@@ -2,6 +2,7 @@
 ## Basic example
 Given a sample.yml file of:
 ```yaml
+---
 hello: world
 ? look: non-string keys
 : True
@@ -14,6 +15,15 @@ yq -o=lua '.' sample.yml
 ```
 will output
 ```lua
-return {["hello"]="world";[{["look"]="non-string keys";}]=true;["numbers"]={123,456,};};
+return {
+	["hello"] = "world";
+	[{
+		["look"] = "non-string keys";
+	}] = true;
+	["numbers"] = {
+		123,
+		456,
+	};
+};
 ```
 

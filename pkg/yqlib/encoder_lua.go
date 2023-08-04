@@ -11,6 +11,8 @@ import (
 type luaEncoder struct {
 	docPrefix string
 	docSuffix string
+	indent    int
+	indentStr string
 	unquoted  bool
 	escape    *strings.Replacer
 }
@@ -66,7 +68,7 @@ func NewLuaEncoder(prefs LuaPreferences) Encoder {
 		"\\t", "\t",
 		"\\\\", "\\",
 	)
-	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), prefs.UnquotedKeys, escape}
+	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), 0, "\t", prefs.UnquotedKeys, escape}
 }
 
 func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
@@ -81,17 +83,40 @@ func (le *luaEncoder) encodeString(writer io.Writer, node *yaml.Node) error {
 	return writeString(writer, "\""+le.escape.Replace(node.Value)+"\"")
 }
 
+func (le *luaEncoder) writeIndent(writer io.Writer) error {
+	if le.indentStr == "" {
+		return nil
+	}
+	err := writeString(writer, "\n")
+	if err != nil {
+		return err
+	}
+	return writeString(writer, strings.Repeat(le.indentStr, le.indent))
+}
+
 func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
 	err := writeString(writer, "{")
 	if err != nil {
 		return err
 	}
+	le.indent++
 	for _, child := range node.Content {
+		err = le.writeIndent(writer)
+		if err != nil {
+			return err
+		}
 		err := le.Encode(writer, child)
 		if err != nil {
 			return err
 		}
 		err = writeString(writer, ",")
+		if err != nil {
+			return err
+		}
+	}
+	le.indent--
+	if len(node.Content) != 0 {
+		err = le.writeIndent(writer)
 		if err != nil {
 			return err
 		}
@@ -130,6 +155,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 	if err != nil {
 		return err
 	}
+	le.indent++
 	for i, child := range node.Content {
 		if (i % 2) == 1 {
 			// value
@@ -141,25 +167,38 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 			if err != nil {
 				return err
 			}
-		} else if le.unquoted && child.Tag == "!!str" && !needsQuoting(child.Value) {
-			err = writeString(writer, child.Value+"=")
-			if err != nil {
-				return err
-			}
 		} else {
 			// key
-			err := writeString(writer, "[")
+			err = le.writeIndent(writer)
 			if err != nil {
 				return err
 			}
-			err = le.encodeAny(writer, child)
-			if err != nil {
-				return err
+			if le.unquoted && child.Tag == "!!str" && !needsQuoting(child.Value) {
+				err = writeString(writer, child.Value+" = ")
+				if err != nil {
+					return err
+				}
+			} else {
+				err := writeString(writer, "[")
+				if err != nil {
+					return err
+				}
+				err = le.encodeAny(writer, child)
+				if err != nil {
+					return err
+				}
+				err = writeString(writer, "] = ")
+				if err != nil {
+					return err
+				}
 			}
-			err = writeString(writer, "]=")
-			if err != nil {
-				return err
-			}
+		}
+	}
+	le.indent--
+	if len(node.Content) != 0 {
+		err = le.writeIndent(writer)
+		if err != nil {
+			return err
 		}
 	}
 	return writeString(writer, "}")
