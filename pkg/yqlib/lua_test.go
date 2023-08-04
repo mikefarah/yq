@@ -47,8 +47,8 @@ numbers: [123,456]
 	{
 		skipDoc:      true,
 		description:  "Scalar str",
-		input:        "str: |\n  foo\n  bar\n",
-		expected:     "return {\n\t[\"str\"] = \"foo\\nbar\\n\";\n};\n",
+		input:        "str: |\n  foo\n  bar\nanother: 'single'\nand: \"double\"",
+		expected:     "return {\n\t[\"str\"] = [[\nfoo\nbar\n]];\n\t[\"another\"] = 'single';\n\t[\"and\"] = \"double\";\n};\n",
 		scenarioType: "encode",
 	},
 	{

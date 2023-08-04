@@ -80,7 +80,28 @@ func (le *luaEncoder) PrintLeadingContent(writer io.Writer, content string) erro
 }
 
 func (le *luaEncoder) encodeString(writer io.Writer, node *yaml.Node) error {
-	return writeString(writer, "\""+le.escape.Replace(node.Value)+"\"")
+	quote := "\""
+	switch node.Style {
+	case yaml.LiteralStyle, yaml.FoldedStyle, yaml.FlowStyle:
+		for i := 0; i < 10; i++ {
+			if !strings.Contains(node.Value, "]"+strings.Repeat("=", i)+"]") {
+				err := writeString(writer, "["+strings.Repeat("=", i)+"[\n")
+				if err != nil {
+					return err
+				}
+				err = writeString(writer, node.Value)
+				if err != nil {
+					return err
+				}
+				return writeString(writer, "]"+strings.Repeat("=", i)+"]")
+			}
+		}
+	case yaml.SingleQuotedStyle:
+		quote = "'"
+
+		// falltrough to regular ol' string
+	}
+	return writeString(writer, quote+le.escape.Replace(node.Value)+quote)
 }
 
 func (le *luaEncoder) writeIndent(writer io.Writer) error {
