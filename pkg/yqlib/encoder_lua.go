@@ -14,6 +14,7 @@ type luaEncoder struct {
 	indent    int
 	indentStr string
 	unquoted  bool
+	globals   bool
 	escape    *strings.Replacer
 }
 
@@ -68,7 +69,7 @@ func NewLuaEncoder(prefs LuaPreferences) Encoder {
 		"\\t", "\t",
 		"\\\\", "\\",
 	)
-	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), 0, "\t", prefs.UnquotedKeys, escape}
+	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), 0, "\t", prefs.UnquotedKeys, prefs.Globals, escape}
 }
 
 func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
@@ -178,16 +179,18 @@ func needsQuoting(s string) bool {
 	return false
 }
 
-func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
-	err := writeString(writer, "{")
-	if err != nil {
-		return err
+func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node, global bool) error {
+	if !global {
+		err := writeString(writer, "{")
+		if err != nil {
+			return err
+		}
+		le.indent++
 	}
-	le.indent++
 	for i, child := range node.Content {
 		if (i % 2) == 1 {
 			// value
-			err = le.Encode(writer, child)
+			err := le.Encode(writer, child)
 			if err != nil {
 				return err
 			}
@@ -197,16 +200,25 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 			}
 		} else {
 			// key
-			err = le.writeIndent(writer)
-			if err != nil {
-				return err
+			if !global || i > 0 {
+				err := le.writeIndent(writer)
+				if err != nil {
+					return err
+				}
 			}
-			if le.unquoted && child.Tag == "!!str" && !needsQuoting(child.Value) {
-				err = writeString(writer, child.Value+" = ")
+			if (le.unquoted || global) && child.Tag == "!!str" && !needsQuoting(child.Value) {
+				err := writeString(writer, child.Value+" = ")
 				if err != nil {
 					return err
 				}
 			} else {
+				if global {
+					// This only works in Lua 5.2+
+					err := writeString(writer, "_ENV")
+					if err != nil {
+						return err
+					}
+				}
 				err := writeString(writer, "[")
 				if err != nil {
 					return err
@@ -223,7 +235,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 		}
 		if child.LineComment != "" {
 			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
-			err = writeString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
+			err := writeString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
 			if err != nil {
 				return err
 			}
@@ -236,9 +248,12 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 			}
 		}
 	}
+	if global {
+		return writeString(writer, "\n")
+	}
 	le.indent--
 	if len(node.Content) != 0 {
-		err = le.writeIndent(writer)
+		err := le.writeIndent(writer)
 		if err != nil {
 			return err
 		}
@@ -251,7 +266,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 	case yaml.SequenceNode:
 		return le.encodeArray(writer, node)
 	case yaml.MappingNode:
-		return le.encodeMap(writer, node)
+		return le.encodeMap(writer, node, false)
 	case yaml.ScalarNode:
 		switch node.Tag {
 		case "!!str":
@@ -288,6 +303,12 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
 		}
 	case yaml.DocumentNode:
+		if le.globals {
+			if node.Content[0].Kind != yaml.MappingNode {
+				return fmt.Errorf("--lua-global requires a top level MappingNode")
+			}
+			return le.encodeMap(writer, node.Content[0], true)
+		}
 		err := writeString(writer, le.docPrefix)
 		if err != nil {
 			return err

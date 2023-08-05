@@ -4,6 +4,7 @@ type LuaPreferences struct {
 	DocPrefix    string
 	DocSuffix    string
 	UnquotedKeys bool
+	Globals      bool
 }
 
 func NewDefaultLuaPreferences() LuaPreferences {
@@ -11,6 +12,7 @@ func NewDefaultLuaPreferences() LuaPreferences {
 		DocPrefix:    "return ",
 		DocSuffix:    ";\n",
 		UnquotedKeys: false,
+		Globals:      false,
 	}
 }
 

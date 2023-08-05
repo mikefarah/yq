@@ -57,6 +57,34 @@ return {
 };
 ```
 
+## Globals
+Uses the `--lua-globals` option to export the values into the global scope.
+
+Given a sample.yml file of:
+```yaml
+---
+country: Australia # this place
+cities:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth
+```
+then
+```bash
+yq -o=lua '.' sample.yml
+```
+will output
+```lua
+country = "Australia"; -- this place
+cities = {
+	"Sydney",
+	"Melbourne",
+	"Brisbane",
+	"Perth",
+};
+```
+
 ## Elaborate example
 Given a sample.yml file of:
 ```yaml

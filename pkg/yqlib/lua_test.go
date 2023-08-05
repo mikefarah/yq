@@ -53,6 +53,26 @@ cities:
 `,
 	},
 	{
+		description:    "Globals",
+		subdescription: "Uses the `--lua-globals` option to export the values into the global scope.",
+		scenarioType:   "globals-encode",
+		input: `---
+country: Australia # this place
+cities:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth`,
+		expected: `country = "Australia"; -- this place
+cities = {
+	"Sydney",
+	"Melbourne",
+	"Brisbane",
+	"Perth",
+};
+`,
+	},
+	{
 		description: "Elaborate example",
 		input: `---
 hello: world
@@ -155,6 +175,14 @@ func testLuaScenario(t *testing.T, s formatScenario) {
 			DocPrefix:    "return ",
 			DocSuffix:    ";\n",
 			UnquotedKeys: true,
+			Globals:      false,
+		})), s.description)
+	case "globals-encode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(LuaPreferences{
+			DocPrefix:    "return ",
+			DocSuffix:    ";\n",
+			UnquotedKeys: false,
+			Globals:      true,
 		})), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -168,7 +196,7 @@ func documentLuaScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
-	case "encode", "unquoted-encode":
+	case "encode", "unquoted-encode", "globals-encode":
 		documentLuaEncodeScenario(w, s)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -184,11 +212,20 @@ func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
 	}
 
 	prefs := ConfiguredLuaPreferences
-	if s.scenarioType == "unquoted-encode" {
+	switch s.scenarioType {
+	case "unquoted-encode":
 		prefs = LuaPreferences{
 			DocPrefix:    "return ",
 			DocSuffix:    ";\n",
 			UnquotedKeys: true,
+			Globals:      false,
+		}
+	case "globals-encode":
+		prefs = LuaPreferences{
+			DocPrefix:    "return ",
+			DocSuffix:    ";\n",
+			UnquotedKeys: false,
+			Globals:      true,
 		}
 	}
 	writeOrPanic(w, "Given a sample.yml file of:\n")
@@ -198,6 +235,8 @@ func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
 	switch s.scenarioType {
 	case "unquoted-encode":
 		writeOrPanic(w, "```bash\nyq -o=lua --lua-unquoted '.' sample.yml\n```\n")
+	case "globals-encode":
+		writeOrPanic(w, "```bash\nyq -o=lua --lua-globals '.' sample.yml\n```\n")
 	default:
 		writeOrPanic(w, "```bash\nyq -o=lua '.' sample.yml\n```\n")
 	}
