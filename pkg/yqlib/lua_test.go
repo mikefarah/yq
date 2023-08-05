@@ -19,9 +19,8 @@ cities:
 - Melbourne
 - Brisbane
 - Perth`,
-		// TODO comments,   -- this place
 		expected: `return {
-	["country"] = "Australia";
+	["country"] = "Australia"; -- this place
 	["cities"] = {
 		"Sydney",
 		"Melbourne",
@@ -43,7 +42,7 @@ cities:
 - Brisbane
 - Perth`,
 		expected: `return {
-	country = "Australia";
+	country = "Australia"; -- this place
 	cities = {
 		"Sydney",
 		"Melbourne",

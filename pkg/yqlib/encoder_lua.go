@@ -134,6 +134,13 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
+		if child.LineComment != "" {
+			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
+			err = writeString(writer, " --"+sansPrefix)
+			if err != nil {
+				return err
+			}
+		}
 	}
 	le.indent--
 	if len(node.Content) != 0 {
@@ -209,6 +216,20 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node) error {
 					return err
 				}
 				err = writeString(writer, "] = ")
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if child.LineComment != "" {
+			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
+			err = writeString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
+			if err != nil {
+				return err
+			}
+			if (i % 2) == 0 {
+				// newline and indent after comments on keys
+				err = le.writeIndent(writer)
 				if err != nil {
 					return err
 				}

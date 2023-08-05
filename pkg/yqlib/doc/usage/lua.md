@@ -17,7 +17,7 @@ yq -o=lua '.' sample.yml
 will output
 ```lua
 return {
-	["country"] = "Australia";
+	["country"] = "Australia"; -- this place
 	["cities"] = {
 		"Sydney",
 		"Melbourne",
@@ -47,7 +47,7 @@ yq -o=lua '.' sample.yml
 will output
 ```lua
 return {
-	country = "Australia";
+	country = "Australia"; -- this place
 	cities = {
 		"Sydney",
 		"Melbourne",
