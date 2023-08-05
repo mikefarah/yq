@@ -10,21 +10,94 @@ import (
 
 var luaScenarios = []formatScenario{
 	{
-		description: "Basic example",
+		description:  "Basic example",
+		scenarioType: "encode",
+		input: `---
+country: Australia # this place
+cities:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth`,
+		// TODO comments,   -- this place
+		expected: `return {
+	["country"] = "Australia";
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+	},
+	{
+		description:    "Unquoted keys",
+		subdescription: "Uses the `--lua-unquoted` option to produce a nicer-looking output.",
+		scenarioType:   "unquoted-encode",
+		input: `---
+country: Australia # this place
+cities:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth`,
+		expected: `return {
+	country = "Australia";
+	cities = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+	},
+	{
+		description: "Elaborate example",
 		input: `---
 hello: world
-? look: non-string keys
-: True
-numbers: [123,456]
+tables:
+  like: this
+  keys: values
+  ? look: non-string keys
+  : True
+numbers:
+  - decimal: 12345
+  - hex: 0x7fabc123
+  - octal: 0o30
+  - float: 123.45
+  - infinity: .inf
+  - not: .nan
 `,
 		expected: `return {
 	["hello"] = "world";
-	[{
-		["look"] = "non-string keys";
-	}] = true;
+	["tables"] = {
+		["like"] = "this";
+		["keys"] = "values";
+		[{
+			["look"] = "non-string keys";
+		}] = true;
+	};
 	["numbers"] = {
-		123,
-		456,
+		{
+			["decimal"] = 12345;
+		},
+		{
+			["hex"] = 0x7fabc123;
+		},
+		{
+			["octal"] = 24;
+		},
+		{
+			["float"] = 123.45;
+		},
+		{
+			["infinity"] = (1/0);
+		},
+		{
+			["not"] = (0/0);
+		},
 	};
 };
 `,
@@ -78,6 +151,12 @@ func testLuaScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(ConfiguredLuaPreferences)), s.description)
+	case "unquoted-encode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(LuaPreferences{
+			DocPrefix:    "return ",
+			DocSuffix:    ";\n",
+			UnquotedKeys: true,
+		})), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -90,7 +169,7 @@ func documentLuaScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
-	case "encode":
+	case "encode", "unquoted-encode":
 		documentLuaEncodeScenario(w, s)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -105,14 +184,27 @@ func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
 		writeOrPanic(w, "\n\n")
 	}
 
+	prefs := ConfiguredLuaPreferences
+	if s.scenarioType == "unquoted-encode" {
+		prefs = LuaPreferences{
+			DocPrefix:    "return ",
+			DocSuffix:    ";\n",
+			UnquotedKeys: true,
+		}
+	}
 	writeOrPanic(w, "Given a sample.yml file of:\n")
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -o=lua '.' sample.yml\n```\n")
+	switch s.scenarioType {
+	case "unquoted-encode":
+		writeOrPanic(w, "```bash\nyq -o=lua --lua-unquoted '.' sample.yml\n```\n")
+	default:
+		writeOrPanic(w, "```bash\nyq -o=lua '.' sample.yml\n```\n")
+	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(ConfiguredLuaPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(prefs))))
 }
 
 func TestLuaScenarios(t *testing.T) {
