@@ -1,3 +1,8 @@
+4.35.1:
+  - Added Lua output support (Thanks @Zash)!
+  - Added BSD checksum format (Thanks @viq)!
+  - Bumped dependencies
+
 4.34.2:
   - Bumped dependencies
 

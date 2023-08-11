@@ -42,7 +42,7 @@ cities:
 ```
 then
 ```bash
-yq -o=lua '.' sample.yml
+yq -o=lua --lua-unquoted '.' sample.yml
 ```
 will output
 ```lua
@@ -72,7 +72,7 @@ cities:
 ```
 then
 ```bash
-yq -o=lua '.' sample.yml
+yq -o=lua --lua-globals '.' sample.yml
 ```
 will output
 ```lua
