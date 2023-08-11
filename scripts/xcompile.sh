@@ -19,6 +19,8 @@ rm yq.1
 
 rhash -r -a . -o checksums
 
+rhash -r -a --bsd . -o checksums-bsd
+
 rhash --list-hashes > checksums_hashes_order
 
 cp ../scripts/extract-checksum.sh .
