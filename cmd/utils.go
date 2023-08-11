@@ -197,6 +197,8 @@ func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 		return yqlib.NewTomlEncoder(), nil
 	case yqlib.ShellVariablesOutputFormat:
 		return yqlib.NewShellVariablesEncoder(), nil
+	case yqlib.LuaOutputFormat:
+		return yqlib.NewLuaEncoder(yqlib.ConfiguredLuaPreferences), nil
 	}
 	return nil, fmt.Errorf("invalid encoder: %v", format)
 }
