@@ -9,7 +9,7 @@ require (
 	github.com/fatih/color v1.15.0
 	github.com/goccy/go-json v0.10.2
 	github.com/goccy/go-yaml v1.11.0
-	github.com/jinzhu/copier v0.3.5
+	github.com/jinzhu/copier v0.4.0
 	github.com/magiconair/properties v1.8.7
 	github.com/pelletier/go-toml/v2 v2.0.9
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
