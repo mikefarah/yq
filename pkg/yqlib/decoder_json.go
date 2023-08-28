@@ -66,8 +66,8 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 	}
 
 	var yamlMap = &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-	for _, keyValuePair := range data.kv {
-		yamlValue, err := dec.convertToYamlNode(&keyValuePair.V)
+	for i, keyValuePair := range data.kv {
+		yamlValue, err := dec.convertToYamlNode(&data.kv[i].V)
 		if err != nil {
 			return nil, err
 		}
