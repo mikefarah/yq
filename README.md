@@ -257,6 +257,9 @@ pacman -S go-yq
 ```
 
 ### Windows:
+
+Using [Chocolatey](https://chocolatey.org)
+
 [![Chocolatey](https://img.shields.io/chocolatey/v/yq.svg)](https://chocolatey.org/packages/yq)
 [![Chocolatey](https://img.shields.io/chocolatey/dt/yq.svg)](https://chocolatey.org/packages/yq)
 ```
@@ -264,12 +267,15 @@ choco install yq
 ```
 Supported by @chillum (https://chocolatey.org/packages/yq)
 
-and
+Using [scoop](https://scoop.sh/)
+```
+scoop install main/yq
+```
 
-### Winget
-winget install yq
-
-https://winget.run/pkg/MikeFarah/yq
+Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
+```
+winget install --id MikeFarah.yq
+```
 
 ### Mac:
 Using [MacPorts](https://www.macports.org/)
