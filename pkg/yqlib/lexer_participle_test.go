@@ -15,6 +15,29 @@ type participleLexerScenario struct {
 
 var participleLexerScenarios = []participleLexerScenario{
 	{
+		expression: ".a!=",
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: traversePathOpType,
+					Value:         "a",
+					StringValue:   "a",
+					Preferences:   traversePreferences{},
+				},
+				CheckForPostTraverse: true,
+			},
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: notEqualsOpType,
+					Value:         "NOT_EQUALS",
+					StringValue:   "!=",
+				},
+			},
+		},
+	},
+	{
 		expression: ".[:3]",
 		tokens: []*token{
 			{

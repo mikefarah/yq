@@ -201,7 +201,7 @@ var participleYqRules = []*participleYqRule{
 	{`whitespace`, `[ \t\n]+`, nil, 0},
 
 	{"WrappedPathElement", `\."[^ "]+"\??`, pathToken(true), 0},
-	{"PathElement", `\.[^ ;\}\{\:\[\],\|\.\[\(\)=\n]+\??`, pathToken(false), 0},
+	{"PathElement", `\.[^ ;\}\{\:\[\],\|\.\[\(\)=\n!]+\??`, pathToken(false), 0},
 	{"Pipe", `\|`, opToken(pipeOpType), 0},
 	{"Self", `\.`, opToken(selfReferenceOpType), 0},
 
