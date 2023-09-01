@@ -45,6 +45,11 @@ yq -i '
 ' file.yaml
 ```
 
+Find and update an item in an array:
+```bash
+yq '(.[] | select(.name == "foo") | .address) = "12 cat st"'
+```
+
 Convert JSON to YAML
 ```bash
 yq -Poy sample.json
