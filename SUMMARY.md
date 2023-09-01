@@ -2,6 +2,7 @@
 
 * [yq](README.md)
 * [How It Works](how-it-works.md)
+* [Recipes](usage/recipes.md)
 * [Upgrading from V3](upgrading-from-v3.md)
 
 ## Commands
