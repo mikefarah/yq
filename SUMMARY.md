@@ -76,6 +76,7 @@
 * [Working with JSON](usage/convert.md)
 * [Working with Properties](usage/properties.md)
 * [Working with XML](usage/xml.md)
+* [Working with LUA](usage/lua.md)
 * [Working with TOML](usage/toml.md)
 * [Working with Shell Output](usage/shellvariables.md)
 * [Front Matter](usage/front-matter.md)
