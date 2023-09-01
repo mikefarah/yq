@@ -53,7 +53,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -78,7 +78,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
+yq -oy ' (.. | select(tag == "!!str")) |= from_yaml' sample.xml
 ```
 will output
 ```yaml
@@ -100,7 +100,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -108,6 +108,24 @@ will output
 animal:
   - cat
   - goat
+```
+
+## Parse xml: force as an array
+In XML, if your array has a single item, then yq doesn't know its an array. This is how you can consistently force it to be an array. This handles the 3 scenarios of having nothing in the array, having a single item and having multiple.
+
+Given a sample.xml file of:
+```xml
+<zoo><animal>cat</animal></zoo>
+```
+then
+```bash
+yq -oy '.zoo.animal |= ([] + .)' sample.xml
+```
+will output
+```yaml
+zoo:
+  animal:
+    - cat
 ```
 
 ## Parse xml: attributes
@@ -122,7 +140,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -142,7 +160,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -161,7 +179,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -190,7 +208,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml -o=xml '.' sample.xml
+yq '.' sample.xml
 ```
 will output
 ```xml
@@ -221,7 +239,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml -o=xml --xml-skip-directives '.' sample.xml
+yq --xml-skip-directives '.' sample.xml
 ```
 will output
 ```xml
@@ -257,7 +275,7 @@ for x --></x>
 ```
 then
 ```bash
-yq -p=xml '.' sample.xml
+yq -oy '.' sample.xml
 ```
 will output
 ```yaml
@@ -289,7 +307,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml -o=xml --xml-keep-namespace=false '.' sample.xml
+yq --xml-keep-namespace=false '.' sample.xml
 ```
 will output
 ```xml
@@ -314,7 +332,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml -o=xml --xml-raw-token=false '.' sample.xml
+yq --xml-raw-token=false '.' sample.xml
 ```
 will output
 ```xml
@@ -489,7 +507,7 @@ for x --></x>
 ```
 then
 ```bash
-yq -p=xml -o=xml '.' sample.xml
+yq '.' sample.xml
 ```
 will output
 ```xml
@@ -522,7 +540,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -p=xml -o=xml '.' sample.xml
+yq '.' sample.xml
 ```
 will output
 ```xml
