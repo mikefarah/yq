@@ -55,7 +55,7 @@ Convert JSON to YAML
 yq -Poy sample.json
 ```
 
-See the [documentation](https://mikefarah.gitbook.io/yq/) for more examples.
+See [recipes](https://mikefarah.gitbook.io/yq/recipes) for more examples and the [documentation](https://mikefarah.gitbook.io/yq/) for more information.
 
 Take a look at the discussions for [common questions](https://github.com/mikefarah/yq/discussions/categories/q-a), and [cool ideas](https://github.com/mikefarah/yq/discussions/categories/show-and-tell)
 
