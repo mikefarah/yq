@@ -2,7 +2,7 @@ module github.com/mikefarah/yq/v4
 
 require (
 	github.com/a8m/envsubst v1.4.2
-	github.com/alecthomas/participle/v2 v2.0.0
+	github.com/alecthomas/participle/v2 v2.1.0
 	github.com/alecthomas/repr v0.2.0
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.5.0
