@@ -54,8 +54,16 @@ func (dec *jsonDecoder) convertToYamlNode(data *orderedMap) (*yaml.Node, error) 
 		case nil:
 			return createScalarNode(nil, "null"), nil
 		case float64, float32:
-			// json decoder returns ints as float.
-			return parseSnippet(fmt.Sprintf("%v", rawData))
+			// json decoder returns ints as float.'
+			intNum := int(rawData.(float64))
+
+			// if the integer representation is the same as the original
+			// then its an int.
+			if float64(intNum) == rawData.(float64) {
+				return createScalarNode(intNum, fmt.Sprintf("%v", intNum)), nil
+			}
+
+			return createScalarNode(rawData, fmt.Sprintf("%v", rawData)), nil
 		case int, int64, int32, string, bool:
 			return createScalarNode(rawData, fmt.Sprintf("%v", rawData)), nil
 		case []*orderedMap:

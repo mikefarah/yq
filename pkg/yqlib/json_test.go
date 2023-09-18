@@ -198,8 +198,8 @@ var jsonScenarios = []formatScenario{
 	{
 		description:  "numbers",
 		skipDoc:      true,
-		input:        "[3, 3.0, 3.1, -1]",
-		expected:     "- 3\n- 3\n- 3.1\n- -1\n",
+		input:        "[3, 3.0, 3.1, -1, 999999, 1000000, 1000001, 1.1]",
+		expected:     "- 3\n- 3\n- 3.1\n- -1\n- 999999\n- 1000000\n- 1000001\n- 1.1\n",
 		scenarioType: "decode-ndjson",
 	},
 	{
