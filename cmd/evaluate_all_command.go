@@ -13,7 +13,7 @@ func createEvaluateAllCommand() *cobra.Command {
 		Aliases: []string{"ea"},
 		Short:   "Loads _all_ yaml documents of _all_ yaml files and runs expression once",
 		Example: `
-# Merge f2.yml into f1.yml (inplace)
+# Merge f2.yml into f1.yml (in place)
 yq eval-all --inplace 'select(fileIndex == 0) * select(fileIndex == 1)' f1.yml f2.yml
 ## the same command and expression using shortened names:
 yq ea -i 'select(fi == 0) * select(fi == 1)' f1.yml f2.yml

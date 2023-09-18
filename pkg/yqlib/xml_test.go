@@ -671,7 +671,7 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	case "decode-raw-token-off":
 		documentXMLDecodeKeepNsRawTokenScenario(w, s)
 	case "roundtrip-skip-directives":
-		documentXMLSkipDirectrivesScenario(w, s)
+		documentXMLSkipDirectivesScenario(w, s)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -787,7 +787,7 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))
 }
 
-func documentXMLSkipDirectrivesScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLSkipDirectivesScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {

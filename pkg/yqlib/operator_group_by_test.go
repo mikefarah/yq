@@ -14,7 +14,7 @@ var groupByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Group by field, with nuls",
+		description: "Group by field, with nulls",
 		document:    `[{cat: dog}, {foo: 1, bar: 10}, {foo: 3, bar: 100}, {no: foo for you}, {foo: 1, bar: 1}]`,
 		expression:  `group_by(.foo)`,
 		expected: []string{

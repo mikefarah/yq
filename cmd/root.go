@@ -88,7 +88,7 @@ yq -P sample.json
 
 	rootCmd.PersistentFlags().IntVarP(&indent, "indent", "I", 2, "sets indent level for output")
 	rootCmd.Flags().BoolVarP(&version, "version", "V", false, "Print version information and quit")
-	rootCmd.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the file inplace of first file given.")
+	rootCmd.PersistentFlags().BoolVarP(&writeInplace, "inplace", "i", false, "update the file in place of first file given.")
 	rootCmd.PersistentFlags().VarP(unwrapScalarFlag, "unwrapScalar", "r", "unwrap scalar, print the value with no quotes, colors or comments. Defaults to true for yaml")
 	rootCmd.PersistentFlags().Lookup("unwrapScalar").NoOptDefVal = "true"
 	rootCmd.PersistentFlags().BoolVarP(&nulSepOutput, "nul-output", "0", false, "Use NUL char to separate values. If unwrap scalar is also set, fail if unwrapped scalar contains NUL char.")

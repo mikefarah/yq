@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-# note that this reqires pandoc to be installed.
+# note that this requires pandoc to be installed.
 
 pandoc \
   --variable=title:"YQ" \

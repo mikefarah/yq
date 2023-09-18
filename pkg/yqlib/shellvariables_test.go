@@ -35,12 +35,12 @@ var shellVariablesScenarios = []formatScenario{
 			"ascii_=_symbols: replaced with _" + "\n" +
 			"\"ascii_\t_controls\": dropped (this example uses \\t)" + "\n" +
 			"nonascii_\u05d0_characters: dropped" + "\n" +
-			"effrot_expe\u00f1ded_t\u00f2_preserve_accented_latin_letters: moderate (via unicode NFKD)" + "\n",
+			"effort_expe\u00f1ded_t\u00f2_preserve_accented_latin_letters: moderate (via unicode NFKD)" + "\n",
 		expected: "" +
 			"ascii___symbols='replaced with _'" + "\n" +
 			"ascii__controls='dropped (this example uses \\t)'" + "\n" +
 			"nonascii__characters=dropped" + "\n" +
-			"effrot_expended_to_preserve_accented_latin_letters='moderate (via unicode NFKD)'" + "\n",
+			"effort_expended_to_preserve_accented_latin_letters='moderate (via unicode NFKD)'" + "\n",
 	},
 	{
 		description:    "Encode shell variables: empty values, arrays and maps",
@@ -65,10 +65,10 @@ func TestShellVariableScenarios(t *testing.T) {
 	for i, s := range shellVariablesScenarios {
 		genericScenarios[i] = s
 	}
-	documentScenarios(t, "usage", "shellvariables", genericScenarios, documentShellVaraibleScenario)
+	documentScenarios(t, "usage", "shellvariables", genericScenarios, documentShellVariableScenario)
 }
 
-func documentShellVaraibleScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
+func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 	if s.skipDoc {
 		return

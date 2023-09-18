@@ -42,7 +42,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	}
 
 	if writeInplace && (len(args) == 0 || args[0] == "-") {
-		return "", nil, fmt.Errorf("write inplace flag only applicable when giving an expression and at least one file")
+		return "", nil, fmt.Errorf("write in place flag only applicable when giving an expression and at least one file")
 	}
 
 	if frontMatter != "" && len(args) == 0 {
@@ -50,7 +50,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	}
 
 	if writeInplace && splitFileExp != "" {
-		return "", nil, fmt.Errorf("write inplace cannot be used with split file")
+		return "", nil, fmt.Errorf("write in place cannot be used with split file")
 	}
 
 	if nullInput && len(args) > 0 {
@@ -104,7 +104,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		outputFormatType == yqlib.PropsOutputFormat {
 		unwrapScalar = true
 	}
-	if unwrapScalarFlag.IsExplicitySet() {
+	if unwrapScalarFlag.IsExplicitlySet() {
 		unwrapScalar = unwrapScalarFlag.IsSet()
 	}
 

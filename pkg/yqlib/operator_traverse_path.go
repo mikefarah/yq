@@ -202,7 +202,7 @@ func traverseArrayWithIndices(candidate *CandidateNode, indices []*yaml.Node, pr
 		contentLength := len(node.Content)
 		for contentLength <= index {
 			if contentLength == 0 {
-				// default to nice yaml formating
+				// default to nice yaml formatting
 				node.Style = 0
 			}
 

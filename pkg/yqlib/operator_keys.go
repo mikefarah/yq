@@ -50,7 +50,7 @@ func keysOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		if node.Kind == yaml.MappingNode {
 			targetNode = getMapKeys(node)
 		} else if node.Kind == yaml.SequenceNode {
-			targetNode = getIndicies(node)
+			targetNode = getIndices(node)
 		} else {
 			return Context{}, fmt.Errorf("Cannot get keys of %v, keys only works for maps and arrays", node.Tag)
 		}
@@ -70,7 +70,7 @@ func getMapKeys(node *yaml.Node) *yaml.Node {
 	return &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Content: contents}
 }
 
-func getIndicies(node *yaml.Node) *yaml.Node {
+func getIndices(node *yaml.Node) *yaml.Node {
 	var contents = make([]*yaml.Node, len(node.Content))
 
 	for index := range node.Content {

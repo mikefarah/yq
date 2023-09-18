@@ -143,7 +143,7 @@ testBasicCatWithFilesNoDash() {
 }
 
 # when the nullinput flag is used
-# dont automatically read STDIN (this breaks github actions)
+# don't automatically read STDIN (this breaks github actions)
 testBasicCreateFileGithubAction() {
   cat /dev/null | ./yq -n ".a = 123" > test.yml
 }
@@ -302,7 +302,7 @@ testBasicExitStatusNoEval() {
   assertEquals 1 "$?"
 }
 
-testBasicExtractFieldWithSeperator() {
+testBasicExtractFieldWithSeparator() {
     cat >test.yml <<EOL
 ---
 name: chart-name
@@ -312,7 +312,7 @@ EOL
   assertEquals "chart-name" "$X"
 }
 
-testBasicExtractMultipleFieldWithSeperator() {
+testBasicExtractMultipleFieldWithSeparator() {
     cat >test.yml <<EOL
 ---
 name: chart-name

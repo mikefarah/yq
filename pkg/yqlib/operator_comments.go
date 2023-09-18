@@ -77,8 +77,8 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
-	var startCommentCharaterRegExp = regexp.MustCompile(`^# `)
-	var subsequentCommentCharaterRegExp = regexp.MustCompile(`\n# `)
+	var startCommentCharacterRegExp = regexp.MustCompile(`^# `)
+	var subsequentCommentCharacterRegExp = regexp.MustCompile(`\n# `)
 
 	log.Debugf("GetComments operator!")
 	var results = list.New()
@@ -112,8 +112,8 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		} else if preferences.FootComment {
 			comment = candidate.Node.FootComment
 		}
-		comment = startCommentCharaterRegExp.ReplaceAllString(comment, "")
-		comment = subsequentCommentCharaterRegExp.ReplaceAllString(comment, "\n")
+		comment = startCommentCharacterRegExp.ReplaceAllString(comment, "")
+		comment = subsequentCommentCharacterRegExp.ReplaceAllString(comment, "\n")
 
 		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
 		result := candidate.CreateReplacement(node)

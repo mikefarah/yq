@@ -148,7 +148,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			return errorWriting
 		}
 
-		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeperator\$`)
+		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeparator\$`)
 		commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
 
 		if (p.previousDocIndex != mappedDoc.Document || p.previousFileIndex != mappedDoc.FileIndex) && !commentStartsWithSeparator {

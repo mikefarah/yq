@@ -76,7 +76,7 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 			}
 
 		} else {
-			return Context{}, fmt.Errorf("cannot pick indicies from type %v (%v)", node.Tag, candidate.GetNicePath())
+			return Context{}, fmt.Errorf("cannot pick indices from type %v (%v)", node.Tag, candidate.GetNicePath())
 		}
 
 		results.PushBack(candidate.CreateReplacementWithDocWrappers(replacement))

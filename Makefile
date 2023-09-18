@@ -84,8 +84,12 @@ format: vendor
 	${ENGINERUN} bash ./scripts/format.sh
 
 
+.PHONY: spelling
+spelling: format
+	${ENGINERUN} bash ./scripts/spelling.sh
+
 .PHONY: secure
-secure: format
+secure: spelling
 	${ENGINERUN} bash ./scripts/secure.sh
 
 .PHONY: check

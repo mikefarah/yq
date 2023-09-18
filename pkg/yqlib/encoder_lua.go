@@ -100,7 +100,7 @@ func (le *luaEncoder) encodeString(writer io.Writer, node *yaml.Node) error {
 	case yaml.SingleQuotedStyle:
 		quote = "'"
 
-		// falltrough to regular ol' string
+		// fallthrough to regular ol' string
 	}
 	return writeString(writer, quote+le.escape.Replace(node.Value)+quote)
 }

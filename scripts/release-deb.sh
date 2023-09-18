@@ -30,7 +30,7 @@ show_help() {
   echo "                                  distribution is considered"
   echo "    --goversion VERSION         The version of Golang to use. Default to $GOVERSION"
   echo "    -k, --sign-key KEYID        Sign the package sources with the provided gpg key id (long format). When not provided this"
-  echo "                                  paramater, the generated sources are not signed"
+  echo "                                  parameter, the generated sources are not signed"
   echo "    -s, --sign                  Sign the package sources with a gpg key of the maintainer"
   echo "    -m, --maintainer WHO        The maintainer used as author of the changelog. git.name and git.email (see git config) is"
   echo "                                  the considered format"

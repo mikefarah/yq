@@ -47,7 +47,7 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 		if errReading != nil && !errors.Is(errReading, io.EOF) {
 			return errReading
 		}
-		if strings.Contains(readline, "$yqDocSeperator$") {
+		if strings.Contains(readline, "$yqDocSeparator$") {
 
 			if err := ye.PrintDocumentSeparator(writer); err != nil {
 				return err

@@ -10,7 +10,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func getStringParamter(parameterName string, d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (string, error) {
+func getStringParameter(parameterName string, d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (string, error) {
 	result, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode)
 
 	if err != nil {
@@ -24,7 +24,7 @@ func getStringParamter(parameterName string, d *dataTreeNavigator, context Conte
 
 func withDateTimeFormat(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if expressionNode.RHS.Operation.OperationType == blockOpType || expressionNode.RHS.Operation.OperationType == unionOpType {
-		layout, err := getStringParamter("layout", d, context, expressionNode.RHS.LHS)
+		layout, err := getStringParameter("layout", d, context, expressionNode.RHS.LHS)
 		if err != nil {
 			return Context{}, fmt.Errorf("could not get date time format: %w", err)
 		}
@@ -63,7 +63,7 @@ func parseDateTime(layout string, datestring string) (time.Time, error) {
 }
 
 func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	format, err := getStringParamter("format", d, context, expressionNode.RHS)
+	format, err := getStringParameter("format", d, context, expressionNode.RHS)
 	layout := context.GetDateTimeLayout()
 
 	if err != nil {
@@ -97,7 +97,7 @@ func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *Expre
 }
 
 func tzOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	timezoneStr, err := getStringParamter("timezone", d, context, expressionNode.RHS)
+	timezoneStr, err := getStringParameter("timezone", d, context, expressionNode.RHS)
 	layout := context.GetDateTimeLayout()
 
 	if err != nil {

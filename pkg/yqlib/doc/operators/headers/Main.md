@@ -26,7 +26,7 @@ yq '.a.b[0].c' file.yaml
 cat file.yaml | yq '.a.b[0].c'
 ```
 
-## Update a yaml file, inplace
+## Update a yaml file, in place
 ```bash
 yq -i '.a.b[0].c = "cool"' file.yaml
 ```
