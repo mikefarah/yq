@@ -167,7 +167,7 @@ testLeadingSeparatorExtractFieldMultiDocWithComments() {
 ---
 # there
 a: test
-# whereever
+# wherever
 ---
 # you are
 a: test2

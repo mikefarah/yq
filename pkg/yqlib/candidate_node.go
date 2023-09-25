@@ -111,7 +111,7 @@ func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
 		return newPath
 	}
 
-	//don't use append as they may actually modify the path of the orignal node!
+	//don't use append as they may actually modify the path of the original node!
 	newPath := make([]interface{}, len(n.Path)+1)
 	copy(newPath, n.Path)
 	newPath[len(n.Path)] = path

@@ -161,7 +161,7 @@ Oneshot
 opencollect
 opstack
 orderedmap
-orignal
+original
 osarch
 overridign
 pacman
@@ -239,7 +239,7 @@ Warningf
 Wazowski
 webi
 Webi
-whereever
+wherever
 winget
 withdots
 wizz
