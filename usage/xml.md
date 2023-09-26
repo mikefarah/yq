@@ -128,6 +128,25 @@ zoo:
     - cat
 ```
 
+## Parse xml: force all as an array
+Because of the way yq works, when updating everything you need to update the children before the parents. By default `..` will match parents first, so we reverse that before updating.
+
+Given a sample.xml file of:
+```xml
+<zoo><thing><frog>boing</frog></thing></zoo>
+```
+then
+```bash
+yq -oy '([..] | reverse | .[]) |= [] + .' sample.xml
+```
+will output
+```yaml
+- zoo:
+    - thing:
+        - frog:
+            - boing
+```
+
 ## Parse xml: attributes
 Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.
 

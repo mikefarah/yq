@@ -34,7 +34,7 @@ Given a sample.yml file of:
 ascii_=_symbols: replaced with _
 "ascii_	_controls": dropped (this example uses \t)
 nonascii_א_characters: dropped
-effrot_expeñded_tò_preserve_accented_latin_letters: moderate (via unicode NFKD)
+effort_expeñded_tò_preserve_accented_latin_letters: moderate (via unicode NFKD)
 
 ```
 then
@@ -46,7 +46,7 @@ will output
 ascii___symbols='replaced with _'
 ascii__controls='dropped (this example uses \t)'
 nonascii__characters=dropped
-effrot_expended_to_preserve_accented_latin_letters='moderate (via unicode NFKD)'
+effort_expended_to_preserve_accented_latin_letters='moderate (via unicode NFKD)'
 ```
 
 ## Encode shell variables: empty values, arrays and maps
