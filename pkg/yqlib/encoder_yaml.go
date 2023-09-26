@@ -38,7 +38,6 @@ func (ye *yamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 }
 
 func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
-	// log.Debug("headcommentwas [%v]", content)
 	reader := bufio.NewReader(strings.NewReader(content))
 
 	for {

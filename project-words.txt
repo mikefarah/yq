@@ -96,7 +96,6 @@ gota
 goversion
 GOVERSION
 haha
-headcommentwas
 hellno
 herbygillot
 hexdump
@@ -138,7 +137,6 @@ mitchellh
 mktemp
 multidoc
 multimaint
-multine
 myenv
 myenvnonexisting
 myfile
@@ -161,7 +159,6 @@ Oneshot
 opencollect
 opstack
 orderedmap
-original
 osarch
 overridign
 pacman
@@ -199,11 +196,9 @@ shellvars
 shortfunc
 shortpipe
 shunit
-Sidenote
 snapcraft
 somevalue
 splt
-squeek
 srcdir
 stackoverflow
 stiched
@@ -227,7 +222,6 @@ timezones
 Timezones
 tojson
 Tokenvalue
-traver
 tsvd
 Tuan
 tzdata

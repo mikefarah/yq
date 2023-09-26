@@ -175,7 +175,7 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == openCollect {
 
-		log.Debug("  adding traverArray because next is opencollect")
+		log.Debug("  adding traverseArray because next is opencollect")
 		op := &Operation{OperationType: traverseArrayOpType}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}

@@ -233,7 +233,7 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 			commentStr = chompRegexp.ReplaceAllString(commentStr, "")
 			log.Debugf("chompRegexp [%v]", commentStr)
 			commentStr = xmlEncodeMultilineCommentRegex.ReplaceAllString(commentStr, "$1$2")
-			log.Debugf("processed multine [%v]", commentStr)
+			log.Debugf("processed multiline [%v]", commentStr)
 			// if the first line is non blank, add a space
 			if commentStr[0] != '\n' && commentStr[0] != ' ' {
 				commentStr = " " + commentStr
