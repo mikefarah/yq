@@ -1,3 +1,10 @@
+4.35.2:
+  - Fix various typos #1798
+  - Fixed number parsing as float bug in JSON #1756
+  - Fixed string, null concatenation consistency #1712
+  - Fixed expression parsing issue #1711
+  - Bumped dependencies
+
 4.35.1:
   - Added Lua output support (Thanks @Zash)!
   - Added BSD checksum format (Thanks @viq)!
