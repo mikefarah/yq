@@ -10,7 +10,27 @@ import (
 
 var luaScenarios = []formatScenario{
 	{
-		description:  "Basic example",
+		description: "Basic input example",
+		input: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+		expected: `country: Australia
+cities:
+    - Sydney
+    - Melbourne
+    - Brisbane
+    - Perth
+`,
+	},
+	{
+		description:  "Basic output example",
 		scenarioType: "encode",
 		input: `---
 country: Australia # this place
@@ -21,6 +41,31 @@ cities:
 - Perth`,
 		expected: `return {
 	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+	},
+	{
+		description:  "Basic roundtrip",
+		skipDoc:      true,
+		scenarioType: "roundtrip",
+		input: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+		expected: `return {
+	["country"] = "Australia";
 	["cities"] = {
 		"Sydney",
 		"Melbourne",
@@ -168,8 +213,12 @@ numbers:
 
 func testLuaScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
+	case "", "decode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(4, false, ConfiguredYamlPreferences)), s.description)
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(ConfiguredLuaPreferences)), s.description)
+	case "roundtrip":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewLuaEncoder(ConfiguredLuaPreferences)), s.description)
 	case "unquoted-encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(LuaPreferences{
 			DocPrefix:    "return ",
@@ -196,11 +245,37 @@ func documentLuaScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
+	case "", "decode":
+		documentLuaDecodeScenario(w, s)
 	case "encode", "unquoted-encode", "globals-encode":
 		documentLuaEncodeScenario(w, s)
+	case "roundtrip":
+		documentLuaRoundTripScenario(w, s)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
+}
+
+func documentLuaDecodeScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.lua file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```lua\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.lua\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
 }
 
 func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
@@ -243,6 +318,24 @@ func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(prefs))))
+}
+
+func documentLuaRoundTripScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.lua file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```lua\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq '.' sample.lua\n```\n")
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewLuaEncoder(ConfiguredLuaPreferences))))
 }
 
 func TestLuaScenarios(t *testing.T) {

@@ -130,6 +130,8 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 
 func createDecoder(format yqlib.InputFormat, evaluateTogether bool) (yqlib.Decoder, error) {
 	switch format {
+	case yqlib.LuaInputFormat:
+		return yqlib.NewLuaDecoder(yqlib.ConfiguredLuaPreferences), nil
 	case yqlib.XMLInputFormat:
 		return yqlib.NewXMLDecoder(yqlib.ConfiguredXMLPreferences), nil
 	case yqlib.PropertiesInputFormat:
