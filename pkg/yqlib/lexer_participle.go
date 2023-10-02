@@ -152,6 +152,7 @@ var participleYqRules = []*participleYqRule{
 
 	assignableOp("style", getStyleOpType, assignStyleOpType),
 	assignableOp("tag|type", getTagOpType, assignTagOpType),
+	simpleOp("kind", getKindOpType),
 	assignableOp("anchor", getAnchorOpType, assignAnchorOpType),
 	assignableOp("alias", getAliasOpType, assignAliasOpType),
 
