@@ -126,6 +126,7 @@ Lexer
 libdistro
 lindex
 linecomment
+LVAs
 magiconair
 mapvalues
 Mier
@@ -135,6 +136,7 @@ minishift
 mipsle
 mitchellh
 mktemp
+Mult
 multidoc
 multimaint
 myenv
@@ -244,4 +246,5 @@ xmld
 xyzzy
 yamld
 yqlib
+yuin
 zabbix
