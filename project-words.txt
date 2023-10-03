@@ -155,6 +155,7 @@ Nonquoting
 nosec
 notoml
 noxml
+nolua
 nullinput
 onea
 Oneshot

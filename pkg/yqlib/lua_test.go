@@ -1,3 +1,5 @@
+//go:build !yq_nolua
+
 package yqlib
 
 import (
@@ -54,6 +56,7 @@ cities:
 		description:  "Basic roundtrip",
 		skipDoc:      true,
 		scenarioType: "roundtrip",
+		expression:   `.cities[0] = "Adelaide"`,
 		input: `return {
 	["country"] = "Australia"; -- this place
 	["cities"] = {
@@ -67,7 +70,7 @@ cities:
 		expected: `return {
 	["country"] = "Australia";
 	["cities"] = {
-		"Sydney",
+		"Adelaide",
 		"Melbourne",
 		"Brisbane",
 		"Perth",

@@ -1,3 +1,5 @@
+//go:build !yq_nolua
+
 package yqlib
 
 import (
