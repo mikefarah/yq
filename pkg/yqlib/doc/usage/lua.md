@@ -129,6 +129,8 @@ numbers:
   - octal: 0o30
   - float: 123.45
   - infinity: .inf
+    plus_infinity: +.inf
+    minus_infinity: -.inf
   - not: .nan
 
 ```
@@ -162,6 +164,8 @@ return {
 		},
 		{
 			["infinity"] = (1/0);
+			["plus_infinity"] = (1/0);
+			["minus_infinity"] = (-1/0);
 		},
 		{
 			["not"] = (0/0);
