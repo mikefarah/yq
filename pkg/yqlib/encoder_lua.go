@@ -270,7 +270,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 	case yaml.MappingNode:
 		return le.encodeMap(writer, node, false)
 	case yaml.ScalarNode:
-		switch node.Tag {
+		switch node.ShortTag() {
 		case "!!str":
 			return le.encodeString(writer, node)
 		case "!!null":
