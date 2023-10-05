@@ -13,7 +13,7 @@ myMap:
   cat: meow
   dog: bark
   thing: hamster
-  hamster: squeek
+  hamster: squeak
 ```
 then
 ```bash
@@ -22,7 +22,7 @@ yq '.myMap |= pick(["hamster", "cat", "goat"])' sample.yml
 will output
 ```yaml
 myMap:
-  hamster: squeek
+  hamster: squeak
   cat: meow
 ```
 

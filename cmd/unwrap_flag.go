@@ -8,21 +8,21 @@ import (
 
 type boolFlag interface {
 	pflag.Value
-	IsExplicitySet() bool
+	IsExplicitlySet() bool
 	IsSet() bool
 }
 
 type unwrapScalarFlagStrc struct {
-	explicitySet bool
-	value        bool
+	explicitlySet bool
+	value         bool
 }
 
 func newUnwrapFlag() boolFlag {
 	return &unwrapScalarFlagStrc{value: true}
 }
 
-func (f *unwrapScalarFlagStrc) IsExplicitySet() bool {
-	return f.explicitySet
+func (f *unwrapScalarFlagStrc) IsExplicitlySet() bool {
+	return f.explicitlySet
 }
 
 func (f *unwrapScalarFlagStrc) IsSet() bool {
@@ -37,7 +37,7 @@ func (f *unwrapScalarFlagStrc) Set(value string) error {
 
 	v, err := strconv.ParseBool(value)
 	f.value = v
-	f.explicitySet = true
+	f.explicitlySet = true
 	return err
 }
 

@@ -82,15 +82,15 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	}
 
 	el := inputs.Front()
-	el.Value.(*CandidateNode).LeadingContent = "# go cats\n$yqDocSeperator$\n"
+	el.Value.(*CandidateNode).LeadingContent = "# go cats\n$yqDocSeparator$\n"
 	sample1 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	el.Value.(*CandidateNode).LeadingContent = "$yqDocSeperator$\n"
+	el.Value.(*CandidateNode).LeadingContent = "$yqDocSeparator$\n"
 	sample2 := nodeToList(el.Value.(*CandidateNode))
 
 	el = el.Next()
-	el.Value.(*CandidateNode).LeadingContent = "$yqDocSeperator$\n# cool\n"
+	el.Value.(*CandidateNode).LeadingContent = "$yqDocSeparator$\n# cool\n"
 	sample3 := nodeToList(el.Value.(*CandidateNode))
 
 	err = printer.PrintResults(sample1)
@@ -174,21 +174,21 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	elNode := el.Value.(*CandidateNode)
 	elNode.document = 0
 	elNode.fileIndex = 0
-	elNode.LeadingContent = "# go cats\n$yqDocSeperator$\n"
+	elNode.LeadingContent = "# go cats\n$yqDocSeparator$\n"
 	sample1 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.document = 0
 	elNode.fileIndex = 1
-	elNode.LeadingContent = "$yqDocSeperator$\n"
+	elNode.LeadingContent = "$yqDocSeparator$\n"
 	sample2 := nodeToList(elNode)
 
 	el = el.Next()
 	elNode = el.Value.(*CandidateNode)
 	elNode.document = 0
 	elNode.fileIndex = 2
-	elNode.LeadingContent = "$yqDocSeperator$\n# cool\n"
+	elNode.LeadingContent = "$yqDocSeparator$\n# cool\n"
 	sample3 := nodeToList(elNode)
 
 	err = printer.PrintResults(sample1)
@@ -239,7 +239,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 		panic(err)
 	}
 
-	inputs.Front().Value.(*CandidateNode).LeadingContent = "# go cats\n$yqDocSeperator$\n"
+	inputs.Front().Value.(*CandidateNode).LeadingContent = "# go cats\n$yqDocSeparator$\n"
 
 	err = printer.PrintResults(inputs)
 	if err != nil {
@@ -267,7 +267,7 @@ func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	inputs.Front().Value.(*CandidateNode).LeadingContent = "$yqDocSeperator$\n"
+	inputs.Front().Value.(*CandidateNode).LeadingContent = "$yqDocSeparator$\n"
 	err = printer.PrintResults(inputs)
 	if err != nil {
 		panic(err)
@@ -313,7 +313,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
-	// when outputing JSON.
+	// when outputting JSON.
 	encoder := NewJSONEncoder(0, false, false)
 	if encoder == nil {
 		t.Skipf("no support for %s output format", "json")
@@ -365,7 +365,7 @@ func TestPrinterNulSeparatorWithJson(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
-	// when outputing JSON.
+	// when outputting JSON.
 	encoder := NewJSONEncoder(0, false, false)
 	if encoder == nil {
 		t.Skipf("no support for %s output format", "json")

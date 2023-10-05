@@ -226,6 +226,20 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `null + "cat"`,
+		expected: []string{
+			"D0, P[], (!!str)::cat\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `"cat" + null`,
+		expected: []string{
+			"D0, P[], (!!str)::cat\n",
+		},
+	},
+	{
 		description:    "Number addition - float",
 		subdescription: "If the lhs or rhs are floats then the expression will be calculated with floats.",
 		document:       `{a: 3, b: 4.9}`,

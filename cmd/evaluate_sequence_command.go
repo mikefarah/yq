@@ -28,7 +28,7 @@ cat file2.yml | yq e '.a.b' file1.yml - file3.yml
 ## Note that editing an empty file does not work.
 yq e -n '.a.b.c = "cat"' 
 
-# Update a file inplace
+# Update a file in place
 yq e '.a.b = "cool"' -i file.yaml 
 `,
 		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 

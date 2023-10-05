@@ -36,7 +36,7 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 		if errReading != nil && !errors.Is(errReading, io.EOF) {
 			return errReading
 		}
-		if strings.Contains(readline, "$yqDocSeperator$") {
+		if strings.Contains(readline, "$yqDocSeparator$") {
 
 			if err := pe.PrintDocumentSeparator(writer); err != nil {
 				return err

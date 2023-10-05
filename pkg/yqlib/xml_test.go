@@ -357,6 +357,20 @@ var xmlScenarios = []formatScenario{
 		expected:       "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\nanimal:\n    - cat\n    - goat\n",
 	},
 	{
+		description:    "Parse xml: force as an array",
+		subdescription: "In XML, if your array has a single item, then yq doesn't know its an array. This is how you can consistently force it to be an array. This handles the 3 scenarios of having nothing in the array, having a single item and having multiple.",
+		input:          "<zoo><animal>cat</animal></zoo>",
+		expression:     ".zoo.animal |= ([] + .)",
+		expected:       "zoo:\n    animal:\n        - cat\n",
+	},
+	{
+		description:    "Parse xml: force all as an array",
+		subdescription: "Because of the way yq works, when updating everything you need to update the children before the parents. By default `..` will match parents first, so we reverse that before updating.",
+		input:          "<zoo><thing><frog>boing</frog></thing></zoo>",
+		expression:     "([..] | reverse | .[]) |= [] + .",
+		expected:       "- zoo:\n    - thing:\n        - frog:\n            - boing\n",
+	},
+	{
 		description:    "Parse xml: attributes",
 		subdescription: "Attributes are converted to fields, with the default attribute prefix '+'. Use '--xml-attribute-prefix` to set your own.",
 		input:          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cat legs=\"4\">\n  <legs>7</legs>\n</cat>",
@@ -657,7 +671,7 @@ func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	case "decode-raw-token-off":
 		documentXMLDecodeKeepNsRawTokenScenario(w, s)
 	case "roundtrip-skip-directives":
-		documentXMLSkipDirectrivesScenario(w, s)
+		documentXMLSkipDirectivesScenario(w, s)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
@@ -680,7 +694,7 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	if expression == "" {
 		expression = "."
 	}
-	writeOrPanic(w, fmt.Sprintf("```bash\nyq -p=xml '%v' sample.xml\n```\n", expression))
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
@@ -698,7 +712,7 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-keep-namespace=false '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq --xml-keep-namespace=false '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 	prefs := NewDefaultXmlPreferences()
 	prefs.KeepNamespace = false
@@ -722,7 +736,7 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-raw-token=false '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq --xml-raw-token=false '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	prefs := NewDefaultXmlPreferences()
@@ -767,13 +781,13 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))
 }
 
-func documentXMLSkipDirectrivesScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLSkipDirectivesScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -785,7 +799,7 @@ func documentXMLSkipDirectrivesScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -p=xml -o=xml --xml-skip-directives '.' sample.xml\n```\n")
+	writeOrPanic(w, "```bash\nyq --xml-skip-directives '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 	prefs := NewDefaultXmlPreferences()
 	prefs.SkipDirectives = true

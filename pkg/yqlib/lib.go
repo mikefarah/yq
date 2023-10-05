@@ -118,6 +118,7 @@ var splitDocumentOpType = &operationType{Type: "SPLIT_DOC", NumArgs: 0, Preceden
 var getVariableOpType = &operationType{Type: "GET_VARIABLE", NumArgs: 0, Precedence: 55, Handler: getVariableOperator}
 var getStyleOpType = &operationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: getStyleOperator}
 var getTagOpType = &operationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: getTagOperator}
+var getKindOpType = &operationType{Type: "GET_KIND", NumArgs: 0, Precedence: 50, Handler: getKindOperator}
 
 var getKeyOpType = &operationType{Type: "GET_KEY", NumArgs: 0, Precedence: 50, Handler: getKeyOperator}
 var isKeyOpType = &operationType{Type: "IS_KEY", NumArgs: 0, Precedence: 50, Handler: isKeyOperator}
@@ -164,6 +165,7 @@ var valueOpType = &operationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Hand
 var referenceOpType = &operationType{Type: "REF", NumArgs: 0, Precedence: 50, Handler: referenceOperator}
 var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: envOperator}
 var notOpType = &operationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: notOperator}
+var toNumberOpType = &operationType{Type: "TO_NUMBER", NumArgs: 0, Precedence: 50, Handler: toNumberOperator}
 var emptyOpType = &operationType{Type: "EMPTY", Precedence: 50, Handler: emptyOperator}
 
 var envsubstOpType = &operationType{Type: "ENVSUBST", NumArgs: 0, Precedence: 50, Handler: envsubstOperator}

@@ -127,7 +127,7 @@ yq (4.9.6) focal; urgency=medium
 
   * Added darwin/arm64 build, thanks @alecthomas
   * Incremented docker alpine base version, thanks @da6d6i7-bronga
-  * Bug fix: multine expression
+  * Bug fix: multiline expression
   * Bug fix: special character
 
  -- Roberto Mier Escandon <rmescandon@gmail.com>  Tue, 29 Jun 2021 21:32:14 +0200

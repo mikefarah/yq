@@ -26,7 +26,7 @@ if [ "$1" == "" ]; then
 fi
 
 if [ "$2" != "" ]; then
-  # so we dont match x.tar.gz when 'x' is given
+  # so we don't match x.tar.gz when 'x' is given
   file="$2\s"
 else 
   file=""
@@ -47,7 +47,7 @@ fi
 
 grepMatch=$(grep -m 1 -n "$1" checksums_hashes_order)
 if [ "$grepMatch" == "" ]; then
-  echo "Could not find hash algorith '$1' in checksums_hashes_order"
+  echo "Could not find hash algorithm '$1' in checksums_hashes_order"
   exit 1
 fi
 

@@ -19,6 +19,7 @@ import (
 type expressionScenario struct {
 	description           string
 	subdescription        string
+	explanation           []string
 	environmentVariables  map[string]string
 	document              string
 	document2             string
@@ -31,7 +32,7 @@ type expressionScenario struct {
 }
 
 func TestMain(m *testing.M) {
-	logging.SetLevel(logging.DEBUG, "")
+	logging.SetLevel(logging.ERROR, "")
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
@@ -255,6 +256,14 @@ func documentOperatorScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	writeOrPanic(w, "will output\n")
 
 	documentOutput(t, w, s, formattedDoc, formattedDoc2)
+
+	if len(s.explanation) > 0 {
+		writeOrPanic(w, "### Explanation:\n")
+		for _, text := range s.explanation {
+			writeOrPanic(w, fmt.Sprintf("- %v\n", text))
+		}
+		writeOrPanic(w, "\n")
+	}
 }
 
 func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {

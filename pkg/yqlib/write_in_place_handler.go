@@ -44,7 +44,7 @@ func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
 }
 
 func (w *writeInPlaceHandlerImpl) FinishWriteInPlace(evaluatedSuccessfully bool) error {
-	log.Debug("Going to write-inplace, evaluatedSuccessfully=%v, target=%v", evaluatedSuccessfully, w.inputFilename)
+	log.Debug("Going to write in place, evaluatedSuccessfully=%v, target=%v", evaluatedSuccessfully, w.inputFilename)
 	safelyCloseFile(w.tempFile)
 	if evaluatedSuccessfully {
 		log.Debug("Moving temp file to target")

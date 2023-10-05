@@ -60,7 +60,7 @@ func TestCandidateNodeChildWhenParentUpdated(t *testing.T) {
 	parent.SetFileIndex(2)
 	parent.SetFilename("meow")
 	test.AssertResultWithContext(t, "meow", child.GetFilename(), "filename")
-	test.AssertResultWithContext(t, 2, child.GetFileIndex(), "fileindex")
+	test.AssertResultWithContext(t, 2, child.GetFileIndex(), "file index")
 	test.AssertResultWithContext(t, uint(1), child.GetDocument(), "document index")
 }
 

@@ -95,7 +95,12 @@ func addScalars(context Context, target *CandidateNode, lhs *CandidateNode, rhs 
 
 	} else if lhsTag == "!!str" {
 		target.Tag = lhs.Tag
-		target.Value = lhs.Value + rhs.Value
+		if rhsTag == "!!null" {
+			target.Value = lhs.Value
+		} else {
+			target.Value = lhs.Value + rhs.Value
+		}
+
 	} else if rhsTag == "!!str" {
 		target.Tag = rhs.Tag
 		target.Value = lhs.Value + rhs.Value

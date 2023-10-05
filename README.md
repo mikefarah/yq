@@ -19,7 +19,7 @@ Pipe from STDIN:
 yq '.a.b[0].c' < file.yaml
 ```
 
-Update a yaml file, inplace
+Update a yaml file, in place
 ```bash
 yq -i '.a.b[0].c = "cool"' file.yaml
 ```
@@ -45,12 +45,17 @@ yq -i '
 ' file.yaml
 ```
 
+Find and update an item in an array:
+```bash
+yq '(.[] | select(.name == "foo") | .address) = "12 cat st"'
+```
+
 Convert JSON to YAML
 ```bash
 yq -Poy sample.json
 ```
 
-See the [documentation](https://mikefarah.gitbook.io/yq/) for more examples.
+See [recipes](https://mikefarah.gitbook.io/yq/recipes) for more examples and the [documentation](https://mikefarah.gitbook.io/yq/) for more information.
 
 Take a look at the discussions for [common questions](https://github.com/mikefarah/yq/discussions/categories/q-a), and [cool ideas](https://github.com/mikefarah/yq/discussions/categories/show-and-tell)
 
@@ -257,6 +262,9 @@ pacman -S go-yq
 ```
 
 ### Windows:
+
+Using [Chocolatey](https://chocolatey.org)
+
 [![Chocolatey](https://img.shields.io/chocolatey/v/yq.svg)](https://chocolatey.org/packages/yq)
 [![Chocolatey](https://img.shields.io/chocolatey/dt/yq.svg)](https://chocolatey.org/packages/yq)
 ```
@@ -264,12 +272,15 @@ choco install yq
 ```
 Supported by @chillum (https://chocolatey.org/packages/yq)
 
-and
+Using [scoop](https://scoop.sh/)
+```
+scoop install main/yq
+```
 
-### Winget
-winget install yq
-
-https://winget.run/pkg/MikeFarah/yq
+Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
+```
+winget install --id MikeFarah.yq
+```
 
 ### Mac:
 Using [MacPorts](https://www.macports.org/)
@@ -299,7 +310,7 @@ https://pkgs.alpinelinux.org/package/edge/community/x86/yq
 - [Deeply data structures](https://mikefarah.gitbook.io/yq/operators/traverse-read)
 - [Sort keys](https://mikefarah.gitbook.io/yq/operators/sort-keys)
 - Manipulate yaml [comments](https://mikefarah.gitbook.io/yq/operators/comment-operators), [styling](https://mikefarah.gitbook.io/yq/operators/style), [tags](https://mikefarah.gitbook.io/yq/operators/tag) and [anchors and aliases](https://mikefarah.gitbook.io/yq/operators/anchor-and-alias-operators).
-- [Update inplace](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
+- [Update in place](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags)
 - [Complex expressions to select and update](https://mikefarah.gitbook.io/yq/operators/select#select-and-update-matching-values-in-map)
 - Keeps yaml formatting and comments when updating (though there are issues with whitespace)
 - [Decode/Encode base64 data](https://mikefarah.gitbook.io/yq/operators/encode-decode)
@@ -326,7 +337,7 @@ Examples:
 # yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
 yq '.stuff' < myfile.yml # outputs the data at the "stuff" node from "myfile.yml"
 
-yq -i '.stuff = "foo"' myfile.yml # update myfile.yml inplace
+yq -i '.stuff = "foo"' myfile.yml # update myfile.yml in place
 
 
 Available Commands:
@@ -343,7 +354,7 @@ Flags:
       --header-preprocess             Slurp any header comments and separators before processing expression. (default true)
   -h, --help                          help for yq
   -I, --indent int                    sets indent level for output (default 2)
-  -i, --inplace                       update the file inplace of first file given.
+  -i, --inplace                       update the file in place of first file given.
   -p, --input-format string           [yaml|y|xml|x] parse format for input. Note that json is a subset of yaml. (default "yaml")
   -M, --no-colors                     force print with no colors
   -N, --no-doc                        Don't print document separators (---)

@@ -19,9 +19,10 @@ func (o *CandidateNode) setScalarFromJson(value interface{}) error {
 		o.Value = fmt.Sprintf("%v", value)
 		o.Tag = "!!float"
 		// json decoder returns ints as float.
-		if value == float64(int(rawData.(float64))) {
+		if value == float64(int64(rawData.(float64))) {
 			// aha it's an int disguised as a float
 			o.Tag = "!!int"
+			o.Value = fmt.Sprintf("%v", int64(value.(float64)))
 		}
 	case int, int64, int32:
 		o.Value = fmt.Sprintf("%v", value)

@@ -26,7 +26,7 @@ will output
     bar: 100
 ```
 
-## Group by field, with nuls
+## Group by field, with nulls
 Given a sample.yml file of:
 ```yaml
 - cat: dog

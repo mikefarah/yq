@@ -187,7 +187,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 	case 0:
 		// not sure when this happens
 		o.copyFromYamlNode(node, anchorMap)
-		log.Debugf("UnmarshalYAML -  errr.. %v", NodeToString(o))
+		log.Debugf("UnmarshalYAML -  err.. %v", NodeToString(o))
 		return nil
 	default:
 		return fmt.Errorf("orderedMap: invalid yaml node")

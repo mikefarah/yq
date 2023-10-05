@@ -50,7 +50,7 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 			}
 		} else if string(peekBytes) == "---" {
 			_, err := reader.ReadString('\n')
-			sb.WriteString("$yqDocSeperator$\n")
+			sb.WriteString("$yqDocSeparator$\n")
 			if errors.Is(err, io.EOF) {
 				return reader, sb.String(), nil
 			} else if err != nil {
