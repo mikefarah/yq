@@ -34,6 +34,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("line", lineOpType),
 	simpleOp("column", columnOpType),
 	simpleOp("eval", evalOpType),
+	simpleOp("to_?number", toNumberOpType),
 
 	{"MapValues", `map_?values`, opToken(mapValuesOpType), 0},
 	simpleOp("map", mapOpType),
