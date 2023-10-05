@@ -369,8 +369,8 @@ func stringValue() yqAction {
 		log.Debug("rawTokenvalue: %v", rawToken.Value)
 		value := unwrap(rawToken.Value)
 		log.Debug("unwrapped: %v", value)
-		value = strings.ReplaceAll(value, "\\\"", "\"")
-		value = strings.ReplaceAll(value, "\\n", "\n")
+		replacer := strings.NewReplacer("\\\\", "\\", "\\\"", "\"", "\\n", "\n")
+		value = replacer.Replace(value)
 		log.Debug("replaced: %v", value)
 		return &token{TokenType: operationToken, Operation: createValueOperation(value, value)}, nil
 	}
