@@ -2,22 +2,53 @@ package yqlib
 
 import (
 	"fmt"
+	"strings"
 
+	yaml "github.com/goccy/go-yaml"
 	"github.com/goccy/go-yaml/ast"
 	goccyToken "github.com/goccy/go-yaml/token"
 )
 
-func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, anchorMap map[string]*CandidateNode) (*CandidateNode, error) {
+func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, cm yaml.CommentMap) (*CandidateNode, error) {
 	newChild := o.CreateChild()
 
-	err := newChild.UnmarshalGoccyYAML(childNode, anchorMap)
+	err := newChild.UnmarshalGoccyYAML(childNode, cm)
 	return newChild, err
 }
 
-func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*CandidateNode) error {
+func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) error {
 	log.Debugf("UnmarshalYAML %v", node)
 	log.Debugf("UnmarshalYAML %v", node.Type().String())
-	log.Debugf("UnmarshalYAML Value: %v", node.String())
+	log.Debugf("UnmarshalYAML Node Value: %v", node.String())
+	log.Debugf("UnmarshalYAML Node GetComment: %v", node.GetComment())
+
+	if node.GetComment() != nil {
+		commentMapComments := cm[node.GetPath()]
+		for _, comment := range node.GetComment().Comments {
+			// need to use the comment map to find the position :/
+			log.Debugf("%v has a comment of [%v]", node.GetPath(), comment.Token.Value)
+			for _, commentMapComment := range commentMapComments {
+				commentMapValue := strings.Join(commentMapComment.Texts, "\n")
+				if commentMapValue == comment.Token.Value {
+					log.Debug("found a matching entry in comment map")
+					// we found the comment in the comment map,
+					// now we can process the position
+					switch commentMapComment.Position {
+					case yaml.CommentHeadPosition:
+						o.HeadComment = comment.String()
+						log.Debug("its a head comment %v", comment.String())
+					case yaml.CommentLinePosition:
+						o.LineComment = comment.String()
+						log.Debug("its a line comment %v", comment.String())
+					case yaml.CommentFootPosition:
+						o.FootComment = comment.String()
+						log.Debug("its a foot comment %v", comment.String())
+					}
+				}
+			}
+
+		}
+	}
 
 	o.Value = node.String()
 	switch node.Type() {
@@ -43,40 +74,46 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*
 		o.Tag = "!!str"
 		o.Style = LiteralStyle
 		astLiteral := node.(*ast.LiteralNode)
+		log.Debugf("astLiteral.Start.Type %v", astLiteral.Start.Type)
 		if astLiteral.Start.Type == goccyToken.FoldedType {
+			log.Debugf("folded Type %v", astLiteral.Start.Type)
 			o.Style = FoldedStyle
 		}
-		log.Debug("startvalue: %v ", node.(*ast.LiteralNode).Start.Value)
-		log.Debug("startvalue: %v ", node.(*ast.LiteralNode).Start.Type)
+		log.Debug("start value: %v ", node.(*ast.LiteralNode).Start.Value)
+		log.Debug("start value: %v ", node.(*ast.LiteralNode).Start.Type)
+		// TODO: here I could put the original value with line breaks
+		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
 	case ast.TagType:
-		o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, anchorMap)
+		o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm)
 		o.Tag = node.(*ast.TagNode).Start.Value
-	case ast.MappingValueType, ast.MappingType:
+	case ast.MappingType:
 		log.Debugf("UnmarshalYAML -  a mapping node")
 		o.Kind = MappingNode
 		o.Tag = "!!map"
 
-		if node.Type() == ast.MappingType {
+		mappingNode := node.(*ast.MappingNode)
+		if mappingNode.IsFlowStyle {
 			o.Style = FlowStyle
 		}
-
-		astMapIter := node.(ast.MapNode).MapRange()
-		for astMapIter.Next() {
-			log.Debug("UnmarshalYAML map entry %v", astMapIter.Key().String())
-			keyNode, err := o.goccyDecodeIntoChild(astMapIter.Key(), anchorMap)
+		for _, mappingValueNode := range mappingNode.Values {
+			err := o.goccyProcessMappingValueNode(mappingValueNode, cm)
 			if err != nil {
-				return err
+				return ast.ErrInvalidAnchorName
 			}
-
-			keyNode.IsMapKey = true
-			log.Debug("UnmarshalYAML map value %v", astMapIter.Value().String())
-			valueNode, err := o.goccyDecodeIntoChild(astMapIter.Value(), anchorMap)
-			if err != nil {
-				return err
-			}
-
-			o.Content = append(o.Content, keyNode, valueNode)
+		}
+		if mappingNode.FootComment != nil {
+			log.Debugf("mapping node has a foot comment of: %v", mappingNode.FootComment)
+			o.FootComment = mappingNode.FootComment.String()
+		}
+	case ast.MappingValueType:
+		log.Debugf("UnmarshalYAML -  a mapping node")
+		o.Kind = MappingNode
+		o.Tag = "!!map"
+		mappingValueNode := node.(*ast.MappingValueNode)
+		err := o.goccyProcessMappingValueNode(mappingValueNode, cm)
+		if err != nil {
+			return ast.ErrInvalidAnchorName
 		}
 	case ast.SequenceType:
 		log.Debugf("UnmarshalYAML -  a sequence node")
@@ -95,7 +132,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*
 			keyNode.Kind = ScalarNode
 			keyNode.Value = fmt.Sprintf("%v", i)
 
-			valueNode, err := o.goccyDecodeIntoChild(astSeq[i], anchorMap)
+			valueNode, err := o.goccyDecodeIntoChild(astSeq[i], cm)
 			if err != nil {
 				return err
 			}
@@ -108,5 +145,28 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*
 		log.Debugf("UnmarshalYAML -  node idea of the type!!")
 	}
 	log.Debugf("KIND: %v", o.Kind)
+	return nil
+}
+
+func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingValueNode, cm yaml.CommentMap) error {
+	log.Debug("UnmarshalYAML MAP KEY entry %v", mappingEntry.Key)
+	keyNode, err := o.goccyDecodeIntoChild(mappingEntry.Key, cm)
+	if err != nil {
+		return err
+	}
+	keyNode.IsMapKey = true
+
+	log.Debug("UnmarshalYAML MAP VALUE entry %v", mappingEntry.Value)
+	valueNode, err := o.goccyDecodeIntoChild(mappingEntry.Value, cm)
+	if err != nil {
+		return err
+	}
+
+	if mappingEntry.FootComment != nil {
+		valueNode.FootComment = mappingEntry.FootComment.String()
+	}
+
+	o.Content = append(o.Content, keyNode, valueNode)
+
 	return nil
 }

@@ -11,6 +11,7 @@ import (
 
 type goccyYamlDecoder struct {
 	decoder yaml.Decoder
+	cm      yaml.CommentMap
 }
 
 func NewGoccyYAMLDecoder() Decoder {
@@ -18,7 +19,8 @@ func NewGoccyYAMLDecoder() Decoder {
 }
 
 func (dec *goccyYamlDecoder) Init(reader io.Reader) error {
-	dec.decoder = *yaml.NewDecoder(reader)
+	dec.cm = yaml.CommentMap{}
+	dec.decoder = *yaml.NewDecoder(reader, yaml.CommentToMap(dec.cm))
 	return nil
 }
 
@@ -28,15 +30,11 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 
 	err := dec.decoder.Decode(&ast)
 	if err != nil {
-		log.Debug("badasda: %v", err)
-
 		return nil, err
 	}
 
-	log.Debug("ASTasdasdadasd: %v", ast.Type().String())
-
 	candidateNode := &CandidateNode{}
-	candidateNode.UnmarshalGoccyYAML(ast, nil)
+	candidateNode.UnmarshalGoccyYAML(ast, dec.cm)
 
 	return candidateNode, nil
 }

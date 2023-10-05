@@ -32,6 +32,12 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// 	expected:    "{mike: 3}\n",
 	// },
 	// {
+	// 	description: "basic - map multiple entries",
+	// 	skipDoc:     true,
+	// 	input:       "mike: 3\nfred: 12\n",
+	// 	expected:    "mike: 3\nfred: 12\n",
+	// },
+	// {
 	// 	description: "basic - 3.1",
 	// 	skipDoc:     true,
 	// 	input:       "{\nmike: 3\n}",
@@ -91,11 +97,29 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// 	input:       "a: |-\n  meow\n",
 	// 	expected:    "a: |-\n  meow\n",
 	// },
+	// {
+	// 	description: "basic - line comment",
+	// 	skipDoc:     true,
+	// 	input:       "a: meow # line comment\n",
+	// 	expected:    "a: meow # line comment\n",
+	// },
+	// {
+	// 	description: "basic - line comment",
+	// 	skipDoc:     true,
+	// 	input:       "# head comment\na: #line comment\n  meow\n",
+	// 	expected:    "# head comment\na: meow #line comment\n", // go-yaml does this
+	// },
 	{
-		description: "basic - string block",
+		description: "basic - foot comment",
 		skipDoc:     true,
-		input:       "a: >\n  meow\n",
-		expected:    "a: >\n  meow\n",
+		input:       "a: meow\n# foot comment\n",
+		expected:    "a: meow\n# foot comment\n",
+	},
+	{
+		description: "basic - foot comment",
+		skipDoc:     true,
+		input:       "a: meow\nb: woof\n# foot comment\n",
+		expected:    "a: meow\nb: woof\n# foot comment\n",
 	},
 }
 
