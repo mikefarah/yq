@@ -1,6 +1,10 @@
 package yqlib
 
-import "github.com/goccy/go-yaml/ast"
+import (
+	"fmt"
+
+	"github.com/goccy/go-yaml/ast"
+)
 
 func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, anchorMap map[string]*CandidateNode) (*CandidateNode, error) {
 	newChild := o.CreateChild()
@@ -27,9 +31,15 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*
 	case ast.TagType:
 		o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, anchorMap)
 		o.Tag = node.(*ast.TagNode).Start.Value
-	case ast.MappingValueType:
+	case ast.MappingValueType, ast.MappingType:
 		log.Debugf("UnmarshalYAML -  a mapping node")
 		o.Kind = MappingNode
+		o.Tag = "!!map"
+
+		if node.Type() == ast.MappingType {
+			o.Style = FlowStyle
+		}
+
 		astMapIter := node.(ast.MapNode).MapRange()
 		for astMapIter.Next() {
 			log.Debug("UnmarshalYAML map entry %v", astMapIter.Key().String())
@@ -47,6 +57,32 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, anchorMap map[string]*
 
 			o.Content = append(o.Content, keyNode, valueNode)
 		}
+	case ast.SequenceType:
+		log.Debugf("UnmarshalYAML -  a sequence node")
+		o.Kind = SequenceNode
+		o.Tag = "!!seq"
+		sequenceNode := node.(*ast.SequenceNode)
+		if sequenceNode.IsFlowStyle {
+			o.Style = FlowStyle
+		}
+		astSeq := sequenceNode.Values
+		o.Content = make([]*CandidateNode, len(astSeq))
+		for i := 0; i < len(astSeq); i++ {
+			keyNode := o.CreateChild()
+			keyNode.IsMapKey = true
+			keyNode.Tag = "!!int"
+			keyNode.Kind = ScalarNode
+			keyNode.Value = fmt.Sprintf("%v", i)
+
+			valueNode, err := o.goccyDecodeIntoChild(astSeq[i], anchorMap)
+			if err != nil {
+				return err
+			}
+
+			valueNode.Key = keyNode
+			o.Content[i] = valueNode
+		}
+
 	default:
 		log.Debugf("UnmarshalYAML -  node idea of the type!!")
 	}
