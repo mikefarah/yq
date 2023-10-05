@@ -45,7 +45,11 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 		return context, err
 	}
 
-	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+	//traverse backwards through the context -
+	// like delete, we need to run against the children first.
+	// (e.g. consider when running with expression '.. |= [.]' - we need
+	// to wrap the children first
+	for el := lhs.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
 		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
