@@ -58,6 +58,13 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 	case ast.FloatType:
 		o.Kind = ScalarNode
 		o.Tag = "!!float"
+	case ast.BoolType:
+		o.Kind = ScalarNode
+		o.Tag = "!!bool"
+	case ast.NullType:
+		o.Kind = ScalarNode
+		o.Tag = "!!null"
+		o.Value = node.GetToken().Value
 	case ast.StringType:
 		o.Kind = ScalarNode
 		o.Tag = "!!str"

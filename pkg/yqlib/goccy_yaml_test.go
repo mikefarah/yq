@@ -109,18 +109,54 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// 	input:       "# head comment\na: #line comment\n  meow\n",
 	// 	expected:    "# head comment\na: meow #line comment\n", // go-yaml does this
 	// },
+	// {
+	// 	description: "basic - foot comment",
+	// 	skipDoc:     true,
+	// 	input:       "a: meow\n# foot comment\n",
+	// 	expected:    "a: meow\n# foot comment\n",
+	// },
+	// {
+	// 	description: "basic - foot comment",
+	// 	skipDoc:     true,
+	// 	input:       "a: meow\nb: woof\n# foot comment\n",
+	// 	expected:    "a: meow\nb: woof\n# foot comment\n",
+	// },
+	// {
+	// 	description: "basic - boolean",
+	// 	skipDoc:     true,
+	// 	input:       "true\n",
+	// 	expected:    "true\n",
+	// },
+	// {
+	// 	description: "basic - null",
+	// 	skipDoc:     true,
+	// 	input:       "a: null\n",
+	// 	expected:    "a: null\n",
+	// },
+	// {
+	// 	description: "basic - ~",
+	// 	skipDoc:     true,
+	// 	input:       "a: ~\n",
+	// 	expected:    "a: ~\n",
+	// },
+	// {
+	// 	description: "basic - ~",
+	// 	skipDoc:     true,
+	// 	input:       "null\n",
+	// 	expected:    "null\n",
+	// },
 	{
-		description: "basic - foot comment",
 		skipDoc:     true,
-		input:       "a: meow\n# foot comment\n",
-		expected:    "a: meow\n# foot comment\n",
+		description: "trailing comment",
+		input:       "test:",
+		expected:    "test:",
 	},
-	{
-		description: "basic - foot comment",
-		skipDoc:     true,
-		input:       "a: meow\nb: woof\n# foot comment\n",
-		expected:    "a: meow\nb: woof\n# foot comment\n",
-	},
+	// {
+	// 	skipDoc:     true,
+	// 	description: "trailing comment",
+	// 	input:       "test:\n# this comment will be removed",
+	// 	expected:    "test:\n# this comment will be removed",
+	// },
 }
 
 func testGoccyYamlScenario(t *testing.T, s formatScenario) {

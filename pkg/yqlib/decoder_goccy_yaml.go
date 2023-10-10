@@ -20,7 +20,7 @@ func NewGoccyYAMLDecoder() Decoder {
 
 func (dec *goccyYamlDecoder) Init(reader io.Reader) error {
 	dec.cm = yaml.CommentMap{}
-	dec.decoder = *yaml.NewDecoder(reader, yaml.CommentToMap(dec.cm))
+	dec.decoder = *yaml.NewDecoder(reader, yaml.CommentToMap(dec.cm), yaml.UseOrderedMap())
 	return nil
 }
 
