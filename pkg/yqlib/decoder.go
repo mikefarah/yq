@@ -19,6 +19,7 @@ const (
 	TomlInputFormat
 	UriInputFormat
 	LuaInputFormat
+	IniInputFormat
 )
 
 type Decoder interface {
@@ -44,8 +45,10 @@ func InputFormatFromString(format string) (InputFormat, error) {
 		return TomlInputFormat, nil
 	case "lua", "l":
 		return LuaInputFormat, nil
+	case "ini", "i":
+		return IniInputFormat, nil
 	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml|toml]", format)
+		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml|toml|ini]", format)
 	}
 }
 
