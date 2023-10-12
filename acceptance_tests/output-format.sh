@@ -271,4 +271,43 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testLuaOutputPretty() {
+  cat >test.yml <<EOL
+animals:
+  cat: meow
+EOL
+
+  read -r -d '' expected << EOM
+return {
+	["animals"] = {
+		["cat"] = "meow";
+	};
+};
+EOM
+
+  X=$(./yq e --output-format=lua test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq e --output-format=lua --prettyPrint test.yml)
+  assertEquals "$expected" "$X"
+
+}
+
+testLuaOutputSubset() {
+  cat >test.yml <<EOL
+animals:
+  cat: meow
+EOL
+
+  read -r -d '' expected << EOM
+return {
+	["cat"] = "meow";
+};
+EOM
+
+  X=$(./yq e --output-format=lua '.animals' test.yml)
+  assertEquals "$expected" "$X"
+
+}
+
 source ./scripts/shunit2

@@ -129,7 +129,7 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
 		if err != nil {
 			return err
 		}
-		err := le.Encode(writer, child)
+		err := le.encodeAny(writer, child)
 		if err != nil {
 			return err
 		}
@@ -192,7 +192,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node, global bool) 
 	for i, child := range node.Content {
 		if (i % 2) == 1 {
 			// value
-			err := le.Encode(writer, child)
+			err := le.encodeAny(writer, child)
 			if err != nil {
 				return err
 			}
@@ -270,7 +270,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 	case yaml.MappingNode:
 		return le.encodeMap(writer, node, false)
 	case yaml.ScalarNode:
-		switch node.Tag {
+		switch node.ShortTag() {
 		case "!!str":
 			return le.encodeString(writer, node)
 		case "!!null":
@@ -292,7 +292,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!float":
 			switch strings.ToLower(node.Value) {
-			case ".inf":
+			case ".inf", "+.inf":
 				return writeString(writer, "(1/0)")
 			case "-.inf":
 				return writeString(writer, "(-1/0)")
@@ -305,26 +305,33 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
 		}
 	case yaml.DocumentNode:
-		if le.globals {
-			if node.Content[0].Kind != yaml.MappingNode {
-				return fmt.Errorf("--lua-global requires a top level MappingNode")
-			}
-			return le.encodeMap(writer, node.Content[0], true)
-		}
-		err := writeString(writer, le.docPrefix)
-		if err != nil {
-			return err
-		}
-		err = le.encodeAny(writer, node.Content[0])
-		if err != nil {
-			return err
-		}
-		return writeString(writer, le.docSuffix)
+		return le.encodeAny(writer, node.Content[0])
 	default:
 		return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
 	}
 }
 
+func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *yaml.Node) error {
+	err := writeString(writer, le.docPrefix)
+	if err != nil {
+		return err
+	}
+	err = le.encodeAny(writer, node)
+	if err != nil {
+		return err
+	}
+	return writeString(writer, le.docSuffix)
+}
+
 func (le *luaEncoder) Encode(writer io.Writer, node *yaml.Node) error {
-	return le.encodeAny(writer, node)
+	if node.Kind == yaml.DocumentNode {
+		return le.Encode(writer, node.Content[0])
+	}
+	if le.globals {
+		if node.Kind != yaml.MappingNode {
+			return fmt.Errorf("--lua-global requires a top level MappingNode")
+		}
+		return le.encodeMap(writer, node, true)
+	}
+	return le.encodeTopLevel(writer, node)
 }
