@@ -20,6 +20,13 @@ var yamlFormatScenarios = []formatScenario{
 	// 	expected:    "~\n",
 	// },
 	{
+		description: "octal",
+		skipDoc:     true,
+		input:       "0o30",
+		expression:  "tag",
+		expected:    "!!int\n",
+	},
+	{
 		description: "basic - [null]",
 		skipDoc:     true,
 		input:       "[null]",

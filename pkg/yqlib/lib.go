@@ -291,26 +291,22 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	return false
 }
 
-// yaml numbers can be hex encoded...
+// yaml numbers can be hex and octal encoded...
 func parseInt64(numberString string) (string, int64, error) {
 	if strings.HasPrefix(numberString, "0x") ||
 		strings.HasPrefix(numberString, "0X") {
 		num, err := strconv.ParseInt(numberString[2:], 16, 64)
 		return "0x%X", num, err
+	} else if strings.HasPrefix(numberString, "0o") {
+		num, err := strconv.ParseInt(numberString[2:], 8, 64)
+		return "0o%o", num, err
 	}
 	num, err := strconv.ParseInt(numberString, 10, 64)
 	return "%v", num, err
 }
 
 func parseInt(numberString string) (int, error) {
-	var err error
-	var parsed int64
-	if strings.HasPrefix(numberString, "0x") ||
-		strings.HasPrefix(numberString, "0X") {
-		parsed, err = strconv.ParseInt(numberString[2:], 16, 64)
-	} else {
-		parsed, err = strconv.ParseInt(numberString, 10, 64)
-	}
+	_, parsed, err := parseInt64(numberString)
 
 	if err != nil {
 		return 0, err
