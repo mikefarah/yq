@@ -6,5 +6,7 @@ RUN set -e -x \
     && /opt/devtools.sh
 ENV PATH=/go/bin:$PATH
 
+RUN apt-get update && apt-get install -y npm && npm install -g npx cspell@latest
+
 ENV CGO_ENABLED 0
 ENV GOPATH /go:/yq
