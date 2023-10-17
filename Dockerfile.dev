@@ -1,10 +1,12 @@
-FROM golang:1.21.1
+FROM golang:1.21.3
 
 COPY scripts/devtools.sh /opt/devtools.sh
 
 RUN set -e -x \
     && /opt/devtools.sh
 ENV PATH=/go/bin:$PATH
+
+RUN apt-get update && apt-get install -y npm && npm install -g npx cspell@latest
 
 ENV CGO_ENABLED 0
 ENV GOPATH /go:/yq

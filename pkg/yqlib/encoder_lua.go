@@ -289,7 +289,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!float":
 			switch strings.ToLower(node.Value) {
-			case ".inf":
+			case ".inf", "+.inf":
 				return writeString(writer, "(1/0)")
 			case "-.inf":
 				return writeString(writer, "(-1/0)")
