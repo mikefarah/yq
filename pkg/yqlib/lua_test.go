@@ -11,47 +11,47 @@ import (
 )
 
 var luaScenarios = []formatScenario{
-	// 	{
-	// 		description: "Basic input example",
-	// 		input: `return {
-	// 	["country"] = "Australia"; -- this place
-	// 	["cities"] = {
-	// 		"Sydney",
-	// 		"Melbourne",
-	// 		"Brisbane",
-	// 		"Perth",
-	// 	};
-	// };
-	// `,
-	// 		expected: `country: Australia
-	// cities:
-	//     - Sydney
-	//     - Melbourne
-	//     - Brisbane
-	//     - Perth
-	// `,
-	// 	},
-	// 	{
-	// 		description:  "Basic output example",
-	// 		scenarioType: "encode",
-	// 		input: `---
-	// country: Australia # this place
-	// cities:
-	// - Sydney
-	// - Melbourne
-	// - Brisbane
-	// - Perth`,
-	// 		expected: `return {
-	// 	["country"] = "Australia"; -- this place
-	// 	["cities"] = {
-	// 		"Sydney",
-	// 		"Melbourne",
-	// 		"Brisbane",
-	// 		"Perth",
-	// 	};
-	// };
-	// `,
-	// 	},
+	{
+		description: "Basic input example",
+		input: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+		expected: `country: Australia
+cities:
+    - Sydney
+    - Melbourne
+    - Brisbane
+    - Perth
+`,
+	},
+	{
+		description:  "Basic output example",
+		scenarioType: "encode",
+		input: `---
+country: Australia # this place
+cities:
+- Sydney
+- Melbourne
+- Brisbane
+- Perth`,
+		expected: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+	},
 	{
 		description:  "Basic roundtrip",
 		skipDoc:      true,

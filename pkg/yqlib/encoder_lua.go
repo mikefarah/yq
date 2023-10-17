@@ -306,22 +306,25 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 	}
 }
 
-func (le *luaEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	if !le.globals && node.Parent == nil {
-		err := writeString(writer, le.docPrefix)
-		if err != nil {
-			return err
-		}
-	}
-	if err := le.encodeAny(writer, node); err != nil {
+func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *CandidateNode) error {
+	err := writeString(writer, le.docPrefix)
+	if err != nil {
 		return err
 	}
-
-	if !le.globals && node.Parent == nil {
-		err := writeString(writer, le.docSuffix)
-		if err != nil {
-			return err
-		}
+	err = le.encodeAny(writer, node)
+	if err != nil {
+		return err
 	}
-	return nil
+	return writeString(writer, le.docSuffix)
+}
+
+func (le *luaEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+
+	if le.globals {
+		if node.Kind != MappingNode {
+			return fmt.Errorf("--lua-global requires a top level MappingNode")
+		}
+		return le.encodeMap(writer, node, true)
+	}
+	return le.encodeTopLevel(writer, node)
 }
