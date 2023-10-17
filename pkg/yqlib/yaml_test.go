@@ -86,7 +86,7 @@ var yamlParseScenarios = []expressionScenario{
 }
 
 func testYamlScenario(t *testing.T, s formatScenario) {
-	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(NewDefaultYamlPreferences()), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 }
 
 func TestYamlParseScenarios(t *testing.T) {

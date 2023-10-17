@@ -34,7 +34,9 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	candidateNode := &CandidateNode{}
-	candidateNode.UnmarshalGoccyYAML(ast, dec.cm)
+	if err := candidateNode.UnmarshalGoccyYAML(ast, dec.cm); err != nil {
+		return nil, err
+	}
 
 	return candidateNode, nil
 }

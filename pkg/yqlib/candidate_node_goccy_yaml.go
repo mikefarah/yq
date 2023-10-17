@@ -92,7 +92,9 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
 	case ast.TagType:
-		o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm)
+		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm); err != nil {
+			return err
+		}
 		o.Tag = node.(*ast.TagNode).Start.Value
 	case ast.MappingType:
 		log.Debugf("UnmarshalYAML -  a mapping node")
