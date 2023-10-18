@@ -7,18 +7,18 @@ import (
 )
 
 var yamlFormatScenarios = []formatScenario{
-	// {
-	// 	description: "basic - null",
-	// 	skipDoc:     true,
-	// 	input:       "null",
-	// 	expected:    "null\n",
-	// },
-	// {
-	// 	description: "basic - ~",
-	// 	skipDoc:     true,
-	// 	input:       "~",
-	// 	expected:    "~\n",
-	// },
+	{
+		description: "basic - null",
+		skipDoc:     true,
+		input:       "null",
+		expected:    "null\n",
+	},
+	{
+		description: "basic - ~",
+		skipDoc:     true,
+		input:       "~",
+		expected:    "~\n",
+	},
 	{
 		description: "octal",
 		skipDoc:     true,
