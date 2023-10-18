@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-
-	"gopkg.in/yaml.v3"
 )
 
 type PrinterWriter interface {
@@ -56,17 +54,16 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputForma
 func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error) {
 	name := ""
 
-	indexVariableNode := yaml.Node{Kind: yaml.ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", sp.index)}
-	indexVariableCandidate := CandidateNode{Node: &indexVariableNode}
+	indexVariableNode := CandidateNode{Kind: ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", sp.index)}
 
 	context := Context{MatchingNodes: node.AsList()}
-	context.SetVariable("index", indexVariableCandidate.AsList())
+	context.SetVariable("index", indexVariableNode.AsList())
 	result, err := sp.treeNavigator.GetMatchingNodes(context, sp.nameExpression)
 	if err != nil {
 		return nil, err
 	}
 	if result.MatchingNodes.Len() > 0 {
-		name = result.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		name = result.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 	var extensionRegexp = regexp.MustCompile(`\.[a-zA-Z0-9]+$`)
 	if !extensionRegexp.MatchString(name) {

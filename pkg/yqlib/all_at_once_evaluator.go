@@ -2,8 +2,6 @@ package yqlib
 
 import (
 	"container/list"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 // A yaml expression evaluator that runs the expression once against all files/nodes in memory.
@@ -11,7 +9,7 @@ type Evaluator interface {
 	EvaluateFiles(expression string, filenames []string, printer Printer, decoder Decoder) error
 
 	// EvaluateNodes takes an expression and one or more yaml nodes, returning a list of matching candidate nodes
-	EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error)
+	EvaluateNodes(expression string, nodes ...*CandidateNode) (*list.List, error)
 
 	// EvaluateCandidateNodes takes an expression and list of candidate nodes, returning a list of matching candidate nodes
 	EvaluateCandidateNodes(expression string, inputCandidateNodes *list.List) (*list.List, error)
@@ -26,10 +24,10 @@ func NewAllAtOnceEvaluator() Evaluator {
 	return &allAtOnceEvaluator{treeNavigator: NewDataTreeNavigator()}
 }
 
-func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*yaml.Node) (*list.List, error) {
+func (e *allAtOnceEvaluator) EvaluateNodes(expression string, nodes ...*CandidateNode) (*list.List, error) {
 	inputCandidates := list.New()
 	for _, node := range nodes {
-		inputCandidates.PushBack(&CandidateNode{Node: node})
+		inputCandidates.PushBack(node)
 	}
 	return e.EvaluateCandidateNodes(expression, inputCandidates)
 }
@@ -65,13 +63,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 	}
 
 	if allDocuments.Len() == 0 {
-		candidateNode := &CandidateNode{
-			Document:       0,
-			Filename:       "",
-			Node:           &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
-			FileIndex:      0,
-			LeadingContent: "",
-		}
+		candidateNode := createScalarNode(nil, "")
 		allDocuments.PushBack(candidateNode)
 	}
 

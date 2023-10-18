@@ -4,24 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
 	"github.com/pkg/diff"
 	"github.com/pkg/diff/write"
-	yaml "gopkg.in/yaml.v3"
 )
-
-func ParseData(rawData string) yaml.Node {
-	var parsedData yaml.Node
-	err := yaml.Unmarshal([]byte(rawData), &parsedData)
-	if err != nil {
-		fmt.Printf("Error parsing yaml: %v\n", err)
-		os.Exit(1)
-	}
-	return parsedData
-}
 
 func printDifference(t *testing.T, expectedValue interface{}, actualValue interface{}) {
 	opts := []write.Option{write.TerminalColor()}

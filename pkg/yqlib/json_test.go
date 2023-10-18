@@ -11,12 +11,12 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-const complexExpectYaml = `D0, P[], (!!map)::a: Easy! as one two three
+const complexExpectYaml = `a: Easy! as one two three
 b:
-    c: 2
-    d:
-        - 3
-        - 4
+  c: 2
+  d:
+    - 3
+    - 4
 `
 
 const sampleNdJson = `{"this": "is a multidoc json file"}
@@ -99,13 +99,54 @@ var jsonScenarios = []formatScenario{
 		description:    "Parse json: simple",
 		subdescription: "JSON is a subset of yaml, so all you need to do is prettify the output",
 		input:          `{"cat": "meow"}`,
-		expected:       "D0, P[], (!!map)::cat: meow\n",
+		scenarioType:   "decode-ndjson",
+		expected:       "cat: meow\n",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: simple: key",
+		input:        `{"cat": "meow"}`,
+		expression:   ".cat | key",
+		expected:     "\"cat\"\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: simple: parent",
+		input:        `{"cat": "meow"}`,
+		expression:   ".cat | parent",
+		expected:     "{\"cat\":\"meow\"}\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: simple: path",
+		input:        `{"cat": "meow"}`,
+		expression:   ".cat | path",
+		expected:     "[\"cat\"]\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: deeper: path",
+		input:        `{"cat": {"noises": "meow"}}`,
+		expression:   ".cat.noises | path",
+		expected:     "[\"cat\",\"noises\"]\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: array path",
+		input:        `{"cat": {"noises": ["meow"]}}`,
+		expression:   ".cat.noises[0] | path",
+		expected:     "[\"cat\",\"noises\",0]\n",
+		scenarioType: "decode",
 	},
 	{
 		description:   "bad json",
 		skipDoc:       true,
-		input:         `{"a": 1 "b": 2}`,
-		expectedError: `bad file 'sample.yml': invalid character '"' after object key:value pair`,
+		input:         `{"a": 1 b": 2}`,
+		expectedError: `bad file 'sample.yml': json: string of object unexpected end of JSON input`,
 		scenarioType:  "decode-error",
 	},
 	{
@@ -113,6 +154,7 @@ var jsonScenarios = []formatScenario{
 		subdescription: "JSON is a subset of yaml, so all you need to do is prettify the output",
 		input:          `{"a":"Easy! as one two three","b":{"c":2,"d":[3,4]}}`,
 		expected:       complexExpectYaml,
+		scenarioType:   "decode-ndjson",
 	},
 	{
 		description:  "Encode json: simple",
@@ -213,7 +255,7 @@ var jsonScenarios = []formatScenario{
 		description:  "empty string",
 		skipDoc:      true,
 		input:        `""`,
-		expected:     "\"\"\n",
+		expected:     "\n",
 		scenarioType: "decode-ndjson",
 	},
 	{
@@ -316,11 +358,10 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 
 func testJSONScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
-	case "encode", "decode":
+	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewJSONEncoder(s.indent, false, false)), s.description)
-	case "":
-		var actual = resultToString(t, decodeJSON(t, s.input))
-		test.AssertResultWithContext(t, s.expected, actual, s.description)
+	case "decode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(s.indent, false, false)), s.description)
 	case "decode-ndjson":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-ndjson":

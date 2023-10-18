@@ -4,8 +4,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type csvEncoder struct {
@@ -28,12 +26,12 @@ func (e *csvEncoder) PrintLeadingContent(writer io.Writer, content string) error
 	return nil
 }
 
-func (e *csvEncoder) encodeRow(csvWriter *csv.Writer, contents []*yaml.Node) error {
+func (e *csvEncoder) encodeRow(csvWriter *csv.Writer, contents []*CandidateNode) error {
 	stringValues := make([]string, len(contents))
 
 	for i, child := range contents {
 
-		if child.Kind != yaml.ScalarNode {
+		if child.Kind != ScalarNode {
 			return fmt.Errorf("csv encoding only works for arrays of scalars (string/numbers/booleans), child[%v] is a %v", i, child.Tag)
 		}
 		stringValues[i] = child.Value
@@ -41,10 +39,10 @@ func (e *csvEncoder) encodeRow(csvWriter *csv.Writer, contents []*yaml.Node) err
 	return csvWriter.Write(stringValues)
 }
 
-func (e *csvEncoder) encodeArrays(csvWriter *csv.Writer, content []*yaml.Node) error {
+func (e *csvEncoder) encodeArrays(csvWriter *csv.Writer, content []*CandidateNode) error {
 	for i, child := range content {
 
-		if child.Kind != yaml.SequenceNode {
+		if child.Kind != SequenceNode {
 			return fmt.Errorf("csv encoding only works for arrays of scalars (string/numbers/booleans), child[%v] is a %v", i, child.Tag)
 		}
 		err := e.encodeRow(csvWriter, child.Content)
@@ -55,16 +53,16 @@ func (e *csvEncoder) encodeArrays(csvWriter *csv.Writer, content []*yaml.Node) e
 	return nil
 }
 
-func (e *csvEncoder) extractHeader(child *yaml.Node) ([]*yaml.Node, error) {
-	if child.Kind != yaml.MappingNode {
+func (e *csvEncoder) extractHeader(child *CandidateNode) ([]*CandidateNode, error) {
+	if child.Kind != MappingNode {
 		return nil, fmt.Errorf("csv object encoding only works for arrays of flat objects (string key => string/numbers/boolean value), child[0] is a %v", child.Tag)
 	}
 	mapKeys := getMapKeys(child)
 	return mapKeys.Content, nil
 }
 
-func (e *csvEncoder) createChildRow(child *yaml.Node, headers []*yaml.Node) []*yaml.Node {
-	childRow := make([]*yaml.Node, 0)
+func (e *csvEncoder) createChildRow(child *CandidateNode, headers []*CandidateNode) []*CandidateNode {
+	childRow := make([]*CandidateNode, 0)
 	for _, header := range headers {
 		keyIndex := findKeyInMap(child, header)
 		value := createScalarNode(nil, "")
@@ -77,7 +75,7 @@ func (e *csvEncoder) createChildRow(child *yaml.Node, headers []*yaml.Node) []*y
 
 }
 
-func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*yaml.Node) error {
+func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*CandidateNode) error {
 	headers, err := e.extractHeader(content[0])
 	if err != nil {
 		return nil
@@ -89,7 +87,7 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*yaml.Node) 
 	}
 
 	for i, child := range content {
-		if child.Kind != yaml.MappingNode {
+		if child.Kind != MappingNode {
 			return fmt.Errorf("csv object encoding only works for arrays of flat objects (string key => string/numbers/boolean value), child[%v] is a %v", i, child.Tag)
 		}
 		row := e.createChildRow(child, headers)
@@ -102,26 +100,25 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*yaml.Node) 
 	return nil
 }
 
-func (e *csvEncoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
-	if originalNode.Kind == yaml.ScalarNode {
-		return writeString(writer, originalNode.Value+"\n")
+func (e *csvEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+	if node.Kind == ScalarNode {
+		return writeString(writer, node.Value+"\n")
 	}
 
 	csvWriter := csv.NewWriter(writer)
 	csvWriter.Comma = e.separator
 
 	// node must be a sequence
-	node := unwrapDoc(originalNode)
-	if node.Kind != yaml.SequenceNode {
+	if node.Kind != SequenceNode {
 		return fmt.Errorf("csv encoding only works for arrays, got: %v", node.Tag)
 	} else if len(node.Content) == 0 {
 		return nil
 	}
-	if node.Content[0].Kind == yaml.ScalarNode {
+	if node.Content[0].Kind == ScalarNode {
 		return e.encodeRow(csvWriter, node.Content)
 	}
 
-	if node.Content[0].Kind == yaml.MappingNode {
+	if node.Content[0].Kind == MappingNode {
 		return e.encodeObjects(csvWriter, node.Content)
 	}
 

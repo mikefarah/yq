@@ -49,7 +49,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: "(.a == .b) as $x | .",
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -65,7 +65,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: "(.a != .b) as $x | .",
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -87,7 +87,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{a: {b: 10}}",
 		expression: "select(.d == .c)",
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: 10}}\n",
+			"D0, P[], (!!map)::{a: {b: 10}}\n",
 		},
 	},
 	{
@@ -95,7 +95,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:   "{a: {b: 10}}",
 		expression: "select(null == .c)",
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: 10}}\n",
+			"D0, P[], (!!map)::{a: {b: 10}}\n",
 		},
 	},
 	{
@@ -176,7 +176,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:    "a: frog",
 		expression:  `select(.b != "thing")`,
 		expected: []string{
-			"D0, P[], (doc)::a: frog\n",
+			"D0, P[], (!!map)::a: frog\n",
 		},
 	},
 	{
@@ -184,7 +184,7 @@ var equalsOperatorScenarios = []expressionScenario{
 		document:    "a: frog",
 		expression:  `select(.b == .c)`,
 		expected: []string{
-			"D0, P[], (doc)::a: frog\n",
+			"D0, P[], (!!map)::a: frog\n",
 		},
 	},
 }

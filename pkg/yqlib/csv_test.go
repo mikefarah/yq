@@ -120,6 +120,22 @@ var csvScenarios = []formatScenario{
 		scenarioType: "roundtrip-csv",
 	},
 	{
+		description:  "decode csv key",
+		skipDoc:      true,
+		input:        csvSimple,
+		expression:   ".[0].name | key",
+		expected:     "name\n",
+		scenarioType: "decode-csv-object",
+	},
+	{
+		description:  "decode csv parent",
+		skipDoc:      true,
+		input:        csvSimple,
+		expression:   ".[0].name | parent | .height",
+		expected:     "168.8\n",
+		scenarioType: "decode-csv-object",
+	},
+	{
 		description:    "Parse CSV into an array of objects",
 		subdescription: "First row is assumed to be the header row.",
 		input:          csvSimple,

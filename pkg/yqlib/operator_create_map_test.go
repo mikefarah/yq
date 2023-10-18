@@ -13,6 +13,38 @@ var createMapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "sets key properly",
+		expression:  `("frog": "jumps") | .[0][0] | .frog`,
+		expected: []string{
+			"D0, P[0 0 frog], (!!str)::jumps\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "sets key properly on map",
+		expression:  `{"frog": "jumps"} | .frog`,
+		expected: []string{
+			"D0, P[frog], (!!str)::jumps\n",
+		},
+	},
+	{
+		document:   `{name: Mike, pets: [cat, dog]}`,
+		expression: `(.name: .pets.[]) | .[0][0] | ..`,
+		expected: []string{
+			"D0, P[0 0], (!!map)::Mike: cat\n",
+			"D0, P[0 0 Mike], (!!str)::cat\n",
+		},
+	},
+	{
+		description: "check path of nested child",
+		document:    "pets:\n  cows: value",
+		expression:  `("b":.pets) | .[0][0] | .b.cows`,
+		expected: []string{
+			"D0, P[0 0 b cows], (!!str)::value\n",
+		},
+	},
+	{
 		document:   `{name: Mike, age: 32}`,
 		expression: `.name: .age`,
 		expected: []string{

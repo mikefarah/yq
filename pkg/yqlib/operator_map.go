@@ -54,7 +54,7 @@ func mapOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if err != nil {
 			return Context{}, err
 		}
-		collected.Node.Style = unwrapDoc(candidate.Node).Style
+		collected.Style = candidate.Style
 
 		results.PushBack(collected)
 

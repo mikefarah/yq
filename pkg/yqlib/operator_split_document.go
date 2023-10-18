@@ -6,7 +6,8 @@ func splitDocumentOperator(d *dataTreeNavigator, context Context, expressionNode
 	var index uint
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidate.Document = index
+		candidate.SetDocument(index)
+		candidate.SetParent(nil)
 		index = index + 1
 	}
 

@@ -3,51 +3,189 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"strconv"
 	"strings"
-
-	"github.com/jinzhu/copier"
-	yaml "gopkg.in/yaml.v3"
 )
 
+type Kind uint32
+
+const (
+	SequenceNode Kind = 1 << iota
+	MappingNode
+	ScalarNode
+	AliasNode
+)
+
+type Style uint32
+
+const (
+	TaggedStyle Style = 1 << iota
+	DoubleQuotedStyle
+	SingleQuotedStyle
+	LiteralStyle
+	FoldedStyle
+	FlowStyle
+)
+
+func createStringScalarNode(stringValue string) *CandidateNode {
+	var node = &CandidateNode{Kind: ScalarNode}
+	node.Value = stringValue
+	node.Tag = "!!str"
+	return node
+}
+
+func createScalarNode(value interface{}, stringValue string) *CandidateNode {
+	var node = &CandidateNode{Kind: ScalarNode}
+	node.Value = stringValue
+
+	switch value.(type) {
+	case float32, float64:
+		node.Tag = "!!float"
+	case int, int64, int32:
+		node.Tag = "!!int"
+	case bool:
+		node.Tag = "!!bool"
+	case string:
+		node.Tag = "!!str"
+	case nil:
+		node.Tag = "!!null"
+	}
+	return node
+}
+
 type CandidateNode struct {
-	Node   *yaml.Node     // the actual node
+	Kind  Kind
+	Style Style
+
+	Tag     string
+	Value   string
+	Anchor  string
+	Alias   *CandidateNode
+	Content []*CandidateNode
+
+	HeadComment string
+	LineComment string
+	FootComment string
+
 	Parent *CandidateNode // parent node
-	Key    *yaml.Node     // node key, if this is a value from a map (or index in an array)
+	Key    *CandidateNode // node key, if this is a value from a map (or index in an array)
 
-	LeadingContent  string
-	TrailingContent string
+	LeadingContent string
 
-	Path      []interface{} /// the path we took to get to this node
-	Document  uint          // the document index of this node
-	Filename  string
-	FileIndex int
+	document uint // the document index of this node
+	filename string
+
+	Line   int
+	Column int
+
+	fileIndex int
 	// when performing op against all nodes given, this will treat all the nodes as one
 	// (e.g. top level cross document merge). This property does not propagate to child nodes.
 	EvaluateTogether bool
 	IsMapKey         bool
 }
 
+func (n *CandidateNode) CreateChild() *CandidateNode {
+	return &CandidateNode{
+		Parent: n,
+	}
+}
+
+func (n *CandidateNode) SetDocument(idx uint) {
+	n.document = idx
+}
+
+func (n *CandidateNode) GetDocument() uint {
+	// defer to parent
+	if n.Parent != nil {
+		return n.Parent.GetDocument()
+	}
+	return n.document
+}
+
+func (n *CandidateNode) SetFilename(name string) {
+	n.filename = name
+}
+
+func (n *CandidateNode) GetFilename() string {
+	if n.Parent != nil {
+		return n.Parent.GetFilename()
+	}
+	return n.filename
+}
+
+func (n *CandidateNode) SetFileIndex(idx int) {
+	n.fileIndex = idx
+}
+
+func (n *CandidateNode) GetFileIndex() int {
+	if n.Parent != nil {
+		return n.Parent.GetFileIndex()
+	}
+	return n.fileIndex
+}
+
 func (n *CandidateNode) GetKey() string {
 	keyPrefix := ""
 	if n.IsMapKey {
-		keyPrefix = "key-"
+		keyPrefix = fmt.Sprintf("key-%v-", n.Value)
 	}
-	return fmt.Sprintf("%v%v - %v", keyPrefix, n.Document, n.Path)
+	key := ""
+	if n.Key != nil {
+		key = n.Key.Value
+	}
+	return fmt.Sprintf("%v%v - %v", keyPrefix, n.GetDocument(), key)
 }
 
-func (n *CandidateNode) GetNiceTag() string {
-	return unwrapDoc(n.Node).Tag
+func (n *CandidateNode) getParsedKey() interface{} {
+	if n.IsMapKey {
+		return n.Value
+	}
+	if n.Key == nil {
+		return nil
+	}
+	if n.Key.Tag == "!!str" {
+		return n.Key.Value
+	}
+	index, err := parseInt(n.Key.Value)
+	if err != nil {
+		return n.Key.Value
+	}
+	return index
+
+}
+
+func (n *CandidateNode) GetPath() []interface{} {
+	key := n.getParsedKey()
+	if n.Parent != nil && key != nil {
+		return append(n.Parent.GetPath(), key)
+	}
+
+	if key != nil {
+		return []interface{}{key}
+	}
+	return make([]interface{}, 0)
 }
 
 func (n *CandidateNode) GetNicePath() string {
-	if n.Path != nil && len(n.Path) >= 0 {
-		pathStr := make([]string, len(n.Path))
-		for i, v := range n.Path {
-			pathStr[i] = fmt.Sprintf("%v", v)
+	var sb strings.Builder
+	path := n.GetPath()
+	for i, element := range path {
+		elementStr := fmt.Sprintf("%v", element)
+		switch element.(type) {
+		case int:
+			sb.WriteString("[" + elementStr + "]")
+		default:
+			if i == 0 {
+				sb.WriteString(elementStr)
+			} else if strings.ContainsRune(elementStr, '.') {
+				sb.WriteString("[" + elementStr + "]")
+			} else {
+				sb.WriteString("." + elementStr)
+			}
 		}
-		return strings.Join(pathStr, ".")
 	}
-	return ""
+	return sb.String()
 }
 
 func (n *CandidateNode) AsList() *list.List {
@@ -56,134 +194,233 @@ func (n *CandidateNode) AsList() *list.List {
 	return elMap
 }
 
-func (n *CandidateNode) CreateChildInMap(key *yaml.Node, node *yaml.Node) *CandidateNode {
-	var value interface{}
-	if key != nil {
-		value = key.Value
+func (n *CandidateNode) SetParent(parent *CandidateNode) {
+	n.Parent = parent
+}
+
+func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) (*CandidateNode, *CandidateNode) {
+	key := rawKey.Copy()
+	key.SetParent(n)
+	key.IsMapKey = true
+
+	value := rawValue.Copy()
+	value.SetParent(n)
+	value.Key = key
+
+	n.Content = append(n.Content, key, value)
+	return key, value
+}
+
+func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
+	value := rawChild.Copy()
+	value.SetParent(n)
+	if value.Key != nil {
+		value.Key.SetParent(n)
+	} else {
+		index := len(n.Content)
+		keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
+		keyNode.SetParent(n)
+		value.Key = keyNode
 	}
-	return &CandidateNode{
-		Node:      node,
-		Path:      n.createChildPath(value),
-		Parent:    n,
-		Key:       key,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
+	n.Content = append(n.Content, value)
+}
+
+func (n *CandidateNode) AddChildren(children []*CandidateNode) {
+	if n.Kind == MappingNode {
+		for i := 0; i < len(children); i += 2 {
+			key := children[i]
+			value := children[i+1]
+			n.AddKeyValueChild(key, value)
+		}
+
+	} else {
+		for _, rawChild := range children {
+			n.AddChild(rawChild)
+		}
 	}
 }
 
-func (n *CandidateNode) CreateChildInArray(index int, node *yaml.Node) *CandidateNode {
-	return &CandidateNode{
-		Node:      node,
-		Path:      n.createChildPath(index),
-		Parent:    n,
-		Key:       &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", index), Tag: "!!int"},
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
+func (n *CandidateNode) GetValueRep() (interface{}, error) {
+	log.Debugf("GetValueRep for %v value: %v", n.GetNicePath(), n.Value)
+	realTag := n.guessTagFromCustomType()
+
+	switch realTag {
+	case "!!int":
+		_, val, err := parseInt64(n.Value)
+		return val, err
+	case "!!float":
+		// need to test this
+		return strconv.ParseFloat(n.Value, 64)
+	case "!!bool":
+		return isTruthyNode(n), nil
+	case "!!null":
+		return nil, nil
 	}
+
+	return n.Value, nil
 }
 
-func (n *CandidateNode) CreateReplacement(node *yaml.Node) *CandidateNode {
-	return &CandidateNode{
-		Node:      node,
-		Path:      n.createChildPath(nil),
-		Parent:    n.Parent,
-		Key:       n.Key,
-		IsMapKey:  n.IsMapKey,
-		Document:  n.Document,
-		Filename:  n.Filename,
-		FileIndex: n.FileIndex,
+func (n *CandidateNode) guessTagFromCustomType() string {
+	if strings.HasPrefix(n.Tag, "!!") {
+		return n.Tag
+	} else if n.Value == "" {
+		log.Debug("guessTagFromCustomType: node has no value to guess the type with")
+		return n.Tag
 	}
+	dataBucket, errorReading := parseSnippet(n.Value)
+
+	if errorReading != nil {
+		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
+		return n.Tag
+	}
+	guessedTag := dataBucket.Tag
+	log.Info("im guessing the tag %v is a %v", n.Tag, guessedTag)
+	return guessedTag
 }
 
-func (n *CandidateNode) CreateReplacementWithDocWrappers(node *yaml.Node) *CandidateNode {
-	replacement := n.CreateReplacement(node)
+func (n *CandidateNode) CreateReplacement(kind Kind, tag string, value string) *CandidateNode {
+	node := &CandidateNode{
+		Kind:  kind,
+		Tag:   tag,
+		Value: value,
+	}
+	return n.CopyAsReplacement(node)
+}
+
+func (n *CandidateNode) CopyAsReplacement(replacement *CandidateNode) *CandidateNode {
+	newCopy := replacement.Copy()
+	newCopy.Parent = n.Parent
+
+	if n.IsMapKey {
+		newCopy.Key = n
+	} else {
+		newCopy.Key = n.Key
+	}
+
+	return newCopy
+}
+
+func (n *CandidateNode) CreateReplacementWithComments(kind Kind, tag string, style Style) *CandidateNode {
+	replacement := n.CreateReplacement(kind, tag, "")
 	replacement.LeadingContent = n.LeadingContent
-	replacement.TrailingContent = n.TrailingContent
+	replacement.HeadComment = n.HeadComment
+	replacement.LineComment = n.LineComment
+	replacement.FootComment = n.FootComment
+	replacement.Style = style
 	return replacement
 }
 
-func (n *CandidateNode) createChildPath(path interface{}) []interface{} {
-	if path == nil {
-		newPath := make([]interface{}, len(n.Path))
-		copy(newPath, n.Path)
-		return newPath
-	}
-
-	//don't use append as they may actually modify the path of the original node!
-	newPath := make([]interface{}, len(n.Path)+1)
-	copy(newPath, n.Path)
-	newPath[len(n.Path)] = path
-	return newPath
+func (n *CandidateNode) Copy() *CandidateNode {
+	return n.doCopy(true)
 }
 
-func (n *CandidateNode) Copy() (*CandidateNode, error) {
-	clone := &CandidateNode{}
-	err := copier.Copy(clone, n)
-	if err != nil {
-		return nil, err
+func (n *CandidateNode) CopyWithoutContent() *CandidateNode {
+	return n.doCopy(false)
+}
+
+func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
+	var content []*CandidateNode
+
+	var copyKey *CandidateNode
+	if n.Key != nil {
+		copyKey = n.Key.Copy()
 	}
-	clone.Node = deepClone(n.Node)
-	return clone, nil
+
+	clone := &CandidateNode{
+		Kind:  n.Kind,
+		Style: n.Style,
+
+		Tag:    n.Tag,
+		Value:  n.Value,
+		Anchor: n.Anchor,
+
+		// ok not to clone this,
+		// as its a reference to somewhere else.
+		Alias:   n.Alias,
+		Content: content,
+
+		HeadComment: n.HeadComment,
+		LineComment: n.LineComment,
+		FootComment: n.FootComment,
+
+		Parent: n.Parent,
+		Key:    copyKey,
+
+		LeadingContent: n.LeadingContent,
+
+		document:  n.document,
+		filename:  n.filename,
+		fileIndex: n.fileIndex,
+
+		Line:   n.Line,
+		Column: n.Column,
+
+		EvaluateTogether: n.EvaluateTogether,
+		IsMapKey:         n.IsMapKey,
+	}
+
+	if cloneContent {
+		clone.AddChildren(n.Content)
+	}
+
+	return clone
 }
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences) {
 
 	// if this is an empty map or empty array, use the style of other node.
-	if (n.Node.Kind != yaml.ScalarNode && len(n.Node.Content) == 0) ||
+	if (n.Kind != ScalarNode && len(n.Content) == 0) ||
 		// if the tag has changed (e.g. from str to bool)
-		(guessTagFromCustomType(n.Node) != guessTagFromCustomType(other.Node)) {
-		n.Node.Style = other.Node.Style
+		(n.guessTagFromCustomType() != other.guessTagFromCustomType()) {
+		n.Style = other.Style
 	}
 
-	n.Node.Content = deepCloneContent(other.Node.Content)
-	n.Node.Kind = other.Node.Kind
-	n.Node.Value = other.Node.Value
+	n.Content = make([]*CandidateNode, 0)
+	n.Kind = other.Kind
+	n.AddChildren(other.Content)
+
+	n.Value = other.Value
 
 	n.UpdateAttributesFrom(other, prefs)
 
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
-	log.Debug("UpdateAttributesFrom: n: %v other: %v", n.GetKey(), other.GetKey())
-	if n.Node.Kind != other.Node.Kind {
+	log.Debug("UpdateAttributesFrom: n: %v other: %v", NodeToString(n), NodeToString(other))
+	if n.Kind != other.Kind {
 		// clear out the contents when switching to a different type
 		// e.g. map to array
-		n.Node.Content = make([]*yaml.Node, 0)
-		n.Node.Value = ""
+		n.Content = make([]*CandidateNode, 0)
+		n.Value = ""
 	}
-	n.Node.Kind = other.Node.Kind
+	n.Kind = other.Kind
 
 	// don't clobber custom tags...
-	if prefs.ClobberCustomTags || strings.HasPrefix(n.Node.Tag, "!!") || n.Node.Tag == "" {
-		n.Node.Tag = other.Node.Tag
+	if prefs.ClobberCustomTags || strings.HasPrefix(n.Tag, "!!") || n.Tag == "" {
+		n.Tag = other.Tag
 	}
 
-	n.Node.Alias = other.Node.Alias
+	n.Alias = other.Alias
 
 	if !prefs.DontOverWriteAnchor {
-		n.Node.Anchor = other.Node.Anchor
+		n.Anchor = other.Anchor
 	}
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes
 
-	if n.Node.Style == 0 {
-		n.Node.Style = other.Node.Style
+	if n.Style == 0 {
+		n.Style = other.Style
 	}
 
-	if other.Node.FootComment != "" {
-		n.Node.FootComment = other.Node.FootComment
+	if other.FootComment != "" {
+		n.FootComment = other.FootComment
 	}
-	if other.TrailingContent != "" {
-		n.TrailingContent = other.TrailingContent
+	if other.HeadComment != "" {
+		n.HeadComment = other.HeadComment
 	}
-	if other.Node.HeadComment != "" {
-		n.Node.HeadComment = other.Node.HeadComment
-	}
-	if other.Node.LineComment != "" {
-		n.Node.LineComment = other.Node.LineComment
+	if other.LineComment != "" {
+		n.LineComment = other.LineComment
 	}
 }

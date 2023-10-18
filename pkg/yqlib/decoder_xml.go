@@ -12,7 +12,6 @@ import (
 	"unicode"
 
 	"golang.org/x/net/html/charset"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type xmlDecoder struct {
@@ -36,14 +35,14 @@ func (dec *xmlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yaml.Node, error) {
-	yamlNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*CandidateNode, error) {
+	yamlNode := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 	for _, child := range nodes {
 		yamlChild, err := dec.convertToYamlNode(child)
 		if err != nil {
 			return nil, err
 		}
-		yamlNode.Content = append(yamlNode.Content, yamlChild)
+		yamlNode.AddChild(yamlChild)
 	}
 
 	return yamlNode, nil
@@ -64,9 +63,9 @@ func (dec *xmlDecoder) processComment(c string) string {
 	return replacement
 }
 
-func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
+func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
 	log.Debug("createMap: headC: %v, lineC: %v, footC: %v", n.HeadComment, n.LineComment, n.FootComment)
-	yamlNode := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+	yamlNode := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
 		log.Debugf("creating content node for map: %v", dec.prefs.ContentName)
@@ -75,14 +74,14 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
 		labelNode.LineComment = dec.processComment(n.LineComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
-		yamlNode.Content = append(yamlNode.Content, labelNode, dec.createValueNodeFromData(n.Data))
+		yamlNode.AddKeyValueChild(labelNode, dec.createValueNodeFromData(n.Data))
 	}
 
 	for i, keyValuePair := range n.Children {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
-		var valueNode *yaml.Node
+		var valueNode *CandidateNode
 		var err error
 
 		if i == 0 {
@@ -120,32 +119,32 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yaml.Node, error) {
 				return nil, err
 			}
 		}
-		yamlNode.Content = append(yamlNode.Content, labelNode, valueNode)
+		yamlNode.AddKeyValueChild(labelNode, valueNode)
 	}
 
 	return yamlNode, nil
 }
 
-func (dec *xmlDecoder) createValueNodeFromData(values []string) *yaml.Node {
+func (dec *xmlDecoder) createValueNodeFromData(values []string) *CandidateNode {
 	switch len(values) {
 	case 0:
 		return createScalarNode(nil, "")
 	case 1:
 		return createScalarNode(values[0], values[0])
 	default:
-		content := make([]*yaml.Node, 0)
+		content := make([]*CandidateNode, 0)
 		for _, value := range values {
 			content = append(content, createScalarNode(value, value))
 		}
-		return &yaml.Node{
-			Kind:    yaml.SequenceNode,
+		return &CandidateNode{
+			Kind:    SequenceNode,
 			Tag:     "!!seq",
 			Content: content,
 		}
 	}
 }
 
-func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yaml.Node, error) {
+func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*CandidateNode, error) {
 	if len(n.Children) > 0 {
 		return dec.createMap(n)
 	}
@@ -189,12 +188,7 @@ func (dec *xmlDecoder) Decode() (*CandidateNode, error) {
 	dec.readAnything = true
 	dec.finished = true
 
-	return &CandidateNode{
-		Node: &yaml.Node{
-			Kind:    yaml.DocumentNode,
-			Content: []*yaml.Node{firstNode},
-		},
-	}, nil
+	return firstNode, nil
 }
 
 type xmlNode struct {

@@ -9,7 +9,7 @@ testLoadFileNotExist() {
 testLoadFileExpNotExist() {
   result=$(./yq e -n 'load(.a)' 2>&1)
   assertEquals 1 $?
-  assertEquals "Error: Filename expression returned nil" "$result"
+  assertEquals "Error: filename expression returned nil" "$result"
 }
 
 testStrLoadFileNotExist() {
@@ -21,7 +21,7 @@ testStrLoadFileNotExist() {
 testStrLoadFileExpNotExist() {
   result=$(./yq e -n 'strload(.a)' 2>&1)
   assertEquals 1 $?
-  assertEquals "Error: Filename expression returned nil" "$result"
+  assertEquals "Error: filename expression returned nil" "$result"
 }
 
 source ./scripts/shunit2

@@ -29,8 +29,8 @@ var mapOperatorScenarios = []expressionScenario{
 		document2:  `{x: 10, y: 20, z: 30}`,
 		expression: `map_values(. + 1)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 2, b: 3, c: 4}\n",
-			"D0, P[], (doc)::{x: 11, y: 21, z: 31}\n",
+			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
+			"D0, P[], (!!map)::{x: 11, y: 21, z: 31}\n",
 		},
 	},
 	{
@@ -38,7 +38,7 @@ var mapOperatorScenarios = []expressionScenario{
 		document:    `{a: 1, b: 2, c: 3}`,
 		expression:  `map_values(. + 1)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 2, b: 3, c: 4}\n",
+			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
 		},
 	},
 }

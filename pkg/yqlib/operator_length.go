@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -13,25 +11,23 @@ func lengthOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		targetNode := unwrapDoc(candidate.Node)
 		var length int
-		switch targetNode.Kind {
-		case yaml.ScalarNode:
-			if targetNode.Tag == "!!null" {
+		switch candidate.Kind {
+		case ScalarNode:
+			if candidate.Tag == "!!null" {
 				length = 0
 			} else {
-				length = len(targetNode.Value)
+				length = len(candidate.Value)
 			}
-		case yaml.MappingNode:
-			length = len(targetNode.Content) / 2
-		case yaml.SequenceNode:
-			length = len(targetNode.Content)
+		case MappingNode:
+			length = len(candidate.Content) / 2
+		case SequenceNode:
+			length = len(candidate.Content)
 		default:
 			length = 0
 		}
 
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", length), Tag: "!!int"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", length))
 		results.PushBack(result)
 	}
 

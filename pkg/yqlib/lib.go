@@ -2,7 +2,6 @@
 package yqlib
 
 import (
-	"bytes"
 	"container/list"
 	"fmt"
 	"math"
@@ -10,7 +9,6 @@ import (
 	"strings"
 
 	logging "gopkg.in/op/go-logging.v1"
-	yaml "gopkg.in/yaml.v3"
 )
 
 var ExpressionParser ExpressionParserInterface
@@ -191,7 +189,7 @@ type Operation struct {
 	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs
 }
 
-func recurseNodeArrayEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recurseNodeArrayEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false
 	}
@@ -204,7 +202,7 @@ func recurseNodeArrayEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	return true
 }
 
-func findInArray(array *yaml.Node, item *yaml.Node) int {
+func findInArray(array *CandidateNode, item *CandidateNode) int {
 
 	for index := 0; index < len(array.Content); index = index + 1 {
 		if recursiveNodeEqual(array.Content[index], item) {
@@ -214,7 +212,7 @@ func findInArray(array *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
-func findKeyInMap(dataMap *yaml.Node, item *yaml.Node) int {
+func findKeyInMap(dataMap *CandidateNode, item *CandidateNode) int {
 
 	for index := 0; index < len(dataMap.Content); index = index + 2 {
 		if recursiveNodeEqual(dataMap.Content[index], item) {
@@ -224,7 +222,7 @@ func findKeyInMap(dataMap *yaml.Node, item *yaml.Node) int {
 	return -1
 }
 
-func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recurseNodeObjectEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false
 	}
@@ -242,28 +240,10 @@ func recurseNodeObjectEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	return true
 }
 
-func guessTagFromCustomType(node *yaml.Node) string {
-	if strings.HasPrefix(node.Tag, "!!") {
-		return node.Tag
-	} else if node.Value == "" {
-		log.Debug("guessTagFromCustomType: node has no value to guess the type with")
-		return node.Tag
-	}
-	dataBucket, errorReading := parseSnippet(node.Value)
-
-	if errorReading != nil {
-		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
-		return node.Tag
-	}
-	guessedTag := unwrapDoc(dataBucket).Tag
-	log.Info("im guessing the tag %v is a %v", node.Tag, guessedTag)
-	return guessedTag
-}
-
-func parseSnippet(value string) (*yaml.Node, error) {
+func parseSnippet(value string) (*CandidateNode, error) {
 	if value == "" {
-		return &yaml.Node{
-			Kind: yaml.ScalarNode,
+		return &CandidateNode{
+			Kind: ScalarNode,
 			Tag:  "!!null",
 		}, nil
 	}
@@ -272,30 +252,26 @@ func parseSnippet(value string) (*yaml.Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	parsedNode, err := decoder.Decode()
+	result, err := decoder.Decode()
 	if err != nil {
 		return nil, err
 	}
-	if len(parsedNode.Node.Content) == 0 {
-		return nil, fmt.Errorf("bad data")
-	}
-	result := unwrapDoc(parsedNode.Node)
 	result.Line = 0
 	result.Column = 0
 	return result, err
 }
 
-func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
+func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if lhs.Kind != rhs.Kind {
 		return false
 	}
 
-	if lhs.Kind == yaml.ScalarNode {
+	if lhs.Kind == ScalarNode {
 		//process custom tags of scalar nodes.
 		//dont worry about matching tags of maps or arrays.
 
-		lhsTag := guessTagFromCustomType(lhs)
-		rhsTag := guessTagFromCustomType(rhs)
+		lhsTag := lhs.guessTagFromCustomType()
+		rhsTag := rhs.guessTagFromCustomType()
 
 		if lhsTag != rhsTag {
 			return false
@@ -305,75 +281,32 @@ func recursiveNodeEqual(lhs *yaml.Node, rhs *yaml.Node) bool {
 	if lhs.Tag == "!!null" {
 		return true
 
-	} else if lhs.Kind == yaml.ScalarNode {
+	} else if lhs.Kind == ScalarNode {
 		return lhs.Value == rhs.Value
-	} else if lhs.Kind == yaml.SequenceNode {
+	} else if lhs.Kind == SequenceNode {
 		return recurseNodeArrayEqual(lhs, rhs)
-	} else if lhs.Kind == yaml.MappingNode {
+	} else if lhs.Kind == MappingNode {
 		return recurseNodeObjectEqual(lhs, rhs)
 	}
 	return false
 }
 
-func deepCloneContent(content []*yaml.Node) []*yaml.Node {
-	clonedContent := make([]*yaml.Node, len(content))
-	for i, child := range content {
-		clonedContent[i] = deepClone(child)
-	}
-	return clonedContent
-}
-
-func deepCloneNoContent(node *yaml.Node) *yaml.Node {
-	return deepCloneWithOptions(node, false)
-}
-func deepClone(node *yaml.Node) *yaml.Node {
-	return deepCloneWithOptions(node, true)
-}
-
-func deepCloneWithOptions(node *yaml.Node, cloneContent bool) *yaml.Node {
-	if node == nil {
-		return nil
-	}
-	var clonedContent []*yaml.Node
-	if cloneContent {
-		clonedContent = deepCloneContent(node.Content)
-	}
-	return &yaml.Node{
-		Content:     clonedContent,
-		Kind:        node.Kind,
-		Style:       node.Style,
-		Tag:         node.Tag,
-		Value:       node.Value,
-		Anchor:      node.Anchor,
-		Alias:       node.Alias,
-		HeadComment: node.HeadComment,
-		LineComment: node.LineComment,
-		FootComment: node.FootComment,
-		Line:        node.Line,
-		Column:      node.Column,
-	}
-}
-
-// yaml numbers can be hex encoded...
+// yaml numbers can be hex and octal encoded...
 func parseInt64(numberString string) (string, int64, error) {
 	if strings.HasPrefix(numberString, "0x") ||
 		strings.HasPrefix(numberString, "0X") {
 		num, err := strconv.ParseInt(numberString[2:], 16, 64)
 		return "0x%X", num, err
+	} else if strings.HasPrefix(numberString, "0o") {
+		num, err := strconv.ParseInt(numberString[2:], 8, 64)
+		return "0o%o", num, err
 	}
 	num, err := strconv.ParseInt(numberString, 10, 64)
 	return "%v", num, err
 }
 
 func parseInt(numberString string) (int, error) {
-	var err error
-	var parsed int64
-	if strings.HasPrefix(numberString, "0x") ||
-		strings.HasPrefix(numberString, "0X") {
-		parsed, err = strconv.ParseInt(numberString[2:], 16, 64)
-	} else {
-		parsed, err = strconv.ParseInt(numberString, 10, 64)
-	}
+	_, parsed, err := parseInt64(numberString)
 
 	if err != nil {
 		return 0, err
@@ -384,45 +317,19 @@ func parseInt(numberString string) (int, error) {
 	return int(parsed), err
 }
 
-func createStringScalarNode(stringValue string) *yaml.Node {
-	var node = &yaml.Node{Kind: yaml.ScalarNode}
-	node.Value = stringValue
-	node.Tag = "!!str"
-	return node
-}
-
-func createScalarNode(value interface{}, stringValue string) *yaml.Node {
-	var node = &yaml.Node{Kind: yaml.ScalarNode}
-	node.Value = stringValue
-
-	switch value.(type) {
-	case float32, float64:
-		node.Tag = "!!float"
-	case int, int64, int32:
-		node.Tag = "!!int"
-	case bool:
-		node.Tag = "!!bool"
-	case string:
-		node.Tag = "!!str"
-	case nil:
-		node.Tag = "!!null"
-	}
-	return node
-}
-
-func headAndLineComment(node *yaml.Node) string {
+func headAndLineComment(node *CandidateNode) string {
 	return headComment(node) + lineComment(node)
 }
 
-func headComment(node *yaml.Node) string {
+func headComment(node *CandidateNode) string {
 	return strings.Replace(node.HeadComment, "#", "", 1)
 }
 
-func lineComment(node *yaml.Node) string {
+func lineComment(node *CandidateNode) string {
 	return strings.Replace(node.LineComment, "#", "", 1)
 }
 
-func footComment(node *yaml.Node) string {
+func footComment(node *CandidateNode) string {
 	return strings.Replace(node.FootComment, "#", "", 1)
 }
 
@@ -434,7 +341,7 @@ func createValueOperation(value interface{}, stringValue string) *Operation {
 		OperationType: valueOpType,
 		Value:         value,
 		StringValue:   stringValue,
-		CandidateNode: &CandidateNode{Node: node},
+		CandidateNode: node,
 	}
 }
 
@@ -471,40 +378,46 @@ func NodeToString(node *CandidateNode) string {
 	if !log.IsEnabledFor(logging.DEBUG) {
 		return ""
 	}
-	value := node.Node
-	if value == nil {
+	if node == nil {
 		return "-- nil --"
 	}
-	buf := new(bytes.Buffer)
-	encoder := yaml.NewEncoder(buf)
-	errorEncoding := encoder.Encode(value)
-	if errorEncoding != nil {
-		log.Error("Error debugging node, %v", errorEncoding.Error())
-	}
-	errorClosingEncoder := encoder.Close()
-	if errorClosingEncoder != nil {
-		log.Error("Error closing encoder: ", errorClosingEncoder.Error())
-	}
-	tag := value.Tag
-	if value.Kind == yaml.DocumentNode {
-		tag = "doc"
-	} else if value.Kind == yaml.AliasNode {
+	tag := node.Tag
+	if node.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, node.Document, node.Path, tag, buf.String())
+	valueToUse := node.Value
+	if valueToUse == "" {
+		valueToUse = fmt.Sprintf("%v kids", len(node.Content))
+	}
+	return fmt.Sprintf(`D%v, P%v, %v (%v)::%v`, node.GetDocument(), node.GetNicePath(), KindString(node.Kind), tag, valueToUse)
 }
 
-func KindString(kind yaml.Kind) string {
+func NodeContentToString(node *CandidateNode, depth int) string {
+	if !log.IsEnabledFor(logging.DEBUG) {
+		return ""
+	}
+	var sb strings.Builder
+	for _, child := range node.Content {
+		for i := 0; i < depth; i++ {
+			sb.WriteString(" ")
+		}
+		sb.WriteString("- ")
+		sb.WriteString(NodeToString(child))
+		sb.WriteString("\n")
+		sb.WriteString(NodeContentToString(child, depth+1))
+	}
+	return sb.String()
+}
+
+func KindString(kind Kind) string {
 	switch kind {
-	case yaml.ScalarNode:
+	case ScalarNode:
 		return "ScalarNode"
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return "SequenceNode"
-	case yaml.MappingNode:
+	case MappingNode:
 		return "MappingNode"
-	case yaml.DocumentNode:
-		return "DocumentNode"
-	case yaml.AliasNode:
+	case AliasNode:
 		return "AliasNode"
 	default:
 		return "unknown!"

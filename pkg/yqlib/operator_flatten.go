@@ -2,26 +2,24 @@ package yqlib
 
 import (
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type flattenPreferences struct {
 	depth int
 }
 
-func flatten(node *yaml.Node, depth int) {
+func flatten(node *CandidateNode, depth int) {
 	if depth == 0 {
 		return
 	}
-	if node.Kind != yaml.SequenceNode {
+	if node.Kind != SequenceNode {
 		return
 	}
 	content := node.Content
-	newSeq := make([]*yaml.Node, 0)
+	newSeq := make([]*CandidateNode, 0)
 
 	for i := 0; i < len(content); i++ {
-		if content[i].Kind == yaml.SequenceNode {
+		if content[i].Kind == SequenceNode {
 			flatten(content[i], depth-1)
 			for j := 0; j < len(content[i].Content); j++ {
 				newSeq = append(newSeq, content[i].Content[j])
@@ -30,7 +28,8 @@ func flatten(node *yaml.Node, depth int) {
 			newSeq = append(newSeq, content[i])
 		}
 	}
-	node.Content = newSeq
+	node.Content = make([]*CandidateNode, 0)
+	node.AddChildren(newSeq)
 }
 
 func flattenOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -40,12 +39,11 @@ func flattenOp(d *dataTreeNavigator, context Context, expressionNode *Expression
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := unwrapDoc(candidate.Node)
-		if candidateNode.Kind != yaml.SequenceNode {
-			return Context{}, fmt.Errorf("Only arrays are supported for flatten")
+		if candidate.Kind != SequenceNode {
+			return Context{}, fmt.Errorf("only arrays are supported for flatten")
 		}
 
-		flatten(candidateNode, depth)
+		flatten(candidate, depth)
 
 	}
 

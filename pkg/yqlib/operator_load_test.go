@@ -10,7 +10,7 @@ var loadScenarios = []expressionScenario{
 		description: "Load empty file with a comment",
 		expression:  `load("../../examples/empty.yaml")`,
 		expected: []string{
-			"D0, P[], (doc)::# comment\n\n",
+			"D0, P[], (!!null)::# comment\n",
 		},
 	},
 	{
@@ -19,7 +19,7 @@ var loadScenarios = []expressionScenario{
 		document:    `- "../../examples/small.yaml"`,
 		expression:  `.[] |= load(.)`,
 		expected: []string{
-			"D0, P[], (doc)::- # comment\n  # about things\n  a: cat\n",
+			"D0, P[], (!!seq)::- # comment\n  # about things\n  a: cat\n",
 		},
 	},
 	{
@@ -43,7 +43,7 @@ var loadScenarios = []expressionScenario{
 		document:    `{myFile: "../../examples/thing.yml"}`,
 		expression:  `load(.myFile)`,
 		expected: []string{
-			"D0, P[], (doc)::a: apple is included\nb: cool.\n",
+			"D0, P[], (!!map)::a: apple is included\nb: cool.\n",
 		},
 	},
 	{
@@ -52,7 +52,7 @@ var loadScenarios = []expressionScenario{
 		document:       `{something: {file: "thing.yml"}}`,
 		expression:     `.something |= load("../../examples/" + .file)`,
 		expected: []string{
-			"D0, P[], (doc)::{something: {a: apple is included, b: cool.}}\n",
+			"D0, P[], (!!map)::{something: {a: apple is included, b: cool.}}\n",
 		},
 	},
 	{
@@ -70,7 +70,7 @@ var loadScenarios = []expressionScenario{
 		document:       `{something: {file: "thing.yml"}}`,
 		expression:     `.something |= load_str("../../examples/" + .file)`,
 		expected: []string{
-			"D0, P[], (doc)::{something: \"a: apple is included\\nb: cool.\"}\n",
+			"D0, P[], (!!map)::{something: \"a: apple is included\\nb: cool.\"}\n",
 		},
 	},
 	{
@@ -79,7 +79,7 @@ var loadScenarios = []expressionScenario{
 		document:       "cool: things",
 		expression:     `.more_stuff = load_xml("../../examples/small.xml")`,
 		expected: []string{
-			"D0, P[], (doc)::cool: things\nmore_stuff:\n    this: is some xml\n",
+			"D0, P[], (!!map)::cool: things\nmore_stuff:\n    this: is some xml\n",
 		},
 	},
 	{
@@ -87,7 +87,7 @@ var loadScenarios = []expressionScenario{
 		document:    "cool: things",
 		expression:  `.more_stuff = load_props("../../examples/small.properties")`,
 		expected: []string{
-			"D0, P[], (doc)::cool: things\nmore_stuff:\n    this:\n        is: a properties file\n",
+			"D0, P[], (!!map)::cool: things\nmore_stuff:\n    this:\n        is: a properties file\n",
 		},
 	},
 	{
@@ -104,7 +104,7 @@ var loadScenarios = []expressionScenario{
 		document:    "cool: things",
 		expression:  `.more_stuff = load_base64("../../examples/base64.txt")`,
 		expected: []string{
-			"D0, P[], (doc)::cool: things\nmore_stuff: my secret chilli recipe is....\n",
+			"D0, P[], (!!map)::cool: things\nmore_stuff: my secret chilli recipe is....\n",
 		},
 	},
 }

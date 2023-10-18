@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/magiconair/properties"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type propertiesEncoder struct {
@@ -62,9 +61,9 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 	return nil
 }
 
-func (pe *propertiesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+func (pe *propertiesEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
-	if node.Kind == yaml.ScalarNode {
+	if node.Kind == ScalarNode {
 		return writeString(writer, node.Value+"\n")
 	}
 
@@ -79,7 +78,7 @@ func (pe *propertiesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
 	return err
 }
 
-func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node, path string, keyNode *yaml.Node) error {
+func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateNode, path string, keyNode *CandidateNode) error {
 
 	comments := ""
 	if keyNode != nil {
@@ -91,7 +90,7 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node,
 	p.SetComments(path, strings.Split(commentsWithSpaces, "\n"))
 
 	switch node.Kind {
-	case yaml.ScalarNode:
+	case ScalarNode:
 		var nodeValue string
 		if pe.unwrapScalar || !strings.Contains(node.Value, " ") {
 			nodeValue = node.Value
@@ -100,13 +99,11 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yaml.Node,
 		}
 		_, _, err := p.Set(path, nodeValue)
 		return err
-	case yaml.DocumentNode:
-		return pe.doEncode(p, node.Content[0], path, node)
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return pe.encodeArray(p, node.Content, path)
-	case yaml.MappingNode:
+	case MappingNode:
 		return pe.encodeMap(p, node.Content, path)
-	case yaml.AliasNode:
+	case AliasNode:
 		return pe.doEncode(p, node.Alias, path, nil)
 	default:
 		return fmt.Errorf("Unsupported node %v", node.Tag)
@@ -120,7 +117,7 @@ func (pe *propertiesEncoder) appendPath(path string, key interface{}) string {
 	return fmt.Sprintf("%v.%v", path, key)
 }
 
-func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*yaml.Node, path string) error {
+func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*CandidateNode, path string) error {
 	for index, child := range kids {
 		err := pe.doEncode(p, child, pe.appendPath(path, index), nil)
 		if err != nil {
@@ -130,7 +127,7 @@ func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*yaml.
 	return nil
 }
 
-func (pe *propertiesEncoder) encodeMap(p *properties.Properties, kids []*yaml.Node, path string) error {
+func (pe *propertiesEncoder) encodeMap(p *properties.Properties, kids []*CandidateNode, path string) error {
 	for index := 0; index < len(kids); index = index + 2 {
 		key := kids[index]
 		value := kids[index+1]

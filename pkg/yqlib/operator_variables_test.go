@@ -10,7 +10,7 @@ var variableOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: `.a.b as $foo | .`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -76,7 +76,7 @@ var variableOperatorScenarios = []expressionScenario{
 		document:    "a: a_value\nb: b_value",
 		expression:  `.a as $x  | .b as $y | .b = $x | .a = $y`,
 		expected: []string{
-			"D0, P[], (doc)::a: b_value\nb: a_value\n",
+			"D0, P[], (!!map)::a: b_value\nb: a_value\n",
 		},
 	},
 	{
@@ -85,7 +85,7 @@ var variableOperatorScenarios = []expressionScenario{
 		document:       `a: {b: thing, c: something}`,
 		expression:     `.a.b ref $x | $x = "new" | $x style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+			"D0, P[], (!!map)::a: {b: \"new\", c: something}\n",
 		},
 	},
 }

@@ -27,7 +27,7 @@ var errorOperatorScenarios = []expressionScenario{
 		document:             "name: Bob\nfavouriteAnimal: cat\n",
 		expression:           validationExpression,
 		expected: []string{
-			"D0, P[], (doc)::name: Bob\nfavouriteAnimal: cat\nnumPets: 3\n",
+			"D0, P[], (!!map)::name: Bob\nfavouriteAnimal: cat\nnumPets: 3\n",
 		},
 	},
 }

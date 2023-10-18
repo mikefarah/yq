@@ -2,21 +2,17 @@ package yqlib
 
 import (
 	"container/list"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
-func kindToText(kind yaml.Kind) string {
+func kindToText(kind Kind) string {
 	switch kind {
-	case yaml.MappingNode:
+	case MappingNode:
 		return "map"
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return "seq"
-	case yaml.DocumentNode:
-		return "doc"
-	case yaml.ScalarNode:
+	case ScalarNode:
 		return "scalar"
-	case yaml.AliasNode:
+	case AliasNode:
 		return "alias"
 	default:
 		return "unknown"
@@ -30,8 +26,7 @@ func getKindOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: kindToText(candidate.Node.Kind), Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", kindToText(candidate.Kind))
 		results.PushBack(result)
 	}
 

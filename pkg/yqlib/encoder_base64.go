@@ -4,8 +4,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type base64Encoder struct {
@@ -28,11 +26,10 @@ func (e *base64Encoder) PrintLeadingContent(writer io.Writer, content string) er
 	return nil
 }
 
-func (e *base64Encoder) Encode(writer io.Writer, originalNode *yaml.Node) error {
-	node := unwrapDoc(originalNode)
-	if guessTagFromCustomType(node) != "!!str" {
+func (e *base64Encoder) Encode(writer io.Writer, node *CandidateNode) error {
+	if node.guessTagFromCustomType() != "!!str" {
 		return fmt.Errorf("cannot encode %v as base64, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
-	_, err := writer.Write([]byte(e.encoding.EncodeToString([]byte(originalNode.Value))))
+	_, err := writer.Write([]byte(e.encoding.EncodeToString([]byte(node.Value))))
 	return err
 }

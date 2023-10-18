@@ -32,6 +32,38 @@ cities:
 `,
 	},
 	{
+		skipDoc:     true,
+		description: "path",
+		expression:  ".cities[2] | path",
+		input: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+		expected: "- cities\n- 2\n",
+	},
+	{
+		skipDoc:     true,
+		description: "path",
+		expression:  ".cities[2] | key",
+		input: `return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+`,
+		expected: "2\n",
+	},
+	{
 		description:  "Basic output example",
 		scenarioType: "encode",
 		input: `---

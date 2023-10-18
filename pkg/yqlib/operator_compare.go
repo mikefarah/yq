@@ -3,8 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"strconv"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type compareTypePref struct {
@@ -32,27 +30,24 @@ func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, 
 			return createBooleanCandidate(lhs, false), nil
 		}
 
-		lhs.Node = unwrapDoc(lhs.Node)
-		rhs.Node = unwrapDoc(rhs.Node)
-
-		switch lhs.Node.Kind {
-		case yaml.MappingNode:
+		switch lhs.Kind {
+		case MappingNode:
 			return nil, fmt.Errorf("maps not yet supported for comparison")
-		case yaml.SequenceNode:
+		case SequenceNode:
 			return nil, fmt.Errorf("arrays not yet supported for comparison")
 		default:
-			if rhs.Node.Kind != yaml.ScalarNode {
-				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Node.Tag, rhs.Path, lhs.Node.Tag)
+			if rhs.Kind != ScalarNode {
+				return nil, fmt.Errorf("%v (%v) cannot be subtracted from %v", rhs.Tag, rhs.GetNicePath(), lhs.Tag)
 			}
-			target := lhs.CreateReplacement(&yaml.Node{})
-			boolV, err := compareScalars(context, prefs, lhs.Node, rhs.Node)
+			target := lhs.CopyWithoutContent()
+			boolV, err := compareScalars(context, prefs, lhs, rhs)
 
 			return createBooleanCandidate(target, boolV), err
 		}
 	}
 }
 
-func compareDateTime(layout string, prefs compareTypePref, lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
+func compareDateTime(layout string, prefs compareTypePref, lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
 	lhsTime, err := parseDateTime(layout, lhs.Value)
 	if err != nil {
 		return false, err
@@ -73,9 +68,9 @@ func compareDateTime(layout string, prefs compareTypePref, lhs *yaml.Node, rhs *
 
 }
 
-func compareScalars(context Context, prefs compareTypePref, lhs *yaml.Node, rhs *yaml.Node) (bool, error) {
-	lhsTag := guessTagFromCustomType(lhs)
-	rhsTag := guessTagFromCustomType(rhs)
+func compareScalars(context Context, prefs compareTypePref, lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
+	lhsTag := lhs.guessTagFromCustomType()
+	rhsTag := rhs.guessTagFromCustomType()
 
 	isDateTime := lhs.Tag == "!!timestamp"
 	// if the lhs is a string, it might be a timestamp in a custom format.

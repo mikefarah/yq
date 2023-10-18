@@ -83,11 +83,7 @@ func (n *Context) DeepClone() Context {
 	// copier doesn't do lists properly for some reason
 	clone.MatchingNodes = list.New()
 	for el := n.MatchingNodes.Front(); el != nil; el = el.Next() {
-		clonedNode, err := el.Value.(*CandidateNode).Copy()
-		if err != nil {
-			log.Error("Error cloning context :(")
-			panic(err)
-		}
+		clonedNode := el.Value.(*CandidateNode).Copy()
 		clone.MatchingNodes.PushBack(clonedNode)
 	}
 

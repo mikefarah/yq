@@ -1,6 +1,8 @@
 package yqlib
 
 import (
+	"bufio"
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -18,7 +20,7 @@ var evaluateNodesScenario = []expressionScenario{
 		document:   `a: hello`,
 		expression: `.`,
 		expected: []string{
-			"D0, P[], (doc)::a: hello\n",
+			"D0, P[], (!!map)::a: hello\n",
 		},
 	},
 	{
@@ -32,9 +34,23 @@ var evaluateNodesScenario = []expressionScenario{
 
 func TestAllAtOnceEvaluateNodes(t *testing.T) {
 	var evaluator = NewAllAtOnceEvaluator()
+	// logging.SetLevel(logging.DEBUG, "")
 	for _, tt := range evaluateNodesScenario {
-		node := test.ParseData(tt.document)
-		list, _ := evaluator.EvaluateNodes(tt.expression, &node)
+		decoder := NewYamlDecoder(NewDefaultYamlPreferences())
+		reader := bufio.NewReader(strings.NewReader(tt.document))
+		err := decoder.Init(reader)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		candidateNode, errorReading := decoder.Decode()
+
+		if errorReading != nil {
+			t.Error(errorReading)
+			return
+		}
+
+		list, _ := evaluator.EvaluateNodes(tt.expression, candidateNode)
 		test.AssertResultComplex(t, tt.expected, resultsToString(t, list))
 	}
 }

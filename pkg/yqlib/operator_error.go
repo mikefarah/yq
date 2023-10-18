@@ -14,7 +14,7 @@ func errorOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	}
 	errorMessage := "aborted"
 	if rhs.MatchingNodes.Len() > 0 {
-		errorMessage = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		errorMessage = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 	return Context{}, fmt.Errorf(errorMessage)
 }

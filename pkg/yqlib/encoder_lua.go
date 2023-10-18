@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type luaEncoder struct {
@@ -82,10 +80,10 @@ func (le *luaEncoder) PrintLeadingContent(writer io.Writer, content string) erro
 	return nil
 }
 
-func (le *luaEncoder) encodeString(writer io.Writer, node *yaml.Node) error {
+func (le *luaEncoder) encodeString(writer io.Writer, node *CandidateNode) error {
 	quote := "\""
 	switch node.Style {
-	case yaml.LiteralStyle, yaml.FoldedStyle, yaml.FlowStyle:
+	case LiteralStyle, FoldedStyle, FlowStyle:
 		for i := 0; i < 10; i++ {
 			if !strings.Contains(node.Value, "]"+strings.Repeat("=", i)+"]") {
 				err := writeString(writer, "["+strings.Repeat("=", i)+"[\n")
@@ -99,7 +97,7 @@ func (le *luaEncoder) encodeString(writer io.Writer, node *yaml.Node) error {
 				return writeString(writer, "]"+strings.Repeat("=", i)+"]")
 			}
 		}
-	case yaml.SingleQuotedStyle:
+	case SingleQuotedStyle:
 		quote = "'"
 
 		// fallthrough to regular ol' string
@@ -118,7 +116,7 @@ func (le *luaEncoder) writeIndent(writer io.Writer) error {
 	return writeString(writer, strings.Repeat(le.indentStr, le.indent))
 }
 
-func (le *luaEncoder) encodeArray(writer io.Writer, node *yaml.Node) error {
+func (le *luaEncoder) encodeArray(writer io.Writer, node *CandidateNode) error {
 	err := writeString(writer, "{")
 	if err != nil {
 		return err
@@ -181,7 +179,7 @@ func needsQuoting(s string) bool {
 	return false
 }
 
-func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node, global bool) error {
+func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bool) error {
 	if !global {
 		err := writeString(writer, "{")
 		if err != nil {
@@ -263,14 +261,14 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *yaml.Node, global bool) 
 	return writeString(writer, "}")
 }
 
-func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
+func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 	switch node.Kind {
-	case yaml.SequenceNode:
+	case SequenceNode:
 		return le.encodeArray(writer, node)
-	case yaml.MappingNode:
+	case MappingNode:
 		return le.encodeMap(writer, node, false)
-	case yaml.ScalarNode:
-		switch node.ShortTag() {
+	case ScalarNode:
+		switch node.Tag {
 		case "!!str":
 			return le.encodeString(writer, node)
 		case "!!null":
@@ -282,8 +280,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 			return writeString(writer, strings.ToLower(node.Value))
 		case "!!int":
 			if strings.HasPrefix(node.Value, "0o") {
-				var octalValue int
-				err := node.Decode(&octalValue)
+				_, octalValue, err := parseInt64(node.Value)
 				if err != nil {
 					return err
 				}
@@ -302,16 +299,14 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *yaml.Node) error {
 				return writeString(writer, node.Value)
 			}
 		default:
-			return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
+			return fmt.Errorf("Lua encoder NYI -- %s", node.Tag)
 		}
-	case yaml.DocumentNode:
-		return le.encodeAny(writer, node.Content[0])
 	default:
-		return fmt.Errorf("Lua encoder NYI -- %s", node.ShortTag())
+		return fmt.Errorf("Lua encoder NYI -- %s", node.Tag)
 	}
 }
 
-func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *yaml.Node) error {
+func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *CandidateNode) error {
 	err := writeString(writer, le.docPrefix)
 	if err != nil {
 		return err
@@ -323,12 +318,10 @@ func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *yaml.Node) error {
 	return writeString(writer, le.docSuffix)
 }
 
-func (le *luaEncoder) Encode(writer io.Writer, node *yaml.Node) error {
-	if node.Kind == yaml.DocumentNode {
-		return le.Encode(writer, node.Content[0])
-	}
+func (le *luaEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+
 	if le.globals {
-		if node.Kind != yaml.MappingNode {
+		if node.Kind != MappingNode {
 			return fmt.Errorf("--lua-global requires a top level MappingNode")
 		}
 		return le.encodeMap(writer, node, true)

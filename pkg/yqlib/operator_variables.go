@@ -72,10 +72,7 @@ func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp 
 		if prefs.IsReference {
 			variableValue.PushBack(el.Value)
 		} else {
-			candidateCopy, err := el.Value.(*CandidateNode).Copy()
-			if err != nil {
-				return Context{}, err
-			}
+			candidateCopy := el.Value.(*CandidateNode).Copy()
 			variableValue.PushBack(candidateCopy)
 		}
 		newContext := context.ChildContext(context.MatchingNodes)

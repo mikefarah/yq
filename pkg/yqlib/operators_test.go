@@ -14,7 +14,6 @@ import (
 
 	"github.com/mikefarah/yq/v4/test"
 	logging "gopkg.in/op/go-logging.v1"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type expressionScenario struct {
@@ -81,10 +80,11 @@ func testScenario(t *testing.T, s *expressionScenario) {
 		}
 	} else {
 		candidateNode := &CandidateNode{
-			Document:  0,
-			Filename:  "",
-			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
-			FileIndex: 0,
+			document:  0,
+			filename:  "",
+			Tag:       "!!null",
+			Kind:      ScalarNode,
+			fileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
 
@@ -131,6 +131,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 func resultToString(t *testing.T, n *CandidateNode) string {
 	var valueBuffer bytes.Buffer
+	log.Debugf("printing result %v", NodeToString(n))
 	printer := NewSimpleYamlPrinter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
 
 	err := printer.PrintResults(n.AsList())
@@ -139,13 +140,11 @@ func resultToString(t *testing.T, n *CandidateNode) string {
 		return ""
 	}
 
-	tag := n.Node.Tag
-	if n.Node.Kind == yaml.DocumentNode {
-		tag = "doc"
-	} else if n.Node.Kind == yaml.AliasNode {
+	tag := n.Tag
+	if n.Kind == AliasNode {
 		tag = "alias"
 	}
-	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.Document, n.Path, tag, valueBuffer.String())
+	return fmt.Sprintf(`D%v, P%v, (%v)::%v`, n.GetDocument(), n.GetPath(), tag, valueBuffer.String())
 }
 
 func resultsToString(t *testing.T, results *list.List) []string {
@@ -359,10 +358,11 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 		}
 	} else {
 		candidateNode := &CandidateNode{
-			Document:  0,
-			Filename:  "",
-			Node:      &yaml.Node{Tag: "!!null", Kind: yaml.ScalarNode},
-			FileIndex: 0,
+			document:  0,
+			filename:  "",
+			Tag:       "!!null",
+			Kind:      ScalarNode,
+			fileIndex: 0,
 		}
 		inputs.PushBack(candidateNode)
 

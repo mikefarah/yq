@@ -5,8 +5,6 @@ import (
 	"container/list"
 	"fmt"
 	"os"
-
-	"gopkg.in/yaml.v3"
 )
 
 var LoadYamlPreferences = YamlPreferences{
@@ -30,7 +28,7 @@ func loadString(filename string) (*CandidateNode, error) {
 		return nil, err
 	}
 
-	return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: string(filebytes)}}, nil
+	return &CandidateNode{Kind: ScalarNode, Tag: "!!str", Value: string(filebytes)}, nil
 }
 
 func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
@@ -51,15 +49,15 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 
 	if documents.Len() == 0 {
 		// return null candidate
-		return &CandidateNode{Node: &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!null"}}, nil
+		return &CandidateNode{Kind: ScalarNode, Tag: "!!null"}, nil
 	} else if documents.Len() == 1 {
 		candidate := documents.Front().Value.(*CandidateNode)
 		return candidate, nil
 
 	} else {
-		sequenceNode := &CandidateNode{Node: &yaml.Node{Kind: yaml.SequenceNode}}
+		sequenceNode := &CandidateNode{Kind: SequenceNode}
 		for doc := documents.Front(); doc != nil; doc = doc.Next() {
-			sequenceNode.Node.Content = append(sequenceNode.Node.Content, unwrapDoc(doc.Value.(*CandidateNode).Node))
+			sequenceNode.AddChild(doc.Value.(*CandidateNode))
 		}
 		return sequenceNode, nil
 	}
@@ -83,11 +81,11 @@ func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 			return Context{}, err
 		}
 		if rhs.MatchingNodes.Front() == nil {
-			return Context{}, fmt.Errorf("Filename expression returned nil")
+			return Context{}, fmt.Errorf("filename expression returned nil")
 		}
 		nameCandidateNode := rhs.MatchingNodes.Front().Value.(*CandidateNode)
 
-		filename := nameCandidateNode.Node.Value
+		filename := nameCandidateNode.Value
 
 		var contentsCandidate *CandidateNode
 

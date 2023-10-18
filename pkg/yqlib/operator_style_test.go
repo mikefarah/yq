@@ -10,7 +10,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `a: {b: thing, c: something}`,
 		expression:  `.a.b = "new" | .a.b style="double"`,
 		expected: []string{
-			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+			"D0, P[], (!!map)::a: {b: \"new\", c: something}\n",
 		},
 	},
 	{
@@ -18,7 +18,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:    `a: {b: thing, c: something}`,
 		expression:  `with(.a.b ; . = "new" | . style="double")`,
 		expected: []string{
-			"D0, P[], (doc)::a: {b: \"new\", c: something}\n",
+			"D0, P[], (!!map)::a: {b: \"new\", c: something}\n",
 		},
 	},
 	{
@@ -115,7 +115,7 @@ e: >-
 		document:    `{a: single, b: double}`,
 		expression:  `.[] style |= .`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 'single', b: \"double\"}\n",
+			"D0, P[], (!!map)::{a: 'single', b: \"double\"}\n",
 		},
 	},
 	{
@@ -123,7 +123,7 @@ e: >-
 		document:   `{a: cat, b: double}`,
 		expression: `.a style=.b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: \"cat\", b: double}\n",
+			"D0, P[], (!!map)::{a: \"cat\", b: double}\n",
 		},
 	},
 	{

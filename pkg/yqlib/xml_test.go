@@ -364,11 +364,10 @@ var xmlScenarios = []formatScenario{
 		expected:       "zoo:\n    animal:\n        - cat\n",
 	},
 	{
-		description:    "Parse xml: force all as an array",
-		subdescription: "Because of the way yq works, when updating everything you need to update the children before the parents. By default `..` will match parents first, so we reverse that before updating.",
-		input:          "<zoo><thing><frog>boing</frog></thing></zoo>",
-		expression:     "([..] | reverse | .[]) |= [] + .",
-		expected:       "- zoo:\n    - thing:\n        - frog:\n            - boing\n",
+		description: "Parse xml: force all as an array",
+		input:       "<zoo><thing><frog>boing</frog></thing></zoo>",
+		expression:  ".. |= [] + .",
+		expected:    "- zoo:\n    - thing:\n        - frog:\n            - boing\n",
 	},
 	{
 		description:    "Parse xml: attributes",
@@ -535,13 +534,6 @@ var xmlScenarios = []formatScenario{
 		skipDoc:       true,
 		input:         "[cat, dog]",
 		expectedError: "cannot encode !!seq to XML - only maps can be encoded",
-		scenarioType:  "encode-error",
-	},
-	{
-		description:   "scalars cannot be encoded",
-		skipDoc:       true,
-		input:         "mike",
-		expectedError: "cannot encode !!str to XML - only maps can be encoded",
 		scenarioType:  "encode-error",
 	},
 	{

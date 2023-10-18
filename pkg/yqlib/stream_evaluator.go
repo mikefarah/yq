@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 // A yaml expression evaluator that runs the expression multiple times for each given yaml document.
@@ -33,12 +31,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	if err != nil {
 		return err
 	}
-	candidateNode := &CandidateNode{
-		Document:  0,
-		Filename:  "",
-		Node:      &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{{Tag: "!!null", Kind: yaml.ScalarNode}}},
-		FileIndex: 0,
-	}
+	candidateNode := createScalarNode(nil, "")
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
 
@@ -98,9 +91,9 @@ func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *Expr
 		} else if errorReading != nil {
 			return currentIndex, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
-		candidateNode.Document = currentIndex
-		candidateNode.Filename = filename
-		candidateNode.FileIndex = s.fileIndex
+		candidateNode.document = currentIndex
+		candidateNode.filename = filename
+		candidateNode.fileIndex = s.fileIndex
 
 		inputList := list.New()
 		inputList.PushBack(candidateNode)

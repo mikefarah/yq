@@ -3,36 +3,25 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
+	"strings"
 )
 
-func isTruthyNode(node *yaml.Node) (bool, error) {
-	value := true
+func isTruthyNode(node *CandidateNode) bool {
+	if node == nil {
+		return false
+	}
 	if node.Tag == "!!null" {
-		return false, nil
+		return false
 	}
-	if node.Kind == yaml.ScalarNode && node.Tag == "!!bool" {
-		errDecoding := node.Decode(&value)
-		if errDecoding != nil {
-			return false, errDecoding
-		}
+	if node.Kind == ScalarNode && node.Tag == "!!bool" {
+		// yes/y/true/on
+		return (strings.EqualFold(node.Value, "y") ||
+			strings.EqualFold(node.Value, "yes") ||
+			strings.EqualFold(node.Value, "on") ||
+			strings.EqualFold(node.Value, "true"))
 
 	}
-	return value, nil
-}
-
-func isTruthy(c *CandidateNode) (bool, error) {
-	node := unwrapDoc(c.Node)
-	return isTruthyNode(node)
-}
-
-func getBoolean(candidate *CandidateNode) (bool, error) {
-	if candidate != nil {
-		candidate.Node = unwrapDoc(candidate.Node)
-		return isTruthy(candidate)
-	}
-	return false, nil
+	return true
 }
 
 func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
@@ -48,10 +37,7 @@ func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
 
 func returnRhsTruthy(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	owner := getOwner(lhs, rhs)
-	rhsBool, err := getBoolean(rhs)
-	if err != nil {
-		return nil, err
-	}
+	rhsBool := isTruthyNode(rhs)
 
 	return createBooleanCandidate(owner, rhsBool), nil
 }
@@ -61,7 +47,7 @@ func returnLHSWhen(targetBool bool) func(lhs *CandidateNode) (*CandidateNode, er
 		var err error
 		var lhsBool bool
 
-		if lhsBool, err = getBoolean(lhs); err != nil || lhsBool != targetBool {
+		if lhsBool = isTruthyNode(lhs); lhsBool != targetBool {
 			return nil, err
 		}
 		owner := &CandidateNode{}
@@ -72,29 +58,24 @@ func returnLHSWhen(targetBool bool) func(lhs *CandidateNode) (*CandidateNode, er
 	}
 }
 
-func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, sequenceNode *yaml.Node) (bool, error) {
+func findBoolean(wantBool bool, d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, sequenceNode *CandidateNode) (bool, error) {
 	for _, node := range sequenceNode.Content {
 
 		if expressionNode != nil {
 			//need to evaluate the expression against the node
-			candidate := &CandidateNode{Node: node}
-			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode)
+			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(node), expressionNode)
 			if err != nil {
 				return false, err
 			}
 			if rhs.MatchingNodes.Len() > 0 {
-				node = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node
+				node = rhs.MatchingNodes.Front().Value.(*CandidateNode)
 			} else {
 				// no results found, ignore this entry
 				continue
 			}
 		}
 
-		truthy, err := isTruthyNode(node)
-		if err != nil {
-			return false, err
-		}
-		if truthy == wantBool {
+		if isTruthyNode(node) == wantBool {
 			return true, nil
 		}
 	}
@@ -106,11 +87,10 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := unwrapDoc(candidate.Node)
-		if candidateNode.Kind != yaml.SequenceNode {
-			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		if candidate.Kind != SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidate.Tag)
 		}
-		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidateNode)
+		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidate)
 		if err != nil {
 			return Context{}, err
 		}
@@ -125,11 +105,10 @@ func anyOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := unwrapDoc(candidate.Node)
-		if candidateNode.Kind != yaml.SequenceNode {
-			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidateNode.Tag)
+		if candidate.Kind != SequenceNode {
+			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidate.Tag)
 		}
-		booleanResult, err := findBoolean(true, d, context, expressionNode.RHS, candidateNode)
+		booleanResult, err := findBoolean(true, d, context, expressionNode.RHS, candidate)
 		if err != nil {
 			return Context{}, err
 		}
@@ -164,10 +143,7 @@ func notOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		log.Debug("notOperation checking %v", candidate)
-		truthy, errDecoding := isTruthy(candidate)
-		if errDecoding != nil {
-			return Context{}, errDecoding
-		}
+		truthy := isTruthyNode(candidate)
 		result := createBooleanCandidate(candidate, !truthy)
 		results.PushBack(result)
 	}

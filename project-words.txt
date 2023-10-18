@@ -250,3 +250,4 @@ yqlib
 yuin
 zabbix
 tonumber
+noyaml

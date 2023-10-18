@@ -10,7 +10,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: dog}`,
 		expression:  `del(.b)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: cat}\n",
+			"D0, P[], (!!map)::{a: cat}\n",
 		},
 	},
 	{
@@ -18,7 +18,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `{a: {a1: fred, a2: frood}}`,
 		expression:  `del(.a.a1)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {a2: frood}}\n",
+			"D0, P[], (!!map)::{a: {a2: frood}}\n",
 		},
 	},
 	{
@@ -36,7 +36,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `a: fast`,
 		expression:  `del(select(.a == "fast"))`,
 		expected: []string{
-			"D0, P[], (doc)::a: slow\n",
+			"D0, P[], (!!map)::a: slow\n",
 		},
 	},
 	{
@@ -108,7 +108,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `[1,2,3]`,
 		expression:  `del(.[1])`,
 		expected: []string{
-			"D0, P[], (doc)::[1, 3]\n",
+			"D0, P[], (!!seq)::[1, 3]\n",
 		},
 	},
 	{
@@ -116,7 +116,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:   `a: [1,2,3]`,
 		expression: `del(.a[])`,
 		expected: []string{
-			"D0, P[], (doc)::a: []\n",
+			"D0, P[], (!!map)::a: []\n",
 		},
 	},
 	{
@@ -124,16 +124,20 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:   `a: [10,x,10, 10, x, 10]`,
 		expression: `del(.a[] | select(. == 10))`,
 		expected: []string{
-			"D0, P[], (doc)::a: [x, x]\n",
+			"D0, P[], (!!map)::a: [x, x]\n",
 		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: null`,
+		expression: `del(..)`,
+		expected:   []string{},
 	},
 	{
 		skipDoc:    true,
 		document:   `a: {thing1: yep, thing2: cool, thing3: hi, b: {thing1: cool, great: huh}}`,
 		expression: `del(..)`,
-		expected: []string{
-			"D0, P[], (!!map)::{}\n",
-		},
+		expected:   []string{},
 	},
 	{
 		skipDoc:    true,
@@ -148,7 +152,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `[{a: cat, b: dog}]`,
 		expression:  `del(.[0].a)`,
 		expected: []string{
-			"D0, P[], (doc)::[{b: dog}]\n",
+			"D0, P[], (!!seq)::[{b: dog}]\n",
 		},
 	},
 	{
@@ -156,7 +160,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: dog}`,
 		expression:  `del(.c)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: cat, b: dog}\n",
+			"D0, P[], (!!map)::{a: cat, b: dog}\n",
 		},
 	},
 	{
@@ -164,7 +168,7 @@ var deleteOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: dog, c: bat}`,
 		expression:  `del( .[] | select(. == "*at") )`,
 		expected: []string{
-			"D0, P[], (doc)::{b: dog}\n",
+			"D0, P[], (!!map)::{b: dog}\n",
 		},
 	},
 	{

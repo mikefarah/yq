@@ -8,7 +8,6 @@ import (
 	"math"
 
 	lua "github.com/yuin/gopher-lua"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type luaDecoder struct {
@@ -28,17 +27,17 @@ func (dec *luaDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.Node {
+func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *CandidateNode {
 	switch lv.Type() {
 	case lua.LTNil:
-		return &yaml.Node{
-			Kind:  yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:  ScalarNode,
 			Tag:   "!!null",
 			Value: "",
 		}
 	case lua.LTBool:
-		return &yaml.Node{
-			Kind:  yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:  ScalarNode,
 			Tag:   "!!bool",
 			Value: lv.String(),
 		}
@@ -46,22 +45,22 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 		n := float64(lua.LVAsNumber(lv))
 		// various special case floats
 		if math.IsNaN(n) {
-			return &yaml.Node{
-				Kind:  yaml.ScalarNode,
+			return &CandidateNode{
+				Kind:  ScalarNode,
 				Tag:   "!!float",
 				Value: ".nan",
 			}
 		}
 		if math.IsInf(n, 1) {
-			return &yaml.Node{
-				Kind:  yaml.ScalarNode,
+			return &CandidateNode{
+				Kind:  ScalarNode,
 				Tag:   "!!float",
 				Value: ".inf",
 			}
 		}
 		if math.IsInf(n, -1) {
-			return &yaml.Node{
-				Kind:  yaml.ScalarNode,
+			return &CandidateNode{
+				Kind:  ScalarNode,
 				Tag:   "!!float",
 				Value: "-.inf",
 			}
@@ -69,27 +68,27 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 
 		// does it look like an integer?
 		if n == float64(int(n)) {
-			return &yaml.Node{
-				Kind:  yaml.ScalarNode,
+			return &CandidateNode{
+				Kind:  ScalarNode,
 				Tag:   "!!int",
 				Value: lv.String(),
 			}
 		}
 
-		return &yaml.Node{
-			Kind:  yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:  ScalarNode,
 			Tag:   "!!float",
 			Value: lv.String(),
 		}
 	case lua.LTString:
-		return &yaml.Node{
-			Kind:  yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:  ScalarNode,
 			Tag:   "!!str",
 			Value: lv.String(),
 		}
 	case lua.LTFunction:
-		return &yaml.Node{
-			Kind:  yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:  ScalarNode,
 			Tag:   "tag:lua.org,2006,function",
 			Value: lv.String(),
 		}
@@ -97,12 +96,12 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 		// Simultaneously create a sequence and a map, pick which one to return
 		// based on whether all keys were consecutive integers
 		i := 1
-		yaml_sequence := &yaml.Node{
-			Kind: yaml.SequenceNode,
+		yaml_sequence := &CandidateNode{
+			Kind: SequenceNode,
 			Tag:  "!!seq",
 		}
-		yaml_map := &yaml.Node{
-			Kind: yaml.MappingNode,
+		yaml_map := &CandidateNode{
+			Kind: MappingNode,
 			Tag:  "!!map",
 		}
 		t := lv.(*lua.LTable)
@@ -113,11 +112,13 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 			} else {
 				i = 0
 			}
-			yaml_map.Content = append(yaml_map.Content, dec.convertToYamlNode(ls, k))
+			newKey := dec.convertToYamlNode(ls, k)
+
 			yv := dec.convertToYamlNode(ls, v)
-			yaml_map.Content = append(yaml_map.Content, yv)
+			yaml_map.AddKeyValueChild(newKey, yv)
+
 			if i != 0 {
-				yaml_sequence.Content = append(yaml_sequence.Content, yv)
+				yaml_sequence.AddChild(yv)
 			}
 			k, v = ls.Next(t, k)
 		}
@@ -126,8 +127,8 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 		}
 		return yaml_map
 	default:
-		return &yaml.Node{
-			Kind:        yaml.ScalarNode,
+		return &CandidateNode{
+			Kind:        ScalarNode,
 			LineComment: fmt.Sprintf("Unhandled Lua type: %s", lv.Type().String()),
 			Tag:         "!!null",
 			Value:       lv.String(),
@@ -135,7 +136,7 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *yaml.No
 	}
 }
 
-func (dec *luaDecoder) decideTopLevelNode(ls *lua.LState) *yaml.Node {
+func (dec *luaDecoder) decideTopLevelNode(ls *lua.LState) *CandidateNode {
 	if ls.GetTop() == 0 {
 		// no items were explicitly returned, encode the globals table instead
 		return dec.convertToYamlNode(ls, ls.Get(lua.GlobalsIndex))
@@ -160,10 +161,5 @@ func (dec *luaDecoder) Decode() (*CandidateNode, error) {
 	}
 	firstNode := dec.decideTopLevelNode(ls)
 	dec.finished = true
-	return &CandidateNode{
-		Node: &yaml.Node{
-			Kind:    yaml.DocumentNode,
-			Content: []*yaml.Node{firstNode},
-		},
-	}, nil
+	return firstNode, nil
 }

@@ -2,8 +2,6 @@ package yqlib
 
 import (
 	"container/list"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 /*
@@ -23,31 +21,47 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expres
 	context := originalContext.WritableClone()
 
 	if context.MatchingNodes.Len() == 0 {
-		node := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map", Value: "{}"}
-		candidate := &CandidateNode{Node: node}
+		candidate := &CandidateNode{Kind: MappingNode, Tag: "!!map", Value: "{}"}
+		log.Debugf("-- collectObjectOperation - starting with empty map")
 		return context.SingleChildContext(candidate), nil
 	}
 	first := context.MatchingNodes.Front().Value.(*CandidateNode)
-	var rotated = make([]*list.List, len(first.Node.Content))
+	var rotated = make([]*list.List, len(first.Content))
 
-	for i := 0; i < len(first.Node.Content); i++ {
+	for i := 0; i < len(first.Content); i++ {
 		rotated[i] = list.New()
 	}
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
-		for i := 0; i < len(first.Node.Content); i++ {
-			rotated[i].PushBack(candidateNode.CreateChildInArray(i, candidateNode.Node.Content[i]))
+
+		for i := 0; i < len(first.Content); i++ {
+			log.Debugf("rotate[%v] = %v", i, NodeToString(candidateNode.Content[i]))
+			log.Debugf("children:\n%v", NodeContentToString(candidateNode.Content[i], 0))
+			rotated[i].PushBack(candidateNode.Content[i])
 		}
 	}
+	log.Debugf("-- collectObjectOperation, length of rotated is %v", len(rotated))
 
 	newObject := list.New()
-	for i := 0; i < len(first.Node.Content); i++ {
+	for i := 0; i < len(first.Content); i++ {
 		additions, err := collect(d, context.ChildContext(list.New()), rotated[i])
 		if err != nil {
 			return Context{}, err
 		}
-		newObject.PushBackList(additions.MatchingNodes)
+		// we should reset the parents and keys of these top level nodes,
+		// as they are new
+		for el := additions.MatchingNodes.Front(); el != nil; el = el.Next() {
+			addition := el.Value.(*CandidateNode)
+			additionCopy := addition.Copy()
+
+			additionCopy.SetParent(nil)
+			additionCopy.Key = nil
+
+			log.Debugf("-- collectObjectOperation, adding result %v", NodeToString(additionCopy))
+
+			newObject.PushBack(additionCopy)
+		}
 	}
 
 	return context.ChildContext(newObject), nil
@@ -60,19 +74,17 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 	}
 
 	candidate := remainingMatches.Remove(remainingMatches.Front()).(*CandidateNode)
+	log.Debugf("-- collectObjectOperation - collect %v", NodeToString(candidate))
 
 	splatted, err := splat(context.SingleChildContext(candidate),
 		traversePreferences{DontFollowAlias: true, IncludeMapKeys: false})
-
-	for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
-		splatEl.Value.(*CandidateNode).Path = nil
-	}
 
 	if err != nil {
 		return Context{}, err
 	}
 
 	if context.MatchingNodes.Len() == 0 {
+		log.Debugf("-- collectObjectOperation - collect context is empty, next")
 		return collect(d, splatted, remainingMatches)
 	}
 
@@ -82,14 +94,12 @@ func collect(d *dataTreeNavigator, context Context, remainingMatches *list.List)
 		aggCandidate := el.Value.(*CandidateNode)
 		for splatEl := splatted.MatchingNodes.Front(); splatEl != nil; splatEl = splatEl.Next() {
 			splatCandidate := splatEl.Value.(*CandidateNode)
-			newCandidate, err := aggCandidate.Copy()
-			if err != nil {
-				return Context{}, err
-			}
-
-			newCandidate.Path = nil
+			log.Debugf("-- collectObjectOperation; splatCandidate: %v", NodeToString(splatCandidate))
+			newCandidate := aggCandidate.Copy()
+			log.Debugf("-- collectObjectOperation; aggCandidate: %v", NodeToString(aggCandidate))
 
 			newCandidate, err = multiply(multiplyPreferences{AppendArrays: false})(d, context, newCandidate, splatCandidate)
+
 			if err != nil {
 				return Context{}, err
 			}

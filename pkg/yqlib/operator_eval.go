@@ -17,7 +17,7 @@ func evalOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	for pathExpStrEntry := pathExpStrResults.MatchingNodes.Front(); pathExpStrEntry != nil; pathExpStrEntry = pathExpStrEntry.Next() {
 		expressionStrCandidate := pathExpStrEntry.Value.(*CandidateNode)
 
-		expressions[expIndex], err = ExpressionParser.ParseExpression(expressionStrCandidate.Node.Value)
+		expressions[expIndex], err = ExpressionParser.ParseExpression(expressionStrCandidate.Value)
 		if err != nil {
 			return Context{}, err
 		}

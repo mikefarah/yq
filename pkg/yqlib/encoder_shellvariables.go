@@ -7,7 +7,6 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/text/unicode/norm"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type shellVariablesEncoder struct {
@@ -29,7 +28,7 @@ func (pe *shellVariablesEncoder) PrintLeadingContent(_ io.Writer, _ string) erro
 	return nil
 }
 
-func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *yaml.Node) error {
+func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	mapKeysToStrings(node)
 	err := pe.doEncode(&writer, node, "")
@@ -40,12 +39,12 @@ func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *yaml.Node) error
 	return err
 }
 
-func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path string) error {
+func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, path string) error {
 
 	// Note this drops all comments.
 
 	switch node.Kind {
-	case yaml.ScalarNode:
+	case ScalarNode:
 		nonemptyPath := path
 		if path == "" {
 			// We can't assign an empty variable "=somevalue" because that would error out if sourced in a shell,
@@ -55,9 +54,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path st
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+quoteValue(node.Value)+"\n")
 		return err
-	case yaml.DocumentNode:
-		return pe.doEncode(w, node.Content[0], path)
-	case yaml.SequenceNode:
+	case SequenceNode:
 		for index, child := range node.Content {
 			err := pe.doEncode(w, child, appendPath(path, index))
 			if err != nil {
@@ -65,7 +62,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path st
 			}
 		}
 		return nil
-	case yaml.MappingNode:
+	case MappingNode:
 		for index := 0; index < len(node.Content); index = index + 2 {
 			key := node.Content[index]
 			value := node.Content[index+1]
@@ -75,7 +72,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *yaml.Node, path st
 			}
 		}
 		return nil
-	case yaml.AliasNode:
+	case AliasNode:
 		return pe.doEncode(w, node.Alias, path)
 	default:
 		return fmt.Errorf("Unsupported node %v", node.Tag)

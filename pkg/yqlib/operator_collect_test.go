@@ -7,6 +7,13 @@ import (
 var collectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		expression: `["x", "y"] | .[1]`,
+		expected: []string{
+			"D0, P[1], (!!str)::y\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   ``,
 		expression: `.a += [0]`,
 		expected: []string{

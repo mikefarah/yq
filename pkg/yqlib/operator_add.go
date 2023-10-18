@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func createAddOp(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode {
@@ -19,23 +17,21 @@ func addAssignOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return compoundAssignFunction(d, context, expressionNode, createAddOp)
 }
 
-func toNodes(candidate *CandidateNode, lhs *CandidateNode) ([]*yaml.Node, error) {
-	if candidate.Node.Tag == "!!null" {
-		return []*yaml.Node{}, nil
-	}
-	clone, err := candidate.Copy()
-	if err != nil {
-		return nil, err
+func toNodes(candidate *CandidateNode, lhs *CandidateNode) []*CandidateNode {
+	if candidate.Tag == "!!null" {
+		return []*CandidateNode{}
 	}
 
-	switch candidate.Node.Kind {
-	case yaml.SequenceNode:
-		return clone.Node.Content, nil
+	clone := candidate.Copy()
+
+	switch candidate.Kind {
+	case SequenceNode:
+		return clone.Content
 	default:
-		if len(lhs.Node.Content) > 0 {
-			clone.Node.Style = lhs.Node.Content[0].Style
+		if len(lhs.Content) > 0 {
+			clone.Style = lhs.Content[0].Style
 		}
-		return []*yaml.Node{clone.Node}, nil
+		return []*CandidateNode{clone}
 	}
 
 }
@@ -47,50 +43,42 @@ func addOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	lhs.Node = unwrapDoc(lhs.Node)
-	rhs.Node = unwrapDoc(rhs.Node)
-
-	lhsNode := lhs.Node
+	lhsNode := lhs
 
 	if lhsNode.Tag == "!!null" {
-		return lhs.CreateReplacement(rhs.Node), nil
+		return lhs.CopyAsReplacement(rhs), nil
 	}
 
-	target := lhs.CreateReplacement(&yaml.Node{
-		Anchor: lhs.Node.Anchor,
-	})
+	target := lhs.CopyWithoutContent()
 
 	switch lhsNode.Kind {
-	case yaml.MappingNode:
-		if rhs.Node.Kind != yaml.MappingNode {
-			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Node.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
+	case MappingNode:
+		if rhs.Kind != MappingNode {
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
 		}
 		addMaps(target, lhs, rhs)
-	case yaml.SequenceNode:
-		if err := addSequences(target, lhs, rhs); err != nil {
-			return nil, err
+	case SequenceNode:
+		addSequences(target, lhs, rhs)
+	case ScalarNode:
+		if rhs.Kind != ScalarNode {
+			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
 		}
-
-	case yaml.ScalarNode:
-		if rhs.Node.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("%v (%v) cannot be added to a %v (%v)", rhs.Node.Tag, rhs.GetNicePath(), lhsNode.Tag, lhs.GetNicePath())
-		}
-		target.Node.Kind = yaml.ScalarNode
-		target.Node.Style = lhsNode.Style
-		if err := addScalars(context, target, lhsNode, rhs.Node); err != nil {
+		target.Kind = ScalarNode
+		target.Style = lhsNode.Style
+		if err := addScalars(context, target, lhsNode, rhs); err != nil {
 			return nil, err
 		}
 	}
 	return target, nil
 }
 
-func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func addScalars(context Context, target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	lhsTag := lhs.Tag
-	rhsTag := guessTagFromCustomType(rhs)
+	rhsTag := rhs.guessTagFromCustomType()
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = guessTagFromCustomType(lhs)
+		lhsTag = lhs.guessTagFromCustomType()
 		lhsIsCustom = true
 	}
 
@@ -106,15 +94,16 @@ func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yam
 		return addDateTimes(context.GetDateTimeLayout(), target, lhs, rhs)
 
 	} else if lhsTag == "!!str" {
-		target.Node.Tag = lhs.Tag
+		target.Tag = lhs.Tag
 		if rhsTag == "!!null" {
-			target.Node.Value = lhs.Value
+			target.Value = lhs.Value
 		} else {
-			target.Node.Value = lhs.Value + rhs.Value
+			target.Value = lhs.Value + rhs.Value
 		}
+
 	} else if rhsTag == "!!str" {
-		target.Node.Tag = rhs.Tag
-		target.Node.Value = lhs.Value + rhs.Value
+		target.Tag = rhs.Tag
+		target.Value = lhs.Value + rhs.Value
 	} else if lhsTag == "!!int" && rhsTag == "!!int" {
 		format, lhsNum, err := parseInt64(lhs.Value)
 		if err != nil {
@@ -125,8 +114,8 @@ func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yam
 			return err
 		}
 		sum := lhsNum + rhsNum
-		target.Node.Tag = lhs.Tag
-		target.Node.Value = fmt.Sprintf(format, sum)
+		target.Tag = lhs.Tag
+		target.Value = fmt.Sprintf(format, sum)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
@@ -138,18 +127,18 @@ func addScalars(context Context, target *CandidateNode, lhs *yaml.Node, rhs *yam
 		}
 		sum := lhsNum + rhsNum
 		if lhsIsCustom {
-			target.Node.Tag = lhs.Tag
+			target.Tag = lhs.Tag
 		} else {
-			target.Node.Tag = "!!float"
+			target.Tag = "!!float"
 		}
-		target.Node.Value = fmt.Sprintf("%v", sum)
+		target.Value = fmt.Sprintf("%v", sum)
 	} else {
 		return fmt.Errorf("%v cannot be added to %v", lhsTag, rhsTag)
 	}
 	return nil
 }
 
-func addDateTimes(layout string, target *CandidateNode, lhs *yaml.Node, rhs *yaml.Node) error {
+func addDateTimes(layout string, target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 
 	duration, err := time.ParseDuration(rhs.Value)
 	if err != nil {
@@ -162,52 +151,57 @@ func addDateTimes(layout string, target *CandidateNode, lhs *yaml.Node, rhs *yam
 	}
 
 	newTime := currentTime.Add(duration)
-	target.Node.Value = newTime.Format(layout)
+	target.Value = newTime.Format(layout)
 	return nil
 
 }
 
-func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
-	target.Node.Kind = yaml.SequenceNode
-	if len(lhs.Node.Content) > 0 {
-		target.Node.Style = lhs.Node.Style
+func addSequences(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) {
+	log.Debugf("adding sequences! target: %v; lhs %v; rhs: %v", NodeToString(target), NodeToString(lhs), NodeToString(rhs))
+	target.Kind = SequenceNode
+	if len(lhs.Content) == 0 {
+		log.Debugf("dont copy lhs style")
+		target.Style = 0
 	}
-	target.Node.Tag = lhs.Node.Tag
+	target.Tag = lhs.Tag
 
-	extraNodes, err := toNodes(rhs, lhs)
-	if err != nil {
-		return err
-	}
+	extraNodes := toNodes(rhs, lhs)
 
-	target.Node.Content = append(deepCloneContent(lhs.Node.Content), extraNodes...)
-	return nil
-
+	target.AddChildren(lhs.Content)
+	target.AddChildren(extraNodes)
 }
 
 func addMaps(target *CandidateNode, lhsC *CandidateNode, rhsC *CandidateNode) {
-	lhs := lhsC.Node
-	rhs := rhsC.Node
+	lhs := lhsC
+	rhs := rhsC
 
-	target.Node.Content = make([]*yaml.Node, len(lhs.Content))
-	copy(target.Node.Content, lhs.Content)
+	if len(lhs.Content) == 0 {
+		log.Debugf("dont copy lhs style")
+		target.Style = 0
+	}
+
+	target.Content = make([]*CandidateNode, 0)
+	target.AddChildren(lhs.Content)
 
 	for index := 0; index < len(rhs.Content); index = index + 2 {
 		key := rhs.Content[index]
 		value := rhs.Content[index+1]
 		log.Debug("finding %v", key.Value)
-		indexInLHS := findKeyInMap(target.Node, key)
+		indexInLHS := findKeyInMap(target, key)
 		log.Debug("indexInLhs %v", indexInLHS)
 		if indexInLHS < 0 {
 			// not in there, append it
-			target.Node.Content = append(target.Node.Content, key, value)
+			target.AddKeyValueChild(key, value)
 		} else {
 			// it's there, replace it
-			target.Node.Content[indexInLHS+1] = value
+			oldValue := target.Content[indexInLHS+1]
+			newValueCopy := oldValue.CopyAsReplacement(value)
+			target.Content[indexInLHS+1] = newValueCopy
 		}
 	}
-	target.Node.Kind = yaml.MappingNode
+	target.Kind = MappingNode
 	if len(lhs.Content) > 0 {
-		target.Node.Style = lhs.Style
+		target.Style = lhs.Style
 	}
-	target.Node.Tag = lhs.Tag
+	target.Tag = lhs.Tag
 }

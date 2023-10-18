@@ -10,7 +10,7 @@ var arrayToMapScenarios = []expressionScenario{
 		document:    `cool: [null, null, hello]`,
 		expression:  `.cool |= array_to_map`,
 		expected: []string{
-			"D0, P[], (doc)::cool:\n    2: hello\n",
+			"D0, P[], (!!map)::cool:\n    2: hello\n",
 		},
 	},
 }

@@ -10,7 +10,7 @@ var unionOperatorScenarios = []expressionScenario{
 		document:   "{}",
 		expression: `(.a, .b.c) as $x | .`,
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{

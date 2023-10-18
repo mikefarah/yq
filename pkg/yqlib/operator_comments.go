@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"container/list"
 	"regexp"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type commentOpPreferences struct {
@@ -35,12 +33,16 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 		}
 
 		if rhs.MatchingNodes.Front() != nil {
-			comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+			comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 	}
 
+	log.Debugf("AssignComments comment is %v", comment)
+
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		log.Debugf("AssignComments lhs %v", NodeToString(candidate))
 
 		if expressionNode.Operation.UpdateAssign {
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
@@ -49,26 +51,21 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 			}
 
 			if rhs.MatchingNodes.Front() != nil {
-				comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+				comment = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 			}
 		}
 
 		log.Debugf("Setting comment of : %v", candidate.GetKey())
 		if preferences.LineComment {
-			candidate.Node.LineComment = comment
+			log.Debugf("Setting line comment of : %v to %v", candidate.GetKey(), comment)
+			candidate.LineComment = comment
 		}
 		if preferences.HeadComment {
-			candidate.Node.HeadComment = comment
+			candidate.HeadComment = comment
 			candidate.LeadingContent = "" // clobber the leading content, if there was any.
 		}
-		if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode && comment != "" {
-			candidate.TrailingContent = "# " + comment
-		} else if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode {
-			candidate.TrailingContent = comment
-
-		} else if preferences.FootComment && candidate.Node.Kind != yaml.DocumentNode {
-			candidate.Node.FootComment = comment
-			candidate.TrailingContent = ""
+		if preferences.FootComment {
+			candidate.FootComment = comment
 		}
 
 	}
@@ -91,7 +88,8 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 		candidate := el.Value.(*CandidateNode)
 		comment := ""
 		if preferences.LineComment {
-			comment = candidate.Node.LineComment
+			log.Debugf("Reading line comment of : %v to %v", candidate.GetKey(), candidate.LineComment)
+			comment = candidate.LineComment
 		} else if preferences.HeadComment && candidate.LeadingContent != "" {
 			var chompRegexp = regexp.MustCompile(`\n$`)
 			var output bytes.Buffer
@@ -106,18 +104,18 @@ func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *
 			comment = output.String()
 			comment = chompRegexp.ReplaceAllString(comment, "")
 		} else if preferences.HeadComment {
-			comment = candidate.Node.HeadComment
-		} else if preferences.FootComment && candidate.Node.Kind == yaml.DocumentNode && candidate.TrailingContent != "" {
-			comment = candidate.TrailingContent
+			comment = candidate.HeadComment
 		} else if preferences.FootComment {
-			comment = candidate.Node.FootComment
+			comment = candidate.FootComment
 		}
 		comment = startCommentCharacterRegExp.ReplaceAllString(comment, "")
 		comment = subsequentCommentCharacterRegExp.ReplaceAllString(comment, "\n")
 
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: comment, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
-		result.LeadingContent = "" // don't include the leading yaml content when retrieving a comment
+		result := candidate.CreateReplacement(ScalarNode, "!!str", comment)
+		if candidate.IsMapKey {
+			result.IsMapKey = false
+			result.Key = candidate
+		}
 		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil

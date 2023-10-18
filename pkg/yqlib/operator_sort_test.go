@@ -51,7 +51,7 @@ var sortByOperatorScenarios = []expressionScenario{
 		document:    "cool: [{a: banana},{a: cat},{a: apple}]",
 		expression:  `.cool |= sort_by(.a)`,
 		expected: []string{
-			"D0, P[], (doc)::cool: [{a: apple}, {a: banana}, {a: cat}]\n",
+			"D0, P[], (!!map)::cool: [{a: apple}, {a: banana}, {a: cat}]\n",
 		},
 	},
 	{
@@ -60,7 +60,7 @@ var sortByOperatorScenarios = []expressionScenario{
 		document:       "cool: [{b: banana},{a: banana},{c: banana}]",
 		expression:     `.cool |= sort_by(keys | .[0])`,
 		expected: []string{
-			"D0, P[], (doc)::cool: [{a: banana}, {b: banana}, {c: banana}]\n",
+			"D0, P[], (!!map)::cool: [{a: banana}, {b: banana}, {c: banana}]\n",
 		},
 	},
 	{

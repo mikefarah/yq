@@ -4,8 +4,6 @@ import (
 	"container/list"
 	"fmt"
 	"strconv"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func tryConvertToNumber(value string) (string, bool) {
@@ -31,22 +29,20 @@ func toNumberOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		if candidate.Node.Kind != yaml.ScalarNode {
-			return Context{}, fmt.Errorf("cannot convert node at path %v of tag %v to number", candidate.GetNicePath(), candidate.GetNiceTag())
+		if candidate.Kind != ScalarNode {
+			return Context{}, fmt.Errorf("cannot convert node at path %v of tag %v to number", candidate.GetNicePath(), candidate.Tag)
 		}
 
-		if candidate.Node.Tag == "!!int" || candidate.Node.Tag == "!!float" {
+		if candidate.Tag == "!!int" || candidate.Tag == "!!float" {
 			// it already is a number!
 			results.PushBack(candidate)
 		} else {
-			tag, converted := tryConvertToNumber(candidate.Node.Value)
+			tag, converted := tryConvertToNumber(candidate.Value)
 			if converted {
-				node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Node.Value, Tag: tag}
-
-				result := candidate.CreateReplacement(node)
+				result := candidate.CreateReplacement(ScalarNode, tag, candidate.Value)
 				results.PushBack(result)
 			} else {
-				return Context{}, fmt.Errorf("cannot convert node value [%v] at path %v of tag %v to number", candidate.Node.Value, candidate.GetNicePath(), candidate.GetNiceTag())
+				return Context{}, fmt.Errorf("cannot convert node value [%v] at path %v of tag %v to number", candidate.Value, candidate.GetNicePath(), candidate.Tag)
 			}
 
 		}

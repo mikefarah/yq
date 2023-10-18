@@ -4,8 +4,6 @@ import (
 	"container/list"
 	"fmt"
 	"math/rand"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func shuffleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -20,18 +18,17 @@ func shuffleOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		candidateNode := unwrapDoc(candidate.Node)
-
-		if candidateNode.Kind != yaml.SequenceNode {
-			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.GetNiceTag())
+		if candidate.Kind != SequenceNode {
+			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.Tag)
 		}
 
-		result := deepClone(candidateNode)
+		result := candidate.Copy()
 
 		a := result.Content
 
 		myRand.Shuffle(len(a), func(i, j int) { a[i], a[j] = a[j], a[i] })
-		results.PushBack(candidate.CreateReplacement(result))
+
+		results.PushBack(result)
 	}
 	return context.ChildContext(results), nil
 }

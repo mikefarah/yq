@@ -5,7 +5,6 @@ import (
 
 	"github.com/alecthomas/repr"
 	"github.com/mikefarah/yq/v4/test"
-	yaml "gopkg.in/yaml.v3"
 )
 
 type participleLexerScenario struct {
@@ -64,11 +63,9 @@ var participleLexerScenarios = []participleLexerScenario{
 					Value:         0,
 					StringValue:   "0",
 					CandidateNode: &CandidateNode{
-						Node: &yaml.Node{
-							Kind:  yaml.ScalarNode,
-							Tag:   "!!int",
-							Value: "0",
-						},
+						Kind:  ScalarNode,
+						Tag:   "!!int",
+						Value: "0",
 					},
 				},
 			},
@@ -87,11 +84,9 @@ var participleLexerScenarios = []participleLexerScenario{
 					Value:         int64(3),
 					StringValue:   "3",
 					CandidateNode: &CandidateNode{
-						Node: &yaml.Node{
-							Kind:  yaml.Kind(8),
-							Tag:   "!!int",
-							Value: "3",
-						},
+						Kind:  ScalarNode,
+						Tag:   "!!int",
+						Value: "3",
 					},
 				},
 			},
@@ -129,11 +124,9 @@ var participleLexerScenarios = []participleLexerScenario{
 					Value:         int64(-2),
 					StringValue:   "-2",
 					CandidateNode: &CandidateNode{
-						Node: &yaml.Node{
-							Kind:  yaml.ScalarNode,
-							Tag:   "!!int",
-							Value: "-2",
-						},
+						Kind:  ScalarNode,
+						Tag:   "!!int",
+						Value: "-2",
 					},
 				},
 			},
@@ -654,11 +647,9 @@ var participleLexerScenarios = []participleLexerScenario{
 					StringValue:   "string with a\n",
 					Preferences:   nil,
 					CandidateNode: &CandidateNode{
-						Node: &yaml.Node{
-							Kind:  yaml.ScalarNode,
-							Tag:   "!!str",
-							Value: "string with a\n",
-						},
+						Kind:  ScalarNode,
+						Tag:   "!!str",
+						Value: "string with a\n",
 					},
 				},
 			},
@@ -675,11 +666,9 @@ var participleLexerScenarios = []participleLexerScenario{
 					StringValue:   `string with a "`,
 					Preferences:   nil,
 					CandidateNode: &CandidateNode{
-						Node: &yaml.Node{
-							Kind:  yaml.ScalarNode,
-							Tag:   "!!str",
-							Value: `string with a "`,
-						},
+						Kind:  ScalarNode,
+						Tag:   "!!str",
+						Value: `string with a "`,
 					},
 				},
 			},

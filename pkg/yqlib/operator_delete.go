@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -17,54 +15,53 @@ func deleteChildOperator(d *dataTreeNavigator, context Context, expressionNode *
 	for el := nodesToDelete.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
-		if candidate.Node.Kind == yaml.DocumentNode {
-			//need to delete this node from context.
-			newResults := list.New()
-			for item := context.MatchingNodes.Front(); item != nil; item = item.Next() {
-				nodeInContext := item.Value.(*CandidateNode)
-				if nodeInContext.Node != candidate.Node {
-					newResults.PushBack(nodeInContext)
-				} else {
-					log.Info("Need to delete this %v", NodeToString(nodeInContext))
-				}
-			}
-			return context.ChildContext(newResults), nil
-		} else if candidate.Parent == nil {
-			//problem: context may already be '.a' and then I pass in '.a.a2'.
-			// should pass in .a2.
-			log.Info("Could not find parent of %v", NodeToString(candidate))
-			return context, nil
+		if candidate.Parent == nil {
+			// must be a top level thing, delete it
+			return removeFromContext(context, candidate)
 		}
+		log.Debugf("processing deletion of candidate %v", NodeToString(candidate))
 
-		parentNode := candidate.Parent.Node
-		childPath := candidate.Path[len(candidate.Path)-1]
+		parentNode := candidate.Parent
 
-		if parentNode.Kind == yaml.MappingNode {
+		candidatePath := candidate.GetPath()
+		childPath := candidatePath[len(candidatePath)-1]
+
+		if parentNode.Kind == MappingNode {
 			deleteFromMap(candidate.Parent, childPath)
-		} else if parentNode.Kind == yaml.SequenceNode {
+		} else if parentNode.Kind == SequenceNode {
 			deleteFromArray(candidate.Parent, childPath)
 		} else {
-			return Context{}, fmt.Errorf("Cannot delete nodes from parent of tag %v", parentNode.Tag)
+			return Context{}, fmt.Errorf("cannot delete nodes from parent of tag %v", parentNode.Tag)
 		}
 	}
 	return context, nil
 }
 
-func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
+func removeFromContext(context Context, candidate *CandidateNode) (Context, error) {
+	newResults := list.New()
+	for item := context.MatchingNodes.Front(); item != nil; item = item.Next() {
+		nodeInContext := item.Value.(*CandidateNode)
+		if nodeInContext != candidate {
+			newResults.PushBack(nodeInContext)
+		} else {
+			log.Info("Need to delete this %v", NodeToString(nodeInContext))
+		}
+	}
+	return context.ChildContext(newResults), nil
+}
+
+func deleteFromMap(node *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromMap")
-	node := unwrapDoc(candidate.Node)
 	contents := node.Content
-	newContents := make([]*yaml.Node, 0)
+	newContents := make([]*CandidateNode, 0)
 
 	for index := 0; index < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
 
-		childCandidate := candidate.CreateChildInMap(key, value)
-
 		shouldDelete := key.Value == childPath
 
-		log.Debugf("shouldDelete %v ? %v", childCandidate.GetKey(), shouldDelete)
+		log.Debugf("shouldDelete %v ? %v", NodeToString(value), shouldDelete)
 
 		if !shouldDelete {
 			newContents = append(newContents, key, value)
@@ -73,11 +70,10 @@ func deleteFromMap(candidate *CandidateNode, childPath interface{}) {
 	node.Content = newContents
 }
 
-func deleteFromArray(candidate *CandidateNode, childPath interface{}) {
+func deleteFromArray(node *CandidateNode, childPath interface{}) {
 	log.Debug("deleteFromArray")
-	node := unwrapDoc(candidate.Node)
 	contents := node.Content
-	newContents := make([]*yaml.Node, 0)
+	newContents := make([]*CandidateNode, 0)
 
 	for index := 0; index < len(contents); index = index + 1 {
 		value := contents[index]

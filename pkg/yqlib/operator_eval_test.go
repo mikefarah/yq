@@ -21,7 +21,7 @@ var evalOperatorScenarios = []expressionScenario{
 		environmentVariables: map[string]string{"pathEnv": ".a.b[0].name", "valueEnv": "moo"},
 		expression:           `eval(strenv(pathEnv)) = strenv(valueEnv)`,
 		expected: []string{
-			"D0, P[], (doc)::{a: {b: [{name: moo}, {name: cat}]}}\n",
+			"D0, P[], (!!map)::{a: {b: [{name: moo}, {name: cat}]}}\n",
 		},
 	},
 }

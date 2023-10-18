@@ -3,8 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 func getFilenameOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -14,8 +12,7 @@ func getFilenameOperator(d *dataTreeNavigator, context Context, expressionNode *
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: candidate.Filename, Tag: "!!str"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!str", candidate.GetFilename())
 		results.PushBack(result)
 	}
 
@@ -29,8 +26,7 @@ func getFileIndexOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		node := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprintf("%v", candidate.FileIndex), Tag: "!!int"}
-		result := candidate.CreateReplacement(node)
+		result := candidate.CreateReplacement(ScalarNode, "!!int", fmt.Sprintf("%v", candidate.GetFileIndex()))
 		results.PushBack(result)
 	}
 

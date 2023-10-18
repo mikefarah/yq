@@ -51,9 +51,9 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 		} else if errorReading != nil {
 			return nil, fmt.Errorf("bad file '%v': %w", filename, errorReading)
 		}
-		candidateNode.Document = currentIndex
-		candidateNode.Filename = filename
-		candidateNode.FileIndex = fileIndex
+		candidateNode.document = currentIndex
+		candidateNode.filename = filename
+		candidateNode.fileIndex = fileIndex
 		candidateNode.EvaluateTogether = true
 
 		inputList.PushBack(candidateNode)

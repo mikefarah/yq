@@ -9,10 +9,7 @@ func alternativeOperator(d *dataTreeNavigator, context Context, expressionNode *
 			if lhs == nil {
 				return nil, nil
 			}
-			truthy, err := isTruthy(lhs)
-			if err != nil {
-				return nil, err
-			}
+			truthy := isTruthyNode(lhs)
 			if truthy {
 				return lhs, nil
 			}
@@ -29,15 +26,9 @@ func alternativeFunc(d *dataTreeNavigator, context Context, lhs *CandidateNode, 
 	if rhs == nil {
 		return lhs, nil
 	}
-	lhs.Node = unwrapDoc(lhs.Node)
-	rhs.Node = unwrapDoc(rhs.Node)
-	log.Debugf("Alternative LHS: %v", lhs.Node.Tag)
-	log.Debugf("-          RHS: %v", rhs.Node.Tag)
 
-	isTrue, err := isTruthy(lhs)
-	if err != nil {
-		return nil, err
-	} else if isTrue {
+	isTrue := isTruthyNode(lhs)
+	if isTrue {
 		return lhs, nil
 	}
 	return rhs, nil

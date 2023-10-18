@@ -98,6 +98,16 @@ const expectedDecodedYaml = `person:
     - pizza
 `
 
+const expectedDecodedPersonYaml = `# block comments come through
+# comments on values appear
+name: Mike Wazowski
+pets:
+  # comments on array values appear
+  - cat
+food:
+  - pizza
+`
+
 const expectedPropertiesNoComments = `person.name = Mike Wazowski
 person.pets.0 = cat
 person.food.0 = pizza
@@ -147,6 +157,32 @@ var propertyScenarios = []formatScenario{
 		expected:     expectedDecodedYaml,
 		scenarioType: "decode",
 	},
+
+	{
+		skipDoc:      true,
+		description:  "Decode properties - keeps key information",
+		input:        expectedPropertiesUnwrapped,
+		expression:   ".person.name | key",
+		expected:     "name\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Decode properties - keeps parent information",
+		input:        expectedPropertiesUnwrapped,
+		expression:   ".person.name | parent",
+		expected:     expectedDecodedPersonYaml,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Decode properties - keeps path information",
+		input:        expectedPropertiesUnwrapped,
+		expression:   ".person.name | path",
+		expected:     "- person\n- name\n",
+		scenarioType: "decode",
+	},
+
 	{
 		description:    "Decode properties - array should be a map",
 		subdescription: "If you have a numeric map key in your property files, use array_to_map to convert them to maps.",

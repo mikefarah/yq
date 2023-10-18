@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
 type changeCasePrefs struct {
@@ -16,17 +14,15 @@ type changeCasePrefs struct {
 func trimSpaceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
+		node := el.Value.(*CandidateNode)
 
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot trim %v, can only operate on strings. ", node.Tag)
 		}
 
-		newStringNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: node.Tag, Style: node.Style}
-		newStringNode.Value = strings.TrimSpace(node.Value)
-		results.PushBack(candidate.CreateReplacement(newStringNode))
+		newStringNode := node.CreateReplacement(ScalarNode, node.Tag, strings.TrimSpace(node.Value))
+		newStringNode.Style = node.Style
+		results.PushBack(newStringNode)
 
 	}
 
@@ -38,21 +34,21 @@ func changeCaseOperator(d *dataTreeNavigator, context Context, expressionNode *E
 	prefs := expressionNode.Operation.Preferences.(changeCasePrefs)
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
+		node := el.Value.(*CandidateNode)
 
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot change case with %v, can only operate on strings. ", node.Tag)
 		}
 
-		newStringNode := &yaml.Node{Kind: yaml.ScalarNode, Tag: node.Tag, Style: node.Style}
+		value := ""
 		if prefs.ToUpperCase {
-			newStringNode.Value = strings.ToUpper(node.Value)
+			value = strings.ToUpper(node.Value)
 		} else {
-			newStringNode.Value = strings.ToLower(node.Value)
+			value = strings.ToLower(node.Value)
 		}
-		results.PushBack(candidate.CreateReplacement(newStringNode))
+		newStringNode := node.CreateReplacement(ScalarNode, node.Tag, value)
+		newStringNode.Style = node.Style
+		results.PushBack(newStringNode)
 
 	}
 
@@ -69,7 +65,7 @@ func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, contex
 		return "", "", err
 	}
 	if regExNodes.MatchingNodes.Front() != nil {
-		regEx = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		regEx = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 
 	log.Debug("regEx %v", regEx)
@@ -79,15 +75,15 @@ func getSubstituteParameters(d *dataTreeNavigator, block *ExpressionNode, contex
 		return "", "", err
 	}
 	if replacementNodes.MatchingNodes.Front() != nil {
-		replacementText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		replacementText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 
 	return regEx, replacementText, nil
 }
 
-func substitute(original string, regex *regexp.Regexp, replacement string) *yaml.Node {
+func substitute(original string, regex *regexp.Regexp, replacement string) (Kind, string, string) {
 	replacedString := regex.ReplaceAllString(original, replacement)
-	return &yaml.Node{Kind: yaml.ScalarNode, Value: replacedString, Tag: "!!str"}
+	return ScalarNode, "!!str", replacedString
 }
 
 func substituteStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -110,15 +106,12 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		node := el.Value.(*CandidateNode)
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot substitute with %v, can only substitute strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		targetNode := substitute(node.Value, regEx, replacementText)
-		result := candidate.CreateReplacement(targetNode)
+		result := node.CreateReplacement(substitute(node.Value, regEx, replacementText))
 		results.PushBack(result)
 	}
 
@@ -126,7 +119,7 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 
 }
 
-func addMatch(original []*yaml.Node, match string, offset int, name string) []*yaml.Node {
+func addMatch(original []*CandidateNode, match string, offset int, name string) []*CandidateNode {
 
 	newContent := append(original,
 		createScalarNode("string", "string"))
@@ -188,21 +181,18 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 	}
 
 	for i, matches := range allMatches {
-		capturesListNode := &yaml.Node{Kind: yaml.SequenceNode}
+		capturesListNode := &CandidateNode{Kind: SequenceNode}
 		match, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
-			captureNode := &yaml.Node{Kind: yaml.MappingNode}
-			captureNode.Content = addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1])
-			capturesListNode.Content = append(capturesListNode.Content, captureNode)
+			captureNode := &CandidateNode{Kind: MappingNode}
+			captureNode.AddChildren(addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1]))
+			capturesListNode.AddChild(captureNode)
 		}
 
-		node := &yaml.Node{Kind: yaml.MappingNode}
-		node.Content = addMatch(node.Content, match, allIndices[i][0], "")
-		node.Content = append(node.Content,
-			createScalarNode("captures", "captures"),
-			capturesListNode,
-		)
-		results.PushBack(candidate.CreateReplacement(node))
+		node := candidate.CreateReplacement(MappingNode, "!!map", "")
+		node.AddChildren(addMatch(node.Content, match, allIndices[i][0], ""))
+		node.AddKeyValueChild(createScalarNode("captures", "captures"), capturesListNode)
+		results.PushBack(node)
 
 	}
 
@@ -219,27 +209,25 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 	}
 
 	for i, matches := range allMatches {
-		capturesNode := &yaml.Node{Kind: yaml.MappingNode}
+		capturesNode := candidate.CreateReplacement(MappingNode, "!!map", "")
 
 		_, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
-			capturesNode.Content = append(capturesNode.Content,
-				createScalarNode(subNames[j+1], subNames[j+1]))
+
+			keyNode := createScalarNode(subNames[j+1], subNames[j+1])
+			var valueNode *CandidateNode
 
 			offset := allIndices[i][2+j*2]
 			// offset of -1 means there was no match, force a null value like jq
 			if offset < 0 {
-				capturesNode.Content = append(capturesNode.Content,
-					createScalarNode(nil, "null"),
-				)
+				valueNode = createScalarNode(nil, "null")
 			} else {
-				capturesNode.Content = append(capturesNode.Content,
-					createScalarNode(submatch, submatch),
-				)
+				valueNode = createScalarNode(submatch, submatch)
 			}
+			capturesNode.AddKeyValueChild(keyNode, valueNode)
 		}
 
-		results.PushBack(candidate.CreateReplacement(capturesNode))
+		results.PushBack(capturesNode)
 
 	}
 
@@ -260,7 +248,7 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 		}
 		paramText := ""
 		if replacementNodes.MatchingNodes.Front() != nil {
-			paramText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+			paramText = replacementNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 		if strings.Contains(paramText, "g") {
 			paramText = strings.ReplaceAll(paramText, "g", "")
@@ -281,7 +269,7 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 	log.Debug(NodesToString(regExNodes.MatchingNodes))
 	regExStr := ""
 	if regExNodes.MatchingNodes.Front() != nil {
-		regExStr = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		regExStr = regExNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 	log.Debug("regEx %v", regExStr)
 	regEx, err := regexp.Compile(regExStr)
@@ -297,14 +285,12 @@ func matchOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		node := el.Value.(*CandidateNode)
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 
-		match(matchPrefs, regEx, candidate, node.Value, results)
+		match(matchPrefs, regEx, node, node.Value, results)
 	}
 
 	return context.ChildContext(results), nil
@@ -319,13 +305,11 @@ func captureOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		node := el.Value.(*CandidateNode)
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
-		capture(matchPrefs, regEx, candidate, node.Value, results)
+		capture(matchPrefs, regEx, node, node.Value, results)
 
 	}
 
@@ -341,14 +325,12 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
-
-		if guessTagFromCustomType(node) != "!!str" {
+		node := el.Value.(*CandidateNode)
+		if node.guessTagFromCustomType() != "!!str" {
 			return Context{}, fmt.Errorf("cannot match with %v, can only match strings. Hint: Most often you'll want to use '|=' over '=' for this operation", node.Tag)
 		}
 		matches := regEx.FindStringSubmatch(node.Value)
-		results.PushBack(createBooleanCandidate(candidate, len(matches) > 0))
+		results.PushBack(createBooleanCandidate(node, len(matches) > 0))
 
 	}
 
@@ -364,26 +346,24 @@ func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		return Context{}, err
 	}
 	if rhs.MatchingNodes.Front() != nil {
-		joinStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		joinStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
-		if node.Kind != yaml.SequenceNode {
+		node := el.Value.(*CandidateNode)
+		if node.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("cannot join with %v, can only join arrays of scalars", node.Tag)
 		}
-		targetNode := join(node.Content, joinStr)
-		result := candidate.CreateReplacement(targetNode)
+		result := node.CreateReplacement(join(node.Content, joinStr))
 		results.PushBack(result)
 	}
 
 	return context.ChildContext(results), nil
 }
 
-func join(content []*yaml.Node, joinStr string) *yaml.Node {
+func join(content []*CandidateNode, joinStr string) (Kind, string, string) {
 	var stringsToJoin []string
 	for _, node := range content {
 		str := node.Value
@@ -393,7 +373,7 @@ func join(content []*yaml.Node, joinStr string) *yaml.Node {
 		stringsToJoin = append(stringsToJoin, str)
 	}
 
-	return &yaml.Node{Kind: yaml.ScalarNode, Value: strings.Join(stringsToJoin, joinStr), Tag: "!!str"}
+	return ScalarNode, "!!str", strings.Join(stringsToJoin, joinStr)
 }
 
 func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -405,41 +385,41 @@ func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *
 		return Context{}, err
 	}
 	if rhs.MatchingNodes.Front() != nil {
-		splitStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Node.Value
+		splitStr = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
 
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-		candidate := el.Value.(*CandidateNode)
-		node := unwrapDoc(candidate.Node)
+		node := el.Value.(*CandidateNode)
 		if node.Tag == "!!null" {
 			continue
 		}
 
-		if guessTagFromCustomType(node) != "!!str" {
-			return Context{}, fmt.Errorf("Cannot split %v, can only split strings", node.Tag)
+		if node.guessTagFromCustomType() != "!!str" {
+			return Context{}, fmt.Errorf("cannot split %v, can only split strings", node.Tag)
 		}
-		targetNode := split(node.Value, splitStr)
-		result := candidate.CreateReplacement(targetNode)
+		kind, tag, content := split(node.Value, splitStr)
+		result := node.CreateReplacement(kind, tag, "")
+		result.AddChildren(content)
 		results.PushBack(result)
 	}
 
 	return context.ChildContext(results), nil
 }
 
-func split(value string, spltStr string) *yaml.Node {
-	var contents []*yaml.Node
+func split(value string, spltStr string) (Kind, string, []*CandidateNode) {
+	var contents []*CandidateNode
 
 	if value != "" {
 		log.Debug("going to spltStr[%v]", spltStr)
 		var newStrings = strings.Split(value, spltStr)
-		contents = make([]*yaml.Node, len(newStrings))
+		contents = make([]*CandidateNode, len(newStrings))
 
 		for index, str := range newStrings {
-			contents[index] = &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: str}
+			contents[index] = &CandidateNode{Kind: ScalarNode, Tag: "!!str", Value: str}
 		}
 	}
 
-	return &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq", Content: contents}
+	return SequenceNode, "!!seq", contents
 }

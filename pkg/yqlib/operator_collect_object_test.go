@@ -7,6 +7,20 @@ import (
 var collectObjectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		expression: `{"name": "mike"} | .name`,
+		expected: []string{
+			"D0, P[name], (!!str)::mike\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `{"person": {"names": ["mike"]}} | .person.names[0]`,
+		expected: []string{
+			"D0, P[person names 0], (!!str)::mike\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[{name: cat}, {name: dog}]`,
 		expression: `.[] | {.name: "great"}`,
 		expected: []string{
@@ -26,7 +40,7 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		document:   "a: []",
 		expression: `.a += [{"key": "att2", "value": "val2"}]`,
 		expected: []string{
-			"D0, P[], (doc)::a:\n    - key: att2\n      value: val2\n",
+			"D0, P[], (!!map)::a:\n    - key: att2\n      value: val2\n",
 		},
 	},
 	{
@@ -62,22 +76,24 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:    true,
-		document:   "{name: Mike}\n",
-		document2:  "{name: Bob}\n",
-		expression: `{"wrap": .}`,
+		skipDoc:     true,
+		description: "Two documents",
+		document:    "{name: Mike}\n",
+		document2:   "{name: Bob}\n",
+		expression:  `{"wrap": .}`,
 		expected: []string{
 			"D0, P[], (!!map)::wrap: {name: Mike}\n",
 			"D0, P[], (!!map)::wrap: {name: Bob}\n",
 		},
 	},
 	{
-		skipDoc:    true,
-		document:   "{name: Mike}\n---\n{name: Bob}",
-		expression: `{"wrap": .}`,
+		skipDoc:     true,
+		description: "two embedded documents",
+		document:    "{name: Mike}\n---\n{name: Bob}",
+		expression:  `{"wrap": .}`,
 		expected: []string{
 			"D0, P[], (!!map)::wrap: {name: Mike}\n",
-			"D0, P[], (!!map)::wrap: {name: Bob}\n",
+			"D1, P[], (!!map)::wrap: {name: Bob}\n",
 		},
 	},
 	{
@@ -105,8 +121,8 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::Mike: cat\n",
 			"D0, P[], (!!map)::Mike: dog\n",
-			"D0, P[], (!!map)::Rosey: monkey\n",
-			"D0, P[], (!!map)::Rosey: sheep\n",
+			"D1, P[], (!!map)::Rosey: monkey\n",
+			"D1, P[], (!!map)::Rosey: sheep\n",
 		},
 	},
 	{

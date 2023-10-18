@@ -18,16 +18,11 @@ func selectOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		// find any truthy node
-		var errDecoding error
 		includeResult := false
 
 		for resultEl := rhs.MatchingNodes.Front(); resultEl != nil; resultEl = resultEl.Next() {
 			result := resultEl.Value.(*CandidateNode)
-			includeResult, errDecoding = isTruthy(result)
-			log.Debugf("isTruthy %v", includeResult)
-			if errDecoding != nil {
-				return Context{}, errDecoding
-			}
+			includeResult = isTruthyNode(result)
 			if includeResult {
 				break
 			}

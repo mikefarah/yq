@@ -2,20 +2,18 @@ package yqlib
 
 import (
 	"io"
-
-	yaml "gopkg.in/yaml.v3"
 )
 
 type Encoder interface {
-	Encode(writer io.Writer, node *yaml.Node) error
+	Encode(writer io.Writer, node *CandidateNode) error
 	PrintDocumentSeparator(writer io.Writer) error
 	PrintLeadingContent(writer io.Writer, content string) error
 	CanHandleAliases() bool
 }
 
-func mapKeysToStrings(node *yaml.Node) {
+func mapKeysToStrings(node *CandidateNode) {
 
-	if node.Kind == yaml.MappingNode {
+	if node.Kind == MappingNode {
 		for index, child := range node.Content {
 			if index%2 == 0 { // its a map key
 				child.Tag = "!!str"

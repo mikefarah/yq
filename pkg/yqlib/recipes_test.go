@@ -33,7 +33,7 @@ var recipes = []expressionScenario{
 			"See the [assign](https://mikefarah.gitbook.io/yq/operators/assign-update) and [add](https://mikefarah.gitbook.io/yq/operators/add) operators for more information.",
 		},
 		expected: []string{
-			"D0, P[], (doc)::[{name: Foo, numBuckets: 1}, {name: Bar, numBuckets: 0}]\n",
+			"D0, P[], (!!seq)::[{name: Foo, numBuckets: 1}, {name: Bar, numBuckets: 0}]\n",
 		},
 	},
 	{
@@ -48,7 +48,7 @@ var recipes = []expressionScenario{
 			"See the [with](https://mikefarah.gitbook.io/yq/operators/with) operator for more information and examples.",
 		},
 		expected: []string{
-			"D0, P[], (doc)::myArray: [{name: Foo - cat, type: cat}, {name: Bar - dog, type: dog}]\n",
+			"D0, P[], (!!map)::myArray: [{name: Foo - cat, type: cat}, {name: Bar - dog, type: dog}]\n",
 		},
 	},
 	{
@@ -61,7 +61,7 @@ var recipes = []expressionScenario{
 			"So, we use `|=` to update `.myArray`. This is the same as doing `.myArray = (.myArray | sort_by(.numBuckets))`",
 		},
 		expected: []string{
-			"D0, P[], (doc)::myArray: [{name: Bar, numBuckets: 0}, {name: Foo, numBuckets: 1}]\n",
+			"D0, P[], (!!map)::myArray: [{name: Bar, numBuckets: 0}, {name: Foo, numBuckets: 1}]\n",
 		},
 	},
 	{

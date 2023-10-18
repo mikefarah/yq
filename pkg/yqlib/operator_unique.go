@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/elliotchance/orderedmap"
-	yaml "gopkg.in/yaml.v3"
 )
 
 func unique(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -22,15 +21,13 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		candidateNode := unwrapDoc(candidate.Node)
 
-		if candidateNode.Kind != yaml.SequenceNode {
+		if candidate.Kind != SequenceNode {
 			return Context{}, fmt.Errorf("Only arrays are supported for unique")
 		}
 
 		var newMatches = orderedmap.NewOrderedMap()
-		for _, node := range candidateNode.Content {
-			child := &CandidateNode{Node: node}
+		for _, child := range candidate.Content {
 			rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(child), expressionNode.RHS)
 
 			if err != nil {
@@ -42,21 +39,21 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 			if rhs.MatchingNodes.Len() > 0 {
 				first := rhs.MatchingNodes.Front()
 				keyCandidate := first.Value.(*CandidateNode)
-				keyValue = keyCandidate.Node.Value
+				keyValue = keyCandidate.Value
 			}
 
 			_, exists := newMatches.Get(keyValue)
 
 			if !exists {
-				newMatches.Set(keyValue, child.Node)
+				newMatches.Set(keyValue, child)
 			}
 		}
-		resultNode := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+		resultNode := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidate.Style)
 		for el := newMatches.Front(); el != nil; el = el.Next() {
-			resultNode.Content = append(resultNode.Content, el.Value.(*yaml.Node))
+			resultNode.AddChild(el.Value.(*CandidateNode))
 		}
 
-		results.PushBack(candidate.CreateReplacementWithDocWrappers(resultNode))
+		results.PushBack(resultNode)
 	}
 
 	return context.ChildContext(results), nil

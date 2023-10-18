@@ -14,7 +14,7 @@ Given a sample.json file of:
 ```
 then
 ```bash
-yq -P '.' sample.json
+yq -p=json sample.json
 ```
 will output
 ```yaml
@@ -30,16 +30,16 @@ Given a sample.json file of:
 ```
 then
 ```bash
-yq -P '.' sample.json
+yq -p=json sample.json
 ```
 will output
 ```yaml
 a: Easy! as one two three
 b:
-  c: 2
-  d:
-    - 3
-    - 4
+    c: 2
+    d:
+        - 3
+        - 4
 ```
 
 ## Encode json: simple

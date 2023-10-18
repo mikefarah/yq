@@ -18,7 +18,7 @@ func assertEncodesTo(t *testing.T, yaml string, shellvars string) {
 	if err != nil {
 		panic(err)
 	}
-	node := inputs.Front().Value.(*CandidateNode).Node
+	node := inputs.Front().Value.(*CandidateNode)
 	err = encoder.Encode(writer, node)
 	if err != nil {
 		panic(err)

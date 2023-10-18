@@ -8,8 +8,7 @@ type assignPreferences struct {
 
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		rhs.Node = unwrapDoc(rhs.Node)
-		if !prefs.OnlyWriteNull || lhs.Node.Tag == "!!null" {
+		if !prefs.OnlyWriteNull || lhs.Tag == "!!null" {
 			lhs.UpdateFrom(rhs, prefs)
 		}
 		return lhs, nil
@@ -46,7 +45,11 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 		return context, err
 	}
 
-	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+	//traverse backwards through the context -
+	// like delete, we need to run against the children first.
+	// (e.g. consider when running with expression '.. |= [.]' - we need
+	// to wrap the children first
+	for el := lhs.MatchingNodes.Back(); el != nil; el = el.Prev() {
 		candidate := el.Value.(*CandidateNode)
 
 		rhs, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
@@ -60,7 +63,6 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 		if first != nil {
 			rhsCandidate := first.Value.(*CandidateNode)
-			rhsCandidate.Node = unwrapDoc(rhsCandidate.Node)
 			candidate.UpdateFrom(rhsCandidate, prefs)
 		}
 	}
@@ -92,7 +94,7 @@ func assignAttributesOperator(d *dataTreeNavigator, context Context, expressionN
 			if expressionNode.Operation.Preferences != nil {
 				prefs = expressionNode.Operation.Preferences.(assignPreferences)
 			}
-			if !prefs.OnlyWriteNull || candidate.Node.Tag == "!!null" {
+			if !prefs.OnlyWriteNull || candidate.Tag == "!!null" {
 				candidate.UpdateAttributesFrom(first.Value.(*CandidateNode), prefs)
 			}
 		}

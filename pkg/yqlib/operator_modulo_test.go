@@ -19,7 +19,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:   `{}`,
 		expression: "(.a / .b) as $x | .",
 		expected: []string{
-			"D0, P[], (doc)::{}\n",
+			"D0, P[], (!!map)::{}\n",
 		},
 	},
 	{
@@ -28,7 +28,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:       `{a: 13, b: 2}`,
 		expression:     `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: 1, b: 2}\n",
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
 		},
 	},
 	{
@@ -37,7 +37,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:       `{a: 12, b: 2.5}`,
 		expression:     `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!float 2, b: 2.5}\n",
+			"D0, P[], (!!map)::{a: !!float 2, b: 2.5}\n",
 		},
 	},
 	{
@@ -53,7 +53,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:       `{a: 1.1, b: 0}`,
 		expression:     `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (doc)::{a: !!float NaN, b: 0}\n",
+			"D0, P[], (!!map)::{a: !!float NaN, b: 0}\n",
 		},
 	},
 	{
@@ -62,7 +62,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:    "a: !horse 333.975\nb: !goat 299.2",
 		expression:  `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !horse 34.775000000000034\nb: !goat 299.2\n",
+			"D0, P[], (!!map)::a: !horse 34.775000000000034\nb: !goat 299.2\n",
 		},
 	},
 	{
@@ -70,7 +70,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:   "a: 2\nb: !goat 2.3",
 		expression: `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (doc)::a: !!float 2\nb: !goat 2.3\n",
+			"D0, P[], (!!map)::a: !!float 2\nb: !goat 2.3\n",
 		},
 	},
 	{
@@ -79,7 +79,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:    "a: &horse [1]",
 		expression:  `.a[1] = .a[0] % 2`,
 		expected: []string{
-			"D0, P[], (doc)::a: &horse [1, 1]\n",
+			"D0, P[], (!!map)::a: &horse [1, 1]\n",
 		},
 	},
 	{
