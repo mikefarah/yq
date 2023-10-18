@@ -112,11 +112,13 @@ func (dec *luaDecoder) convertToYamlNode(ls *lua.LState, lv lua.LValue) *Candida
 			} else {
 				i = 0
 			}
-			yaml_map.Content = append(yaml_map.Content, dec.convertToYamlNode(ls, k))
+			newKey := dec.convertToYamlNode(ls, k)
+
 			yv := dec.convertToYamlNode(ls, v)
-			yaml_map.Content = append(yaml_map.Content, yv)
+			yaml_map.AddKeyValueChild(newKey, yv)
+
 			if i != 0 {
-				yaml_sequence.Content = append(yaml_sequence.Content, yv)
+				yaml_sequence.AddChild(yv)
 			}
 			k, v = ls.Next(t, k)
 		}

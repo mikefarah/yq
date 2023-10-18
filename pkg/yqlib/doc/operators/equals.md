@@ -21,3 +21,113 @@ The not equals `!=` operator returns `false` if the LHS is equal to the RHS.
 - select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
 
 
+## Match string
+Given a sample.yml file of:
+```yaml
+- cat
+- goat
+- dog
+```
+then
+```bash
+yq '.[] | (. == "*at")' sample.yml
+```
+will output
+```yaml
+true
+true
+false
+```
+
+## Don't match string
+Given a sample.yml file of:
+```yaml
+- cat
+- goat
+- dog
+```
+then
+```bash
+yq '.[] | (. != "*at")' sample.yml
+```
+will output
+```yaml
+false
+false
+true
+```
+
+## Match number
+Given a sample.yml file of:
+```yaml
+- 3
+- 4
+- 5
+```
+then
+```bash
+yq '.[] | (. == 4)' sample.yml
+```
+will output
+```yaml
+false
+true
+false
+```
+
+## Don't match number
+Given a sample.yml file of:
+```yaml
+- 3
+- 4
+- 5
+```
+then
+```bash
+yq '.[] | (. != 4)' sample.yml
+```
+will output
+```yaml
+true
+false
+true
+```
+
+## Match nulls
+Running
+```bash
+yq --null-input 'null == ~'
+```
+will output
+```yaml
+true
+```
+
+## Non existent key doesn't equal a value
+Given a sample.yml file of:
+```yaml
+a: frog
+```
+then
+```bash
+yq 'select(.b != "thing")' sample.yml
+```
+will output
+```yaml
+a: frog
+```
+
+## Two non existent keys are equal
+Given a sample.yml file of:
+```yaml
+a: frog
+```
+then
+```bash
+yq 'select(.b == .c)' sample.yml
+```
+will output
+```yaml
+a: frog
+```
+

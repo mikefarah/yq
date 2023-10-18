@@ -170,15 +170,15 @@ var anchorOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{b: &meow purr, a: *meow}\n",
 		},
 	},
-	// {
-	// 	description: "Dont explode alias and anchor - check alias parent",
-	// 	skipDoc:     true,
-	// 	document:    `{a: &a [1], b: *a}`,
-	// 	expression:  `.b[]`,
-	// 	expected: []string{
-	// 		"D0, P[b], (!!str)::cat\n",
-	// 	},
-	// },
+	{
+		description: "Dont explode alias and anchor - check alias parent",
+		skipDoc:     true,
+		document:    `{a: &a [1], b: *a}`,
+		expression:  `.b[]`,
+		expected: []string{
+			"D0, P[a 0], (!!int)::1\n",
+		},
+	},
 	{
 		description: "Explode alias and anchor - check alias parent",
 		skipDoc:     true,

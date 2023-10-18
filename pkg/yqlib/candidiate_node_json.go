@@ -76,7 +76,6 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 			if err := dec.Decode(childValue); err != nil {
 				return err
 			}
-
 			o.Content = append(o.Content, childKey, childValue)
 		}
 		// unexpected error
@@ -133,10 +132,6 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 	enc.SetEscapeHTML(false) // do not escape html chars e.g. &, <, >
 
 	switch o.Kind {
-	// case DocumentNode:
-	// 	log.Debugf("MarshalJSON DocumentNode")
-	// 	err := enc.Encode(o.Content[0])
-	// 	return buf.Bytes(), err
 	case AliasNode:
 		log.Debugf("MarshalJSON AliasNode")
 		err := enc.Encode(o.Alias)

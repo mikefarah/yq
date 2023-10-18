@@ -108,22 +108,6 @@ func (o *CandidateNode) decodeIntoChild(childNode *yaml.Node, anchorMap map[stri
 func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*CandidateNode) error {
 	log.Debugf("UnmarshalYAML %v", node.Tag)
 	switch node.Kind {
-	// case yaml.DocumentNode:
-	// 	log.Debugf("UnmarshalYAML -  a document")
-	// 	o.Kind = DocumentNode
-	// 	o.copyFromYamlNode(node, anchorMap)
-	// 	if len(node.Content) == 0 {
-	// 		return nil
-	// 	}
-
-	// 	singleChild, err := o.decodeIntoChild(node.Content[0], anchorMap)
-
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	o.Content = []*CandidateNode{singleChild}
-	// 	log.Debugf("UnmarshalYAML -  finished document node")
-	// 	return nil
 	case yaml.AliasNode:
 		log.Debug("UnmarshalYAML - alias from yaml: %v", o.Tag)
 		o.Kind = AliasNode
@@ -197,19 +181,6 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 	log.Debug("MarshalYAML to yaml: %v", o.Tag)
 	switch o.Kind {
-	// case DocumentNode:
-	// 	log.Debug("MarshalYAML its a document")
-	// 	target := &yaml.Node{Kind: yaml.DocumentNode}
-	// 	o.copyToYamlNode(target)
-
-	// 	singleChild, err := o.Content[0].MarshalYAML()
-
-	// 	log.Debug("MarshalYAML its a document - singChild is %v", singleChild)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	target.Content = []*yaml.Node{singleChild}
-	// 	return target, nil
 	case AliasNode:
 		log.Debug("MarshalYAML - alias to yaml: %v", o.Tag)
 		target := &yaml.Node{Kind: yaml.AliasNode}

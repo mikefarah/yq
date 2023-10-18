@@ -53,7 +53,6 @@ func keysOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 			return Context{}, fmt.Errorf("Cannot get keys of %v, keys only works for maps and arrays", candidate.Tag)
 		}
 
-		// result := candidate.CreateReplacement(targetNode)
 		results.PushBack(targetNode)
 	}
 

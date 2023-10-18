@@ -174,8 +174,7 @@ func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingVa
 	if mappingEntry.FootComment != nil {
 		valueNode.FootComment = mappingEntry.FootComment.String()
 	}
-
-	o.Content = append(o.Content, keyNode, valueNode)
+	o.AddKeyValueChild(keyNode, valueNode)
 
 	return nil
 }

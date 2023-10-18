@@ -127,6 +127,22 @@ var jsonScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		skipDoc:      true,
+		description:  "Parse json: deeper: path",
+		input:        `{"cat": {"noises": "meow"}}`,
+		expression:   ".cat.noises | path",
+		expected:     "[\"cat\",\"noises\"]\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse json: array path",
+		input:        `{"cat": {"noises": ["meow"]}}`,
+		expression:   ".cat.noises[0] | path",
+		expected:     "[\"cat\",\"noises\",0]\n",
+		scenarioType: "decode",
+	},
+	{
 		description:   "bad json",
 		skipDoc:       true,
 		input:         `{"a": 1 b": 2}`,
@@ -342,8 +358,10 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 
 func testJSONScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
-	case "encode", "decode":
+	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewJSONEncoder(s.indent, false, false)), s.description)
+	case "decode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(s.indent, false, false)), s.description)
 	case "decode-ndjson":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-ndjson":
