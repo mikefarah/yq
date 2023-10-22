@@ -72,6 +72,15 @@ EOL
   assertEquals "\"cat\"" "$X"
 }
 
+testOutputYamlRawOnRoot() {
+  cat >test.yml <<EOL
+'a'
+EOL
+
+  X=$(./yq e -r '.' test.yml)
+  assertEquals "a" "$X"
+}
+
 testOutputJsonRaw() {
   cat >test.yml <<EOL
 a: cat
