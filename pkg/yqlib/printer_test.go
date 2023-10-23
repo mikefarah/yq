@@ -390,3 +390,23 @@ func TestPrinterNulSeparatorWithJson(t *testing.T) {
 	writer.Flush()
 	test.AssertResult(t, expected, output.String())
 }
+
+func TestPrinterRootUnwrap(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewSimpleYamlPrinter(writer, YamlOutputFormat, true, false, 2, false)
+	node, err := getExpressionParser().ParseExpression(".")
+	if err != nil {
+		panic(err)
+	}
+	streamEvaluator := NewStreamEvaluator()
+	_, err = streamEvaluator.Evaluate("sample", strings.NewReader("'a'"), node, printer, NewYamlDecoder(ConfiguredYamlPreferences))
+	if err != nil {
+		panic(err)
+	}
+
+	writer.Flush()
+    expected := `a
+`
+	test.AssertResult(t, expected, output.String())
+}
