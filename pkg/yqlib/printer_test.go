@@ -406,7 +406,7 @@ func TestPrinterRootUnwrap(t *testing.T) {
 	}
 
 	writer.Flush()
-    expected := `a
+	expected := `a
 `
 	test.AssertResult(t, expected, output.String())
 }
