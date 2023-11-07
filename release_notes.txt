@@ -1,3 +1,11 @@
+4.40.1:
+  - Added tonumber support
+  - Added kind operator
+  - Lua output fixes (#1811) - Thanks @Zash!
+  - Add support for Lua input (#1810) - Thanks @Zash!
+  - Rewrote parsing engine - yq now has its own AST!
+  - Bumped dependencies
+
 4.35.2:
   - Fix various typos #1798
   - Fixed number parsing as float bug in JSON #1756
