@@ -96,6 +96,17 @@ testBasicExpressionFromFile() {
   assertEquals '{"xyz":"meow","cool":"frog"}' "$X"
 }
 
+testBasicExpressionFromFileDos() {
+  ./yq -n ".xyz = 123" > test.yml
+  echo '.xyz = "meow" | .cool = "frog"' | sed 's/$'"/`echo \\\r`/" > instructions.txt
+  
+  X=$(./yq --from-file instructions.txt test.yml -o=j -I=0)
+  assertEquals '{"xyz":"meow","cool":"frog"}' "$X"
+
+  X=$(./yq ea --from-file instructions.txt test.yml -o=j -I=0)
+  assertEquals '{"xyz":"meow","cool":"frog"}' "$X"
+}
+
 testBasicGitHubAction() {
   ./yq -n ".a = 123" > test.yml
   X=$(cat /dev/null | ./yq test.yml)

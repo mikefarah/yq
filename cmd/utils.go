@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
@@ -256,7 +257,8 @@ func processArgs(originalArgs []string) (string, []string, error) {
 		if err != nil {
 			return "", nil, err
 		}
-		expression = string(expressionBytes)
+		//replace \r\n (windows) with good ol' unix file endings.
+		expression = strings.ReplaceAll(string(expressionBytes), "\r\n", "\n")
 	}
 
 	args := processStdInArgs(originalArgs)
