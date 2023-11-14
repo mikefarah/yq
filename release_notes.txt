@@ -1,5 +1,5 @@
 4.40.1:
-  - Added tonumber support
+  - Added tonumber support (#1664, #71)
   - Added kind operator
   - Lua output fixes (#1811) - Thanks @Zash!
   - Add support for Lua input (#1810) - Thanks @Zash!
