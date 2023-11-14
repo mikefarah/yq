@@ -20,6 +20,9 @@ type yamlDecoder struct {
 	leadingContent string
 	bufferRead     bytes.Buffer
 
+	// anchor map persists over multiple documents for convenience.
+	anchorMap map[string]*CandidateNode
+
 	readAnything  bool
 	firstFile     bool
 	documentIndex uint
@@ -95,6 +98,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	dec.decoder = *yaml.NewDecoder(readerToUse)
 	dec.firstFile = false
 	dec.documentIndex = 0
+	dec.anchorMap = make(map[string]*CandidateNode)
 	return nil
 }
 
@@ -121,7 +125,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 
 	candidateNode := CandidateNode{document: dec.documentIndex}
 	// don't bother with the DocumentNode
-	err = candidateNode.UnmarshalYAML(yamlNode.Content[0], make(map[string]*CandidateNode))
+	err = candidateNode.UnmarshalYAML(yamlNode.Content[0], dec.anchorMap)
 	if err != nil {
 		return nil, err
 	}

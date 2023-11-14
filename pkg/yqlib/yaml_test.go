@@ -33,6 +33,13 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "[null]\n",
 	},
 	{
+		description: "multi document anchor map",
+		skipDoc:     true,
+		input:       "a: &remember mike\n---\nb: *remember",
+		expression:  "explode(.)",
+		expected:    "a: mike\n---\nb: mike\n",
+	},
+	{
 		description: "basic - [~]",
 		skipDoc:     true,
 		input:       "[~]",
