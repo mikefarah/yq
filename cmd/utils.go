@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
@@ -256,6 +257,13 @@ func processArgs(originalArgs []string) (string, []string, error) {
 		if err != nil {
 			return "", nil, err
 		}
+
+		//detect and trim shebang (`#!`) line
+		if string(expressionBytes[0:2]) == "#!" {
+			eos := slices.Index(expressionBytes, '\n')
+			expressionBytes = expressionBytes[eos+1:]
+		}
+
 		expression = string(expressionBytes)
 	}
 
