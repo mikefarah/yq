@@ -362,6 +362,12 @@ EOM
   assertEquals "$expected" "$X"
 }
 
-
+testBasicClosedStdIn() {
+  cat >test.yml <<EOL
+a: 1
+EOL
+  X=$(./yq e '.a' test.yml <&-)
+  assertEquals "1" "$X"
+}
 
 source ./scripts/shunit2
