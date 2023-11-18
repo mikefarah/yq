@@ -20,6 +20,12 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "~\n",
 	},
 	{
+		description: "comment",
+		skipDoc:     true,
+		input:       "# cat",
+		expected:    "# cat\n",
+	},
+	{
 		description: "octal",
 		skipDoc:     true,
 		input:       "0o30",
@@ -100,7 +106,7 @@ var yamlParseScenarios = []expressionScenario{
 }
 
 func testYamlScenario(t *testing.T, s formatScenario) {
-	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(NewDefaultYamlPreferences()), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 }
 
 func TestYamlParseScenarios(t *testing.T) {
