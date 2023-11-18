@@ -1,3 +1,10 @@
+4.40.2:
+  - Do not panic when StdIn is closed (#1867) Thanks @aleskandro!
+  - Fixed issue when update against self #1869
+  - Fixed multi doc anchor bug #1861
+  - Fixes doc line separator issue when reading expression file #1860
+  - Bumped dependencies
+
 4.40.1:
   - Added tonumber support (#1664, #71)
   - Added kind operator
