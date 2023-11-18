@@ -227,8 +227,11 @@ func maybeFile(str string) bool {
 }
 
 func processStdInArgs(args []string) []string {
-	stat, _ := os.Stdin.Stat()
-	pipingStdin := (stat.Mode() & os.ModeCharDevice) == 0
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		yqlib.GetLogger().Debugf("error getting stdin: %v", err)
+	}
+	pipingStdin := stat != nil && (stat.Mode()&os.ModeCharDevice) == 0
 
 	// if we've been given a file, don't automatically
 	// read from stdin.
