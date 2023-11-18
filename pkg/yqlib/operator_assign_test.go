@@ -18,6 +18,15 @@ var assignOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Create yaml file",
+		document:    "a: {b: 3}",
+		expression:  `.a |= .`,
+		skipDoc:     true,
+		expected: []string{
+			"D0, P[], (!!map)::a: {b: 3}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   "{}",
 		expression: `.a |= .b`,

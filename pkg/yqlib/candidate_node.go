@@ -368,7 +368,10 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 
 // updates this candidate from the given candidate node
 func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences) {
-
+	if n == other {
+		log.Debugf("UpdateFrom, no need to update from myself.")
+		return
+	}
 	// if this is an empty map or empty array, use the style of other node.
 	if (n.Kind != ScalarNode && len(n.Content) == 0) ||
 		// if the tag has changed (e.g. from str to bool)
