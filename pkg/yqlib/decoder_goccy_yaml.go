@@ -17,6 +17,7 @@ type goccyYamlDecoder struct {
 	cm           yaml.CommentMap
 	bufferRead   bytes.Buffer
 	readAnything bool
+	anchorMap    map[string]*CandidateNode
 }
 
 func NewGoccyYAMLDecoder() Decoder {
@@ -26,6 +27,7 @@ func NewGoccyYAMLDecoder() Decoder {
 func (dec *goccyYamlDecoder) Init(reader io.Reader) error {
 	dec.cm = yaml.CommentMap{}
 	dec.readAnything = false
+	dec.anchorMap = make(map[string]*CandidateNode)
 	readerToUse := io.TeeReader(reader, &dec.bufferRead)
 	dec.decoder = *yaml.NewDecoder(readerToUse, yaml.CommentToMap(dec.cm), yaml.UseOrderedMap())
 	return nil
@@ -57,7 +59,7 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	candidateNode := &CandidateNode{}
-	if err := candidateNode.UnmarshalGoccyYAML(ast, dec.cm); err != nil {
+	if err := candidateNode.UnmarshalGoccyYAML(ast, dec.cm, dec.anchorMap); err != nil {
 		return nil, err
 	}
 

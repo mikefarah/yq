@@ -16,7 +16,7 @@ func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, cm yaml.Comment
 	return newChild, err
 }
 
-func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) error {
+func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) error {
 	log.Debugf("UnmarshalYAML %v", node)
 	log.Debugf("UnmarshalYAML %v", node.Type().String())
 	log.Debugf("UnmarshalYAML Node Value: %v", node.String())
@@ -49,6 +49,13 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 
 		}
 	}
+	o.Anchor = node.
+
+	if o.Anchor != "" {
+		anchorMap[o.Anchor] = o
+	}
+
+	if o.Ali
 
 	o.Value = node.String()
 	switch node.Type() {
@@ -92,7 +99,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
 	case ast.TagType:
-		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm); err != nil {
+		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm, anchorMap); err != nil {
 			return err
 		}
 		o.Tag = node.(*ast.TagNode).Start.Value
