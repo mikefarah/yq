@@ -24,7 +24,7 @@ yq '.stuff' < myfile.yml
 yq -i '.stuff = "foo"' myfile.yml
 
 # print contents of sample.json as idiomatic YAML
-yq -P sample.json
+yq -P -oy sample.json
 `,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
