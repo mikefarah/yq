@@ -275,7 +275,7 @@
   - Fixed bug - handle expressions that match a directory (e.g. ".")
 
 4.19.1:
-  - New [eval](https://mikefarah.gitbook.io/yq/operators/eval) _operator_ that allows dynamic expression evaluation (e.g. from a env variable) (#1087)
+  - New [eval](https://mikefarah.gitbook.io/yq/operators/eval) _operator_ that allows dynamic expression evaluation (e.g. from an env variable) (#1087)
   - Adding new elements to array now automatically applies styling of existing elements (#722)
 
 4.18.1:

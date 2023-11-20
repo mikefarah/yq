@@ -519,7 +519,7 @@ will output
 some: thing
 ```
 
-## Merging an null with an array
+## Merging a null with an array
 Running
 ```bash
 yq --null-input 'null * ["some"]'

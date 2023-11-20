@@ -7,7 +7,7 @@ import (
 )
 
 type DataTreeNavigator interface {
-	// given the context and a expressionNode,
+	// given the context and an expressionNode,
 	// this will process the against the given expressionNode and return
 	// a new context of matching candidates
 	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
