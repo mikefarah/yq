@@ -135,7 +135,7 @@ yq (4.9.6) focal; urgency=medium
 yq (3.3.2) focal; urgency=medium
 
   * Bug fix: existStatus bug (#459)
-  * Automatically makes a os temp directory if it does not exist (#461)
+  * Automatically makes an os temp directory if it does not exist (#461)
 
  -- Roberto Mier Escandon <rmescandon@gmail.com>  Fri, 07 Aug 2020 18:53:01 +0200
 

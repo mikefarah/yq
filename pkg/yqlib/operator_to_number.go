@@ -7,7 +7,7 @@ import (
 )
 
 func tryConvertToNumber(value string) (string, bool) {
-	// try a int first
+	// try an int first
 	_, _, err := parseInt64(value)
 	if err == nil {
 		return "!!int", true

@@ -594,7 +594,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Merging an null with an array",
+		description: "Merging a null with an array",
 		expression:  `null * ["some"]`,
 		expected: []string{
 			"D0, P[], (!!seq)::- some\n",
