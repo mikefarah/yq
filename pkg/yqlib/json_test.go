@@ -81,6 +81,27 @@ const roundTripMultiLineJson = `{
 
 var jsonScenarios = []formatScenario{
 	{
+		description:  "array empty",
+		skipDoc:      true,
+		input:        "[]",
+		scenarioType: "roundtrip-ndjson",
+		expected:     "[]\n",
+	},
+	{
+		description:  "array has scalar",
+		skipDoc:      true,
+		input:        "[3]",
+		scenarioType: "roundtrip-ndjson",
+		expected:     "[3]\n",
+	},
+	{
+		description:  "array has object",
+		skipDoc:      true,
+		input:        `[{"x": 3}]`,
+		scenarioType: "roundtrip-ndjson",
+		expected:     "[{\"x\":3}]\n",
+	},
+	{
 		description:  "array null",
 		skipDoc:      true,
 		input:        "[null]",

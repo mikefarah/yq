@@ -162,8 +162,13 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 		buf.WriteByte('}')
 		return buf.Bytes(), nil
 	case SequenceNode:
-		log.Debugf("MarshalJSON SequenceNode")
-		err := enc.Encode(o.Content)
+		log.Debugf("MarshalJSON SequenceNode, %v, len: %v", o.Content, len(o.Content))
+		var err error
+		if len(o.Content) == 0 {
+			buf.WriteString("[]")
+		} else {
+			err = enc.Encode(o.Content)
+		}
 		return buf.Bytes(), err
 	default:
 		err := enc.Encode(nil)
