@@ -1,5 +1,33 @@
 
-## Basic example
+## Basic input example
+Given a sample.lua file of:
+```lua
+return {
+	["country"] = "Australia"; -- this place
+	["cities"] = {
+		"Sydney",
+		"Melbourne",
+		"Brisbane",
+		"Perth",
+	};
+};
+
+```
+then
+```bash
+yq -oy '.' sample.lua
+```
+will output
+```yaml
+country: Australia
+cities:
+  - Sydney
+  - Melbourne
+  - Brisbane
+  - Perth
+```
+
+## Basic output example
 Given a sample.yml file of:
 ```yaml
 ---
@@ -101,6 +129,8 @@ numbers:
   - octal: 0o30
   - float: 123.45
   - infinity: .inf
+    plus_infinity: +.inf
+    minus_infinity: -.inf
   - not: .nan
 
 ```
@@ -134,6 +164,8 @@ return {
 		},
 		{
 			["infinity"] = (1/0);
+			["plus_infinity"] = (1/0);
+			["minus_infinity"] = (-1/0);
 		},
 		{
 			["not"] = (0/0);

@@ -187,7 +187,6 @@ yq '. head_comment="single"' sample.yml
 will output
 ```yaml
 # single
-
 a: cat
 ```
 
