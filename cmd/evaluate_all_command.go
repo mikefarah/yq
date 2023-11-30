@@ -26,7 +26,7 @@ yq ea '. as $item ireduce ({}; . * $item )' file1.yml file2.yml ...
 ## use '-' as a filename to pipe from STDIN
 cat file2.yml | yq ea '.a.b' file1.yml - file3.yml
 `,
-		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/) 
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
 
 ## Evaluate All ##

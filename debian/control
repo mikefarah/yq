@@ -16,7 +16,7 @@ XSBC-Original-Maintainer: Roberto Mier Escandón <rmescandon@gmail.com>
 Package: yq
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: lightweight and portable command-line YAML processor
+Description: lightweight and portable command-line data file processor
  .
  The aim of the project is to be the 
  [jq](https://github.com/stedolan/jq) or sed of yaml files.

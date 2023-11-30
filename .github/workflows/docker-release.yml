@@ -45,7 +45,7 @@ jobs:
           docker buildx build \
             --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
             --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
-            --label "org.opencontainers.image.description=yq is a portable command-line YAML processor" \
+            --label "org.opencontainers.image.description=yq is a portable command-line data file processor" \
             --label "org.opencontainers.image.documentation=https://mikefarah.gitbook.io/yq/" \
             --label "org.opencontainers.image.licenses=MIT" \
             --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" \
@@ -65,7 +65,7 @@ jobs:
           docker buildx build \
             --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
             --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
-            --label "org.opencontainers.image.description=yq is a portable command-line YAML processor" \
+            --label "org.opencontainers.image.description=yq is a portable command-line data file processor" \
             --label "org.opencontainers.image.documentation=https://mikefarah.gitbook.io/yq/" \
             --label "org.opencontainers.image.licenses=MIT" \
             --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" \

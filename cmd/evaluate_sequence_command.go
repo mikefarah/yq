@@ -31,7 +31,7 @@ yq e -n '.a.b.c = "cat"'
 # Update a file in place
 yq e '.a.b = "cool"' -i file.yaml 
 `,
-		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/) 
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
 
 ## Evaluate Sequence ##

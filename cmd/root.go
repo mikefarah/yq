@@ -11,11 +11,13 @@ import (
 func New() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "yq",
-		Short: "yq is a lightweight and portable command-line YAML processor.",
-		Long: `yq is a portable command-line YAML processor (https://github.com/mikefarah/yq/) 
+		Short: "yq is a lightweight and portable command-line data file processor.",
+		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/) 
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 		Example: `
-# yq defaults to 'eval' command if no command is specified. See "yq eval --help" for more examples.
+# yq tries to auto-detect the file format based off the extension, and defaults to YAML if it's unknown (or piping through STDIN)
+# Use the '-p/--input-format' flag to specify a format type.
+cat file.xml | yq -p xml
 
 # read the "stuff" node from "myfile.yml"
 yq '.stuff' < myfile.yml

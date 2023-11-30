@@ -1,8 +1,8 @@
 name: yq
 version: 'v4.40.3'
-summary: A lightweight and portable command-line YAML processor
+summary: A lightweight and portable command-line data file processor
 description: |
-  The aim of the project is to be the jq or sed of yaml files.
+  `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml, json, xml, csv, properties and TOML files.
 base: core18
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
