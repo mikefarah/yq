@@ -205,6 +205,7 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 
 	value := rawValue.Copy()
 	value.SetParent(n)
+	value.IsMapKey = false // force this, incase we are creating a value from a key
 	value.Key = key
 
 	n.Content = append(n.Content, key, value)

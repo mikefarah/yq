@@ -8,12 +8,10 @@ import (
 func entrySeqFor(key *CandidateNode, value *CandidateNode) *CandidateNode {
 	var keyKey = &CandidateNode{Kind: ScalarNode, Tag: "!!str", Value: "key"}
 	var valueKey = &CandidateNode{Kind: ScalarNode, Tag: "!!str", Value: "value"}
-
-	return &CandidateNode{
-		Kind:    MappingNode,
-		Tag:     "!!map",
-		Content: []*CandidateNode{keyKey, key, valueKey, value},
-	}
+	candidate := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
+	candidate.AddKeyValueChild(keyKey, key)
+	candidate.AddKeyValueChild(valueKey, value)
+	return candidate
 }
 
 func toEntriesFromMap(candidateNode *CandidateNode) *CandidateNode {

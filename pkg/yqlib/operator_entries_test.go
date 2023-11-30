@@ -6,6 +6,15 @@ import (
 
 var entriesOperatorScenarios = []expressionScenario{
 	{
+		description: "to_entries, delete key",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2}`,
+		expression:  `to_entries | map(del(.key))`,
+		expected: []string{
+			"D0, P[], (!!seq)::- value: 1\n- value: 2\n",
+		},
+	},
+	{
 		description: "to_entries Map",
 		document:    `{a: 1, b: 2}`,
 		expression:  `to_entries`,

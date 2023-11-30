@@ -147,3 +147,16 @@ func TestGetParsedKeyForArrayValue(t *testing.T) {
 	n := CandidateNode{Key: key, Value: "meow", document: 3}
 	test.AssertResult(t, 4, n.getParsedKey())
 }
+
+func TestCandidateNodeAddKeyValueChild(t *testing.T) {
+	key := CandidateNode{Value: "cool", IsMapKey: true}
+	node := CandidateNode{}
+
+	// if we use a key in a new node as a value, it should no longer be marked as a key
+
+	_, keyIsValueNow := node.AddKeyValueChild(&CandidateNode{Value: "newKey"}, &key)
+
+	test.AssertResult(t, keyIsValueNow.IsMapKey, false)
+	test.AssertResult(t, key.IsMapKey, true)
+
+}
