@@ -125,9 +125,7 @@ will output
 {"whatever":"cat"}
 ```
 
-## Roundtrip NDJSON
-Unfortunately the json encoder strips leading spaces of values.
-
+## Roundtrip JSON Lines / NDJSON
 Given a sample.json file of:
 ```json
 {"this": "is a multidoc json file"}
@@ -147,7 +145,7 @@ will output
 ```
 
 ## Roundtrip multi-document JSON
-The NDJSON parser can also handle multiple multi-line json documents in a single file!
+The parser can also handle multiple multi-line json documents in a single file (despite this not being in the JSON Lines / NDJSON spec). Typically you would have one entire JSON document per line, but the parser also supports multiple multi-line json documents
 
 Given a sample.json file of:
 ```json
@@ -229,7 +227,7 @@ will output
 {"a number":4}
 ```
 
-## Decode NDJSON
+## Decode JSON Lines / NDJSON
 Given a sample.json file of:
 ```json
 {"this": "is a multidoc json file"}
