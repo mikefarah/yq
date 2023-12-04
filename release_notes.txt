@@ -2,7 +2,7 @@
   - Fixed bug with creating maps with values based off keys #1886, #1889
   - Bumped dependencies
 
-4.40.3:
+4.40.3: 
   - Fixed JSON output issue with empty arrays #1880
 
 4.40.2:
