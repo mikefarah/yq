@@ -299,6 +299,10 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)
 			}
 		case xml.EndElement:
+			if elem == nil {
+				log.Debug("no element, probably bad xml")
+				continue
+			}
 			log.Debug("end element %v", elem.label)
 			elem.state = "finished"
 			// And add it to its parent list

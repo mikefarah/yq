@@ -264,6 +264,12 @@ const expectedXmlWithProcInstAndDirectives = `<?xml version="1.0"?>
 
 var xmlScenarios = []formatScenario{
 	{
+		skipDoc:     true,
+		description: "bad xml",
+		input:       `<?xml version="1.0" encoding="UTF-8"?></Child></Root>`,
+		expected:    "+p_xml: version=\"1.0\" encoding=\"UTF-8\"\n",
+	},
+	{
 		skipDoc:  true,
 		input:    "  <root>value<!-- comment--> </root>",
 		expected: "root: value # comment\n",
