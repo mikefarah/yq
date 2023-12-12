@@ -117,7 +117,7 @@ myArray:
 - So, we use `|=` to update `.myArray`. This is the same as doing `.myArray = (.myArray | sort_by(.numBuckets))`
 
 ## Filter, flatten, sort and unique
-Lets
+Lets find the unique set of names from the document.
 
 Given a sample.yml file of:
 ```yaml
@@ -152,4 +152,36 @@ will output
 - Pipe `|` this array through `flatten`. This will flatten nested arrays. So now we have a flat list of all the name value strings
 - Next we pipe `|` that through `sort` and then `unique` to get a sorted, unique list of the names!
 - See the [flatten](https://mikefarah.gitbook.io/yq/operators/flatten), [sort](https://mikefarah.gitbook.io/yq/operators/sort) and [unique](https://mikefarah.gitbook.io/yq/operators/unique) for more information and examples.
+
+## Export as environment variables (script), or any custom format
+Given a yaml document, lets output a script that will configure environment variables with that data. This same approach can be used for exporting into custom formats.
+
+Given a sample.yml file of:
+```yaml
+var0: string0
+var1: string1
+ary0:
+  - aryval0
+  - aryval1
+  - aryval2
+```
+then
+```bash
+yq '.[] |(
+	( select(kind == "scalar") | key + "='" + . + "'"),
+	( select(kind == "seq") | key + "=(" + (map("'" + . + "'") | join(",")) + ")")
+)' sample.yml
+```
+will output
+```yaml
+var0='string0'
+var1='string1'
+ary0=('aryval0','aryval1','aryval2')
+```
+
+### Explanation:
+- `.[]` matches all top level elements
+- We need a string expression for each of the different types that will product the bash syntax, we'll use the union operator , to join them together
+- Scalars, we just need the key and quoted value: `( select(kind == "scalar") | key + "='" + . + "'")`
+- Sequences (or arrays) are trickier, we need to quote each value and `join` them with `,`: `map("'" + . + "'") | join(",")`
 

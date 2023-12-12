@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+var bashEnvScript = `.[] |(
+	( select(kind == "scalar") | key + "='" + . + "'"),
+	( select(kind == "seq") | key + "=(" + (map("'" + . + "'") | join(",")) + ")")
+)`
+
 var recipes = []expressionScenario{
 	{
 		description:    "Find items in an array",
@@ -66,7 +71,7 @@ var recipes = []expressionScenario{
 	},
 	{
 		description:    "Filter, flatten, sort and unique",
-		subdescription: "Lets",
+		subdescription: "Lets find the unique set of names from the document.",
 		document:       `[{type: foo, names: [Fred, Catherine]}, {type: bar, names: [Zelda]}, {type: foo, names: Fred}, {type: foo, names: Ava}]`,
 		expression:     `[.[] | select(.type == "foo") | .names] | flatten | sort | unique`,
 		explanation: []string{
@@ -80,6 +85,23 @@ var recipes = []expressionScenario{
 		},
 		expected: []string{
 			"D0, P[], (!!seq)::- Ava\n- Catherine\n- Fred\n",
+		},
+	},
+	{
+		description:    "Export as environment variables (script), or any custom format",
+		subdescription: "Given a yaml document, lets output a script that will configure environment variables with that data. This same approach can be used for exporting into custom formats.",
+		document:       "var0: string0\nvar1: string1\nary0: [aryval0, aryval1, aryval2]\n",
+		expression:     bashEnvScript,
+		expected: []string{
+			"D0, P[var0='string0'], (!!str)::var0='string0'\n",
+			"D0, P[var1='string1'], (!!str)::var1='string1'\n",
+			"D0, P[ary0=('aryval0','aryval1','aryval2')], (!!str)::ary0=('aryval0','aryval1','aryval2')\n",
+		},
+		explanation: []string{
+			"`.[]` matches all top level elements",
+			"We need a string expression for each of the different types that will product the bash syntax, we'll use the union operator , to join them together",
+			"Scalars, we just need the key and quoted value: `( select(kind == \"scalar\") | key + \"='\" + . + \"'\")`",
+			"Sequences (or arrays) are trickier, we need to quote each value and `join` them with `,`: `map(\"'\" + . + \"'\") | join(\",\")`",
 		},
 	},
 }
