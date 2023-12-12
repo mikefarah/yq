@@ -1,0 +1,4 @@
+.[] |(
+    ( select(kind == "scalar") | key + "='" + . + "'"),
+    ( select(kind == "seq") | key + "=(" + (map("'" + . + "'") | join(",")) + ")")
+)
