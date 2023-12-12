@@ -37,7 +37,7 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 	var yamlDirectiveLineRegEx = regexp.MustCompile(`^\s*%YA`)
 	var sb strings.Builder
 	for {
-		peekBytes, err := reader.Peek(3)
+		peekBytes, err := reader.Peek(4)
 		if errors.Is(err, io.EOF) {
 			// EOF are handled else where..
 			return reader, sb.String(), nil
@@ -51,7 +51,15 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 			} else if err != nil {
 				return reader, sb.String(), err
 			}
-		} else if string(peekBytes) == "---" {
+		} else if string(peekBytes) == "--- " {
+			_, err := reader.ReadString(' ')
+			sb.WriteString("$yqDocSeparator$\n")
+			if errors.Is(err, io.EOF) {
+				return reader, sb.String(), nil
+			} else if err != nil {
+				return reader, sb.String(), err
+			}
+		} else if string(peekBytes) == "---\n" {
 			_, err := reader.ReadString('\n')
 			sb.WriteString("$yqDocSeparator$\n")
 			if errors.Is(err, io.EOF) {

@@ -8,6 +8,18 @@ import (
 
 var yamlFormatScenarios = []formatScenario{
 	{
+		description: "scalar with doc separator",
+		skipDoc:     true,
+		input:       "--- cat",
+		expected:    "---\ncat\n",
+	},
+	{
+		description: "scalar with doc separator",
+		skipDoc:     true,
+		input:       "---cat",
+		expected:    "---cat\n",
+	},
+	{
 		description: "basic - null",
 		skipDoc:     true,
 		input:       "null",
