@@ -298,7 +298,7 @@ func opTokenWithPrefs(opType *operationType, assignOpType *operationType, prefer
 		if assignOpType != nil {
 			assign = &Operation{OperationType: assignOpType, Value: assignOpType.Type, StringValue: value, Preferences: preferences}
 		}
-		return &token{TokenType: operationToken, Operation: op, AssignOperation: assign}, nil
+		return &token{TokenType: operationToken, Operation: op, AssignOperation: assign, CheckForPostTraverse: op.OperationType.CheckForPostTraverse}, nil
 	}
 }
 

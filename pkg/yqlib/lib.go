@@ -29,10 +29,11 @@ func GetLogger() *logging.Logger {
 }
 
 type operationType struct {
-	Type       string
-	NumArgs    uint // number of arguments to the op
-	Precedence uint
-	Handler    operatorHandler
+	Type                 string
+	NumArgs              uint // number of arguments to the op
+	Precedence           uint
+	Handler              operatorHandler
+	CheckForPostTraverse bool
 }
 
 var orOpType = &operationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: orOperator}
@@ -108,7 +109,7 @@ var containsOpType = &operationType{Type: "CONTAINS", NumArgs: 1, Precedence: 50
 var anyConditionOpType = &operationType{Type: "ANY_CONDITION", NumArgs: 1, Precedence: 50, Handler: anyOperator}
 var allConditionOpType = &operationType{Type: "ALL_CONDITION", NumArgs: 1, Precedence: 50, Handler: allOperator}
 
-var toEntriesOpType = &operationType{Type: "TO_ENTRIES", NumArgs: 0, Precedence: 50, Handler: toEntriesOperator}
+var toEntriesOpType = &operationType{Type: "TO_ENTRIES", NumArgs: 0, Precedence: 52, Handler: toEntriesOperator, CheckForPostTraverse: true}
 var fromEntriesOpType = &operationType{Type: "FROM_ENTRIES", NumArgs: 0, Precedence: 50, Handler: fromEntriesOperator}
 var withEntriesOpType = &operationType{Type: "WITH_ENTRIES", NumArgs: 1, Precedence: 50, Handler: withEntriesOperator}
 
@@ -152,7 +153,7 @@ var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50
 var changeCaseOpType = &operationType{Type: "CHANGE_CASE", NumArgs: 0, Precedence: 50, Handler: changeCaseOperator}
 var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handler: trimSpaceOperator}
 
-var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 50, Handler: loadYamlOperator}
+var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadYamlOperator}
 
 var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 50, Handler: keysOperator}
 

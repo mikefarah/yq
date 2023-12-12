@@ -15,6 +15,22 @@ var loadScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Load and splat",
+		expression:  `load("../../examples/small.yaml")[]`,
+		expected: []string{
+			"D0, P[a], (!!str)::cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Load and traverse",
+		expression:  `load("../../examples/small.yaml").a`,
+		expected: []string{
+			"D0, P[a], (!!str)::cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Load file with a header comment into an array",
 		document:    `- "../../examples/small.yaml"`,
 		expression:  `.[] |= load(.)`,
