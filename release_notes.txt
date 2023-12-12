@@ -1,3 +1,8 @@
+4.40.5:
+  - Fixing seg fault on bad XML #1888
+  - Fixed handling of --- #1890, #1896
+  - Bumped dependencies
+
 4.40.4:
   - Fixed bug with creating maps with values based off keys #1886, #1889
   - Bumped dependencies
