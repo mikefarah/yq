@@ -117,7 +117,7 @@ myArray:
 - So, we use `|=` to update `.myArray`. This is the same as doing `.myArray = (.myArray | sort_by(.numBuckets))`
 
 ## Filter, flatten, sort and unique
-Lets
+Lets find the unique set of names from the document.
 
 Given a sample.yml file of:
 ```yaml
@@ -152,4 +152,75 @@ will output
 - Pipe `|` this array through `flatten`. This will flatten nested arrays. So now we have a flat list of all the name value strings
 - Next we pipe `|` that through `sort` and then `unique` to get a sorted, unique list of the names!
 - See the [flatten](https://mikefarah.gitbook.io/yq/operators/flatten), [sort](https://mikefarah.gitbook.io/yq/operators/sort) and [unique](https://mikefarah.gitbook.io/yq/operators/unique) for more information and examples.
+
+## Export as environment variables (script), or any custom format
+Given a yaml document, lets output a script that will configure environment variables with that data. This same approach can be used for exporting into custom formats.
+
+Given a sample.yml file of:
+```yaml
+var0: string0
+var1: string1
+fruit:
+  - apple
+  - banana
+  - peach
+```
+then
+```bash
+yq '.[] |(
+	( select(kind == "scalar") | key + "='" + . + "'"),
+	( select(kind == "seq") | key + "=(" + (map("'" + . + "'") | join(",")) + ")")
+)' sample.yml
+```
+will output
+```yaml
+var0='string0'
+var1='string1'
+fruit=('apple','banana','peach')
+```
+
+### Explanation:
+- `.[]` matches all top level elements
+- We need a string expression for each of the different types that will produce the bash syntax, we'll use the union operator, to join them together
+- Scalars, we just need the key and quoted value: `( select(kind == "scalar") | key + "='" + . + "'")`
+- Sequences (or arrays) are trickier, we need to quote each value and `join` them with `,`: `map("'" + . + "'") | join(",")`
+
+## Custom format with nested data
+Like the previous example, but lets handle nested data structures. In this custom example, we're going to join the property paths with _. The important thing to keep in mind is that our expression is not recursive (despite the data structure being so). Instead we match _all_ elements on the tree and operate on them.
+
+Given a sample.yml file of:
+```yaml
+simple: string0
+simpleArray:
+  - apple
+  - banana
+  - peach
+deep:
+  property: value
+  array:
+    - cat
+```
+then
+```bash
+yq '.. |(
+	( select(kind == "scalar" and parent | kind != "seq") | (path | join("_")) + "='" + . + "'"),
+	( select(kind == "seq") | (path | join("_")) + "=(" + (map("'" + . + "'") | join(",")) + ")")
+)' sample.yml
+```
+will output
+```yaml
+simple='string0'
+deep_property='value'
+simpleArray=('apple','banana','peach')
+deep_array=('cat')
+```
+
+### Explanation:
+- You'll need to understand how the previous example works to understand this extension.
+- `..` matches _all_ elements, instead of `.[]` from the previous example that just matches top level elements.
+- Like before, we need a string expression for each of the different types that will produce the bash syntax, we'll use the union operator, to join them together
+- This time, however, our expression matches every node in the data structure.
+- We only want to print scalars that are not in arrays (because we handle the separately), so well add `and parent | kind != "seq"` to the select operator expression for scalars
+- We don't just want the key any more, we want the full path. So instead of `key` we have `path | join("_")`
+- The expression for sequences follows the same logic
 
