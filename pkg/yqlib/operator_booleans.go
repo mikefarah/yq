@@ -88,7 +88,7 @@ func allOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 		if candidate.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("any only supports arrays, was %v", candidate.Tag)
+			return Context{}, fmt.Errorf("all only supports arrays, was %v", candidate.Tag)
 		}
 		booleanResult, err := findBoolean(false, d, context, expressionNode.RHS, candidate)
 		if err != nil {
