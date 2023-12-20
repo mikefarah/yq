@@ -13,6 +13,12 @@ func createEvaluateSequenceCommand() *cobra.Command {
 		Use:     "eval [expression] [yaml_file1]...",
 		Aliases: []string{"e"},
 		Short:   "(default) Apply the expression to each document in each yaml file in sequence",
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			if len(args) == 0 {
+				return nil, cobra.ShellCompDirectiveNoFileComp
+			}
+			return nil, cobra.ShellCompDirectiveDefault
+		},
 		Example: `
 # Reads field under the given path for each file
 yq e '.a.b' f1.yml f2.yml 
