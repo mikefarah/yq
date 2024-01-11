@@ -277,7 +277,7 @@ func testLuaScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentLuaScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentLuaScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
 	if s.skipDoc {

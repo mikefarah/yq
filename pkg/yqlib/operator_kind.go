@@ -19,7 +19,7 @@ func kindToText(kind Kind) string {
 	}
 }
 
-func getKindOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getKindOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetKindOperator")
 
 	var results = list.New()

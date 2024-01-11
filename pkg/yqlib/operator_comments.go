@@ -72,7 +72,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 	return context, nil
 }
 
-func getCommentsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getCommentsOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
 	var startCommentCharacterRegExp = regexp.MustCompile(`^# `)
 	var subsequentCommentCharacterRegExp = regexp.MustCompile(`\n# `)

@@ -2,11 +2,11 @@ package yqlib
 
 import "container/list"
 
-func referenceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func referenceOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	return context.SingleChildContext(expressionNode.Operation.CandidateNode), nil
 }
 
-func valueOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func valueOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debug("value = %v", expressionNode.Operation.CandidateNode.Value)
 	if context.MatchingNodes.Len() == 0 {
 		clone := expressionNode.Operation.CandidateNode.Copy()

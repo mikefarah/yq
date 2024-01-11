@@ -22,7 +22,7 @@ func NewSinglePrinterWriter(writer io.Writer) PrinterWriter {
 	}
 }
 
-func (sp *singlePrinterWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error) {
+func (sp *singlePrinterWriter) GetWriter(_ *CandidateNode) (*bufio.Writer, error) {
 	return sp.bufferedWriter, nil
 }
 

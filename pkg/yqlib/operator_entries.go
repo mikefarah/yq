@@ -40,7 +40,7 @@ func toEntriesfromSeq(candidateNode *CandidateNode) *CandidateNode {
 	return sequence
 }
 
-func toEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func toEntriesOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -102,7 +102,7 @@ func fromEntries(candidateNode *CandidateNode) (*CandidateNode, error) {
 	return node, nil
 }
 
-func fromEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func fromEntriesOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	var results = list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

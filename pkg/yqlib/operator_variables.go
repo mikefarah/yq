@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func getVariableOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getVariableOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	variableName := expressionNode.Operation.StringValue
 	log.Debug("getVariableOperator %v", variableName)
 	result := context.GetVariable(variableName)
@@ -19,7 +19,7 @@ type assignVarPreferences struct {
 	IsReference bool
 }
 
-func useWithPipe(d *dataTreeNavigator, context Context, originalExp *ExpressionNode) (Context, error) {
+func useWithPipe(_ *dataTreeNavigator, _ Context, _ *ExpressionNode) (Context, error) {
 	return Context{}, fmt.Errorf("must use variable with a pipe, e.g. `exp as $x | ...`")
 }
 

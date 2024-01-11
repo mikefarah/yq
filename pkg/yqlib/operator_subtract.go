@@ -42,7 +42,7 @@ func subtractArray(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, erro
 	return lhs, nil
 }
 
-func subtract(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func subtract(_ *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	if lhs.Tag == "!!null" {
 		return lhs.CopyAsReplacement(rhs), nil
 	}

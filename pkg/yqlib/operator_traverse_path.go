@@ -19,7 +19,7 @@ func splat(context Context, prefs traversePreferences) (Context, error) {
 	return traverseNodesWithArrayIndices(context, make([]*CandidateNode, 0), prefs)
 }
 
-func traversePathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func traversePathOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("-- traversePathOperator")
 	var matches = list.New()
 

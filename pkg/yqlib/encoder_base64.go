@@ -18,11 +18,11 @@ func (e *base64Encoder) CanHandleAliases() bool {
 	return false
 }
 
-func (e *base64Encoder) PrintDocumentSeparator(writer io.Writer) error {
+func (e *base64Encoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (e *base64Encoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (e *base64Encoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

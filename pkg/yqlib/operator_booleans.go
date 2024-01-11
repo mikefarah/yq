@@ -35,7 +35,7 @@ func getOwner(lhs *CandidateNode, rhs *CandidateNode) *CandidateNode {
 	return owner
 }
 
-func returnRhsTruthy(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func returnRhsTruthy(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	owner := getOwner(lhs, rhs)
 	rhsBool := isTruthyNode(rhs)
 
@@ -136,7 +136,7 @@ func andOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	return crossFunctionWithPrefs(d, context.ReadOnlyClone(), expressionNode, prefs)
 }
 
-func notOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func notOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("-- notOperation")
 	var results = list.New()
 

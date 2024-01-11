@@ -37,7 +37,7 @@ func withDateTimeFormat(d *dataTreeNavigator, context Context, expressionNode *E
 // for unit tests
 var Now = time.Now
 
-func nowOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func nowOp(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 
 	node := &CandidateNode{
 		Tag:   "!!timestamp",
@@ -134,7 +134,7 @@ func parseUnixTime(unixTime string) (time.Time, error) {
 	return time.UnixMilli(int64(seconds * 1000)), nil
 }
 
-func fromUnixOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func fromUnixOp(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 
 	var results = list.New()
 
@@ -160,7 +160,7 @@ func fromUnixOp(d *dataTreeNavigator, context Context, expressionNode *Expressio
 	return context.ChildContext(results), nil
 }
 
-func toUnixOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func toUnixOp(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 
 	layout := context.GetDateTimeLayout()
 

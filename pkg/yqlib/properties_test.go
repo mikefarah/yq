@@ -350,7 +350,7 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true))))
 }
 
-func documentPropertyScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentPropertyScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 	if s.skipDoc {
 		return

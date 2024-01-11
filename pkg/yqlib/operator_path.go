@@ -147,7 +147,7 @@ func delPathsOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 
 }
 
-func getPathOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getPathOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetPath")
 
 	var results = list.New()

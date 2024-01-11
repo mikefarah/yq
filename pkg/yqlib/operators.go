@@ -51,7 +51,7 @@ func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNod
 	return context, nil
 }
 
-func emptyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func emptyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	context.MatchingNodes = list.New()
 	return context, nil
 }

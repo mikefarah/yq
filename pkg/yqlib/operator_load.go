@@ -54,13 +54,12 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 		candidate := documents.Front().Value.(*CandidateNode)
 		return candidate, nil
 
-	} else {
-		sequenceNode := &CandidateNode{Kind: SequenceNode}
-		for doc := documents.Front(); doc != nil; doc = doc.Next() {
-			sequenceNode.AddChild(doc.Value.(*CandidateNode))
-		}
-		return sequenceNode, nil
 	}
+	sequenceNode := &CandidateNode{Kind: SequenceNode}
+	for doc := documents.Front(); doc != nil; doc = doc.Next() {
+		sequenceNode.AddChild(doc.Value.(*CandidateNode))
+	}
+	return sequenceNode, nil
 }
 
 func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {

@@ -15,7 +15,7 @@ import (
 ...
 */
 
-func collectObjectOperator(d *dataTreeNavigator, originalContext Context, expressionNode *ExpressionNode) (Context, error) {
+func collectObjectOperator(d *dataTreeNavigator, originalContext Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("-- collectObjectOperation")
 
 	context := originalContext.WritableClone()

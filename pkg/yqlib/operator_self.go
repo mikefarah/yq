@@ -1,5 +1,5 @@
 package yqlib
 
-func selfOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func selfOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	return context, nil
 }

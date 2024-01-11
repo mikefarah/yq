@@ -32,7 +32,7 @@ func flatten(node *CandidateNode, depth int) {
 	node.AddChildren(newSeq)
 }
 
-func flattenOp(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func flattenOp(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("-- flatten Operator")
 	depth := expressionNode.Operation.Preferences.(flattenPreferences).depth

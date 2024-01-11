@@ -48,7 +48,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 	return context, nil
 }
 
-func getAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getAliasOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetAlias operator!")
 	var results = list.New()
 
@@ -102,7 +102,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 	return context, nil
 }
 
-func getAnchorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getAnchorOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetAnchor operator!")
 	var results = list.New()
 

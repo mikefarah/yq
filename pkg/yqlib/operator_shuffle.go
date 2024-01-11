@@ -6,7 +6,7 @@ import (
 	"math/rand"
 )
 
-func shuffleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func shuffleOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 
 	// ignore CWE-338 gosec issue of not using crypto/rand
 	// this is just to shuffle an array rather generating a

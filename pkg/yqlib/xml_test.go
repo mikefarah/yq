@@ -658,7 +658,7 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentXMLScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentXMLScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
 	if s.skipDoc {

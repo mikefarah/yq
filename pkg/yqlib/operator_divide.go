@@ -12,7 +12,7 @@ func divideOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, divide, false)
 }
 
-func divide(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func divide(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	if lhs.Tag == "!!null" {
 		return nil, fmt.Errorf("%v (%v) cannot be divided by %v (%v)", lhs.Tag, lhs.GetNicePath(), rhs.Tag, rhs.GetNicePath())
 	}

@@ -17,11 +17,11 @@ func (e *uriEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func (e *uriEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (e *uriEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (e *uriEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (e *uriEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

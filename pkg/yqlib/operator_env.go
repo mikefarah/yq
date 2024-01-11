@@ -16,7 +16,7 @@ type envOpPreferences struct {
 	FailFast    bool
 }
 
-func envOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func envOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	envName := expressionNode.Operation.CandidateNode.Value
 	log.Debug("EnvOperator, env name:", envName)
 
@@ -53,7 +53,7 @@ func envOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	return context.SingleChildContext(node), nil
 }
 
-func envsubstOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func envsubstOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
 	preferences := envOpPreferences{}
 	if expressionNode.Operation.Preferences != nil {

@@ -40,7 +40,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func NewSimpleYamlPrinter(writer io.Writer, outputFormat PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+func NewSimpleYamlPrinter(writer io.Writer, _ PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
 	prefs := NewDefaultYamlPreferences()
 	prefs.PrintDocSeparators = printDocSeparators
 	prefs.UnwrapScalar = unwrapScalar

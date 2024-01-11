@@ -71,7 +71,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 	return context, nil
 }
 
-func getStyleOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getStyleOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetStyleOperator")
 
 	var results = list.New()

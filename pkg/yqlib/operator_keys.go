@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func isKeyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func isKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("-- isKeyOperator")
 
 	var results = list.New()
@@ -19,7 +19,7 @@ func isKeyOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	return context.ChildContext(results), nil
 }
 
-func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("-- getKeyOperator")
 
 	var results = list.New()
@@ -36,7 +36,7 @@ func getKeyOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 }
 
-func keysOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func keysOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("-- keysOperator")
 
 	var results = list.New()

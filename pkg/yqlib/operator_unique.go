@@ -7,7 +7,7 @@ import (
 	"github.com/elliotchance/orderedmap"
 )
 
-func unique(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func unique(d *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
 	uniqueByExpression := &ExpressionNode{Operation: &Operation{OperationType: uniqueByOpType}, RHS: selfExpression}
 	return uniqueBy(d, context, uniqueByExpression)

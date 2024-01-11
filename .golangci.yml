@@ -20,12 +20,15 @@ linters:
     - unparam
 linters-settings:
   depguard:
-    list-type: blacklist
-    include-go-root: true
-    packages:
-      - io/ioutil
-    packages-with-error-message:
-      - io/ioutil: "The 'io/ioutil' package is deprecated. Use corresponding 'os' or 'io' functions instead."
+    rules:
+      prevent_unmaintained_packages:
+        list-mode: lax
+        files:
+          - $all
+          - "!$test"
+        deny:
+          - pkg: io/ioutil
+            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
 issues:
   exclude-rules:
   - linters:

@@ -11,7 +11,7 @@ type changeCasePrefs struct {
 	ToUpperCase bool
 }
 
-func trimSpaceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func trimSpaceOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	results := list.New()
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
@@ -29,7 +29,7 @@ func trimSpaceOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return context.ChildContext(results), nil
 }
 
-func changeCaseOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func changeCaseOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	results := list.New()
 	prefs := expressionNode.Operation.Preferences.(changeCasePrefs)
 

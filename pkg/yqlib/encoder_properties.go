@@ -24,7 +24,7 @@ func (pe *propertiesEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func (pe *propertiesEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (pe *propertiesEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 

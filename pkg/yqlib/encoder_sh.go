@@ -21,11 +21,11 @@ func (e *shEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func (e *shEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (e *shEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (e *shEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (e *shEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

@@ -357,9 +357,8 @@ func (p *Operation) toString() string {
 		return "SELF"
 	} else if p.OperationType == valueOpType {
 		return fmt.Sprintf("%v (%T)", p.Value, p.Value)
-	} else {
-		return fmt.Sprintf("%v", p.OperationType.Type)
 	}
+	return fmt.Sprintf("%v", p.OperationType.Type)
 }
 
 // use for debugging only

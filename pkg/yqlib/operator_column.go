@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func columnOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func columnOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("columnOperator")
 
 	var results = list.New()

@@ -9,7 +9,7 @@ type recursiveDescentPreferences struct {
 	RecurseArray        bool
 }
 
-func recursiveDescentOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func recursiveDescentOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	var results = list.New()
 
 	preferences := expressionNode.Operation.Preferences.(recursiveDescentPreferences)

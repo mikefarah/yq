@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func lineOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func lineOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("lineOperator")
 
 	var results = list.New()

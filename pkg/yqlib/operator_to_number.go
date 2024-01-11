@@ -22,7 +22,7 @@ func tryConvertToNumber(value string) (string, bool) {
 
 }
 
-func toNumberOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func toNumberOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("ToNumberOperator")
 
 	var results = list.New()

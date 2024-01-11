@@ -19,11 +19,11 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	return fmt.Errorf("only scalars (e.g. strings, numbers, booleans) are supported for TOML output at the moment. Please use yaml output format (-oy) until the encoder has been fully implemented")
 }
 
-func (te *tomlEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (te *tomlEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (te *tomlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (te *tomlEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

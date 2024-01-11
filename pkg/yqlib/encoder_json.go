@@ -29,11 +29,11 @@ func (je *jsonEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func (je *jsonEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (je *jsonEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (je *jsonEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (je *jsonEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

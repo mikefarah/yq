@@ -13,7 +13,7 @@ func moduloOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, modulo, false)
 }
 
-func modulo(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func modulo(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	if lhs.Tag == "!!null" {
 		return nil, fmt.Errorf("%v (%v) cannot modulo by %v (%v)", lhs.Tag, lhs.GetNicePath(), rhs.Tag, rhs.GetNicePath())
 	}

@@ -268,7 +268,7 @@ func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewTomlEncoder())))
 }
 
-func documentTomlScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentTomlScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 
 	if s.skipDoc {

@@ -45,7 +45,7 @@ func assignTagOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 	return context, nil
 }
 
-func getTagOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func getTagOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	log.Debugf("GetTagOperator")
 
 	var results = list.New()

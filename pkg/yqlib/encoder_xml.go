@@ -30,11 +30,11 @@ func (e *xmlEncoder) CanHandleAliases() bool {
 	return false
 }
 
-func (e *xmlEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (e *xmlEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (e *xmlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (e *xmlEncoder) PrintLeadingContent(_ io.Writer, content string) error {
 	e.leadingContent = content
 	return nil
 }
@@ -122,7 +122,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode
 			}
 		}
 
-		if key.Value == (e.prefs.ProcInstPrefix + "xml") {
+		if key.Value == (e.prefs.ProcInstPrefix + "xml") { //nolint
 			// dont double process these.
 		} else if strings.HasPrefix(key.Value, e.prefs.ProcInstPrefix) {
 			name := strings.Replace(key.Value, e.prefs.ProcInstPrefix, "", 1)

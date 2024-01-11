@@ -72,11 +72,11 @@ func NewLuaEncoder(prefs LuaPreferences) Encoder {
 	return &luaEncoder{unescape.Replace(prefs.DocPrefix), unescape.Replace(prefs.DocSuffix), 0, "\t", prefs.UnquotedKeys, prefs.Globals, escape}
 }
 
-func (le *luaEncoder) PrintDocumentSeparator(writer io.Writer) error {
+func (le *luaEncoder) PrintDocumentSeparator(_ io.Writer) error {
 	return nil
 }
 
-func (le *luaEncoder) PrintLeadingContent(writer io.Writer, content string) error {
+func (le *luaEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 	return nil
 }
 

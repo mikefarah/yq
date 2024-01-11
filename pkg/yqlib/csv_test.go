@@ -272,7 +272,7 @@ func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType 
 	)
 }
 
-func documentCSVScenario(t *testing.T, w *bufio.Writer, i interface{}) {
+func documentCSVScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	s := i.(formatScenario)
 	if s.skipDoc {
 		return

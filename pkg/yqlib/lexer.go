@@ -51,9 +51,8 @@ func (t *token) toString(detail bool) string {
 	} else if t.TokenType == traverseArrayCollect {
 		return ".["
 
-	} else {
-		return "NFI"
 	}
+	return "NFI"
 }
 
 func unwrap(value string) string {

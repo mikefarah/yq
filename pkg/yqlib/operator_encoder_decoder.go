@@ -54,7 +54,7 @@ type encoderPreferences struct {
 
 /* encodes object as yaml string */
 
-func encodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func encodeOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(encoderPreferences)
 	var results = list.New()
 
@@ -122,7 +122,7 @@ func createDecoder(format InputFormat) Decoder {
 }
 
 /* takes a string and decodes it back into an object */
-func decodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func decodeOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	preferences := expressionNode.Operation.Preferences.(decoderPreferences)
 

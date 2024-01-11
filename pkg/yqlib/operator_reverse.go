@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func reverseOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+func reverseOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
 	results := list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

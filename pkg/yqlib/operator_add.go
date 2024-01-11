@@ -42,7 +42,7 @@ func addOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, add, false)
 }
 
-func add(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+func add(_ *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	lhsNode := lhs
 
 	if lhsNode.Tag == "!!null" {
