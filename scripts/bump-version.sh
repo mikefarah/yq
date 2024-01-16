@@ -27,9 +27,18 @@ else
     echo "version.go updated"
 fi
 
- version=$version ./yq -i '.version=strenv(version)' snap/snapcraft.yaml                                          
+ version=$version ./yq -i '.version=strenv(version) | .parts.yq.source-tag=strenv(version)' snap/snapcraft.yaml
 
 actualSnapVersion=$(./yq '.version' snap/snapcraft.yaml)
+
+if [ "$actualSnapVersion" != "$version" ]; then
+    echo "Failed to update snapcraft"
+    exit 1
+else
+    echo "snapcraft updated"
+fi
+
+actualSnapVersion=$(./yq '.parts.yq.source-tag' snap/snapcraft.yaml)
 
 if [ "$actualSnapVersion" != "$version" ]; then
     echo "Failed to update snapcraft"
