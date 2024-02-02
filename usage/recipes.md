@@ -168,8 +168,8 @@ fruit:
 then
 ```bash
 yq '.[] |(
-	( select(kind == "scalar") | key + "='" + . + "'"),
-	( select(kind == "seq") | key + "=(" + (map("'" + . + "'") | join(",")) + ")")
+	( select(kind == "scalar") | key + "='\''" + . + "'\''"),
+	( select(kind == "seq") | key + "=(" + (map("'\''" + . + "'\''") | join(",")) + ")")
 )' sample.yml
 ```
 will output
@@ -203,8 +203,8 @@ deep:
 then
 ```bash
 yq '.. |(
-	( select(kind == "scalar" and parent | kind != "seq") | (path | join("_")) + "='" + . + "'"),
-	( select(kind == "seq") | (path | join("_")) + "=(" + (map("'" + . + "'") | join(",")) + ")")
+	( select(kind == "scalar" and parent | kind != "seq") | (path | join("_")) + "='\''" + . + "'\''"),
+	( select(kind == "seq") | (path | join("_")) + "=(" + (map("'\''" + . + "'\''") | join(",")) + ")")
 )' sample.yml
 ```
 will output
