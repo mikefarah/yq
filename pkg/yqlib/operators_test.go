@@ -317,7 +317,7 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 		writeOrPanic(w, "then\n")
 
 		if s.expression != "" {
-			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v'%v' %v\n```\n", envCommand, command, s.expression, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v'%v' %v\n```\n", envCommand, command, strings.ReplaceAll(s.expression, "'", `'\''`), files))
 		} else {
 			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v\n```\n", envCommand, command, files))
 		}
