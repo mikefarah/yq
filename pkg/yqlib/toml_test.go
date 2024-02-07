@@ -48,6 +48,12 @@ var sampleArrayTableExpected = `owner:
       suburb: nice
 `
 
+var emptyTable = `
+[dependencies]
+`
+
+var emptyTableExpected = `dependencies: []`
+
 var sampleWithHeader = `
 [servers]
 
@@ -197,6 +203,12 @@ var tomlScenarios = []formatScenario{
 		description:  "Parse: Array Table",
 		input:        sampleArrayTable,
 		expected:     sampleArrayTableExpected,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse: Empty Table",
+		input:        emptyTable,
+		expected:     emptyTableExpected,
 		scenarioType: "decode",
 	},
 	{

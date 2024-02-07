@@ -267,6 +267,12 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	fullPath := dec.getFullPath(currentNode.Child())
 	log.Debug("!!!fullpath: %v", fullPath)
 
+	tableValue := dec.parser.Expression()
+	if tableValue.Kind != toml.KeyValue {
+		log.Debug("got an empty table, returning")
+		return true, nil
+	}
+
 	hasValue := dec.parser.NextExpression()
 	if !hasValue {
 		return false, fmt.Errorf("error retrieving table %v value: %w", fullPath, dec.parser.Error())
@@ -275,12 +281,6 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	tableNodeValue := &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
-	}
-
-	tableValue := dec.parser.Expression()
-	if tableValue.Kind != toml.KeyValue {
-		log.Debug("got an empty table, returning")
-		return true, nil
 	}
 
 	runAgainstCurrentExp, err := dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
