@@ -1,3 +1,9 @@
+4.40.6:
+  - Fix: empty TOML table #1924 - Thanks @elibroftw 
+  - Fixed "all" error message #1845
+  - Fixed to_entries[]
+  - Bumped dependencies
+
 4.40.5:
   - Fixing seg fault on bad XML #1888
   - Fixed handling of --- #1890, #1896

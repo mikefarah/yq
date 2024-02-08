@@ -267,29 +267,32 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	fullPath := dec.getFullPath(currentNode.Child())
 	log.Debug("!!!fullpath: %v", fullPath)
 
-	tableValue := dec.parser.Expression()
-	if tableValue.Kind != toml.KeyValue {
-		log.Debug("got an empty table, returning")
-		return true, nil
-	}
-
-	hasValue := dec.parser.NextExpression()
-	if !hasValue {
-		return false, fmt.Errorf("error retrieving table %v value: %w", fullPath, dec.parser.Error())
-	}
-
 	tableNodeValue := &CandidateNode{
-		Kind: MappingNode,
-		Tag:  "!!map",
+		Kind:    MappingNode,
+		Tag:     "!!map",
+		Content: make([]*CandidateNode, 0),
 	}
 
-	runAgainstCurrentExp, err := dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-	log.Debugf("table node err: %w", err)
-	if err != nil && !errors.Is(io.EOF, err) {
-		return false, err
+	var tableValue *toml.Node
+	runAgainstCurrentExp := false
+	var err error
+	hasValue := dec.parser.NextExpression()
+	// check to see if there is any table data
+	if hasValue {
+		tableValue = dec.parser.Expression()
+		// next expression is not table data, so we are done
+		if tableValue.Kind != toml.KeyValue {
+			log.Debug("got an empty table, returning")
+			return true, nil
+		}
+
+		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
+		if err != nil && !errors.Is(io.EOF, err) {
+			return false, err
+		}
 	}
+
 	c := Context{}
-
 	c = c.SingleChildContext(dec.rootMap)
 	err = dec.d.DeeplyAssign(c, fullPath, tableNodeValue)
 	if err != nil {

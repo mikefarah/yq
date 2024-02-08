@@ -52,7 +52,7 @@ var emptyTable = `
 [dependencies]
 `
 
-var emptyTableExpected = `dependencies: []`
+var emptyTableExpected = "dependencies: {}\n"
 
 var sampleWithHeader = `
 [servers]

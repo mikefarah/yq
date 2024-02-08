@@ -104,3 +104,19 @@ owner:
       suburb: nice
 ```
 
+## Parse: Empty Table
+Given a sample.toml file of:
+```toml
+
+[dependencies]
+
+```
+then
+```bash
+yq -oy '.' sample.toml
+```
+will output
+```yaml
+dependencies: {}
+```
+
