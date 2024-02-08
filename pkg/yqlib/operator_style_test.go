@@ -23,26 +23,26 @@ var styleOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Set tagged style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="tagged"`,
 		expected: []string{
-			"D0, P[], (!!map)::!!map\na: !!str cat\nb: !!int 5\nc: !!float 3.2\ne: !!bool true\n",
+			"D0, P[], (!!map)::!!map\na: !!str cat\nb: !!int 5\nc: !!float 3.2\ne: !!bool true\nf: !!seq\n    - !!int 1\n    - !!int 2\n    - !!int 3\ng: !!map\n    something: !!str cool\n",
 		},
 	},
 	{
 		description: "Set double quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="double"`,
 		expected: []string{
-			"D0, P[], (!!map)::a: \"cat\"\nb: \"5\"\nc: \"3.2\"\ne: \"true\"\n",
+			"D0, P[], (!!map)::a: \"cat\"\nb: \"5\"\nc: \"3.2\"\ne: \"true\"\nf:\n    - \"1\"\n    - \"2\"\n    - \"3\"\ng:\n    something: \"cool\"\n",
 		},
 	},
 	{
 		description: "Set double quote style on map keys too",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `... style="double"`,
 		expected: []string{
-			"D0, P[], (!!map)::\"a\": \"cat\"\n\"b\": \"5\"\n\"c\": \"3.2\"\n\"e\": \"true\"\n",
+			"D0, P[], (!!map)::\"a\": \"cat\"\n\"b\": \"5\"\n\"c\": \"3.2\"\n\"e\": \"true\"\n\"f\":\n    - \"1\"\n    - \"2\"\n    - \"3\"\n\"g\":\n    \"something\": \"cool\"\n",
 		},
 	},
 	{
@@ -55,15 +55,15 @@ var styleOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "Set single quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="single"`,
 		expected: []string{
-			"D0, P[], (!!map)::a: 'cat'\nb: '5'\nc: '3.2'\ne: 'true'\n",
+			"D0, P[], (!!map)::a: 'cat'\nb: '5'\nc: '3.2'\ne: 'true'\nf:\n    - '1'\n    - '2'\n    - '3'\ng:\n    something: 'cool'\n",
 		},
 	},
 	{
 		description: "Set literal quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="literal"`,
 		expected: []string{
 			`D0, P[], (!!map)::a: |-
@@ -74,12 +74,22 @@ c: |-
     3.2
 e: |-
     true
+f:
+    - |-
+      1
+    - |-
+      2
+    - |-
+      3
+g:
+    something: |-
+        cool
 `,
 		},
 	},
 	{
 		description: "Set folded quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="folded"`,
 		expected: []string{
 			`D0, P[], (!!map)::a: >-
@@ -90,24 +100,35 @@ c: >-
     3.2
 e: >-
     true
+f:
+    - >-
+      1
+    - >-
+      2
+    - >-
+      3
+g:
+    something: >-
+        cool
 `,
 		},
 	},
 	{
 		description: "Set flow quote style",
-		document:    `{a: cat, b: 5, c: 3.2, e: true}`,
+		document:    `{a: cat, b: 5, c: 3.2, e: true, f: [1,2,3], g: { something: cool}}`,
 		expression:  `.. style="flow"`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: cat, b: 5, c: 3.2, e: true}\n",
+			"D0, P[], (!!map)::{a: cat, b: 5, c: 3.2, e: true, f: [1, 2, 3], g: {something: cool}}\n",
 		},
 	},
 	{
-		description:    "Reset style - or pretty print",
-		subdescription: "Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.",
-		document:       `{a: cat, "b": 5, 'c': 3.2, "e": true}`,
-		expression:     `... style=""`,
+		description:           "Reset style - or pretty print",
+		subdescription:        "Set empty (default) quote style, note the usage of `...` to match keys too. Note that there is a `--prettyPrint/-P` short flag for this.",
+		dontFormatInputForDoc: true,
+		document:              `{a: cat, "b": 5, 'c': 3.2, "e": true,  f: [1,2,3], "g": { something: "cool"} }`,
+		expression:            `... style=""`,
 		expected: []string{
-			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\n",
+			"D0, P[], (!!map)::a: cat\nb: 5\nc: 3.2\ne: true\nf:\n    - 1\n    - 2\n    - 3\ng:\n    something: cool\n",
 		},
 	},
 	{
