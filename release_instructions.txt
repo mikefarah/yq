@@ -3,6 +3,8 @@
 - run ./scripts/copy-docs.sh (and commit the changed in the yq-book branch)
 - run ./scripts/bump-version.sh
 - git push
+// to move the v4 branch
+- git push origin -d v4
 - git push --tags
 - use github actions to publish docker and make github release
 - check github updated yq action in marketplace
