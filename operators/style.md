@@ -1,6 +1,8 @@
 # Style
 
-The style operator can be used to get or set the style of nodes (e.g. string style, yaml style)
+The style operator can be used to get or set the style of nodes (e.g. string style, yaml style).
+Use this to control the formatting of the document in yaml.
+
 
 ## Update and set style of a particular node (simple)
 Given a sample.yml file of:
@@ -45,6 +47,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -57,6 +65,12 @@ a: !!str cat
 b: !!int 5
 c: !!float 3.2
 e: !!bool true
+f: !!seq
+  - !!int 1
+  - !!int 2
+  - !!int 3
+g: !!map
+  something: !!str cool
 ```
 
 ## Set double quote style
@@ -66,6 +80,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -77,6 +97,12 @@ a: "cat"
 b: "5"
 c: "3.2"
 e: "true"
+f:
+  - "1"
+  - "2"
+  - "3"
+g:
+  something: "cool"
 ```
 
 ## Set double quote style on map keys too
@@ -86,6 +112,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -97,6 +129,12 @@ will output
 "b": "5"
 "c": "3.2"
 "e": "true"
+"f":
+  - "1"
+  - "2"
+  - "3"
+"g":
+  "something": "cool"
 ```
 
 ## Set single quote style
@@ -106,6 +144,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -117,6 +161,12 @@ a: 'cat'
 b: '5'
 c: '3.2'
 e: 'true'
+f:
+  - '1'
+  - '2'
+  - '3'
+g:
+  something: 'cool'
 ```
 
 ## Set literal quote style
@@ -126,6 +176,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -141,6 +197,16 @@ c: |-
   3.2
 e: |-
   true
+f:
+  - |-
+    1
+  - |-
+    2
+  - |-
+    3
+g:
+  something: |-
+    cool
 ```
 
 ## Set folded quote style
@@ -150,6 +216,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -165,6 +237,16 @@ c: >-
   3.2
 e: >-
   true
+f:
+  - >-
+    1
+  - >-
+    2
+  - >-
+    3
+g:
+  something: >-
+    cool
 ```
 
 ## Set flow quote style
@@ -174,6 +256,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 then
 ```bash
@@ -181,7 +269,7 @@ yq '.. style="flow"' sample.yml
 ```
 will output
 ```yaml
-{a: cat, b: 5, c: 3.2, e: true}
+{a: cat, b: 5, c: 3.2, e: true, f: [1, 2, 3], g: {something: cool}}
 ```
 
 ## Reset style - or pretty print
@@ -189,10 +277,7 @@ Set empty (default) quote style, note the usage of `...` to match keys too. Note
 
 Given a sample.yml file of:
 ```yaml
-a: cat
-"b": 5
-'c': 3.2
-"e": true
+{a: cat, "b": 5, 'c': 3.2, "e": true,  f: [1,2,3], "g": { something: "cool"} }
 ```
 then
 ```bash
@@ -204,6 +289,12 @@ a: cat
 b: 5
 c: 3.2
 e: true
+f:
+  - 1
+  - 2
+  - 3
+g:
+  something: cool
 ```
 
 ## Set style relatively with assign-update
