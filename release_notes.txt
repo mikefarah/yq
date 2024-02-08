@@ -1,3 +1,6 @@
+4.40.7:
+  - Bumped dependencies
+
 4.40.6:
   - Fix: empty TOML table #1924 - Thanks @elibroftw 
   - Fixed "all" error message #1845
