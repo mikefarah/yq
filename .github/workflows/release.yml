@@ -2,7 +2,7 @@ name: Release YQ
 on:
   push:
     tags:
-      - 'v*'
+      - 'v4.*'
       - 'draft-*'
 
 jobs:
