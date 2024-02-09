@@ -12,6 +12,7 @@ func TestDeepMatch(t *testing.T) {
 		ok      bool
 	}{
 		{"", "", true},
+		{"<<", "<<", true},
 		{"", "x", false},
 		{"x", "", false},
 		{"abc", "abc", true},

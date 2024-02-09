@@ -269,7 +269,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 		value := contents[index+1]
 
 		//skip the 'merge' tag, find a direct match first
-		if key.Tag == "!!merge" && !prefs.DontFollowAlias {
+		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != "<<" {
 			log.Debug("Merge anchor")
 			err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
 			if err != nil {
