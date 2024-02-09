@@ -3,7 +3,9 @@
 Like the multiple operator in jq, depending on the operands, this multiply operator will do different things. Currently numbers, arrays and objects are supported.
 
 ## Objects and arrays - merging
-Objects are merged deeply matching on matching keys. By default, array values override and are not deeply merged.
+Objects are merged _deeply_ matching on matching keys. By default, array values override and are not deeply merged.
+
+You can use the add operator `+`, to shallow merge objects, see more info [here](https://mikefarah.gitbook.io/yq/operators/add).
 
 Note that when merging objects, this operator returns the merged object (not the parent). This will be clearer in the examples below.
 
@@ -16,6 +18,7 @@ You can control how objects are merged by using one or more of the following fla
 - `n` only merge _new_ fields
 - `c` clobber custom tags
 
+To perform a shallow merge only, use the add operator `+`, see more info [here](https://mikefarah.gitbook.io/yq/operators/add).
 
 ### Merge two files together
 This uses the load operator to merge file2 into file1.
