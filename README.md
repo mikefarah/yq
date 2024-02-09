@@ -31,6 +31,10 @@ NAME=mike yq -i '.a.b[0].c = strenv(NAME)' file.yaml
 
 Merge multiple files
 ```bash
+# merge two files
+yq -n 'load("file1.yaml") * load("file2.yaml")'
+
+# merge using globs:
 # note the use of `ea` to evaluate all the files at once
 # instead of in sequence
 yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
