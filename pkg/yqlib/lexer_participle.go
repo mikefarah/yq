@@ -221,6 +221,7 @@ var participleYqRules = []*participleYqRule{
 
 	{"SubtractAssign", `\-=`, opToken(subtractAssignOpType), 0},
 	{"Subtract", `\-`, opToken(subtractOpType), 0},
+	{"Comment", `#.*`, nil, 0},
 }
 
 type yqAction func(lexer.Token) (*token, error)

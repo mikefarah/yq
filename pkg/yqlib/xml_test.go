@@ -768,7 +768,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq -o=xml '.' sample.yml\n```\n")
+	writeOrPanic(w, "```bash\nyq -o=xml sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))

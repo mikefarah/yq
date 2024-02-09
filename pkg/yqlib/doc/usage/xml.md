@@ -370,7 +370,7 @@ cat: purrs
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
@@ -387,7 +387,7 @@ pets:
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
@@ -409,7 +409,7 @@ cat:
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
@@ -430,7 +430,7 @@ cat:
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
@@ -457,7 +457,7 @@ cat: # inline_cat
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
@@ -487,7 +487,7 @@ apple:
 ```
 then
 ```bash
-yq -o=xml '.' sample.yml
+yq -o=xml sample.yml
 ```
 will output
 ```xml
