@@ -31,3 +31,31 @@ a:
   c: frog
 ```
 
+## Commenting out yq expressions
+Note that `c` is no longer set to 'frog'.
+
+Given a sample.yaml file of:
+```yaml
+a:
+  b: old
+```
+And an 'update.yq' expression file of:
+```bash
+# This is a yq expression that updates the map
+# for several great reasons outlined here.
+
+.a.b = "new" # line comment here
+# | .a.c = "frog"
+
+# Now good things will happen.
+```
+then
+```bash
+yq --from-file update.yq sample.yml
+```
+will output
+```yaml
+a:
+  b: new
+```
+

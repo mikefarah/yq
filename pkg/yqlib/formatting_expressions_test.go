@@ -15,6 +15,13 @@ var formattingExpressionScenarios = []formatScenario{
 		expression:  "\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
 		expected:    "a:\n  b: new\n  c: frog\n",
 	},
+	{
+		description:    "Commenting out yq expressions",
+		subdescription: "Note that `c` is no longer set to 'frog'.",
+		input:          "a:\n  b: old",
+		expression:     "\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n# | .a.c = \"frog\"\n\n# Now good things will happen.\n",
+		expected:       "a:\n  b: new\n",
+	},
 }
 
 func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
