@@ -142,15 +142,18 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 			return Context{}, err
 		}
 
-		result, err := d.GetMatchingNodes(splatted, expressionNode.RHS)
-		log.Debug("expressionNode.Rhs %v", expressionNode.RHS.Operation.OperationType)
-		log.Debug("result %v", result)
-		if err != nil {
-			return Context{}, err
+		newResults := list.New()
+
+		for itemEl := splatted.MatchingNodes.Front(); itemEl != nil; itemEl = itemEl.Next() {
+			result, err := d.GetMatchingNodes(splatted.SingleChildContext(itemEl.Value.(*CandidateNode)), expressionNode.RHS)
+			if err != nil {
+				return Context{}, err
+			}
+			newResults.PushBackList(result.MatchingNodes)
 		}
 
 		selfExpression := &ExpressionNode{Operation: &Operation{OperationType: selfReferenceOpType}}
-		collected, err := collectTogether(d, result, selfExpression)
+		collected, err := collectTogether(d, splatted.ChildContext(newResults), selfExpression)
 		if err != nil {
 			return Context{}, err
 		}

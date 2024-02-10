@@ -66,9 +66,19 @@ var entriesOperatorScenarios = []expressionScenario{
 	{
 		description: "Use with_entries to update keys",
 		document:    `{a: 1, b: 2}`,
-		expression:  `with_entries(.key |= "KEY_" + .)`,
+		// expression:  `to_entries | with(.[]; .key |= "KEY_" + .) | from_entries`,
+		expression: `with_entries(.key |= "KEY_" + .)`,
 		expected: []string{
 			"D0, P[], (!!map)::KEY_a: 1\nKEY_b: 2\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Use with_entries to update keys comment",
+		document:    `{a: 1, b: 2}`,
+		expression:  `with_entries(.key headComment= .value)`,
+		expected: []string{
+			"D0, P[], (!!map)::# 1\na: 1\n# 2\nb: 2\n",
 		},
 	},
 	{
