@@ -56,7 +56,7 @@ func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
 func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode *toml.Node) error {
 	value := tomlNode.Value()
 	path := dec.getFullPath(value.Next())
-	log.Debug("!!!processKeyValueIntoMap: %v", path)
+	log.Debug("[DecoderTOML] processKeyValueIntoMap: %v", path)
 
 	valueNode, err := dec.decodeNode(value)
 	if err != nil {
@@ -70,14 +70,14 @@ func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode 
 }
 
 func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode *toml.Node) (bool, error) {
-	log.Debug("!! DECODE_KV_INTO_MAP -- processing first (current) entry")
+	log.Debug("[DecoderTOML] decodeKeyValuesIntoMap -- processing first (current) entry")
 	if err := dec.processKeyValueIntoMap(rootMap, tomlNode); err != nil {
 		return false, err
 	}
 
 	for dec.parser.NextExpression() {
 		nextItem := dec.parser.Expression()
-		log.Debug("!! DECODE_KV_INTO_MAP -- next exp, its a %v", nextItem.Kind)
+		log.Debug("[DecoderTOML] decodeKeyValuesIntoMap -- next exp, its a %v", nextItem.Kind)
 
 		if nextItem.Kind == toml.KeyValue {
 			if err := dec.processKeyValueIntoMap(rootMap, nextItem); err != nil {
@@ -249,7 +249,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error) {
 	var runAgainstCurrentExp bool
 	var err error
-	log.Debug("!!!!!!!!!!!!Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
+	log.Debug("[DecoderTOML] processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
 	if currentNode.Kind == toml.Table {
 		runAgainstCurrentExp, err = dec.processTable(currentNode)
 	} else if currentNode.Kind == toml.ArrayTable {
@@ -258,14 +258,14 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(dec.rootMap, currentNode)
 	}
 
-	log.Debug("!!!!!!!!!!!!DONE Processing state is now %v", NodeToString(dec.rootMap))
+	log.Debug("[DecoderTOML] processTopLevelNode: DONE Processing state is now %v", NodeToString(dec.rootMap))
 	return runAgainstCurrentExp, err
 }
 
 func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
-	log.Debug("!!! processing table")
+	log.Debug("[DecoderTOML] Enter processTable")
 	fullPath := dec.getFullPath(currentNode.Child())
-	log.Debug("!!!fullpath: %v", fullPath)
+	log.Debug("[DecoderTOML] fullpath: %v", fullPath)
 
 	tableNodeValue := &CandidateNode{
 		Kind:    MappingNode,
@@ -302,6 +302,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 }
 
 func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode *CandidateNode) error {
+	log.Debug("[DecoderTOML] arrayAppend to path: %v,%v", path, NodeToString(rhsNode))
 	rhsCandidateNode := &CandidateNode{
 		Kind:    SequenceNode,
 		Tag:     "!!seq",
@@ -323,9 +324,9 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 }
 
 func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) {
-	log.Debug("!!! processing table")
+	log.Debug("[DecoderTOML] Entering processArrayTable")
 	fullPath := dec.getFullPath(currentNode.Child())
-	log.Debug("!!!fullpath: %v", fullPath)
+	log.Debug("[DecoderTOML] Fullpath: %v", fullPath)
 
 	// need to use the array append exp to add another entry to
 	// this array: fullpath += [ thing ]

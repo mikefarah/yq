@@ -16,6 +16,19 @@ name = "Tom Preston-Werner"
 age = 36
 `
 
+var tableArrayBeforeOwners = `
+[[owner.addresses]]
+street = "first street"
+
+[owner]
+name = "Tom Preston-Werner"
+`
+var expectedTableArrayBeforeOwners = `owner:
+  addresses:
+    - street: first street
+  name: Tom Preston-Werner
+`
+
 var sampleTableExpected = `var: x
 owner:
   contact:
@@ -72,6 +85,13 @@ var tomlScenarios = []formatScenario{
 		description:  "blank",
 		input:        "",
 		expected:     "",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "table array before owners",
+		input:        tableArrayBeforeOwners,
+		expected:     expectedTableArrayBeforeOwners,
 		scenarioType: "decode",
 	},
 	{

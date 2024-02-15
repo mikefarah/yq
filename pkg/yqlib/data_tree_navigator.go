@@ -26,6 +26,17 @@ func (d *dataTreeNavigator) DeeplyAssign(context Context, path []interface{}, rh
 
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
+	if rhsCandidateNode.Kind == MappingNode {
+		log.Debug("[DataTreeNavigator] DeeplyAssign: deeply merging object")
+		// if the rhs is a map, we need to deeply merge it in.
+		// otherwise we'll clobber any existing fields
+		assignmentOp = &Operation{OperationType: multiplyAssignOpType, Preferences: multiplyPreferences{
+			AppendArrays:  true,
+			TraversePrefs: traversePreferences{DontFollowAlias: true},
+			AssignPrefs:   assignPreferences{},
+		}}
+	}
+
 	rhsOp := &Operation{OperationType: valueOpType, CandidateNode: rhsCandidateNode}
 
 	assignmentOpNode := &ExpressionNode{
