@@ -11,15 +11,24 @@ import (
 var formattingExpressionScenarios = []formatScenario{
 	{
 		description: "Using expression files and comments",
+		skipDoc:     true,
 		input:       "a:\n  b: old",
-		expression:  "\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
+		expression:  "#! yq\n\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
 		expected:    "a:\n  b: new\n  c: frog\n",
 	},
 	{
-		description:    "Commenting out yq expressions",
-		subdescription: "Note that `c` is no longer set to 'frog'.",
+		description:    "Using expression files and comments",
+		subdescription: "Note that you can execute the file directly - but make sure you make the expression file executable.",
 		input:          "a:\n  b: old",
-		expression:     "\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n# | .a.c = \"frog\"\n\n# Now good things will happen.\n",
+		expression:     "#! yq\n\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
+		expected:       "a:\n  b: new\n  c: frog\n",
+		scenarioType:   "shebang",
+	},
+	{
+		description:    "Commenting out yq expressions",
+		subdescription: "Note that `c` is no longer set to 'frog'. In this example we're calling yq directly and passing the expression file into `--from-file`, this is no different from executing the expression file directly.",
+		input:          "a:\n  b: old",
+		expression:     "#! yq\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n# | .a.c = \"frog\"\n\n# Now good things will happen.\n",
 		expected:       "a:\n  b: new\n",
 	},
 }
@@ -41,10 +50,14 @@ func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
 
 	writeOrPanic(w, "And an 'update.yq' expression file of:\n")
-	writeOrPanic(w, fmt.Sprintf("```bash%v```\n", s.expression))
+	writeOrPanic(w, fmt.Sprintf("```bash\n%v```\n", s.expression))
 
 	writeOrPanic(w, "then\n")
-	writeOrPanic(w, "```bash\nyq --from-file update.yq sample.yml\n```\n")
+	if s.scenarioType == "shebang" {
+		writeOrPanic(w, "```bash\n./update.yq sample.yaml\n```\n")
+	} else {
+		writeOrPanic(w, "```bash\nyq --from-file update.yq sample.yml\n```\n")
+	}
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))

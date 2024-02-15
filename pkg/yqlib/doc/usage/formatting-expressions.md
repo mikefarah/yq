@@ -5,6 +5,8 @@
 You can put expressions into `.yq` files, use whitespace and comments to break up complex expressions and explain what's going on.
 
 ## Using expression files and comments
+Note that you can execute the file directly - but make sure you make the expression file executable.
+
 Given a sample.yaml file of:
 ```yaml
 a:
@@ -12,6 +14,8 @@ a:
 ```
 And an 'update.yq' expression file of:
 ```bash
+#! yq
+
 # This is a yq expression that updates the map
 # for several great reasons outlined here.
 
@@ -22,7 +26,7 @@ And an 'update.yq' expression file of:
 ```
 then
 ```bash
-yq --from-file update.yq sample.yml
+./update.yq sample.yaml
 ```
 will output
 ```yaml
@@ -32,7 +36,7 @@ a:
 ```
 
 ## Commenting out yq expressions
-Note that `c` is no longer set to 'frog'.
+Note that `c` is no longer set to 'frog'. In this example we're calling yq directly and passing the expression file into `--from-file`, this is no different from executing the expression file directly.
 
 Given a sample.yaml file of:
 ```yaml
@@ -41,6 +45,7 @@ a:
 ```
 And an 'update.yq' expression file of:
 ```bash
+#! yq
 # This is a yq expression that updates the map
 # for several great reasons outlined here.
 
