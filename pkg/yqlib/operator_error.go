@@ -6,7 +6,7 @@ import (
 
 func errorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
-	log.Debugf("-- errorOperation")
+	log.Debugf("errorOperation")
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
 	if err != nil {

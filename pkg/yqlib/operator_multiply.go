@@ -29,7 +29,7 @@ func multiplyAssignOperator(d *dataTreeNavigator, context Context, expressionNod
 }
 
 func multiplyOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- MultiplyOperator")
+	log.Debugf("MultiplyOperator")
 	return crossFunction(d, context, expressionNode, multiply(expressionNode.Operation.Preferences.(multiplyPreferences)), false)
 }
 
@@ -54,7 +54,7 @@ func multiply(preferences multiplyPreferences) func(d *dataTreeNavigator, contex
 		// need to do this before unWrapping the potential document node
 		leadingContent, headComment, footComment := getComments(lhs, rhs)
 		log.Debugf("Multiplying LHS: %v", NodeToString(lhs))
-		log.Debugf("-          RHS: %v", NodeToString(rhs))
+		log.Debugf("-           RHS: %v", NodeToString(rhs))
 
 		if rhs.Tag == "!!null" {
 			return lhs.Copy(), nil
@@ -157,7 +157,7 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 	for el := results.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		log.Debugf("*** going to applied assignment to LHS: %v with RHS: %v", NodeToString(lhs), NodeToString(candidate))
+		log.Debugf("going to applied assignment to LHS: %v with RHS: %v", NodeToString(lhs), NodeToString(candidate))
 
 		if candidate.Tag == "!!merge" {
 			continue
@@ -168,7 +168,7 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 			return nil, err
 		}
 
-		log.Debugf("*** applied assignment to LHS: %v", NodeToString(lhs))
+		log.Debugf("applied assignment to LHS: %v", NodeToString(lhs))
 	}
 	return lhs, nil
 }

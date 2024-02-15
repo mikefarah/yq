@@ -111,11 +111,11 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 		//need to put a traverse array then a collect currentToken
 		// do this by adding traverse then converting currentToken to collect
 
-		log.Debug("  adding self")
+		log.Debug("adding self")
 		op := &Operation{OperationType: selfReferenceOpType, StringValue: "SELF"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 
-		log.Debug("  adding traverse array")
+		log.Debug("adding traverse array")
 		op = &Operation{OperationType: traverseArrayOpType, StringValue: "TRAVERSE_ARRAY"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 
@@ -135,13 +135,13 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 
 	if index != len(tokens)-1 && currentToken.AssignOperation != nil &&
 		tokenIsOpType(tokens[index+1], assignOpType) {
-		log.Debug("  its an update assign")
+		log.Debug("its an update assign")
 		currentToken.Operation = currentToken.AssignOperation
 		currentToken.Operation.UpdateAssign = tokens[index+1].Operation.UpdateAssign
 		skipNextToken = true
 	}
 
-	log.Debug("  adding token to the fixed list")
+	log.Debug("adding token to the fixed list")
 	postProcessedTokens = append(postProcessedTokens, currentToken)
 
 	if tokenIsOpType(currentToken, createMapOpType) {
@@ -158,7 +158,7 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 	if index != len(tokens)-1 &&
 		((currentToken.TokenType == openCollect && tokens[index+1].TokenType == closeCollect) ||
 			(currentToken.TokenType == openCollectObject && tokens[index+1].TokenType == closeCollectObject)) {
-		log.Debug("  adding empty")
+		log.Debug("adding empty")
 		op := &Operation{OperationType: emptyOpType, StringValue: "EMPTY"}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}
@@ -167,14 +167,14 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 
 		(tokenIsOpType(tokens[index+1], traversePathOpType) ||
 			(tokens[index+1].TokenType == traverseArrayCollect)) {
-		log.Debug("  adding pipe because the next thing is traverse")
+		log.Debug("adding pipe because the next thing is traverse")
 		op := &Operation{OperationType: shortPipeOpType, Value: "PIPE", StringValue: "."}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}
 	if index != len(tokens)-1 && currentToken.CheckForPostTraverse &&
 		tokens[index+1].TokenType == openCollect {
 
-		log.Debug("  adding traverseArray because next is opencollect")
+		log.Debug("adding traverseArray because next is opencollect")
 		op := &Operation{OperationType: traverseArrayOpType}
 		postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: op})
 	}

@@ -5,7 +5,7 @@ import (
 )
 
 func createMapOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- createMapOperation")
+	log.Debugf("createMapOperation")
 
 	//each matchingNodes entry should turn into a sequence of keys to create.
 	//then collect object should do a cross function of the same index sequence for all matches.

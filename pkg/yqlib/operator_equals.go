@@ -1,16 +1,16 @@
 package yqlib
 
 func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- equalsOperation")
+	log.Debugf("equalsOperation")
 	return crossFunction(d, context, expressionNode, isEquals(false), true)
 }
 
 func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		value := false
-		log.Debugf("-- isEquals cross function")
+		log.Debugf("isEquals cross function")
 		if lhs == nil && rhs == nil {
-			log.Debugf("-- both are nil")
+			log.Debugf("both are nil")
 			owner := &CandidateNode{}
 			return createBooleanCandidate(owner, !flip), nil
 		} else if lhs == nil {
@@ -43,6 +43,6 @@ func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *Candid
 }
 
 func notEqualsOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- notEqualsOperator")
+	log.Debugf("notEqualsOperator")
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, isEquals(true), true)
 }

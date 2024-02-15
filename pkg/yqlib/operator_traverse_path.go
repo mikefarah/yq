@@ -20,7 +20,7 @@ func splat(context Context, prefs traversePreferences) (Context, error) {
 }
 
 func traversePathOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- traversePathOperator")
+	log.Debugf("traversePathOperator")
 	var matches = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

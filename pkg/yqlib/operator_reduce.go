@@ -6,7 +6,7 @@ import (
 )
 
 func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- reduceOp")
+	log.Debugf("reduceOp")
 	//.a as $var reduce (0; . + $var)
 	//lhs is the assignment operator
 	//rhs is the reduce block

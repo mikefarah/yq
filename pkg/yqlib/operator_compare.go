@@ -11,14 +11,14 @@ type compareTypePref struct {
 }
 
 func compareOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- compareOperator")
+	log.Debugf("compareOperator")
 	prefs := expressionNode.Operation.Preferences.(compareTypePref)
 	return crossFunction(d, context, expressionNode, compare(prefs), true)
 }
 
 func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-		log.Debugf("-- compare cross function")
+		log.Debugf("compare cross function")
 		if lhs == nil && rhs == nil {
 			owner := &CandidateNode{}
 			return createBooleanCandidate(owner, prefs.OrEqual), nil

@@ -6,7 +6,7 @@ import (
 )
 
 func lengthOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
-	log.Debugf("-- lengthOperation")
+	log.Debugf("lengthOperation")
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

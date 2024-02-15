@@ -6,7 +6,7 @@ import (
 )
 
 func isKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
-	log.Debugf("-- isKeyOperator")
+	log.Debugf("isKeyOperator")
 
 	var results = list.New()
 
@@ -20,7 +20,7 @@ func isKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Co
 }
 
 func getKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
-	log.Debugf("-- getKeyOperator")
+	log.Debugf("getKeyOperator")
 
 	var results = list.New()
 
@@ -37,7 +37,7 @@ func getKeyOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (C
 }
 
 func keysOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
-	log.Debugf("-- keysOperator")
+	log.Debugf("keysOperator")
 
 	var results = list.New()
 

@@ -116,7 +116,7 @@ func getAnchorOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode)
 }
 
 func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- ExplodeOperation")
+	log.Debugf("ExplodeOperation")
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

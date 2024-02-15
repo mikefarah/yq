@@ -165,7 +165,7 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 		collected.HeadComment = candidate.HeadComment
 		collected.FootComment = candidate.FootComment
 
-		log.Debugf("**** collected %v", collected.LeadingContent)
+		log.Debugf("collected %v", collected.LeadingContent)
 
 		fromEntries, err := fromEntriesOperator(d, context.SingleChildContext(collected), expressionNode)
 		if err != nil {

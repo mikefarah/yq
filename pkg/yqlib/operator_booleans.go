@@ -137,7 +137,7 @@ func andOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func notOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
-	log.Debugf("-- notOperation")
+	log.Debugf("notOperation")
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

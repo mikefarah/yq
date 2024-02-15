@@ -25,7 +25,7 @@ func recursiveDecent(results *list.List, context Context, preferences recursiveD
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		log.Debugf("Recursive Decent, added %v", NodeToString(candidate))
+		log.Debugf("added %v", NodeToString(candidate))
 		results.PushBack(candidate)
 
 		if candidate.Kind != AliasNode && len(candidate.Content) > 0 &&

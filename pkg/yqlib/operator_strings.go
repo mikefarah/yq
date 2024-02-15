@@ -338,7 +338,7 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 }
 
 func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- joinStringOperator")
+	log.Debugf("joinStringOperator")
 	joinStr := ""
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
@@ -377,7 +377,7 @@ func join(content []*CandidateNode, joinStr string) (Kind, string, string) {
 }
 
 func splitStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- splitStringOperator")
+	log.Debugf("splitStringOperator")
 	splitStr := ""
 
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)

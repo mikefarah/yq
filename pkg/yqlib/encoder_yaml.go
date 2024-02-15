@@ -30,7 +30,7 @@ func (ye *yamlEncoder) CanHandleAliases() bool {
 
 func (ye *yamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	if ye.prefs.PrintDocSeparators {
-		log.Debug("-- writing doc sep")
+		log.Debug("writing doc sep")
 		if err := writeString(writer, "---\n"); err != nil {
 			return err
 		}

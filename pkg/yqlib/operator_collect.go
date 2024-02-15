@@ -22,7 +22,7 @@ func collectTogether(d *dataTreeNavigator, context Context, expressionNode *Expr
 }
 
 func collectOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("-- collectOperation")
+	log.Debugf("collectOperation")
 
 	if context.MatchingNodes.Len() == 0 {
 		log.Debugf("nothing to collect")
