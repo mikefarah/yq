@@ -255,6 +255,16 @@ func processStdInArgs(args []string) []string {
 
 func processArgs(originalArgs []string) (string, []string, error) {
 	expression := forceExpression
+	args := processStdInArgs(originalArgs)
+	maybeFirstArgIsAFile := len(args) > 0 && maybeFile(args[0])
+
+	if expressionFile == "" && maybeFirstArgIsAFile && strings.HasSuffix(args[0], ".yq") {
+		// lets check if an expression file was given
+		yqlib.GetLogger().Debug("Assuming arg %v is an expression file", args[0])
+		expressionFile = args[0]
+		args = args[1:]
+	}
+
 	if expressionFile != "" {
 		expressionBytes, err := os.ReadFile(expressionFile)
 		if err != nil {
@@ -264,7 +274,6 @@ func processArgs(originalArgs []string) (string, []string, error) {
 		expression = strings.ReplaceAll(string(expressionBytes), "\r\n", "\n")
 	}
 
-	args := processStdInArgs(originalArgs)
 	yqlib.GetLogger().Debugf("processed args: %v", args)
 	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
 		yqlib.GetLogger().Debug("assuming expression is '%v'", args[0])
