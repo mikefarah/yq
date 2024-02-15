@@ -112,9 +112,9 @@ func createDecoder(format InputFormat) Decoder {
 	case PropertiesInputFormat:
 		decoder = NewPropertiesDecoder()
 	case CSVObjectInputFormat:
-		decoder = NewCSVObjectDecoder(',')
+		decoder = NewCSVObjectDecoder(ConfiguredCsvPreferences)
 	case TSVObjectInputFormat:
-		decoder = NewCSVObjectDecoder('\t')
+		decoder = NewCSVObjectDecoder(ConfiguredTsvPreferences)
 	case UriInputFormat:
 		decoder = NewUriDecoder()
 	}

@@ -9,27 +9,29 @@ import (
 )
 
 type csvObjectDecoder struct {
-	separator rune
-	reader    csv.Reader
-	finished  bool
+	prefs    CsvPreferences
+	reader   csv.Reader
+	finished bool
 }
 
-func NewCSVObjectDecoder(separator rune) Decoder {
-	return &csvObjectDecoder{separator: separator}
+func NewCSVObjectDecoder(prefs CsvPreferences) Decoder {
+	return &csvObjectDecoder{prefs: prefs}
 }
 
 func (dec *csvObjectDecoder) Init(reader io.Reader) error {
 	cleanReader, enc := utfbom.Skip(reader)
 	log.Debugf("Detected encoding: %s\n", enc)
 	dec.reader = *csv.NewReader(cleanReader)
-	dec.reader.Comma = dec.separator
+	dec.reader.Comma = dec.prefs.Separator
 	dec.finished = false
 	return nil
 }
 
 func (dec *csvObjectDecoder) convertToNode(content string) *CandidateNode {
 	node, err := parseSnippet(content)
-	if err != nil {
+	// if we're not auto-parsing, then we wont put in parsed objects or arrays
+	// but we still parse scalars
+	if err != nil || (!dec.prefs.AutoParse && node.Kind != ScalarNode) {
 		return createScalarNode(content, content)
 	}
 	return node

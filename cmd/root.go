@@ -80,6 +80,9 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipProcInst, "xml-skip-proc-inst", yqlib.ConfiguredXMLPreferences.SkipProcInst, "skip over process instructions (e.g. <?xml version=\"1\"?>)")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipDirectives, "xml-skip-directives", yqlib.ConfiguredXMLPreferences.SkipDirectives, "skip over directives (e.g. <!DOCTYPE thing cat>)")
 
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredCsvPreferences.AutoParse, "csv-auto-parse", yqlib.ConfiguredCsvPreferences.AutoParse, "parse CSV YAML/JSON values")
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredTsvPreferences.AutoParse, "tsv-auto-parse", yqlib.ConfiguredTsvPreferences.AutoParse, "parse TSV YAML/JSON values")
+
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredLuaPreferences.DocPrefix, "lua-prefix", yqlib.ConfiguredLuaPreferences.DocPrefix, "prefix")
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredLuaPreferences.DocSuffix, "lua-suffix", yqlib.ConfiguredLuaPreferences.DocSuffix, "suffix")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredLuaPreferences.UnquotedKeys, "lua-unquoted", yqlib.ConfiguredLuaPreferences.UnquotedKeys, "output unquoted string keys (e.g. {foo=\"bar\"})")

@@ -63,6 +63,40 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputCSVNoAuto() {
+  cat >test.csv <<EOL
+thing1
+name: cat
+EOL
+
+  read -r -d '' expected << EOM
+- thing1: 'name: cat'
+EOM
+
+  X=$(./yq --csv-auto-parse=f test.csv -oy)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --csv-auto-parse=f test.csv -oy)
+  assertEquals "$expected" "$X"
+}
+
+testInputTSVNoAuto() {
+  cat >test.tsv <<EOL
+thing1
+name: cat
+EOL
+
+  read -r -d '' expected << EOM
+- thing1: 'name: cat'
+EOM
+
+  X=$(./yq --tsv-auto-parse=f test.tsv -oy)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --tsv-auto-parse=f test.tsv -oy)
+  assertEquals "$expected" "$X"
+}
+
 testInputCSVUTF8() {
   read -r -d '' expected << EOM
 - id: 1

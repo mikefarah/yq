@@ -140,9 +140,9 @@ func createDecoder(format yqlib.InputFormat, evaluateTogether bool) (yqlib.Decod
 	case yqlib.JsonInputFormat:
 		return yqlib.NewJSONDecoder(), nil
 	case yqlib.CSVObjectInputFormat:
-		return yqlib.NewCSVObjectDecoder(','), nil
+		return yqlib.NewCSVObjectDecoder(yqlib.ConfiguredCsvPreferences), nil
 	case yqlib.TSVObjectInputFormat:
-		return yqlib.NewCSVObjectDecoder('\t'), nil
+		return yqlib.NewCSVObjectDecoder(yqlib.ConfiguredTsvPreferences), nil
 	case yqlib.TomlInputFormat:
 		return yqlib.NewTomlDecoder(), nil
 	case yqlib.YamlInputFormat:

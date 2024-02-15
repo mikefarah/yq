@@ -136,13 +136,13 @@ Samantha's Rabbit,,-188.8
 ```
 
 ## Parse CSV into an array of objects
-First row is assumed to be the header row.
+First row is assumed to be the header row. By default, entries with YAML/JSON formatting will be parsed!
 
 Given a sample.csv file of:
 ```csv
-name,numberOfCats,likesApples,height
-Gary,1,true,168.8
-Samantha's Rabbit,2,false,-188.8
+name,numberOfCats,likesApples,height,facts
+Gary,1,true,168.8,cool: true
+Samantha's Rabbit,2,false,-188.8,tall: indeed
 
 ```
 then
@@ -155,10 +155,42 @@ will output
   numberOfCats: 1
   likesApples: true
   height: 168.8
+  facts:
+    cool: true
 - name: Samantha's Rabbit
   numberOfCats: 2
   likesApples: false
   height: -188.8
+  facts:
+    tall: indeed
+```
+
+## Parse CSV into an array of objects, no auto-parsing
+First row is assumed to be the header row. Entries with YAML/JSON will be left as strings.
+
+Given a sample.csv file of:
+```csv
+name,numberOfCats,likesApples,height,facts
+Gary,1,true,168.8,cool: true
+Samantha's Rabbit,2,false,-188.8,tall: indeed
+
+```
+then
+```bash
+yq -p=csv --csv-auto-parse=f sample.csv
+```
+will output
+```yaml
+- name: Gary
+  numberOfCats: 1
+  likesApples: true
+  height: 168.8
+  facts: 'cool: true'
+- name: Samantha's Rabbit
+  numberOfCats: 2
+  likesApples: false
+  height: -188.8
+  facts: 'tall: indeed'
 ```
 
 ## Parse TSV into an array of objects
