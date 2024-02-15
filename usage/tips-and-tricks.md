@@ -14,12 +14,19 @@ Feel free to use multiple lines in your expression to improve readability.
 
 Use `with` if you need to make several updates to the same path.
 
+Use `# comments` to explain things
+
 ```bash
 yq --inplace '
-  with(.a.deeply.nested; 
-    . = "newValue" | . style="single") |
+  with(.a.deeply.nested;
+    . = "newValue" | . style="single" # line comment about styles
+  ) |
+  #
+  # Block comment that explains what is happening.
+  #
   with(.b.another.nested; 
-    . = "cool" | . style="folded")
+    . = "cool" | . style="folded"
+  )
 ' my_file.yaml
 ```
 
