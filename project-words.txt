@@ -252,3 +252,4 @@ zabbix
 tonumber
 noyaml
 nolint
+shortfile

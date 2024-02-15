@@ -41,7 +41,7 @@ yq -P -oy sample.json
 			cmd.SetOut(cmd.OutOrStdout())
 
 			var format = logging.MustStringFormatter(
-				`%{color}%{time:15:04:05} %{shortfunc} [%{level:.4s}]%{color:reset} %{message}`,
+				`[%{level:5.5s}] %{color}%{time:15:04:05} %{color:bold} %{shortfile:-30s} %{shortfunc:-25s}%{color:reset} %{message}`,
 			)
 			var backend = logging.AddModuleLevel(
 				logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
