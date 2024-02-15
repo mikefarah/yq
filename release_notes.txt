@@ -1,5 +1,9 @@
-4.41.1 (not released):
+4.41.1:
   - Can now comment in yq expressions! #1919
+  - Fixed Toml decoding when table array defined before parent #1922
+  - Added new CSV option to turn off auto-parsing #1947
+  - Fixing with_entries context #1925
+  - Can now retrieve the alias names of merge anchors #1942
 
 
 4.40.7:
