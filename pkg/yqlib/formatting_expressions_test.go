@@ -3,6 +3,7 @@ package yqlib
 import (
 	"bufio"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -23,6 +24,14 @@ var formattingExpressionScenarios = []formatScenario{
 		expression:     "#! yq\n\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
 		expected:       "a:\n  b: new\n  c: frog\n",
 		scenarioType:   "shebang",
+	},
+	{
+		description:    "Flags in expression files",
+		subdescription: "You can specify flags on the shebang line, this only works when executing the file directly.",
+		input:          "a:\n  b: old",
+		expression:     "#! yq -oj\n\n# This is a yq expression that updates the map\n# for several great reasons outlined here.\n\n.a.b = \"new\" # line comment here\n| .a.c = \"frog\"\n\n# Now good things will happen.\n",
+		expected:       "a:\n  b: new\n  c: frog\n",
+		scenarioType:   "shebang-json",
 	},
 	{
 		description:    "Commenting out yq expressions",
@@ -53,14 +62,19 @@ func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	writeOrPanic(w, fmt.Sprintf("```bash\n%v```\n", s.expression))
 
 	writeOrPanic(w, "then\n")
-	if s.scenarioType == "shebang" {
+	if strings.HasPrefix(s.scenarioType, "shebang") {
 		writeOrPanic(w, "```bash\n./update.yq sample.yaml\n```\n")
 	} else {
 		writeOrPanic(w, "```bash\nyq --from-file update.yq sample.yml\n```\n")
 	}
 	writeOrPanic(w, "will output\n")
+	encoder := NewYamlEncoder(2, false, ConfiguredYamlPreferences)
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
+	if s.scenarioType == "shebang-json" {
+		encoder = NewJSONEncoder(2, false, false)
+	}
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), encoder)))
 }
 
 func TestExpressionCommentScenarios(t *testing.T) {
