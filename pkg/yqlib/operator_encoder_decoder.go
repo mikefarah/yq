@@ -16,9 +16,9 @@ func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
 	case PropsOutputFormat:
 		return NewPropertiesEncoder(true)
 	case CSVOutputFormat:
-		return NewCsvEncoder(',')
+		return NewCsvEncoder(ConfiguredCsvPreferences)
 	case TSVOutputFormat:
-		return NewCsvEncoder('\t')
+		return NewCsvEncoder(ConfiguredTsvPreferences)
 	case YamlOutputFormat:
 		return NewYamlEncoder(indent, false, ConfiguredYamlPreferences)
 	case XMLOutputFormat:

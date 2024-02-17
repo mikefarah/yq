@@ -1,12 +1,41 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
 )
+
+type runeValue rune
+
+func newRuneVar(p *rune) *runeValue {
+	return (*runeValue)(p)
+}
+
+func (r *runeValue) String() string {
+	return string(*r)
+}
+
+func (r *runeValue) Set(rawVal string) error {
+	val := strings.ReplaceAll(rawVal, "\\n", "\n")
+	val = strings.ReplaceAll(val, "\\t", "\t")
+	val = strings.ReplaceAll(val, "\\r", "\r")
+	val = strings.ReplaceAll(val, "\\f", "\f")
+	val = strings.ReplaceAll(val, "\\v", "\v")
+	if len(val) != 1 {
+		return fmt.Errorf("[%v] is not a valid character. Must be length 1 was %v", val, len(val))
+	}
+	*r = runeValue(rune(val[0]))
+	return nil
+}
+
+func (r *runeValue) Type() string {
+	return "char"
+}
 
 func New() *cobra.Command {
 	var rootCmd = &cobra.Command{
@@ -82,6 +111,8 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipDirectives, "xml-skip-directives", yqlib.ConfiguredXMLPreferences.SkipDirectives, "skip over directives (e.g. <!DOCTYPE thing cat>)")
 
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredCsvPreferences.AutoParse, "csv-auto-parse", yqlib.ConfiguredCsvPreferences.AutoParse, "parse CSV YAML/JSON values")
+	rootCmd.PersistentFlags().Var(newRuneVar(&yqlib.ConfiguredCsvPreferences.Separator), "csv-separator", "CSV Separator character")
+
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredTsvPreferences.AutoParse, "tsv-auto-parse", yqlib.ConfiguredTsvPreferences.AutoParse, "parse TSV YAML/JSON values")
 
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredLuaPreferences.DocPrefix, "lua-prefix", yqlib.ConfiguredLuaPreferences.DocPrefix, "prefix")

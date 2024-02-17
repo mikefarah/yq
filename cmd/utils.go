@@ -189,9 +189,9 @@ func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	case yqlib.PropsOutputFormat:
 		return yqlib.NewPropertiesEncoder(unwrapScalar), nil
 	case yqlib.CSVOutputFormat:
-		return yqlib.NewCsvEncoder(','), nil
+		return yqlib.NewCsvEncoder(yqlib.ConfiguredCsvPreferences), nil
 	case yqlib.TSVOutputFormat:
-		return yqlib.NewCsvEncoder('\t'), nil
+		return yqlib.NewCsvEncoder(yqlib.ConfiguredTsvPreferences), nil
 	case yqlib.YamlOutputFormat:
 		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences), nil
 	case yqlib.XMLOutputFormat:

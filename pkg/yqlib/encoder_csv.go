@@ -10,8 +10,8 @@ type csvEncoder struct {
 	separator rune
 }
 
-func NewCsvEncoder(separator rune) Encoder {
-	return &csvEncoder{separator: separator}
+func NewCsvEncoder(prefs CsvPreferences) Encoder {
+	return &csvEncoder{separator: prefs.Separator}
 }
 
 func (e *csvEncoder) CanHandleAliases() bool {

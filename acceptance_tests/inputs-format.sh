@@ -63,6 +63,27 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputCSVCustomSeparator() {
+  cat >test.csv <<EOL
+fruit;yumLevel
+apple;5
+banana;4
+EOL
+
+  read -r -d '' expected << EOM
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOM
+
+  X=$(./yq -p=csv --csv-separator ";" test.csv)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=csv --csv-separator ";" test.csv)
+  assertEquals "$expected" "$X"
+}
+
 testInputCSVNoAuto() {
   cat >test.csv <<EOL
 thing1

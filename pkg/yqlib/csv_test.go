@@ -206,9 +206,9 @@ var csvScenarios = []formatScenario{
 func testCSVScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "encode-csv":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(',')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(ConfiguredCsvPreferences)), s.description)
 	case "encode-tsv":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder('\t')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(ConfiguredTsvPreferences)), s.description)
 	case "decode-csv":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(ConfiguredCsvPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "decode-csv-no-auto":
@@ -216,7 +216,7 @@ func testCSVScenario(t *testing.T, s formatScenario) {
 	case "decode-tsv-object":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(ConfiguredTsvPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-csv":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(ConfiguredCsvPreferences), NewCsvEncoder(',')), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewCSVObjectDecoder(ConfiguredCsvPreferences), NewCsvEncoder(ConfiguredCsvPreferences)), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -298,9 +298,10 @@ func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType str
 	if formatType == "tsv" {
 		separator = '\t'
 	}
-
+	csvPrefs := NewDefaultCsvPreferences()
+	csvPrefs.Separator = separator
 	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
-		mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(separator))),
+		mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(csvPrefs))),
 	)
 }
 
@@ -331,8 +332,11 @@ func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType 
 		separator = '\t'
 	}
 
+	csvPrefs := NewDefaultCsvPreferences()
+	csvPrefs.Separator = separator
+
 	writeOrPanic(w, fmt.Sprintf("```%v\n%v```\n\n", formatType,
-		mustProcessFormatScenario(s, NewCSVObjectDecoder(CsvPreferences{Separator: separator, AutoParse: true}), NewCsvEncoder(separator))),
+		mustProcessFormatScenario(s, NewCSVObjectDecoder(CsvPreferences{Separator: separator, AutoParse: true}), NewCsvEncoder(csvPrefs))),
 	)
 }
 

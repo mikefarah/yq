@@ -198,6 +198,27 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputCSVCustomSeparator() {
+  cat >test.yml <<EOL
+- fruit: apple
+  yumLevel: 5
+- fruit: banana
+  yumLevel: 4
+EOL
+
+  read -r -d '' expected << EOM
+fruit;yumLevel
+apple;5
+banana;4
+EOM
+
+  X=$(./yq -oc --csv-separator ";" test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -o=csv --csv-separator ";" test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testOutputTSV() {
   cat >test.yml <<EOL
 - fruit: apple
