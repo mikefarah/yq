@@ -3,17 +3,60 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
 )
 
-func yamlToProps(sampleYaml string, unwrapScalar bool) string {
+type keyValuePair struct {
+	key     string
+	value   string
+	comment string
+}
+
+func (kv *keyValuePair) String(unwrap bool, sep string) string {
+	builder := strings.Builder{}
+
+	if kv.comment != "" {
+		builder.WriteString(kv.comment)
+		builder.WriteString("\n")
+	}
+
+	builder.WriteString(kv.key)
+	builder.WriteString(sep)
+
+	if unwrap {
+		builder.WriteString(kv.value)
+	} else {
+		builder.WriteString("\"")
+		builder.WriteString(kv.value)
+		builder.WriteString("\"")
+	}
+
+	return builder.String()
+}
+
+type testProperties struct {
+	pairs []keyValuePair
+}
+
+func (tp *testProperties) String(unwrap bool, sep string) string {
+	kvs := []string{}
+
+	for _, kv := range tp.pairs {
+		kvs = append(kvs, kv.String(unwrap, sep))
+	}
+
+	return strings.Join(kvs, "\n")
+}
+
+func yamlToProps(sampleYaml string, unwrapScalar bool, separator string) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var propsEncoder = NewPropertiesEncoder(unwrapScalar)
+	var propsEncoder = NewPropertiesEncoder(unwrapScalar, PropertiesPreferences{KeyValueSeparator: separator})
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)
@@ -28,80 +71,97 @@ func yamlToProps(sampleYaml string, unwrapScalar bool) string {
 	return strings.TrimSuffix(output.String(), "\n")
 }
 
-func TestPropertiesEncoderSimple_Unwrapped(t *testing.T) {
+func doTest(t *testing.T, sampleYaml string, props testProperties, testUnwrapped, testWrapped bool) {
+	wraps := []bool{}
+	if testUnwrapped {
+		wraps = append(wraps, true)
+	}
+	if testWrapped {
+		wraps = append(wraps, false)
+	}
+
+	for _, unwrap := range wraps {
+		fmt.Println(props)
+		fmt.Println(unwrap)
+		for _, sep := range []string{" = ", ";", "=", " "} {
+			var actualProps = yamlToProps(sampleYaml, unwrap, sep)
+			test.AssertResult(t, props.String(unwrap, sep), actualProps)
+		}
+	}
+}
+
+func TestPropertiesEncoderSimple(t *testing.T) {
 	var sampleYaml = `a: 'bob cool'`
 
-	var expectedProps = `a = bob cool`
-	var actualProps = yamlToProps(sampleYaml, true)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:   "a",
+					value: "bob cool",
+				},
+			},
+		},
+		true, true,
+	)
 }
 
-func TestPropertiesEncoderSimple_Wrapped(t *testing.T) {
-	var sampleYaml = `a: 'bob cool'`
-
-	var expectedProps = `a = "bob cool"`
-	var actualProps = yamlToProps(sampleYaml, false)
-	test.AssertResult(t, expectedProps, actualProps)
-}
-
-func TestPropertiesEncoderSimpleWithComments_Unwrapped(t *testing.T) {
+func TestPropertiesEncoderSimpleWithComments(t *testing.T) {
 	var sampleYaml = `a: 'bob cool' # line`
 
-	var expectedProps = `# line
-a = bob cool`
-	var actualProps = yamlToProps(sampleYaml, true)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:     "a",
+					value:   "bob cool",
+					comment: "# line",
+				},
+			},
+		},
+		true, true,
+	)
 }
 
-func TestPropertiesEncoderSimpleWithComments_Wrapped(t *testing.T) {
-	var sampleYaml = `a: 'bob cool' # line`
-
-	var expectedProps = `# line
-a = "bob cool"`
-	var actualProps = yamlToProps(sampleYaml, false)
-	test.AssertResult(t, expectedProps, actualProps)
-}
-
-func TestPropertiesEncoderDeep_Unwrapped(t *testing.T) {
+func TestPropertiesEncoderDeep(t *testing.T) {
 	var sampleYaml = `a: 
   b: "bob cool"
 `
 
-	var expectedProps = `a.b = bob cool`
-	var actualProps = yamlToProps(sampleYaml, true)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:   "a.b",
+					value: "bob cool",
+				},
+			},
+		},
+		true, true,
+	)
 }
 
-func TestPropertiesEncoderDeep_Wrapped(t *testing.T) {
-	var sampleYaml = `a: 
-  b: "bob cool"
-`
-
-	var expectedProps = `a.b = "bob cool"`
-	var actualProps = yamlToProps(sampleYaml, false)
-	test.AssertResult(t, expectedProps, actualProps)
-}
-
-func TestPropertiesEncoderDeepWithComments_Unwrapped(t *testing.T) {
+func TestPropertiesEncoderDeepWithComments(t *testing.T) {
 	var sampleYaml = `a:  # a thing
   b: "bob cool" # b thing
 `
 
-	var expectedProps = `# b thing
-a.b = bob cool`
-	var actualProps = yamlToProps(sampleYaml, true)
-	test.AssertResult(t, expectedProps, actualProps)
-}
-
-func TestPropertiesEncoderDeepWithComments_Wrapped(t *testing.T) {
-	var sampleYaml = `a:  # a thing
-  b: "bob cool" # b thing
-`
-
-	var expectedProps = `# b thing
-a.b = "bob cool"`
-	var actualProps = yamlToProps(sampleYaml, false)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:     "a.b",
+					value:   "bob cool",
+					comment: "# b thing",
+				},
+			},
+		},
+		true, true,
+	)
 }
 
 func TestPropertiesEncoderArray_Unwrapped(t *testing.T) {
@@ -109,19 +169,43 @@ func TestPropertiesEncoderArray_Unwrapped(t *testing.T) {
   b: [{c: dog}, {c: cat}]
 `
 
-	var expectedProps = `a.b.0.c = dog
-a.b.1.c = cat`
-	var actualProps = yamlToProps(sampleYaml, true)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:   "a.b.0.c",
+					value: "dog",
+				},
+				{
+					key:   "a.b.1.c",
+					value: "cat",
+				},
+			},
+		},
+		true, false,
+	)
 }
 
 func TestPropertiesEncoderArray_Wrapped(t *testing.T) {
 	var sampleYaml = `a: 
-  b: [{c: dog named jim}, {c: cat named jam}]
+  b: [{c: dog named jim}, {c: cat named jim}]
 `
 
-	var expectedProps = `a.b.0.c = "dog named jim"
-a.b.1.c = "cat named jam"`
-	var actualProps = yamlToProps(sampleYaml, false)
-	test.AssertResult(t, expectedProps, actualProps)
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:   "a.b.0.c",
+					value: "dog named jim",
+				},
+				{
+					key:   "a.b.1.c",
+					value: "cat named jim",
+				},
+			},
+		},
+		false, true,
+	)
 }

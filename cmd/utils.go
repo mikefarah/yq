@@ -187,7 +187,7 @@ func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	case yqlib.JSONOutputFormat:
 		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil
 	case yqlib.PropsOutputFormat:
-		return yqlib.NewPropertiesEncoder(unwrapScalar), nil
+		return yqlib.NewPropertiesEncoder(unwrapScalar, yqlib.ConfiguredPropertiesPreferences), nil
 	case yqlib.CSVOutputFormat:
 		return yqlib.NewCsvEncoder(yqlib.ConfiguredCsvPreferences), nil
 	case yqlib.TSVOutputFormat:
