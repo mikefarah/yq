@@ -272,7 +272,7 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences))))
 }
 
 func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -297,7 +297,7 @@ func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false, ConfiguredPropertiesPreferences))))
 }
 
 func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -347,7 +347,7 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences))))
 }
 
 func documentPropertyScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
@@ -374,13 +374,13 @@ func TestPropertyScenarios(t *testing.T) {
 	for _, s := range propertyScenarios {
 		switch s.scenarioType {
 		case "":
-			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true)), s.description)
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences)), s.description)
 		case "decode":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 		case "encode-wrapped":
-			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false)), s.description)
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false, ConfiguredPropertiesPreferences)), s.description)
 		case "roundtrip":
-			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true)), s.description)
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences)), s.description)
 
 		default:
 			panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))

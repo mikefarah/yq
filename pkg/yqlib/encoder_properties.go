@@ -12,11 +12,13 @@ import (
 
 type propertiesEncoder struct {
 	unwrapScalar bool
+	prefs        PropertiesPreferences
 }
 
-func NewPropertiesEncoder(unwrapScalar bool) Encoder {
+func NewPropertiesEncoder(unwrapScalar bool, prefs PropertiesPreferences) Encoder {
 	return &propertiesEncoder{
 		unwrapScalar: unwrapScalar,
+		prefs:        prefs,
 	}
 }
 
@@ -69,6 +71,7 @@ func (pe *propertiesEncoder) Encode(writer io.Writer, node *CandidateNode) error
 
 	mapKeysToStrings(node)
 	p := properties.NewProperties()
+	p.WriteSeparator = pe.prefs.KeyValueSeparator
 	err := pe.doEncode(p, node, "", nil)
 	if err != nil {
 		return err

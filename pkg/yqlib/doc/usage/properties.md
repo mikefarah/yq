@@ -120,6 +120,36 @@ emptyArray =
 emptyMap = 
 ```
 
+## Encode properties: use custom separator
+Provide a custom key-value separator using the `--properties-separator` flag.
+
+Given a sample.yml file of:
+```yaml
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o props --properties-separator=";" sample.yml
+```
+will output
+```properties
+# block comments come through
+# comments on values appear
+person.name;Mike Wazowski
+
+# comments on array values appear
+person.pets.0;cat
+person.food.0;pizza
+```
+
 ## Decode properties
 Given a sample.properties file of:
 ```properties
