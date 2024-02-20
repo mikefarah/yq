@@ -82,6 +82,16 @@ person.pets[1].nested[0] = list entry
 person.food[0] = pizza
 `
 
+const expectedPropertiesUnwrappedCustomSeparator = `# block comments come through
+# comments on values appear
+person.name :@ Mike Wazowski
+
+# comments on array values appear
+person.pets.0 :@ cat
+person.pets.1.nested.0 :@ list entry
+person.food.0 :@ pizza
+`
+
 const expectedPropertiesWrapped = `# block comments come through
 # comments on values appear
 person.name = "Mike Wazowski"
@@ -154,10 +164,17 @@ var propertyScenarios = []formatScenario{
 	},
 	{
 		description:    "Encode properties with array brackets",
-		subdescription: "Note that empty arrays and maps are not encoded by default.",
+		subdescription: "Declare the --properties-array-brackets flag to give array paths in brackets (e.g. SpringBoot).",
 		input:          samplePropertiesYaml,
 		expected:       expectedPropertiesUnwrappedArrayBrackets,
 		scenarioType:   "encode-array-brackets",
+	},
+	{
+		description:    "Encode properties - custom separator",
+		subdescription: "Use the --properties-customer-separator flag to specify your own key/value separator.",
+		input:          samplePropertiesYaml,
+		expected:       expectedPropertiesUnwrappedCustomSeparator,
+		scenarioType:   "encode-custom-separator",
 	},
 	{
 		description:    "Encode properties: scalar encapsulation",
@@ -294,15 +311,19 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	expression := s.expression
 	prefs := NewDefaultPropertiesPreferences()
 	useArrayBracketsFlag := ""
+	useCustomSeparatorFlag := ""
 	if s.scenarioType == "encode-array-brackets" {
 		useArrayBracketsFlag = " --properties-array-brackets"
 		prefs.UseArrayBrackets = true
+	} else if s.scenarioType == "encode-custom-separator" {
+		prefs.KeyValueSeparator = " :@ "
+		useCustomSeparatorFlag = ` --properties-customer-separator=" :@ "`
 	}
 
 	if expression != "" {
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v '%v' sample.yml\n```\n", useArrayBracketsFlag, expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v%v '%v' sample.yml\n```\n", useArrayBracketsFlag, useCustomSeparatorFlag, expression))
 	} else {
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v sample.yml\n```\n", useArrayBracketsFlag))
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v%v sample.yml\n```\n", useArrayBracketsFlag, useCustomSeparatorFlag))
 	}
 	writeOrPanic(w, "will output\n")
 
@@ -390,7 +411,7 @@ func documentPropertyScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
-	case "", "encode-array-brackets":
+	case "", "encode-array-brackets", "encode-custom-separator":
 		documentUnwrappedEncodePropertyScenario(w, s)
 	case "decode":
 		documentDecodePropertyScenario(w, s)
@@ -415,6 +436,8 @@ func TestPropertyScenarios(t *testing.T) {
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false, ConfiguredPropertiesPreferences)), s.description)
 		case "encode-array-brackets":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, PropertiesPreferences{KeyValueSeparator: " = ", UseArrayBrackets: true})), s.description)
+		case "encode-custom-separator":
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, PropertiesPreferences{KeyValueSeparator: " :@ "})), s.description)
 		case "roundtrip":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences)), s.description)
 

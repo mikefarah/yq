@@ -38,7 +38,7 @@ person.food.0 = pizza
 ```
 
 ## Encode properties with array brackets
-Note that empty arrays and maps are not encoded by default.
+Declare the --properties-array-brackets flag to give array paths in brackets (e.g. SpringBoot).
 
 Given a sample.yml file of:
 ```yaml
@@ -68,6 +68,39 @@ person.name = Mike Wazowski
 person.pets[0] = cat
 person.pets[1].nested[0] = list entry
 person.food[0] = pizza
+```
+
+## Encode properties - custom separator
+Use the --properties-customer-separator flag to specify your own key/value separator.
+
+Given a sample.yml file of:
+```yaml
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    - nested:
+        - list entry
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o=props --properties-customer-separator=" :@ " sample.yml
+```
+will output
+```properties
+# block comments come through
+# comments on values appear
+person.name :@ Mike Wazowski
+
+# comments on array values appear
+person.pets.0 :@ cat
+person.pets.1.nested.0 :@ list entry
+person.food.0 :@ pizza
 ```
 
 ## Encode properties: scalar encapsulation
