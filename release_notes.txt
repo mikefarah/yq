@@ -1,5 +1,8 @@
 4.42.1 (not released):
-  - Can execute yq expression files directly with shebang (#1851)
+  - Can execute yq expression files directly with shebang #1851
+  - Added --csv-separator flag #1950
+  - Added --properties-separator option - thanks  @learnitall #1864
+
 
 4.41.1:
   - Can now comment in yq expressions! #1919

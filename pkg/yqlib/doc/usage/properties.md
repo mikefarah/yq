@@ -14,6 +14,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -31,7 +33,41 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
+```
+
+## Encode properties with array brackets
+Note that empty arrays and maps are not encoded by default.
+
+Given a sample.yml file of:
+```yaml
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    - nested:
+        - list entry
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o=props --properties-array-brackets sample.yml
+```
+will output
+```properties
+# block comments come through
+# comments on values appear
+person.name = Mike Wazowski
+
+# comments on array values appear
+person.pets[0] = cat
+person.pets[1].nested[0] = list entry
+person.food[0] = pizza
 ```
 
 ## Encode properties: scalar encapsulation
@@ -44,6 +80,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -61,6 +99,7 @@ person.name = "Mike Wazowski"
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = "list entry"
 person.food.0 = pizza
 ```
 
@@ -72,6 +111,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -85,6 +126,7 @@ will output
 ```properties
 person.name = Mike Wazowski
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 ```
 
@@ -98,6 +140,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -115,39 +159,10 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 emptyArray = 
 emptyMap = 
-```
-
-## Encode properties: use custom separator
-Provide a custom key-value separator using the `--properties-separator` flag.
-
-Given a sample.yml file of:
-```yaml
-# block comments come through
-person: # neither do comments on maps
-    name: Mike Wazowski # comments on values appear
-    pets: 
-    - cat # comments on array values appear
-    food: [pizza] # comments on arrays do not
-emptyArray: []
-emptyMap: []
-
-```
-then
-```bash
-yq -o props --properties-separator=";" sample.yml
-```
-will output
-```properties
-# block comments come through
-# comments on values appear
-person.name;Mike Wazowski
-
-# comments on array values appear
-person.pets.0;cat
-person.food.0;pizza
 ```
 
 ## Decode properties
@@ -159,6 +174,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 
 ```
@@ -175,6 +191,8 @@ person:
     pets:
         # comments on array values appear
         - cat
+        - nested:
+            - list entry
     food:
         - pizza
 ```
@@ -205,6 +223,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 
 ```
@@ -220,6 +239,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = dog
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 ```
 

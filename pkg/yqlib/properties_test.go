@@ -55,6 +55,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -66,7 +68,18 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
+`
+
+const expectedPropertiesUnwrappedArrayBrackets = `# block comments come through
+# comments on values appear
+person.name = Mike Wazowski
+
+# comments on array values appear
+person.pets[0] = cat
+person.pets[1].nested[0] = list entry
+person.food[0] = pizza
 `
 
 const expectedPropertiesWrapped = `# block comments come through
@@ -75,6 +88,7 @@ person.name = "Mike Wazowski"
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = "list entry"
 person.food.0 = pizza
 `
 
@@ -84,6 +98,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = dog
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 `
 
@@ -94,6 +109,8 @@ const expectedDecodedYaml = `person:
   pets:
     # comments on array values appear
     - cat
+    - nested:
+        - list entry
   food:
     - pizza
 `
@@ -104,12 +121,15 @@ name: Mike Wazowski
 pets:
   # comments on array values appear
   - cat
+  - nested:
+      - list entry
 food:
   - pizza
 `
 
 const expectedPropertiesNoComments = `person.name = Mike Wazowski
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 `
 
@@ -119,6 +139,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 emptyArray = 
 emptyMap = 
@@ -130,6 +151,13 @@ var propertyScenarios = []formatScenario{
 		subdescription: "Note that empty arrays and maps are not encoded by default.",
 		input:          samplePropertiesYaml,
 		expected:       expectedPropertiesUnwrapped,
+	},
+	{
+		description:    "Encode properties with array brackets",
+		subdescription: "Note that empty arrays and maps are not encoded by default.",
+		input:          samplePropertiesYaml,
+		expected:       expectedPropertiesUnwrappedArrayBrackets,
+		scenarioType:   "encode-array-brackets",
 	},
 	{
 		description:    "Encode properties: scalar encapsulation",
@@ -264,15 +292,21 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, "then\n")
 
 	expression := s.expression
+	prefs := NewDefaultPropertiesPreferences()
+	useArrayBracketsFlag := ""
+	if s.scenarioType == "encode-array-brackets" {
+		useArrayBracketsFlag = " --properties-array-brackets"
+		prefs.UseArrayBrackets = true
+	}
 
 	if expression != "" {
-		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props '%v' sample.yml\n```\n", expression))
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v '%v' sample.yml\n```\n", useArrayBracketsFlag, expression))
 	} else {
-		writeOrPanic(w, "```bash\nyq -o=props sample.yml\n```\n")
+		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=props%v sample.yml\n```\n", useArrayBracketsFlag))
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, prefs))))
 }
 
 func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -356,7 +390,7 @@ func documentPropertyScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		return
 	}
 	switch s.scenarioType {
-	case "":
+	case "", "encode-array-brackets":
 		documentUnwrappedEncodePropertyScenario(w, s)
 	case "decode":
 		documentDecodePropertyScenario(w, s)
@@ -379,6 +413,8 @@ func TestPropertyScenarios(t *testing.T) {
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
 		case "encode-wrapped":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(false, ConfiguredPropertiesPreferences)), s.description)
+		case "encode-array-brackets":
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(true, PropertiesPreferences{KeyValueSeparator: " = ", UseArrayBrackets: true})), s.description)
 		case "roundtrip":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewPropertiesEncoder(true, ConfiguredPropertiesPreferences)), s.description)
 

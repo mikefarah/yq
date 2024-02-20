@@ -1,2 +1,11 @@
-a: #things
-  meow
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    - dog # comments on array values appear
+    - things:
+        - frog
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []

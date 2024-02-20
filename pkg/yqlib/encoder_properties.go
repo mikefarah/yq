@@ -117,6 +117,13 @@ func (pe *propertiesEncoder) appendPath(path string, key interface{}) string {
 	if path == "" {
 		return fmt.Sprintf("%v", key)
 	}
+	switch key.(type) {
+	case int:
+		if pe.prefs.UseArrayBrackets {
+			return fmt.Sprintf("%v[%v]", path, key)
+		}
+
+	}
 	return fmt.Sprintf("%v.%v", path, key)
 }
 
