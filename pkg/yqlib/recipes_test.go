@@ -14,6 +14,15 @@ var nestedBashEnvScript = `.. |(
 	( select(kind == "seq") | (path | join("_")) + "=(" + (map("'" + . + "'") | join(",")) + ")")
 )`
 
+var deepPruneExpression = `(
+  .. | # recurse through all the nodes
+  select(has("child1") or has("child2")) | # match parents that have either child1 or child2
+  (.child1, .child2) | # select those children
+  select(.) # filter out nulls
+) as $i ireduce({};  # using that set of nodes, create a new result map
+  setpath($i | path; $i) # and put in each node, using its original path
+)`
+
 var recipes = []expressionScenario{
 	{
 		description:    "Find items in an array",
@@ -44,6 +53,20 @@ var recipes = []expressionScenario{
 		},
 		expected: []string{
 			"D0, P[], (!!seq)::[{name: Foo, numBuckets: 1}, {name: Bar, numBuckets: 0}]\n",
+		},
+	},
+	{
+		description:    "Deeply prune a tree",
+		subdescription: "Say we are only interested in child1 and child2, and want to filter everything else out.",
+		document:       `{parentA: [bob],parentB: {child1: i am child1, child3: hiya},parentC: {childX: "cool",child2: me child2}}`,
+		expression:     deepPruneExpression,
+		explanation: []string{
+			"Find all the matching child1 and child2 nodes",
+			"Using ireduce, create a new map using just those nodes",
+			"Set each node into the new map using its original path",
+		},
+		expected: []string{
+			"D0, P[], (!!map)::parentB:\n    child1: i am child1\nparentC:\n    child2: me child2\n",
 		},
 	},
 	{
