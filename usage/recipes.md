@@ -59,6 +59,44 @@ will output
 - The expression `. + 1` increments the numBuckets counter.
 - See the [assign](https://mikefarah.gitbook.io/yq/operators/assign-update) and [add](https://mikefarah.gitbook.io/yq/operators/add) operators for more information.
 
+## Deeply prune a tree
+Say we are only interested in child1 and child2, and want to filter everything else out.
+
+Given a sample.yml file of:
+```yaml
+parentA:
+  - bob
+parentB:
+  child1: i am child1
+  child3: hiya
+parentC:
+  childX: cool
+  child2: me child2
+```
+then
+```bash
+yq '(
+  .. | # recurse through all the nodes
+  select(has("child1") or has("child2")) | # match parents that have either child1 or child2
+  (.child1, .child2) | # select those children
+  select(.) # filter out nulls
+) as $i ireduce({};  # using that set of nodes, create a new result map
+  setpath($i | path; $i) # and put in each node, using its original path
+)' sample.yml
+```
+will output
+```yaml
+parentB:
+  child1: i am child1
+parentC:
+  child2: me child2
+```
+
+### Explanation:
+- Find all the matching child1 and child2 nodes
+- Using ireduce, create a new map using just those nodes
+- Set each node into the new map using its original path
+
 ## Multiple or complex updates to items in an array
 We have an array and we want to _update_ the elements with a particular name in reference to its type.
 
