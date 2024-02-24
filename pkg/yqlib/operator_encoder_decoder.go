@@ -13,7 +13,11 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 
 	switch format {
 	case JSONOutputFormat:
-		return NewJSONEncoder(indent, false, false)
+		prefs := ConfiguredJsonPreferences.Copy()
+		prefs.Indent = indent
+		prefs.ColorsEnabled = false
+		prefs.UnwrapScalar = false
+		return NewJSONEncoder(prefs)
 	case PropsOutputFormat:
 		return NewPropertiesEncoder(ConfiguredPropertiesPreferences)
 	case CSVOutputFormat:

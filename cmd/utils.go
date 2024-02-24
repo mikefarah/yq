@@ -180,17 +180,20 @@ func configureEncoder() (yqlib.Encoder, error) {
 func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	yqlib.ConfiguredXMLPreferences.Indent = indent
 	yqlib.ConfiguredYamlPreferences.Indent = indent
+	yqlib.ConfiguredJsonPreferences.Indent = indent
 
 	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
+	yqlib.ConfiguredJsonPreferences.UnwrapScalar = unwrapScalar
 
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
+	yqlib.ConfiguredJsonPreferences.ColorsEnabled = colorsEnabled
 
 	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
 
 	switch format {
 	case yqlib.JSONOutputFormat:
-		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil
+		return yqlib.NewJSONEncoder(yqlib.ConfiguredJsonPreferences), nil
 	case yqlib.PropsOutputFormat:
 		return yqlib.NewPropertiesEncoder(yqlib.ConfiguredPropertiesPreferences), nil
 	case yqlib.CSVOutputFormat:

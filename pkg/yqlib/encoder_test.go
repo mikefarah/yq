@@ -16,7 +16,10 @@ func yamlToJSON(t *testing.T, sampleYaml string, indent int) string {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
-	var jsonEncoder = NewJSONEncoder(indent, false, false)
+	prefs := ConfiguredJsonPreferences.Copy()
+	prefs.Indent = indent
+	prefs.UnwrapScalar = false
+	var jsonEncoder = NewJSONEncoder(prefs)
 	inputs, err := readDocuments(strings.NewReader(sampleYaml), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
 		panic(err)

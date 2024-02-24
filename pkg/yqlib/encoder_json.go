@@ -10,19 +10,18 @@ import (
 )
 
 type jsonEncoder struct {
+	prefs        JsonPreferences
 	indentString string
-	colorise     bool
-	UnwrapScalar bool
 }
 
-func NewJSONEncoder(indent int, colorise bool, unwrapScalar bool) Encoder {
+func NewJSONEncoder(prefs JsonPreferences) Encoder {
 	var indentString = ""
 
-	for index := 0; index < indent; index++ {
+	for index := 0; index < prefs.Indent; index++ {
 		indentString = indentString + " "
 	}
 
-	return &jsonEncoder{indentString, colorise, unwrapScalar}
+	return &jsonEncoder{prefs, indentString}
 }
 
 func (je *jsonEncoder) CanHandleAliases() bool {
@@ -41,13 +40,13 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debugf("I need to encode %v", NodeToString(node))
 	log.Debugf("kids %v", len(node.Content))
 
-	if node.Kind == ScalarNode && je.UnwrapScalar {
+	if node.Kind == ScalarNode && je.prefs.UnwrapScalar {
 		return writeString(writer, node.Value+"\n")
 	}
 
 	destination := writer
 	tempBuffer := bytes.NewBuffer(nil)
-	if je.colorise {
+	if je.prefs.ColorsEnabled {
 		destination = tempBuffer
 	}
 
@@ -59,7 +58,7 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if err != nil {
 		return err
 	}
-	if je.colorise {
+	if je.prefs.ColorsEnabled {
 		return colorizeAndPrint(tempBuffer.Bytes(), writer)
 	}
 	return nil
