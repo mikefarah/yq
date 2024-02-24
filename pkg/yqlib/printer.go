@@ -33,9 +33,9 @@ var CSVOutputFormat = &PrinterOutputFormat{"csv", []string{"c"}, func() Encoder 
 var TSVOutputFormat = &PrinterOutputFormat{"tsv", []string{"t"}, func() Encoder { return NewCsvEncoder(ConfiguredTsvPreferences) }}
 var XMLOutputFormat = &PrinterOutputFormat{"xml", []string{"x"}, func() Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) }}
 
-var Base64OutputFormat = &PrinterOutputFormat{}
-var UriOutputFormat = &PrinterOutputFormat{}
-var ShOutputFormat = &PrinterOutputFormat{}
+var Base64OutputFormat = &PrinterOutputFormat{"base64", []string{}, func() Encoder { return NewBase64Encoder() }}
+var UriOutputFormat = &PrinterOutputFormat{"uri", []string{}, func() Encoder { return NewUriEncoder() }}
+var ShOutputFormat = &PrinterOutputFormat{"", nil, func() Encoder { return NewShEncoder() }}
 
 var TomlOutputFormat = &PrinterOutputFormat{"toml", []string{}, func() Encoder { return NewTomlEncoder() }}
 var ShellVariablesOutputFormat = &PrinterOutputFormat{"shell", []string{"s", "sh"}, func() Encoder { return NewShellVariablesEncoder() }}

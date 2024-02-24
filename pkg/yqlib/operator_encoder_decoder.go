@@ -18,12 +18,6 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 		prefs.ColorsEnabled = false
 		prefs.UnwrapScalar = false
 		return NewJSONEncoder(prefs)
-	case PropsOutputFormat:
-		return NewPropertiesEncoder(ConfiguredPropertiesPreferences)
-	case CSVOutputFormat:
-		return NewCsvEncoder(ConfiguredCsvPreferences)
-	case TSVOutputFormat:
-		return NewCsvEncoder(ConfiguredTsvPreferences)
 	case YamlOutputFormat:
 		var prefs = ConfiguredYamlPreferences.Copy()
 		prefs.Indent = indent
@@ -33,14 +27,8 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 		var xmlPrefs = ConfiguredXMLPreferences.Copy()
 		xmlPrefs.Indent = indent
 		return NewXMLEncoder(xmlPrefs)
-	case Base64OutputFormat:
-		return NewBase64Encoder()
-	case UriOutputFormat:
-		return NewUriEncoder()
-	case ShOutputFormat:
-		return NewShEncoder()
 	}
-	panic("invalid encoder")
+	return format.EncoderFactory()
 }
 
 func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
