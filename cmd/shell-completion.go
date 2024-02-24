@@ -47,7 +47,7 @@ $ yq shell-completion fish > ~/.config/fish/completions/yq.fish
 		var err error = nil
 		switch args[0] {
 		case "bash":
-			err = cmd.Root().GenBashCompletion(os.Stdout)
+			err = cmd.Root().GenBashCompletionV2(os.Stdout, true)
 		case "zsh":
 			err = cmd.Root().GenZshCompletion(os.Stdout)
 		case "fish":
