@@ -180,38 +180,22 @@ func configureEncoder() (yqlib.Encoder, error) {
 func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	yqlib.ConfiguredXMLPreferences.Indent = indent
 	yqlib.ConfiguredYamlPreferences.Indent = indent
-	yqlib.ConfiguredJsonPreferences.Indent = indent
+	yqlib.ConfiguredJSONPreferences.Indent = indent
 
 	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
-	yqlib.ConfiguredJsonPreferences.UnwrapScalar = unwrapScalar
+	yqlib.ConfiguredJSONPreferences.UnwrapScalar = unwrapScalar
 
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
-	yqlib.ConfiguredJsonPreferences.ColorsEnabled = colorsEnabled
+	yqlib.ConfiguredJSONPreferences.ColorsEnabled = colorsEnabled
 
 	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
 
-	switch format {
-	case yqlib.JSONOutputFormat:
-		return yqlib.NewJSONEncoder(yqlib.ConfiguredJsonPreferences), nil
-	case yqlib.PropsOutputFormat:
-		return yqlib.NewPropertiesEncoder(yqlib.ConfiguredPropertiesPreferences), nil
-	case yqlib.CSVOutputFormat:
-		return yqlib.NewCsvEncoder(yqlib.ConfiguredCsvPreferences), nil
-	case yqlib.TSVOutputFormat:
-		return yqlib.NewCsvEncoder(yqlib.ConfiguredTsvPreferences), nil
-	case yqlib.YamlOutputFormat:
-		return yqlib.NewYamlEncoder(yqlib.ConfiguredYamlPreferences), nil
-	case yqlib.XMLOutputFormat:
-		return yqlib.NewXMLEncoder(yqlib.ConfiguredXMLPreferences), nil
-	case yqlib.TomlOutputFormat:
-		return yqlib.NewTomlEncoder(), nil
-	case yqlib.ShellVariablesOutputFormat:
-		return yqlib.NewShellVariablesEncoder(), nil
-	case yqlib.LuaOutputFormat:
-		return yqlib.NewLuaEncoder(yqlib.ConfiguredLuaPreferences), nil
+	encoder := format.EncoderFactory()
+	if encoder == nil {
+		return nil, fmt.Errorf("invalid encoder: %v", format)
 	}
-	return nil, fmt.Errorf("invalid encoder: %v", format)
+	return encoder, nil
 }
 
 // this is a hack to enable backwards compatibility with githubactions (which pipe /dev/null into everything)

@@ -71,7 +71,7 @@ func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	encoder := NewYamlEncoder(ConfiguredYamlPreferences)
 
 	if s.scenarioType == "shebang-json" {
-		encoder = NewJSONEncoder(ConfiguredJsonPreferences)
+		encoder = NewJSONEncoder(ConfiguredJSONPreferences)
 	}
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), encoder)))

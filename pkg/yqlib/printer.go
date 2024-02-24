@@ -18,26 +18,29 @@ type Printer interface {
 	SetNulSepOutput(nulSepOutput bool)
 }
 
+type EncoderFactoryFunction func() Encoder
+
 type PrinterOutputFormat struct {
-	FormalName string
-	Names      []string
+	FormalName     string
+	Names          []string
+	EncoderFactory EncoderFactoryFunction
 }
 
-var YamlOutputFormat = &PrinterOutputFormat{"yaml", []string{"y", "yml"}}
-var JSONOutputFormat = &PrinterOutputFormat{"json", []string{"j"}}
-var PropsOutputFormat = &PrinterOutputFormat{"props", []string{"p", "properties"}}
-var CSVOutputFormat = &PrinterOutputFormat{"csv", []string{"c"}}
-var TSVOutputFormat = &PrinterOutputFormat{"tsv", []string{"t"}}
-var XMLOutputFormat = &PrinterOutputFormat{"xml", []string{"x"}}
+var YamlOutputFormat = &PrinterOutputFormat{"yaml", []string{"y", "yml"}, func() Encoder { return NewYamlEncoder(ConfiguredYamlPreferences) }}
+var JSONOutputFormat = &PrinterOutputFormat{"json", []string{"j"}, func() Encoder { return NewJSONEncoder(ConfiguredJSONPreferences) }}
+var PropsOutputFormat = &PrinterOutputFormat{"props", []string{"p", "properties"}, func() Encoder { return NewPropertiesEncoder(ConfiguredPropertiesPreferences) }}
+var CSVOutputFormat = &PrinterOutputFormat{"csv", []string{"c"}, func() Encoder { return NewCsvEncoder(ConfiguredCsvPreferences) }}
+var TSVOutputFormat = &PrinterOutputFormat{"tsv", []string{"t"}, func() Encoder { return NewCsvEncoder(ConfiguredTsvPreferences) }}
+var XMLOutputFormat = &PrinterOutputFormat{"xml", []string{"x"}, func() Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) }}
 
 var Base64OutputFormat = &PrinterOutputFormat{}
 var UriOutputFormat = &PrinterOutputFormat{}
 var ShOutputFormat = &PrinterOutputFormat{}
 
-var TomlOutputFormat = &PrinterOutputFormat{"toml", []string{}}
-var ShellVariablesOutputFormat = &PrinterOutputFormat{"shell", []string{"s", "sh"}}
+var TomlOutputFormat = &PrinterOutputFormat{"toml", []string{}, func() Encoder { return NewTomlEncoder() }}
+var ShellVariablesOutputFormat = &PrinterOutputFormat{"shell", []string{"s", "sh"}, func() Encoder { return NewShellVariablesEncoder() }}
 
-var LuaOutputFormat = &PrinterOutputFormat{"lua", []string{"l"}}
+var LuaOutputFormat = &PrinterOutputFormat{"lua", []string{"l"}, func() Encoder { return NewLuaEncoder(ConfiguredLuaPreferences) }}
 
 var Formats = []*PrinterOutputFormat{
 	YamlOutputFormat,
@@ -64,6 +67,10 @@ func (f *PrinterOutputFormat) MatchesName(name string) bool {
 		}
 	}
 	return false
+}
+
+func (f *PrinterOutputFormat) GetConfiguredEncoder() Encoder {
+	return f.EncoderFactory()
 }
 
 func OutputFormatFromString(format string) (*PrinterOutputFormat, error) {

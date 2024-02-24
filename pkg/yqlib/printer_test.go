@@ -314,7 +314,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
 	// when outputting JSON.
-	prefs := ConfiguredJsonPreferences.Copy()
+	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = 0
 	encoder := NewJSONEncoder(prefs)
 	if encoder == nil {
@@ -368,7 +368,7 @@ func TestPrinterNulSeparatorWithJson(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	// note printDocSeparators is true, it should still not print document separators
 	// when outputting JSON.
-	prefs := ConfiguredJsonPreferences.Copy()
+	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = 0
 	encoder := NewJSONEncoder(prefs)
 	if encoder == nil {

@@ -328,7 +328,7 @@ func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent i
 	}
 
 	writeOrPanic(w, "will output\n")
-	prefs := ConfiguredJsonPreferences.Copy()
+	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = indent
 	prefs.UnwrapScalar = false
 
@@ -386,7 +386,7 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 }
 
 func testJSONScenario(t *testing.T, s formatScenario) {
-	prefs := ConfiguredJsonPreferences.Copy()
+	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = s.indent
 	prefs.UnwrapScalar = false
 	switch s.scenarioType {
@@ -488,7 +488,7 @@ func documentJSONEncodeScenario(w *bufio.Writer, s formatScenario) {
 		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=json -I=%v '%v' sample.yml\n```\n", s.indent, expression))
 	}
 	writeOrPanic(w, "will output\n")
-	prefs := ConfiguredJsonPreferences.Copy()
+	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = s.indent
 	prefs.UnwrapScalar = false
 

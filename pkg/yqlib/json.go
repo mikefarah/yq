@@ -22,4 +22,4 @@ func (p *JsonPreferences) Copy() JsonPreferences {
 	}
 }
 
-var ConfiguredJsonPreferences = NewDefaultJsonPreferences()
+var ConfiguredJSONPreferences = NewDefaultJsonPreferences()

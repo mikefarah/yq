@@ -13,7 +13,7 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 
 	switch format {
 	case JSONOutputFormat:
-		prefs := ConfiguredJsonPreferences.Copy()
+		prefs := ConfiguredJSONPreferences.Copy()
 		prefs.Indent = indent
 		prefs.ColorsEnabled = false
 		prefs.UnwrapScalar = false

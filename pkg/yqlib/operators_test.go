@@ -34,7 +34,7 @@ type expressionScenario struct {
 func TestMain(m *testing.M) {
 	logging.SetLevel(logging.ERROR, "")
 	ConfiguredYamlPreferences.ColorsEnabled = false
-	ConfiguredJsonPreferences.ColorsEnabled = false
+	ConfiguredJSONPreferences.ColorsEnabled = false
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
