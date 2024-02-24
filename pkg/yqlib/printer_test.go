@@ -36,7 +36,7 @@ func nodeToList(candidate *CandidateNode) *list.List {
 func TestPrinterMultipleDocsInSequenceOnly(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -74,7 +74,7 @@ func TestPrinterMultipleDocsInSequenceOnly(t *testing.T) {
 func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -116,7 +116,7 @@ func TestPrinterMultipleDocsInSequenceWithLeadingContent(t *testing.T) {
 func TestPrinterMultipleFilesInSequence(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -163,7 +163,7 @@ func TestPrinterMultipleFilesInSequence(t *testing.T) {
 func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -213,7 +213,7 @@ func TestPrinterMultipleFilesInSequenceWithLeadingContent(t *testing.T) {
 func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -232,7 +232,7 @@ func TestPrinterMultipleDocsInSinglePrint(t *testing.T) {
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDoc(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -261,7 +261,7 @@ a: coconut
 func TestPrinterMultipleDocsInSinglePrintWithLeadingDocTrailing(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	inputs, err := readDocuments(strings.NewReader(multiDocSample), "sample.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
 	if err != nil {
@@ -287,7 +287,7 @@ a: coconut
 func TestPrinterScalarWithLeadingCont(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
 	node, err := getExpressionParser().ParseExpression(".a")
 	if err != nil {
@@ -344,7 +344,7 @@ func TestPrinterMultipleDocsJson(t *testing.T) {
 func TestPrinterNulSeparator(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, false)
+	printer := NewSimpleYamlPrinter(writer, true, 2, false)
 	printer.SetNulSepOutput(true)
 	node, err := getExpressionParser().ParseExpression(".a")
 	if err != nil {
@@ -394,7 +394,7 @@ func TestPrinterNulSeparatorWithJson(t *testing.T) {
 func TestPrinterRootUnwrap(t *testing.T) {
 	var output bytes.Buffer
 	var writer = bufio.NewWriter(&output)
-	printer := NewSimpleYamlPrinter(writer, true, false, 2, false)
+	printer := NewSimpleYamlPrinter(writer, true, 2, false)
 	node, err := getExpressionParser().ParseExpression(".")
 	if err != nil {
 		panic(err)

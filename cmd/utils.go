@@ -109,11 +109,6 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		unwrapScalar = unwrapScalarFlag.IsSet()
 	}
 
-	//copy preference form global setting
-	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
-
-	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
-
 	return expression, args, nil
 }
 
@@ -184,7 +179,14 @@ func configureEncoder() (yqlib.Encoder, error) {
 
 func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	yqlib.ConfiguredXMLPreferences.Indent = indent
+	yqlib.ConfiguredYamlPreferences.Indent = indent
+
+	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
+
+	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
+
+	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
 
 	switch format {
 	case yqlib.JSONOutputFormat:
@@ -196,7 +198,7 @@ func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	case yqlib.TSVOutputFormat:
 		return yqlib.NewCsvEncoder(yqlib.ConfiguredTsvPreferences), nil
 	case yqlib.YamlOutputFormat:
-		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences), nil
+		return yqlib.NewYamlEncoder(yqlib.ConfiguredYamlPreferences), nil
 	case yqlib.XMLOutputFormat:
 		return yqlib.NewXMLEncoder(yqlib.ConfiguredXMLPreferences), nil
 	case yqlib.TomlOutputFormat:

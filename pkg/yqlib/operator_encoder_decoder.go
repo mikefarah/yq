@@ -21,7 +21,10 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 	case TSVOutputFormat:
 		return NewCsvEncoder(ConfiguredTsvPreferences)
 	case YamlOutputFormat:
-		return NewYamlEncoder(indent, false, ConfiguredYamlPreferences)
+		var prefs = ConfiguredYamlPreferences.Copy()
+		prefs.Indent = indent
+		prefs.ColorsEnabled = false
+		return NewYamlEncoder(prefs)
 	case XMLOutputFormat:
 		var xmlPrefs = ConfiguredXMLPreferences.Copy()
 		xmlPrefs.Indent = indent

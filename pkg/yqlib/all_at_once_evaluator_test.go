@@ -36,7 +36,7 @@ func TestAllAtOnceEvaluateNodes(t *testing.T) {
 	var evaluator = NewAllAtOnceEvaluator()
 	// logging.SetLevel(logging.DEBUG, "")
 	for _, tt := range evaluateNodesScenario {
-		decoder := NewYamlDecoder(NewDefaultYamlPreferences())
+		decoder := NewYamlDecoder(ConfiguredYamlPreferences)
 		reader := bufio.NewReader(strings.NewReader(tt.document))
 		err := decoder.Init(reader)
 		if err != nil {

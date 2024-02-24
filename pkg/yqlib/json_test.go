@@ -348,7 +348,7 @@ func documentDecodeNdJsonScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
 func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
@@ -383,7 +383,7 @@ func testJSONScenario(t *testing.T, s formatScenario) {
 	case "decode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(s.indent, false, false)), s.description)
 	case "decode-ndjson":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-ndjson":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(0, false, false)), s.description)
 	case "roundtrip-multi":
@@ -416,7 +416,7 @@ func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), true, 2, true)
 
 	node := decodeJSON(t, s.input)
 

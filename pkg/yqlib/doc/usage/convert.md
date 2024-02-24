@@ -36,10 +36,10 @@ will output
 ```yaml
 a: Easy! as one two three
 b:
-    c: 2
-    d:
-        - 3
-        - 4
+  c: 2
+  d:
+    - 3
+    - 4
 ```
 
 ## Encode json: simple
@@ -244,7 +244,7 @@ will output
 this: is a multidoc json file
 ---
 each:
-    - line is a valid json document
+  - line is a valid json document
 ---
 a number: 4
 ```

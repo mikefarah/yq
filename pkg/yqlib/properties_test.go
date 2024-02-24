@@ -379,7 +379,7 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(s.indent, false, ConfiguredYamlPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
 func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
@@ -433,7 +433,7 @@ func TestPropertyScenarios(t *testing.T) {
 		case "":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(ConfiguredPropertiesPreferences)), s.description)
 		case "decode":
-			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 		case "encode-wrapped":
 			prefs := ConfiguredPropertiesPreferences.Copy()
 			prefs.UnwrapScalar = false

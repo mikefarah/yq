@@ -25,10 +25,10 @@ var luaScenarios = []formatScenario{
 `,
 		expected: `country: Australia
 cities:
-    - Sydney
-    - Melbourne
-    - Brisbane
-    - Perth
+  - Sydney
+  - Melbourne
+  - Brisbane
+  - Perth
 `,
 	},
 	{
@@ -253,7 +253,7 @@ numbers:
 func testLuaScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(4, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(ConfiguredLuaPreferences)), s.description)
 	case "roundtrip":
@@ -314,7 +314,7 @@ func documentLuaDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.lua\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
 func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {

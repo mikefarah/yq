@@ -617,7 +617,9 @@ var xmlScenarios = []formatScenario{
 func testXMLScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(4, false, ConfiguredYamlPreferences)), s.description)
+		yamlPrefs := ConfiguredYamlPreferences.Copy()
+		yamlPrefs.Indent = 4
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(yamlPrefs)), s.description)
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(ConfiguredXMLPreferences)), s.description)
 	case "roundtrip":
@@ -625,21 +627,21 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 	case "decode-keep-ns":
 		prefs := NewDefaultXmlPreferences()
 		prefs.KeepNamespace = true
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "decode-raw-token":
 		prefs := NewDefaultXmlPreferences()
 		prefs.UseRawToken = true
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "decode-raw-token-off":
 		prefs := NewDefaultXmlPreferences()
 		prefs.UseRawToken = false
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "roundtrip-skip-directives":
 		prefs := NewDefaultXmlPreferences()
 		prefs.SkipDirectives = true
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(prefs)), s.description)
 	case "decode-error":
-		result, err := processFormatScenario(s, NewXMLDecoder(NewDefaultXmlPreferences()), NewYamlEncoder(2, false, ConfiguredYamlPreferences))
+		result, err := processFormatScenario(s, NewXMLDecoder(NewDefaultXmlPreferences()), NewYamlEncoder(ConfiguredYamlPreferences))
 		if err == nil {
 			t.Errorf("Expected error '%v' but it worked: %v", s.expectedError, result)
 		} else {
@@ -702,7 +704,7 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.xml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
 func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {

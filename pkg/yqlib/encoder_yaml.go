@@ -12,16 +12,11 @@ import (
 )
 
 type yamlEncoder struct {
-	indent   int
-	colorise bool
-	prefs    YamlPreferences
+	prefs YamlPreferences
 }
 
-func NewYamlEncoder(indent int, colorise bool, prefs YamlPreferences) Encoder {
-	if indent < 0 {
-		indent = 0
-	}
-	return &yamlEncoder{indent, colorise, prefs}
+func NewYamlEncoder(prefs YamlPreferences) Encoder {
+	return &yamlEncoder{prefs}
 }
 
 func (ye *yamlEncoder) CanHandleAliases() bool {
@@ -90,13 +85,13 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	destination := writer
 	tempBuffer := bytes.NewBuffer(nil)
-	if ye.colorise {
+	if ye.prefs.ColorsEnabled {
 		destination = tempBuffer
 	}
 
 	var encoder = yaml.NewEncoder(destination)
 
-	encoder.SetIndent(ye.indent)
+	encoder.SetIndent(ye.prefs.Indent)
 
 	target, err := node.MarshalYAML()
 
@@ -115,7 +110,7 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return err
 	}
 
-	if ye.colorise {
+	if ye.prefs.ColorsEnabled {
 		return colorizeAndPrint(tempBuffer.Bytes(), writer)
 	}
 	return nil

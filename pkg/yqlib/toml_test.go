@@ -243,9 +243,9 @@ var tomlScenarios = []formatScenario{
 func testTomlScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	case "decode-error":
-		result, err := processFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences))
+		result, err := processFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))
 		if err == nil {
 			t.Errorf("Expected error '%v' but it worked: %v", s.expectedError, result)
 		} else {
@@ -275,7 +275,7 @@ func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy '%v' sample.toml\n```\n", expression))
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
 func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {

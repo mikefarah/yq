@@ -68,7 +68,7 @@ func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		writeOrPanic(w, "```bash\nyq --from-file update.yq sample.yml\n```\n")
 	}
 	writeOrPanic(w, "will output\n")
-	encoder := NewYamlEncoder(2, false, ConfiguredYamlPreferences)
+	encoder := NewYamlEncoder(ConfiguredYamlPreferences)
 
 	if s.scenarioType == "shebang-json" {
 		encoder = NewJSONEncoder(2, false, false)
@@ -80,7 +80,7 @@ func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 func TestExpressionCommentScenarios(t *testing.T) {
 	for _, tt := range formattingExpressionScenarios {
 		test.AssertResultComplexWithContext(t, tt.expected,
-			mustProcessFormatScenario(tt, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(2, false, ConfiguredYamlPreferences)),
+			mustProcessFormatScenario(tt, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(ConfiguredYamlPreferences)),
 			tt.description)
 	}
 	genericScenarios := make([]interface{}, len(formattingExpressionScenarios))

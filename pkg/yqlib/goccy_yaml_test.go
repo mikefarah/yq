@@ -160,7 +160,7 @@ var goccyYamlFormatScenarios = []formatScenario{
 }
 
 func testGoccyYamlScenario(t *testing.T, s formatScenario) {
-	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(), NewYamlEncoder(2, false, ConfiguredYamlPreferences)), s.description)
+	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 }
 
 func TestGoccyYmlFormatScenarios(t *testing.T) {

@@ -218,16 +218,16 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    # block comments come through
-    # comments on values appear
-    name: Mike Wazowski
-    pets:
-        # comments on array values appear
-        - cat
-        - nested:
-            - list entry
-    food:
-        - pizza
+  # block comments come through
+  # comments on values appear
+  name: Mike Wazowski
+  pets:
+    # comments on array values appear
+    - cat
+    - nested:
+        - list entry
+  food:
+    - pizza
 ```
 
 ## Decode properties - array should be a map
@@ -244,7 +244,7 @@ yq -p=props '.things |= array_to_map' sample.properties
 will output
 ```yaml
 things:
-    10: mike
+  10: mike
 ```
 
 ## Roundtrip

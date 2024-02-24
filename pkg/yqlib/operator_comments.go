@@ -80,9 +80,10 @@ func getCommentsOperator(_ *dataTreeNavigator, context Context, expressionNode *
 	log.Debugf("GetComments operator!")
 	var results = list.New()
 
-	yamlPrefs := NewDefaultYamlPreferences()
+	yamlPrefs := ConfiguredYamlPreferences.Copy()
 	yamlPrefs.PrintDocSeparators = false
 	yamlPrefs.UnwrapScalar = false
+	yamlPrefs.ColorsEnabled = false
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
@@ -94,7 +95,7 @@ func getCommentsOperator(_ *dataTreeNavigator, context Context, expressionNode *
 			var chompRegexp = regexp.MustCompile(`\n$`)
 			var output bytes.Buffer
 			var writer = bufio.NewWriter(&output)
-			var encoder = NewYamlEncoder(2, false, yamlPrefs)
+			var encoder = NewYamlEncoder(yamlPrefs)
 			if err := encoder.PrintLeadingContent(writer, candidate.LeadingContent); err != nil {
 				return Context{}, err
 			}

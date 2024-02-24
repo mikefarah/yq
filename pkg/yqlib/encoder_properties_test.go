@@ -3,7 +3,6 @@ package yqlib
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -81,8 +80,6 @@ func doTest(t *testing.T, sampleYaml string, props testProperties, testUnwrapped
 	}
 
 	for _, unwrap := range wraps {
-		fmt.Println(props)
-		fmt.Println(unwrap)
 		for _, sep := range []string{" = ", ";", "=", " "} {
 			var actualProps = yamlToProps(sampleYaml, unwrap, sep)
 			test.AssertResult(t, props.String(unwrap, sep), actualProps)
