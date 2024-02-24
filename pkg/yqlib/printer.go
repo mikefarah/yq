@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"strings"
 )
 
 type Printer interface {
@@ -16,84 +15,6 @@ type Printer interface {
 	//e.g. when given a front-matter doc, like jekyll
 	SetAppendix(reader io.Reader)
 	SetNulSepOutput(nulSepOutput bool)
-}
-
-type EncoderFactoryFunction func() Encoder
-
-type PrinterOutputFormat struct {
-	FormalName     string
-	Names          []string
-	EncoderFactory EncoderFactoryFunction
-}
-
-var YamlOutputFormat = &PrinterOutputFormat{"yaml", []string{"y", "yml"}, func() Encoder { return NewYamlEncoder(ConfiguredYamlPreferences) }}
-var JSONOutputFormat = &PrinterOutputFormat{"json", []string{"j"}, func() Encoder { return NewJSONEncoder(ConfiguredJSONPreferences) }}
-var PropsOutputFormat = &PrinterOutputFormat{"props", []string{"p", "properties"}, func() Encoder { return NewPropertiesEncoder(ConfiguredPropertiesPreferences) }}
-var CSVOutputFormat = &PrinterOutputFormat{"csv", []string{"c"}, func() Encoder { return NewCsvEncoder(ConfiguredCsvPreferences) }}
-var TSVOutputFormat = &PrinterOutputFormat{"tsv", []string{"t"}, func() Encoder { return NewCsvEncoder(ConfiguredTsvPreferences) }}
-var XMLOutputFormat = &PrinterOutputFormat{"xml", []string{"x"}, func() Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) }}
-
-var Base64OutputFormat = &PrinterOutputFormat{"base64", []string{}, func() Encoder { return NewBase64Encoder() }}
-var UriOutputFormat = &PrinterOutputFormat{"uri", []string{}, func() Encoder { return NewUriEncoder() }}
-var ShOutputFormat = &PrinterOutputFormat{"", nil, func() Encoder { return NewShEncoder() }}
-
-var TomlOutputFormat = &PrinterOutputFormat{"toml", []string{}, func() Encoder { return NewTomlEncoder() }}
-var ShellVariablesOutputFormat = &PrinterOutputFormat{"shell", []string{"s", "sh"}, func() Encoder { return NewShellVariablesEncoder() }}
-
-var LuaOutputFormat = &PrinterOutputFormat{"lua", []string{"l"}, func() Encoder { return NewLuaEncoder(ConfiguredLuaPreferences) }}
-
-var Formats = []*PrinterOutputFormat{
-	YamlOutputFormat,
-	JSONOutputFormat,
-	PropsOutputFormat,
-	CSVOutputFormat,
-	TSVOutputFormat,
-	XMLOutputFormat,
-	Base64OutputFormat,
-	UriOutputFormat,
-	ShOutputFormat,
-	TomlOutputFormat,
-	ShellVariablesOutputFormat,
-	LuaOutputFormat,
-}
-
-func (f *PrinterOutputFormat) MatchesName(name string) bool {
-	if f.FormalName == name {
-		return true
-	}
-	for _, n := range f.Names {
-		if n == name {
-			return true
-		}
-	}
-	return false
-}
-
-func (f *PrinterOutputFormat) GetConfiguredEncoder() Encoder {
-	return f.EncoderFactory()
-}
-
-func OutputFormatFromString(format string) (*PrinterOutputFormat, error) {
-	for _, printerFormat := range Formats {
-		if printerFormat.MatchesName(format) {
-			return printerFormat, nil
-		}
-	}
-
-	return nil, fmt.Errorf("unknown format '%v' please use [%v]", format, GetAvailableOutputFormatString())
-}
-
-func GetAvailableOutputFormatString() string {
-	var formats = []string{}
-	for _, printerFormat := range Formats {
-		if printerFormat.FormalName != "" {
-			formats = append(formats, printerFormat.FormalName)
-		}
-		if len(printerFormat.Names) >= 1 {
-			formats = append(formats, printerFormat.Names[0])
-		}
-	}
-	return strings.Join(formats, "|")
 }
 
 type resultsPrinter struct {

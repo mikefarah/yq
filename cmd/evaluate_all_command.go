@@ -76,7 +76,7 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 		}()
 	}
 
-	format, err := yqlib.OutputFormatFromString(outputFormat)
+	format, err := yqlib.FormatFromString(outputFormat)
 	if err != nil {
 		return err
 	}

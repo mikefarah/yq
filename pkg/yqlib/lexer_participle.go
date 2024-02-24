@@ -57,35 +57,35 @@ var participleYqRules = []*participleYqRule{
 
 	{"ArrayToMap", "array_?to_?map", expressionOpToken(`(.[] | select(. != null) ) as $i ireduce({}; .[$i | key] = $i)`), 0},
 
-	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlOutputFormat), 0},
-	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLOutputFormat), 0},
-	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONOutputFormat), 0},
+	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlFormat), 0},
+	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLFormat), 0},
+	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONFormat), 0},
 
-	{"YamlDecode", `from_?yaml|@yamld|from_?json|@jsond`, decodeOp(YamlInputFormat), 0},
-	{"YamlEncode", `to_?yaml|@yaml`, encodeWithIndent(YamlOutputFormat, 2), 0},
+	{"YamlDecode", `from_?yaml|@yamld|from_?json|@jsond`, decodeOp(YamlFormat), 0},
+	{"YamlEncode", `to_?yaml|@yaml`, encodeWithIndent(YamlFormat, 2), 0},
 
-	{"JSONEncode", `to_?json`, encodeWithIndent(JSONOutputFormat, 2), 0},
-	{"JSONEncodeNoIndent", `@json`, encodeWithIndent(JSONOutputFormat, 0), 0},
+	{"JSONEncode", `to_?json`, encodeWithIndent(JSONFormat, 2), 0},
+	{"JSONEncodeNoIndent", `@json`, encodeWithIndent(JSONFormat, 0), 0},
 
-	{"PropertiesDecode", `from_?props|@propsd`, decodeOp(PropertiesInputFormat), 0},
-	{"PropsEncode", `to_?props|@props`, encodeWithIndent(PropsOutputFormat, 2), 0},
+	{"PropertiesDecode", `from_?props|@propsd`, decodeOp(PropertiesFormat), 0},
+	{"PropsEncode", `to_?props|@props`, encodeWithIndent(PropertiesFormat, 2), 0},
 
-	{"XmlDecode", `from_?xml|@xmld`, decodeOp(XMLInputFormat), 0},
-	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLOutputFormat, 2), 0},
-	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLOutputFormat, 0), 0},
+	{"XmlDecode", `from_?xml|@xmld`, decodeOp(XMLFormat), 0},
+	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLFormat, 2), 0},
+	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLFormat, 0), 0},
 
-	{"CSVDecode", `from_?csv|@csvd`, decodeOp(CSVObjectInputFormat), 0},
-	{"CSVEncode", `to_?csv|@csv`, encodeWithIndent(CSVOutputFormat, 0), 0},
+	{"CSVDecode", `from_?csv|@csvd`, decodeOp(CSVFormat), 0},
+	{"CSVEncode", `to_?csv|@csv`, encodeWithIndent(CSVFormat, 0), 0},
 
-	{"TSVDecode", `from_?tsv|@tsvd`, decodeOp(TSVObjectInputFormat), 0},
-	{"TSVEncode", `to_?tsv|@tsv`, encodeWithIndent(TSVOutputFormat, 0), 0},
+	{"TSVDecode", `from_?tsv|@tsvd`, decodeOp(TSVFormat), 0},
+	{"TSVEncode", `to_?tsv|@tsv`, encodeWithIndent(TSVFormat, 0), 0},
 
-	{"Base64d", `@base64d`, decodeOp(Base64InputFormat), 0},
-	{"Base64", `@base64`, encodeWithIndent(Base64OutputFormat, 0), 0},
+	{"Base64d", `@base64d`, decodeOp(Base64Format), 0},
+	{"Base64", `@base64`, encodeWithIndent(Base64Format, 0), 0},
 
-	{"Urid", `@urid`, decodeOp(UriInputFormat), 0},
-	{"Uri", `@uri`, encodeWithIndent(UriOutputFormat, 0), 0},
-	{"SH", `@sh`, encodeWithIndent(ShOutputFormat, 0), 0},
+	{"Urid", `@urid`, decodeOp(UriFormat), 0},
+	{"Uri", `@uri`, encodeWithIndent(UriFormat, 0), 0},
+	{"SH", `@sh`, encodeWithIndent(ShFormat, 0), 0},
 
 	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
 
@@ -496,7 +496,7 @@ func numberValue() yqAction {
 	}
 }
 
-func encodeParseIndent(outputFormat *PrinterOutputFormat) yqAction {
+func encodeParseIndent(outputFormat *Format) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
 		value := rawToken.Value
 		var indent, errParsingInt = extractNumberParameter(value)
@@ -510,13 +510,13 @@ func encodeParseIndent(outputFormat *PrinterOutputFormat) yqAction {
 	}
 }
 
-func encodeWithIndent(outputFormat *PrinterOutputFormat, indent int) yqAction {
+func encodeWithIndent(outputFormat *Format, indent int) yqAction {
 	prefs := encoderPreferences{format: outputFormat, indent: indent}
 	return opTokenWithPrefs(encodeOpType, nil, prefs)
 }
 
-func decodeOp(inputFormat InputFormat) yqAction {
-	prefs := decoderPreferences{format: inputFormat}
+func decodeOp(format *Format) yqAction {
+	prefs := decoderPreferences{format: format}
 	return opTokenWithPrefs(decodeOpType, nil, prefs)
 }
 

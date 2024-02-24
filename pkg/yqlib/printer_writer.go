@@ -33,13 +33,13 @@ type multiPrintWriter struct {
 	index          int
 }
 
-func NewMultiPrinterWriter(expression *ExpressionNode, format *PrinterOutputFormat) PrinterWriter {
+func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWriter {
 	extension := "yml"
 
 	switch format {
-	case JSONOutputFormat:
+	case JSONFormat:
 		extension = "json"
-	case PropsOutputFormat:
+	case PropertiesFormat:
 		extension = "properties"
 	}
 

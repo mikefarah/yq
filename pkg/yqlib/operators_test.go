@@ -110,14 +110,14 @@ func testScenario(t *testing.T, s *expressionScenario) {
 
 	if s.requiresFormat != "" {
 		format := s.requiresFormat
-		inputFormat, err := InputFormatFromString(format)
+		inputFormat, err := FormatFromString(format)
 		if err != nil {
 			t.Error(err)
 		}
-		if decoder := createDecoder(inputFormat); decoder == nil {
+		if decoder := inputFormat.DecoderFactory(); decoder == nil {
 			t.Skipf("no support for %s input format", format)
 		}
-		outputFormat, err := OutputFormatFromString(format)
+		outputFormat, err := FormatFromString(format)
 		if err != nil {
 			t.Error(err)
 		}

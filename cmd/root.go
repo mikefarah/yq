@@ -98,12 +98,22 @@ yq -P -oy sample.json
 	}
 
 	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "auto", fmt.Sprintf("[auto|a|%v] output format type.", yqlib.GetAvailableOutputFormatString()))
+	var outputCompletions = []string{"auto"}
+	for _, formats := range yqlib.GetAvailableOutputFormats() {
+		outputCompletions = append(outputCompletions, formats.FormalName)
+	}
 
-	if err = rootCmd.RegisterFlagCompletionFunc("output-format", cobra.FixedCompletions([]string{"auto", "yaml", "json", "props", "xml", "tsv", "csv"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
+	if err = rootCmd.RegisterFlagCompletionFunc("output-format", cobra.FixedCompletions(outputCompletions, cobra.ShellCompDirectiveNoFileComp)); err != nil {
 		panic(err)
 	}
-	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "auto", "[auto|a|yaml|y|props|p|xml|x|tsv|t|csv|c|toml] parse format for input. Note that json is a subset of yaml.")
-	if err = rootCmd.RegisterFlagCompletionFunc("input-format", cobra.FixedCompletions([]string{"auto", "yaml", "props", "xml", "tsv", "csv", "toml"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
+	rootCmd.PersistentFlags().StringVarP(&inputFormat, "input-format", "p", "auto", fmt.Sprintf("[auto|a|%v] parse format for input.", yqlib.GetAvailableInputFormatString()))
+
+	var inputCompletions = []string{"auto"}
+	for _, formats := range yqlib.GetAvailableInputFormats() {
+		inputCompletions = append(inputCompletions, formats.FormalName)
+	}
+
+	if err = rootCmd.RegisterFlagCompletionFunc("input-format", cobra.FixedCompletions(inputCompletions, cobra.ShellCompDirectiveNoFileComp)); err != nil {
 		panic(err)
 	}
 
