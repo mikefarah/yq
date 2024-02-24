@@ -3,6 +3,7 @@
   - Added --csv-separator flag #1950
   - Added --properties-separator option - thanks  @learnitall #1864
   - Added --properties-array-brackets flag for properties encoder #1933
+  - Shell completion improvements - thanks @scop #1911 
 
 
 4.41.1:
