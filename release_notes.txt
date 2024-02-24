@@ -2,6 +2,7 @@
   - Can execute yq expression files directly with shebang #1851
   - Added --csv-separator flag #1950
   - Added --properties-separator option - thanks  @learnitall #1864
+  - Added --properties-array-brackets flag for properties encoder #1933
 
 
 4.41.1:
