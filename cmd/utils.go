@@ -153,7 +153,7 @@ func createDecoder(format yqlib.InputFormat, evaluateTogether bool) (yqlib.Decod
 	return nil, fmt.Errorf("invalid decoder: %v", format)
 }
 
-func configurePrinterWriter(format yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {
+func configurePrinterWriter(format *yqlib.PrinterOutputFormat, out io.Writer) (yqlib.PrinterWriter, error) {
 
 	var printerWriter yqlib.PrinterWriter
 
@@ -182,7 +182,7 @@ func configureEncoder() (yqlib.Encoder, error) {
 	return yqlibEncoder, err
 }
 
-func createEncoder(format yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
+func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	switch format {
 	case yqlib.JSONOutputFormat:
 		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil

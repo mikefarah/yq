@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func configureEncoder(format PrinterOutputFormat, indent int) Encoder {
+func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 	switch format {
 	case JSONOutputFormat:
 		return NewJSONEncoder(indent, false, false)
@@ -48,7 +48,7 @@ func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string,
 }
 
 type encoderPreferences struct {
-	format PrinterOutputFormat
+	format *PrinterOutputFormat
 	indent int
 }
 

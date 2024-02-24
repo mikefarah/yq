@@ -33,7 +33,7 @@ type multiPrintWriter struct {
 	index          int
 }
 
-func NewMultiPrinterWriter(expression *ExpressionNode, format PrinterOutputFormat) PrinterWriter {
+func NewMultiPrinterWriter(expression *ExpressionNode, format *PrinterOutputFormat) PrinterWriter {
 	extension := "yml"
 
 	switch format {

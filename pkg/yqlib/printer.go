@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 )
 
 type Printer interface {
@@ -17,46 +18,75 @@ type Printer interface {
 	SetNulSepOutput(nulSepOutput bool)
 }
 
-type PrinterOutputFormat uint32
+type PrinterOutputFormat struct {
+	FormalName string
+	Names      []string
+}
 
-const (
-	YamlOutputFormat = 1 << iota
-	JSONOutputFormat
-	PropsOutputFormat
-	CSVOutputFormat
-	TSVOutputFormat
-	XMLOutputFormat
-	Base64OutputFormat
-	UriOutputFormat
-	ShOutputFormat
-	TomlOutputFormat
-	ShellVariablesOutputFormat
-	LuaOutputFormat
-)
+var YamlOutputFormat = &PrinterOutputFormat{"yaml", []string{"y", "yml"}}
+var JSONOutputFormat = &PrinterOutputFormat{"json", []string{"j"}}
+var PropsOutputFormat = &PrinterOutputFormat{"props", []string{"p", "properties"}}
+var CSVOutputFormat = &PrinterOutputFormat{"csv", []string{"c"}}
+var TSVOutputFormat = &PrinterOutputFormat{"tsv", []string{"t"}}
+var XMLOutputFormat = &PrinterOutputFormat{"xml", []string{"x"}}
 
-func OutputFormatFromString(format string) (PrinterOutputFormat, error) {
-	switch format {
-	case "yaml", "y", "yml":
-		return YamlOutputFormat, nil
-	case "json", "j":
-		return JSONOutputFormat, nil
-	case "props", "p", "properties":
-		return PropsOutputFormat, nil
-	case "csv", "c":
-		return CSVOutputFormat, nil
-	case "tsv", "t":
-		return TSVOutputFormat, nil
-	case "xml", "x":
-		return XMLOutputFormat, nil
-	case "toml":
-		return TomlOutputFormat, nil
-	case "shell", "s", "sh":
-		return ShellVariablesOutputFormat, nil
-	case "lua", "l":
-		return LuaOutputFormat, nil
-	default:
-		return 0, fmt.Errorf("unknown format '%v' please use [yaml|json|props|csv|tsv|xml|toml|shell|lua]", format)
+var Base64OutputFormat = &PrinterOutputFormat{}
+var UriOutputFormat = &PrinterOutputFormat{}
+var ShOutputFormat = &PrinterOutputFormat{}
+
+var TomlOutputFormat = &PrinterOutputFormat{"toml", []string{}}
+var ShellVariablesOutputFormat = &PrinterOutputFormat{"shell", []string{"s", "sh"}}
+
+var LuaOutputFormat = &PrinterOutputFormat{"lua", []string{"l"}}
+
+var Formats = []*PrinterOutputFormat{
+	YamlOutputFormat,
+	JSONOutputFormat,
+	PropsOutputFormat,
+	CSVOutputFormat,
+	TSVOutputFormat,
+	XMLOutputFormat,
+	Base64OutputFormat,
+	UriOutputFormat,
+	ShOutputFormat,
+	TomlOutputFormat,
+	ShellVariablesOutputFormat,
+	LuaOutputFormat,
+}
+
+func (f *PrinterOutputFormat) MatchesName(name string) bool {
+	if f.FormalName == name {
+		return true
 	}
+	for _, n := range f.Names {
+		if n == name {
+			return true
+		}
+	}
+	return false
+}
+
+func OutputFormatFromString(format string) (*PrinterOutputFormat, error) {
+	for _, printerFormat := range Formats {
+		if printerFormat.MatchesName(format) {
+			return printerFormat, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unknown format '%v' please use [%v]", format, GetAvailableOutputFormatString())
+}
+
+func GetAvailableOutputFormatString() string {
+	var formats = []string{}
+	for _, printerFormat := range Formats {
+		if printerFormat.FormalName != "" {
+			formats = append(formats, printerFormat.FormalName)
+		}
+		if len(printerFormat.Names) >= 1 {
+			formats = append(formats, printerFormat.Names[0])
+		}
+	}
+	return strings.Join(formats, "|")
 }
 
 type resultsPrinter struct {

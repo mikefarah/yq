@@ -40,7 +40,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func NewSimpleYamlPrinter(writer io.Writer, _ PrinterOutputFormat, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
+func NewSimpleYamlPrinter(writer io.Writer, unwrapScalar bool, colorsEnabled bool, indent int, printDocSeparators bool) Printer {
 	prefs := NewDefaultYamlPreferences()
 	prefs.PrintDocSeparators = printDocSeparators
 	prefs.UnwrapScalar = unwrapScalar
@@ -132,7 +132,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 func resultToString(t *testing.T, n *CandidateNode) string {
 	var valueBuffer bytes.Buffer
 	log.Debugf("printing result %v", NodeToString(n))
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&valueBuffer), YamlOutputFormat, true, false, 4, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&valueBuffer), true, false, 4, true)
 
 	err := printer.PrintResults(n.AsList())
 	if err != nil {
@@ -182,7 +182,7 @@ func copySnippet(source string, out *os.File) error {
 
 func formatYaml(yaml string, filename string) string {
 	var output bytes.Buffer
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), true, false, 2, true)
 
 	node, err := getExpressionParser().ParseExpression(".. style= \"\"")
 	if err != nil {
@@ -331,7 +331,7 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formattedDoc string, formattedDoc2 string) {
 	var output bytes.Buffer
 	var err error
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), true, false, 2, true)
 
 	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {

@@ -496,7 +496,7 @@ func numberValue() yqAction {
 	}
 }
 
-func encodeParseIndent(outputFormat PrinterOutputFormat) yqAction {
+func encodeParseIndent(outputFormat *PrinterOutputFormat) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
 		value := rawToken.Value
 		var indent, errParsingInt = extractNumberParameter(value)
@@ -510,7 +510,7 @@ func encodeParseIndent(outputFormat PrinterOutputFormat) yqAction {
 	}
 }
 
-func encodeWithIndent(outputFormat PrinterOutputFormat, indent int) yqAction {
+func encodeWithIndent(outputFormat *PrinterOutputFormat, indent int) yqAction {
 	prefs := encoderPreferences{format: outputFormat, indent: indent}
 	return opTokenWithPrefs(encodeOpType, nil, prefs)
 }

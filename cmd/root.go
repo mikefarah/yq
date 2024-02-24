@@ -97,7 +97,8 @@ yq -P -oy sample.json
 		panic(err)
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "auto", "[auto|a|yaml|y|json|j|props|p|xml|x|tsv|t|csv|c] output format type.")
+	rootCmd.PersistentFlags().StringVarP(&outputFormat, "output-format", "o", "auto", fmt.Sprintf("[auto|a|%v] output format type.", yqlib.GetAvailableOutputFormatString()))
+
 	if err = rootCmd.RegisterFlagCompletionFunc("output-format", cobra.FixedCompletions([]string{"auto", "yaml", "json", "props", "xml", "tsv", "csv"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
 		panic(err)
 	}

@@ -416,7 +416,7 @@ func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 	writeOrPanic(w, "will output\n")
 
 	var output bytes.Buffer
-	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), YamlOutputFormat, true, false, 2, true)
+	printer := NewSimpleYamlPrinter(bufio.NewWriter(&output), true, false, 2, true)
 
 	node := decodeJSON(t, s.input)
 
