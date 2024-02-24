@@ -10,6 +10,7 @@ import (
 )
 
 func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
+
 	switch format {
 	case JSONOutputFormat:
 		return NewJSONEncoder(indent, false, false)
@@ -22,7 +23,9 @@ func configureEncoder(format *PrinterOutputFormat, indent int) Encoder {
 	case YamlOutputFormat:
 		return NewYamlEncoder(indent, false, ConfiguredYamlPreferences)
 	case XMLOutputFormat:
-		return NewXMLEncoder(indent, ConfiguredXMLPreferences)
+		var xmlPrefs = ConfiguredXMLPreferences.Copy()
+		xmlPrefs.Indent = indent
+		return NewXMLEncoder(xmlPrefs)
 	case Base64OutputFormat:
 		return NewBase64Encoder()
 	case UriOutputFormat:

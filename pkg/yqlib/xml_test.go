@@ -619,9 +619,9 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 	case "", "decode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(4, false, ConfiguredYamlPreferences)), s.description)
 	case "encode":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(ConfiguredXMLPreferences)), s.description)
 	case "roundtrip":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(ConfiguredXMLPreferences)), s.description)
 	case "decode-keep-ns":
 		prefs := NewDefaultXmlPreferences()
 		prefs.KeepNamespace = true
@@ -637,7 +637,7 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 	case "roundtrip-skip-directives":
 		prefs := NewDefaultXmlPreferences()
 		prefs.SkipDirectives = true
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs)), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(prefs)), s.description)
 	case "decode-error":
 		result, err := processFormatScenario(s, NewXMLDecoder(NewDefaultXmlPreferences()), NewYamlEncoder(2, false, ConfiguredYamlPreferences))
 		if err == nil {
@@ -646,7 +646,7 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.description)
 		}
 	case "encode-error":
-		result, err := processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(2, NewDefaultXmlPreferences()))
+		result, err := processFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(NewDefaultXmlPreferences()))
 		if err == nil {
 			t.Errorf("Expected error '%v' but it worked: %v", s.expectedError, result)
 		} else {
@@ -721,12 +721,12 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 	prefs := NewDefaultXmlPreferences()
 	prefs.KeepNamespace = false
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(prefs))))
 
 	prefsWithout := NewDefaultXmlPreferences()
 	prefs.KeepNamespace = true
 	writeOrPanic(w, "instead of\n")
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(prefsWithout))))
 }
 
 func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) {
@@ -747,13 +747,13 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	prefs := NewDefaultXmlPreferences()
 	prefs.UseRawToken = false
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(prefs))))
 
 	prefsWithout := NewDefaultXmlPreferences()
 	prefsWithout.UseRawToken = true
 
 	writeOrPanic(w, "instead of\n")
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(2, prefsWithout))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(prefsWithout))))
 }
 
 func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
@@ -771,7 +771,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq -o=xml sample.yml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(ConfiguredXMLPreferences))))
 }
 
 func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
@@ -789,7 +789,7 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "```bash\nyq '.' sample.xml\n```\n")
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(2, ConfiguredXMLPreferences))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(ConfiguredXMLPreferences))))
 }
 
 func documentXMLSkipDirectivesScenario(w *bufio.Writer, s formatScenario) {
@@ -809,7 +809,7 @@ func documentXMLSkipDirectivesScenario(w *bufio.Writer, s formatScenario) {
 	prefs := NewDefaultXmlPreferences()
 	prefs.SkipDirectives = true
 
-	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(2, prefs))))
+	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefs), NewXMLEncoder(prefs))))
 }
 
 func TestXMLScenarios(t *testing.T) {

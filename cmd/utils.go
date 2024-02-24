@@ -183,6 +183,8 @@ func configureEncoder() (yqlib.Encoder, error) {
 }
 
 func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
+	yqlib.ConfiguredXMLPreferences.Indent = indent
+
 	switch format {
 	case yqlib.JSONOutputFormat:
 		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil
@@ -195,7 +197,7 @@ func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	case yqlib.YamlOutputFormat:
 		return yqlib.NewYamlEncoder(indent, colorsEnabled, yqlib.ConfiguredYamlPreferences), nil
 	case yqlib.XMLOutputFormat:
-		return yqlib.NewXMLEncoder(indent, yqlib.ConfiguredXMLPreferences), nil
+		return yqlib.NewXMLEncoder(yqlib.ConfiguredXMLPreferences), nil
 	case yqlib.TomlOutputFormat:
 		return yqlib.NewTomlEncoder(), nil
 	case yqlib.ShellVariablesOutputFormat:

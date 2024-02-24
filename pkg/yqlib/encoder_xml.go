@@ -17,10 +17,10 @@ type xmlEncoder struct {
 	leadingContent string
 }
 
-func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
+func NewXMLEncoder(prefs XmlPreferences) Encoder {
 	var indentString = ""
 
-	for index := 0; index < indent; index++ {
+	for index := 0; index < prefs.Indent; index++ {
 		indentString = indentString + " "
 	}
 	return &xmlEncoder{indentString, nil, prefs, ""}
