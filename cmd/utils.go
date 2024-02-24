@@ -184,12 +184,13 @@ func configureEncoder() (yqlib.Encoder, error) {
 
 func createEncoder(format *yqlib.PrinterOutputFormat) (yqlib.Encoder, error) {
 	yqlib.ConfiguredXMLPreferences.Indent = indent
+	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
 
 	switch format {
 	case yqlib.JSONOutputFormat:
 		return yqlib.NewJSONEncoder(indent, colorsEnabled, unwrapScalar), nil
 	case yqlib.PropsOutputFormat:
-		return yqlib.NewPropertiesEncoder(unwrapScalar, yqlib.ConfiguredPropertiesPreferences), nil
+		return yqlib.NewPropertiesEncoder(yqlib.ConfiguredPropertiesPreferences), nil
 	case yqlib.CSVOutputFormat:
 		return yqlib.NewCsvEncoder(yqlib.ConfiguredCsvPreferences), nil
 	case yqlib.TSVOutputFormat:

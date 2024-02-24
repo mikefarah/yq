@@ -11,14 +11,12 @@ import (
 )
 
 type propertiesEncoder struct {
-	unwrapScalar bool
-	prefs        PropertiesPreferences
+	prefs PropertiesPreferences
 }
 
-func NewPropertiesEncoder(unwrapScalar bool, prefs PropertiesPreferences) Encoder {
+func NewPropertiesEncoder(prefs PropertiesPreferences) Encoder {
 	return &propertiesEncoder{
-		unwrapScalar: unwrapScalar,
-		prefs:        prefs,
+		prefs: prefs,
 	}
 }
 
@@ -95,7 +93,7 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateN
 	switch node.Kind {
 	case ScalarNode:
 		var nodeValue string
-		if pe.unwrapScalar || !strings.Contains(node.Value, " ") {
+		if pe.prefs.UnwrapScalar || !strings.Contains(node.Value, " ") {
 			nodeValue = node.Value
 		} else {
 			nodeValue = fmt.Sprintf("%q", node.Value)
