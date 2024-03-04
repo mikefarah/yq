@@ -168,6 +168,7 @@ var participleYqRules = []*participleYqRule{
 	{"Uppercase", `upcase|ascii_?upcase`, opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: true}), 0},
 	{"Downcase", `downcase|ascii_?downcase`, opTokenWithPrefs(changeCaseOpType, nil, changeCasePrefs{ToUpperCase: false}), 0},
 	simpleOp("trim", trimOpType),
+	simpleOp("to_?string", toStringOpType),
 
 	{"HexValue", `0[xX][0-9A-Fa-f]+`, hexValue(), 0},
 	{"FloatValueScientific", `-?[1-9](\.\d+)?[Ee][-+]?\d+`, floatValue(), 0},

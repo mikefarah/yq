@@ -51,6 +51,7 @@ type encoderPreferences struct {
 }
 
 /* encodes object as yaml string */
+var chomper = regexp.MustCompile("\n+$")
 
 func encodeOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(encoderPreferences)
@@ -58,7 +59,6 @@ func encodeOperator(_ *dataTreeNavigator, context Context, expressionNode *Expre
 
 	hasOnlyOneNewLine := regexp.MustCompile("[^\n].*\n$")
 	endWithNewLine := regexp.MustCompile(".*\n$")
-	chomper := regexp.MustCompile("\n+$")
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)

@@ -29,6 +29,37 @@ func trimSpaceOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode)
 	return context.ChildContext(results), nil
 }
 
+func toStringOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
+	results := list.New()
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		node := el.Value.(*CandidateNode)
+		var newStringNode *CandidateNode
+		if node.Tag == "!!str" {
+			newStringNode = node.CreateReplacement(ScalarNode, "!!str", node.Value)
+		} else if node.Kind == ScalarNode {
+			newStringNode = node.CreateReplacement(ScalarNode, "!!str", node.Value)
+			newStringNode.Style = DoubleQuotedStyle
+		} else {
+			encoderPrefs := encoderPreferences{
+				format: YamlFormat,
+				indent: ConfiguredYamlPreferences.Indent,
+			}
+			result, err := encodeToString(node, encoderPrefs)
+
+			if err != nil {
+				return Context{}, err
+			}
+			result = chomper.ReplaceAllString(result, "")
+			newStringNode = node.CreateReplacement(ScalarNode, "!!str", result)
+			newStringNode.Style = DoubleQuotedStyle
+		}
+		newStringNode.Tag = "!!str"
+		results.PushBack(newStringNode)
+	}
+
+	return context.ChildContext(results), nil
+}
+
 func changeCaseOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	results := list.New()
 	prefs := expressionNode.Operation.Preferences.(changeCasePrefs)

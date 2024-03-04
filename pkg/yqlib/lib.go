@@ -152,6 +152,7 @@ var testOpType = &operationType{Type: "TEST", NumArgs: 1, Precedence: 50, Handle
 var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
 var changeCaseOpType = &operationType{Type: "CHANGE_CASE", NumArgs: 0, Precedence: 50, Handler: changeCaseOperator}
 var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handler: trimSpaceOperator}
+var toStringOpType = &operationType{Type: "TO_STRING", NumArgs: 0, Precedence: 50, Handler: toStringOperator}
 
 var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadYamlOperator}
 
