@@ -14,6 +14,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -31,7 +33,74 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
+```
+
+## Encode properties with array brackets
+Declare the --properties-array-brackets flag to give array paths in brackets (e.g. SpringBoot).
+
+Given a sample.yml file of:
+```yaml
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    - nested:
+        - list entry
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o=props --properties-array-brackets sample.yml
+```
+will output
+```properties
+# block comments come through
+# comments on values appear
+person.name = Mike Wazowski
+
+# comments on array values appear
+person.pets[0] = cat
+person.pets[1].nested[0] = list entry
+person.food[0] = pizza
+```
+
+## Encode properties - custom separator
+Use the --properties-customer-separator flag to specify your own key/value separator.
+
+Given a sample.yml file of:
+```yaml
+# block comments come through
+person: # neither do comments on maps
+    name: Mike Wazowski # comments on values appear
+    pets: 
+    - cat # comments on array values appear
+    - nested:
+        - list entry
+    food: [pizza] # comments on arrays do not
+emptyArray: []
+emptyMap: []
+
+```
+then
+```bash
+yq -o=props --properties-customer-separator=" :@ " sample.yml
+```
+will output
+```properties
+# block comments come through
+# comments on values appear
+person.name :@ Mike Wazowski
+
+# comments on array values appear
+person.pets.0 :@ cat
+person.pets.1.nested.0 :@ list entry
+person.food.0 :@ pizza
 ```
 
 ## Encode properties: scalar encapsulation
@@ -44,6 +113,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -61,6 +132,7 @@ person.name = "Mike Wazowski"
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = "list entry"
 person.food.0 = pizza
 ```
 
@@ -72,6 +144,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -85,6 +159,7 @@ will output
 ```properties
 person.name = Mike Wazowski
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 ```
 
@@ -98,6 +173,8 @@ person: # neither do comments on maps
     name: Mike Wazowski # comments on values appear
     pets: 
     - cat # comments on array values appear
+    - nested:
+        - list entry
     food: [pizza] # comments on arrays do not
 emptyArray: []
 emptyMap: []
@@ -115,6 +192,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 emptyArray = 
 emptyMap = 
@@ -129,6 +207,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 
 ```
@@ -139,14 +218,16 @@ yq -p=props sample.properties
 will output
 ```yaml
 person:
-    # block comments come through
-    # comments on values appear
-    name: Mike Wazowski
-    pets:
-        # comments on array values appear
-        - cat
-    food:
-        - pizza
+  # block comments come through
+  # comments on values appear
+  name: Mike Wazowski
+  pets:
+    # comments on array values appear
+    - cat
+    - nested:
+        - list entry
+  food:
+    - pizza
 ```
 
 ## Decode properties - array should be a map
@@ -163,7 +244,7 @@ yq -p=props '.things |= array_to_map' sample.properties
 will output
 ```yaml
 things:
-    10: mike
+  10: mike
 ```
 
 ## Roundtrip
@@ -175,6 +256,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = cat
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 
 ```
@@ -190,6 +272,7 @@ person.name = Mike Wazowski
 
 # comments on array values appear
 person.pets.0 = dog
+person.pets.1.nested.0 = list entry
 person.food.0 = pizza
 ```
 

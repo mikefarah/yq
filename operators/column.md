@@ -2,6 +2,8 @@
 
 Returns the column of the matching node. Starts from 1, 0 indicates there was no column data.
 
+Column is the number of characters that precede that node on the line it starts.
+
 ## Returns column of _value_ node
 Given a sample.yml file of:
 ```yaml
