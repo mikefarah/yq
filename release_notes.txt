@@ -1,3 +1,7 @@
+4.43.1: (not released yet)
+  - Added tostring #72
+  - Added string interpolation #1149
+
 4.42.1:
   - Can execute yq expression files directly with shebang #1851
   - Added --csv-separator flag #1950
