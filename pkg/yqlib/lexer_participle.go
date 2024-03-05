@@ -374,7 +374,11 @@ func stringValue() yqAction {
 		value = strings.ReplaceAll(value, "\\\"", "\"")
 		value = strings.ReplaceAll(value, "\\n", "\n")
 		log.Debug("replaced: %v", value)
-		return &token{TokenType: operationToken, Operation: createValueOperation(value, value)}, nil
+		return &token{TokenType: operationToken, Operation: &Operation{
+			OperationType: stringInterpolationOpType,
+			StringValue:   value,
+			Value:         value,
+		}}, nil
 	}
 }
 

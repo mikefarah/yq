@@ -158,6 +158,8 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "properties-separator", yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "separator to use between keys and values")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "properties-array-brackets", yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "use [x] in array paths (e.g. for SpringBoot)")
 
+	rootCmd.PersistentFlags().BoolVar(&yqlib.StringInterpolationEnabled, "string-interpolation", yqlib.StringInterpolationEnabled, "Toggles strings interpolation of \\(exp)")
+
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")
 	rootCmd.PersistentFlags().BoolVarP(&noDocSeparators, "no-doc", "N", false, "Don't print document separators (---)")
 

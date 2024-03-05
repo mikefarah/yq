@@ -6,6 +6,64 @@ import (
 
 var stringsOperatorScenarios = []expressionScenario{
 	{
+		description: "Interpolation",
+		document:    "value: things\nanother: stuff",
+		expression:  `.message = "I like \(.value) and \(.another)"`,
+		expected: []string{
+			"D0, P[], (!!map)::value: things\nanother: stuff\nmessage: I like things and stuff\n",
+		},
+	},
+	{
+		description: "Interpolation - not a string",
+		document:    `value: {an: apple}`,
+		expression:  `.message = "I like \(.value)"`,
+		expected: []string{
+			"D0, P[], (!!map)::value: {an: apple}\nmessage: 'I like {an: apple}'\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Interpolation - just escape",
+		expression:  `"\\"`,
+		expected: []string{
+			"D0, P[], (!!str)::\\\\\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Interpolation - nested",
+		document:    `value: things`,
+		expression:  `"Hi \( (.value) )"`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi things\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Interpolation - don't",
+		document:    `value: things`,
+		expression:  `"Hi (.value)"`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi (.value)\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Interpolation - random close bracket",
+		document:    `value: things`,
+		expression:  `"Hi )"`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi )\n",
+		},
+	},
+	{
+		skipDoc:       true,
+		description:   "Interpolation - unclosed interpolation string",
+		document:      `value: things`,
+		expression:    `"Hi \("`,
+		expectedError: "unclosed interpolation string \\(",
+	},
+	{
 		description:    "To up (upper) case",
 		subdescription: "Works with unicode characters",
 		document:       `água`,

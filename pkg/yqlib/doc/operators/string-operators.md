@@ -56,6 +56,40 @@ IFS= read -rd '' output < <(cat my_file)
 output=$output ./yq '.data.values = strenv(output)' first.yml
 ```
 
+## Interpolation
+Given a sample.yml file of:
+```yaml
+value: things
+another: stuff
+```
+then
+```bash
+yq '.message = "I like \(.value) and \(.another)"' sample.yml
+```
+will output
+```yaml
+value: things
+another: stuff
+message: I like things and stuff
+```
+
+## Interpolation - not a string
+Given a sample.yml file of:
+```yaml
+value:
+  an: apple
+```
+then
+```bash
+yq '.message = "I like \(.value)"' sample.yml
+```
+will output
+```yaml
+value:
+  an: apple
+message: 'I like an: apple'
+```
+
 ## To up (upper) case
 Works with unicode characters
 
