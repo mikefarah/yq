@@ -12,7 +12,7 @@ type YamlPreferences struct {
 func NewDefaultYamlPreferences() YamlPreferences {
 	return YamlPreferences{
 		Indent:                      2,
-		ColorsEnabled:               true,
+		ColorsEnabled:               false,
 		LeadingContentPreProcessing: true,
 		PrintDocSeparators:          true,
 		UnwrapScalar:                true,
