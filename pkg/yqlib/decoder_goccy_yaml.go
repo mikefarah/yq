@@ -1,5 +1,9 @@
 //go:build !yq_noyaml
 
+//
+// NOTE this is still a WIP - not yet ready.
+//
+
 package yqlib
 
 import (
