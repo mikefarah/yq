@@ -31,6 +31,10 @@ func writeString(writer io.Writer, txt string) error {
 	return errorWriting
 }
 
+func ReadDocuments(reader io.Reader, decoder Decoder) (*list.List, error) {
+	return readDocuments(reader, "", 0, decoder)
+}
+
 func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
 	err := decoder.Init(reader)
 	if err != nil {

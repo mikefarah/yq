@@ -4,25 +4,45 @@ import (
 	"bufio"
 	"bytes"
 	"container/list"
-	"errors"
-	"fmt"
-	"io"
 	"strings"
 )
 
 type StringEvaluator interface {
 	Evaluate(expression string, input string, encoder Encoder, decoder Decoder) (string, error)
+	EvaluateAll(expression string, input string, encoder Encoder, decoder Decoder) (string, error)
 }
 
 type stringEvaluator struct {
 	treeNavigator DataTreeNavigator
-	fileIndex     int
 }
 
 func NewStringEvaluator() StringEvaluator {
 	return &stringEvaluator{
 		treeNavigator: NewDataTreeNavigator(),
 	}
+}
+
+func (s *stringEvaluator) EvaluateAll(expression string, input string, encoder Encoder, decoder Decoder) (string, error) {
+	reader := bufio.NewReader(strings.NewReader(input))
+	var documents *list.List
+	var results *list.List
+	var err error
+
+	if documents, err = ReadDocuments(reader, decoder); err != nil {
+		return "", err
+	}
+
+	evaluator := NewAllAtOnceEvaluator()
+	if results, err = evaluator.EvaluateCandidateNodes(expression, documents); err != nil {
+		return "", err
+	}
+
+	out := new(bytes.Buffer)
+	printer := NewPrinter(encoder, NewSinglePrinterWriter(out))
+	if err := printer.PrintResults(results); err != nil {
+		return "", err
+	}
+	return out.String(), nil
 }
 
 func (s *stringEvaluator) Evaluate(expression string, input string, encoder Encoder, decoder Decoder) (string, error) {
@@ -38,36 +58,9 @@ func (s *stringEvaluator) Evaluate(expression string, input string, encoder Enco
 	}
 
 	reader := bufio.NewReader(strings.NewReader(input))
-
-	var currentIndex uint
-	err = decoder.Init(reader)
-	if err != nil {
+	evaluator := NewStreamEvaluator()
+	if _, err := evaluator.Evaluate("", reader, node, printer, decoder); err != nil {
 		return "", err
 	}
-	for {
-		candidateNode, errorReading := decoder.Decode()
-
-		if errors.Is(errorReading, io.EOF) {
-			s.fileIndex = s.fileIndex + 1
-			return out.String(), nil
-		} else if errorReading != nil {
-			return "", fmt.Errorf("bad input '%v': %w", input, errorReading)
-		}
-		candidateNode.document = currentIndex
-		candidateNode.fileIndex = s.fileIndex
-
-		inputList := list.New()
-		inputList.PushBack(candidateNode)
-
-		result, errorParsing := s.treeNavigator.GetMatchingNodes(Context{MatchingNodes: inputList}, node)
-		if errorParsing != nil {
-			return "", errorParsing
-		}
-		err = printer.PrintResults(result.MatchingNodes)
-
-		if err != nil {
-			return "", err
-		}
-		currentIndex = currentIndex + 1
-	}
+	return out.String(), nil
 }
