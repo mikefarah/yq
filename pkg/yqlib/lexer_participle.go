@@ -130,7 +130,9 @@ var participleYqRules = []*participleYqRule{
 
 	simpleOp("contains", containsOpType),
 	simpleOp("split", splitStringOpType),
-	simpleOp("parent", getParentOpType),
+
+	{"ParentWithLevel", `parent\([0-9]+\)`, parentWithLevel(), 0},
+	{"ParentWithDefaultLevel", `parent`, parentWithDefaultLevel(), 0},
 
 	simpleOp("keys", keysOpType),
 	simpleOp("key", getKeyOpType),
@@ -498,6 +500,28 @@ func numberValue() yqAction {
 		}
 
 		return &token{TokenType: operationToken, Operation: createValueOperation(number, numberString)}, nil
+	}
+}
+
+func parentWithLevel() yqAction {
+	return func(rawToken lexer.Token) (*token, error) {
+		value := rawToken.Value
+		var level, errParsingInt = extractNumberParameter(value)
+		if errParsingInt != nil {
+			return nil, errParsingInt
+		}
+
+		prefs := parentOpPreferences{Level: level}
+		op := &Operation{OperationType: getParentOpType, Value: getParentOpType.Type, StringValue: value, Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: op}, nil
+	}
+}
+
+func parentWithDefaultLevel() yqAction {
+	return func(rawToken lexer.Token) (*token, error) {
+		prefs := parentOpPreferences{Level: 1}
+		op := &Operation{OperationType: getParentOpType, Value: getParentOpType.Type, StringValue: getParentOpType.Type, Preferences: prefs}
+		return &token{TokenType: operationToken, Operation: op}, nil
 	}
 }
 

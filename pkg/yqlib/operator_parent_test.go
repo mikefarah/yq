@@ -22,6 +22,23 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "N-th parent",
+		subdescription: "You can optionally supply the number of levels to go up for the parent, the default being 1.",
+		document:       "a:\n  b:\n    c: cat\n",
+		expression:     `.a.b.c | parent(2)`,
+		expected: []string{
+			"D0, P[a], (!!map)::b:\n    c: cat\n",
+		},
+	},
+	{
+		description: "N-th parent - another level",
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(3)`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n    b:\n        c: cat\n",
+		},
+	},
+	{
 		description: "No parent",
 		document:    `{}`,
 		expression:  `parent`,
