@@ -95,6 +95,11 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
+	if result.Tag == "!!str" {
+		// use the original string value, as
+		// decoding drops new lines
+		return createScalarNode(value, value), nil
+	}
 	result.Line = 0
 	result.Column = 0
 	return result, err

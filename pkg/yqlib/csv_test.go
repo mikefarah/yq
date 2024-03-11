@@ -173,6 +173,13 @@ var csvScenarios = []formatScenario{
 		scenarioType:   "decode-csv",
 	},
 	{
+		description:  "Decode CSV line breaks",
+		skipDoc:      true,
+		input:        "heading1\n\"some data\nwith a line break\"\n",
+		expected:     "- heading1: |-\n    some data\n    with a line break\n",
+		scenarioType: "decode-csv",
+	},
+	{
 		description:    "Parse CSV into an array of objects, no auto-parsing",
 		subdescription: "First row is assumed to be the header row. Entries with YAML/JSON will be left as strings.",
 		input:          csvSimpleWithObject,
