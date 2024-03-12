@@ -49,27 +49,14 @@ func (dec *propertiesDecoder) processComment(c string) string {
 }
 
 func (dec *propertiesDecoder) applyPropertyComments(context yqlib.Context, path []interface{}, comments []string) error {
-	assignmentOp := &yqlib.Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
-
 	rhsCandidateNode := &yqlib.CandidateNode{
 		Tag:         "!!str",
 		Value:       fmt.Sprintf("%v", path[len(path)-1]),
 		HeadComment: dec.processComment(strings.Join(comments, "\n")),
 		Kind:        yqlib.ScalarNode,
 	}
-
 	rhsCandidateNode.Tag = rhsCandidateNode.GuessTagFromCustomType()
-
-	rhsOp := &yqlib.Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
-
-	assignmentOpNode := &yqlib.ExpressionNode{
-		Operation: assignmentOp,
-		LHS:       createTraversalTree(path, traversePreferences{}, true),
-		RHS:       &yqlib.ExpressionNode{Operation: rhsOp},
-	}
-
-	_, err := dec.d.GetMatchingNodes(context, assignmentOpNode)
-	return err
+	return dec.d.DeeplyAssignKey(context, path, rhsCandidateNode)
 }
 
 func (dec *propertiesDecoder) applyProperty(context yqlib.Context, properties *properties.Properties, key string) error {
@@ -84,7 +71,7 @@ func (dec *propertiesDecoder) applyProperty(context yqlib.Context, properties *p
 		}
 	}
 
-	rhsNode := createStringScalarNode(value)
+	rhsNode := yqlib.CreateStringScalarNode(value)
 	rhsNode.Tag = rhsNode.GuessTagFromCustomType()
 
 	return dec.d.DeeplyAssign(context, path, rhsNode)

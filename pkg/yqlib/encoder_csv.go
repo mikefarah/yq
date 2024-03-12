@@ -65,7 +65,7 @@ func (e *csvEncoder) createChildRow(child *CandidateNode, headers []*CandidateNo
 	childRow := make([]*CandidateNode, 0)
 	for _, header := range headers {
 		keyIndex := findKeyInMap(child, header)
-		value := createScalarNode(nil, "")
+		value := CreateScalarNode(nil, "")
 		if keyIndex != -1 {
 			value = child.Content[keyIndex+1]
 		}
@@ -102,7 +102,7 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*CandidateNo
 
 func (e *csvEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if node.Kind == ScalarNode {
-		return writeString(writer, node.Value+"\n")
+		return WriteString(writer, node.Value+"\n")
 	}
 
 	csvWriter := csv.NewWriter(writer)

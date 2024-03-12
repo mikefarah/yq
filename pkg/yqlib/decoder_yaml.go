@@ -151,7 +151,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 }
 
 func (dec *yamlDecoder) blankNodeWithComment() *CandidateNode {
-	node := createScalarNode(nil, "")
+	node := CreateScalarNode(nil, "")
 	node.LeadingContent = dec.leadingContent
 	return node
 }

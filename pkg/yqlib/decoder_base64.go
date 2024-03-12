@@ -68,5 +68,5 @@ func (dec *base64Decoder) Decode() (*CandidateNode, error) {
 		}
 	}
 	dec.readAnything = true
-	return createStringScalarNode(buf.String()), nil
+	return CreateStringScalarNode(buf.String()), nil
 }

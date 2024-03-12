@@ -63,7 +63,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 	}
 
 	if allDocuments.Len() == 0 {
-		candidateNode := createScalarNode(nil, "")
+		candidateNode := CreateScalarNode(nil, "")
 		allDocuments.PushBack(candidateNode)
 	}
 

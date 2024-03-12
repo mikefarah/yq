@@ -145,30 +145,30 @@ func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error)
 
 func (dec *tomlDecoder) createStringScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
-	return createScalarNode(content, content), nil
+	return CreateScalarNode(content, content), nil
 }
 
 func (dec *tomlDecoder) createBoolScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
-	return createScalarNode(content == "true", content), nil
+	return CreateScalarNode(content == "true", content), nil
 }
 
 func (dec *tomlDecoder) createIntegerScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
 	_, num, err := parseInt64(content)
-	return createScalarNode(num, content), err
+	return CreateScalarNode(num, content), err
 }
 
 func (dec *tomlDecoder) createDateTimeScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
 	val, err := parseDateTime(time.RFC3339, content)
-	return createScalarNode(val, content), err
+	return CreateScalarNode(val, content), err
 }
 
 func (dec *tomlDecoder) createFloatScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
 	num, err := strconv.ParseFloat(content, 64)
-	return createScalarNode(num, content), err
+	return CreateScalarNode(num, content), err
 }
 
 func (dec *tomlDecoder) decodeNode(tomlNode *toml.Node) (*CandidateNode, error) {

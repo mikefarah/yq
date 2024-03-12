@@ -36,8 +36,8 @@ func (dec *xmlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yqlib..CandidateNode, error) {
-	yamlNode := &yqlib..CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
+func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yqlib.CandidateNode, error) {
+	yamlNode := &yqlib.CandidateNode{Kind: yqlib.SequenceNode, Tag: "!!seq"}
 	for _, child := range nodes {
 		yamlChild, err := dec.convertToYamlNode(child)
 		if err != nil {
@@ -64,14 +64,14 @@ func (dec *xmlDecoder) processComment(c string) string {
 	return replacement
 }
 
-func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib..CandidateNode, error) {
-	log.Debug("createMap: headC: %v, lineC: %v, footC: %v", n.HeadComment, n.LineComment, n.FootComment)
-	yamlNode := &yqlib..CandidateNode{Kind: MappingNode, Tag: "!!map"}
+func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib.CandidateNode, error) {
+	yqlib.GetLogger().Debug("createMap: headC: %v, lineC: %v, footC: %v", n.HeadComment, n.LineComment, n.FootComment)
+	yamlNode := &yqlib.CandidateNode{Kind: yqlib.MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
-		log.Debugf("creating content node for map: %v", dec.prefs.ContentName)
+		yqlib.GetLogger().Debugf("creating content node for map: %v", dec.prefs.ContentName)
 		label := dec.prefs.ContentName
-		labelNode := createScalarNode(label, label)
+		labelNode := yqlib.CreateScalarNode(label, label)
 		labelNode.HeadComment = dec.processComment(n.HeadComment)
 		labelNode.LineComment = dec.processComment(n.LineComment)
 		labelNode.FootComment = dec.processComment(n.FootComment)
@@ -81,19 +81,19 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib..CandidateNode, error) {
 	for i, keyValuePair := range n.Children {
 		label := keyValuePair.K
 		children := keyValuePair.V
-		labelNode := createScalarNode(label, label)
-		var valueNode *yqlib..CandidateNode
+		labelNode := yqlib.CreateScalarNode(label, label)
+		var valueNode *yqlib.CandidateNode
 		var err error
 
 		if i == 0 {
-			log.Debugf("head comment here")
+			yqlib.GetLogger().Debugf("head comment here")
 			labelNode.HeadComment = dec.processComment(n.HeadComment)
 
 		}
-		log.Debugf("label=%v, i=%v, keyValuePair.FootComment: %v", label, i, keyValuePair.FootComment)
+		yqlib.GetLogger().Debugf("label=%v, i=%v, keyValuePair.FootComment: %v", label, i, keyValuePair.FootComment)
 		labelNode.FootComment = dec.processComment(keyValuePair.FootComment)
 
-		log.Debug("len of children in %v is %v", label, len(children))
+		yqlib.GetLogger().Debug("len of children in %v is %v", label, len(children))
 		if len(children) > 1 {
 			valueNode, err = dec.createSequence(children)
 			if err != nil {
@@ -106,7 +106,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib..CandidateNode, error) {
 			if len(children[0].Children) == 0 && children[0].HeadComment != "" {
 				if len(children[0].Data) > 0 {
 
-					log.Debug("scalar comment hack, currentlabel [%v]", labelNode.HeadComment)
+					yqlib.GetLogger().Debug("scalar comment hack, currentlabel [%v]", labelNode.HeadComment)
 					labelNode.HeadComment = joinComments([]string{labelNode.HeadComment, strings.TrimSpace(children[0].HeadComment)}, "\n")
 					children[0].HeadComment = ""
 				} else {
@@ -126,33 +126,33 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib..CandidateNode, error) {
 	return yamlNode, nil
 }
 
-func (dec *xmlDecoder) createValueNodeFromData(values []string) *yqlib..CandidateNode {
+func (dec *xmlDecoder) createValueNodeFromData(values []string) *yqlib.CandidateNode {
 	switch len(values) {
 	case 0:
-		return createScalarNode(nil, "")
+		return yqlib.CreateScalarNode(nil, "")
 	case 1:
-		return createScalarNode(values[0], values[0])
+		return yqlib.CreateScalarNode(values[0], values[0])
 	default:
-		content := make([]*yqlib..CandidateNode, 0)
+		content := make([]*yqlib.CandidateNode, 0)
 		for _, value := range values {
-			content = append(content, createScalarNode(value, value))
+			content = append(content, yqlib.CreateScalarNode(value, value))
 		}
-		return &yqlib..CandidateNode{
-			Kind:    SequenceNode,
+		return &yqlib.CandidateNode{
+			Kind:    yqlib.SequenceNode,
 			Tag:     "!!seq",
 			Content: content,
 		}
 	}
 }
 
-func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yqlib..CandidateNode, error) {
+func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yqlib.CandidateNode, error) {
 	if len(n.Children) > 0 {
 		return dec.createMap(n)
 	}
 
 	scalar := dec.createValueNodeFromData(n.Data)
 
-	log.Debug("scalar (%v), headC: %v, lineC: %v, footC: %v", scalar.Tag, n.HeadComment, n.LineComment, n.FootComment)
+	yqlib.GetLogger().Debug("scalar (%v), headC: %v, lineC: %v, footC: %v", scalar.Tag, n.HeadComment, n.LineComment, n.FootComment)
 	scalar.HeadComment = dec.processComment(n.HeadComment)
 	scalar.LineComment = dec.processComment(n.LineComment)
 	if scalar.Tag == "!!seq" {
@@ -165,7 +165,7 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yqlib..CandidateNode, err
 	return scalar, nil
 }
 
-func (dec *xmlDecoder) Decode() (*yqlib..CandidateNode, error) {
+func (dec *xmlDecoder) Decode() (*yqlib.CandidateNode, error) {
 	if dec.finished {
 		return nil, io.EOF
 	}
@@ -212,17 +212,17 @@ func (n *xmlNode) AddChild(s string, c *xmlNode) {
 	if n.Children == nil {
 		n.Children = make([]*xmlChildrenKv, 0)
 	}
-	log.Debug("looking for %s", s)
+	yqlib.GetLogger().Debug("looking for %s", s)
 	// see if we can find an existing entry to add to
 	for _, childEntry := range n.Children {
 		if childEntry.K == s {
-			log.Debug("found it, appending an entry%s", s)
+			yqlib.GetLogger().Debug("found it, appending an entry%s", s)
 			childEntry.V = append(childEntry.V, c)
-			log.Debug("yay len of children in %v is %v", s, len(childEntry.V))
+			yqlib.GetLogger().Debug("yay len of children in %v is %v", s, len(childEntry.V))
 			return
 		}
 	}
-	log.Debug("not there, making a new one %s", s)
+	yqlib.GetLogger().Debug("not there, making a new one %s", s)
 	n.Children = append(n.Children, &xmlChildrenKv{K: s, V: []*xmlNode{c}})
 }
 
@@ -268,7 +268,7 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 
 		switch se := t.(type) {
 		case xml.StartElement:
-			log.Debug("start element %v", se.Name.Local)
+			yqlib.GetLogger().Debug("start element %v", se.Name.Local)
 			elem.state = "started"
 			// Build new a new current element and link it to its parent
 			elem = &element{
@@ -297,14 +297,14 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 			if len(newBit) > 0 {
 				elem.n.Data = append(elem.n.Data, newBit)
 				elem.state = "chardata"
-				log.Debug("chardata [%v] for %v", elem.n.Data, elem.label)
+				yqlib.GetLogger().Debug("chardata [%v] for %v", elem.n.Data, elem.label)
 			}
 		case xml.EndElement:
 			if elem == nil {
-				log.Debug("no element, probably bad xml")
+				yqlib.GetLogger().Debug("no element, probably bad xml")
 				continue
 			}
-			log.Debug("end element %v", elem.label)
+			yqlib.GetLogger().Debug("end element %v", elem.label)
 			elem.state = "finished"
 			// And add it to its parent list
 			if elem.parent != nil {
@@ -320,10 +320,10 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 				applyFootComment(elem, commentStr)
 
 			} else if elem.state == "chardata" {
-				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
+				yqlib.GetLogger().Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinComments([]string{elem.n.LineComment, commentStr}, " ")
 			} else {
-				log.Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
+				yqlib.GetLogger().Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.HeadComment = joinComments([]string{elem.n.HeadComment, commentStr}, " ")
 			}
 
@@ -348,7 +348,7 @@ func applyFootComment(elem *element, commentStr string) {
 	if len(elem.n.Children) > 0 {
 		lastChildIndex := len(elem.n.Children) - 1
 		childKv := elem.n.Children[lastChildIndex]
-		log.Debug("got a foot comment, putting on last child for %v: [%v]", childKv.K, commentStr)
+		yqlib.GetLogger().Debug("got a foot comment, putting on last child for %v: [%v]", childKv.K, commentStr)
 		// if it's an array of scalars, put the foot comment on the scalar itself
 		if len(childKv.V) > 0 && len(childKv.V[0].Children) == 0 {
 			nodeToUpdate := childKv.V[len(childKv.V)-1]
@@ -357,7 +357,7 @@ func applyFootComment(elem *element, commentStr string) {
 			childKv.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
 		}
 	} else {
-		log.Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
+		yqlib.GetLogger().Debug("got a foot comment for %v: [%v]", elem.label, commentStr)
 		elem.n.FootComment = joinComments([]string{elem.n.FootComment, commentStr}, " ")
 	}
 }

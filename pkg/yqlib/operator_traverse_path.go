@@ -54,7 +54,7 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 	switch matchingNode.Kind {
 	case MappingNode:
 		log.Debug("its a map with %v entries", len(matchingNode.Content)/2)
-		return traverseMap(context, matchingNode, createStringScalarNode(operation.StringValue), operation.Preferences.(traversePreferences), false)
+		return traverseMap(context, matchingNode, CreateStringScalarNode(operation.StringValue), operation.Preferences.(traversePreferences), false)
 
 	case SequenceNode:
 		log.Debug("its a sequence of %v things!", len(matchingNode.Content))
@@ -149,7 +149,7 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 
 func traverseMapWithIndices(context Context, candidate *CandidateNode, indices []*CandidateNode, prefs traversePreferences) (*list.List, error) {
 	if len(indices) == 0 {
-		return traverseMap(context, candidate, createStringScalarNode(""), prefs, true)
+		return traverseMap(context, candidate, CreateStringScalarNode(""), prefs, true)
 	}
 
 	var matchingNodeMap = list.New()
@@ -196,7 +196,7 @@ func traverseArrayWithIndices(node *CandidateNode, indices []*CandidateNode, pre
 				node.Style = 0
 			}
 
-			valueNode := createScalarNode(nil, "null")
+			valueNode := CreateScalarNode(nil, "null")
 			node.AddChild(valueNode)
 			contentLength = len(node.Content)
 		}

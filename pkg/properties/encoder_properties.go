@@ -44,7 +44,7 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 			}
 
 		} else {
-			if err := writeString(writer, readline); err != nil {
+			if err := yqlib.WriteString(writer, readline); err != nil {
 				return err
 			}
 		}
@@ -52,7 +52,7 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 		if errors.Is(errReading, io.EOF) {
 			if readline != "" {
 				// the last comment we read didn't have a newline, put one in
-				if err := writeString(writer, "\n"); err != nil {
+				if err := yqlib.WriteString(writer, "\n"); err != nil {
 					return err
 				}
 			}
@@ -65,10 +65,10 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 func (pe *propertiesEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode) error {
 
 	if node.Kind == yqlib.ScalarNode {
-		return writeString(writer, node.Value+"\n")
+		return yqlib.WriteString(writer, node.Value+"\n")
 	}
 
-	mapKeysToStrings(node)
+	node.ConvertKeysToStrings()
 	p := properties.NewProperties()
 	p.WriteSeparator = pe.prefs.KeyValueSeparator
 	err := pe.doEncode(p, node, "", nil)
@@ -80,14 +80,14 @@ func (pe *propertiesEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode)
 	return err
 }
 
-func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yqlib.CandidateNode, path string, keyNode *CandidateNode) error {
+func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yqlib.CandidateNode, path string, keyNode *yqlib.CandidateNode) error {
 
 	comments := ""
 	if keyNode != nil {
 		// include the key node comments if present
-		comments = headAndLineComment(keyNode)
+		comments = keyNode.CleanHeadAndLineComment()
 	}
-	comments = comments + headAndLineComment(node)
+	comments = comments + node.CleanHeadAndLineComment()
 	commentsWithSpaces := strings.ReplaceAll(comments, "\n", "\n ")
 	p.SetComments(path, strings.Split(commentsWithSpaces, "\n"))
 

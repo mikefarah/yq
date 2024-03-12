@@ -9,33 +9,11 @@ import (
 	"strings"
 )
 
-func configureEncoder(format *Format, indent int) Encoder {
-
-	switch format {
-	case JSONFormat:
-		prefs := ConfiguredJSONPreferences.Copy()
-		prefs.Indent = indent
-		prefs.ColorsEnabled = false
-		prefs.UnwrapScalar = false
-		return NewJSONEncoder(prefs)
-	case YamlFormat:
-		var prefs = ConfiguredYamlPreferences.Copy()
-		prefs.Indent = indent
-		prefs.ColorsEnabled = false
-		return NewYamlEncoder(prefs)
-	case XMLFormat:
-		var xmlPrefs = ConfiguredXMLPreferences.Copy()
-		xmlPrefs.Indent = indent
-		return NewXMLEncoder(xmlPrefs)
-	}
-	return format.EncoderFactory()
-}
-
 func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
 	log.Debug("printing with indent: %v", prefs.indent)
 
-	encoder := configureEncoder(prefs.format, prefs.indent)
+	encoder := prefs.format.GetInDocumentEncoder(prefs.indent)
 	if encoder == nil {
 		return "", errors.New("no support for output format")
 	}

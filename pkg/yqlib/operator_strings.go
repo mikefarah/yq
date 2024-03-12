@@ -98,7 +98,7 @@ func interpolate(d *dataTreeNavigator, context Context, str string) (string, err
 func stringInterpolationOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if !StringInterpolationEnabled {
 		return context.SingleChildContext(
-			createScalarNode(expressionNode.Operation.StringValue, expressionNode.Operation.StringValue),
+			CreateScalarNode(expressionNode.Operation.StringValue, expressionNode.Operation.StringValue),
 		), nil
 	}
 	if context.MatchingNodes.Len() == 0 {
@@ -106,7 +106,7 @@ func stringInterpolationOperator(d *dataTreeNavigator, context Context, expressi
 		if err != nil {
 			return Context{}, err
 		}
-		node := createScalarNode(value, value)
+		node := CreateScalarNode(value, value)
 		return context.SingleChildContext(node), nil
 	}
 
@@ -118,7 +118,7 @@ func stringInterpolationOperator(d *dataTreeNavigator, context Context, expressi
 		if err != nil {
 			return Context{}, err
 		}
-		node := createScalarNode(value, value)
+		node := CreateScalarNode(value, value)
 		results.PushBack(node)
 	}
 
@@ -261,29 +261,29 @@ func substituteStringOperator(d *dataTreeNavigator, context Context, expressionN
 func addMatch(original []*CandidateNode, match string, offset int, name string) []*CandidateNode {
 
 	newContent := append(original,
-		createScalarNode("string", "string"))
+		CreateScalarNode("string", "string"))
 
 	if offset < 0 {
 		// offset of -1 means there was no match, force a null value like jq
 		newContent = append(newContent,
-			createScalarNode(nil, "null"),
+			CreateScalarNode(nil, "null"),
 		)
 	} else {
 		newContent = append(newContent,
-			createScalarNode(match, match),
+			CreateScalarNode(match, match),
 		)
 	}
 
 	newContent = append(newContent,
-		createScalarNode("offset", "offset"),
-		createScalarNode(offset, fmt.Sprintf("%v", offset)),
-		createScalarNode("length", "length"),
-		createScalarNode(len(match), fmt.Sprintf("%v", len(match))))
+		CreateScalarNode("offset", "offset"),
+		CreateScalarNode(offset, fmt.Sprintf("%v", offset)),
+		CreateScalarNode("length", "length"),
+		CreateScalarNode(len(match), fmt.Sprintf("%v", len(match))))
 
 	if name != "" {
 		newContent = append(newContent,
-			createScalarNode("name", "name"),
-			createScalarNode(name, name),
+			CreateScalarNode("name", "name"),
+			CreateScalarNode(name, name),
 		)
 	}
 	return newContent
@@ -330,7 +330,7 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 
 		node := candidate.CreateReplacement(MappingNode, "!!map", "")
 		node.AddChildren(addMatch(node.Content, match, allIndices[i][0], ""))
-		node.AddKeyValueChild(createScalarNode("captures", "captures"), capturesListNode)
+		node.AddKeyValueChild(CreateScalarNode("captures", "captures"), capturesListNode)
 		results.PushBack(node)
 
 	}
@@ -353,15 +353,15 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 		_, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
 
-			keyNode := createScalarNode(subNames[j+1], subNames[j+1])
+			keyNode := CreateScalarNode(subNames[j+1], subNames[j+1])
 			var valueNode *CandidateNode
 
 			offset := allIndices[i][2+j*2]
 			// offset of -1 means there was no match, force a null value like jq
 			if offset < 0 {
-				valueNode = createScalarNode(nil, "null")
+				valueNode = CreateScalarNode(nil, "null")
 			} else {
-				valueNode = createScalarNode(submatch, submatch)
+				valueNode = CreateScalarNode(submatch, submatch)
 			}
 			capturesNode.AddKeyValueChild(keyNode, valueNode)
 		}

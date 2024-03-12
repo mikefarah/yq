@@ -61,7 +61,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode) error {
 					return err
 				}
 				if _, err := e.writer.Write([]byte("\n")); err != nil {
-					log.Warning("Unable to write newline, skipping: %w", err)
+					yqlib.GetLogger().Warning("Unable to write newline, skipping: %w", err)
 				}
 			}
 		}
@@ -102,7 +102,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode) error {
 }
 
 func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yqlib.CandidateNode) error {
-	err := e.encodeComment(encoder, headAndLineComment(node))
+	err := e.encodeComment(encoder, node.CleanHeadAndLineComment())
 	if err != nil {
 		return err
 	}
@@ -111,12 +111,12 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yqlib.Candida
 		value := node.Content[i+1]
 
 		start := xml.StartElement{Name: xml.Name{Local: key.Value}}
-		log.Debugf("comments of key %v", key.Value)
-		err := e.encodeComment(encoder, headAndLineComment(key))
+		yqlib.GetLogger().Debugf("comments of key %v", key.Value)
+		err := e.encodeComment(encoder, key.CleanHeadAndLineComment())
 		if err != nil {
 			return err
 		}
-		if headAndLineComment(key) != "" {
+		if key.CleanHeadAndLineComment() != "" {
 			var newLine xml.CharData = []byte("\n")
 			err = encoder.EncodeToken(newLine)
 			if err != nil {
@@ -133,7 +133,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yqlib.Candida
 				return err
 			}
 			if _, err := e.writer.Write([]byte("\n")); err != nil {
-				log.Warning("Unable to write newline, skipping: %w", err)
+				yqlib.GetLogger().Warning("Unable to write newline, skipping: %w", err)
 			}
 		} else if key.Value == e.prefs.DirectiveName {
 			var directive xml.Directive = []byte(value.Value)
@@ -141,23 +141,23 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yqlib.Candida
 				return err
 			}
 			if _, err := e.writer.Write([]byte("\n")); err != nil {
-				log.Warning("Unable to write newline, skipping: %w", err)
+				yqlib.GetLogger().Warning("Unable to write newline, skipping: %w", err)
 			}
 		} else {
 
-			log.Debugf("recursing")
+			yqlib.GetLogger().Debugf("recursing")
 
 			err = e.doEncode(encoder, value, start)
 			if err != nil {
 				return err
 			}
 		}
-		err = e.encodeComment(encoder, footComment(key))
+		err = e.encodeComment(encoder, key.CleanFootComment())
 		if err != nil {
 			return err
 		}
 	}
-	return e.encodeComment(encoder, footComment(node))
+	return e.encodeComment(encoder, node.CleanFootComment())
 }
 
 func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
@@ -165,7 +165,7 @@ func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yqlib.CandidateNode
 	if err != nil {
 		return err
 	}
-	return e.encodeComment(encoder, headComment(node))
+	return e.encodeComment(encoder, node.CleanHeadComment())
 }
 
 func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
@@ -173,16 +173,16 @@ func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 	if err != nil {
 		return err
 	}
-	return e.encodeComment(encoder, footComment(node))
+	return e.encodeComment(encoder, node.CleanFootComment())
 }
 
 func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 	switch node.Kind {
-	case MappingNode:
+	case yqlib.MappingNode:
 		return e.encodeMap(encoder, node, start)
-	case SequenceNode:
+	case yqlib.SequenceNode:
 		return e.encodeArray(encoder, node, start)
-	case ScalarNode:
+	case yqlib.ScalarNode:
 		err := e.encodeStart(encoder, node, start)
 		if err != nil {
 			return err
@@ -194,7 +194,7 @@ func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yqlib.CandidateNode, s
 			return err
 		}
 
-		if err = e.encodeComment(encoder, lineComment(node)); err != nil {
+		if err = e.encodeComment(encoder, node.CleanLineComment()); err != nil {
 			return err
 		}
 
@@ -209,13 +209,13 @@ var chompRegexp = regexp.MustCompile(`\n$`)
 
 func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) error {
 	if commentStr != "" {
-		log.Debugf("got comment [%v]", commentStr)
+		yqlib.GetLogger().Debugf("got comment [%v]", commentStr)
 		// multi line string
 		if len(commentStr) > 2 && strings.Contains(commentStr[1:len(commentStr)-1], "\n") {
 			commentStr = chompRegexp.ReplaceAllString(commentStr, "")
-			log.Debugf("chompRegexp [%v]", commentStr)
+			yqlib.GetLogger().Debugf("chompRegexp [%v]", commentStr)
 			commentStr = xmlEncodeMultilineCommentRegex.ReplaceAllString(commentStr, "$1$2")
-			log.Debugf("processed multiline [%v]", commentStr)
+			yqlib.GetLogger().Debugf("processed multiline [%v]", commentStr)
 			// if the first line is non blank, add a space
 			if commentStr[0] != '\n' && commentStr[0] != ' ' {
 				commentStr = " " + commentStr
@@ -227,9 +227,9 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 
 		if !strings.HasSuffix(commentStr, " ") && !strings.HasSuffix(commentStr, "\n") {
 			commentStr = commentStr + " "
-			log.Debugf("added suffix [%v]", commentStr)
+			yqlib.GetLogger().Debugf("added suffix [%v]", commentStr)
 		}
-		log.Debugf("encoding comment [%v]", commentStr)
+		yqlib.GetLogger().Debugf("encoding comment [%v]", commentStr)
 
 		var comment xml.Comment = []byte(commentStr)
 		err := encoder.EncodeToken(comment)
@@ -242,7 +242,7 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 
 func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 
-	if err := e.encodeComment(encoder, headAndLineComment(node)); err != nil {
+	if err := e.encodeComment(encoder, node.CleanHeadAndLineComment()); err != nil {
 		return err
 	}
 
@@ -252,7 +252,7 @@ func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yqlib.CandidateNode
 			return err
 		}
 	}
-	return e.encodeComment(encoder, footComment(node))
+	return e.encodeComment(encoder, node.CleanFootComment())
 }
 
 func (e *xmlEncoder) isAttribute(name string) bool {
@@ -263,7 +263,7 @@ func (e *xmlEncoder) isAttribute(name string) bool {
 }
 
 func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
-	log.Debug("its a map")
+	yqlib.GetLogger().Debug("its a map")
 
 	//first find all the attributes and put them on the start token
 	for i := 0; i < len(node.Content); i += 2 {
@@ -271,7 +271,7 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 		value := node.Content[i+1]
 
 		if e.isAttribute(key.Value) {
-			if value.Kind == ScalarNode {
+			if value.Kind == yqlib.ScalarNode {
 				attributeName := strings.Replace(key.Value, e.prefs.AttributePrefix, "", 1)
 				start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: attributeName}, Value: value.Value})
 			} else {
@@ -290,7 +290,7 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 		key := node.Content[i]
 		value := node.Content[i+1]
 
-		err := e.encodeComment(encoder, headAndLineComment(key))
+		err := e.encodeComment(encoder, key.CleanHeadAndLineComment())
 		if err != nil {
 			return err
 		}
@@ -307,7 +307,7 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 			}
 		} else if key.Value == e.prefs.ContentName {
 			// directly encode the contents
-			err = e.encodeComment(encoder, headAndLineComment(value))
+			err = e.encodeComment(encoder, value.CleanHeadAndLineComment())
 			if err != nil {
 				return err
 			}
@@ -316,7 +316,7 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 			if err != nil {
 				return err
 			}
-			err = e.encodeComment(encoder, footComment(value))
+			err = e.encodeComment(encoder, value.CleanFootComment())
 			if err != nil {
 				return err
 			}
@@ -327,7 +327,7 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, 
 				return err
 			}
 		}
-		err = e.encodeComment(encoder, footComment(key))
+		err = e.encodeComment(encoder, key.CleanFootComment())
 		if err != nil {
 			return err
 		}

@@ -31,7 +31,7 @@ func (s *streamEvaluator) EvaluateNew(expression string, printer Printer) error 
 	if err != nil {
 		return err
 	}
-	candidateNode := createScalarNode(nil, "")
+	candidateNode := CreateScalarNode(nil, "")
 	inputList := list.New()
 	inputList.PushBack(candidateNode)
 

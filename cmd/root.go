@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mikefarah/yq/v4/pkg/properties"
+	"github.com/mikefarah/yq/v4/pkg/xml"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 	logging "gopkg.in/op/go-logging.v1"
@@ -117,27 +119,27 @@ yq -P -oy sample.json
 		panic(err)
 	}
 
-	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.AttributePrefix, "xml-attribute-prefix", yqlib.ConfiguredXMLPreferences.AttributePrefix, "prefix for xml attributes")
+	rootCmd.PersistentFlags().StringVar(&xml.ConfiguredXMLPreferences.AttributePrefix, "xml-attribute-prefix", xml.ConfiguredXMLPreferences.AttributePrefix, "prefix for xml attributes")
 	if err = rootCmd.RegisterFlagCompletionFunc("xml-attribute-prefix", cobra.NoFileCompletions); err != nil {
 		panic(err)
 	}
-	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.ContentName, "xml-content-name", yqlib.ConfiguredXMLPreferences.ContentName, "name for xml content (if no attribute name is present).")
+	rootCmd.PersistentFlags().StringVar(&xml.ConfiguredXMLPreferences.ContentName, "xml-content-name", xml.ConfiguredXMLPreferences.ContentName, "name for xml content (if no attribute name is present).")
 	if err = rootCmd.RegisterFlagCompletionFunc("xml-content-name", cobra.NoFileCompletions); err != nil {
 		panic(err)
 	}
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.StrictMode, "xml-strict-mode", yqlib.ConfiguredXMLPreferences.StrictMode, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.KeepNamespace, "xml-keep-namespace", yqlib.ConfiguredXMLPreferences.KeepNamespace, "enables keeping namespace after parsing attributes")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.UseRawToken, "xml-raw-token", yqlib.ConfiguredXMLPreferences.UseRawToken, "enables using RawToken method instead Token. Commonly disables namespace translations. See https://pkg.go.dev/encoding/xml#Decoder.RawToken for details.")
-	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.ProcInstPrefix, "xml-proc-inst-prefix", yqlib.ConfiguredXMLPreferences.ProcInstPrefix, "prefix for xml processing instructions (e.g. <?xml version=\"1\"?>)")
+	rootCmd.PersistentFlags().BoolVar(&xml.ConfiguredXMLPreferences.StrictMode, "xml-strict-mode", xml.ConfiguredXMLPreferences.StrictMode, "enables strict parsing of XML. See https://pkg.go.dev/encoding/xml for more details.")
+	rootCmd.PersistentFlags().BoolVar(&xml.ConfiguredXMLPreferences.KeepNamespace, "xml-keep-namespace", xml.ConfiguredXMLPreferences.KeepNamespace, "enables keeping namespace after parsing attributes")
+	rootCmd.PersistentFlags().BoolVar(&xml.ConfiguredXMLPreferences.UseRawToken, "xml-raw-token", xml.ConfiguredXMLPreferences.UseRawToken, "enables using RawToken method instead Token. Commonly disables namespace translations. See https://pkg.go.dev/encoding/xml#Decoder.RawToken for details.")
+	rootCmd.PersistentFlags().StringVar(&xml.ConfiguredXMLPreferences.ProcInstPrefix, "xml-proc-inst-prefix", xml.ConfiguredXMLPreferences.ProcInstPrefix, "prefix for xml processing instructions (e.g. <?xml version=\"1\"?>)")
 	if err = rootCmd.RegisterFlagCompletionFunc("xml-proc-inst-prefix", cobra.NoFileCompletions); err != nil {
 		panic(err)
 	}
-	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.DirectiveName, "xml-directive-name", yqlib.ConfiguredXMLPreferences.DirectiveName, "name for xml directives (e.g. <!DOCTYPE thing cat>)")
+	rootCmd.PersistentFlags().StringVar(&xml.ConfiguredXMLPreferences.DirectiveName, "xml-directive-name", xml.ConfiguredXMLPreferences.DirectiveName, "name for xml directives (e.g. <!DOCTYPE thing cat>)")
 	if err = rootCmd.RegisterFlagCompletionFunc("xml-directive-name", cobra.NoFileCompletions); err != nil {
 		panic(err)
 	}
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipProcInst, "xml-skip-proc-inst", yqlib.ConfiguredXMLPreferences.SkipProcInst, "skip over process instructions (e.g. <?xml version=\"1\"?>)")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredXMLPreferences.SkipDirectives, "xml-skip-directives", yqlib.ConfiguredXMLPreferences.SkipDirectives, "skip over directives (e.g. <!DOCTYPE thing cat>)")
+	rootCmd.PersistentFlags().BoolVar(&xml.ConfiguredXMLPreferences.SkipProcInst, "xml-skip-proc-inst", xml.ConfiguredXMLPreferences.SkipProcInst, "skip over process instructions (e.g. <?xml version=\"1\"?>)")
+	rootCmd.PersistentFlags().BoolVar(&xml.ConfiguredXMLPreferences.SkipDirectives, "xml-skip-directives", xml.ConfiguredXMLPreferences.SkipDirectives, "skip over directives (e.g. <!DOCTYPE thing cat>)")
 
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredCsvPreferences.AutoParse, "csv-auto-parse", yqlib.ConfiguredCsvPreferences.AutoParse, "parse CSV YAML/JSON values")
 	rootCmd.PersistentFlags().Var(newRuneVar(&yqlib.ConfiguredCsvPreferences.Separator), "csv-separator", "CSV Separator character")
@@ -155,8 +157,8 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredLuaPreferences.UnquotedKeys, "lua-unquoted", yqlib.ConfiguredLuaPreferences.UnquotedKeys, "output unquoted string keys (e.g. {foo=\"bar\"})")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredLuaPreferences.Globals, "lua-globals", yqlib.ConfiguredLuaPreferences.Globals, "output keys as top-level global variables")
 
-	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "properties-separator", yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "separator to use between keys and values")
-	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "properties-array-brackets", yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "use [x] in array paths (e.g. for SpringBoot)")
+	rootCmd.PersistentFlags().StringVar(&properties.ConfiguredPropertiesPreferences.KeyValueSeparator, "properties-separator", properties.ConfiguredPropertiesPreferences.KeyValueSeparator, "separator to use between keys and values")
+	rootCmd.PersistentFlags().BoolVar(&properties.ConfiguredPropertiesPreferences.UseArrayBrackets, "properties-array-brackets", properties.ConfiguredPropertiesPreferences.UseArrayBrackets, "use [x] in array paths (e.g. for SpringBoot)")
 
 	rootCmd.PersistentFlags().BoolVar(&yqlib.StringInterpolationEnabled, "string-interpolation", yqlib.StringInterpolationEnabled, "Toggles strings interpolation of \\(exp)")
 

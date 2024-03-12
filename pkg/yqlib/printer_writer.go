@@ -34,14 +34,7 @@ type multiPrintWriter struct {
 }
 
 func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWriter {
-	extension := "yml"
-
-	switch format {
-	case JSONFormat:
-		extension = "json"
-	case PropertiesFormat:
-		extension = "properties"
-	}
+	extension := format.DefaultExtension
 
 	return &multiPrintWriter{
 		nameExpression: expression,

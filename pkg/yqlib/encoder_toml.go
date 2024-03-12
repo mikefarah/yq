@@ -14,7 +14,7 @@ func NewTomlEncoder() Encoder {
 
 func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if node.Kind == ScalarNode {
-		return writeString(writer, node.Value+"\n")
+		return WriteString(writer, node.Value+"\n")
 	}
 	return fmt.Errorf("only scalars (e.g. strings, numbers, booleans) are supported for TOML output at the moment. Please use yaml output format (-oy) until the encoder has been fully implemented")
 }

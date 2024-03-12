@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mikefarah/yq/v4/pkg/properties"
+	"github.com/mikefarah/yq/v4/pkg/xml"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 	"gopkg.in/op/go-logging.v1"
@@ -102,7 +104,7 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	yqlib.GetLogger().Debug("Using output format %v", outputFormat)
 
 	if outputFormatType == yqlib.YamlFormat ||
-		outputFormatType == yqlib.PropertiesFormat {
+		outputFormatType == properties.PropertiesFormat {
 		unwrapScalar = true
 	}
 	if unwrapScalarFlag.IsExplicitlySet() {
@@ -148,12 +150,12 @@ func configureEncoder() (yqlib.Encoder, error) {
 	if err != nil {
 		return nil, err
 	}
-	yqlib.ConfiguredXMLPreferences.Indent = indent
+	xml.ConfiguredXMLPreferences.Indent = indent
 	yqlib.ConfiguredYamlPreferences.Indent = indent
 	yqlib.ConfiguredJSONPreferences.Indent = indent
 
 	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
-	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
+	properties.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredJSONPreferences.UnwrapScalar = unwrapScalar
 
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled

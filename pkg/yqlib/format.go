@@ -6,63 +6,93 @@ import (
 )
 
 type EncoderFactoryFunction func() Encoder
+type InDocumentEncoderFactoryFunction func(indent int) Encoder
 type DecoderFactoryFunction func() Decoder
 
 type Format struct {
-	FormalName     string
-	Names          []string
-	EncoderFactory EncoderFactoryFunction
-	DecoderFactory DecoderFactoryFunction
+	FormalName       string
+	Names            []string
+	DefaultExtension string
+	EncoderFactory   EncoderFactoryFunction
+	DecoderFactory   DecoderFactoryFunction
+
+	/**
+	* Like the Encoder Factory, but for encoding content within the document itself.
+	* Should turn off colors and other settings to ensure the content comes out right.
+	* If this function is not configured, it will default to the EncoderFactory.
+	**/
+	InDocumentEncoderFactory InDocumentEncoderFactoryFunction
 }
 
-var YamlFormat = &Format{"yaml", []string{"y", "yml"},
+var YamlFormat = &Format{"yaml", []string{"y", "yml"}, "yml",
 	func() Encoder { return NewYamlEncoder(ConfiguredYamlPreferences) },
 	func() Decoder { return NewYamlDecoder(ConfiguredYamlPreferences) },
+	func(indent int) Encoder {
+		prefs := ConfiguredYamlPreferences.Copy()
+		prefs.Indent = indent
+		prefs.ColorsEnabled = false
+		return NewYamlEncoder(prefs)
+	},
 }
 
-var JSONFormat = &Format{"json", []string{"j"},
+var JSONFormat = &Format{"json", []string{"j"}, "json",
 	func() Encoder { return NewJSONEncoder(ConfiguredJSONPreferences) },
 	func() Decoder { return NewJSONDecoder() },
+	func(indent int) Encoder {
+		prefs := ConfiguredJSONPreferences.Copy()
+		prefs.Indent = indent
+		prefs.ColorsEnabled = false
+		prefs.UnwrapScalar = false
+		return NewJSONEncoder(prefs)
+	},
 }
 
-var CSVFormat = &Format{"csv", []string{"c"},
+var CSVFormat = &Format{"csv", []string{"c"}, "csv",
 	func() Encoder { return NewCsvEncoder(ConfiguredCsvPreferences) },
 	func() Decoder { return NewCSVObjectDecoder(ConfiguredCsvPreferences) },
+	nil,
 }
 
-var TSVFormat = &Format{"tsv", []string{"t"},
+var TSVFormat = &Format{"tsv", []string{"t"}, "tsv",
 	func() Encoder { return NewCsvEncoder(ConfiguredTsvPreferences) },
 	func() Decoder { return NewCSVObjectDecoder(ConfiguredTsvPreferences) },
+	nil,
 }
 
-var Base64Format = &Format{"base64", []string{},
+var Base64Format = &Format{"base64", []string{}, "txt",
 	func() Encoder { return NewBase64Encoder() },
 	func() Decoder { return NewBase64Decoder() },
+	nil,
 }
 
-var UriFormat = &Format{"uri", []string{},
+var UriFormat = &Format{"uri", []string{}, "txt",
 	func() Encoder { return NewUriEncoder() },
 	func() Decoder { return NewUriDecoder() },
+	nil,
 }
 
-var ShFormat = &Format{"", nil,
+var ShFormat = &Format{"", nil, "sh",
 	func() Encoder { return NewShEncoder() },
 	nil,
-}
-
-var TomlFormat = &Format{"toml", []string{},
-	func() Encoder { return NewTomlEncoder() },
-	func() Decoder { return NewTomlDecoder() },
-}
-
-var ShellVariablesFormat = &Format{"shell", []string{"s", "sh"},
-	func() Encoder { return NewShellVariablesEncoder() },
 	nil,
 }
 
-var LuaFormat = &Format{"lua", []string{"l"},
+var TomlFormat = &Format{"toml", []string{}, "toml",
+	func() Encoder { return NewTomlEncoder() },
+	func() Decoder { return NewTomlDecoder() },
+	nil,
+}
+
+var ShellVariablesFormat = &Format{"shell", []string{"s", "sh"}, "sh",
+	func() Encoder { return NewShellVariablesEncoder() },
+	nil,
+	nil,
+}
+
+var LuaFormat = &Format{"lua", []string{"l"}, "lua",
 	func() Encoder { return NewLuaEncoder(ConfiguredLuaPreferences) },
 	func() Decoder { return NewLuaDecoder(ConfiguredLuaPreferences) },
+	nil,
 }
 
 var Formats = []*Format{
@@ -94,7 +124,10 @@ func (f *Format) MatchesName(name string) bool {
 	return false
 }
 
-func (f *Format) GetConfiguredEncoder() Encoder {
+func (f *Format) GetInDocumentEncoder(indent int) Encoder {
+	if f.InDocumentEncoderFactory != nil {
+		return f.InDocumentEncoderFactory(indent)
+	}
 	return f.EncoderFactory()
 }
 

@@ -34,7 +34,7 @@ func (e *shEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 
-	return writeString(writer, e.encode(node.Value))
+	return WriteString(writer, e.encode(node.Value))
 }
 
 // put any (shell-unsafe) characters into a single-quoted block, close the block lazily

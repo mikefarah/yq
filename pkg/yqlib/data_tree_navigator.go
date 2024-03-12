@@ -13,6 +13,7 @@ type DataTreeNavigator interface {
 	GetMatchingNodes(context Context, expressionNode *ExpressionNode) (Context, error)
 
 	DeeplyAssign(context Context, path []interface{}, rhsNode *CandidateNode) error
+	DeeplyAssignKey(context Context, path []interface{}, rhsNode *CandidateNode) error
 }
 
 type dataTreeNavigator struct {
@@ -23,6 +24,14 @@ func NewDataTreeNavigator() DataTreeNavigator {
 }
 
 func (d *dataTreeNavigator) DeeplyAssign(context Context, path []interface{}, rhsCandidateNode *CandidateNode) error {
+	return d.deeplyAssign(context, path, rhsCandidateNode, false)
+}
+
+func (d *dataTreeNavigator) DeeplyAssignKey(context Context, path []interface{}, rhsCandidateNode *CandidateNode) error {
+	return d.deeplyAssign(context, path, rhsCandidateNode, true)
+}
+
+func (d *dataTreeNavigator) deeplyAssign(context Context, path []interface{}, rhsCandidateNode *CandidateNode, targetKey bool) error {
 
 	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
@@ -41,7 +50,7 @@ func (d *dataTreeNavigator) DeeplyAssign(context Context, path []interface{}, rh
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
-		LHS:       createTraversalTree(path, traversePreferences{}, false),
+		LHS:       createTraversalTree(path, traversePreferences{}, targetKey),
 		RHS:       &ExpressionNode{Operation: rhsOp},
 	}
 

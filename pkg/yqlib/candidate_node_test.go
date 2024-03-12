@@ -64,13 +64,13 @@ func TestCandidateNodeChildWhenParentUpdated(t *testing.T) {
 	test.AssertResultWithContext(t, uint(1), child.GetDocument(), "document index")
 }
 
-type createScalarNodeScenario struct {
+type CreateScalarNodeScenario struct {
 	value       interface{}
 	stringValue string
 	expectedTag string
 }
 
-var createScalarScenarios = []createScalarNodeScenario{
+var createScalarScenarios = []CreateScalarNodeScenario{
 	{
 		value:       "mike",
 		stringValue: "mike",
@@ -100,20 +100,20 @@ var createScalarScenarios = []createScalarNodeScenario{
 
 func TestCreateScalarNodeScenarios(t *testing.T) {
 	for _, tt := range createScalarScenarios {
-		actual := createScalarNode(tt.value, tt.stringValue)
+		actual := CreateScalarNode(tt.value, tt.stringValue)
 		test.AssertResultWithContext(t, tt.stringValue, actual.Value, fmt.Sprintf("Value for: Value: [%v], String: %v", tt.value, tt.stringValue))
 		test.AssertResultWithContext(t, tt.expectedTag, actual.Tag, fmt.Sprintf("Value for: Value: [%v], String: %v", tt.value, tt.stringValue))
 	}
 }
 
 func TestGetKeyForMapValue(t *testing.T) {
-	key := createStringScalarNode("yourKey")
+	key := CreateStringScalarNode("yourKey")
 	n := CandidateNode{Key: key, Value: "meow", document: 3}
 	test.AssertResult(t, "3 - yourKey", n.GetKey())
 }
 
 func TestGetKeyForMapKey(t *testing.T) {
-	key := createStringScalarNode("yourKey")
+	key := CreateStringScalarNode("yourKey")
 	key.IsMapKey = true
 	key.document = 3
 	test.AssertResult(t, "key-yourKey-3 - ", key.GetKey())
@@ -125,7 +125,7 @@ func TestGetKeyForValue(t *testing.T) {
 }
 
 func TestGetParsedKeyForMapKey(t *testing.T) {
-	key := createStringScalarNode("yourKey")
+	key := CreateStringScalarNode("yourKey")
 	key.IsMapKey = true
 	key.document = 3
 	test.AssertResult(t, "yourKey", key.getParsedKey())
@@ -137,13 +137,13 @@ func TestGetParsedKeyForLooseValue(t *testing.T) {
 }
 
 func TestGetParsedKeyForMapValue(t *testing.T) {
-	key := createStringScalarNode("yourKey")
+	key := CreateStringScalarNode("yourKey")
 	n := CandidateNode{Key: key, Value: "meow", document: 3}
 	test.AssertResult(t, "yourKey", n.getParsedKey())
 }
 
 func TestGetParsedKeyForArrayValue(t *testing.T) {
-	key := createScalarNode(4, "4")
+	key := CreateScalarNode(4, "4")
 	n := CandidateNode{Key: key, Value: "meow", document: 3}
 	test.AssertResult(t, 4, n.getParsedKey())
 }

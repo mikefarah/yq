@@ -96,7 +96,7 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 
 			if child == nil {
 				// need to represent it as a null scalar
-				child = createScalarNode(nil, "null")
+				child = CreateScalarNode(nil, "null")
 			}
 			childKey := o.CreateChild()
 			childKey.Kind = ScalarNode

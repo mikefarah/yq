@@ -27,14 +27,14 @@ const (
 	FlowStyle
 )
 
-func createStringScalarNode(stringValue string) *CandidateNode {
+func CreateStringScalarNode(stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
 	node.Tag = "!!str"
 	return node
 }
 
-func createScalarNode(value interface{}, stringValue string) *CandidateNode {
+func CreateScalarNode(value interface{}, stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
 
@@ -219,7 +219,7 @@ func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
 		value.Key.SetParent(n)
 	} else {
 		index := len(n.Content)
-		keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
+		keyNode := CreateScalarNode(index, fmt.Sprintf("%v", index))
 		keyNode.SetParent(n)
 		value.Key = keyNode
 	}
@@ -426,5 +426,36 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 	}
 	if other.LineComment != "" {
 		n.LineComment = other.LineComment
+	}
+}
+
+func (n *CandidateNode) CleanHeadAndLineComment() string {
+	return n.CleanHeadComment() + n.CleanLineComment()
+}
+
+func (n *CandidateNode) CleanHeadComment() string {
+	return strings.Replace(n.HeadComment, "#", "", 1)
+}
+
+func (n *CandidateNode) CleanLineComment() string {
+	return strings.Replace(n.LineComment, "#", "", 1)
+}
+
+func (n *CandidateNode) CleanFootComment() string {
+	return strings.Replace(n.FootComment, "#", "", 1)
+}
+
+func (n *CandidateNode) ConvertKeysToStrings() {
+
+	if n.Kind == MappingNode {
+		for index, child := range n.Content {
+			if index%2 == 0 { // its a map key
+				child.Tag = "!!str"
+			}
+		}
+	}
+
+	for _, child := range n.Content {
+		child.ConvertKeysToStrings()
 	}
 }

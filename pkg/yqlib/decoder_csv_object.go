@@ -32,7 +32,7 @@ func (dec *csvObjectDecoder) convertToNode(content string) *CandidateNode {
 	// if we're not auto-parsing, then we wont put in parsed objects or arrays
 	// but we still parse scalars
 	if err != nil || (!dec.prefs.AutoParse && node.Kind != ScalarNode) {
-		return createScalarNode(content, content)
+		return CreateScalarNode(content, content)
 	}
 	return node
 }
@@ -41,7 +41,7 @@ func (dec *csvObjectDecoder) createObject(headerRow []string, contentRow []strin
 	objectNode := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 	for i, header := range headerRow {
-		objectNode.AddKeyValueChild(createScalarNode(header, header), dec.convertToNode(contentRow[i]))
+		objectNode.AddKeyValueChild(CreateScalarNode(header, header), dec.convertToNode(contentRow[i]))
 	}
 	return objectNode
 }

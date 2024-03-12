@@ -48,5 +48,5 @@ func (dec *uriDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	}
 	dec.readAnything = true
-	return createStringScalarNode(newValue), nil
+	return CreateStringScalarNode(newValue), nil
 }

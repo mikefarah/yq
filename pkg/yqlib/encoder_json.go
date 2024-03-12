@@ -41,7 +41,7 @@ func (je *jsonEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debugf("kids %v", len(node.Content))
 
 	if node.Kind == ScalarNode && je.prefs.UnwrapScalar {
-		return writeString(writer, node.Value+"\n")
+		return WriteString(writer, node.Value+"\n")
 	}
 
 	destination := writer

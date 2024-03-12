@@ -86,15 +86,15 @@ func (le *luaEncoder) encodeString(writer io.Writer, node *CandidateNode) error 
 	case LiteralStyle, FoldedStyle, FlowStyle:
 		for i := 0; i < 10; i++ {
 			if !strings.Contains(node.Value, "]"+strings.Repeat("=", i)+"]") {
-				err := writeString(writer, "["+strings.Repeat("=", i)+"[\n")
+				err := WriteString(writer, "["+strings.Repeat("=", i)+"[\n")
 				if err != nil {
 					return err
 				}
-				err = writeString(writer, node.Value)
+				err = WriteString(writer, node.Value)
 				if err != nil {
 					return err
 				}
-				return writeString(writer, "]"+strings.Repeat("=", i)+"]")
+				return WriteString(writer, "]"+strings.Repeat("=", i)+"]")
 			}
 		}
 	case SingleQuotedStyle:
@@ -102,22 +102,22 @@ func (le *luaEncoder) encodeString(writer io.Writer, node *CandidateNode) error 
 
 		// fallthrough to regular ol' string
 	}
-	return writeString(writer, quote+le.escape.Replace(node.Value)+quote)
+	return WriteString(writer, quote+le.escape.Replace(node.Value)+quote)
 }
 
 func (le *luaEncoder) writeIndent(writer io.Writer) error {
 	if le.indentStr == "" {
 		return nil
 	}
-	err := writeString(writer, "\n")
+	err := WriteString(writer, "\n")
 	if err != nil {
 		return err
 	}
-	return writeString(writer, strings.Repeat(le.indentStr, le.indent))
+	return WriteString(writer, strings.Repeat(le.indentStr, le.indent))
 }
 
 func (le *luaEncoder) encodeArray(writer io.Writer, node *CandidateNode) error {
-	err := writeString(writer, "{")
+	err := WriteString(writer, "{")
 	if err != nil {
 		return err
 	}
@@ -131,13 +131,13 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *CandidateNode) error {
 		if err != nil {
 			return err
 		}
-		err = writeString(writer, ",")
+		err = WriteString(writer, ",")
 		if err != nil {
 			return err
 		}
 		if child.LineComment != "" {
 			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
-			err = writeString(writer, " --"+sansPrefix)
+			err = WriteString(writer, " --"+sansPrefix)
 			if err != nil {
 				return err
 			}
@@ -150,7 +150,7 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *CandidateNode) error {
 			return err
 		}
 	}
-	return writeString(writer, "}")
+	return WriteString(writer, "}")
 }
 
 func needsQuoting(s string) bool {
@@ -181,7 +181,7 @@ func needsQuoting(s string) bool {
 
 func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bool) error {
 	if !global {
-		err := writeString(writer, "{")
+		err := WriteString(writer, "{")
 		if err != nil {
 			return err
 		}
@@ -194,7 +194,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 			if err != nil {
 				return err
 			}
-			err = writeString(writer, ";")
+			err = WriteString(writer, ";")
 			if err != nil {
 				return err
 			}
@@ -207,19 +207,19 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 				}
 			}
 			if (le.unquoted || global) && child.Tag == "!!str" && !needsQuoting(child.Value) {
-				err := writeString(writer, child.Value+" = ")
+				err := WriteString(writer, child.Value+" = ")
 				if err != nil {
 					return err
 				}
 			} else {
 				if global {
 					// This only works in Lua 5.2+
-					err := writeString(writer, "_ENV")
+					err := WriteString(writer, "_ENV")
 					if err != nil {
 						return err
 					}
 				}
-				err := writeString(writer, "[")
+				err := WriteString(writer, "[")
 				if err != nil {
 					return err
 				}
@@ -227,7 +227,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 				if err != nil {
 					return err
 				}
-				err = writeString(writer, "] = ")
+				err = WriteString(writer, "] = ")
 				if err != nil {
 					return err
 				}
@@ -235,7 +235,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 		}
 		if child.LineComment != "" {
 			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
-			err := writeString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
+			err := WriteString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
 			if err != nil {
 				return err
 			}
@@ -249,7 +249,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 		}
 	}
 	if global {
-		return writeString(writer, "\n")
+		return WriteString(writer, "\n")
 	}
 	le.indent--
 	if len(node.Content) != 0 {
@@ -258,7 +258,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 			return err
 		}
 	}
-	return writeString(writer, "}")
+	return WriteString(writer, "}")
 }
 
 func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
@@ -273,30 +273,30 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 			return le.encodeString(writer, node)
 		case "!!null":
 			// TODO reject invalid use as a table key
-			return writeString(writer, "nil")
+			return WriteString(writer, "nil")
 		case "!!bool":
 			// Yaml 1.2 has case variation e.g. True, FALSE etc but Lua only has
 			// lower case
-			return writeString(writer, strings.ToLower(node.Value))
+			return WriteString(writer, strings.ToLower(node.Value))
 		case "!!int":
 			if strings.HasPrefix(node.Value, "0o") {
 				_, octalValue, err := parseInt64(node.Value)
 				if err != nil {
 					return err
 				}
-				return writeString(writer, fmt.Sprintf("%d", octalValue))
+				return WriteString(writer, fmt.Sprintf("%d", octalValue))
 			}
-			return writeString(writer, strings.ToLower(node.Value))
+			return WriteString(writer, strings.ToLower(node.Value))
 		case "!!float":
 			switch strings.ToLower(node.Value) {
 			case ".inf", "+.inf":
-				return writeString(writer, "(1/0)")
+				return WriteString(writer, "(1/0)")
 			case "-.inf":
-				return writeString(writer, "(-1/0)")
+				return WriteString(writer, "(-1/0)")
 			case ".nan":
-				return writeString(writer, "(0/0)")
+				return WriteString(writer, "(0/0)")
 			default:
-				return writeString(writer, node.Value)
+				return WriteString(writer, node.Value)
 			}
 		default:
 			return fmt.Errorf("Lua encoder NYI -- %s", node.Tag)
@@ -307,7 +307,7 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 }
 
 func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *CandidateNode) error {
-	err := writeString(writer, le.docPrefix)
+	err := WriteString(writer, le.docPrefix)
 	if err != nil {
 		return err
 	}
@@ -315,7 +315,7 @@ func (le *luaEncoder) encodeTopLevel(writer io.Writer, node *CandidateNode) erro
 	if err != nil {
 		return err
 	}
-	return writeString(writer, le.docSuffix)
+	return WriteString(writer, le.docSuffix)
 }
 
 func (le *luaEncoder) Encode(writer io.Writer, node *CandidateNode) error {

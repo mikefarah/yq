@@ -4,11 +4,13 @@ import (
 	"os"
 
 	command "github.com/mikefarah/yq/v4/cmd"
-	"github.com/mikefarah/yq/v4/pkg/yqlib"
+	"github.com/mikefarah/yq/v4/pkg/properties"
+	"github.com/mikefarah/yq/v4/pkg/xml"
 )
 
 func main() {
-	yqlib.RegisterPropertiesFormat()
+	properties.RegisterPropertiesFormat()
+	xml.RegisterXmlFormat()
 
 	cmd := command.New()
 

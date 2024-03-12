@@ -26,7 +26,7 @@ func readStream(filename string) (io.Reader, error) {
 
 }
 
-func writeString(writer io.Writer, txt string) error {
+func WriteString(writer io.Writer, txt string) error {
 	_, errorWriting := writer.Write([]byte(txt))
 	return errorWriting
 }

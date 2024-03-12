@@ -64,7 +64,7 @@ func toEntriesOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode)
 func parseEntry(candidateNode *CandidateNode, position int) (*CandidateNode, *CandidateNode, error) {
 	prefs := traversePreferences{DontAutoCreate: true}
 
-	keyResults, err := traverseMap(Context{}, candidateNode, createStringScalarNode("key"), prefs, false)
+	keyResults, err := traverseMap(Context{}, candidateNode, CreateStringScalarNode("key"), prefs, false)
 
 	if err != nil {
 		return nil, nil, err
@@ -72,7 +72,7 @@ func parseEntry(candidateNode *CandidateNode, position int) (*CandidateNode, *Ca
 		return nil, nil, fmt.Errorf("expected to find one 'key' entry but found %v in position %v", keyResults.Len(), position)
 	}
 
-	valueResults, err := traverseMap(Context{}, candidateNode, createStringScalarNode("value"), prefs, false)
+	valueResults, err := traverseMap(Context{}, candidateNode, CreateStringScalarNode("value"), prefs, false)
 
 	if err != nil {
 		return nil, nil, err

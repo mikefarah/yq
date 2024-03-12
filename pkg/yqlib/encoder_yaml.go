@@ -26,7 +26,7 @@ func (ye *yamlEncoder) CanHandleAliases() bool {
 func (ye *yamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	if ye.prefs.PrintDocSeparators {
 		log.Debug("writing doc sep")
-		if err := writeString(writer, "---\n"); err != nil {
+		if err := WriteString(writer, "---\n"); err != nil {
 			return err
 		}
 	}
@@ -54,7 +54,7 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRegEx.MatchString(readline) {
 				readline = "# " + readline
 			}
-			if err := writeString(writer, readline); err != nil {
+			if err := WriteString(writer, readline); err != nil {
 				return err
 			}
 		}
@@ -62,7 +62,7 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 		if errors.Is(errReading, io.EOF) {
 			if readline != "" {
 				// the last comment we read didn't have a newline, put one in
-				if err := writeString(writer, "\n"); err != nil {
+				if err := WriteString(writer, "\n"); err != nil {
 					return err
 				}
 			}
@@ -80,7 +80,7 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		if node.LeadingContent == "" || valueToPrint != "" {
 			valueToPrint = valueToPrint + "\n"
 		}
-		return writeString(writer, valueToPrint)
+		return WriteString(writer, valueToPrint)
 	}
 
 	destination := writer

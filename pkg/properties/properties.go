@@ -24,15 +24,16 @@ func (p *PropertiesPreferences) Copy() PropertiesPreferences {
 	}
 }
 
-var PropertiesFormat = &yqlib.Format{"props", []string{"p", "properties"},
+var PropertiesFormat = &yqlib.Format{"props", []string{"p", "properties"}, "properties",
 	func() yqlib.Encoder { return NewPropertiesEncoder(ConfiguredPropertiesPreferences) },
 	func() yqlib.Decoder { return NewPropertiesDecoder() },
+	nil,
 }
 
 var propertyYqRules = []*yqlib.ParticipleYqRule{
-	{"PropertiesDecode", `from_?props|@propsd`, decodeOp(PropertiesFormat), 0},
-	{"PropsEncode", `to_?props|@props`, encodeWithIndent(PropertiesFormat, 2), 0},
-	{"LoadProperties", `load_?props`, loadOp(NewPropertiesDecoder(), false), 0},
+	{"PropertiesDecode", `from_?props|@propsd`, yqlib.CreateDecodeOpYqAction(PropertiesFormat), 0},
+	{"PropsEncode", `to_?props|@props`, yqlib.CreateEncodeOpYqAction(PropertiesFormat, 2), 0},
+	{"LoadProperties", `load_?props`, yqlib.CreateLoadOpYqAction(NewPropertiesDecoder()), 0},
 }
 
 func RegisterPropertiesFormat() {

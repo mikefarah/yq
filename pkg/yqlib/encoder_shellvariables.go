@@ -30,7 +30,7 @@ func (pe *shellVariablesEncoder) PrintLeadingContent(_ io.Writer, _ string) erro
 
 func (pe *shellVariablesEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
-	mapKeysToStrings(node)
+	node.ConvertKeysToStrings()
 	err := pe.doEncode(&writer, node, "")
 	if err != nil {
 		return err

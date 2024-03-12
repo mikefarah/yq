@@ -1,4 +1,4 @@
-package exp_parser
+package yqlib
 
 import (
 	"strconv"
@@ -57,34 +57,34 @@ var participleYqRules = []*ParticipleYqRule{
 
 	{"ArrayToMap", "array_?to_?map", expressionOpToken(`(.[] | select(. != null) ) as $i ireduce({}; .[$i | key] = $i)`), 0},
 
-	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlFormat), 0},
+	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, CreateEncodeYqActionParsingIndent(YamlFormat), 0},
 
-	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONFormat), 0},
+	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, CreateEncodeYqActionParsingIndent(JSONFormat), 0},
 
-	{"YamlDecode", `from_?yaml|@yamld|from_?json|@jsond`, decodeOp(YamlFormat), 0},
-	{"YamlEncode", `to_?yaml|@yaml`, encodeWithIndent(YamlFormat, 2), 0},
+	{"YamlDecode", `from_?yaml|@yamld|from_?json|@jsond`, CreateDecodeOpYqAction(YamlFormat), 0},
+	{"YamlEncode", `to_?yaml|@yaml`, CreateEncodeOpYqAction(YamlFormat, 2), 0},
 
-	{"JSONEncode", `to_?json`, encodeWithIndent(JSONFormat, 2), 0},
-	{"JSONEncodeNoIndent", `@json`, encodeWithIndent(JSONFormat, 0), 0},
+	{"JSONEncode", `to_?json`, CreateEncodeOpYqAction(JSONFormat, 2), 0},
+	{"JSONEncodeNoIndent", `@json`, CreateEncodeOpYqAction(JSONFormat, 0), 0},
 
-	{"CSVDecode", `from_?csv|@csvd`, decodeOp(CSVFormat), 0},
-	{"CSVEncode", `to_?csv|@csv`, encodeWithIndent(CSVFormat, 0), 0},
+	{"CSVDecode", `from_?csv|@csvd`, CreateDecodeOpYqAction(CSVFormat), 0},
+	{"CSVEncode", `to_?csv|@csv`, CreateEncodeOpYqAction(CSVFormat, 0), 0},
 
-	{"TSVDecode", `from_?tsv|@tsvd`, decodeOp(TSVFormat), 0},
-	{"TSVEncode", `to_?tsv|@tsv`, encodeWithIndent(TSVFormat, 0), 0},
+	{"TSVDecode", `from_?tsv|@tsvd`, CreateDecodeOpYqAction(TSVFormat), 0},
+	{"TSVEncode", `to_?tsv|@tsv`, CreateEncodeOpYqAction(TSVFormat, 0), 0},
 
-	{"Base64d", `@base64d`, decodeOp(Base64Format), 0},
-	{"Base64", `@base64`, encodeWithIndent(Base64Format, 0), 0},
+	{"Base64d", `@base64d`, CreateDecodeOpYqAction(Base64Format), 0},
+	{"Base64", `@base64`, CreateEncodeOpYqAction(Base64Format, 0), 0},
 
-	{"Urid", `@urid`, decodeOp(UriFormat), 0},
-	{"Uri", `@uri`, encodeWithIndent(UriFormat, 0), 0},
-	{"SH", `@sh`, encodeWithIndent(ShFormat, 0), 0},
+	{"Urid", `@urid`, CreateDecodeOpYqAction(UriFormat), 0},
+	{"Uri", `@uri`, CreateEncodeOpYqAction(UriFormat, 0), 0},
+	{"SH", `@sh`, CreateEncodeOpYqAction(ShFormat, 0), 0},
 
-	{"LoadBase64", `load_?base64`, loadOp(NewBase64Decoder(), false), 0},
+	{"LoadBase64", `load_?base64`, CreateLoadOpYqAction(NewBase64Decoder()), 0},
 
-	{"LoadString", `load_?str|str_?load`, loadOp(nil, true), 0},
+	simpleOp(`load_?str|str_?load`, loadStringOpType),
 
-	{"LoadYaml", `load`, loadOp(NewYamlDecoder(LoadYamlPreferences), false), 0},
+	{"LoadYaml", `load`, CreateLoadOpYqAction(NewYamlDecoder(LoadYamlPreferences)), 0},
 
 	{"SplitDocument", `splitDoc|split_?doc`, opToken(splitDocumentOpType), 0},
 
@@ -518,7 +518,7 @@ func parentWithDefaultLevel() yqAction {
 	}
 }
 
-func encodeParseIndent(outputFormat *Format) yqAction {
+func CreateEncodeYqActionParsingIndent(outputFormat *Format) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
 		value := rawToken.Value
 		var indent, errParsingInt = extractNumberParameter(value)
@@ -532,17 +532,17 @@ func encodeParseIndent(outputFormat *Format) yqAction {
 	}
 }
 
-func encodeWithIndent(outputFormat *Format, indent int) yqAction {
+func CreateEncodeOpYqAction(outputFormat *Format, indent int) yqAction {
 	prefs := encoderPreferences{format: outputFormat, indent: indent}
 	return opTokenWithPrefs(encodeOpType, nil, prefs)
 }
 
-func decodeOp(format *Format) yqAction {
+func CreateDecodeOpYqAction(format *Format) yqAction {
 	prefs := decoderPreferences{format: format}
 	return opTokenWithPrefs(decodeOpType, nil, prefs)
 }
 
-func loadOp(decoder Decoder) yqAction {
+func CreateLoadOpYqAction(decoder Decoder) yqAction {
 	prefs := loadPrefs{decoder}
 	return opTokenWithPrefs(loadOpType, nil, prefs)
 }

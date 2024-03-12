@@ -98,7 +98,7 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	if result.Tag == "!!str" {
 		// use the original string value, as
 		// decoding drops new lines
-		return createScalarNode(value, value), nil
+		return CreateScalarNode(value, value), nil
 	}
 	result.Line = 0
 	result.Column = 0
@@ -159,22 +159,6 @@ func parseInt(numberString string) (int, error) {
 	}
 
 	return int(parsed), err
-}
-
-func headAndLineComment(node *CandidateNode) string {
-	return headComment(node) + lineComment(node)
-}
-
-func headComment(node *CandidateNode) string {
-	return strings.Replace(node.HeadComment, "#", "", 1)
-}
-
-func lineComment(node *CandidateNode) string {
-	return strings.Replace(node.LineComment, "#", "", 1)
-}
-
-func footComment(node *CandidateNode) string {
-	return strings.Replace(node.FootComment, "#", "", 1)
 }
 
 // use for debugging only

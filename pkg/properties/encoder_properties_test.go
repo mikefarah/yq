@@ -1,4 +1,4 @@
-package yqlib
+package properties
 
 import (
 	"bufio"

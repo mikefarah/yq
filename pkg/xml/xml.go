@@ -47,17 +47,22 @@ func (p *XmlPreferences) Copy() XmlPreferences {
 
 var ConfiguredXMLPreferences = NewDefaultXmlPreferences()
 
-var XMLFormat = &yqlib.Format{"xml", []string{"x"},
+var XMLFormat = &yqlib.Format{"xml", []string{"x"}, "xml",
 	func() yqlib.Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) },
 	func() yqlib.Decoder { return NewXMLDecoder(ConfiguredXMLPreferences) },
+	func(indent int) yqlib.Encoder {
+		prefs := ConfiguredXMLPreferences.Copy()
+		prefs.Indent = indent
+		return NewXMLEncoder(prefs)
+	},
 }
 
 var xmlYqRules = []*yqlib.ParticipleYqRule{
-	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLFormat), 0},
-	{"XmlDecode", `from_?xml|@xmld`, decodeOp(XMLFormat), 0},
-	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLFormat, 2), 0},
-	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLFormat, 0), 0},
-	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
+	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, yqlib.CreateEncodeYqActionParsingIndent(XMLFormat), 0},
+	{"XmlDecode", `from_?xml|@xmld`, yqlib.CreateDecodeOpYqAction(XMLFormat), 0},
+	{"XMLEncode", `to_?xml`, yqlib.CreateEncodeOpYqAction(XMLFormat, 2), 0},
+	{"XMLEncodeNoIndent", `@xml`, yqlib.CreateEncodeOpYqAction(XMLFormat, 0), 0},
+	{"LoadXML", `load_?xml|xml_?load`, yqlib.CreateLoadOpYqAction(NewXMLDecoder(ConfiguredXMLPreferences)), 0},
 }
 
 func RegisterXmlFormat() {
