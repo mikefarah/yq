@@ -10,7 +10,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var luaScenarios = []formatScenario{
+var luaScenarios = []FormatScenario{
 	{
 		description: "Basic input example",
 		input: `return {
@@ -250,7 +250,7 @@ numbers:
 	},
 }
 
-func testLuaScenario(t *testing.T, s formatScenario) {
+func testLuaScenario(t *testing.T, s FormatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
@@ -278,7 +278,7 @@ func testLuaScenario(t *testing.T, s formatScenario) {
 }
 
 func documentLuaScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 
 	if s.skipDoc {
 		return
@@ -295,7 +295,7 @@ func documentLuaScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	}
 }
 
-func documentLuaDecodeScenario(w *bufio.Writer, s formatScenario) {
+func documentLuaDecodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -317,7 +317,7 @@ func documentLuaDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewLuaDecoder(ConfiguredLuaPreferences), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
-func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
+func documentLuaEncodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -359,7 +359,7 @@ func documentLuaEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```lua\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewLuaEncoder(prefs))))
 }
 
-func documentLuaRoundTripScenario(w *bufio.Writer, s formatScenario) {
+func documentLuaRoundTripScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {

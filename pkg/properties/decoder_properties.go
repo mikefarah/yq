@@ -1,4 +1,4 @@
-package yqlib
+package properties
 
 import (
 	"bytes"
@@ -8,16 +8,17 @@ import (
 	"strings"
 
 	"github.com/magiconair/properties"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 type propertiesDecoder struct {
 	reader   io.Reader
 	finished bool
-	d        DataTreeNavigator
+	d        yqlib.DataTreeNavigator
 }
 
-func NewPropertiesDecoder() Decoder {
-	return &propertiesDecoder{d: NewDataTreeNavigator(), finished: false}
+func NewPropertiesDecoder() yqlib.Decoder {
+	return &propertiesDecoder{d: yqlib.NewDataTreeNavigator(), finished: false}
 }
 
 func (dec *propertiesDecoder) Init(reader io.Reader) error {
@@ -47,31 +48,31 @@ func (dec *propertiesDecoder) processComment(c string) string {
 	return "# " + c
 }
 
-func (dec *propertiesDecoder) applyPropertyComments(context Context, path []interface{}, comments []string) error {
-	assignmentOp := &Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
+func (dec *propertiesDecoder) applyPropertyComments(context yqlib.Context, path []interface{}, comments []string) error {
+	assignmentOp := &yqlib.Operation{OperationType: assignOpType, Preferences: assignPreferences{}}
 
-	rhsCandidateNode := &CandidateNode{
+	rhsCandidateNode := &yqlib.CandidateNode{
 		Tag:         "!!str",
 		Value:       fmt.Sprintf("%v", path[len(path)-1]),
 		HeadComment: dec.processComment(strings.Join(comments, "\n")),
-		Kind:        ScalarNode,
+		Kind:        yqlib.ScalarNode,
 	}
 
-	rhsCandidateNode.Tag = rhsCandidateNode.guessTagFromCustomType()
+	rhsCandidateNode.Tag = rhsCandidateNode.GuessTagFromCustomType()
 
-	rhsOp := &Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
+	rhsOp := &yqlib.Operation{OperationType: referenceOpType, CandidateNode: rhsCandidateNode}
 
-	assignmentOpNode := &ExpressionNode{
+	assignmentOpNode := &yqlib.ExpressionNode{
 		Operation: assignmentOp,
 		LHS:       createTraversalTree(path, traversePreferences{}, true),
-		RHS:       &ExpressionNode{Operation: rhsOp},
+		RHS:       &yqlib.ExpressionNode{Operation: rhsOp},
 	}
 
 	_, err := dec.d.GetMatchingNodes(context, assignmentOpNode)
 	return err
 }
 
-func (dec *propertiesDecoder) applyProperty(context Context, properties *properties.Properties, key string) error {
+func (dec *propertiesDecoder) applyProperty(context yqlib.Context, properties *properties.Properties, key string) error {
 	value, _ := properties.Get(key)
 	path := parsePropKey(key)
 
@@ -84,12 +85,12 @@ func (dec *propertiesDecoder) applyProperty(context Context, properties *propert
 	}
 
 	rhsNode := createStringScalarNode(value)
-	rhsNode.Tag = rhsNode.guessTagFromCustomType()
+	rhsNode.Tag = rhsNode.GuessTagFromCustomType()
 
 	return dec.d.DeeplyAssign(context, path, rhsNode)
 }
 
-func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {
+func (dec *propertiesDecoder) Decode() (*yqlib.CandidateNode, error) {
 	if dec.finished {
 		return nil, io.EOF
 	}
@@ -108,12 +109,12 @@ func (dec *propertiesDecoder) Decode() (*CandidateNode, error) {
 	}
 	properties.DisableExpansion = true
 
-	rootMap := &CandidateNode{
-		Kind: MappingNode,
+	rootMap := &yqlib.CandidateNode{
+		Kind: yqlib.MappingNode,
 		Tag:  "!!map",
 	}
 
-	context := Context{}
+	context := yqlib.Context{}
 	context = context.SingleChildContext(rootMap)
 
 	for _, key := range properties.Keys() {

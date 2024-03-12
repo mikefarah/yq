@@ -4,9 +4,12 @@ import (
 	"os"
 
 	command "github.com/mikefarah/yq/v4/cmd"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 func main() {
+	yqlib.RegisterPropertiesFormat()
+
 	cmd := command.New()
 
 	args := os.Args[1:]

@@ -27,7 +27,7 @@ func (e *base64Encoder) PrintLeadingContent(_ io.Writer, _ string) error {
 }
 
 func (e *base64Encoder) Encode(writer io.Writer, node *CandidateNode) error {
-	if node.guessTagFromCustomType() != "!!str" {
+	if node.GuessTagFromCustomType() != "!!str" {
 		return fmt.Errorf("cannot encode %v as base64, can only operate on strings", node.Tag)
 	}
 	_, err := writer.Write([]byte(e.encoding.EncodeToString([]byte(node.Value))))

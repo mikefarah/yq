@@ -92,12 +92,12 @@ func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateT
 
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = lhs.guessTagFromCustomType()
+		lhsTag = lhs.GuessTagFromCustomType()
 	}
 
 	if !strings.HasPrefix(rhsTag, "!!") {
 		// custom tag - we have to have a guess
-		rhsTag = rhs.guessTagFromCustomType()
+		rhsTag = rhs.GuessTagFromCustomType()
 	}
 
 	isDateTime := lhsTag == "!!timestamp" && rhsTag == "!!timestamp"

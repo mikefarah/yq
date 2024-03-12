@@ -30,7 +30,7 @@ func (e *shEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 }
 
 func (e *shEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	if node.guessTagFromCustomType() != "!!str" {
+	if node.GuessTagFromCustomType() != "!!str" {
 		return fmt.Errorf("cannot encode %v as URI, can only operate on strings. Please first pipe through another encoding operator to convert the value to a string", node.Tag)
 	}
 

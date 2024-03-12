@@ -32,11 +32,11 @@ func divide(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateN
 
 func divideScalars(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode) error {
 	lhsTag := lhs.Tag
-	rhsTag := rhs.guessTagFromCustomType()
+	rhsTag := rhs.GuessTagFromCustomType()
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = lhs.guessTagFromCustomType()
+		lhsTag = lhs.GuessTagFromCustomType()
 		lhsIsCustom = true
 	}
 

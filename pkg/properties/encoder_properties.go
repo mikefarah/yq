@@ -1,4 +1,4 @@
-package yqlib
+package properties
 
 import (
 	"bufio"
@@ -8,13 +8,14 @@ import (
 	"strings"
 
 	"github.com/magiconair/properties"
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 type propertiesEncoder struct {
 	prefs PropertiesPreferences
 }
 
-func NewPropertiesEncoder(prefs PropertiesPreferences) Encoder {
+func NewPropertiesEncoder(prefs PropertiesPreferences) yqlib.Encoder {
 	return &propertiesEncoder{
 		prefs: prefs,
 	}
@@ -61,9 +62,9 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 	return nil
 }
 
-func (pe *propertiesEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+func (pe *propertiesEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode) error {
 
-	if node.Kind == ScalarNode {
+	if node.Kind == yqlib.ScalarNode {
 		return writeString(writer, node.Value+"\n")
 	}
 
@@ -79,7 +80,7 @@ func (pe *propertiesEncoder) Encode(writer io.Writer, node *CandidateNode) error
 	return err
 }
 
-func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateNode, path string, keyNode *CandidateNode) error {
+func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *yqlib.CandidateNode, path string, keyNode *CandidateNode) error {
 
 	comments := ""
 	if keyNode != nil {
@@ -91,7 +92,7 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateN
 	p.SetComments(path, strings.Split(commentsWithSpaces, "\n"))
 
 	switch node.Kind {
-	case ScalarNode:
+	case yqlib.ScalarNode:
 		var nodeValue string
 		if pe.prefs.UnwrapScalar || !strings.Contains(node.Value, " ") {
 			nodeValue = node.Value
@@ -100,11 +101,11 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateN
 		}
 		_, _, err := p.Set(path, nodeValue)
 		return err
-	case SequenceNode:
+	case yqlib.SequenceNode:
 		return pe.encodeArray(p, node.Content, path)
-	case MappingNode:
+	case yqlib.MappingNode:
 		return pe.encodeMap(p, node.Content, path)
-	case AliasNode:
+	case yqlib.AliasNode:
 		return pe.doEncode(p, node.Alias, path, nil)
 	default:
 		return fmt.Errorf("Unsupported node %v", node.Tag)
@@ -125,7 +126,7 @@ func (pe *propertiesEncoder) appendPath(path string, key interface{}) string {
 	return fmt.Sprintf("%v.%v", path, key)
 }
 
-func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*CandidateNode, path string) error {
+func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*yqlib.CandidateNode, path string) error {
 	for index, child := range kids {
 		err := pe.doEncode(p, child, pe.appendPath(path, index), nil)
 		if err != nil {
@@ -135,7 +136,7 @@ func (pe *propertiesEncoder) encodeArray(p *properties.Properties, kids []*Candi
 	return nil
 }
 
-func (pe *propertiesEncoder) encodeMap(p *properties.Properties, kids []*CandidateNode, path string) error {
+func (pe *propertiesEncoder) encodeMap(p *properties.Properties, kids []*yqlib.CandidateNode, path string) error {
 	for index := 0; index < len(kids); index = index + 2 {
 		key := kids[index]
 		value := kids[index+1]

@@ -69,8 +69,8 @@ func compareDateTime(layout string, prefs compareTypePref, lhs *CandidateNode, r
 }
 
 func compareScalars(context Context, prefs compareTypePref, lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
-	lhsTag := lhs.guessTagFromCustomType()
-	rhsTag := rhs.guessTagFromCustomType()
+	lhsTag := lhs.GuessTagFromCustomType()
+	rhsTag := rhs.GuessTagFromCustomType()
 
 	isDateTime := lhs.Tag == "!!timestamp"
 	// if the lhs is a string, it might be a timestamp in a custom format.

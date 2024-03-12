@@ -1,6 +1,6 @@
 //go:build !yq_noxml
 
-package yqlib
+package xml
 
 import (
 	"encoding/xml"
@@ -8,6 +8,8 @@ import (
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 type xmlEncoder struct {
@@ -17,7 +19,7 @@ type xmlEncoder struct {
 	leadingContent string
 }
 
-func NewXMLEncoder(prefs XmlPreferences) Encoder {
+func NewXMLEncoder(prefs XmlPreferences) yqlib.Encoder {
 	var indentString = ""
 
 	for index := 0; index < prefs.Indent; index++ {
@@ -39,7 +41,7 @@ func (e *xmlEncoder) PrintLeadingContent(_ io.Writer, content string) error {
 	return nil
 }
 
-func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
+func (e *xmlEncoder) Encode(writer io.Writer, node *yqlib.CandidateNode) error {
 	encoder := xml.NewEncoder(writer)
 	// hack so we can manually add newlines to procInst and directives
 	e.writer = writer
@@ -79,12 +81,12 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	}
 
 	switch node.Kind {
-	case MappingNode:
+	case yqlib.MappingNode:
 		err := e.encodeTopLevelMap(encoder, node)
 		if err != nil {
 			return err
 		}
-	case ScalarNode:
+	case yqlib.ScalarNode:
 		var charData xml.CharData = []byte(node.Value)
 		err := encoder.EncodeToken(charData)
 		if err != nil {
@@ -99,7 +101,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 }
 
-func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode) error {
+func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *yqlib.CandidateNode) error {
 	err := e.encodeComment(encoder, headAndLineComment(node))
 	if err != nil {
 		return err
@@ -158,7 +160,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode
 	return e.encodeComment(encoder, footComment(node))
 }
 
-func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *CandidateNode, start xml.StartElement) error {
+func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 	err := encoder.EncodeToken(start)
 	if err != nil {
 		return err
@@ -166,7 +168,7 @@ func (e *xmlEncoder) encodeStart(encoder *xml.Encoder, node *CandidateNode, star
 	return e.encodeComment(encoder, headComment(node))
 }
 
-func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *CandidateNode, start xml.StartElement) error {
+func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 	err := encoder.EncodeToken(start.End())
 	if err != nil {
 		return err
@@ -174,7 +176,7 @@ func (e *xmlEncoder) encodeEnd(encoder *xml.Encoder, node *CandidateNode, start 
 	return e.encodeComment(encoder, footComment(node))
 }
 
-func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *CandidateNode, start xml.StartElement) error {
+func (e *xmlEncoder) doEncode(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 	switch node.Kind {
 	case MappingNode:
 		return e.encodeMap(encoder, node, start)
@@ -238,7 +240,7 @@ func (e *xmlEncoder) encodeComment(encoder *xml.Encoder, commentStr string) erro
 	return nil
 }
 
-func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *CandidateNode, start xml.StartElement) error {
+func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 
 	if err := e.encodeComment(encoder, headAndLineComment(node)); err != nil {
 		return err
@@ -260,7 +262,7 @@ func (e *xmlEncoder) isAttribute(name string) bool {
 		!strings.HasPrefix(name, e.prefs.ProcInstPrefix)
 }
 
-func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *CandidateNode, start xml.StartElement) error {
+func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *yqlib.CandidateNode, start xml.StartElement) error {
 	log.Debug("its a map")
 
 	//first find all the attributes and put them on the start token

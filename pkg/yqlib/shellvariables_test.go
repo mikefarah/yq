@@ -8,7 +8,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var shellVariablesScenarios = []formatScenario{
+var shellVariablesScenarios = []FormatScenario{
 	{
 		description:    "Encode shell variables",
 		subdescription: "Note that comments are dropped and values will be enclosed in single quotes as needed.",
@@ -69,7 +69,7 @@ func TestShellVariableScenarios(t *testing.T) {
 }
 
 func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 	if s.skipDoc {
 		return
 	}

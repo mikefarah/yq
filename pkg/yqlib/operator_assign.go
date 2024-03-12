@@ -6,6 +6,10 @@ type assignPreferences struct {
 	ClobberCustomTags   bool
 }
 
+func PerformAssignment(context Context, path []interface{}) {
+
+}
+
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
 	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		if !prefs.OnlyWriteNull || lhs.Tag == "!!null" {

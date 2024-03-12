@@ -77,13 +77,13 @@ func subtractScalars(context Context, target *CandidateNode, lhs *CandidateNode,
 	lhsIsCustom := false
 	if !strings.HasPrefix(lhsTag, "!!") {
 		// custom tag - we have to have a guess
-		lhsTag = lhs.guessTagFromCustomType()
+		lhsTag = lhs.GuessTagFromCustomType()
 		lhsIsCustom = true
 	}
 
 	if !strings.HasPrefix(rhsTag, "!!") {
 		// custom tag - we have to have a guess
-		rhsTag = rhs.guessTagFromCustomType()
+		rhsTag = rhs.GuessTagFromCustomType()
 	}
 
 	isDateTime := lhsTag == "!!timestamp"

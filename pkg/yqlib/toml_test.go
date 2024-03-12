@@ -79,7 +79,7 @@ var expectedSampleWithHeader = `servers:
     ip: 10.0.0.1
 `
 
-var tomlScenarios = []formatScenario{
+var tomlScenarios = []FormatScenario{
 	{
 		skipDoc:      true,
 		description:  "blank",
@@ -240,7 +240,7 @@ var tomlScenarios = []formatScenario{
 	},
 }
 
-func testTomlScenario(t *testing.T, s formatScenario) {
+func testTomlScenario(t *testing.T, s FormatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
@@ -256,7 +256,7 @@ func testTomlScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
+func documentTomlDecodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -278,7 +278,7 @@ func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
-func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {
+func documentTomlRoundtripScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -301,7 +301,7 @@ func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {
 }
 
 func documentTomlScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 
 	if s.skipDoc {
 		return

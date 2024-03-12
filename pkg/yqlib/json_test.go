@@ -79,7 +79,7 @@ const roundTripMultiLineJson = `{
 }
 `
 
-var jsonScenarios = []formatScenario{
+var jsonScenarios = []FormatScenario{
 	{
 		description:  "array empty",
 		skipDoc:      true,
@@ -307,7 +307,7 @@ var jsonScenarios = []formatScenario{
 	},
 }
 
-func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent int) {
+func documentRoundtripNdJsonScenario(w *bufio.Writer, s FormatScenario, indent int) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -335,7 +335,7 @@ func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent i
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewJSONDecoder(), NewJSONEncoder(prefs))))
 }
 
-func documentDecodeNdJsonScenario(w *bufio.Writer, s formatScenario) {
+func documentDecodeNdJsonScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -385,7 +385,7 @@ func decodeJSON(t *testing.T, jsonString string) *CandidateNode {
 	return context.MatchingNodes.Front().Value.(*CandidateNode)
 }
 
-func testJSONScenario(t *testing.T, s formatScenario) {
+func testJSONScenario(t *testing.T, s FormatScenario) {
 	prefs := ConfiguredJSONPreferences.Copy()
 	prefs.Indent = s.indent
 	prefs.UnwrapScalar = false
@@ -413,7 +413,7 @@ func testJSONScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario) {
+func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -443,7 +443,7 @@ func documentJSONDecodeScenario(t *testing.T, w *bufio.Writer, s formatScenario)
 }
 
 func documentJSONScenario(t *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 	if s.skipDoc {
 		return
 	}
@@ -464,7 +464,7 @@ func documentJSONScenario(t *testing.T, w *bufio.Writer, i interface{}) {
 	}
 }
 
-func documentJSONEncodeScenario(w *bufio.Writer, s formatScenario) {
+func documentJSONEncodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {

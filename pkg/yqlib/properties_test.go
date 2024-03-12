@@ -155,7 +155,7 @@ emptyArray =
 emptyMap = 
 `
 
-var propertyScenarios = []formatScenario{
+var propertyScenarios = []FormatScenario{
 	{
 		description:    "Encode properties",
 		subdescription: "Note that empty arrays and maps are not encoded by default.",
@@ -295,7 +295,7 @@ var propertyScenarios = []formatScenario{
 	},
 }
 
-func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
+func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -331,7 +331,7 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(prefs))))
 }
 
-func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
+func documentWrappedEncodePropertyScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -357,7 +357,7 @@ func documentWrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```properties\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(prefs))))
 }
 
-func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
+func documentDecodePropertyScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -382,7 +382,7 @@ func documentDecodePropertyScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
-func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
+func documentRoundTripPropertyScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -408,7 +408,7 @@ func documentRoundTripPropertyScenario(w *bufio.Writer, s formatScenario) {
 }
 
 func documentPropertyScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 	if s.skipDoc {
 		return
 	}

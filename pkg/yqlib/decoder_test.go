@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type formatScenario struct {
+type FormatScenario struct {
 	input          string
 	indent         int
 	expression     string
@@ -19,7 +19,7 @@ type formatScenario struct {
 	expectedError  string
 }
 
-func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (string, error) {
+func processFormatScenario(s FormatScenario, decoder Decoder, encoder Encoder) (string, error) {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
 
@@ -64,7 +64,7 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 	return output.String(), nil
 }
 
-func mustProcessFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) string {
+func mustProcessFormatScenario(s FormatScenario, decoder Decoder, encoder Encoder) string {
 
 	result, err := processFormatScenario(s, decoder, encoder)
 	if err != nil {

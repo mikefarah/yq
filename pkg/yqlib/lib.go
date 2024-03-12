@@ -114,8 +114,8 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 		//process custom tags of scalar nodes.
 		//dont worry about matching tags of maps or arrays.
 
-		lhsTag := lhs.guessTagFromCustomType()
-		rhsTag := rhs.guessTagFromCustomType()
+		lhsTag := lhs.GuessTagFromCustomType()
+		rhsTag := rhs.GuessTagFromCustomType()
 
 		if lhsTag != rhsTag {
 			return false

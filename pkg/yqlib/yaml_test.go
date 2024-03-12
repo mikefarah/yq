@@ -6,7 +6,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var yamlFormatScenarios = []formatScenario{
+var yamlFormatScenarios = []FormatScenario{
 	{
 		description: "scalar with doc separator",
 		skipDoc:     true,
@@ -111,7 +111,7 @@ var yamlParseScenarios = []expressionScenario{
 	},
 }
 
-func testYamlScenario(t *testing.T, s formatScenario) {
+func testYamlScenario(t *testing.T, s FormatScenario) {
 	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 }
 

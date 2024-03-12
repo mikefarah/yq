@@ -141,7 +141,7 @@ func fromUnixOp(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Conte
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		actualTag := candidate.guessTagFromCustomType()
+		actualTag := candidate.GuessTagFromCustomType()
 
 		if actualTag != "!!int" && actualTag != "!!float" {
 			return Context{}, fmt.Errorf("from_unix only works on numbers, found %v instead", candidate.Tag)

@@ -1,4 +1,6 @@
-package yqlib
+package xml
+
+import "github.com/mikefarah/yq/v4/pkg/yqlib"
 
 type XmlPreferences struct {
 	Indent          int
@@ -44,3 +46,22 @@ func (p *XmlPreferences) Copy() XmlPreferences {
 }
 
 var ConfiguredXMLPreferences = NewDefaultXmlPreferences()
+
+var XMLFormat = &yqlib.Format{"xml", []string{"x"},
+	func() yqlib.Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) },
+	func() yqlib.Decoder { return NewXMLDecoder(ConfiguredXMLPreferences) },
+}
+
+var xmlYqRules = []*yqlib.ParticipleYqRule{
+	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLFormat), 0},
+	{"XmlDecode", `from_?xml|@xmld`, decodeOp(XMLFormat), 0},
+	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLFormat, 2), 0},
+	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLFormat, 0), 0},
+	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
+}
+
+func RegisterXmlFormat() {
+	yqlib.RegisterFormat(XMLFormat)
+	yqlib.RegisterRules(xmlYqRules)
+
+}

@@ -6,7 +6,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var goccyYamlFormatScenarios = []formatScenario{
+var goccyYamlFormatScenarios = []FormatScenario{
 	{
 		description: "basic - 3",
 		skipDoc:     true,
@@ -159,7 +159,7 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// },
 }
 
-func testGoccyYamlScenario(t *testing.T, s formatScenario) {
+func testGoccyYamlScenario(t *testing.T, s FormatScenario) {
 	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 }
 

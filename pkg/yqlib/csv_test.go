@@ -94,7 +94,7 @@ const tsvTestExpectedSimpleCsv = `i	like	csv
 because	excel	is	cool
 `
 
-var csvScenarios = []formatScenario{
+var csvScenarios = []FormatScenario{
 	{
 		description:  "Encode CSV simple",
 		input:        csvTestSimpleYaml,
@@ -210,7 +210,7 @@ var csvScenarios = []formatScenario{
 	},
 }
 
-func testCSVScenario(t *testing.T, s formatScenario) {
+func testCSVScenario(t *testing.T, s FormatScenario) {
 	switch s.scenarioType {
 	case "encode-csv":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewCsvEncoder(ConfiguredCsvPreferences)), s.description)
@@ -229,7 +229,7 @@ func testCSVScenario(t *testing.T, s formatScenario) {
 	}
 }
 
-func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatType string) {
+func documentCSVDecodeObjectScenario(w *bufio.Writer, s FormatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -254,7 +254,7 @@ func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatTy
 	)
 }
 
-func documentCSVDecodeObjectNoAutoScenario(w *bufio.Writer, s formatScenario, formatType string) {
+func documentCSVDecodeObjectNoAutoScenario(w *bufio.Writer, s FormatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -279,7 +279,7 @@ func documentCSVDecodeObjectNoAutoScenario(w *bufio.Writer, s formatScenario, fo
 	)
 }
 
-func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType string) {
+func documentCSVEncodeScenario(w *bufio.Writer, s FormatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -312,7 +312,7 @@ func documentCSVEncodeScenario(w *bufio.Writer, s formatScenario, formatType str
 	)
 }
 
-func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType string) {
+func documentCSVRoundTripScenario(w *bufio.Writer, s FormatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -348,7 +348,7 @@ func documentCSVRoundTripScenario(w *bufio.Writer, s formatScenario, formatType 
 }
 
 func documentCSVScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 	if s.skipDoc {
 		return
 	}

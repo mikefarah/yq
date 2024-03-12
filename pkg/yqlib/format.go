@@ -25,11 +25,6 @@ var JSONFormat = &Format{"json", []string{"j"},
 	func() Decoder { return NewJSONDecoder() },
 }
 
-var PropertiesFormat = &Format{"props", []string{"p", "properties"},
-	func() Encoder { return NewPropertiesEncoder(ConfiguredPropertiesPreferences) },
-	func() Decoder { return NewPropertiesDecoder() },
-}
-
 var CSVFormat = &Format{"csv", []string{"c"},
 	func() Encoder { return NewCsvEncoder(ConfiguredCsvPreferences) },
 	func() Decoder { return NewCSVObjectDecoder(ConfiguredCsvPreferences) },
@@ -38,11 +33,6 @@ var CSVFormat = &Format{"csv", []string{"c"},
 var TSVFormat = &Format{"tsv", []string{"t"},
 	func() Encoder { return NewCsvEncoder(ConfiguredTsvPreferences) },
 	func() Decoder { return NewCSVObjectDecoder(ConfiguredTsvPreferences) },
-}
-
-var XMLFormat = &Format{"xml", []string{"x"},
-	func() Encoder { return NewXMLEncoder(ConfiguredXMLPreferences) },
-	func() Decoder { return NewXMLDecoder(ConfiguredXMLPreferences) },
 }
 
 var Base64Format = &Format{"base64", []string{},
@@ -78,16 +68,18 @@ var LuaFormat = &Format{"lua", []string{"l"},
 var Formats = []*Format{
 	YamlFormat,
 	JSONFormat,
-	PropertiesFormat,
 	CSVFormat,
 	TSVFormat,
-	XMLFormat,
 	Base64Format,
 	UriFormat,
 	ShFormat,
 	TomlFormat,
 	ShellVariablesFormat,
 	LuaFormat,
+}
+
+func RegisterFormat(f *Format) {
+	Formats = append(Formats, f)
 }
 
 func (f *Format) MatchesName(name string) bool {

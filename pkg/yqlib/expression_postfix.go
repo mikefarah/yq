@@ -1,4 +1,4 @@
-package yqlib
+package exp_parser
 
 import (
 	"errors"

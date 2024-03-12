@@ -243,7 +243,7 @@ func (n *CandidateNode) AddChildren(children []*CandidateNode) {
 
 func (n *CandidateNode) GetValueRep() (interface{}, error) {
 	log.Debugf("GetValueRep for %v value: %v", n.GetNicePath(), n.Value)
-	realTag := n.guessTagFromCustomType()
+	realTag := n.GuessTagFromCustomType()
 
 	switch realTag {
 	case "!!int":
@@ -261,17 +261,17 @@ func (n *CandidateNode) GetValueRep() (interface{}, error) {
 	return n.Value, nil
 }
 
-func (n *CandidateNode) guessTagFromCustomType() string {
+func (n *CandidateNode) GuessTagFromCustomType() string {
 	if strings.HasPrefix(n.Tag, "!!") {
 		return n.Tag
 	} else if n.Value == "" {
-		log.Debug("guessTagFromCustomType: node has no value to guess the type with")
+		log.Debug("GuessTagFromCustomType: node has no value to guess the type with")
 		return n.Tag
 	}
 	dataBucket, errorReading := parseSnippet(n.Value)
 
 	if errorReading != nil {
-		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
+		log.Debug("GuessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return n.Tag
 	}
 	guessedTag := dataBucket.Tag
@@ -376,7 +376,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 	// if this is an empty map or empty array, use the style of other node.
 	if (n.Kind != ScalarNode && len(n.Content) == 0) ||
 		// if the tag has changed (e.g. from str to bool)
-		(n.guessTagFromCustomType() != other.guessTagFromCustomType()) {
+		(n.GuessTagFromCustomType() != other.GuessTagFromCustomType()) {
 		n.Style = other.Style
 	}
 

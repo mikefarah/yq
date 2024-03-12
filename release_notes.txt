@@ -1,5 +1,5 @@
 4.43.1: (not released yet)
-  - Added tostring #72
+  - Added to_string #72
   - Added string interpolation #1149
   - Can specify parent(n) levels #1970
   - Fixed CSV line break issue #1974
@@ -151,7 +151,7 @@
   - XML Decoder: Fixed issue where content surrounding tags are lost #1447
   - XML Decoder: Fixed xml decode bug when there is content after a comment
   - Fixed loading yaml with header issue #1445
-  - guessTagFromCustomType warning log is now a debug.
+  - GuessTagFromCustomType warning log is now a debug.
   - Special thanks to @Kopfbremse for reporting XML issues!
 
 4.30.4:

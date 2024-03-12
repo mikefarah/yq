@@ -9,7 +9,7 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
-var formattingExpressionScenarios = []formatScenario{
+var formattingExpressionScenarios = []FormatScenario{
 	{
 		description: "Using expression files and comments",
 		skipDoc:     true,
@@ -43,7 +43,7 @@ var formattingExpressionScenarios = []formatScenario{
 }
 
 func documentExpressionScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 
 	if s.skipDoc {
 		return

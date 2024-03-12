@@ -1,6 +1,6 @@
 //go:build !yq_noxml
 
-package yqlib
+package xml
 
 import (
 	"encoding/xml"
@@ -11,6 +11,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"golang.org/x/net/html/charset"
 )
 
@@ -21,7 +22,7 @@ type xmlDecoder struct {
 	prefs        XmlPreferences
 }
 
-func NewXMLDecoder(prefs XmlPreferences) Decoder {
+func NewXMLDecoder(prefs XmlPreferences) yqlib.Decoder {
 	return &xmlDecoder{
 		finished: false,
 		prefs:    prefs,
@@ -35,8 +36,8 @@ func (dec *xmlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*CandidateNode, error) {
-	yamlNode := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
+func (dec *xmlDecoder) createSequence(nodes []*xmlNode) (*yqlib..CandidateNode, error) {
+	yamlNode := &yqlib..CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 	for _, child := range nodes {
 		yamlChild, err := dec.convertToYamlNode(child)
 		if err != nil {
@@ -63,9 +64,9 @@ func (dec *xmlDecoder) processComment(c string) string {
 	return replacement
 }
 
-func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
+func (dec *xmlDecoder) createMap(n *xmlNode) (*yqlib..CandidateNode, error) {
 	log.Debug("createMap: headC: %v, lineC: %v, footC: %v", n.HeadComment, n.LineComment, n.FootComment)
-	yamlNode := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
+	yamlNode := &yqlib..CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 	if len(n.Data) > 0 {
 		log.Debugf("creating content node for map: %v", dec.prefs.ContentName)
@@ -81,7 +82,7 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
 		label := keyValuePair.K
 		children := keyValuePair.V
 		labelNode := createScalarNode(label, label)
-		var valueNode *CandidateNode
+		var valueNode *yqlib..CandidateNode
 		var err error
 
 		if i == 0 {
@@ -125,18 +126,18 @@ func (dec *xmlDecoder) createMap(n *xmlNode) (*CandidateNode, error) {
 	return yamlNode, nil
 }
 
-func (dec *xmlDecoder) createValueNodeFromData(values []string) *CandidateNode {
+func (dec *xmlDecoder) createValueNodeFromData(values []string) *yqlib..CandidateNode {
 	switch len(values) {
 	case 0:
 		return createScalarNode(nil, "")
 	case 1:
 		return createScalarNode(values[0], values[0])
 	default:
-		content := make([]*CandidateNode, 0)
+		content := make([]*yqlib..CandidateNode, 0)
 		for _, value := range values {
 			content = append(content, createScalarNode(value, value))
 		}
-		return &CandidateNode{
+		return &yqlib..CandidateNode{
 			Kind:    SequenceNode,
 			Tag:     "!!seq",
 			Content: content,
@@ -144,7 +145,7 @@ func (dec *xmlDecoder) createValueNodeFromData(values []string) *CandidateNode {
 	}
 }
 
-func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*CandidateNode, error) {
+func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*yqlib..CandidateNode, error) {
 	if len(n.Children) > 0 {
 		return dec.createMap(n)
 	}
@@ -164,7 +165,7 @@ func (dec *xmlDecoder) convertToYamlNode(n *xmlNode) (*CandidateNode, error) {
 	return scalar, nil
 }
 
-func (dec *xmlDecoder) Decode() (*CandidateNode, error) {
+func (dec *xmlDecoder) Decode() (*yqlib..CandidateNode, error) {
 	if dec.finished {
 		return nil, io.EOF
 	}

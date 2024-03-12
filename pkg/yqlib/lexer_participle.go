@@ -1,4 +1,4 @@
-package yqlib
+package exp_parser
 
 import (
 	"strconv"
@@ -7,7 +7,7 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
-var participleYqRules = []*participleYqRule{
+var participleYqRules = []*ParticipleYqRule{
 	{"LINE_COMMENT", `line_?comment|lineComment`, opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{LineComment: true}), 0},
 	{"HEAD_COMMENT", `head_?comment|headComment`, opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{HeadComment: true}), 0},
 	{"FOOT_COMMENT", `foot_?comment|footComment`, opTokenWithPrefs(getCommentOpType, assignCommentOpType, commentOpPreferences{FootComment: true}), 0},
@@ -58,7 +58,7 @@ var participleYqRules = []*participleYqRule{
 	{"ArrayToMap", "array_?to_?map", expressionOpToken(`(.[] | select(. != null) ) as $i ireduce({}; .[$i | key] = $i)`), 0},
 
 	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlFormat), 0},
-	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLFormat), 0},
+
 	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONFormat), 0},
 
 	{"YamlDecode", `from_?yaml|@yamld|from_?json|@jsond`, decodeOp(YamlFormat), 0},
@@ -66,13 +66,6 @@ var participleYqRules = []*participleYqRule{
 
 	{"JSONEncode", `to_?json`, encodeWithIndent(JSONFormat, 2), 0},
 	{"JSONEncodeNoIndent", `@json`, encodeWithIndent(JSONFormat, 0), 0},
-
-	{"PropertiesDecode", `from_?props|@propsd`, decodeOp(PropertiesFormat), 0},
-	{"PropsEncode", `to_?props|@props`, encodeWithIndent(PropertiesFormat, 2), 0},
-
-	{"XmlDecode", `from_?xml|@xmld`, decodeOp(XMLFormat), 0},
-	{"XMLEncode", `to_?xml`, encodeWithIndent(XMLFormat, 2), 0},
-	{"XMLEncodeNoIndent", `@xml`, encodeWithIndent(XMLFormat, 0), 0},
 
 	{"CSVDecode", `from_?csv|@csvd`, decodeOp(CSVFormat), 0},
 	{"CSVEncode", `to_?csv|@csv`, encodeWithIndent(CSVFormat, 0), 0},
@@ -87,11 +80,7 @@ var participleYqRules = []*participleYqRule{
 	{"Uri", `@uri`, encodeWithIndent(UriFormat, 0), 0},
 	{"SH", `@sh`, encodeWithIndent(ShFormat, 0), 0},
 
-	{"LoadXML", `load_?xml|xml_?load`, loadOp(NewXMLDecoder(ConfiguredXMLPreferences), false), 0},
-
 	{"LoadBase64", `load_?base64`, loadOp(NewBase64Decoder(), false), 0},
-
-	{"LoadProperties", `load_?props`, loadOp(NewPropertiesDecoder(), false), 0},
 
 	{"LoadString", `load_?str|str_?load`, loadOp(nil, true), 0},
 
@@ -229,7 +218,7 @@ var participleYqRules = []*participleYqRule{
 
 type yqAction func(lexer.Token) (*token, error)
 
-type participleYqRule struct {
+type ParticipleYqRule struct {
 	Name                string
 	Pattern             string
 	CreateYqToken       yqAction
@@ -240,12 +229,16 @@ type participleLexer struct {
 	lexerDefinition lexer.StringDefinition
 }
 
-func simpleOp(name string, opType *operationType) *participleYqRule {
-	return &participleYqRule{strings.ToUpper(string(name[1])) + name[1:], name, opToken(opType), 0}
+func simpleOp(name string, opType *operationType) *ParticipleYqRule {
+	return &ParticipleYqRule{strings.ToUpper(string(name[1])) + name[1:], name, opToken(opType), 0}
 }
 
-func assignableOp(name string, opType *operationType, assignOpType *operationType) *participleYqRule {
-	return &participleYqRule{strings.ToUpper(string(name[1])) + name[1:], name, opTokenWithPrefs(opType, assignOpType, nil), 0}
+func assignableOp(name string, opType *operationType, assignOpType *operationType) *ParticipleYqRule {
+	return &ParticipleYqRule{strings.ToUpper(string(name[1])) + name[1:], name, opTokenWithPrefs(opType, assignOpType, nil), 0}
+}
+
+func RegisterRules(rules []*ParticipleYqRule) {
+	participleYqRules = append(participleYqRules, rules...)
 }
 
 func newParticipleLexer() expressionTokeniser {
@@ -564,13 +557,13 @@ func literalToken(tt tokenType, checkForPost bool) yqAction {
 	}
 }
 
-func (p *participleLexer) getYqDefinition(rawToken lexer.Token) *participleYqRule {
+func (p *participleLexer) getYqDefinition(rawToken lexer.Token) *ParticipleYqRule {
 	for _, yqRule := range participleYqRules {
 		if yqRule.ParticipleTokenType == rawToken.Type {
 			return yqRule
 		}
 	}
-	return &participleYqRule{}
+	return &ParticipleYqRule{}
 }
 
 func (p *participleLexer) Tokenise(expression string) ([]*token, error) {

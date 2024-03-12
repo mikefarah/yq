@@ -1,12 +1,13 @@
 //go:build !yq_noxml
 
-package yqlib
+package xml
 
 import (
 	"bufio"
 	"fmt"
 	"testing"
 
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/mikefarah/yq/v4/test"
 )
 
@@ -262,7 +263,7 @@ const expectedXmlWithProcInstAndDirectives = `<?xml version="1.0"?>
 </apple>
 `
 
-var xmlScenarios = []formatScenario{
+var xmlScenarios = []yqlib.FormatScenario{
 	{
 		skipDoc:     true,
 		description: "bad xml",
@@ -614,10 +615,10 @@ var xmlScenarios = []formatScenario{
 	},
 }
 
-func testXMLScenario(t *testing.T, s formatScenario) {
+func testXMLScenario(t *testing.T, s yqlib.FormatScenario) {
 	switch s.scenarioType {
 	case "", "decode":
-		yamlPrefs := ConfiguredYamlPreferences.Copy()
+		yamlPrefs := yqlib.ConfiguredYamlPreferences.Copy()
 		yamlPrefs.Indent = 4
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(yamlPrefs)), s.description)
 	case "encode":
@@ -661,7 +662,7 @@ func testXMLScenario(t *testing.T, s formatScenario) {
 }
 
 func documentXMLScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
-	s := i.(formatScenario)
+	s := i.(FormatScenario)
 
 	if s.skipDoc {
 		return
@@ -685,7 +686,7 @@ func documentXMLScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 	}
 }
 
-func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLDecodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -707,7 +708,7 @@ func documentXMLDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewYamlEncoder(ConfiguredYamlPreferences))))
 }
 
-func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -731,7 +732,7 @@ func documentXMLDecodeKeepNsScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(prefsWithout))))
 }
 
-func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -758,7 +759,7 @@ func documentXMLDecodeKeepNsRawTokenScenario(w *bufio.Writer, s formatScenario) 
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(prefsWithout), NewXMLEncoder(prefsWithout))))
 }
 
-func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLEncodeScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -776,7 +777,7 @@ func documentXMLEncodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewXMLEncoder(ConfiguredXMLPreferences))))
 }
 
-func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLRoundTripScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
@@ -794,7 +795,7 @@ func documentXMLRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```xml\n%v```\n\n", mustProcessFormatScenario(s, NewXMLDecoder(ConfiguredXMLPreferences), NewXMLEncoder(ConfiguredXMLPreferences))))
 }
 
-func documentXMLSkipDirectivesScenario(w *bufio.Writer, s formatScenario) {
+func documentXMLSkipDirectivesScenario(w *bufio.Writer, s FormatScenario) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
 	if s.subdescription != "" {
