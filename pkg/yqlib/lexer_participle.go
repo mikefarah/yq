@@ -542,8 +542,8 @@ func decodeOp(format *Format) yqAction {
 	return opTokenWithPrefs(decodeOpType, nil, prefs)
 }
 
-func loadOp(decoder Decoder, loadAsString bool) yqAction {
-	prefs := loadPrefs{decoder: decoder, loadAsString: loadAsString}
+func loadOp(decoder Decoder) yqAction {
+	prefs := loadPrefs{decoder}
 	return opTokenWithPrefs(loadOpType, nil, prefs)
 }
 

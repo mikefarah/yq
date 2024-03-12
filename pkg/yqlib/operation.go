@@ -155,7 +155,8 @@ var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handle
 var toStringOpType = &operationType{Type: "TO_STRING", NumArgs: 0, Precedence: 50, Handler: toStringOperator}
 var stringInterpolationOpType = &operationType{Type: "STRING_INT", NumArgs: 0, Precedence: 50, Handler: stringInterpolationOperator, ToString: valueToStringFunc}
 
-var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadYamlOperator}
+var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadOperator}
+var loadStringOpType = &operationType{Type: "LOAD_STRING", NumArgs: 1, Precedence: 52, Handler: loadStringOperator}
 
 var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 50, Handler: keysOperator}
 

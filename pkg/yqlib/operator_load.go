@@ -15,8 +15,7 @@ var LoadYamlPreferences = YamlPreferences{
 }
 
 type loadPrefs struct {
-	loadAsString bool
-	decoder      Decoder
+	decoder Decoder
 }
 
 func loadString(filename string) (*CandidateNode, error) {
@@ -31,7 +30,7 @@ func loadString(filename string) (*CandidateNode, error) {
 	return &CandidateNode{Kind: ScalarNode, Tag: "!!str", Value: string(filebytes)}, nil
 }
 
-func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
+func loadWithDecoder(filename string, decoder Decoder) (*CandidateNode, error) {
 	if decoder == nil {
 		return nil, fmt.Errorf("could not load %s", filename)
 	}
@@ -62,8 +61,39 @@ func loadYaml(filename string, decoder Decoder) (*CandidateNode, error) {
 	return sequenceNode, nil
 }
 
-func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debugf("loadYamlOperator")
+func loadStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	log.Debugf("loadString")
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+
+		rhs, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode.RHS)
+		if err != nil {
+			return Context{}, err
+		}
+		if rhs.MatchingNodes.Front() == nil {
+			return Context{}, fmt.Errorf("filename expression returned nil")
+		}
+		nameCandidateNode := rhs.MatchingNodes.Front().Value.(*CandidateNode)
+
+		filename := nameCandidateNode.Value
+
+		contentsCandidate, err := loadString(filename)
+		if err != nil {
+			return Context{}, fmt.Errorf("Failed to load %v: %w", filename, err)
+		}
+
+		results.PushBack(contentsCandidate)
+
+	}
+
+	return context.ChildContext(results), nil
+}
+
+func loadOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	log.Debugf("loadOperator")
 
 	loadPrefs := expressionNode.Operation.Preferences.(loadPrefs)
 
@@ -86,13 +116,7 @@ func loadYamlOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 
 		filename := nameCandidateNode.Value
 
-		var contentsCandidate *CandidateNode
-
-		if loadPrefs.loadAsString {
-			contentsCandidate, err = loadString(filename)
-		} else {
-			contentsCandidate, err = loadYaml(filename, loadPrefs.decoder)
-		}
+		contentsCandidate, err := loadWithDecoder(filename, loadPrefs.decoder)
 		if err != nil {
 			return Context{}, fmt.Errorf("Failed to load %v: %w", filename, err)
 		}
