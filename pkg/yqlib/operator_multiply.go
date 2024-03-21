@@ -91,6 +91,8 @@ func multiplyScalars(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, er
 		return multiplyIntegers(lhs, rhs)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		return multiplyFloats(lhs, rhs, lhsIsCustom)
+	} else if (lhsTag == "!!str" && rhsTag == "!!int") || (lhsTag == "!!int" && rhsTag == "!!str") {
+		return repeatString(lhs, rhs)
 	}
 	return nil, fmt.Errorf("cannot multiply %v with %v", lhs.Tag, rhs.Tag)
 }
@@ -132,6 +134,28 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 		return nil, err
 	}
 	target.Value = fmt.Sprintf(format, lhsNum*rhsNum)
+	return target, nil
+}
+
+func repeatString(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	var stringNode *CandidateNode
+	var intNode *CandidateNode
+	if lhs.Tag == "!!str" {
+		stringNode = lhs
+		intNode = rhs
+	} else {
+		stringNode = rhs
+		intNode = lhs
+	}
+	target := lhs.CopyWithoutContent()
+	target.UpdateAttributesFrom(stringNode, assignPreferences{})
+
+	count, err := parseInt(intNode.Value)
+	if err != nil {
+		return nil, err
+	}
+	target.Value = strings.Repeat(stringNode.Value, count)
+
 	return target, nil
 }
 

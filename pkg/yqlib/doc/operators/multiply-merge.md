@@ -55,6 +55,62 @@ a: 12
 b: 4
 ```
 
+## Multiply string node X int
+Given a sample.yml file of:
+```yaml
+b: banana
+```
+then
+```bash
+yq '.b * 4' sample.yml
+```
+will output
+```yaml
+bananabananabananabanana
+```
+
+## Multiply int X string node
+Given a sample.yml file of:
+```yaml
+b: banana
+```
+then
+```bash
+yq '4 * .b' sample.yml
+```
+will output
+```yaml
+bananabananabananabanana
+```
+
+## Multiply string X int node
+Given a sample.yml file of:
+```yaml
+n: 4
+```
+then
+```bash
+yq '"banana" * .n' sample.yml
+```
+will output
+```yaml
+bananabananabananabanana
+```
+
+## Multiply int node X string
+Given a sample.yml file of:
+```yaml
+n: 4
+```
+then
+```bash
+yq '.n * "banana"' sample.yml
+```
+will output
+```yaml
+bananabananabananabanana
+```
+
 ## Merge objects together, returning merged result only
 Given a sample.yml file of:
 ```yaml
