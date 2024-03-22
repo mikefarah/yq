@@ -40,6 +40,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("map", mapOpType),
 	simpleOp("filter", filterOpType),
 	simpleOp("pick", pickOpType),
+	simpleOp("omit", omitOpType),
 
 	{"FlattenWithDepth", `flatten\([0-9]+\)`, flattenWithDepth(), 0},
 	{"Flatten", `flatten`, opTokenWithPrefs(flattenOpType, nil, flattenPreferences{depth: -1}), 0},

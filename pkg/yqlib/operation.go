@@ -90,6 +90,7 @@ var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler:
 var filterOpType = &operationType{Type: "FILTER", NumArgs: 1, Precedence: 50, Handler: filterOperator}
 var errorOpType = &operationType{Type: "ERROR", NumArgs: 1, Precedence: 50, Handler: errorOperator}
 var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}
+var omitOpType = &operationType{Type: "OMIT", NumArgs: 1, Precedence: 50, Handler: omitOperator}
 var evalOpType = &operationType{Type: "EVAL", NumArgs: 1, Precedence: 50, Handler: evalOperator}
 var mapValuesOpType = &operationType{Type: "MAP_VALUES", NumArgs: 1, Precedence: 50, Handler: mapValuesOperator}
 
