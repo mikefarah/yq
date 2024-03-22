@@ -1,6 +1,8 @@
 package yqlib
 
 import (
+	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -172,6 +174,40 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expression:  `.a *= .b`,
 		expected: []string{
 			"D0, P[], (!!map)::a: 12\nb: 4\n",
+		},
+	},
+	{
+		description: "Multiply string node X int",
+		document:    docNoComments,
+		expression:  ".b * 4",
+		expected: []string{
+			fmt.Sprintf("D0, P[b], (!!str)::%s\n", strings.Repeat("banana", 4)),
+		},
+	},
+	{
+		description: "Multiply int X string node",
+		document:    docNoComments,
+		expression:  "4 * .b",
+		expected: []string{
+			fmt.Sprintf("D0, P[], (!!str)::%s\n", strings.Repeat("banana", 4)),
+		},
+	},
+	{
+		description: "Multiply string X int node",
+		document: `n: 4
+`,
+		expression: `"banana" * .n`,
+		expected: []string{
+			fmt.Sprintf("D0, P[], (!!str)::%s\n", strings.Repeat("banana", 4)),
+		},
+	},
+	{
+		description: "Multiply int node X string",
+		document: `n: 4
+`,
+		expression: `.n * "banana"`,
+		expected: []string{
+			fmt.Sprintf("D0, P[n], (!!str)::%s\n", strings.Repeat("banana", 4)),
 		},
 	},
 	{
