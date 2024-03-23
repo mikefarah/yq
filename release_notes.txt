@@ -1,4 +1,4 @@
-4.43.1: (not released yet)
+4.43.1:
   - Added omit operator #1989 thanks @mbenson!
   - Added tostring #72
   - Added string interpolation #1149
@@ -7,6 +7,7 @@
   - Fixed CSV line break issue #1974
   - Adding a EvaluateAll function to StringEvaluator #1966
   - yqlib, default to colors off when using yaml library #1964
+  - Removed JSON output warning
   - Bumped dependencies
 
 
