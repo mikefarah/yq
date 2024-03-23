@@ -37,6 +37,43 @@ fruit: banana
 name: sam
 ```
 
+## N-th parent
+You can optionally supply the number of levels to go up for the parent, the default being 1.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(2)' sample.yml
+```
+will output
+```yaml
+b:
+  c: cat
+```
+
+## N-th parent - another level
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(3)' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
 ## No parent
 Given a sample.yml file of:
 ```yaml

@@ -48,6 +48,7 @@
   * [Map](operators/map.md)
   * [Modulo](operators/modulo.md)
   * [Multiply (Merge)](operators/multiply-merge.md)
+  * [Omit](operators/omit.md)
   * [Parent](operators/parent.md)
   * [Path](operators/path.md)
   * [Pick](operators/pick.md)
