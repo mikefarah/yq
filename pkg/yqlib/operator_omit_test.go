@@ -7,7 +7,7 @@ import (
 var omitOperatorScenarios = []expressionScenario{
 	{
 		description:    "Omit keys from map",
-		subdescription: "Note that the order of the keys matches the omit order and non existent keys are skipped.",
+		subdescription: "Note that non existent keys are skipped.",
 		document:       "myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",
 		expression:     `.myMap |= omit(["hamster", "cat", "goat"])`,
 		expected: []string{
@@ -34,7 +34,7 @@ var omitOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Omit indices from array",
-		subdescription: "Note that the order of the indices matches the omit order and non existent indices are skipped.",
+		subdescription: "Note that non existent indices are skipped.",
 		document:       `[cat, leopard, lion]`,
 		expression:     `omit([2, 0, 734, -5])`,
 		expected: []string{

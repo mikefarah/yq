@@ -1,6 +1,9 @@
+# Omit
+
+Works like `pick`, but instead you specify the keys/indices that you _don't_ want included.
 
 ## Omit keys from map
-Note that the order of the keys matches the omit order and non existent keys are skipped.
+Note that non existent keys are skipped.
 
 Given a sample.yml file of:
 ```yaml
@@ -22,7 +25,7 @@ myMap:
 ```
 
 ## Omit indices from array
-Note that the order of the indices matches the omit order and non existent indices are skipped.
+Note that non existent indices are skipped.
 
 Given a sample.yml file of:
 ```yaml
