@@ -1,7 +1,9 @@
 4.43.1: (not released yet)
+  - Added omit operator #1989 thanks @mbenson!
   - Added tostring #72
   - Added string interpolation #1149
   - Can specify parent(n) levels #1970
+  - Can now multiply strings by numbers #1988  thanks @mbenson!
   - Fixed CSV line break issue #1974
   - Adding a EvaluateAll function to StringEvaluator #1966
   - yqlib, default to colors off when using yaml library #1964

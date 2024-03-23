@@ -75,10 +75,6 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 				outputFormat = "yaml"
 			}
 		} else if isAutomaticOutputFormat() {
-			// automatic input worked, we can do it for output too unless specified
-			if inputFormat == "json" {
-				yqlib.GetLogger().Warning("JSON file output is now JSON by default (instead of yaml). Use '-oy' or '--output-format=yaml' for yaml output")
-			}
 			outputFormat = inputFormat
 		}
 	} else if isAutomaticOutputFormat() {
