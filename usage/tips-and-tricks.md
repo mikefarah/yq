@@ -172,7 +172,7 @@ yq '.apple' <(curl -s https://somewhere/data1.yaml) <(cat file.yml)
 The most important thing to remember to do is to have brackets around the LHS expression - otherwise what `yq` will do is first filter by the selection, and then, separately, update the filtered result and return that subset.
 
 ```
-yq '(.foo.bar[] | select(name == "fred) | .apple) = "cool"'
+yq '(.foo.bar[] | select(.name == "fred") | .apple) = "cool"'
 ```
 
 ## Combining multiple files into one
