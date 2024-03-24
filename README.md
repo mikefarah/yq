@@ -13,17 +13,17 @@ Similarly, '-' is no longer required as a filename to read from STDIN (unless re
 
 TLDR:
 
-Prior to 4.18.1 
+Prior to 4.18.1
 ```bash
 cat file.yaml | yq e '.cool' -
 ```
 
-4.18+ 
+4.18+
 ```bash
 cat file.yaml | yq '.cool'
 ```
 
-When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression again all the document at once.
+When merging multiple files together, `eval-all/ea` is still required to tell `yq` to run the expression against all the documents at once.
 
 ## Quick Usage Guide
 
