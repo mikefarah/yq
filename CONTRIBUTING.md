@@ -1,4 +1,4 @@
-# Development
+.# Development
 
 1. Install (Golang)[https://golang.org/]
 1. Run  `scripts/devtools.sh` to install the required devtools
@@ -24,6 +24,8 @@ The pipeline will run the tests and automatically concatenate the files together
 ## How to contribute
 
 The first step is to find if what you want is automatically generated or not - start by looking in the master branch. 
+
+Note that PRs with small changes (e.g. minor typos) may not be merged (see https://joel.net/how-one-guy-ruined-hacktoberfest2020-drama).
 
 ### Updating dynamic documentation from master
 - Search for the documentation you want to update. If you find matches in a `*_test.go` file - update that, as that will automatically update the matching `*.md` file 
