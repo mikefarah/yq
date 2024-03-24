@@ -7,7 +7,7 @@ description: >-
 # Shell Completion
 
 ```bash
-yq shell-completion --variation=zsh
+yq shell-completion zsh
 ```
 
 Prints to StdOut a shell completion script for zsh shell.
