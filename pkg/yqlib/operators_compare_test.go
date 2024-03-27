@@ -383,3 +383,67 @@ func TestCompareOperatorScenarios(t *testing.T) {
 	}
 	documentOperatorScenarios(t, "compare", compareOperatorScenarios)
 }
+
+var minOperatorScenarios = []expressionScenario{
+	{
+		description: "Minimum int",
+		document:    "[99, 16, 12, 6, 66]\n",
+		expression:  `min`,
+		expected: []string{
+			"D0, P[3], (!!int)::6\n",
+		},
+	},
+	{
+		description: "Minimum string",
+		document:    "[foo, bar, baz]\n",
+		expression:  `min`,
+		expected: []string{
+			"D0, P[1], (!!str)::bar\n",
+		},
+	},
+	{
+		description: "Minimum of empty",
+		document:    "[]\n",
+		expression:  `min`,
+		expected:    []string{},
+	},
+}
+
+func TestMinOperatorScenarios(t *testing.T) {
+	for _, tt := range minOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	documentOperatorScenarios(t, "min", minOperatorScenarios)
+}
+
+var maxOperatorScenarios = []expressionScenario{
+	{
+		description: "Maximum int",
+		document:    "[99, 16, 12, 6, 66]\n",
+		expression:  `max`,
+		expected: []string{
+			"D0, P[0], (!!int)::99\n",
+		},
+	},
+	{
+		description: "Maximum string",
+		document:    "[foo, bar, baz]\n",
+		expression:  `max`,
+		expected: []string{
+			"D0, P[0], (!!str)::foo\n",
+		},
+	},
+	{
+		description: "Maximum of empty",
+		document:    "[]\n",
+		expression:  `max`,
+		expected:    []string{},
+	},
+}
+
+func TestMaxOperatorScenarios(t *testing.T) {
+	for _, tt := range maxOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	documentOperatorScenarios(t, "max", maxOperatorScenarios)
+}

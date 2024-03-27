@@ -73,6 +73,8 @@ var equalsOpType = &operationType{Type: "EQUALS", NumArgs: 2, Precedence: 40, Ha
 var notEqualsOpType = &operationType{Type: "NOT_EQUALS", NumArgs: 2, Precedence: 40, Handler: notEqualsOperator}
 
 var compareOpType = &operationType{Type: "COMPARE", NumArgs: 2, Precedence: 40, Handler: compareOperator}
+var minOpType = &operationType{Type: "MIN", NumArgs: 0, Precedence: 40, Handler: minOperator}
+var maxOpType = &operationType{Type: "MAX", NumArgs: 0, Precedence: 40, Handler: maxOperator}
 
 // createmap needs to be above union, as we use union to build the components of the objects
 var createMapOpType = &operationType{Type: "CREATE_MAP", NumArgs: 2, Precedence: 15, Handler: createMapOperator}
