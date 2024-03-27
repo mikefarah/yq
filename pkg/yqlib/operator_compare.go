@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"container/list"
 	"fmt"
 	"strconv"
 )
@@ -128,4 +129,41 @@ func compareScalars(context Context, prefs compareTypePref, lhs *CandidateNode, 
 	}
 
 	return false, fmt.Errorf("%v not yet supported for comparison", lhs.Tag)
+}
+
+func superlativeByComparison(d *dataTreeNavigator, context Context, prefs compareTypePref) (Context, error) {
+	fn := compare(prefs)
+
+	var results = list.New()
+
+	for seq := context.MatchingNodes.Front(); seq != nil; seq = seq.Next() {
+		splatted, err := splat(context.SingleChildContext(seq.Value.(*CandidateNode)), traversePreferences{})
+		if err != nil {
+			return Context{}, err
+		}
+		result := splatted.MatchingNodes.Front()
+		if result != nil {
+			for el := result.Next(); el != nil; el = el.Next() {
+				cmp, err := fn(d, context, el.Value.(*CandidateNode), result.Value.(*CandidateNode))
+				if err != nil {
+					return Context{}, err
+				}
+				if isTruthyNode(cmp) {
+					result = el
+				}
+			}
+			results.PushBack(result.Value)
+		}
+	}
+	return context.ChildContext(results), nil
+}
+
+func minOperator(d *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
+	log.Debug(("Min"))
+	return superlativeByComparison(d, context, compareTypePref{Greater: false})
+}
+
+func maxOperator(d *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
+	log.Debug(("Max"))
+	return superlativeByComparison(d, context, compareTypePref{Greater: true})
 }

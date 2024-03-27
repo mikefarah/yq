@@ -199,6 +199,9 @@ var participleYqRules = []*participleYqRule{
 	{"GreaterThan", `\s*>\s*`, opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: true}), 0},
 	{"LessThan", `\s*<\s*`, opTokenWithPrefs(compareOpType, nil, compareTypePref{OrEqual: false, Greater: false}), 0},
 
+	simpleOp("min", minOpType),
+	simpleOp("max", maxOpType),
+
 	{"AssignRelative", `\|=[c]*`, assignOpToken(true), 0},
 	{"Assign", `=[c]*`, assignOpToken(false), 0},
 
