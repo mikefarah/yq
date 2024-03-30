@@ -190,6 +190,8 @@ var groupByOpType = &operationType{Type: "GROUP_BY", NumArgs: 1, Precedence: 50,
 var flattenOpType = &operationType{Type: "FLATTEN_BY", NumArgs: 0, Precedence: 50, Handler: flattenOp}
 var deleteChildOpType = &operationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: deleteChildOperator}
 
+var pivotOpType = &operationType{Type: "PIVOT", NumArgs: 0, Precedence: 50, Handler: pivotOperator}
+
 // debugging purposes only
 func (p *Operation) toString() string {
 	if p == nil {
