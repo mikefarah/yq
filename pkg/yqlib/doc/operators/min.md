@@ -1,3 +1,6 @@
+# Min
+
+Computes the minimum among an incoming sequence of scalar values.
 
 ## Minimum int
 Given a sample.yml file of:
