@@ -123,9 +123,11 @@ func FormatStringFromFilename(filename string) string {
 }
 
 func FormatFromString(format string) (*Format, error) {
-	for _, printerFormat := range Formats {
-		if printerFormat.MatchesName(format) {
-			return printerFormat, nil
+	if format != "" {
+		for _, printerFormat := range Formats {
+			if printerFormat.MatchesName(format) {
+				return printerFormat, nil
+			}
 		}
 	}
 	return nil, fmt.Errorf("unknown format '%v' please use [%v]", format, GetAvailableOutputFormatString())
