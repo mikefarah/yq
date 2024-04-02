@@ -54,40 +54,52 @@ func interpolate(d *dataTreeNavigator, context Context, str string) (string, err
 	for i := 0; i < len(runes); i++ {
 		char := runes[i]
 		if !inExpression {
-			if char == '\\' && i != len(runes)-1 && runes[i+1] == '(' {
-				inExpression = true
-				i = i + 1 // skip over the next open bracket
-				continue
+			if char == '\\' && i < len(runes)-1 {
+				switch runes[i+1] {
+				case '(':
+					inExpression = true
+					// skip the lparen
+					i++
+					continue
+				case '\\':
+					// skip the escaped backslash
+					i++
+				default:
+					log.Debugf("Ignoring non-escaping backslash @ %v[%d]", str, i)
+				}
 			}
 			sb.WriteRune(char)
 		} else { // we are in an expression
-			if char == ')' && nestedBracketsCounter == 0 {
-				// finished the expression!
-				log.Debugf("Expression is :%v", expSb.String())
-				value, err := evaluate(d, context, expSb.String())
-				if err != nil {
-					return "", err
+			if char == ')' {
+				if nestedBracketsCounter == 0 {
+					// finished the expression!
+					log.Debugf("Expression is :%v", expSb.String())
+					value, err := evaluate(d, context, expSb.String())
+					if err != nil {
+						return "", err
+					}
+					inExpression = false
+					expSb = strings.Builder{} // reset this
+
+					sb.WriteString(value)
+					continue
 				}
-
-				inExpression = false
-				expSb = strings.Builder{} // reset this
-
-				sb.WriteString(value)
-				continue
+				nestedBracketsCounter--
 			} else if char == '(' {
 				nestedBracketsCounter++
-			} else if char == '\\' && i != len(runes)-1 && runes[i+1] == ')' {
-				// close brackets is escaped, skip over it
-				expSb.WriteRune(char)
-				expSb.WriteRune(runes[i+1])
-				i = i + 1
-				continue
-			} else if char == ')' {
-				nestedBracketsCounter--
+			} else if char == '\\' && i < len(runes)-1 {
+				switch esc := runes[i+1]; esc {
+				case ')', '\\':
+					// write escaped character
+					expSb.WriteRune(esc)
+					i++
+					continue
+				default:
+					log.Debugf("Ignoring non-escaping backslash @ %v[%d]", str, i)
+				}
 			}
 			expSb.WriteRune(char)
 		}
-
 	}
 	if inExpression {
 		return "", fmt.Errorf("unclosed interpolation string \\(")

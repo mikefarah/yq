@@ -26,7 +26,7 @@ var stringsOperatorScenarios = []expressionScenario{
 		description: "Interpolation - just escape",
 		expression:  `"\\"`,
 		expected: []string{
-			"D0, P[], (!!str)::\\\\\n",
+			"D0, P[], (!!str)::\\\n",
 		},
 	},
 	{
@@ -49,6 +49,15 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Interpolation - don't!",
+		document:    `value: things`,
+		expression:  `"Hi \\(.value)"`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi \\(.value)\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Interpolation - random close bracket",
 		document:    `value: things`,
 		expression:  `"Hi )"`,
@@ -61,6 +70,13 @@ var stringsOperatorScenarios = []expressionScenario{
 		description:   "Interpolation - unclosed interpolation string",
 		document:      `value: things`,
 		expression:    `"Hi \("`,
+		expectedError: "unclosed interpolation string \\(",
+	},
+	{
+		skipDoc:       true,
+		description:   "Interpolation - unclosed interpolation string due to escape",
+		document:      `value: things`,
+		expression:    `"Hi \(\)"`,
 		expectedError: "unclosed interpolation string \\(",
 	},
 	{
