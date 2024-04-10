@@ -9,7 +9,7 @@ import (
 var completionCmd = &cobra.Command{
 	Use:     "completion [bash|zsh|fish|powershell]",
 	Aliases: []string{"shell-completion"},
-	Short:   "Generate shell completion script",
+	Short:   "Generate the autocompletion script for the specified shell",
 	Long: `To load completions:
 
 Bash:
