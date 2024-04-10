@@ -349,7 +349,6 @@ Available Commands:
   eval             (default) Apply the expression to each document in each yaml file in sequence
   eval-all         Loads _all_ yaml documents of _all_ yaml files and runs expression once
   help             Help about any command
-  shell-completion Generate completion script
 
 Flags:
   -C, --colors                        force print with colors
