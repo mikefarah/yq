@@ -2,7 +2,6 @@
 
 ![Build](https://github.com/mikefarah/yq/workflows/Build/badge.svg)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq) ![CodeQL](https://github.com/mikefarah/yq/workflows/CodeQL/badge.svg)
 
-
 a lightweight and portable command-line YAML, JSON and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json, xml, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
 yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
@@ -10,26 +9,31 @@ yq is written in go - so you can download a dependency free binary for your plat
 ## Quick Usage Guide
 
 Read a value:
+
 ```bash
 yq '.a.b[0].c' file.yaml
 ```
 
 Pipe from STDIN:
+
 ```bash
 yq '.a.b[0].c' < file.yaml
 ```
 
 Update a yaml file, in place
+
 ```bash
 yq -i '.a.b[0].c = "cool"' file.yaml
 ```
 
 Update using environment variables
+
 ```bash
 NAME=mike yq -i '.a.b[0].c = strenv(NAME)' file.yaml
 ```
 
 Merge multiple files
+
 ```bash
 # merge two files
 yq -n 'load("file1.yaml") * load("file2.yaml")'
@@ -41,6 +45,7 @@ yq ea '. as $item ireduce ({}; . * $item )' path/to/*.yml
 ```
 
 Multiple updates to a yaml file
+
 ```bash
 yq -i '
   .a.b[0].c = "cool" |
@@ -50,11 +55,13 @@ yq -i '
 ```
 
 Find and update an item in an array:
+
 ```bash
 yq '(.[] | select(.name == "foo") | .address) = "12 cat st"'
 ```
 
 Convert JSON to YAML
+
 ```bash
 yq -Poy sample.json
 ```
@@ -68,12 +75,13 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 ### [Download the latest binary](https://github.com/mikefarah/yq/releases/latest)
 
 ### wget
-Use wget to download, gzipped pre-compiled binaries:
 
+Use wget to download, gzipped pre-compiled binaries:
 
 For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
 
 #### Compressed via tar.gz
+
 ```bash
 wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
   tar xz && mv ${BINARY} /usr/bin/yq
@@ -93,101 +101,109 @@ wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O 
     chmod +x /usr/bin/yq
 ```
 
-### MacOS / Linux via Homebrew:
+### MacOS / Linux via Homebrew
+
 Using [Homebrew](https://brew.sh/)
-```
+
+```bash
 brew install yq
 ```
 
-### Linux via snap:
-```
+### Linux via snap
+
+```bash
 snap install yq
 ```
 
 #### Snap notes
+
 `yq` installs with [_strict confinement_](https://docs.snapcraft.io/snap-confinement/6233) in snap, this means it doesn't have direct access to root files. To read root files you can:
 
-```
+```bash
 sudo cat /etc/myfile | yq '.a.path'
 ```
 
 And to write to a root file you can either use [sponge](https://linux.die.net/man/1/sponge):
-```
+
+```bash
 sudo cat /etc/myfile | yq '.a.path = "value"' | sudo sponge /etc/myfile
 ```
+
 or write to a temporary file:
-```
+
+```bash
 sudo cat /etc/myfile | yq '.a.path = "value"' | sudo tee /etc/myfile.tmp
 sudo mv /etc/myfile.tmp /etc/myfile
 rm /etc/myfile.tmp
 ```
 
 ### Run with Docker or Podman
-#### Oneshot use:
+
+#### Oneshot use
 
 ```bash
-docker run --rm -v "${PWD}":/workdir mikefarah/yq [command] [flags] [expression ]FILE...
+docker run --rm -v "${PWD}":/workdir docker.io/mikefarah/yq [command] [flags] [expression] FILE...
 ```
 
 Note that you can run `yq` in docker without network access and other privileges if you desire,
 namely `--security-opt=no-new-privileges --cap-drop all --network none`.
 
 ```bash
-podman run --rm -v "${PWD}":/workdir mikefarah/yq [command] [flags] [expression ]FILE...
+podman run --rm -v "${PWD}":/workdir docker.io/mikefarah/yq [command] [flags] [expression] FILE...
 ```
 
-#### Pipe in via STDIN:
+#### Pipe in via STDIN
 
 You'll need to pass the `-i\--interactive` flag to docker:
 
 ```bash
-docker run -i --rm mikefarah/yq '.this.thing' < myfile.yml
+docker run -i --rm docker.io/mikefarah/yq '.this.thing' < myfile.yml
 ```
 
 ```bash
-podman run -i --rm mikefarah/yq '.this.thing' < myfile.yml
+podman run -i --rm docker.io/mikefarah/yq '.this.thing' < myfile.yml
 ```
 
-#### Run commands interactively:
+#### Run commands interactively
 
 ```bash
-docker run --rm -it -v "${PWD}":/workdir --entrypoint sh mikefarah/yq
+docker run --rm -it -v "${PWD}":/workdir --entrypoint sh docker.io/mikefarah/yq
 ```
 
 ```bash
-podman run --rm -it -v "${PWD}":/workdir --entrypoint sh mikefarah/yq
+podman run --rm -it -v "${PWD}":/workdir --entrypoint sh docker.io/mikefarah/yq
 ```
 
 It can be useful to have a bash function to avoid typing the whole docker command:
 
 ```bash
 yq() {
-  docker run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+  docker run --rm -i -v "${PWD}":/workdir docker.io/mikefarah/yq "$@"
 }
 ```
 
 ```bash
 yq() {
-  podman run --rm -i -v "${PWD}":/workdir mikefarah/yq "$@"
+  podman run --rm -i -v "${PWD}":/workdir docker.io/mikefarah/yq "$@"
 }
 ```
-#### Running as root:
 
-`yq`'s container image no longer runs under root (https://github.com/mikefarah/yq/pull/860). If you'd like to install more things in the container image, or you're having permissions issues when attempting to read/write files you'll need to either:
+#### Running as root
 
+`yq`'s container image no longer runs under root (<https://github.com/mikefarah/yq/pull/860>). If you'd like to install more things in the container image, or you're having permissions issues when attempting to read/write files you'll need to either:
 
+```bash
+docker run --user="root" -it --entrypoint sh docker.io/mikefarah/yq
 ```
-docker run --user="root" -it --entrypoint sh mikefarah/yq
-```
 
-```
-podman run --user="root" -it --entrypoint sh mikefarah/yq
+```bash
+podman run --user="root" -it --entrypoint sh docker.io/mikefarah/yq
 ```
 
 Or, in your Dockerfile:
 
-```
-FROM mikefarah/yq
+```bash
+FROM docker.io/mikefarah/yq
 
 USER root
 RUN apk add --no-cache bash
@@ -195,10 +211,11 @@ USER yq
 ```
 
 #### Missing timezone data
+
 By default, the alpine image yq uses does not include timezone data. If you'd like to use the `tz` operator, you'll need to include this data:
 
-```
-FROM mikefarah/yq
+```bash
+FROM docker.io/mikefarah/yq
 
 USER root
 RUN apk add --no-cache tzdata
@@ -209,12 +226,13 @@ USER yq
 
 If you are using podman with SELinux, you will need to set the shared volume flag `:z` on the volume mount:
 
-```
+```bash
 -v "${PWD}":/workdir:z
 ```
 
 ### GitHub Action
-```
+
+```bash
   - name: Set foobar to cool
     uses: mikefarah/yq@master
     with:
@@ -228,82 +246,90 @@ If you are using podman with SELinux, you will need to set the shared volume fla
     run: echo ${{ steps.get_username.outputs.result }}
 ```
 
-See https://mikefarah.gitbook.io/yq/usage/github-action for more.
+See <https://mikefarah.gitbook.io/yq/usage/github-action> for more.
 
-### Go Install:
-```
+### Go Install
+
+```bash
 go install github.com/mikefarah/yq/v4@latest
 ```
 
 ## Community Supported Installation methods
+
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
 _Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method._
 
-
 ### Nix
 
-```
+```bash
 nix profile install nixpkgs#yq-go
 ```
 
 See [here](https://search.nixos.org/packages?channel=unstable&show=yq-go&from=0&size=50&sort=relevance&type=packages&query=yq-go)
 
-
 ### Webi
 
-```
+```bash
 webi yq
 ```
 
 See [webi](https://webinstall.dev/)
-Supported by @adithyasunil26 (https://github.com/webinstall/webi-installers/tree/master/yq)
+Supported by @adithyasunil26 (<https://github.com/webinstall/webi-installers/tree/master/yq>)
 
 ### Arch Linux
 
-```
+```bash
 pacman -S go-yq
 ```
 
-### Windows:
+### Windows
 
 Using [Chocolatey](https://chocolatey.org)
 
 [![Chocolatey](https://img.shields.io/chocolatey/v/yq.svg)](https://chocolatey.org/packages/yq)
 [![Chocolatey](https://img.shields.io/chocolatey/dt/yq.svg)](https://chocolatey.org/packages/yq)
-```
+
+```bash
 choco install yq
 ```
-Supported by @chillum (https://chocolatey.org/packages/yq)
+
+Supported by @chillum (<https://chocolatey.org/packages/yq>)
 
 Using [scoop](https://scoop.sh/)
-```
+
+```bash
 scoop install main/yq
 ```
 
 Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
-```
+
+```bash
 winget install --id MikeFarah.yq
 ```
 
-### Mac:
+### Mac
+
 Using [MacPorts](https://www.macports.org/)
-```
+
+```bash
 sudo port selfupdate
 sudo port install yq
 ```
-Supported by @herbygillot (https://ports.macports.org/maintainer/github/herbygillot)
+
+Supported by @herbygillot (<https://ports.macports.org/maintainer/github/herbygillot>)
 
 ### Alpine Linux
+
 - Enable edge/community repo by adding ```$MIRROR/alpine/edge/community``` to ```/etc/apk/repositories```
 - Update database index with ```apk update```
 - Install yq with ```apk add yq```
 
 Supported by Tuan Hoang
-https://pkgs.alpinelinux.org/package/edge/community/x86/yq
-
+<https://pkgs.alpinelinux.org/package/edge/community/x86/yq>
 
 ## Features
+
 - [Detailed documentation with many examples](https://mikefarah.gitbook.io/yq/)
 - Written in portable go, so you can download a lovely dependency free binary
 - Uses similar syntax as `jq` but works with YAML, [JSON](https://mikefarah.gitbook.io/yq/usage/convert) and [XML](https://mikefarah.gitbook.io/yq/usage/xml) files
@@ -331,7 +357,7 @@ https://pkgs.alpinelinux.org/package/edge/community/x86/yq
 
 Check out the [documentation](https://mikefarah.gitbook.io/yq/) for more detailed and advanced usage.
 
-```
+```bash
 Usage:
   yq [flags]
   yq [command]
@@ -374,8 +400,10 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
+
 ## Known Issues / Missing Features
-- `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
+
+- `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see <https://github.com/go-yaml/yaml/tree/v3> for details)
 - Powershell has its own...[opinions on quoting yq](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell)
 - "yes", "no" were dropped as boolean values in the yaml 1.2 standard - which is the standard yq assumes.
 
