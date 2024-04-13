@@ -7,6 +7,6 @@ import (
 	"os"
 )
 
-func changeOwner(info fs.FileInfo, file *os.File) error {
+func changeOwner(_ fs.FileInfo, _ *os.File) error {
 	return nil
 }
