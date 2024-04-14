@@ -1,12 +1,15 @@
 FROM golang:1.22.1
 
+RUN apt-get update && \
+    apt-get install -y npm && \
+    npm install -g npx cspell@latest
+
 COPY scripts/devtools.sh /opt/devtools.sh
 
-RUN set -e -x \
-    && /opt/devtools.sh
-ENV PATH=/go/bin:$PATH
+RUN set -e -x && \
+    /opt/devtools.sh
 
-RUN apt-get update && apt-get install -y npm && npm install -g npx cspell@latest
+ENV PATH=/go/bin:$PATH
 
 ENV CGO_ENABLED 0
 ENV GOPATH /go:/yq

@@ -26,6 +26,7 @@ ifeq ($(CYG_CHECK),1)
 else
 	# all non-windows environments
 	ROOT := $(shell pwd)
+	SELINUX := $(shell which getenforce 2>&1 >/dev/null && echo :z)
 endif
 
 DEV_IMAGE := ${PROJECT}_dev
@@ -33,7 +34,7 @@ DEV_IMAGE := ${PROJECT}_dev
 ENGINERUN := ${ENGINE} run --rm \
 	-e LDFLAGS="${LDFLAGS}" \
 	-e GITHUB_TOKEN="${GITHUB_TOKEN}" \
-	-v ${ROOT}/vendor:/go/src \
-	-v ${ROOT}:/${PROJECT}/src/${IMPORT_PATH} \
+	-v ${ROOT}/vendor:/go/src${SELINUX} \
+	-v ${ROOT}:/${PROJECT}/src/${IMPORT_PATH}${SELINUX} \
 	-w /${PROJECT}/src/${IMPORT_PATH} \
 	${DEV_IMAGE}
