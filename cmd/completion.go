@@ -7,19 +7,20 @@ import (
 )
 
 var completionCmd = &cobra.Command{
-	Use:   "shell-completion [bash|zsh|fish|powershell]",
-	Short: "Generate completion script",
+	Use:     "completion [bash|zsh|fish|powershell]",
+	Aliases: []string{"shell-completion"},
+	Short:   "Generate the autocompletion script for the specified shell",
 	Long: `To load completions:
 
 Bash:
 
-$ source <(yq shell-completion bash)
+$ source <(yq completion bash)
 
 # To load completions for each session, execute once:
 Linux:
-  $ yq shell-completion bash > /etc/bash_completion.d/yq
+  $ yq completion bash > /etc/bash_completion.d/yq
 MacOS:
-  $ yq shell-completion bash > /usr/local/etc/bash_completion.d/yq
+  $ yq completion bash > /usr/local/etc/bash_completion.d/yq
 
 Zsh:
 
@@ -29,16 +30,16 @@ Zsh:
 $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
 # To load completions for each session, execute once:
-$ yq shell-completion zsh > "${fpath[1]}/_yq"
+$ yq completion zsh > "${fpath[1]}/_yq"
 
 # You will need to start a new shell for this setup to take effect.
 
 Fish:
 
-$ yq shell-completion fish | source
+$ yq completion fish | source
 
 # To load completions for each session, execute once:
-$ yq shell-completion fish > ~/.config/fish/completions/yq.fish
+$ yq completion fish > ~/.config/fish/completions/yq.fish
 `,
 	DisableFlagsInUseLine: true,
 	ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
