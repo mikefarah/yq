@@ -1,3 +1,12 @@
+4.44.1:
+  - Added min/max operators (#1992) Thanks @mbenson
+  - Added pivot oeprator (#1993) Thanks @mbenson
+  - Fix: shell-completion (#2006) Thanks @codekow
+  - Handle escaped backslashes (#1997) Thanks @mbenson
+  - Fix npe when given filename ending with "." (#1994)
+  - Fix: linux (w/ selinux) build (#2004) Thanks @codekow
+  - Bumped dependencies 
+
 4.43.1:
   - Added omit operator #1989 thanks @mbenson!
   - Added tostring #72
