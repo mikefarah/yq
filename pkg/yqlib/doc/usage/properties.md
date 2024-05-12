@@ -230,6 +230,23 @@ person:
     - pizza
 ```
 
+## Decode properties: numbers
+All values are assumed to be strings when parsing properties, but you can use the `from_yaml` operator on all the strings values to autoparse into the correct type.
+
+Given a sample.properties file of:
+```properties
+a.b = 10
+```
+then
+```bash
+yq -p=props ' (.. | select(tag == "!!str")) |= from_yaml' sample.properties
+```
+will output
+```yaml
+a:
+  b: 10
+```
+
 ## Decode properties - array should be a map
 If you have a numeric map key in your property files, use array_to_map to convert them to maps.
 

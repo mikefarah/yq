@@ -227,7 +227,14 @@ var propertyScenarios = []formatScenario{
 		expected:     "- person\n- name\n",
 		scenarioType: "decode",
 	},
-
+	{
+		description:    "Decode properties: numbers",
+		subdescription: "All values are assumed to be strings when parsing properties, but you can use the `from_yaml` operator on all the strings values to autoparse into the correct type.",
+		input:          "a.b = 10",
+		expression:     " (.. | select(tag == \"!!str\")) |= from_yaml",
+		expected:       "a:\n  b: 10\n",
+		scenarioType:   "decode",
+	},
 	{
 		description:    "Decode properties - array should be a map",
 		subdescription: "If you have a numeric map key in your property files, use array_to_map to convert them to maps.",
