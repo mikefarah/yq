@@ -1,5 +1,5 @@
 name: yq
-version: 'v4.43.1'
+version: 'v4.44.1'
 summary: A lightweight and portable command-line data file processor
 description: |
   `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml, json, xml, csv, properties and TOML files.
@@ -21,6 +21,6 @@ parts:
   yq:
     plugin: go
     source: https://github.com/mikefarah/yq.git
-    source-tag: v4.43.1
+    source-tag: v4.44.1
     build-snaps:
       - go/latest/stable
