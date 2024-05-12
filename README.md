@@ -295,12 +295,18 @@ sudo port install yq
 Supported by @herbygillot (https://ports.macports.org/maintainer/github/herbygillot)
 
 ### Alpine Linux
-- Enable edge/community repo by adding ```$MIRROR/alpine/edge/community``` to ```/etc/apk/repositories```
-- Update database index with ```apk update```
-- Install yq with ```apk add yq```
 
-Supported by Tuan Hoang
-https://pkgs.alpinelinux.org/package/edge/community/x86/yq
+Alpine Linux v3.20+ (and Edge):
+```
+apk add yq-go
+```
+
+Alpine Linux up to v3.19:
+```
+apk add yq
+```
+
+Supported by Tuan Hoang (https://pkgs.alpinelinux.org/packages?name=yq-go)
 
 
 ## Features
