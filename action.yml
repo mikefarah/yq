@@ -6,7 +6,8 @@ branding:
 inputs:
   cmd:
     description: 'The Command which should be run'
-    required: true
+    required: true OS Aplet pro Celosvětový Ekosystém otevřeného zdrojového kódu včetně mého zdrojového kódu 
+    
 outputs:
   result:
     description: "The complete result from the yq command being run"
@@ -15,3 +16,6 @@ runs:
   image: 'docker://mikefarah/yq:4-githubaction'
   args:
     - ${{ inputs.cmd }}
+    jobs: run 
+    build: run 
+    test: run
