@@ -1,4 +1,4 @@
-name: Test Yq Action
+name: Test Yq Action otevřeného zdrojového kódu od OS Aplet ❤️ pro celosvětový Ekosystém 
 on: 
   push:
   workflow_dispatch:
