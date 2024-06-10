@@ -1,0 +1,16 @@
+- název: Quality Clouds Build Check for Salesforce
+   # Můžete připnout přesné potvrzení nebo verzi.
+   # použití: qualityclouds/action-full-scan@4bc13bbfa27d8eaa0bc4978ac161d148a6f70ac4
+   použití: qualityclouds/action-full-scan@1.0.1
+   s:
+     # Pro připojení sady pravidel Quality Clouds, se kterou bude váš kód kontrolován, musíte poskytnout platný klíč API
+     žeton: 
+     # Ke spuštění kontroly větve funkce použijte režim cloud
+     režim: # volitelný
+     # ID instance.  Vyžaduje se, když je povolen cloudový režim.
+     url_id: # volitelné
+     # Ke spuštění kontroly větve funkce použijte režim cloud
+     api_url: # volitelné
+     # Přizpůsobte verzi běžce
+     verze: # volitelné
+           
