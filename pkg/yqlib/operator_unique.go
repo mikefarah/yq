@@ -59,18 +59,15 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 
 func getUniqueKeyValue(rhs Context) (string, error) {
 	keyValue := "null"
+	var err error
 
 	if rhs.MatchingNodes.Len() > 0 {
 		first := rhs.MatchingNodes.Front()
 		keyCandidate := first.Value.(*CandidateNode)
 		keyValue = keyCandidate.Value
 		if keyCandidate.Kind != ScalarNode {
-			var err error
 			keyValue, err = encodeToString(keyCandidate, encoderPreferences{YamlFormat, 0})
-			if err != nil {
-				return "", err
-			}
 		}
 	}
-	return keyValue, nil
+	return keyValue, err
 }
