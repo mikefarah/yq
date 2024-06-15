@@ -7,6 +7,16 @@ import (
 var envOperatorScenarios = []expressionScenario{
 	{
 		description:          "Read string environment variable",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "[cat,dog]"},
+		expression:           `env(myenv)[]`,
+		expected: []string{
+			"D0, P[0], (!!str)::cat\n",
+			"D0, P[1], (!!str)::dog\n",
+		},
+	},
+	{
+		description:          "Read string environment variable",
 		environmentVariables: map[string]string{"myenv": "cat meow"},
 		expression:           `.a = env(myenv)`,
 		expected: []string{

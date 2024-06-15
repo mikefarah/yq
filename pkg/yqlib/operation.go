@@ -161,7 +161,7 @@ var stringInterpolationOpType = &operationType{Type: "STRING_INT", NumArgs: 0, P
 var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadOperator}
 var loadStringOpType = &operationType{Type: "LOAD_STRING", NumArgs: 1, Precedence: 52, Handler: loadStringOperator}
 
-var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 50, Handler: keysOperator}
+var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 52, Handler: keysOperator, CheckForPostTraverse: true}
 
 var collectObjectOpType = &operationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: collectObjectOperator}
 
@@ -175,7 +175,7 @@ var traverseArrayOpType = &operationType{Type: "TRAVERSE_ARRAY", NumArgs: 2, Pre
 var selfReferenceOpType = &operationType{Type: "SELF", NumArgs: 0, Precedence: 55, Handler: selfOperator}
 var valueOpType = &operationType{Type: "VALUE", NumArgs: 0, Precedence: 50, Handler: valueOperator, ToString: valueToStringFunc}
 var referenceOpType = &operationType{Type: "REF", NumArgs: 0, Precedence: 50, Handler: referenceOperator}
-var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 50, Handler: envOperator}
+var envOpType = &operationType{Type: "ENV", NumArgs: 0, Precedence: 52, Handler: envOperator, CheckForPostTraverse: true}
 var notOpType = &operationType{Type: "NOT", NumArgs: 0, Precedence: 50, Handler: notOperator}
 var toNumberOpType = &operationType{Type: "TO_NUMBER", NumArgs: 0, Precedence: 50, Handler: toNumberOperator}
 var emptyOpType = &operationType{Type: "EMPTY", Precedence: 50, Handler: emptyOperator}

@@ -406,7 +406,7 @@ func envOp(strenv bool) yqAction {
 		envOperation.OperationType = envOpType
 		envOperation.Preferences = preferences
 
-		return &token{TokenType: operationToken, Operation: envOperation}, nil
+		return &token{TokenType: operationToken, Operation: envOperation, CheckForPostTraverse: envOpType.CheckForPostTraverse}, nil
 	}
 }
 
