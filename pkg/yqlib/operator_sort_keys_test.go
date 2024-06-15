@@ -14,6 +14,16 @@ var sortKeysOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Sort keys of map",
+		skipDoc:     true,
+		document:    `{c: frog, a: zoo}`,
+		expression:  `sort_keys(.)[]`,
+		expected: []string{
+			"D0, P[a], (!!str)::zoo\n",
+			"D0, P[c], (!!str)::frog\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{c: frog}`,
 		expression: `sort_keys(.d)`,

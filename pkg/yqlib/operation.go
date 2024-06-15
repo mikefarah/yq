@@ -89,7 +89,7 @@ var expressionOpType = &operationType{Type: "EXP", NumArgs: 0, Precedence: 50, H
 
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
 var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
-var filterOpType = &operationType{Type: "FILTER", NumArgs: 1, Precedence: 50, Handler: filterOperator}
+var filterOpType = &operationType{Type: "FILTER", NumArgs: 1, Precedence: 52, Handler: filterOperator, CheckForPostTraverse: true}
 var errorOpType = &operationType{Type: "ERROR", NumArgs: 1, Precedence: 50, Handler: errorOperator}
 var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}
 var omitOpType = &operationType{Type: "OMIT", NumArgs: 1, Precedence: 50, Handler: omitOperator}
@@ -140,12 +140,12 @@ var setPathOpType = &operationType{Type: "SET_PATH", NumArgs: 1, Precedence: 50,
 var delPathsOpType = &operationType{Type: "DEL_PATHS", NumArgs: 1, Precedence: 50, Handler: delPathsOperator}
 
 var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: explodeOperator}
-var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 50, Handler: sortByOperator}
-var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 50, Handler: reverseOperator}
-var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 50, Handler: sortOperator}
-var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 50, Handler: shuffleOperator}
+var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator, CheckForPostTraverse: true}
+var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 52, Handler: reverseOperator, CheckForPostTraverse: true}
+var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 52, Handler: sortOperator, CheckForPostTraverse: true}
+var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 52, Handler: shuffleOperator, CheckForPostTraverse: true}
 
-var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 50, Handler: sortKeysOperator}
+var sortKeysOpType = &operationType{Type: "SORT_KEYS", NumArgs: 1, Precedence: 52, Handler: sortKeysOperator, CheckForPostTraverse: true}
 
 var joinStringOpType = &operationType{Type: "JOIN", NumArgs: 1, Precedence: 50, Handler: joinStringOperator}
 var subStringOpType = &operationType{Type: "SUBSTR", NumArgs: 1, Precedence: 50, Handler: substituteStringOperator}

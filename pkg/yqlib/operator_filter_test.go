@@ -14,6 +14,16 @@ var filterOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Filter array splat",
+		skipDoc:     true,
+		document:    `[1,2,3]`,
+		expression:  `filter(. < 3)[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::1\n",
+			"D0, P[1], (!!int)::2\n",
+		},
+	},
+	{
 		description: "Filter map values",
 		document:    `{c: {things: cool, frog: yes}, d: {things: hot, frog: false}}`,
 		expression:  `filter(.things == "cool")`,

@@ -12,6 +12,16 @@ var reverseOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Reverse",
+		skipDoc:     true,
+		document:    "[1, 2]",
+		expression:  `reverse[]`,
+		expected: []string{
+			"D0, P[1], (!!int)::2\n",
+			"D0, P[0], (!!int)::1\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   "[]",
 		expression: `reverse`,
