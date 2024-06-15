@@ -33,11 +33,27 @@ var uniqueOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Unique array object fields",
+		description: "Unique array objects",
+		document:    `[{name: harry, pet: cat}, {name: billy, pet: dog}, {name: harry, pet: cat}]`,
+		expression:  `unique`,
+		expected: []string{
+			"D0, P[], (!!seq)::[{name: harry, pet: cat}, {name: billy, pet: dog}]\n",
+		},
+	},
+	{
+		description: "Unique array of objects by a field",
 		document:    `[{name: harry, pet: cat}, {name: billy, pet: dog}, {name: harry, pet: dog}]`,
 		expression:  `unique_by(.name)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[{name: harry, pet: cat}, {name: billy, pet: dog}]\n",
+		},
+	},
+	{
+		description: "Unique array of arrays",
+		document:    `[[cat,dog], [cat, sheep], [cat,dog]]`,
+		expression:  `unique`,
+		expected: []string{
+			"D0, P[], (!!seq)::[[cat, dog], [cat, sheep]]\n",
 		},
 	},
 	{

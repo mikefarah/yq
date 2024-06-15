@@ -23,7 +23,7 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 		candidate := el.Value.(*CandidateNode)
 
 		if candidate.Kind != SequenceNode {
-			return Context{}, fmt.Errorf("Only arrays are supported for unique")
+			return Context{}, fmt.Errorf("only arrays are supported for unique")
 		}
 
 		var newMatches = orderedmap.NewOrderedMap()
@@ -34,12 +34,9 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 				return Context{}, err
 			}
 
-			keyValue := "null"
-
-			if rhs.MatchingNodes.Len() > 0 {
-				first := rhs.MatchingNodes.Front()
-				keyCandidate := first.Value.(*CandidateNode)
-				keyValue = keyCandidate.Value
+			keyValue, err := getUniqueKeyValue(rhs)
+			if err != nil {
+				return Context{}, err
 			}
 
 			_, exists := newMatches.Get(keyValue)
@@ -58,4 +55,22 @@ func uniqueBy(d *dataTreeNavigator, context Context, expressionNode *ExpressionN
 
 	return context.ChildContext(results), nil
 
+}
+
+func getUniqueKeyValue(rhs Context) (string, error) {
+	keyValue := "null"
+
+	if rhs.MatchingNodes.Len() > 0 {
+		first := rhs.MatchingNodes.Front()
+		keyCandidate := first.Value.(*CandidateNode)
+		keyValue = keyCandidate.Value
+		if keyCandidate.Kind != ScalarNode {
+			var err error
+			keyValue, err = encodeToString(keyCandidate, encoderPreferences{YamlFormat, 0})
+			if err != nil {
+				return "", err
+			}
+		}
+	}
+	return keyValue, nil
 }
