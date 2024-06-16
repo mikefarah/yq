@@ -15,6 +15,16 @@ var omitOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Omit splat",
+		skipDoc:     true,
+		document:    "{cat: meow, dog: bark, hamster: squeak}\n",
+		expression:  `omit(["dog"])[]`,
+		expected: []string{
+			"D0, P[cat], (!!str)::meow\n",
+			"D0, P[hamster], (!!str)::squeak\n",
+		},
+	},
+	{
 		description: "Omit keys from map",
 		skipDoc:     true,
 		document:    "!things myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",

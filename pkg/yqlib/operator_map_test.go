@@ -16,6 +16,15 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `[1,2]`,
+		expression: `map(. + 1)[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::2\n",
+			"D0, P[1], (!!int)::3\n",
+		},
+	},
+	{
 		description: "Map array",
 		document:    `[1,2,3]`,
 		expression:  `map(. + 1)`,
@@ -31,6 +40,16 @@ var mapOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
 			"D0, P[], (!!map)::{x: 11, y: 21, z: 31}\n",
+		},
+	},
+	{
+		description: "map values splat",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2}`,
+		expression:  `map_values(. + 1)[]`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+			"D0, P[b], (!!int)::3\n",
 		},
 	},
 	{

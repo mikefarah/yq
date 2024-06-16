@@ -15,6 +15,16 @@ var pickOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Pick splat",
+		skipDoc:     true,
+		document:    "{cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",
+		expression:  `pick(["hamster", "cat"])[]`,
+		expected: []string{
+			"D0, P[hamster], (!!str)::squeak\n",
+			"D0, P[cat], (!!str)::meow\n",
+		},
+	},
+	{
 		description: "Pick keys from map",
 		skipDoc:     true,
 		document:    "!things myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",

@@ -110,6 +110,14 @@ var collectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `[1,2][]`,
+		expected: []string{
+			"D0, P[0], (!!int)::1\n",
+			"D0, P[1], (!!int)::2\n",
+		},
+	},
+	{
 		document:   `a: {b: [1,2,3]}`,
 		expression: `[.a.b.[]]`,
 		skipDoc:    true,

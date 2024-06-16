@@ -15,6 +15,15 @@ var evalOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "eval splat",
+		skipDoc:     true,
+		document:    `{pathExp: '.a.b[] | select(.name == "cat")', a: {b: [{name: dog}, {name: cat}]}}`,
+		expression:  `eval(.pathExp)[]`,
+		expected: []string{
+			"D0, P[a b 1 name], (!!str)::cat\n",
+		},
+	},
+	{
 		description:          "Dynamically update a path from an environment variable",
 		subdescription:       "The env variable can be any valid yq expression.",
 		document:             `{a: {b: [{name: dog}, {name: cat}]}}`,

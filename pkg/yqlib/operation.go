@@ -85,16 +85,17 @@ var lengthOpType = &operationType{Type: "LENGTH", NumArgs: 0, Precedence: 50, Ha
 var lineOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handler: lineOperator}
 var columnOpType = &operationType{Type: "LINE", NumArgs: 0, Precedence: 50, Handler: columnOperator}
 
+// Use this expression to create alias/syntactic sugar expressions (in lexer_participle).
 var expressionOpType = &operationType{Type: "EXP", NumArgs: 0, Precedence: 50, Handler: expressionOperator}
 
 var collectOpType = &operationType{Type: "COLLECT", NumArgs: 1, Precedence: 50, Handler: collectOperator}
-var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 50, Handler: mapOperator}
+var mapOpType = &operationType{Type: "MAP", NumArgs: 1, Precedence: 52, Handler: mapOperator, CheckForPostTraverse: true}
 var filterOpType = &operationType{Type: "FILTER", NumArgs: 1, Precedence: 52, Handler: filterOperator, CheckForPostTraverse: true}
 var errorOpType = &operationType{Type: "ERROR", NumArgs: 1, Precedence: 50, Handler: errorOperator}
-var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 50, Handler: pickOperator}
-var omitOpType = &operationType{Type: "OMIT", NumArgs: 1, Precedence: 50, Handler: omitOperator}
-var evalOpType = &operationType{Type: "EVAL", NumArgs: 1, Precedence: 50, Handler: evalOperator}
-var mapValuesOpType = &operationType{Type: "MAP_VALUES", NumArgs: 1, Precedence: 50, Handler: mapValuesOperator}
+var pickOpType = &operationType{Type: "PICK", NumArgs: 1, Precedence: 52, Handler: pickOperator, CheckForPostTraverse: true}
+var omitOpType = &operationType{Type: "OMIT", NumArgs: 1, Precedence: 52, Handler: omitOperator, CheckForPostTraverse: true}
+var evalOpType = &operationType{Type: "EVAL", NumArgs: 1, Precedence: 52, Handler: evalOperator, CheckForPostTraverse: true}
+var mapValuesOpType = &operationType{Type: "MAP_VALUES", NumArgs: 1, Precedence: 52, Handler: mapValuesOperator, CheckForPostTraverse: true}
 
 var formatDateTimeOpType = &operationType{Type: "FORMAT_DATE_TIME", NumArgs: 1, Precedence: 50, Handler: formatDateTime}
 var withDtFormatOpType = &operationType{Type: "WITH_DATE_TIME_FORMAT", NumArgs: 1, Precedence: 50, Handler: withDateTimeFormat}
@@ -135,12 +136,12 @@ var getDocumentIndexOpType = &operationType{Type: "GET_DOCUMENT_INDEX", NumArgs:
 var getFilenameOpType = &operationType{Type: "GET_FILENAME", NumArgs: 0, Precedence: 50, Handler: getFilenameOperator}
 var getFileIndexOpType = &operationType{Type: "GET_FILE_INDEX", NumArgs: 0, Precedence: 50, Handler: getFileIndexOperator}
 
-var getPathOpType = &operationType{Type: "GET_PATH", NumArgs: 0, Precedence: 50, Handler: getPathOperator}
+var getPathOpType = &operationType{Type: "GET_PATH", NumArgs: 0, Precedence: 52, Handler: getPathOperator, CheckForPostTraverse: true}
 var setPathOpType = &operationType{Type: "SET_PATH", NumArgs: 1, Precedence: 50, Handler: setPathOperator}
 var delPathsOpType = &operationType{Type: "DEL_PATHS", NumArgs: 1, Precedence: 50, Handler: delPathsOperator}
 
 var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: explodeOperator}
-var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator, CheckForPostTraverse: true}
+var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator}
 var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 52, Handler: reverseOperator, CheckForPostTraverse: true}
 var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 52, Handler: sortOperator, CheckForPostTraverse: true}
 var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 52, Handler: shuffleOperator, CheckForPostTraverse: true}
@@ -158,7 +159,7 @@ var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handle
 var toStringOpType = &operationType{Type: "TO_STRING", NumArgs: 0, Precedence: 50, Handler: toStringOperator}
 var stringInterpolationOpType = &operationType{Type: "STRING_INT", NumArgs: 0, Precedence: 50, Handler: stringInterpolationOperator, ToString: valueToStringFunc}
 
-var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadOperator}
+var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadOperator, CheckForPostTraverse: true}
 var loadStringOpType = &operationType{Type: "LOAD_STRING", NumArgs: 1, Precedence: 52, Handler: loadStringOperator}
 
 var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 52, Handler: keysOperator, CheckForPostTraverse: true}
