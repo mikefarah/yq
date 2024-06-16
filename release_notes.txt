@@ -1,3 +1,10 @@
+4.44.2:
+  - Handle numbers with underscores #2039
+  - Unique now works on maps and arrays #2068
+  - Added support for short hand splat with env[] expression #2071,
+    as well as many other operators (split,select,eval,pick..)
+  - Bumped dependencies
+  
 4.44.1:
   - Added min/max operators (#1992) Thanks @mbenson
   - Added pivot oeprator (#1993) Thanks @mbenson
