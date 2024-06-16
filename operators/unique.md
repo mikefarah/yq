@@ -63,7 +63,29 @@ will output
 - ~
 ```
 
-## Unique array object fields
+## Unique array objects
+Given a sample.yml file of:
+```yaml
+- name: harry
+  pet: cat
+- name: billy
+  pet: dog
+- name: harry
+  pet: cat
+```
+then
+```bash
+yq 'unique' sample.yml
+```
+will output
+```yaml
+- name: harry
+  pet: cat
+- name: billy
+  pet: dog
+```
+
+## Unique array of objects by a field
 Given a sample.yml file of:
 ```yaml
 - name: harry
@@ -83,5 +105,27 @@ will output
   pet: cat
 - name: billy
   pet: dog
+```
+
+## Unique array of arrays
+Given a sample.yml file of:
+```yaml
+- - cat
+  - dog
+- - cat
+  - sheep
+- - cat
+  - dog
+```
+then
+```bash
+yq 'unique' sample.yml
+```
+will output
+```yaml
+- - cat
+  - dog
+- - cat
+  - sheep
 ```
 
