@@ -117,9 +117,9 @@ var toEntriesOpType = &operationType{Type: "TO_ENTRIES", NumArgs: 0, Precedence:
 var fromEntriesOpType = &operationType{Type: "FROM_ENTRIES", NumArgs: 0, Precedence: 50, Handler: fromEntriesOperator}
 var withEntriesOpType = &operationType{Type: "WITH_ENTRIES", NumArgs: 1, Precedence: 50, Handler: withEntriesOperator}
 
-var withOpType = &operationType{Type: "WITH", NumArgs: 1, Precedence: 50, Handler: withOperator}
+var withOpType = &operationType{Type: "WITH", NumArgs: 1, Precedence: 52, Handler: withOperator, CheckForPostTraverse: true}
 
-var splitDocumentOpType = &operationType{Type: "SPLIT_DOC", NumArgs: 0, Precedence: 50, Handler: splitDocumentOperator}
+var splitDocumentOpType = &operationType{Type: "SPLIT_DOC", NumArgs: 0, Precedence: 52, Handler: splitDocumentOperator, CheckForPostTraverse: true}
 var getVariableOpType = &operationType{Type: "GET_VARIABLE", NumArgs: 0, Precedence: 55, Handler: getVariableOperator}
 var getStyleOpType = &operationType{Type: "GET_STYLE", NumArgs: 0, Precedence: 50, Handler: getStyleOperator}
 var getTagOpType = &operationType{Type: "GET_TAG", NumArgs: 0, Precedence: 50, Handler: getTagOperator}
@@ -138,10 +138,10 @@ var getFileIndexOpType = &operationType{Type: "GET_FILE_INDEX", NumArgs: 0, Prec
 
 var getPathOpType = &operationType{Type: "GET_PATH", NumArgs: 0, Precedence: 52, Handler: getPathOperator, CheckForPostTraverse: true}
 var setPathOpType = &operationType{Type: "SET_PATH", NumArgs: 1, Precedence: 50, Handler: setPathOperator}
-var delPathsOpType = &operationType{Type: "DEL_PATHS", NumArgs: 1, Precedence: 50, Handler: delPathsOperator}
+var delPathsOpType = &operationType{Type: "DEL_PATHS", NumArgs: 1, Precedence: 52, Handler: delPathsOperator, CheckForPostTraverse: true}
 
-var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 50, Handler: explodeOperator}
-var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator}
+var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 52, Handler: explodeOperator, CheckForPostTraverse: true}
+var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator, CheckForPostTraverse: true}
 var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 52, Handler: reverseOperator, CheckForPostTraverse: true}
 var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 52, Handler: sortOperator, CheckForPostTraverse: true}
 var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 52, Handler: shuffleOperator, CheckForPostTraverse: true}
@@ -153,7 +153,7 @@ var subStringOpType = &operationType{Type: "SUBSTR", NumArgs: 1, Precedence: 50,
 var matchOpType = &operationType{Type: "MATCH", NumArgs: 1, Precedence: 50, Handler: matchOperator}
 var captureOpType = &operationType{Type: "CAPTURE", NumArgs: 1, Precedence: 50, Handler: captureOperator}
 var testOpType = &operationType{Type: "TEST", NumArgs: 1, Precedence: 50, Handler: testOperator}
-var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 50, Handler: splitStringOperator}
+var splitStringOpType = &operationType{Type: "SPLIT", NumArgs: 1, Precedence: 52, Handler: splitStringOperator, CheckForPostTraverse: true}
 var changeCaseOpType = &operationType{Type: "CHANGE_CASE", NumArgs: 0, Precedence: 50, Handler: changeCaseOperator}
 var trimOpType = &operationType{Type: "TRIM", NumArgs: 0, Precedence: 50, Handler: trimSpaceOperator}
 var toStringOpType = &operationType{Type: "TO_STRING", NumArgs: 0, Precedence: 50, Handler: toStringOperator}
@@ -185,15 +185,15 @@ var envsubstOpType = &operationType{Type: "ENVSUBST", NumArgs: 0, Precedence: 50
 
 var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 0, Precedence: 50, Handler: recursiveDescentOperator}
 
-var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 50, Handler: selectOperator}
+var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 52, Handler: selectOperator, CheckForPostTraverse: true}
 var hasOpType = &operationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: hasOperator}
-var uniqueOpType = &operationType{Type: "UNIQUE", NumArgs: 0, Precedence: 50, Handler: unique}
-var uniqueByOpType = &operationType{Type: "UNIQUE_BY", NumArgs: 1, Precedence: 50, Handler: uniqueBy}
-var groupByOpType = &operationType{Type: "GROUP_BY", NumArgs: 1, Precedence: 50, Handler: groupBy}
-var flattenOpType = &operationType{Type: "FLATTEN_BY", NumArgs: 0, Precedence: 50, Handler: flattenOp}
+var uniqueOpType = &operationType{Type: "UNIQUE", NumArgs: 0, Precedence: 52, Handler: unique, CheckForPostTraverse: true}
+var uniqueByOpType = &operationType{Type: "UNIQUE_BY", NumArgs: 1, Precedence: 52, Handler: uniqueBy, CheckForPostTraverse: true}
+var groupByOpType = &operationType{Type: "GROUP_BY", NumArgs: 1, Precedence: 52, Handler: groupBy, CheckForPostTraverse: true}
+var flattenOpType = &operationType{Type: "FLATTEN_BY", NumArgs: 0, Precedence: 52, Handler: flattenOp, CheckForPostTraverse: true}
 var deleteChildOpType = &operationType{Type: "DELETE", NumArgs: 1, Precedence: 40, Handler: deleteChildOperator}
 
-var pivotOpType = &operationType{Type: "PIVOT", NumArgs: 0, Precedence: 50, Handler: pivotOperator}
+var pivotOpType = &operationType{Type: "PIVOT", NumArgs: 0, Precedence: 52, Handler: pivotOperator, CheckForPostTraverse: true}
 
 // debugging purposes only
 func (p *Operation) toString() string {

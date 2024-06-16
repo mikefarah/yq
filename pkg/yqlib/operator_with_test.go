@@ -12,6 +12,15 @@ var withOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "with splat",
+		skipDoc:     true,
+		document:    `a: {deeply: {nested: value}}`,
+		expression:  `with(.a.deeply.nested; . = "newValue" | . style="single")[]`,
+		expected: []string{
+			"D0, P[a], (!!map)::{deeply: {nested: 'newValue'}}\n",
+		},
+	},
+	{
 		description: "Update multiple deeply nested properties",
 		document:    `a: {deeply: {nested: value, other: thing}}`,
 		expression:  `with(.a.deeply; .nested = "newValue" | .other= "newThing")`,

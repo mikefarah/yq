@@ -29,6 +29,16 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "collect splat",
+		skipDoc:     true,
+		document:    `[{name: cat}, {name: dog}]`,
+		expression:  `.[] | {.name: "great"}[]`,
+		expected: []string{
+			"D0, P[cat], (!!str)::great\n",
+			"D0, P[dog], (!!str)::great\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `({} + {}) | (.b = 3)`,
 		expected: []string{

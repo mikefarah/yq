@@ -189,6 +189,16 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Explode splat",
+		skipDoc:     true,
+		document:    `{a: &a cat, b: *a}`,
+		expression:  `explode(.)[]`,
+		expected: []string{
+			"D0, P[a], (!!str)::cat\n",
+			"D0, P[b], (!!str)::cat\n",
+		},
+	},
+	{
 		description: "Explode alias and anchor - check original parent",
 		skipDoc:     true,
 		document:    `{a: &a cat, b: *a}`,

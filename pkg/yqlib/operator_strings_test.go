@@ -321,6 +321,16 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Split splat",
+		skipDoc:     true,
+		document:    `"word; cat"`,
+		expression:  `split("; ")[]`,
+		expected: []string{
+			"D0, P[0], (!!str)::word\n",
+			"D0, P[1], (!!str)::cat\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `!horse "word"`,
 		expression: `split("; ")`,

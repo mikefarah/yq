@@ -22,6 +22,16 @@ var splitDocOperatorScenarios = []expressionScenario{
 			"D1, P[1], (!!map)::{b: dog}\n",
 		},
 	},
+	{
+		description: "Split splat",
+		skipDoc:     true,
+		document:    `[{a: cat}, {b: dog}]`,
+		expression:  `.[] | split_doc[]`,
+		expected: []string{
+			"D0, P[0 a], (!!str)::cat\n",
+			"D1, P[1 b], (!!str)::dog\n",
+		},
+	},
 }
 
 func TestSplitDocOperatorScenarios(t *testing.T) {

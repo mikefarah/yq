@@ -15,11 +15,33 @@ var flattenOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Flatten splat",
+		skipDoc:     true,
+		document:    `[1, [2], [[3]]]`,
+		expression:  `flatten[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::1\n",
+			"D0, P[0], (!!int)::2\n",
+			"D0, P[0], (!!int)::3\n",
+		},
+	},
+	{
 		description: "Flatten with depth of one",
 		document:    `[1, [2], [[3]]]`,
 		expression:  `flatten(1)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[1, 2, [3]]\n",
+		},
+	},
+	{
+		description: "Flatten with depth and splat",
+		skipDoc:     true,
+		document:    `[1, [2], [[3]]]`,
+		expression:  `flatten(1)[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::1\n",
+			"D0, P[0], (!!int)::2\n",
+			"D0, P[0], (!!seq)::[3]\n",
 		},
 	},
 	{

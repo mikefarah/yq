@@ -12,6 +12,16 @@ var pivotOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Pivot splat",
+		skipDoc:     true,
+		document:    "[[foo, bar], [sis, boom]]\n",
+		expression:  `pivot[]`,
+		expected: []string{
+			"D0, P[0], ()::- foo\n- sis\n",
+			"D0, P[1], ()::- bar\n- boom\n",
+		},
+	},
+	{
 		description:    "Pivot sequence of heterogeneous sequences",
 		subdescription: `Missing values are "padded" to null.`,
 		document:       "[[foo, bar, baz], [sis, boom, bah, blah]]\n",

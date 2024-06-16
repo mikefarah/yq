@@ -328,7 +328,7 @@ func flattenWithDepth() yqAction {
 
 		prefs := flattenPreferences{depth: depth}
 		op := &Operation{OperationType: flattenOpType, Value: flattenOpType.Type, StringValue: value, Preferences: prefs}
-		return &token{TokenType: operationToken, Operation: op}, nil
+		return &token{TokenType: operationToken, Operation: op, CheckForPostTraverse: flattenOpType.CheckForPostTraverse}, nil
 	}
 }
 

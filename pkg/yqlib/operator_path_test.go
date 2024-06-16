@@ -140,6 +140,15 @@ var pathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Delete splat",
+		skipDoc:     true,
+		document:    `a: [cat, frog]`,
+		expression:  `delpaths([["a", 0]])[]`,
+		expected: []string{
+			"D0, P[a], (!!seq)::[frog]\n",
+		},
+	},
+	{
 		description:    "Delete - wrong parameter",
 		subdescription: "delpaths does not work with a single path array",
 		document:       `a: [cat, frog]`,

@@ -76,6 +76,17 @@ var selectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "select splat",
+		skipDoc:     true,
+		document:    "a: hello",
+		document2:   "b: world",
+		expression:  `select(.a == "hello" or .b == "world")[]`,
+		expected: []string{
+			"D0, P[a], (!!str)::hello\n",
+			"D0, P[b], (!!str)::world\n",
+		},
+	},
+	{
 		description: "select does not update the map",
 		skipDoc:     true,
 		document:    `[{animal: cat, legs: {cool: true}}, {animal: fish}]`,

@@ -15,6 +15,16 @@ var uniqueOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Unique splat",
+		skipDoc:     true,
+		document:    `[2,1,2]`,
+		expression:  `unique[]`,
+		expected: []string{
+			"D0, P[0], (!!int)::2\n",
+			"D0, P[1], (!!int)::1\n",
+		},
+	},
+	{
 		description:    "Unique nulls",
 		subdescription: "Unique works on the node value, so it considers different representations of nulls to be different",
 		document:       `[~,null, ~, null]`,
@@ -62,6 +72,16 @@ var uniqueOperatorScenarios = []expressionScenario{
 		expression: `unique_by(.name)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[{name: harry, pet: cat}, {pet: fish}]\n",
+		},
+	},
+	{
+		description: "unique by splat",
+		skipDoc:     true,
+		document:    `[{name: harry, pet: cat}, {pet: fish}, {name: harry, pet: dog}]`,
+		expression:  `unique_by(.name)[]`,
+		expected: []string{
+			"D0, P[0], (!!map)::{name: harry, pet: cat}\n",
+			"D0, P[1], (!!map)::{pet: fish}\n",
 		},
 	},
 	{
