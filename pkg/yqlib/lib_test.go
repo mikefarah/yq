@@ -106,6 +106,7 @@ func TestParseSnippet(t *testing.T) {
 type parseInt64Scenario struct {
 	numberString         string
 	expectedParsedNumber int64
+	expectedFormatString string
 }
 
 var parseInt64Scenarios = []parseInt64Scenario{
@@ -114,8 +115,18 @@ var parseInt64Scenarios = []parseInt64Scenario{
 		expectedParsedNumber: 34,
 	},
 	{
+		numberString:         "10_000",
+		expectedParsedNumber: 10000,
+		expectedFormatString: "10000",
+	},
+	{
 		numberString:         "0x10",
 		expectedParsedNumber: 16,
+	},
+	{
+		numberString:         "0x10_000",
+		expectedParsedNumber: 65536,
+		expectedFormatString: "0x10000",
 	},
 	{
 		numberString:         "0o10",
@@ -132,7 +143,10 @@ func TestParseInt64(t *testing.T) {
 			t.Error(err)
 		}
 		test.AssertResultComplexWithContext(t, tt.expectedParsedNumber, actualNumber, tt.numberString)
+		if tt.expectedFormatString == "" {
+			tt.expectedFormatString = tt.numberString
+		}
 
-		test.AssertResultComplexWithContext(t, tt.numberString, fmt.Sprintf(format, actualNumber), fmt.Sprintf("Formatting of: %v", tt.numberString))
+		test.AssertResultComplexWithContext(t, tt.expectedFormatString, fmt.Sprintf(format, actualNumber), fmt.Sprintf("Formatting of: %v", tt.numberString))
 	}
 }

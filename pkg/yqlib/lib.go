@@ -135,8 +135,12 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	return false
 }
 
-// yaml numbers can be hex and octal encoded...
+// yaml numbers can have underscores, be hex and octal encoded...
 func parseInt64(numberString string) (string, int64, error) {
+	if strings.Contains(numberString, "_") {
+		numberString = strings.ReplaceAll(numberString, "_", "")
+	}
+
 	if strings.HasPrefix(numberString, "0x") ||
 		strings.HasPrefix(numberString, "0X") {
 		num, err := strconv.ParseInt(numberString[2:], 16, 64)
