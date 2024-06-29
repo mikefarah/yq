@@ -102,7 +102,8 @@ func interpolate(d *dataTreeNavigator, context Context, str string) (string, err
 		}
 	}
 	if inExpression {
-		return "", fmt.Errorf("unclosed interpolation string \\(")
+		log.Warning("unclosed interpolation string, skipping interpolation")
+		return str, nil
 	}
 	return sb.String(), nil
 }

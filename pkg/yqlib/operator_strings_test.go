@@ -66,18 +66,22 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:       true,
-		description:   "Interpolation - unclosed interpolation string",
-		document:      `value: things`,
-		expression:    `"Hi \("`,
-		expectedError: "unclosed interpolation string \\(",
+		skipDoc:     true,
+		description: "Interpolation - unclosed interpolation string",
+		document:    `value: things`,
+		expression:  `"Hi \("`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi \\(\n",
+		},
 	},
 	{
-		skipDoc:       true,
-		description:   "Interpolation - unclosed interpolation string due to escape",
-		document:      `value: things`,
-		expression:    `"Hi \(\)"`,
-		expectedError: "unclosed interpolation string \\(",
+		skipDoc:     true,
+		description: "Interpolation - unclosed interpolation string due to escape",
+		document:    `value: things`,
+		expression:  `"Hi \(\)"`,
+		expected: []string{
+			"D0, P[], (!!str)::Hi \\(\\)\n",
+		},
 	},
 	{
 		description:    "To up (upper) case",
