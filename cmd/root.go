@@ -71,9 +71,14 @@ yq -P -oy sample.json
 			level := logging.WARNING
 			stringFormat := `[%{level}] %{color}%{time:15:04:05}%{color:reset} %{message}`
 
-			if verbose {
+			if verbose && forceNoColor {
+				level = logging.DEBUG
+				stringFormat = `[%{level:5.5s}] %{time:15:04:05} %{shortfile:-33s} %{shortfunc:-25s} %{message}`
+			} else if verbose {
 				level = logging.DEBUG
 				stringFormat = `[%{level:5.5s}] %{color}%{time:15:04:05}%{color:bold} %{shortfile:-33s} %{shortfunc:-25s}%{color:reset} %{message}`
+			} else if forceNoColor {
+				stringFormat = `[%{level}] %{time:15:04:05} %{message}`
 			}
 
 			var format = logging.MustStringFormatter(stringFormat)
