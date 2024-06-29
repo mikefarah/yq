@@ -95,10 +95,20 @@ func parseSnippet(value string) (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if result.Kind == ScalarNode {
+		result.LineComment = result.LeadingContent
+	} else {
+		result.HeadComment = result.LeadingContent
+	}
+	result.LeadingContent = ""
+
 	if result.Tag == "!!str" {
 		// use the original string value, as
 		// decoding drops new lines
-		return createScalarNode(value, value), nil
+		newNode := createScalarNode(value, value)
+		newNode.LineComment = result.LineComment
+		return newNode, nil
 	}
 	result.Line = 0
 	result.Column = 0

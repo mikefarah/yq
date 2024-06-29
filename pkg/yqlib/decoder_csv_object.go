@@ -31,7 +31,7 @@ func (dec *csvObjectDecoder) convertToNode(content string) *CandidateNode {
 	node, err := parseSnippet(content)
 	// if we're not auto-parsing, then we wont put in parsed objects or arrays
 	// but we still parse scalars
-	if err != nil || (!dec.prefs.AutoParse && node.Kind != ScalarNode) {
+	if err != nil || (!dec.prefs.AutoParse && (node.Kind != ScalarNode || node.Value != content)) {
 		return createScalarNode(content, content)
 	}
 	return node

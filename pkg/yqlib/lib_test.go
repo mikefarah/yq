@@ -63,6 +63,16 @@ var parseSnippetScenarios = []parseSnippetScenario{
 		},
 	},
 	{
+		snippet: "# things",
+		expected: &CandidateNode{
+			Kind:        ScalarNode,
+			Tag:         "!!null",
+			LineComment: "# things",
+			Line:        0,
+			Column:      0,
+		},
+	},
+	{
 		snippet: "3.1",
 		expected: &CandidateNode{
 			Kind:   ScalarNode,

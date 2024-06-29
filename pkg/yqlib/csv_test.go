@@ -187,6 +187,20 @@ var csvScenarios = []formatScenario{
 		scenarioType:   "decode-csv-no-auto",
 	},
 	{
+		description:  "values starting with #, no auto parse",
+		skipDoc:      true,
+		input:        "value\n#ffff",
+		expected:     "- value: '#ffff'\n",
+		scenarioType: "decode-csv-no-auto",
+	},
+	{
+		description:  "values starting with #",
+		skipDoc:      true,
+		input:        "value\n#ffff",
+		expected:     "- value: #ffff\n",
+		scenarioType: "decode-csv",
+	},
+	{
 		description:  "Scalar roundtrip",
 		skipDoc:      true,
 		input:        "mike\ncat",
