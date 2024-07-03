@@ -20,6 +20,8 @@ apps:
 parts:
   yq:
     plugin: go
+    build-environment:
+      - CGO_ENABLED: 0
     source: https://github.com/mikefarah/yq.git
     source-tag: v4.44.2
     build-snaps:
