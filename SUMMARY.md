@@ -55,7 +55,7 @@
   * [Path](operators/path.md)
   * [Pick](operators/pick.md)
   * [Pipe](operators/pipe.md)
-  * [Pivot](operators/pipe.md)
+  * [Pivot](operators/pivot.md)
   * [Recursive Descent (Glob)](operators/recursive-descent-glob.md)
   * [Reduce](operators/reduce.md)
   * [Reverse](operators/reverse.md)
