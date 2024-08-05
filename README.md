@@ -308,6 +308,13 @@ apk add yq
 
 Supported by Tuan Hoang (https://pkgs.alpinelinux.org/packages?name=yq-go)
 
+### Flox:
+
+Flox can be used to install yq on Linux, MacOS, and Windows through WSL.
+
+```
+flox install yq
+```
 
 ## Features
 - [Detailed documentation with many examples](https://mikefarah.gitbook.io/yq/)
