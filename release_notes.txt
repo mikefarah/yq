@@ -1,3 +1,10 @@
+4.44.3:
+  - Fixed upper-case file extension detection, Thanks @ryenus (#2121)
+  - Log printing follow no-colors flag #2082
+  - Skip and warn when interpolating strings and theres a unclosed bracket #2083
+  - Fixed CSV content starting with # issue #2076
+  - Bumped dependencies 
+
 4.44.2:
   - Handle numbers with underscores #2039
   - Unique now works on maps and arrays #2068
