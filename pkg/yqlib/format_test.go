@@ -50,3 +50,13 @@ func TestFormatFromString(t *testing.T) {
 		}
 	}
 }
+
+func TestFormatStringFromFilename(t *testing.T) {
+	test.AssertResult(t, "yaml", FormatStringFromFilename("test.Yaml"))
+	test.AssertResult(t, "yaml", FormatStringFromFilename("test.index.Yaml"))
+	test.AssertResult(t, "yaml", FormatStringFromFilename("test"))
+	test.AssertResult(t, "json", FormatStringFromFilename("test.json"))
+	test.AssertResult(t, "json", FormatStringFromFilename("TEST.JSON"))
+	test.AssertResult(t, "yaml", FormatStringFromFilename("test.json/foo"))
+	test.AssertResult(t, "yaml", FormatStringFromFilename(""))
+}
