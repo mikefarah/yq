@@ -2,7 +2,7 @@ MAKEFLAGS += --warn-undefined-variables
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -euc
 .DEFAULT_GOAL := install
-ENGINE := $(shell { command -v podman || command -v docker; } 2>/dev/null)
+ENGINE := $(shell { (podman version > /dev/null 2>&1 && command -v podman) || command -v docker; } 2>/dev/null)
 
 include Makefile.variables
 
