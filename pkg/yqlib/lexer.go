@@ -126,7 +126,7 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 	if tokenIsOpType(currentToken, createMapOpType) {
 		log.Debugf("tokenIsOpType: createMapOpType")
 		// check the previous token is '[', means we are slice, but dont have a first number
-		if tokens[index-1].TokenType == traverseArrayCollect {
+		if index > 0 && tokens[index-1].TokenType == traverseArrayCollect {
 			log.Debugf("previous token is : traverseArrayOpType")
 			// need to put the number 0 before this token, as that is implied
 			postProcessedTokens = append(postProcessedTokens, &token{TokenType: operationToken, Operation: createValueOperation(0, "0")})
