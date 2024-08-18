@@ -29,6 +29,7 @@ builds:
       - linux_mipsle
       - linux_ppc64
       - linux_ppc64le
+      - linux_riscv64
       - linux_s390x
       - netbsd_386
       - netbsd_amd64
