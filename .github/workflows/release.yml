@@ -40,7 +40,7 @@ jobs:
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
-          go install github.com/mitchellh/gox@v1.0.1
+          go install github.com/goreleaser/goreleaser/v2@latest
           mkdir -p build
           cp yq.1 build/yq.1
           ./scripts/xcompile.sh

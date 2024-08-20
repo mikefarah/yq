@@ -1,0 +1,46 @@
+version: 2
+
+dist: build
+
+builds:
+  - id: yq
+
+    binary: yq_{{ .Os }}_{{ .Arch }}
+
+    ldflags:
+      - -s -w
+
+    env:
+      - CGO_ENABLED=0
+
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - freebsd_386
+      - freebsd_amd64
+      - freebsd_arm
+      - linux_386
+      - linux_amd64
+      - linux_arm
+      - linux_arm64
+      - linux_mips
+      - linux_mips64
+      - linux_mips64le
+      - linux_mipsle
+      - linux_ppc64
+      - linux_ppc64le
+      - linux_riscv64
+      - linux_s390x
+      - netbsd_386
+      - netbsd_amd64
+      - netbsd_arm
+      - openbsd_386
+      - openbsd_amd64
+      - windows_386
+      - windows_amd64
+
+    no_unique_dist_dir: true
+
+release:
+  disable: true
+  skip_upload: true
