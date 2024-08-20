@@ -16,6 +16,7 @@ axbxcxdxe
 axbxcxdxexxx
 bananabanana
 barp
+nbaz
 bitnami
 blarp
 blddir
@@ -89,6 +90,8 @@ goccy
 gofmt
 gogo
 golangci
+goreleaser
+GORELEASER
 GOMODCACHE
 GOPATH
 gosec
