@@ -8,20 +8,20 @@ import (
 )
 
 type base64Padder struct {
-	count uint64
+	count int
 	io.Reader
 }
 
 func (c *base64Padder) pad(buf []byte) (int, error) {
-	pad := strings.Repeat("=", int(4-c.count%4))
+	pad := strings.Repeat("=", (4 - c.count%4))
 	n, err := strings.NewReader(pad).Read(buf)
-	c.count += uint64(n)
+	c.count += n
 	return n, err
 }
 
 func (c *base64Padder) Read(buf []byte) (int, error) {
 	n, err := c.Reader.Read(buf)
-	c.count += uint64(n)
+	c.count += n
 
 	if err == io.EOF && c.count%4 != 0 {
 		return c.pad(buf)
