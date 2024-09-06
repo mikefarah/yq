@@ -241,6 +241,14 @@ As these are supported by the community :heart: - however, they may be out of da
 _Please note that the Debian package (previously supported by @rmescandon) is no longer maintained. Please use an alternative installation method._
 
 
+### X-CMD
+Checkout `yq` on x-cmd: https://x-cmd.com/mod/yq
+
+- Instant Results: See the output of your yq filter in real-time.
+- Error Handling: Encounter a syntax error? It will display the error message and the results of the closest valid filter
+
+Thanks @edwinjhlee!
+
 ### Nix
 
 ```
