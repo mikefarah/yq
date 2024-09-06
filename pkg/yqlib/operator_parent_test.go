@@ -22,6 +22,14 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Get parent attribute",
+		document:    `{a: {fruit: apple, name: bob}, b: {fruit: banana, name: sam}}`,
+		expression:  `.. | select(. == "banana") | parent.name`,
+		expected: []string{
+			"D0, P[b name], (!!str)::sam\n",
+		},
+	},
+	{
 		description:    "N-th parent",
 		subdescription: "You can optionally supply the number of levels to go up for the parent, the default being 1.",
 		document:       "a:\n  b:\n    c: cat\n",

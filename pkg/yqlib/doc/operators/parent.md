@@ -37,6 +37,25 @@ fruit: banana
 name: sam
 ```
 
+## Get parent attribute
+Given a sample.yml file of:
+```yaml
+a:
+  fruit: apple
+  name: bob
+b:
+  fruit: banana
+  name: sam
+```
+then
+```bash
+yq '.. | select(. == "banana") | parent.name' sample.yml
+```
+will output
+```yaml
+sam
+```
+
 ## N-th parent
 You can optionally supply the number of levels to go up for the parent, the default being 1.
 
