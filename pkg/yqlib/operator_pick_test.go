@@ -15,6 +15,15 @@ var pickOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Pick keys from map, included all the keys",
+		subdescription: "We create a map of the picked keys plus all the current keys, and run that through unique",
+		document:       "myMap: {cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",
+		expression:     `.myMap |= pick( (["thing"] + keys) | unique)`,
+		expected: []string{
+			"D0, P[], (!!map)::myMap: {thing: hamster, cat: meow, dog: bark, hamster: squeak}\n",
+		},
+	},
+	{
 		description: "Pick splat",
 		skipDoc:     true,
 		document:    "{cat: meow, dog: bark, thing: hamster, hamster: squeak}\n",
