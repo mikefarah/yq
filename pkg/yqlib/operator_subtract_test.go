@@ -14,6 +14,14 @@ var subtractOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "subtract sequence creates a new sequence",
+		expression:  `["a", "b"] as $f | {0:$f - ["a"], 1:$f}`,
+		expected: []string{
+			"D0, P[], (!!map)::0:\n    - b\n1:\n    - a\n    - b\n",
+		},
+	},
+	{
 		description: "Array subtraction",
 		expression:  `[1,2] - [2,3]`,
 		expected: []string{

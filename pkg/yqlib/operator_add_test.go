@@ -15,6 +15,14 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "add sequence creates a new sequence",
+		expression:  `["a"] as $f | {0:$f + ["b"], 1:$f}`,
+		expected: []string{
+			"D0, P[], (!!map)::0:\n    - a\n    - b\n1:\n    - a\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `a: key`,
 		expression: `. += {"key": "b"}`,
