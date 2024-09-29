@@ -11,6 +11,11 @@ func getExpressionParser() ExpressionParserInterface {
 	return ExpressionParser
 }
 
+func TestParserCreateMapColonOnItsOwn(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression(":")
+	test.AssertResultComplex(t, "':' expects 2 args but there is 0", err.Error())
+}
+
 func TestParserNoMatchingCloseBracket(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression(".cat | with(.;.bob")
 	test.AssertResultComplex(t, "bad expression - probably missing close bracket on WITH", err.Error())
