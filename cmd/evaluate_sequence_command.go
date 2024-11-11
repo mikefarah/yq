@@ -13,7 +13,7 @@ func createEvaluateSequenceCommand() *cobra.Command {
 		Use:     "eval [expression] [yaml_file1]...",
 		Aliases: []string{"e"},
 		Short:   "(default) Apply the expression to each document in each yaml file in sequence",
-		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) { //nolint:revive
 			if len(args) == 0 {
 				return nil, cobra.ShellCompDirectiveNoFileComp
 			}
