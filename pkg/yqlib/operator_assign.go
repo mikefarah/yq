@@ -7,7 +7,7 @@ type assignPreferences struct {
 }
 
 func assignUpdateFunc(prefs assignPreferences) crossFunctionCalculation {
-	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	return func(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		if !prefs.OnlyWriteNull || lhs.Tag == "!!null" {
 			lhs.UpdateFrom(rhs, prefs)
 		}

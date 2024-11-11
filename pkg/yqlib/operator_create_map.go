@@ -53,7 +53,7 @@ func sequenceFor(d *dataTreeNavigator, context Context, matchingNode *CandidateN
 	log.Debugf("**********sequenceFor %v", NodeToString(matchingNode))
 
 	mapPairs, err := crossFunction(d, context.ChildContext(matches), expressionNode,
-		func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+		func(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 			node := &CandidateNode{Kind: MappingNode, Tag: "!!map"}
 
 			log.Debugf("**********adding key %v and value %v", NodeToString(lhs), NodeToString(rhs))
