@@ -18,7 +18,7 @@ func compareOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 }
 
 func compare(prefs compareTypePref) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	return func(_ *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		log.Debugf("compare cross function")
 		if lhs == nil && rhs == nil {
 			owner := &CandidateNode{}

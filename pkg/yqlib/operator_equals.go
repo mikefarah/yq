@@ -6,7 +6,7 @@ func equalsOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 }
 
 func isEquals(flip bool) func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
-	return func(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
+	return func(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error) {
 		value := false
 		log.Debugf("isEquals cross function")
 		if lhs == nil && rhs == nil {
