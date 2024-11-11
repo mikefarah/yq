@@ -10,7 +10,9 @@ linters:
     - gofmt
     - goimports
     - gosec
-    - megacheck
+    - gosimple
+    - staticcheck
+    - unused
     - misspell
     - nakedret
     - nolintlint
