@@ -1,7 +1,7 @@
 package yqlib
 
 import (
-	"fmt"
+	"errors"
 )
 
 func errorOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -16,5 +16,5 @@ func errorOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	if rhs.MatchingNodes.Len() > 0 {
 		errorMessage = rhs.MatchingNodes.Front().Value.(*CandidateNode).Value
 	}
-	return Context{}, fmt.Errorf(errorMessage)
+	return Context{}, errors.New(errorMessage)
 }
