@@ -1,4 +1,5 @@
 4.44.4:
+- Format comments with a gray foreground (Thanks @gabe565)
 - Fixed handling of nulls with sort_by expressions #2164
 - Force no color output when NO_COLOR env presents (Thanks @narqo)
 - Fixed array subtraction update bug #2159
