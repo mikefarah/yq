@@ -1,3 +1,6 @@
+4.44.5:
+  - Fixing release pipeline
+
 4.44.4:
 - Format comments with a gray foreground (Thanks @gabe565)
 - Fixed handling of nulls with sort_by expressions #2164
