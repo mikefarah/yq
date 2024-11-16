@@ -22,6 +22,17 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Sort by with null",
+		skipDoc:     true,
+		document:    "[{a: banana},null,{a: apple}]",
+		expression:  `sort_by(.a)[]`,
+		expected: []string{
+			"D0, P[1], (!!null)::null\n",
+			"D0, P[2], (!!map)::{a: apple}\n",
+			"D0, P[0], (!!map)::{a: banana}\n",
+		},
+	},
+	{
 		description: "Sort by multiple fields",
 		document:    "[{a: dog},{a: cat, b: banana},{a: cat, b: apple}]",
 		expression:  `sort_by(.a, .b)`,

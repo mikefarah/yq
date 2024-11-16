@@ -286,7 +286,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		}
 
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-		if err != nil && !errors.Is(io.EOF, err) {
+		if err != nil && !errors.Is(err, io.EOF) {
 			return false, err
 		}
 	}
@@ -343,7 +343,7 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	tableValue := dec.parser.Expression()
 	runAgainstCurrentExp, err := dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
 	log.Debugf("table node err: %w", err)
-	if err != nil && !errors.Is(io.EOF, err) {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return false, err
 	}
 	c := Context{}

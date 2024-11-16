@@ -10,7 +10,9 @@ linters:
     - gofmt
     - goimports
     - gosec
-    - megacheck
+    - gosimple
+    - staticcheck
+    - unused
     - misspell
     - nakedret
     - nolintlint
@@ -31,13 +33,6 @@ linters-settings:
             desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
 issues:
   exclude-rules:
-  - linters:
-    - gosec
-    text:  "Implicit memory aliasing in for loop."
-    path: _test\.go
-  - linters:
-    - revive
-    text: "unexported-return"
   - linters:
     - revive
     text: "var-naming"
