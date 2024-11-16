@@ -56,6 +56,12 @@ func colorizeAndPrint(yamlBytes []byte, writer io.Writer) error {
 			Suffix: format(color.Reset),
 		}
 	}
+	p.Comment = func() *printer.Property {
+		return &printer.Property{
+			Prefix: format(color.FgHiBlack),
+			Suffix: format(color.Reset),
+		}
+	}
 	_, err := writer.Write([]byte(p.PrintTokens(tokens) + "\n"))
 	return err
 }
