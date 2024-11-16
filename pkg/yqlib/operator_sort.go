@@ -69,6 +69,7 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	rhsContext := a[j].CompareContext
 
 	rhsEl := rhsContext.MatchingNodes.Front()
+
 	for lhsEl := lhsContext.MatchingNodes.Front(); lhsEl != nil && rhsEl != nil; lhsEl = lhsEl.Next() {
 		lhs := lhsEl.Value.(*CandidateNode)
 		rhs := rhsEl.Value.(*CandidateNode)
@@ -83,7 +84,7 @@ func (a sortableNodeArray) Less(i, j int) bool {
 
 		rhsEl = rhsEl.Next()
 	}
-	return false
+	return lhsContext.MatchingNodes.Len() < rhsContext.MatchingNodes.Len()
 }
 
 func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateTimeLayout string) int {
