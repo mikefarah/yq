@@ -1,4 +1,4 @@
-FROM golang:1.23.3 as builder
+FROM golang:1.23.3 AS builder
 
 WORKDIR /go/src/mikefarah/yq
 
@@ -10,7 +10,7 @@ RUN ./scripts/acceptance.sh
 
 # Choose alpine as a base image to make this useful for CI, as many
 # CI tools expect an interactive shell inside the container
-FROM alpine:3 as production
+FROM alpine:3 AS production
 LABEL maintainer="Mike Farah <mikefarah@users.noreply.github.com>"
 
 COPY --from=builder /go/src/mikefarah/yq/yq /usr/bin/yq
