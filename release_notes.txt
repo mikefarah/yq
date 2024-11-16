@@ -1,3 +1,11 @@
+4.44.4:
+- Fixed handling of nulls with sort_by expressions #2164
+- Force no color output when NO_COLOR env presents (Thanks @narqo)
+- Fixed array subtraction update bug #2159
+- Fixed index out of range error
+- Can traverse straight from parent operator (parent.blah)
+- Bumped dependencies 
+
 4.44.3:
   - Fixed upper-case file extension detection, Thanks @ryenus (#2121)
   - Log printing follow no-colors flag #2082
