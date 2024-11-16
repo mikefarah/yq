@@ -8,7 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	yaml "gopkg.in/yaml.v3"
+	"github.com/fatih/color"
+	"gopkg.in/yaml.v3"
 )
 
 type yamlEncoder struct {
@@ -53,6 +54,9 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 		} else {
 			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRegEx.MatchString(readline) {
 				readline = "# " + readline
+			}
+			if ye.prefs.ColorsEnabled && strings.TrimSpace(readline) != "" {
+				readline = format(color.FgHiBlack) + readline + format(color.Reset)
 			}
 			if err := writeString(writer, readline); err != nil {
 				return err
