@@ -90,6 +90,10 @@ yq -P -oy sample.json
 			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
 
+			// when NO_COLOR environment variable presents and not an empty string the coloured output should be disabled;
+			// refer to no-color.org
+			forceNoColor = os.Getenv("NO_COLOR") != ""
+
 			return nil
 		},
 	}
