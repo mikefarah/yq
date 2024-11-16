@@ -66,7 +66,7 @@ yq -P -oy sample.json
 			return evaluateSequence(cmd, args)
 
 		},
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error { //nolint:revive
+		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			cmd.SetOut(cmd.OutOrStdout())
 			level := logging.WARNING
 			stringFormat := `[%{level}] %{color}%{time:15:04:05}%{color:reset} %{message}`
