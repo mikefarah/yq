@@ -41,8 +41,6 @@ jobs:
         run: |
           sudo apt-get install rhash -y
           go install github.com/goreleaser/goreleaser/v2@latest
-          mkdir -p build
-          cp yq.1 build/yq.1
           ./scripts/xcompile.sh
 
       - name: Release

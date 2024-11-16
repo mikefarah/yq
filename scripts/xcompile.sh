@@ -8,7 +8,11 @@ if [ -z "$CI" ]; then
   GORELEASER+=" --snapshot"
 fi
 
+mkdir -p build
+
 $GORELEASER
+
+cp yq.1 build/yq.1
 
 cd build
 
