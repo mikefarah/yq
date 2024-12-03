@@ -81,6 +81,7 @@ func deleteFromArray(node *CandidateNode, childPath interface{}) {
 		shouldDelete := fmt.Sprintf("%v", index) == fmt.Sprintf("%v", childPath)
 
 		if !shouldDelete {
+			value.Key.Value = fmt.Sprintf("%v", len(newContents))
 			newContents = append(newContents, value)
 		}
 	}
