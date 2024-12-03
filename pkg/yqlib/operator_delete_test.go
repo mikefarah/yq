@@ -179,6 +179,15 @@ var deleteOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{a: {b: {age: 12}}}\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Repeatedly delete the first element of a list",
+		document:    `a: [0, 1, 2, 3]`,
+		expression:  `del(.a[0]) | del(.a[0])`,
+		expected: []string{
+			"D0, P[], (!!map)::a: [2, 3]\n",
+		},
+	},
 }
 
 func TestDeleteOperatorScenarios(t *testing.T) {
