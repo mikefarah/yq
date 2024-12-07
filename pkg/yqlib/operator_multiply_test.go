@@ -202,6 +202,13 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:   "Multiply string X by negative int",
+		skipDoc:       true,
+		document:      `n: -4`,
+		expression:    `"banana" * .n`,
+		expectedError: "Cannot repeat string by a negative number (-4)",
+	},
+	{
 		description: "Multiply int node X string",
 		document: `n: 4
 `,

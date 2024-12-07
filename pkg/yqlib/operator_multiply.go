@@ -153,6 +153,8 @@ func repeatString(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error
 	count, err := parseInt(intNode.Value)
 	if err != nil {
 		return nil, err
+	} else if count < 0 {
+		return nil, fmt.Errorf("Cannot repeat string by a negative number (%v)", count)
 	}
 	target.Value = strings.Repeat(stringNode.Value, count)
 
