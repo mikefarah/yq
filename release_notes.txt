@@ -1,3 +1,10 @@
+4.44.6:
+  - Fixed deleting items in array bug #2027, #2172; Thanks @jandubois 
+  - Docker image for armv7 / raspberry pi3, Thanks @brianegge
+  - Fixed no-colors regression #2218
+  - Fixed various panic scenarios #2211
+  - Bumped dependencies 
+
 4.44.5:
   - Fixing release pipeline
 
