@@ -2,6 +2,7 @@
 
 setUp() {
   rm test*.yml || true
+  rm -rf test_dir* || true
 }
 
 testBasicSplitWithName() {
@@ -202,6 +203,25 @@ name: test_mike
 age: 564
 EOM
   assertEquals "$expectedDoc3" "$doc3"
+}
+
+testSplitWithDirectories() {
+  cat >test.yml <<EOL
+f: test_dir1/file1
+---
+f: test_dir2/dir22/file2
+---
+f: file3
+EOL
+
+  ./yq e --no-doc -s ".f" test.yml
+
+  doc1=$(cat test_dir1/file1.yml)
+  assertEquals "f: test_dir1/file1" "$doc1"
+  doc2=$(cat test_dir2/dir22/file2.yml)
+  assertEquals "f: test_dir2/dir22/file2" "$doc2"
+  doc3=$(cat file3.yml)
+  assertEquals "f: file3" "$doc3"
 }
 
 source ./scripts/shunit2

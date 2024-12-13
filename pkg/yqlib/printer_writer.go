@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"regexp"
 )
 
@@ -70,6 +71,10 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 		name = fmt.Sprintf("%v.%v", name, sp.extension)
 	}
 
+	err = os.MkdirAll(filepath.Dir(name), 0750)
+	if err != nil {
+		return nil, err
+	}
 	f, err := os.Create(name)
 
 	if err != nil {
