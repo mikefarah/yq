@@ -207,21 +207,21 @@ EOM
 
 testSplitWithDirectories() {
   cat >test.yml <<EOL
-f: test_dir1/file1
+f: test_dir1/test_file1
 ---
-f: test_dir2/dir22/file2
+f: test_dir2/dir22/test_file2
 ---
-f: file3
+f: test_file3
 EOL
 
   ./yq e --no-doc -s ".f" test.yml
 
-  doc1=$(cat test_dir1/file1.yml)
-  assertEquals "f: test_dir1/file1" "$doc1"
-  doc2=$(cat test_dir2/dir22/file2.yml)
-  assertEquals "f: test_dir2/dir22/file2" "$doc2"
-  doc3=$(cat file3.yml)
-  assertEquals "f: file3" "$doc3"
+  doc1=$(cat test_dir1/test_file1.yml)
+  assertEquals "f: test_dir1/test_file1" "$doc1"
+  doc2=$(cat test_dir2/dir22/test_file2.yml)
+  assertEquals "f: test_dir2/dir22/test_file2" "$doc2"
+  doc3=$(cat test_file3.yml)
+  assertEquals "f: test_file3" "$doc3"
 }
 
 source ./scripts/shunit2

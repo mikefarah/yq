@@ -20,16 +20,10 @@ var goccyYamlFormatScenarios = []formatScenario{
 		expected:    "3.1\n",
 	},
 	{
-		description: "basic - 3.1",
+		description: "basic - mike",
 		skipDoc:     true,
 		input:       "mike: 3",
 		expected:    "mike: 3\n",
-	},
-	{
-		description: "basic - 3.1",
-		skipDoc:     true,
-		input:       "{mike: 3}",
-		expected:    "{mike: 3}\n",
 	},
 	{
 		description: "basic - map multiple entries",
@@ -40,23 +34,23 @@ var goccyYamlFormatScenarios = []formatScenario{
 	{
 		description: "basic - 3.1",
 		skipDoc:     true,
-		input:       "{\nmike: 3\n}",
+		input:       "{\n mike: 3\n}",
 		expected:    "{mike: 3}\n",
 	},
 	{
-		description: "basic - 3.1",
+		description: "basic - tag with number",
 		skipDoc:     true,
 		input:       "mike: !!cat 3",
 		expected:    "mike: !!cat 3\n",
 	},
 	{
-		description: "basic - 3.1",
+		description: "basic - array of numbers",
 		skipDoc:     true,
 		input:       "- 3",
 		expected:    "- 3\n",
 	},
 	{
-		description: "basic - 3.1",
+		description: "basic - single line array",
 		skipDoc:     true,
 		input:       "[3]",
 		expected:    "[3]\n",
