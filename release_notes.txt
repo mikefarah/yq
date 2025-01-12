@@ -1,3 +1,7 @@
+4.45.1:
+  - Create parent directories when --split-exp is used, Thanks @rudo-thomas
+  - Bumped dependencies 
+
 4.44.6:
   - Fixed deleting items in array bug #2027, #2172; Thanks @jandubois 
   - Docker image for armv7 / raspberry pi3, Thanks @brianegge
