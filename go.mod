@@ -5,7 +5,7 @@ require (
 	github.com/alecthomas/participle/v2 v2.1.1
 	github.com/alecthomas/repr v0.4.0
 	github.com/dimchansky/utfbom v1.1.1
-	github.com/elliotchance/orderedmap v1.7.1
+	github.com/elliotchance/orderedmap v1.8.0
 	github.com/fatih/color v1.18.0
 	github.com/goccy/go-json v0.10.4
 	github.com/goccy/go-yaml v1.13.3
