@@ -109,6 +109,46 @@ cool:
   - c: banana
 ```
 
+## Sort a map
+Sorting a map, by default, will sort by the values
+
+Given a sample.yml file of:
+```yaml
+y: b
+z: a
+x: c
+```
+then
+```bash
+yq 'sort' sample.yml
+```
+will output
+```yaml
+z: a
+y: b
+x: c
+```
+
+## Sort a map by keys
+Use sort_by to sort a map using a custom function
+
+Given a sample.yml file of:
+```yaml
+Y: b
+z: a
+x: c
+```
+then
+```bash
+yq 'sort_by(key | downcase)' sample.yml
+```
+will output
+```yaml
+x: c
+Y: b
+z: a
+```
+
 ## Sort is stable
 Note the order of the elements in unchanged when equal in sorting.
 
