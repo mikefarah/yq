@@ -71,7 +71,7 @@ person.food[0] = pizza
 ```
 
 ## Encode properties - custom separator
-Use the --properties-customer-separator flag to specify your own key/value separator.
+Use the --properties-separator flag to specify your own key/value separator.
 
 Given a sample.yml file of:
 ```yaml
@@ -89,7 +89,7 @@ emptyMap: []
 ```
 then
 ```bash
-yq -o=props --properties-customer-separator=" :@ " sample.yml
+yq -o=props --properties-separator=" :@ " sample.yml
 ```
 will output
 ```properties
