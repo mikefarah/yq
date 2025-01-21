@@ -198,6 +198,29 @@ func (n *CandidateNode) SetParent(parent *CandidateNode) {
 	n.Parent = parent
 }
 
+type ValueVisitor func(*CandidateNode) error
+
+func (n *CandidateNode) VisitValues(visitor ValueVisitor) error {
+	if n.Kind == MappingNode {
+		for i := 1; i < len(n.Content); i = i + 2 {
+			if err := visitor(n.Content[i]); err != nil {
+				return err
+			}
+		}
+	} else if n.Kind == SequenceNode {
+		for i := 0; i < len(n.Content); i = i + 1 {
+			if err := visitor(n.Content[i]); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (n *CandidateNode) CanVisitValues() bool {
+	return n.Kind == MappingNode || n.Kind == SequenceNode
+}
+
 func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *CandidateNode) (*CandidateNode, *CandidateNode) {
 	key := rawKey.Copy()
 	key.SetParent(n)

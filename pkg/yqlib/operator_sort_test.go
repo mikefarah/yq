@@ -85,6 +85,24 @@ var sortByOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Sort a map",
+		subdescription: "Sorting a map, by default this will sort by the values",
+		document:       "y: b\nz: a\nx: c\n",
+		expression:     `sort`,
+		expected: []string{
+			"D0, P[], (!!map)::z: a\ny: b\nx: c\n",
+		},
+	},
+	{
+		description:    "Sort a map by keys",
+		subdescription: "Use sort_by to sort a map using a custom function",
+		document:       "Y: b\nz: a\nx: c\n",
+		expression:     `sort_by(key | downcase)`,
+		expected: []string{
+			"D0, P[], (!!map)::x: c\nY: b\nz: a\n",
+		},
+	},
+	{
 		description:    "Sort is stable",
 		subdescription: "Note the order of the elements in unchanged when equal in sorting.",
 		document:       "[{a: banana, b: 1}, {a: banana, b: 2}, {a: banana, b: 3}, {a: banana, b: 4}]",

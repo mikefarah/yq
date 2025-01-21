@@ -24,30 +24,40 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		if candidate.Kind != SequenceNode {
-			return context, fmt.Errorf("node at path [%v] is not an array (it's a %v)", candidate.GetNicePath(), candidate.Tag)
-		}
+		var sortableArray sortableNodeArray
 
-		sortableArray := make(sortableNodeArray, len(candidate.Content))
-
-		for i, originalNode := range candidate.Content {
-
-			compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(originalNode), expressionNode.RHS)
-			if err != nil {
-				return Context{}, err
+		if candidate.CanVisitValues() {
+			sortableArray = make(sortableNodeArray, 0)
+			visitor := func(valueNode *CandidateNode) error {
+				compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(valueNode), expressionNode.RHS)
+				if err != nil {
+					return err
+				}
+				sortableNode := sortableNode{Node: valueNode, CompareContext: compareContext, dateTimeLayout: context.GetDateTimeLayout()}
+				sortableArray = append(sortableArray, sortableNode)
+				return nil
 			}
-
-			sortableArray[i] = sortableNode{Node: originalNode, CompareContext: compareContext, dateTimeLayout: context.GetDateTimeLayout()}
-
+			if err := candidate.VisitValues(visitor); err != nil {
+				return context, err
+			}
+		} else {
+			return context, fmt.Errorf("node at path [%v] is not an array or map (it's a %v)", candidate.GetNicePath(), candidate.Tag)
 		}
 
 		sort.Stable(sortableArray)
 
-		sortedList := candidate.CreateReplacementWithComments(SequenceNode, "!!seq", candidate.Style)
-
-		for _, sortedNode := range sortableArray {
-			sortedList.AddChild(sortedNode.Node)
+		sortedList := candidate.CopyWithoutContent()
+		if candidate.Kind == MappingNode {
+			for _, sortedNode := range sortableArray {
+				sortedList.AddKeyValueChild(sortedNode.Node.Key, sortedNode.Node)
+			}
+		} else if candidate.Kind == SequenceNode {
+			for _, sortedNode := range sortableArray {
+				sortedList.AddChild(sortedNode.Node)
+			}
 		}
+
+		// convert array of value nodes back to map
 		results.PushBack(sortedList)
 	}
 	return context.ChildContext(results), nil
