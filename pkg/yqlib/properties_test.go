@@ -171,7 +171,7 @@ var propertyScenarios = []formatScenario{
 	},
 	{
 		description:    "Encode properties - custom separator",
-		subdescription: "Use the --properties-customer-separator flag to specify your own key/value separator.",
+		subdescription: "Use the --properties-separator flag to specify your own key/value separator.",
 		input:          samplePropertiesYaml,
 		expected:       expectedPropertiesUnwrappedCustomSeparator,
 		scenarioType:   "encode-custom-separator",
@@ -324,7 +324,7 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 		prefs.UseArrayBrackets = true
 	} else if s.scenarioType == "encode-custom-separator" {
 		prefs.KeyValueSeparator = " :@ "
-		useCustomSeparatorFlag = ` --properties-customer-separator=" :@ "`
+		useCustomSeparatorFlag = ` --properties-separator=" :@ "`
 	}
 
 	if expression != "" {
