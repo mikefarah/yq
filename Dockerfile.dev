@@ -1,4 +1,4 @@
-FROM golang:1.23.4
+FROM golang:1.23.5
 
 RUN apt-get update && \
     apt-get install -y npm && \
