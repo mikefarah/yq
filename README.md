@@ -76,21 +76,21 @@ For instance, VERSION=v4.2.0 and BINARY=yq_linux_amd64
 #### Compressed via tar.gz
 ```bash
 wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
-  tar xz && mv ${BINARY} /usr/bin/yq
+  tar xz && mv ${BINARY} /usr/local/bin/yq
 ```
 
 #### Plain binary
 
 ```bash
-wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/bin/yq &&\
-    chmod +x /usr/bin/yq
+wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY} -O /usr/local/bin/yq &&\
+    chmod +x /usr/local/bin/yq
 ```
 
 #### Latest version
 
 ```bash
-wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
-    chmod +x /usr/bin/yq
+wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq &&\
+    chmod +x /usr/local/bin/yq
 ```
 
 ### MacOS / Linux via Homebrew:
