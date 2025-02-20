@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	yaml "github.com/goccy/go-yaml"
@@ -204,4 +205,155 @@ func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingVa
 	}
 
 	return nil
+}
+
+func (o *CandidateNode) goccyMarshalChild(path string) (ast.Node, error) {
+	var node ast.Node
+	switch o.Kind {
+	case SequenceNode:
+		values := make([]ast.Node, len(o.Content))
+		for i, content := range o.Content {
+			childNode, err := content.goccyMarshalChild(path + "[" + strconv.Itoa(i) + "]")
+			if err != nil {
+				return nil, err
+			}
+
+			values[i] = childNode
+		}
+
+		seq := ast.Sequence(
+			goccyToken.SequenceStart(o.Value, &goccyToken.Position{}),
+			o.Style == FlowStyle,
+		)
+
+		seq.Values = values
+		seq.ValueHeadComments = []*ast.CommentGroupNode{ast.CommentGroup([]*goccyToken.Token{goccyToken.Comment(o.HeadComment, o.HeadComment, &goccyToken.Position{})})}
+		seq.FootComment = goccyMarshalFootComment(o.FootComment)
+		node = seq
+	case MappingNode:
+		values := make([]*ast.MappingValueNode, len(o.Content)/2)
+		for i := 0; i < len(o.Content); i += 2 {
+			key, err := o.Content[i].goccyMarshalMapKeyNode(path)
+			if err != nil {
+				return nil, err
+			}
+
+			value, err := o.Content[i+1].goccyMarshalChild(key.GetPath())
+			if err != nil {
+				return nil, err
+			}
+
+			childNode := ast.MappingValue(
+				goccyToken.MappingValue(&goccyToken.Position{}),
+				key,
+				value,
+			)
+			childNode.SetPath(key.GetPath())
+			if o.Content[i].FootComment != "" {
+				childNode.FootComment = goccyMarshalFootComment(o.Content[i].FootComment)
+			}
+
+			values[i/2] = childNode
+		}
+
+		mapping := ast.Mapping(goccyToken.MappingStart("", &goccyToken.Position{}), o.Style == FlowStyle, values...)
+		if o.FootComment != "" {
+			mapping.FootComment = goccyMarshalFootComment(o.FootComment)
+		}
+
+		node = mapping
+	case ScalarNode:
+		v, err := o.GetValueRep()
+		if err != nil {
+			return nil, err
+		}
+
+		node, err = o.goccyMarshalScalar(path, v)
+		if err != nil {
+			return nil, err
+		}
+	case AliasNode:
+		value, err := o.Content[0].goccyMarshalChild(path)
+		if err != nil {
+			return nil, err
+		}
+
+		alias := ast.Alias(goccyToken.Alias(o.Value, &goccyToken.Position{}))
+		alias.Value = value
+		node = alias
+	}
+
+	if o.Tag != "" && !strings.HasPrefix(o.Tag, "!!") {
+		tag := ast.Tag(goccyToken.Tag(o.Tag, o.Tag, &goccyToken.Position{}))
+		tag.Value = node
+		node = tag
+	}
+
+	if o.Anchor != "" {
+		anc := ast.Anchor(goccyToken.Anchor(o.Anchor, &goccyToken.Position{}))
+		anc.Value = node
+		node = anc
+	}
+
+	node.SetPath(path)
+
+	return node, nil
+}
+
+func (o *CandidateNode) MarshalGoccyYAML() (ast.Node, error) {
+	return o.goccyMarshalChild("$")
+}
+
+func goccyMarshalFootComment(comment string) *ast.CommentGroupNode {
+	return ast.CommentGroup([]*goccyToken.Token{goccyToken.Comment(comment, comment, &goccyToken.Position{})})
+}
+
+func (o *CandidateNode) goccyMarshalMapKeyNode(path string) (ast.MapKeyNode, error) {
+	if o.Kind != ScalarNode {
+		return nil, fmt.Errorf("cannot unmarshal non-scalar node to MapKeyNode")
+	}
+
+	v, err := o.GetValueRep()
+	if err != nil {
+		return nil, err
+	}
+
+	key, err := o.goccyMarshalScalar(path, v)
+	if err != nil {
+		return nil, err
+	}
+	key.SetPath(path + "." + key.String())
+
+	return key, nil
+}
+
+func (o *CandidateNode) goccyMarshalScalar(path string, v any) (ast.ScalarNode, error) {
+	t := goccyToken.Literal(o.Value, o.Value, &goccyToken.Position{})
+
+	if v == nil {
+		n := ast.Null(t)
+		n.SetPath(path)
+		return n, nil
+	}
+
+	switch av := v.(type) {
+	case float64:
+		n := ast.Float(t)
+		n.Value = av
+		return n, nil
+	case int64:
+		n := ast.Integer(t)
+		n.Value = av
+		return n, nil
+	case bool:
+		n := ast.Bool(t)
+		n.Value = av
+		return n, nil
+	case string:
+		n := ast.String(t)
+		n.SetPath(path)
+		return n, nil
+	}
+
+	return nil, fmt.Errorf("unknown scalar value type")
 }
