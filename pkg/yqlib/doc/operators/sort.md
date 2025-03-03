@@ -110,7 +110,7 @@ cool:
 ```
 
 ## Sort a map
-Sorting a map, by default, will sort by the values
+Sorting a map, by default this will sort by the values
 
 Given a sample.yml file of:
 ```yaml

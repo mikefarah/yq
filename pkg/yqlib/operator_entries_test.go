@@ -73,6 +73,15 @@ var entriesOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Use with_entries to update keys recursively",
+		document:       `{a: 1, b: {b_a: nested, b_b: thing}}`,
+		expression:     `(.. | select(tag=="!!map")) |= with_entries(.key |= "KEY_" + .)`,
+		subdescription: "We use (.. | select(tag=\"map\")) to find all the maps in the doc, then |= to update each one of those maps. In the update, with_entries is used.",
+		expected: []string{
+			"D0, P[], (!!map)::{KEY_a: 1, KEY_b: {KEY_b_a: nested, KEY_b_b: thing}}\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "Use with_entries to update keys comment",
 		document:    `{a: 1, b: 2}`,

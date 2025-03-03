@@ -2,6 +2,8 @@
 
 Similar to the same named functions in `jq` these functions convert to/from an object and an array of key-value pairs. This is most useful for performing operations on keys of maps.
 
+Use `with_entries(op)` as a syntatic sugar for doing `to_entries | op | from_entries`.
+
 ## to_entries Map
 Given a sample.yml file of:
 ```yaml
@@ -99,6 +101,28 @@ will output
 ```yaml
 KEY_a: 1
 KEY_b: 2
+```
+
+## Use with_entries to update keys recursively
+We use (.. | select(tag="map")) to find all the maps in the doc, then |= to update each one of those maps. In the update, with_entries is used.
+
+Given a sample.yml file of:
+```yaml
+a: 1
+b:
+  b_a: nested
+  b_b: thing
+```
+then
+```bash
+yq '(.. | select(tag=="!!map")) |= with_entries(.key |= "KEY_" + .)' sample.yml
+```
+will output
+```yaml
+KEY_a: 1
+KEY_b:
+  KEY_b_a: nested
+  KEY_b_b: thing
 ```
 
 ## Custom sort map keys
