@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 )
 
@@ -95,12 +96,7 @@ func (f *Format) MatchesName(name string) bool {
 	if f.FormalName == name {
 		return true
 	}
-	for _, n := range f.Names {
-		if n == name {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(f.Names, name)
 }
 
 func (f *Format) GetConfiguredEncoder() Encoder {
