@@ -30,6 +30,19 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }} && docker version
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push image
         run: |
           echo "GithubRef: ${GITHUB_REF}"
@@ -41,7 +54,6 @@ jobs:
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64,linux/arm/v7"
 
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
-          echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u '${{ secrets.DOCKER_USERNAME }}' --password-stdin
           docker buildx build \
             --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
             --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
@@ -59,6 +71,9 @@ jobs:
             -t "${IMAGE_NAME}:${IMAGE_VERSION}" \
             -t "${IMAGE_NAME}:4" \
             -t "${IMAGE_NAME}:latest" \
+            -t "ghcr.io/${IMAGE_NAME}:${IMAGE_VERSION}" \
+            -t "ghcr.io/${IMAGE_NAME}:4" \
+            -t "ghcr.io/${IMAGE_NAME}:latest" \
             .
 
           cd github-action
@@ -79,4 +94,7 @@ jobs:
             -t "${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
             -t "${IMAGE_NAME}:4-githubaction" \
             -t "${IMAGE_NAME}:latest-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
+            -t "ghrc.io/${IMAGE_NAME}:4-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:latest-githubaction" \
             .
