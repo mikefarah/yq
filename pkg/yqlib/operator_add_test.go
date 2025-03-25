@@ -311,6 +311,15 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:        true,
+		description:    "Add to empty",
+		subdescription: "should behave like null",
+		expression:     `.nada + "cat"`,
+		expected: []string{
+			"D0, P[], (!!str)::cat\n",
+		},
+	},
+	{
 		description:    "Add to null",
 		subdescription: "Adding to null simply returns the rhs",
 		expression:     `null + "cat"`,
