@@ -3,7 +3,7 @@
 ## RegEx
 This uses Golang's native regex functions under the hood - See their [docs](https://github.com/google/re2/wiki/Syntax) for the supported syntax.
 
-Case insensitive tip: prefix the regex with `(?i)` - e.g. `test("(?i)cats)"`.
+Case insensitive tip: prefix the regex with `(?i)` - e.g. `test("(?i)cats")`.
 
 ### match(regEx)
 This operator returns the substring match details of the given regEx.
