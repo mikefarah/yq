@@ -19,7 +19,7 @@ func parseStyle(customStyle string) (Style, error) {
 	} else if customStyle == "flow" {
 		return FlowStyle, nil
 	} else if customStyle != "" {
-		return 0, fmt.Errorf("Unknown style %v", customStyle)
+		return 0, fmt.Errorf("unknown style %v", customStyle)
 	}
 	return 0, nil
 }

@@ -201,13 +201,14 @@ func (n *CandidateNode) SetParent(parent *CandidateNode) {
 type ValueVisitor func(*CandidateNode) error
 
 func (n *CandidateNode) VisitValues(visitor ValueVisitor) error {
-	if n.Kind == MappingNode {
+	switch n.Kind {
+	case MappingNode:
 		for i := 1; i < len(n.Content); i = i + 2 {
 			if err := visitor(n.Content[i]); err != nil {
 				return err
 			}
 		}
-	} else if n.Kind == SequenceNode {
+	case SequenceNode:
 		for i := 0; i < len(n.Content); i = i + 1 {
 			if err := visitor(n.Content[i]); err != nil {
 				return err

@@ -319,10 +319,11 @@ func documentUnwrappedEncodePropertyScenario(w *bufio.Writer, s formatScenario) 
 	prefs := NewDefaultPropertiesPreferences()
 	useArrayBracketsFlag := ""
 	useCustomSeparatorFlag := ""
-	if s.scenarioType == "encode-array-brackets" {
+	switch s.scenarioType {
+	case "encode-array-brackets":
 		useArrayBracketsFlag = " --properties-array-brackets"
 		prefs.UseArrayBrackets = true
-	} else if s.scenarioType == "encode-custom-separator" {
+	case "encode-custom-separator":
 		prefs.KeyValueSeparator = " :@ "
 		useCustomSeparatorFlag = ` --properties-separator=" :@ "`
 	}

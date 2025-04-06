@@ -410,7 +410,7 @@ func extractMatchArguments(d *dataTreeNavigator, context Context, expressionNode
 			return nil, matchPrefs, fmt.Errorf(`'i' is not a valid option for match. To ignore case, use an expression like match("(?i)cat")`)
 		}
 		if len(paramText) > 0 {
-			return nil, matchPrefs, fmt.Errorf(`Unrecognised match params '%v', please see docs at https://mikefarah.gitbook.io/yq/operators/string-operators`, paramText)
+			return nil, matchPrefs, fmt.Errorf(`unrecognised match params '%v', please see docs at https://mikefarah.gitbook.io/yq/operators/string-operators`, paramText)
 		}
 	}
 

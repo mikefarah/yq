@@ -249,11 +249,12 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 	var runAgainstCurrentExp bool
 	var err error
 	log.Debug("processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
-	if currentNode.Kind == toml.Table {
+	switch currentNode.Kind {
+	case toml.Table:
 		runAgainstCurrentExp, err = dec.processTable(currentNode)
-	} else if currentNode.Kind == toml.ArrayTable {
+	case toml.ArrayTable:
 		runAgainstCurrentExp, err = dec.processArrayTable(currentNode)
-	} else {
+	default:
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(dec.rootMap, currentNode)
 	}
 

@@ -154,9 +154,9 @@ func repeatString(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error
 	if err != nil {
 		return nil, err
 	} else if count < 0 {
-		return nil, fmt.Errorf("Cannot repeat string by a negative number (%v)", count)
+		return nil, fmt.Errorf("cannot repeat string by a negative number (%v)", count)
 	} else if count > 10000000 {
-		return nil, fmt.Errorf("Cannot repeat string by more than 100 million (%v)", count)
+		return nil, fmt.Errorf("cannot repeat string by more than 100 million (%v)", count)
 	}
 	target.Value = strings.Repeat(stringNode.Value, count)
 
