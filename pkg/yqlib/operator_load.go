@@ -82,7 +82,7 @@ func loadStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 
 		contentsCandidate, err := loadString(filename)
 		if err != nil {
-			return Context{}, fmt.Errorf("Failed to load %v: %w", filename, err)
+			return Context{}, fmt.Errorf("failed to load %v: %w", filename, err)
 		}
 
 		results.PushBack(contentsCandidate)
@@ -118,7 +118,7 @@ func loadOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 
 		contentsCandidate, err := loadWithDecoder(filename, loadPrefs.decoder)
 		if err != nil {
-			return Context{}, fmt.Errorf("Failed to load %v: %w", filename, err)
+			return Context{}, fmt.Errorf("failed to load %v: %w", filename, err)
 		}
 
 		results.PushBack(contentsCandidate)

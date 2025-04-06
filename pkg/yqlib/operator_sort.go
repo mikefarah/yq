@@ -47,11 +47,12 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		sort.Stable(sortableArray)
 
 		sortedList := candidate.CopyWithoutContent()
-		if candidate.Kind == MappingNode {
+		switch candidate.Kind {
+		case MappingNode:
 			for _, sortedNode := range sortableArray {
 				sortedList.AddKeyValueChild(sortedNode.Node.Key, sortedNode.Node)
 			}
-		} else if candidate.Kind == SequenceNode {
+		case SequenceNode:
 			for _, sortedNode := range sortableArray {
 				sortedList.AddChild(sortedNode.Node)
 			}

@@ -45,12 +45,13 @@ func keysOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Con
 		candidate := el.Value.(*CandidateNode)
 
 		var targetNode *CandidateNode
-		if candidate.Kind == MappingNode {
+		switch candidate.Kind {
+		case MappingNode:
 			targetNode = getMapKeys(candidate)
-		} else if candidate.Kind == SequenceNode {
+		case SequenceNode:
 			targetNode = getIndices(candidate)
-		} else {
-			return Context{}, fmt.Errorf("Cannot get keys of %v, keys only works for maps and arrays", candidate.Tag)
+		default:
+			return Context{}, fmt.Errorf("cannot get keys of %v, keys only works for maps and arrays", candidate.Tag)
 		}
 
 		results.PushBack(targetNode)

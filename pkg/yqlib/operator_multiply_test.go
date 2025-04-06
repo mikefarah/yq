@@ -206,7 +206,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		document:      `n: -4`,
 		expression:    `"banana" * .n`,
-		expectedError: "Cannot repeat string by a negative number (-4)",
+		expectedError: "cannot repeat string by a negative number (-4)",
 	},
 	{
 		description: "Multiply string X by more than 100 million",
@@ -214,7 +214,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		document:      `n: 100000001`,
 		expression:    `"banana" * .n`,
-		expectedError: "Cannot repeat string by more than 100 million (100000001)",
+		expectedError: "cannot repeat string by more than 100 million (100000001)",
 	},
 	{
 		description: "Multiply int node X string",
