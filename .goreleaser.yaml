@@ -38,6 +38,8 @@ builds:
       - openbsd_amd64
       - windows_386
       - windows_amd64
+      - windows_arm
+      - windows_arm64
 
     no_unique_dist_dir: true
 
