@@ -24,9 +24,11 @@ tar czvf yq_man_page_only.tar.gz yq.1 -C ../scripts install-man-page.sh
 
 rm yq_windows_386.exe.tar.gz
 rm yq_windows_amd64.exe.tar.gz
+rm yq_windows_arm64.exe.tar.gz
 
 zip yq_windows_386.zip yq_windows_386.exe
 zip yq_windows_amd64.zip yq_windows_amd64.exe
+zip yq_windows_arm64.zip yq_windows_arm64.exe
 
 rm yq.1
 
