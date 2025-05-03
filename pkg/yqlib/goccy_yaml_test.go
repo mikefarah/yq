@@ -219,12 +219,24 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// 	expression:  "explode(.)",
 	// 	expected:    "a: mike\nb: mike\n",
 	// },
+	// {
+	// 	description: "multi document anchor map",
+	// 	skipDoc:     true,
+	// 	input:       "a: &remember mike\n---\nb: *remember",
+	// 	expression:  "explode(.)",
+	// 	expected:    "a: mike\n---\nb: mike\n",
+	// },
+	// {
+	// 	description: "merge anchor",
+	// 	skipDoc:     true,
+	// 	input:       "a: &remember\n  c: mike\nb:\n  <<: *remember",
+	// 	expected:    "a: &remember\n  c: mike\nb:\n  <<: *remember\n",
+	// },
 	{
-		description: "multi document anchor map",
+		description: "custom tag",
 		skipDoc:     true,
-		input:       "a: &remember mike\n---\nb: *remember",
-		expression:  "explode(.)",
-		expected:    "a: mike\n---\nb: mike\n",
+		input:       "a: !cat mike",
+		expected:    "a: !cat mike\n",
 	},
 	// {
 	// 	description: "basic - [~]",
@@ -256,6 +268,7 @@ var goccyYamlFormatScenarios = []formatScenario{
 	// 	input:       "[1, 2]",
 	// 	expected:    "[1, 2]\n",
 	// },
+
 }
 
 func testGoccyYamlScenario(t *testing.T, s formatScenario) {

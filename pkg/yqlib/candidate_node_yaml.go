@@ -78,9 +78,6 @@ func (o *CandidateNode) copyToYamlNode(node *yaml.Node) {
 	node.Value = o.Value
 	node.Anchor = o.Anchor
 
-	// node.Alias = TODO - find Alias in our own structure
-	// might need to be a post process thing
-
 	node.HeadComment = o.HeadComment
 
 	node.LineComment = o.LineComment

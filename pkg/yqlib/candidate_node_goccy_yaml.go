@@ -167,8 +167,13 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 		o.Value = aliasNode.Value.String()
 		o.Alias = anchorMap[o.Value]
 
+	case ast.MergeKeyType:
+		log.Debugf("UnmarshalYAML -  a merge key")
+		o.Kind = ScalarNode
+		o.Value = "<<"
+
 	default:
-		log.Debugf("UnmarshalYAML -  node idea of the type!!")
+		log.Debugf("UnmarshalYAML -  no idea of the type!!\n%v: %v", node.Type(), node.String())
 	}
 	log.Debugf("KIND: %v", o.Kind)
 	return nil
