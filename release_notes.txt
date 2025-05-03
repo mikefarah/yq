@@ -1,3 +1,11 @@
+4.45.2:
+  - Added windows arm builds (Thanks @albertocavalcante, @ShukantPal)
+  - Added s390x platform support (Thanks @ashokpariya0)
+  - Additionally push docker images to ghcr.io (Thanks @reegnz)
+  - Fixing add when there is no node match #2325
+  - sort_by works on maps
+  - Bumped dependencies
+
 4.45.1:
   - Create parent directories when --split-exp is used, Thanks @rudo-thomas
   - Bumped dependencies 
