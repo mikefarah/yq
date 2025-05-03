@@ -8,7 +8,7 @@ require (
 	github.com/elliotchance/orderedmap v1.8.0
 	github.com/fatih/color v1.18.0
 	github.com/goccy/go-json v0.10.5
-	github.com/goccy/go-yaml v1.13.3
+	github.com/goccy/go-yaml v1.17.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/magiconair/properties v1.8.10
 	github.com/pelletier/go-toml/v2 v2.2.3
@@ -24,7 +24,7 @@ require (
 
 require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 )

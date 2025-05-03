@@ -9,14 +9,14 @@ import (
 	goccyToken "github.com/goccy/go-yaml/token"
 )
 
-func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, cm yaml.CommentMap) (*CandidateNode, error) {
+func (o *CandidateNode) goccyDecodeIntoChild(childNode ast.Node, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) (*CandidateNode, error) {
 	newChild := o.CreateChild()
 
-	err := newChild.UnmarshalGoccyYAML(childNode, cm)
+	err := newChild.UnmarshalGoccyYAML(childNode, cm, anchorMap)
 	return newChild, err
 }
 
-func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) error {
+func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) error {
 	log.Debugf("UnmarshalYAML %v", node)
 	log.Debugf("UnmarshalYAML %v", node.Type().String())
 	log.Debugf("UnmarshalYAML Node Value: %v", node.String())
@@ -62,6 +62,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 		o.Kind = ScalarNode
 		o.Tag = "!!bool"
 	case ast.NullType:
+		log.Debugf("its a null type with value %v", node.GetToken().Value)
 		o.Kind = ScalarNode
 		o.Tag = "!!null"
 		o.Value = node.GetToken().Value
@@ -92,7 +93,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
 	case ast.TagType:
-		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm); err != nil {
+		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm, anchorMap); err != nil {
 			return err
 		}
 		o.Tag = node.(*ast.TagNode).Start.Value
@@ -106,7 +107,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 			o.Style = FlowStyle
 		}
 		for _, mappingValueNode := range mappingNode.Values {
-			err := o.goccyProcessMappingValueNode(mappingValueNode, cm)
+			err := o.goccyProcessMappingValueNode(mappingValueNode, cm, anchorMap)
 			if err != nil {
 				return ast.ErrInvalidAnchorName
 			}
@@ -120,7 +121,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 		o.Kind = MappingNode
 		o.Tag = "!!map"
 		mappingValueNode := node.(*ast.MappingValueNode)
-		err := o.goccyProcessMappingValueNode(mappingValueNode, cm)
+		err := o.goccyProcessMappingValueNode(mappingValueNode, cm, anchorMap)
 		if err != nil {
 			return ast.ErrInvalidAnchorName
 		}
@@ -141,7 +142,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 			keyNode.Kind = ScalarNode
 			keyNode.Value = fmt.Sprintf("%v", i)
 
-			valueNode, err := o.goccyDecodeIntoChild(astSeq[i], cm)
+			valueNode, err := o.goccyDecodeIntoChild(astSeq[i], cm, anchorMap)
 			if err != nil {
 				return err
 			}
@@ -149,6 +150,22 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 			valueNode.Key = keyNode
 			o.Content[i] = valueNode
 		}
+	case ast.AnchorType:
+		log.Debugf("UnmarshalYAML -  an anchor node")
+		anchorNode := node.(*ast.AnchorNode)
+		err := o.UnmarshalGoccyYAML(anchorNode.Value, cm, anchorMap)
+		if err != nil {
+			return err
+		}
+		o.Anchor = anchorNode.Name.String()
+		anchorMap[o.Anchor] = o
+
+	case ast.AliasType:
+		log.Debugf("UnmarshalYAML -  an alias node")
+		aliasNode := node.(*ast.AliasNode)
+		o.Kind = AliasNode
+		o.Value = aliasNode.Value.String()
+		o.Alias = anchorMap[o.Value]
 
 	default:
 		log.Debugf("UnmarshalYAML -  node idea of the type!!")
@@ -157,16 +174,16 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap) er
 	return nil
 }
 
-func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingValueNode, cm yaml.CommentMap) error {
+func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingValueNode, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) error {
 	log.Debug("UnmarshalYAML MAP KEY entry %v", mappingEntry.Key)
-	keyNode, err := o.goccyDecodeIntoChild(mappingEntry.Key, cm)
+	keyNode, err := o.goccyDecodeIntoChild(mappingEntry.Key, cm, anchorMap)
 	if err != nil {
 		return err
 	}
 	keyNode.IsMapKey = true
 
 	log.Debug("UnmarshalYAML MAP VALUE entry %v", mappingEntry.Value)
-	valueNode, err := o.goccyDecodeIntoChild(mappingEntry.Value, cm)
+	valueNode, err := o.goccyDecodeIntoChild(mappingEntry.Value, cm, anchorMap)
 	if err != nil {
 		return err
 	}

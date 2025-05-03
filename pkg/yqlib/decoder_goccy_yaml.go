@@ -16,6 +16,8 @@ import (
 type goccyYamlDecoder struct {
 	decoder yaml.Decoder
 	cm      yaml.CommentMap
+	// anchor map persists over multiple documents for convenience.
+	anchorMap map[string]*CandidateNode
 }
 
 func NewGoccyYAMLDecoder() Decoder {
@@ -25,6 +27,7 @@ func NewGoccyYAMLDecoder() Decoder {
 func (dec *goccyYamlDecoder) Init(reader io.Reader) error {
 	dec.cm = yaml.CommentMap{}
 	dec.decoder = *yaml.NewDecoder(reader, yaml.CommentToMap(dec.cm), yaml.UseOrderedMap())
+	dec.anchorMap = make(map[string]*CandidateNode)
 	return nil
 }
 
@@ -38,7 +41,7 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	candidateNode := &CandidateNode{}
-	if err := candidateNode.UnmarshalGoccyYAML(ast, dec.cm); err != nil {
+	if err := candidateNode.UnmarshalGoccyYAML(ast, dec.cm, dec.anchorMap); err != nil {
 		return nil, err
 	}
 
