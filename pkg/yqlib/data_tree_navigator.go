@@ -64,6 +64,6 @@ func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *Ex
 	if handler != nil {
 		return handler(d, context, expressionNode)
 	}
-	return Context{}, fmt.Errorf("Unknown operator %v", expressionNode.Operation.OperationType)
+	return Context{}, fmt.Errorf("unknown operator %v", expressionNode.Operation.OperationType)
 
 }

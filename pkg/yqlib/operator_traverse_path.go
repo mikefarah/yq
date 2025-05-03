@@ -135,12 +135,13 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 		}
 	}
 
-	if matchingNode.Kind == AliasNode {
+	switch matchingNode.Kind {
+	case AliasNode:
 		matchingNode = matchingNode.Alias
 		return traverseArrayIndices(context, matchingNode, indicesToTraverse, prefs)
-	} else if matchingNode.Kind == SequenceNode {
+	case SequenceNode:
 		return traverseArrayWithIndices(matchingNode, indicesToTraverse, prefs)
-	} else if matchingNode.Kind == MappingNode {
+	case MappingNode:
 		return traverseMapWithIndices(context, matchingNode, indicesToTraverse, prefs)
 	}
 	log.Debugf("OperatorArrayTraverse skipping %v as its a %v", matchingNode, matchingNode.Tag)

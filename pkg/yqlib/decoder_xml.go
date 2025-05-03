@@ -315,13 +315,14 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 		case xml.Comment:
 
 			commentStr := string(xml.CharData(se))
-			if elem.state == "started" {
+			switch elem.state {
+			case "started":
 				applyFootComment(elem, commentStr)
 
-			} else if elem.state == "chardata" {
+			case "chardata":
 				log.Debug("got a line comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.LineComment = joinComments([]string{elem.n.LineComment, commentStr}, " ")
-			} else {
+			default:
 				log.Debug("got a head comment for (%v) %v: [%v]", elem.state, elem.label, commentStr)
 				elem.n.HeadComment = joinComments([]string{elem.n.HeadComment, commentStr}, " ")
 			}

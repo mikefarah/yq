@@ -167,10 +167,14 @@ func needsQuoting(s string) bool {
 	// [%a_][%w_]*
 	for i, c := range s {
 		if i == 0 {
+			// keeping for legacy reasons, upgraded linter
+			//nolint:staticcheck
 			if !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
 				return true
 			}
 		} else {
+			// keeping for legacy reasons, upgraded linter
+			//nolint:staticcheck
 			if !((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_') {
 				return true
 			}
@@ -299,10 +303,10 @@ func (le *luaEncoder) encodeAny(writer io.Writer, node *CandidateNode) error {
 				return writeString(writer, node.Value)
 			}
 		default:
-			return fmt.Errorf("Lua encoder NYI -- %s", node.Tag)
+			return fmt.Errorf("lua encoder NYI -- %s", node.Tag)
 		}
 	default:
-		return fmt.Errorf("Lua encoder NYI -- %s", node.Tag)
+		return fmt.Errorf("lua encoder NYI -- %s", node.Tag)
 	}
 }
 

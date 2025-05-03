@@ -3,7 +3,7 @@
 testLoadFileNotExist() {
   result=$(./yq e -n 'load("cat.yml")' 2>&1)
   assertEquals 1 $?
-  assertEquals "Error: Failed to load cat.yml: open cat.yml: no such file or directory" "$result"
+  assertEquals "Error: failed to load cat.yml: open cat.yml: no such file or directory" "$result"
 }
 
 testLoadFileExpNotExist() {
@@ -15,7 +15,7 @@ testLoadFileExpNotExist() {
 testStrLoadFileNotExist() {
   result=$(./yq e -n 'strload("cat.yml")' 2>&1)
   assertEquals 1 $?
-  assertEquals "Error: Failed to load cat.yml: open cat.yml: no such file or directory" "$result"
+  assertEquals "Error: failed to load cat.yml: open cat.yml: no such file or directory" "$result"
 }
 
 testStrLoadFileExpNotExist() {

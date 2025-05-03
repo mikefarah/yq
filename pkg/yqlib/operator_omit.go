@@ -58,11 +58,12 @@ func omitOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 
 		var replacement *CandidateNode
 
-		if node.Kind == MappingNode {
+		switch node.Kind {
+		case MappingNode:
 			replacement = omitMap(node, indicesToOmit)
-		} else if node.Kind == SequenceNode {
+		case SequenceNode:
 			replacement = omitSequence(node, indicesToOmit)
-		} else {
+		default:
 			log.Debugf("Omit from type %v (%v) is noop", node.Tag, node.GetNicePath())
 			return context, nil
 		}

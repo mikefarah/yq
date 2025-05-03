@@ -1,0 +1,38 @@
+run:
+  timeout: 5m
+linters:
+  enable:
+    - asciicheck
+    - depguard
+    - errorlint
+    - gci
+    - gochecknoinits
+    - gofmt
+    - goimports
+    - gosec
+    - gosimple
+    - staticcheck
+    - unused
+    - misspell
+    - nakedret
+    - nolintlint
+    - predeclared
+    - revive
+    - unconvert
+    - unparam
+linters-settings:
+  depguard:
+    rules:
+      prevent_unmaintained_packages:
+        list-mode: lax
+        files:
+          - $all
+          - "!$test"
+        deny:
+          - pkg: io/ioutil
+            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
+issues:
+  exclude-rules:
+  - linters:
+    - revive
+    text: "var-naming"

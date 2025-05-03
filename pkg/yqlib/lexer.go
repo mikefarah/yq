@@ -31,24 +31,25 @@ type token struct {
 }
 
 func (t *token) toString(detail bool) string {
-	if t.TokenType == operationToken {
+	switch t.TokenType {
+	case operationToken:
 		if detail {
 			return fmt.Sprintf("%v (%v)", t.Operation.toString(), t.Operation.OperationType.Precedence)
 		}
 		return t.Operation.toString()
-	} else if t.TokenType == openBracket {
+	case openBracket:
 		return "("
-	} else if t.TokenType == closeBracket {
+	case closeBracket:
 		return ")"
-	} else if t.TokenType == openCollect {
+	case openCollect:
 		return "["
-	} else if t.TokenType == closeCollect {
+	case closeCollect:
 		return "]"
-	} else if t.TokenType == openCollectObject {
+	case openCollectObject:
 		return "{"
-	} else if t.TokenType == closeCollectObject {
+	case closeCollectObject:
 		return "}"
-	} else if t.TokenType == traverseArrayCollect {
+	case traverseArrayCollect:
 		return ".["
 
 	}

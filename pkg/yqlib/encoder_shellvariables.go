@@ -75,7 +75,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 	case AliasNode:
 		return pe.doEncode(w, node.Alias, path)
 	default:
-		return fmt.Errorf("Unsupported node %v", node.Tag)
+		return fmt.Errorf("unsupported node %v", node.Tag)
 	}
 }
 

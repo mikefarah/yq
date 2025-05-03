@@ -64,15 +64,16 @@ func pickOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 		node := el.Value.(*CandidateNode)
 
 		var replacement *CandidateNode
-		if node.Kind == MappingNode {
+		switch node.Kind {
+		case MappingNode:
 			replacement = pickMap(node, indicesToPick)
-		} else if node.Kind == SequenceNode {
+		case SequenceNode:
 			replacement, err = pickSequence(node, indicesToPick)
 			if err != nil {
 				return Context{}, err
 			}
 
-		} else {
+		default:
 			return Context{}, fmt.Errorf("cannot pick indices from type %v (%v)", node.Tag, node.GetNicePath())
 		}
 

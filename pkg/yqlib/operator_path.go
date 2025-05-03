@@ -22,15 +22,16 @@ func getPathArrayFromNode(funcName string, node *CandidateNode) ([]interface{}, 
 	path := make([]interface{}, len(node.Content))
 
 	for i, childNode := range node.Content {
-		if childNode.Tag == "!!str" {
+		switch childNode.Tag {
+		case "!!str":
 			path[i] = childNode.Value
-		} else if childNode.Tag == "!!int" {
+		case "!!int":
 			number, err := parseInt(childNode.Value)
 			if err != nil {
 				return nil, fmt.Errorf("%v: could not parse %v as an int: %w", funcName, childNode.Value, err)
 			}
 			path[i] = number
-		} else {
+		default:
 			return nil, fmt.Errorf("%v: expected either a !!str or !!int in the path, found %v instead", funcName, childNode.Tag)
 		}
 
