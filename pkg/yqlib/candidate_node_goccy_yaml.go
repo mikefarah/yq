@@ -51,6 +51,9 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 	}
 
 	o.Value = node.String()
+	o.Line = node.GetToken().Position.Line
+	o.Column = node.GetToken().Position.Column
+
 	switch node.Type() {
 	case ast.IntegerType:
 		o.Kind = ScalarNode
@@ -170,6 +173,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 	case ast.MergeKeyType:
 		log.Debugf("UnmarshalYAML -  a merge key")
 		o.Kind = ScalarNode
+		o.Tag = "!!merge" // note - I should be able to get rid of this.
 		o.Value = "<<"
 
 	default:
@@ -181,22 +185,23 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 
 func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingValueNode, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) error {
 	log.Debug("UnmarshalYAML MAP KEY entry %v", mappingEntry.Key)
-	keyNode, err := o.goccyDecodeIntoChild(mappingEntry.Key, cm, anchorMap)
-	if err != nil {
+
+	// AddKeyValueFirst because it clones the nodes, and we want to have the real refs when Unmarshalling
+	// particularly for the anchorMap
+	keyNode, valueNode := o.AddKeyValueChild(&CandidateNode{}, &CandidateNode{})
+
+	if err := keyNode.UnmarshalGoccyYAML(mappingEntry.Key, cm, anchorMap); err != nil {
 		return err
 	}
-	keyNode.IsMapKey = true
 
 	log.Debug("UnmarshalYAML MAP VALUE entry %v", mappingEntry.Value)
-	valueNode, err := o.goccyDecodeIntoChild(mappingEntry.Value, cm, anchorMap)
-	if err != nil {
+	if err := valueNode.UnmarshalGoccyYAML(mappingEntry.Value, cm, anchorMap); err != nil {
 		return err
 	}
 
 	if mappingEntry.FootComment != nil {
 		valueNode.FootComment = mappingEntry.FootComment.String()
 	}
-	o.AddKeyValueChild(keyNode, valueNode)
 
 	return nil
 }
