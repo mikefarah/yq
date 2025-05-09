@@ -118,7 +118,7 @@ func doCrossFunc(d *dataTreeNavigator, context Context, expressionNode *Expressi
 	}
 	log.Debugf("crossFunction LHS len: %v", lhs.MatchingNodes.Len())
 
-	if prefs.CalcWhenEmpty && lhs.MatchingNodes.Len() == 0 {
+	if prefs.CalcWhenEmpty && context.MatchingNodes.Len() > 0 && lhs.MatchingNodes.Len() == 0 {
 		err := resultsForRHS(d, context, nil, prefs, expressionNode.RHS, results)
 		if err != nil {
 			return Context{}, err
