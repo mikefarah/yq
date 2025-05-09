@@ -16,6 +16,46 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[]`,
+		document2:   `["cat"]`,
+		expression:  `map(3)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+			"D0, P[], (!!seq)::[3]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[[], [5]]`,
+		expression:  `.[] |= map(3)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[[], [3]]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing #2",
+		skipDoc:     true,
+		document:    `[]`,
+		document2:   `[5]`,
+		expression:  `map(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+			"D0, P[], (!!seq)::[8]\n",
+		},
+	},
+	{
+		description: "mapping against an empty array should do nothing",
+		skipDoc:     true,
+		document:    `[[], [5]]`,
+		expression:  `.[] |= map(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[[], [8]]\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `[] | map(. + 42)`,
 		expected: []string{
@@ -37,6 +77,26 @@ var mapOperatorScenarios = []expressionScenario{
 		expression:  `map(. + 1)`,
 		expected: []string{
 			"D0, P[], (!!seq)::[2, 3, 4]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		document2:  `{b: 12}`,
+		expression: `map_values(3)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+			"D0, P[], (!!map)::{b: 3}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{}`,
+		document2:  `{b: 12}`,
+		expression: `map_values(3 + .)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+			"D0, P[], (!!map)::{b: 15}\n",
 		},
 	},
 	{

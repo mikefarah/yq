@@ -41,6 +41,10 @@ func mapOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 		if err != nil {
 			return Context{}, err
 		}
+		if splatted.MatchingNodes.Len() == 0 {
+			results.PushBack(candidate.Copy())
+			continue
+		}
 
 		result, err := d.GetMatchingNodes(splatted, expressionNode.RHS)
 		log.Debug("expressionNode.Rhs %v", expressionNode.RHS.Operation.OperationType)
