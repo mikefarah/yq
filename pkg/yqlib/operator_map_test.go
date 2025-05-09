@@ -17,6 +17,13 @@ var mapOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		expression: `[] | map(. + 42)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[1,2]`,
 		expression: `map(. + 1)[]`,
 		expected: []string{

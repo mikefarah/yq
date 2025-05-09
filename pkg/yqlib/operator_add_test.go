@@ -318,6 +318,13 @@ var addOperatorScenarios = []expressionScenario{
 		expected:    []string{},
 	},
 	{
+		skipDoc:     true,
+		description: "empty add shouldn't add",
+		document:    `[]`,
+		expression:  `.[]  | (.a + "cat" + .b)`,
+		expected:    []string{},
+	},
+	{
 		skipDoc:        true,
 		description:    "Add to empty",
 		subdescription: "should behave like null",

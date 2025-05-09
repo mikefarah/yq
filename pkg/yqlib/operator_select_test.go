@@ -7,6 +7,12 @@ import (
 var selectOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		document:   `cat: pants`,
+		expression: `select(.nope) | key + " why though?"`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
 		document:   `cat`,
 		expression: `select(false, true)`,
 		expected: []string{
