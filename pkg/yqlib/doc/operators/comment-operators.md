@@ -152,7 +152,7 @@ will output
   fc: ""
 - p: name.0
   isKey: false
-  hc: under-name-comment
+  hc: ""
   lc: ""
   fc: ""
 ```
@@ -172,7 +172,7 @@ yq '.name[0] | headComment' sample.yml
 ```
 will output
 ```yaml
-under-name-comment
+
 ```
 
 ## Set head comment
@@ -258,7 +258,7 @@ yq '... comments=""' sample.yml
 will output
 ```yaml
 a: cat
-b:
+b: null
 ```
 
 ## Get line comment
@@ -293,7 +293,6 @@ yq '. | head_comment' sample.yml
 ```
 will output
 ```yaml
-welcome!
 
 ```
 
@@ -313,8 +312,7 @@ yq 'head_comment' sample.yml
 ```
 will output
 ```yaml
-welcome!
-bob
+
 ```
 
 ## Get foot comment
@@ -333,7 +331,6 @@ yq '. | foot_comment' sample.yml
 ```
 will output
 ```yaml
-have a great day
-no really
+
 ```
 

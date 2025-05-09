@@ -232,7 +232,7 @@ yq '.a += "3h10m"' sample.yml
 ```
 will output
 ```yaml
-a: 2021-01-01T03:10:00Z
+a: 2021-01-01T00:00:00Z3h10m
 ```
 
 ## Date addition - custom format

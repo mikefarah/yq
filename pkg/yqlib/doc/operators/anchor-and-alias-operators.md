@@ -248,12 +248,6 @@ then
 yq 'explode(.f)' sample.yml
 ```
 will output
-```yaml
-f:
-  a: cat
-  cat: b
-```
-
 ## Explode with merge anchors
 Given a sample.yml file of:
 ```yaml

@@ -109,7 +109,7 @@ yq '.a.x | key | headComment' sample.yml
 ```
 will output
 ```yaml
-comment on key
+
 ```
 
 ## Check node is a key

@@ -105,10 +105,6 @@ then
 yq '.a -= "3h10m"' sample.yml
 ```
 will output
-```yaml
-a: 2021-01-01T00:00:00Z
-```
-
 ## Date subtraction - custom format
 Use with_dtf to specify your datetime format. See [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.
 
