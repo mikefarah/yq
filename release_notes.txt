@@ -1,3 +1,7 @@
+4.45.3:
+  - Fixing regression introduced with in 4.45.2 with #2325 fix :sweat: sorry folks!
+  - Bumped dependencies
+
 4.45.2:
   - Added windows arm builds (Thanks @albertocavalcante, @ShukantPal)
   - Added s390x platform support (Thanks @ashokpariya0)
