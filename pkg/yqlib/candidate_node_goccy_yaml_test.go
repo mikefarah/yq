@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/goccy/go-yaml/parser"
 	"gopkg.in/yaml.v3"
 )
 
@@ -17,10 +18,15 @@ a:
 s: 
 - 1
 - 2
+t: [5, five]
+f: [6, {y: true}]
 `
 
+	goccyAst, err := parser.ParseBytes([]byte(input), parser.ParseComments)
+	fmt.Println(goccyAst)
+
 	var yamlNode yaml.Node
-	err := yaml.Unmarshal([]byte(input), &yamlNode)
+	err = yaml.Unmarshal([]byte(input), &yamlNode)
 	if err != nil {
 		t.Error(err)
 		return
@@ -39,5 +45,12 @@ s:
 		return
 	}
 
+	parsed, err := parser.ParseBytes([]byte(input), parser.ParseComments)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	fmt.Println(parsed)
 	fmt.Println(goccyNode)
 }
