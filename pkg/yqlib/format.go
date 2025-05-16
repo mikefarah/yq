@@ -77,6 +77,11 @@ var LuaFormat = &Format{"lua", []string{"l"},
 	func() Decoder { return NewLuaDecoder(ConfiguredLuaPreferences) },
 }
 
+var INIFormat = &Format{"ini", []string{"i"},
+	func() Encoder { return NewINIEncoder(0) },
+	func() Decoder { return NewINIDecoder() },
+}
+
 var Formats = []*Format{
 	YamlFormat,
 	JSONFormat,
@@ -90,6 +95,7 @@ var Formats = []*Format{
 	TomlFormat,
 	ShellVariablesFormat,
 	LuaFormat,
+	INIFormat,
 }
 
 func (f *Format) MatchesName(name string) bool {
