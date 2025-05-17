@@ -78,7 +78,7 @@ var LuaFormat = &Format{"lua", []string{"l"},
 }
 
 var INIFormat = &Format{"ini", []string{"i"},
-	func() Encoder { return NewINIEncoder(0) },
+	func() Encoder { return NewINIEncoder() },
 	func() Decoder { return NewINIDecoder() },
 }
 
