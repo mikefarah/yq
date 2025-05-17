@@ -35,13 +35,13 @@ func (dec *iniDecoder) Decode() (*CandidateNode, error) {
 	// Read all content from the stored reader
 	content, err := io.ReadAll(dec.reader)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read INI content: %v", err)
+		return nil, fmt.Errorf("failed to read INI content: %w", err)
 	}
 
 	// Parse the INI content
 	cfg, err := ini.Load(content)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse INI content: %v", err)
+		return nil, fmt.Errorf("failed to parse INI content: %w", err)
 	}
 
 	// Create a root CandidateNode as a MappingNode (since INI is key-value based)

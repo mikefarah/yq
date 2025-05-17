@@ -14,13 +14,10 @@ type iniEncoder struct {
 	indentString string
 }
 
-// NewINIEncoder creates a new INI encoder with the specified indent level for formatting.
-func NewINIEncoder(indent int) Encoder {
-	var indentString = ""
-	for index := 0; index < indent; index++ {
-		indentString = indentString + " "
-	}
-	return &iniEncoder{indentString}
+// NewINIEncoder creates a new INI encoder
+func NewINIEncoder() Encoder {
+	// Hardcoded indent value of 0, meaning no additional spacing.
+	return &iniEncoder{""}
 }
 
 // CanHandleAliases indicates whether the encoder supports aliases. INI does not support aliases.
@@ -63,13 +60,14 @@ func (ie *iniEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 			valueNode := node.Content[i+1]
 			key := keyNode.Value
 
-			if valueNode.Kind == ScalarNode {
+			switch valueNode.Kind {
+			case ScalarNode:
 				// Add key-value pair to the default section.
 				_, err := defaultSection.NewKey(key, valueNode.Value)
 				if err != nil {
 					return err
 				}
-			} else if valueNode.Kind == MappingNode {
+			case MappingNode:
 				// Create a new section for nested MappingNode.
 				section, err := cfg.NewSection(key)
 				if err != nil {
@@ -88,7 +86,7 @@ func (ie *iniEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 						log.Debugf("Skipping nested non-scalar value for key %s: %v", nestedKeyNode.Value, nestedValueNode.Kind)
 					}
 				}
-			} else {
+			default:
 				log.Debugf("Skipping non-scalar value for key %s: %v", key, valueNode.Kind)
 			}
 		}
