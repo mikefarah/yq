@@ -422,21 +422,19 @@ func (m *goccyMarshaller) marshalScalar(path string, o *CandidateNode) (ast.Scal
 		return n, nil
 	}
 
-	switch av := v.(type) {
+	var n ast.ScalarNode
+	switch v.(type) {
 	case float64:
-		n := ast.Float(scalarToken)
-		n.Value = av
-		return n, nil
+		n = ast.Float(scalarToken)
 	case int64:
-		n := ast.Integer(scalarToken)
-		n.Value = av
-		return n, nil
+		n = ast.Integer(scalarToken)
 	case bool:
-		n := ast.Bool(scalarToken)
-		n.Value = av
-		return n, nil
+		n = ast.Bool(scalarToken)
 	case string:
-		n := ast.String(scalarToken)
+		n = ast.String(scalarToken)
+	}
+
+	if n != nil {
 		n.SetPath(path)
 		return n, nil
 	}
