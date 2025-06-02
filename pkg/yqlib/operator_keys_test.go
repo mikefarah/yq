@@ -45,8 +45,8 @@ var keysOperatorScenarios = []expressionScenario{
 		document:    `{dog: woof, cat: meow}`,
 		expression:  `keys[]`,
 		expected: []string{
-			"D0, P[dog], (!!str)::dog\n",
-			"D0, P[cat], (!!str)::cat\n",
+			"D0, P[0], (!!str)::dog\n",
+			"D0, P[1], (!!str)::cat\n",
 		},
 	},
 	{

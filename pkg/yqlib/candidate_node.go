@@ -239,14 +239,13 @@ func (n *CandidateNode) AddKeyValueChild(rawKey *CandidateNode, rawValue *Candid
 func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
 	value := rawChild.Copy()
 	value.SetParent(n)
-	if value.Key != nil {
-		value.Key.SetParent(n)
-	} else {
-		index := len(n.Content)
-		keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
-		keyNode.SetParent(n)
-		value.Key = keyNode
-	}
+	value.IsMapKey = false
+
+	index := len(n.Content)
+	keyNode := createScalarNode(index, fmt.Sprintf("%v", index))
+	keyNode.SetParent(n)
+	value.Key = keyNode
+
 	n.Content = append(n.Content, value)
 }
 
