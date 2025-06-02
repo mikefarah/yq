@@ -26,7 +26,12 @@ func shuffleOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (
 
 		a := result.Content
 
-		myRand.Shuffle(len(a), func(i, j int) { a[i], a[j] = a[j], a[i] })
+		myRand.Shuffle(len(a), func(i, j int) {
+			a[i], a[j] = a[j], a[i]
+			oldIndex := a[i].Key.Value
+			a[i].Key.Value = a[j].Key.Value
+			a[j].Key.Value = oldIndex
+		})
 
 		results.PushBack(result)
 	}

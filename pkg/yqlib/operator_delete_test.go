@@ -120,6 +120,60 @@ var deleteOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Delete entry appended to an array",
+		document:    `[1,2]`,
+		expression:  `. += [3] | del(.[2])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Delete entry after sorting an array",
+		document:    `[3,2,1]`,
+		expression:  `sort | del(.[2])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Delete entry after reversing an array",
+		document:    `[1,2,3]`,
+		expression:  `reverse | del(.[2])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[3, 2]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Delete entry after shuffling an array",
+		document:    `[1,2,3]`,
+		expression:  `shuffle | del(.[2])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[3, 1]\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Delete entry from keys array",
+		document:    `{"a": 1, "b": 2, "c": 3}`,
+		expression:  `keys | del(.[] | select(.=="b"))`,
+		expected: []string{
+			"D0, P[], (!!seq)::- \"a\"\n- \"c\"\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Delete entry after flattening an array",
+		document:    `[1,[2],[[3]]]`,
+		expression:  `flatten | del(.[2])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2]\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `a: [10,x,10, 10, x, 10]`,
 		expression: `del(.a[] | select(. == 10))`,

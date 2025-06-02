@@ -17,8 +17,8 @@ var sortByOperatorScenarios = []expressionScenario{
 		document:    "[{a: banana},{a: apple}]",
 		expression:  `sort_by(.a)[]`,
 		expected: []string{
-			"D0, P[1], (!!map)::{a: apple}\n",
-			"D0, P[0], (!!map)::{a: banana}\n",
+			"D0, P[0], (!!map)::{a: apple}\n",
+			"D0, P[1], (!!map)::{a: banana}\n",
 		},
 	},
 	{
@@ -27,9 +27,9 @@ var sortByOperatorScenarios = []expressionScenario{
 		document:    "[{a: banana},null,{a: apple}]",
 		expression:  `sort_by(.a)[]`,
 		expected: []string{
-			"D0, P[1], (!!null)::null\n",
-			"D0, P[2], (!!map)::{a: apple}\n",
-			"D0, P[0], (!!map)::{a: banana}\n",
+			"D0, P[0], (!!null)::null\n",
+			"D0, P[1], (!!map)::{a: apple}\n",
+			"D0, P[2], (!!map)::{a: banana}\n",
 		},
 	},
 	{
@@ -149,8 +149,8 @@ var sortByOperatorScenarios = []expressionScenario{
 		document:    "[8,null]",
 		expression:  `sort[]`,
 		expected: []string{
-			"D0, P[1], (!!null)::null\n",
-			"D0, P[0], (!!int)::8\n",
+			"D0, P[0], (!!null)::null\n",
+			"D0, P[1], (!!int)::8\n",
 		},
 	},
 	{

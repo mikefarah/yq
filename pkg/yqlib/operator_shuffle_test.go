@@ -17,9 +17,9 @@ var shuffleOperatorScenarios = []expressionScenario{
 		document:    "[1, 2, 3]",
 		expression:  `shuffle[]`,
 		expected: []string{
-			"D0, P[2], (!!int)::3\n",
-			"D0, P[0], (!!int)::1\n",
-			"D0, P[1], (!!int)::2\n",
+			"D0, P[0], (!!int)::3\n",
+			"D0, P[1], (!!int)::1\n",
+			"D0, P[2], (!!int)::2\n",
 		},
 	},
 

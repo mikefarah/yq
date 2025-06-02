@@ -21,8 +21,8 @@ var flattenOperatorScenarios = []expressionScenario{
 		expression:  `flatten[]`,
 		expected: []string{
 			"D0, P[0], (!!int)::1\n",
-			"D0, P[0], (!!int)::2\n",
-			"D0, P[0], (!!int)::3\n",
+			"D0, P[1], (!!int)::2\n",
+			"D0, P[2], (!!int)::3\n",
 		},
 	},
 	{
@@ -40,8 +40,8 @@ var flattenOperatorScenarios = []expressionScenario{
 		expression:  `flatten(1)[]`,
 		expected: []string{
 			"D0, P[0], (!!int)::1\n",
-			"D0, P[0], (!!int)::2\n",
-			"D0, P[0], (!!seq)::[3]\n",
+			"D0, P[1], (!!int)::2\n",
+			"D0, P[2], (!!seq)::[3]\n",
 		},
 	},
 	{
