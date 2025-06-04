@@ -18,7 +18,7 @@ func NewDefaultYamlPreferences() YamlPreferences {
 		PrintDocSeparators:          true,
 		UnwrapScalar:                true,
 		EvaluateTogether:            false,
-		UseGoccyParser:              true, // Default to goccy parser (actively maintained)
+		UseGoccyParser:              false,
 	}
 }
 

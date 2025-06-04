@@ -7,272 +7,194 @@ import (
 )
 
 var goccyYamlFormatScenarios = []formatScenario{
-	// {
-	// 	description: "basic - 3",
-	// 	skipDoc:     true,
-	// 	input:       "3",
-	// 	expected:    "3\n",
-	// },
-	// {
-	// 	description: "basic - 3.1",
-	// 	skipDoc:     true,
-	// 	input:       "3.1",
-	// 	expected:    "3.1\n",
-	// },
-	// {
-	// 	description: "basic - mike",
-	// 	skipDoc:     true,
-	// 	input:       "mike: 3",
-	// 	expected:    "mike: 3\n",
-	// },
-	// {
-	// 	description: "basic - map multiple entries",
-	// 	skipDoc:     true,
-	// 	input:       "mike: 3\nfred: 12\n",
-	// 	expected:    "mike: 3\nfred: 12\n",
-	// },
-	// {
-	// 	description: "basic - 3.1",
-	// 	skipDoc:     true,
-	// 	input:       "{\n mike: 3\n}",
-	// 	expected:    "{mike: 3}\n",
-	// },
-	// {
-	// 	description: "basic - tag with number",
-	// 	skipDoc:     true,
-	// 	input:       "mike: !!cat 3",
-	// 	expected:    "mike: !!cat 3\n",
-	// },
-	// {
-	// 	description: "basic - array of numbers",
-	// 	skipDoc:     true,
-	// 	input:       "- 3",
-	// 	expected:    "- 3\n",
-	// },
-	// {
-	// 	description: "basic - single line array",
-	// 	skipDoc:     true,
-	// 	input:       "[3]",
-	// 	expected:    "[3]\n",
-	// },
-	// {
-	// 	description: "basic - plain string",
-	// 	skipDoc:     true,
-	// 	input:       `a: meow`,
-	// 	expected:    "a: meow\n",
-	// },
-	// {
-	// 	description: "basic - double quoted string",
-	// 	skipDoc:     true,
-	// 	input:       `a: "meow"`,
-	// 	expected:    "a: \"meow\"\n",
-	// },
-	// {
-	// 	description: "basic - single quoted string",
-	// 	skipDoc:     true,
-	// 	input:       `a: 'meow'`,
-	// 	expected:    "a: 'meow'\n",
-	// },
-	// {
-	// 	description: "basic - string block",
-	// 	skipDoc:     true,
-	// 	input:       "a: |\n  meow\n",
-	// 	expected:    "a: |\n  meow\n",
-	// },
-	// {
-	// 	description: "basic - long string",
-	// 	skipDoc:     true,
-	// 	input:       "a: the cute cat wrote a long sentence that wasn't wrapped at all.\n",
-	// 	expected:    "a: the cute cat wrote a long sentence that wasn't wrapped at all.\n",
-	// },
-	// {
-	// 	description: "basic - string block",
-	// 	skipDoc:     true,
-	// 	input:       "a: |-\n  meow\n",
-	// 	expected:    "a: |-\n  meow\n",
-	// },
-	// {
-	// 	description: "basic - line comment",
-	// 	skipDoc:     true,
-	// 	input:       "a: meow # line comment\n",
-	// 	expected:    "a: meow # line comment\n",
-	// },
-	// {
-	// 	description: "basic - head comment",
-	// 	skipDoc:     true,
-	// 	input:       "# head comment\na: meow\n",
-	// 	expected:    "# head comment\na: meow\n", // go-yaml does this
-	// },
-	// {
-	// 	description: "basic - head and line comment",
-	// 	skipDoc:     true,
-	// 	input:       "# head comment\na: #line comment\n  meow\n",
-	// 	expected:    "# head comment\na: meow #line comment\n", // go-yaml does this
-	// },
-	// {
-	// 	description: "basic - foot comment",
-	// 	skipDoc:     true,
-	// 	input:       "a: meow\n# foot comment\n",
-	// 	expected:    "a: meow\n# foot comment\n",
-	// },
-	// {
-	// 	description: "basic - foot comment",
-	// 	skipDoc:     true,
-	// 	input:       "a: meow\nb: woof\n# foot comment\n",
-	// 	expected:    "a: meow\nb: woof\n# foot comment\n",
-	// },
-	// {
-	// 	description: "basic - boolean",
-	// 	skipDoc:     true,
-	// 	input:       "true\n",
-	// 	expected:    "true\n",
-	// },
-	// {
-	// 	description: "basic - null",
-	// 	skipDoc:     true,
-	// 	input:       "a: null\n",
-	// 	expected:    "a: null\n",
-	// },
-	// {
-	// 	description: "basic - ~",
-	// 	skipDoc:     true,
-	// 	input:       "a: ~\n",
-	// 	expected:    "a: ~\n",
-	// },
-	// {
-	// 	description: "basic - ~",
-	// 	skipDoc:     true,
-	// 	input:       "null\n",
-	// 	expected:    "null\n",
-	// },
-	// {
-	// 	skipDoc:     true,
-	// 	description: "trailing comment",
-	// 	input:       "test:",
-	// 	expected:    "test:",
-	// },
-	// {
-	// 	skipDoc:     true,
-	// 	description: "trailing comment",
-	// 	input:       "test: null\n# this comment will be removed",
-	// 	expected:    "test: null\n# this comment will be removed\n",
-	// },
-	// {
-	// 	description: "doc separator",
-	// 	skipDoc:     true,
-	// 	input:       "# hi\n---\na: cat\n---",
-	// 	expected:    "---\na: cat\n",
-	// },
-	// {
-	// 	description: "scalar with doc separator",
-	// 	skipDoc:     true,
-	// 	input:       "--- cat",
-	// 	expected:    "---\ncat\n",
-	// },
-	// {
-	// 	description: "scalar with doc separator",
-	// 	skipDoc:     true,
-	// 	input:       "---cat",
-	// 	expected:    "---cat\n",
-	// },
-	// {
-	// 	description: "basic - null",
-	// 	skipDoc:     true,
-	// 	input:       "null",
-	// 	expected:    "null\n",
-	// },
-	// {
-	// 	description: "basic - ~",
-	// 	skipDoc:     true,
-	// 	input:       "~",
-	// 	expected:    "~\n",
-	// },
-	// {
-	// 	description: "octal",
-	// 	skipDoc:     true,
-	// 	input:       "0o30",
-	// 	expression:  "tag",
-	// 	expected:    "!!int\n",
-	// },
-	// {
-	// 	description: "basic - [null]",
-	// 	skipDoc:     true,
-	// 	input:       "[null]",
-	// 	expected:    "[null]\n",
-	// },
-	// {
-	// 	description: "multi document",
-	// 	skipDoc:     true,
-	// 	input:       "a: mike\n---\nb: remember",
-	// 	expected:    "a: mike\n---\nb: remember\n",
-	// },
-	// {
-	// 	description: "single doc anchor map",
-	// 	skipDoc:     true,
-	// 	input:       "a: &remember mike\nb: *remember",
-	// 	expected:    "a: mike\nb: *remember\n",
-	// },
-	// {
-	// 	description: "explode doc anchor map",
-	// 	skipDoc:     true,
-	// 	input:       "a: &remember mike\nb: *remember",
-	// 	expression:  "explode(.)",
-	// 	expected:    "a: mike\nb: mike\n",
-	// },
-	// {
-	// 	description: "multi document anchor map",
-	// 	skipDoc:     true,
-	// 	input:       "a: &remember mike\n---\nb: *remember",
-	// 	expression:  "explode(.)",
-	// 	expected:    "a: mike\n---\nb: mike\n",
-	// },
-	// {
-	// 	description: "merge anchor",
-	// 	skipDoc:     true,
-	// 	input:       "a: &remember\n  c: mike\nb:\n  <<: *remember",
-	// 	expected:    "a: &remember\n  c: mike\nb:\n  <<: *remember\n",
-	// },
+	{
+		description: "basic scalar - integer",
+		skipDoc:     true,
+		input:       "3",
+		expected:    "3\n",
+	},
+	{
+		description: "basic scalar - float",
+		skipDoc:     true,
+		input:       "3.1",
+		expected:    "3.1\n",
+	},
+	{
+		description: "basic scalar - string",
+		skipDoc:     true,
+		input:       "hello",
+		expected:    "hello\n",
+	},
+	{
+		description: "basic scalar - boolean",
+		skipDoc:     true,
+		input:       "true",
+		expected:    "true\n",
+	},
+	{
+		description: "basic scalar - null",
+		skipDoc:     true,
+		input:       "null",
+		expected:    "",
+	},
+	{
+		description: "basic scalar - tilde null",
+		skipDoc:     true,
+		input:       "~",
+		expected:    "",
+	},
+	{
+		description: "basic mapping",
+		skipDoc:     true,
+		input:       "key: value",
+		expected:    "key: value\n",
+	},
+	{
+		description: "mapping with multiple entries",
+		skipDoc:     true,
+		input:       "name: John\nage: 30",
+		expected:    "name: John\nage: 30\n",
+	},
+	{
+		description: "basic sequence",
+		skipDoc:     true,
+		input:       "- one\n- two\n- three",
+		expected:    "- one\n- two\n- three\n",
+	},
+	{
+		description: "flow style sequence",
+		skipDoc:     true,
+		input:       "[1, 2, 3]",
+		expected:    "[1, 2, 3]\n",
+	},
+	{
+		description: "flow style mapping",
+		skipDoc:     true,
+		input:       "{name: John, age: 30}",
+		expected:    "{name: John, age: 30}\n",
+	},
+	{
+		description: "nested structure",
+		skipDoc:     true,
+		input:       "person:\n  name: John\n  details:\n    age: 30\n    city: NYC",
+		expected:    "person:\n  name: John\n  details:\n    age: 30\n    city: NYC\n",
+	},
+	{
+		description: "quoted strings - single",
+		skipDoc:     true,
+		input:       "message: 'hello world'",
+		expected:    "message: 'hello world'\n",
+	},
+	{
+		description: "quoted strings - double",
+		skipDoc:     true,
+		input:       "message: \"hello world\"",
+		expected:    "message: \"hello world\"\n",
+	},
+	{
+		description: "literal block scalar",
+		skipDoc:     true,
+		input:       "text: |\n  line one\n  line two",
+		expected:    "text: |-\n  line one\n  line two\n",
+	},
+	{
+		description: "folded block scalar",
+		skipDoc:     true,
+		input:       "text: >\n  line one\n  line two",
+		expected:    "text: >-\n  line one line two\n",
+	},
 	{
 		description: "custom tag",
 		skipDoc:     true,
-		input:       "a: !cat mike",
-		expected:    "a: !cat mike\n",
+		input:       "value: !custom tag_content",
+		expected:    "value: !custom tag_content\n",
 	},
-	// {
-	// 	description: "basic - [~]",
-	// 	skipDoc:     true,
-	// 	input:       "[~]",
-	// 	expected:    "[~]\n",
-	// },
-	// {
-	// 	description: "basic - null map value",
-	// 	skipDoc:     true,
-	// 	input:       "a: null",
-	// 	expected:    "a: null\n",
-	// },
-	// {
-	// 	description: "basic - number",
-	// 	skipDoc:     true,
-	// 	input:       "3",
-	// 	expected:    "3\n",
-	// },
-	// {
-	// 	description: "basic - float",
-	// 	skipDoc:     true,
-	// 	input:       "3.1",
-	// 	expected:    "3.1\n",
-	// },
-	// {
-	// 	description: "basic - float",
-	// 	skipDoc:     true,
-	// 	input:       "[1, 2]",
-	// 	expected:    "[1, 2]\n",
-	// },
-
+	{
+		description: "anchors and aliases",
+		skipDoc:     true,
+		input:       "default: &default_value\n  key: value\nother: *default_value",
+		expected:    "default: &default_value\n  key: value\nother: *default_value\n",
+	},
+	{
+		description: "merge keys",
+		skipDoc:     true,
+		input:       "default: &default\n  key1: value1\n  key2: value2\nmerged:\n  <<: *default\n  key3: value3",
+		expected:    "default: &default\n  key1: value1\n  key2: value2\nmerged:\n  !!merge <<: *default\n  key3: value3\n",
+	},
+	{
+		description: "array with null",
+		skipDoc:     true,
+		input:       "[null, \"value\", ~]",
+		expected:    "[null, \"value\", ~]\n",
+	},
+	{
+		description: "mapping with null value",
+		skipDoc:     true,
+		input:       "a: null\nb: ~\nc: value",
+		expected:    "a: null\nb: ~\nc: value\n",
+	},
+	{
+		description: "comments - line comment",
+		skipDoc:     true,
+		input:       "key: value # this is a comment",
+		expected:    "key: value # this is a comment\n",
+	},
+	{
+		description: "comments - head comment",
+		skipDoc:     true,
+		input:       "# this is a head comment\nkey: value",
+		expected:    "# this is a head comment\nkey: value\n",
+	},
+	{
+		description: "document separator - first doc only",
+		skipDoc:     true,
+		input:       "doc1: value1\n---\ndoc2: value2",
+		expected:    "doc1: value1\n---\ndoc2: value2\n",
+	},
+	{
+		description: "empty document",
+		skipDoc:     true,
+		input:       "",
+		expected:    "",
+	},
+	{
+		description: "whitespace handling",
+		skipDoc:     true,
+		input:       "   key   :   value   ",
+		expected:    "key: value\n",
+	},
+	{
+		description:  "roundtrip - basic",
+		skipDoc:      true,
+		input:        "name: John\nage: 30",
+		expected:     "age: 30\nname: John\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip - with anchors",
+		skipDoc:      true,
+		input:        "default: &ref\n  key: value\nother: *ref",
+		expected:     "default:\n  key: value\nother:\n  key: value\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip - complex structure",
+		skipDoc:      true,
+		input:        "users:\n  - name: Alice\n    age: 25\n  - name: Bob\n    age: 30",
+		expected:     "users:\n- age: 25\n  name: Alice\n- age: 30\n  name: Bob\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testGoccyYamlScenario(t *testing.T, s formatScenario) {
-	test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(ConfiguredYamlPreferences), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
+	switch s.scenarioType {
+	case "roundtrip":
+		// Test goccy decoder -> goccy encoder roundtrip
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(ConfiguredYamlPreferences), NewGoccyYamlEncoder(ConfiguredYamlPreferences)), s.description)
+	default:
+		// Default: goccy decoder -> yaml encoder
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewGoccyYAMLDecoder(ConfiguredYamlPreferences), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
+	}
 }
 
 func TestGoccyYmlFormatScenarios(t *testing.T) {
