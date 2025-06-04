@@ -120,7 +120,17 @@ func TestYamlParsersStructuralEquivalence(t *testing.T) {
 			for j := range v3Nodes {
 				v3Node := v3Nodes[j]
 				goccyNode := goccyNodes[j]
-				if !recursiveNodeEqual(v3Node, goccyNode) {
+
+				// Use specialized comparison for documents with merge tags (Document 3)
+				var nodesEqual bool
+				if i == 3 {
+					// Document 3 contains merge tags which require specialized comparison
+					nodesEqual = recursiveNodeEqualWithMergeHandling(v3Node, goccyNode)
+				} else {
+					nodesEqual = recursiveNodeEqual(v3Node, goccyNode)
+				}
+
+				if !nodesEqual {
 					t.Errorf("Parsed structures differ between yaml.v3 and goccy for document %d, sub-document %d", i, j)
 					t.Logf("yaml.v3 result: %s", NodeToString(v3Node))
 					t.Logf("goccy result: %s", NodeToString(goccyNode))

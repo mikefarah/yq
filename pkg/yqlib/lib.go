@@ -120,106 +120,48 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 		return true
 	}
 	if lhs == nil || rhs == nil {
-		// If one is nil, the other must also effectively be nil (e.g. an alias to nothing that resolved to nil, or a null scalar)
-		// This check is a bit simplistic, as a non-nil node could be a ScalarNode Tag:!!null.
-		// The detailed checks later will handle specific null-equivalence better.
-		// For now, if one is a Go nil and the other isn't, they are different.
-		log.Debugf("recursiveNodeEqual: one node is nil, the other is not. LHS: %v, RHS: %v", lhs == nil, rhs == nil)
 		return false
 	}
 
-	// Phase 1: Resolve aliases if one node is an alias and the other is not.
-	// This logic now assumes that lhs.Alias.Alias (if lhs is AliasNode)
-	// has been resolved to a *CandidateNode during initial parsing.
+	// Simple alias resolution - if one is alias and other isn't, resolve the alias
 	if lhs.Kind == AliasNode && rhs.Kind != AliasNode {
-		if lhs.Alias == nil { // lhs.Alias is the *yaml.v3.Node representing the alias itself
-			log.Debugf("recursiveNodeEqual: lhs is AliasNode but its *yaml.v3.Node (lhs.Alias) is nil. LHS: %s", NodeToString(lhs))
-			return rhs.Kind == ScalarNode && rhs.Tag == "!!null"
+		if lhs.Alias != nil && lhs.Alias.Alias != nil {
+			return recursiveNodeEqual(lhs.Alias.Alias, rhs)
 		}
-		// According to linter, lhs.Alias.Alias is *CandidateNode.
-		// Standard yaml.v3 has lhs.Alias.Alias as *yaml.v3.Node (target).
-		// We are trusting the linter's view of the effective type in this specific codebase.
-		lhsResolvedCandidate := lhs.Alias.Alias // Assuming this is effectively a *CandidateNode
-		if lhsResolvedCandidate == nil {
-			log.Debugf("recursiveNodeEqual: lhs is AliasNode and its resolved target (*CandidateNode lhs.Alias.Alias) is nil. LHS: %s", NodeToString(lhs))
-			return rhs.Kind == ScalarNode && rhs.Tag == "!!null"
-		}
-		// The type assertion is to make it explicit if the linter's view is correct.
-		// If it panics, the assumption about pre-resolution to *CandidateNode is wrong.
-		return recursiveNodeEqual(lhsResolvedCandidate, rhs)
+		return false
 	}
-
 	if rhs.Kind == AliasNode && lhs.Kind != AliasNode {
-		if rhs.Alias == nil {
-			log.Debugf("recursiveNodeEqual: rhs is AliasNode but its *yaml.v3.Node (rhs.Alias) is nil. RHS: %s", NodeToString(rhs))
-			return lhs.Kind == ScalarNode && lhs.Tag == "!!null"
+		if rhs.Alias != nil && rhs.Alias.Alias != nil {
+			return recursiveNodeEqual(lhs, rhs.Alias.Alias)
 		}
-		rhsResolvedCandidate := rhs.Alias.Alias
-		if rhsResolvedCandidate == nil {
-			log.Debugf("recursiveNodeEqual: rhs is AliasNode and its resolved target (*CandidateNode rhs.Alias.Alias) is nil. RHS: %s", NodeToString(rhs))
-			return lhs.Kind == ScalarNode && lhs.Tag == "!!null"
-		}
-		return recursiveNodeEqual(lhs, rhsResolvedCandidate)
+		return false
 	}
 
 	if lhs.Kind != rhs.Kind {
-		log.Debugf("recursiveNodeEqual: kinds differ after alias check. LHS: %s (%s), RHS: %s (%s)", KindString(lhs.Kind), NodeToString(lhs), KindString(rhs.Kind), NodeToString(rhs))
 		return false
 	}
 
-	switch lhs.Kind {
-	case AliasNode: // Both are AliasNodes
-		if lhs.Alias == nil { // Both nil means equal
-			return rhs.Alias == nil
-		}
-		if rhs.Alias == nil { // LHS not nil, RHS nil means unequal
-			return false
-		}
-		// Both have non-nil yaml.v3 Alias nodes. Compare their targets.
-		lhsResolvedCandidate := lhs.Alias.Alias
-		rhsResolvedCandidate := rhs.Alias.Alias
-
-		if lhsResolvedCandidate == nil { // LHS target is nil
-			return rhsResolvedCandidate == nil // RHS target must also be nil
-		}
-		if rhsResolvedCandidate == nil { // RHS target is nil, LHS target not nil
-			return false
-		}
-		return recursiveNodeEqual(lhsResolvedCandidate, rhsResolvedCandidate)
-
-	case ScalarNode:
+	if lhs.Kind == ScalarNode {
+		//process custom tags of scalar nodes.
+		//dont worry about matching tags of maps or arrays.
 		lhsTag := lhs.guessTagFromCustomType()
 		rhsTag := rhs.guessTagFromCustomType()
+
 		if lhsTag != rhsTag {
-			isLHSStrLike := lhsTag == "!!str" || lhsTag == "" || lhsTag == "!"
-			isRHSStrLike := rhsTag == "!!str" || rhsTag == "" || rhsTag == "!"
-			isLHSNull := lhsTag == "!!null"
-			isRHSNull := rhsTag == "!!null"
-			if isLHSNull || isRHSNull {
-				if !(isLHSNull && isRHSNull) {
-					log.Debugf("recursiveNodeEqual: Scalar tags differ (nullness mismatch). LHS Tag: '%s' Val: '%s', RHS Tag: '%s' Val: '%s'", lhsTag, lhs.Value, rhsTag, rhs.Value)
-					return false
-				}
-			} else if !(isLHSStrLike && isRHSStrLike) {
-				log.Debugf("recursiveNodeEqual: Scalar tags differ (non-string, non-null mismatch). LHS Tag: '%s' Val: '%s', RHS Tag: '%s' Val: '%s'", lhsTag, lhs.Value, rhsTag, rhs.Value)
-				return false
-			}
+			return false
 		}
-		if lhsTag == "!!null" {
-			return true
-		}
-		return lhs.Value == rhs.Value
-
-	case SequenceNode:
-		return recurseNodeArrayEqual(lhs, rhs)
-
-	case MappingNode:
-		return recurseNodeObjectEqual(lhs, rhs)
-
-	default:
-		log.Debugf("recursiveNodeEqual: unhandled identical kinds: %s (%s)", KindString(lhs.Kind), NodeToString(lhs))
-		return false
 	}
+
+	if lhs.Tag == "!!null" {
+		return true
+	} else if lhs.Kind == ScalarNode {
+		return lhs.Value == rhs.Value
+	} else if lhs.Kind == SequenceNode {
+		return recurseNodeArrayEqual(lhs, rhs)
+	} else if lhs.Kind == MappingNode {
+		return recurseNodeObjectEqual(lhs, rhs)
+	}
+	return false
 }
 
 // yaml numbers can have underscores, be hex and octal encoded...
