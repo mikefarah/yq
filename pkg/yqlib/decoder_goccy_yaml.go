@@ -197,6 +197,5 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 func (dec *goccyYamlDecoder) blankNodeWithComment() *CandidateNode {
 	node := createScalarNode(nil, "") // Create an empty scalar node.
 	node.LeadingContent = dec.leadingContent
-	// dec.leadingContent = "" // Clear after use? Not strictly necessary here as Decode will clear it next if node is returned.
 	return node
 }

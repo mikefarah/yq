@@ -29,7 +29,6 @@ func (ye *goccyYamlEncoder) CanHandleAliases() bool {
 
 func (ye *goccyYamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	if ye.prefs.PrintDocSeparators {
-		// log.Debug("writing doc sep") // Commented out
 		if err := writeString(writer, "---\n"); err != nil {
 			return err
 		}
@@ -96,7 +95,6 @@ func (ye *goccyYamlEncoder) PrintTrailingComment(writer io.Writer, comment strin
 }
 
 func (ye *goccyYamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	// log.Debug("goccyYamlEncoder - going to print %v", NodeToString(node)) // Commented out
 	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
 		valueToPrint := node.Value
 		if node.LeadingContent == "" || valueToPrint != "" {

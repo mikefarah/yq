@@ -207,7 +207,7 @@ yq -P -oy sample.json
 	}
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
 
-	rootCmd.PersistentFlags().StringVar(&yamlParser, "yaml-parser", "goccy", "YAML parser to use: 'goccy' (default, actively maintained) or 'v3' (legacy gopkg.in/yaml.v3)")
+	rootCmd.PersistentFlags().StringVar(&yamlParser, "yaml-parser", "v3", "YAML parser to use: 'goccy' (actively maintained) or 'v3' (default, legacy gopkg.in/yaml.v3)")
 	if err = rootCmd.RegisterFlagCompletionFunc("yaml-parser", cobra.FixedCompletions([]string{"goccy", "v3"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
 		panic(err)
 	}
