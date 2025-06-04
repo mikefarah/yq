@@ -12,6 +12,9 @@ import (
 	yaml "github.com/goccy/go-yaml"
 )
 
+// Note: The constant 'docSeparatorPlaceholder' is defined in decoder_goccy_yaml.go
+// and is used here as they are in the same package.
+
 type goccyYamlEncoder struct {
 	prefs YamlPreferences
 }
@@ -26,7 +29,7 @@ func (ye *goccyYamlEncoder) CanHandleAliases() bool {
 
 func (ye *goccyYamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 	if ye.prefs.PrintDocSeparators {
-		log.Debug("writing doc sep")
+		// log.Debug("writing doc sep") // Commented out
 		if err := writeString(writer, "---\n"); err != nil {
 			return err
 		}
@@ -44,7 +47,7 @@ func (ye *goccyYamlEncoder) PrintLeadingContent(writer io.Writer, content string
 		if errReading != nil && !errors.Is(errReading, io.EOF) {
 			return errReading
 		}
-		if strings.Contains(readline, "$yqDocSeparator$") {
+		if strings.Contains(readline, docSeparatorPlaceholder) { // Use the constant from decoder_goccy_yaml.go
 			if err := ye.PrintDocumentSeparator(writer); err != nil {
 				return err
 			}
@@ -74,8 +77,26 @@ func (ye *goccyYamlEncoder) PrintLeadingContent(writer io.Writer, content string
 	return nil
 }
 
+// PrintTrailingComment writes the given comment string to the writer.
+// If the comment is not empty and does not end with a newline, one is added.
+// It does not add any comment prefixes (#).
+func (ye *goccyYamlEncoder) PrintTrailingComment(writer io.Writer, comment string) error {
+	if comment == "" {
+		return nil
+	}
+	if err := writeString(writer, comment); err != nil {
+		return err
+	}
+	if !strings.HasSuffix(comment, "\n") {
+		if err := writeString(writer, "\n"); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (ye *goccyYamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	log.Debug("goccyYamlEncoder - going to print %v", NodeToString(node))
+	// log.Debug("goccyYamlEncoder - going to print %v", NodeToString(node)) // Commented out
 	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
 		valueToPrint := node.Value
 		if node.LeadingContent == "" || valueToPrint != "" {
@@ -103,20 +124,15 @@ func (ye *goccyYamlEncoder) Encode(writer io.Writer, node *CandidateNode) error 
 		return err
 	}
 
-	trailingContent := node.FootComment
-	if target != nil {
-		// Store and clear foot comment to handle it separately
-		if astNode, ok := target.(interface{ GetComment() interface{} }); ok {
-			_ = astNode // placeholder for potential future foot comment handling
-		}
-	}
-
 	if err := encoder.Encode(target); err != nil {
 		return err
 	}
 
-	if err := ye.PrintLeadingContent(destination, trailingContent); err != nil {
-		return err
+	// Use PrintTrailingComment for foot comments.
+	if node.FootComment != "" { // Check if there's a foot comment to print
+		if err := ye.PrintTrailingComment(destination, node.FootComment); err != nil {
+			return err
+		}
 	}
 
 	if ye.prefs.ColorsEnabled {
