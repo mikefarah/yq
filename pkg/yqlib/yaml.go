@@ -7,6 +7,7 @@ type YamlPreferences struct {
 	PrintDocSeparators          bool
 	UnwrapScalar                bool
 	EvaluateTogether            bool
+	UseGoccyParser              bool
 }
 
 func NewDefaultYamlPreferences() YamlPreferences {
@@ -17,6 +18,7 @@ func NewDefaultYamlPreferences() YamlPreferences {
 		PrintDocSeparators:          true,
 		UnwrapScalar:                true,
 		EvaluateTogether:            false,
+		UseGoccyParser:              true, // Default to goccy parser (actively maintained)
 	}
 }
 
@@ -28,6 +30,7 @@ func (p *YamlPreferences) Copy() YamlPreferences {
 		PrintDocSeparators:          p.PrintDocSeparators,
 		UnwrapScalar:                p.UnwrapScalar,
 		EvaluateTogether:            p.EvaluateTogether,
+		UseGoccyParser:              p.UseGoccyParser,
 	}
 }
 

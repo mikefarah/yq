@@ -175,6 +175,17 @@ func parseInt(numberString string) (int, error) {
 	return int(parsed), err
 }
 
+func parseFloat(numberString string) (float64, error) {
+	if strings.Contains(numberString, "_") {
+		numberString = strings.ReplaceAll(numberString, "_", "")
+	}
+	return strconv.ParseFloat(numberString, 64)
+}
+
+func parseBool(boolString string) (bool, error) {
+	return strconv.ParseBool(boolString)
+}
+
 func headAndLineComment(node *CandidateNode) string {
 	return headComment(node) + lineComment(node)
 }
