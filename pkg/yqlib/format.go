@@ -18,8 +18,18 @@ type Format struct {
 }
 
 var YamlFormat = &Format{"yaml", []string{"y", "yml"},
-	func() Encoder { return NewYamlEncoder(ConfiguredYamlPreferences) },
-	func() Decoder { return NewYamlDecoder(ConfiguredYamlPreferences) },
+	func() Encoder {
+		if ConfiguredYamlPreferences.UseGoccyParser {
+			return NewGoccyYamlEncoder(ConfiguredYamlPreferences)
+		}
+		return NewYamlEncoder(ConfiguredYamlPreferences)
+	},
+	func() Decoder {
+		if ConfiguredYamlPreferences.UseGoccyParser {
+			return NewGoccyYAMLDecoder(ConfiguredYamlPreferences)
+		}
+		return NewYamlDecoder(ConfiguredYamlPreferences)
+	},
 }
 
 var JSONFormat = &Format{"json", []string{"j"},

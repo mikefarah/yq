@@ -208,3 +208,85 @@ func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingVa
 
 	return nil
 }
+
+func (o *CandidateNode) MarshalGoccyYAML() (interface{}, error) {
+	log.Debug("MarshalGoccyYAML to goccy: %v", o.Tag)
+
+	switch o.Kind {
+	case AliasNode:
+		log.Debug("MarshalGoccyYAML - alias to goccy: %v", o.Tag)
+		// For goccy, we'll return the referenced value directly
+		// The goccy encoder will handle alias creation
+		if o.Alias != nil {
+			return o.Alias.MarshalGoccyYAML()
+		}
+		return o.Value, nil
+
+	case ScalarNode:
+		log.Debug("MarshalGoccyYAML - scalar: %v", o.Value)
+
+		// Handle different scalar types based on tag
+		switch o.Tag {
+		case "!!int":
+			if val, err := parseInt(o.Value); err == nil {
+				return val, nil
+			}
+		case "!!float":
+			if val, err := parseFloat(o.Value); err == nil {
+				return val, nil
+			}
+		case "!!bool":
+			if val, err := parseBool(o.Value); err == nil {
+				return val, nil
+			}
+		case "!!null":
+			return nil, nil
+		default:
+			// String or unknown type
+			return o.Value, nil
+		}
+		return o.Value, nil
+
+	case MappingNode:
+		log.Debug("MarshalGoccyYAML - mapping: %v", NodeToString(o))
+		result := make(map[string]interface{})
+
+		for i := 0; i < len(o.Content); i += 2 {
+			if i+1 >= len(o.Content) {
+				break
+			}
+
+			keyNode := o.Content[i]
+			valueNode := o.Content[i+1]
+
+			key := keyNode.Value
+			if key == "" {
+				key = NodeToString(keyNode)
+			}
+
+			value, err := valueNode.MarshalGoccyYAML()
+			if err != nil {
+				return nil, err
+			}
+
+			result[key] = value
+		}
+		return result, nil
+
+	case SequenceNode:
+		log.Debug("MarshalGoccyYAML - sequence: %v", NodeToString(o))
+		result := make([]interface{}, len(o.Content))
+
+		for i, childNode := range o.Content {
+			value, err := childNode.MarshalGoccyYAML()
+			if err != nil {
+				return nil, err
+			}
+			result[i] = value
+		}
+		return result, nil
+	}
+
+	// Default case
+	return o.Value, nil
+}
