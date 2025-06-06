@@ -53,8 +53,17 @@ func TestMain(m *testing.M) {
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
-	code := m.Run()
-	os.Exit(code)
+
+	ConfiguredYamlPreferences.UseGoccyParser = false
+	exitCode := m.Run()
+	if exitCode != 0 {
+		os.Exit(exitCode)
+	}
+
+	ConfiguredYamlPreferences.UseGoccyParser = true
+	exitCode = m.Run()
+
+	os.Exit(exitCode)
 }
 
 func NewSimpleYamlPrinter(writer io.Writer, unwrapScalar bool, indent int, printDocSeparators bool) Printer {
