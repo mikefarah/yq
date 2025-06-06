@@ -15,7 +15,7 @@ name: John
 age: 30
 address:
   street: 123 Main St
-  city: Anytown
+  city: town
   state: ST
   zip: 12345
 hobbies:
@@ -29,7 +29,7 @@ version: "1.0"
 database:
   host: localhost
   port: 5432
-  name: myapp
+  name: app
   credentials:
     username: admin
     password: secret123
@@ -63,11 +63,11 @@ defaults: &defaults
 
 development:
   <<: *defaults
-  database: myapp_dev
+  database: app_dev
 
 test:
   <<: *defaults
-  database: myapp_test
+  database: app_test
 `,
 	`---
 # Multiple documents

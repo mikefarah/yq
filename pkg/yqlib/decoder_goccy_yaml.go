@@ -3,13 +3,13 @@
 // Package yqlib provides YAML processing functionality using the goccy/go-yaml parser.
 // This decoder implementation provides compatibility with the legacy yaml.v3 parser
 // while leveraging the actively maintained goccy/go-yaml library.
-
 package yqlib
 
 import (
 	"bufio"
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -170,6 +170,16 @@ func (dec *goccyYamlDecoder) Decode() (*CandidateNode, error) {
 			// If neither of the above conditions for a comment-only node is met, it's a genuine EOF.
 			return nil, io.EOF
 		}
+
+		// Provide more informative error messages for known goccy limitations
+		errorMsg := err.Error()
+		if strings.Contains(errorMsg, "could not find flow map content") {
+			return nil, fmt.Errorf("flow maps with alias keys are not supported in this parser. Consider using block map syntax instead. Original error: %w", err)
+		}
+		if strings.Contains(errorMsg, "sequence was used where mapping is expected") {
+			return nil, fmt.Errorf("merge anchor only supports maps, got !!seq instead")
+		}
+
 		// Non-EOF error.
 		return nil, err
 	}

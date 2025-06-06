@@ -62,7 +62,8 @@ func NewSimpleYamlPrinter(writer io.Writer, unwrapScalar bool, indent int, print
 func readDocument(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
 	reader := bufio.NewReader(strings.NewReader(content))
 
-	return readDocuments(reader, fakefilename, fakeFileIndex, NewYamlDecoder(ConfiguredYamlPreferences))
+	decoder := YamlFormat.DecoderFactory()
+	return readDocuments(reader, fakefilename, fakeFileIndex, decoder)
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
@@ -201,7 +202,8 @@ func formatYaml(yaml string, filename string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, NewYamlDecoder(ConfiguredYamlPreferences))
+	decoder := YamlFormat.DecoderFactory()
+	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, decoder)
 	if err != nil {
 		panic(err)
 	}
@@ -242,6 +244,12 @@ func documentScenarios(t *testing.T, folder string, title string, scenarios []in
 }
 
 func documentOperatorScenarios(t *testing.T, title string, scenarios []expressionScenario) {
+	// Only generate documentation during the first test run (yaml.v3)
+	// Skip documentation generation during the second run (goccy)
+	if ConfiguredYamlPreferences.UseGoccyParser {
+		return
+	}
+
 	genericScenarios := make([]interface{}, len(scenarios))
 	for i, s := range scenarios {
 		genericScenarios[i] = s

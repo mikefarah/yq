@@ -198,23 +198,26 @@ func (o *CandidateNode) MarshalGoccyYAML() (interface{}, error) {
 		// Handle different scalar types based on tag for correct marshalling.
 		switch o.Tag {
 		case "!!int":
-			if val, err := parseInt(o.Value); err == nil {
+			val, err := parseInt(o.Value)
+			if err == nil {
 				return val, nil
-			} else {
-				return nil, fmt.Errorf("cannot marshal node %s as int: %w", NodeToString(o), err)
 			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as int: %w", NodeToString(o), err)
 		case "!!float":
-			if val, err := parseFloat(o.Value); err == nil {
+			val, err := parseFloat(o.Value)
+			if err == nil {
 				return val, nil
-			} else {
-				return nil, fmt.Errorf("cannot marshal node %s as float: %w", NodeToString(o), err)
 			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as float: %w", NodeToString(o), err)
 		case "!!bool":
-			if val, err := parseBool(o.Value); err == nil {
+			val, err := parseBool(o.Value)
+			if err == nil {
 				return val, nil
-			} else {
-				return nil, fmt.Errorf("cannot marshal node %s as bool: %w", NodeToString(o), err)
 			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as bool: %w", NodeToString(o), err)
 		case "!!null":
 			// goccy/go-yaml expects a nil interface{} for null values.
 			return nil, nil
