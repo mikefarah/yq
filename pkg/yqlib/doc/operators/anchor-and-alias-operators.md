@@ -241,7 +241,7 @@ Given a sample.yml file of:
 ```yaml
 f:
   a: &a cat
-  "*a": b
+  *a: b
 ```
 then
 ```bash
@@ -251,7 +251,7 @@ will output
 ```yaml
 f:
   a: cat
-  "*a": b
+  cat: b
 ```
 
 ## Explode with merge anchors

@@ -47,7 +47,7 @@ func TestMain(m *testing.M) {
 	goccyTesting = os.Getenv("GOCCY") == "true"
 
 	if goccyTesting {
-		testingDecoder = NewGoccyYAMLDecoder()
+		testingDecoder = NewGoccyYAMLDecoder(ConfiguredYamlPreferences)
 	}
 
 	Now = func() time.Time {
