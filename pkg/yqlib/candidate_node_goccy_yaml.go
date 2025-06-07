@@ -99,6 +99,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
 	case ast.TagType:
+		// Recursively unmarshal the tagged value, then apply the tag to the CandidateNode.
 		if err := o.UnmarshalGoccyYAML(node.(*ast.TagNode).Value, cm, anchorMap); err != nil {
 			return err
 		}
@@ -207,4 +208,97 @@ func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingVa
 	}
 
 	return nil
+}
+
+func (o *CandidateNode) MarshalGoccyYAML() (interface{}, error) {
+	log.Debug("MarshalGoccyYAML to goccy: %v", o.Tag)
+
+	switch o.Kind {
+	case AliasNode:
+		log.Debug("MarshalGoccyYAML - alias to goccy: %v", o.Tag)
+		// For goccy, we'll return the referenced value directly
+		// The goccy encoder will handle alias creation
+		if o.Alias != nil {
+			return o.Alias.MarshalGoccyYAML()
+		}
+		return o.Value, nil
+
+	case ScalarNode:
+		// Handle different scalar types based on tag for correct marshalling.
+		switch o.Tag {
+		case "!!int":
+			val, err := parseInt(o.Value)
+			if err == nil {
+				return val, nil
+			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as int: %w", NodeToString(o), err)
+		case "!!float":
+			val, err := parseFloat(o.Value)
+			if err == nil {
+				return val, nil
+			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as float: %w", NodeToString(o), err)
+		case "!!bool":
+			val, err := parseBool(o.Value)
+			if err == nil {
+				return val, nil
+			}
+
+			return nil, fmt.Errorf("cannot marshal node %s as bool: %w", NodeToString(o), err)
+		case "!!null":
+			// goccy/go-yaml expects a nil interface{} for null values.
+			return nil, nil
+		default:
+			// For standard strings (!!str) or unknown/custom tags, marshal as a string.
+			// The goccy encoder will handle quoting and style if it's a plain string.
+			// For custom tags, goccy prepends the tag if the value is a string.
+			return o.Value, nil
+		}
+
+	case MappingNode:
+		log.Debug("MarshalGoccyYAML - mapping: %v", NodeToString(o))
+		// Ensure even number of children for key-value pairs
+		if len(o.Content)%2 != 0 {
+			return nil, fmt.Errorf("mapping node at %s has an odd number of children (%d), malformed key-value pairs", NodeToString(o), len(o.Content))
+		}
+		result := make(map[string]interface{})
+
+		for i := 0; i < len(o.Content); i += 2 {
+			// No need to check i+1 >= len(o.Content) here due to the check above
+
+			keyNode := o.Content[i]
+			valueNode := o.Content[i+1]
+
+			key := keyNode.Value
+			if key == "" {
+				key = NodeToString(keyNode)
+			}
+
+			value, err := valueNode.MarshalGoccyYAML()
+			if err != nil {
+				return nil, err
+			}
+
+			result[key] = value
+		}
+		return result, nil
+
+	case SequenceNode:
+		log.Debug("MarshalGoccyYAML - sequence: %v", NodeToString(o))
+		result := make([]interface{}, len(o.Content))
+
+		for i, childNode := range o.Content {
+			value, err := childNode.MarshalGoccyYAML()
+			if err != nil {
+				return nil, err
+			}
+			result[i] = value
+		}
+		return result, nil
+	}
+
+	// Default case
+	return o.Value, nil
 }

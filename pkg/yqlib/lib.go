@@ -116,6 +116,27 @@ func parseSnippet(value string) (*CandidateNode, error) {
 }
 
 func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
+	if lhs == nil && rhs == nil {
+		return true
+	}
+	if lhs == nil || rhs == nil {
+		return false
+	}
+
+	// Simple alias resolution - if one is alias and other isn't, resolve the alias
+	if lhs.Kind == AliasNode && rhs.Kind != AliasNode {
+		if lhs.Alias != nil && lhs.Alias.Alias != nil {
+			return recursiveNodeEqual(lhs.Alias.Alias, rhs)
+		}
+		return false
+	}
+	if rhs.Kind == AliasNode && lhs.Kind != AliasNode {
+		if rhs.Alias != nil && rhs.Alias.Alias != nil {
+			return recursiveNodeEqual(lhs, rhs.Alias.Alias)
+		}
+		return false
+	}
+
 	if lhs.Kind != rhs.Kind {
 		return false
 	}
@@ -123,7 +144,6 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if lhs.Kind == ScalarNode {
 		//process custom tags of scalar nodes.
 		//dont worry about matching tags of maps or arrays.
-
 		lhsTag := lhs.guessTagFromCustomType()
 		rhsTag := rhs.guessTagFromCustomType()
 
@@ -134,7 +154,6 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 
 	if lhs.Tag == "!!null" {
 		return true
-
 	} else if lhs.Kind == ScalarNode {
 		return lhs.Value == rhs.Value
 	} else if lhs.Kind == SequenceNode {
@@ -173,6 +192,17 @@ func parseInt(numberString string) (int, error) {
 	}
 
 	return int(parsed), err
+}
+
+func parseFloat(numberString string) (float64, error) {
+	if strings.Contains(numberString, "_") {
+		numberString = strings.ReplaceAll(numberString, "_", "")
+	}
+	return strconv.ParseFloat(numberString, 64)
+}
+
+func parseBool(boolString string) (bool, error) {
+	return strconv.ParseBool(boolString)
 }
 
 func headAndLineComment(node *CandidateNode) string {
