@@ -224,8 +224,19 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Explode with alias keys",
+		subdescription: "No space between alias",
+		skipDoc:        true,
+		document:       `{f : {a: &a cat, *a: b}}`,
+		expression:     `explode(.f)`,
+		expected: []string{
+			"D0, P[], (!!map)::{f: {a: cat, cat: b}}\n",
+		},
+		skipForGoccy: true, // can't handle no space between alias
+	},
+	{
 		description: "Explode with alias keys",
-		document:    `{f : {a: &a cat, *a: b}}`,
+		document:    `{f : {a: &a cat, *a : b}}`,
 		expression:  `explode(.f)`,
 		expected: []string{
 			"D0, P[], (!!map)::{f: {a: cat, cat: b}}\n",

@@ -99,6 +99,7 @@ var uniqueOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[{name: harry, pet: cat}, {pet: fish}]\n# xyz\n",
 		},
+		skipForGoccy: true, // https://github.com/goccy/go-yaml/issues/757
 	},
 }
 

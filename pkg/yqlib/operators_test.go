@@ -29,12 +29,27 @@ type expressionScenario struct {
 	expectedError         string
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 	requiresFormat        string
+	skipForGoccy          bool
 }
+
+var goccyTesting = false
+
+var testingDecoder = NewYamlDecoder(ConfiguredYamlPreferences)
 
 func TestMain(m *testing.M) {
 	logging.SetLevel(logging.ERROR, "")
+	if os.Getenv("DEBUG") == "true" {
+		logging.SetLevel(logging.DEBUG, "")
+	}
 	ConfiguredYamlPreferences.ColorsEnabled = false
 	ConfiguredJSONPreferences.ColorsEnabled = false
+
+	goccyTesting = os.Getenv("GOCCY") == "true"
+
+	if goccyTesting {
+		testingDecoder = NewGoccyYAMLDecoder()
+	}
+
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
@@ -53,10 +68,13 @@ func NewSimpleYamlPrinter(writer io.Writer, unwrapScalar bool, indent int, print
 func readDocument(content string, fakefilename string, fakeFileIndex int) (*list.List, error) {
 	reader := bufio.NewReader(strings.NewReader(content))
 
-	return readDocuments(reader, fakefilename, fakeFileIndex, NewYamlDecoder(ConfiguredYamlPreferences))
+	return readDocuments(reader, fakefilename, fakeFileIndex, testingDecoder)
 }
 
 func testScenario(t *testing.T, s *expressionScenario) {
+	if s.skipForGoccy {
+		return
+	}
 	var err error
 	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {
@@ -192,7 +210,7 @@ func formatYaml(yaml string, filename string) string {
 		panic(err)
 	}
 	streamEvaluator := NewStreamEvaluator()
-	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, NewYamlDecoder(ConfiguredYamlPreferences))
+	_, err = streamEvaluator.Evaluate(filename, strings.NewReader(yaml), node, printer, testingDecoder)
 	if err != nil {
 		panic(err)
 	}

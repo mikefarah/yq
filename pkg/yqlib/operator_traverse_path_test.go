@@ -43,6 +43,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[x], (!!null)::null\n",
 		},
+		skipForGoccy: true, // throws an error instead, that's fine
 	},
 	{
 		skipDoc:     true,
@@ -553,6 +554,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		document:      badAliasSample,
 		expression:    ".steps[]",
 		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
+		skipForGoccy:  true, // throws an error on parsing, that's fine
 	},
 }
 

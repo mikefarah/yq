@@ -69,6 +69,9 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 		o.Kind = ScalarNode
 		o.Tag = "!!null"
 		o.Value = node.GetToken().Value
+		if node.GetToken().Type == goccyToken.ImplicitNullType {
+			o.Value = ""
+		}
 	case ast.StringType:
 		o.Kind = ScalarNode
 		o.Tag = "!!str"
@@ -112,7 +115,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 		for _, mappingValueNode := range mappingNode.Values {
 			err := o.goccyProcessMappingValueNode(mappingValueNode, cm, anchorMap)
 			if err != nil {
-				return ast.ErrInvalidAnchorName
+				return err
 			}
 		}
 		if mappingNode.FootComment != nil {
@@ -126,7 +129,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 		mappingValueNode := node.(*ast.MappingValueNode)
 		err := o.goccyProcessMappingValueNode(mappingValueNode, cm, anchorMap)
 		if err != nil {
-			return ast.ErrInvalidAnchorName
+			return err
 		}
 	case ast.SequenceType:
 		log.Debugf("UnmarshalYAML -  a sequence node")
