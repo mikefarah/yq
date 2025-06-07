@@ -60,6 +60,15 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:      "a: &a\n  - 0\nc:\n  <<: [*a]\n",
 		expectedError: "merge anchor only supports maps, got !!seq instead",
 		expression:    "explode(.)",
+		skipForGoccy:  true, // goccy yaml parser throws a different error
+	},
+	{
+		skipDoc:       true,
+		description:   "merge anchor not map",
+		document:      "a: &a\n  - 0\nc:\n  <<: [*a]\n",
+		expectedError: "merge anchor only supports maps, got !!seq instead a: &a",
+		expression:    "explode(.)",
+		skipForYamlV3: true, // yaml.v3 parser throws a different error
 	},
 	{
 		description:    "Merge one map",
@@ -271,6 +280,15 @@ var anchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a: *b}}`,
+		expression: `explode(.f)`,
+		expected: []string{
+			"D0, P[], (!!map)::{f: {a: cat, b: {foo: cat}, cat: {foo: cat}}}\n",
+		},
+		skipForGoccy: true, // can't handle no space between alias
+	},
+	{
+		skipDoc:    true,
+		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a : *b}}`,
 		expression: `explode(.f)`,
 		expected: []string{
 			"D0, P[], (!!map)::{f: {a: cat, b: {foo: cat}, cat: {foo: cat}}}\n",

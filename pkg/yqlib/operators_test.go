@@ -30,9 +30,8 @@ type expressionScenario struct {
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 	requiresFormat        string
 	skipForGoccy          bool
+	skipForYamlV3         bool
 }
-
-var goccyTesting = false
 
 var testingDecoder = NewYamlDecoder(ConfiguredYamlPreferences)
 
@@ -44,23 +43,19 @@ func TestMain(m *testing.M) {
 	ConfiguredYamlPreferences.ColorsEnabled = false
 	ConfiguredJSONPreferences.ColorsEnabled = false
 
-	goccyTesting = os.Getenv("GOCCY") == "true"
-
-	if goccyTesting {
-		testingDecoder = NewGoccyYAMLDecoder(ConfiguredYamlPreferences)
-	}
-
 	Now = func() time.Time {
 		return time.Date(2021, time.May, 19, 1, 2, 3, 4, time.UTC)
 	}
 
-	ConfiguredYamlPreferences.UseGoccyParser = false
+	testingDecoder = NewGoccyYAMLDecoder(ConfiguredYamlPreferences)
+	ConfiguredYamlPreferences.UseGoccyParser = true
 	exitCode := m.Run()
 	if exitCode != 0 {
 		os.Exit(exitCode)
 	}
 
-	ConfiguredYamlPreferences.UseGoccyParser = true
+	testingDecoder = NewYamlDecoder(ConfiguredYamlPreferences)
+	ConfiguredYamlPreferences.UseGoccyParser = false
 	exitCode = m.Run()
 
 	os.Exit(exitCode)
@@ -82,8 +77,16 @@ func readDocument(content string, fakefilename string, fakeFileIndex int) (*list
 
 func testScenario(t *testing.T, s *expressionScenario) {
 	if s.skipForGoccy {
-		return
+		if ConfiguredYamlPreferences.UseGoccyParser {
+			t.Skipf("skipping scenario %v for yaml v3 parser", s.description)
+		}
 	}
+	if s.skipForYamlV3 {
+		if !ConfiguredYamlPreferences.UseGoccyParser {
+			t.Skipf("skipping scenario %v for yaml v3 parser", s.description)
+		}
+	}
+
 	var err error
 	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {
