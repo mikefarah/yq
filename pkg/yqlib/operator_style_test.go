@@ -168,6 +168,134 @@ g:
 			"D0, P[a], (!!str)::\n",
 		},
 	},
+	// Flow map test scenarios demonstrating parser differences
+	{
+		description:    "Basic flow map display - legacy-v3 behaviour",
+		subdescription: "legacy-v3 preserves original flow map syntax in output",
+		document:       `{a: 1, b: 2}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Basic flow map display - goccy behaviour",
+		subdescription: "Goccy normalizes flow maps to block style in output",
+		document:       `{a: 1, b: 2}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::a: 1\nb: 2\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Flow maps in arrays - legacy-v3 behaviour",
+		subdescription: "legacy-v3 maintains flow syntax for maps within arrays",
+		document:       `items: [{name: item1, value: 100}, {name: item2, value: 200}]`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::items: [{name: item1, value: 100}, {name: item2, value: 200}]\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Flow maps in arrays - goccy behaviour",
+		subdescription: "Goccy converts flow maps in arrays to block style",
+		document:       `items: [{name: item1, value: 100}, {name: item2, value: 200}]`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::items:\n- name: item1\n  value: 100\n- name: item2\n  value: 200\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Nested flow maps - legacy-v3 behaviour",
+		subdescription: "legacy-v3 preserves nested flow map structure",
+		document:       `config: {database: {host: localhost, port: 5432}, cache: {enabled: true}}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::config: {database: {host: localhost, port: 5432}, cache: {enabled: true}}\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Nested flow maps - goccy behaviour",
+		subdescription: "Goccy normalizes nested flow maps to block style",
+		document:       `config: {database: {host: localhost, port: 5432}, cache: {enabled: true}}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::config:\n  cache:\n    enabled: true\n  database:\n    host: localhost\n    port: 5432\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Mixed flow and block styles - legacy-v3 behaviour",
+		subdescription: "legacy-v3 preserves original mix of flow and block styles",
+		document:       "data:\n  users: [{id: 1, name: \"Alice\"}, {id: 2, name: \"Bob\"}]\n  settings: {theme: dark, lang: en}",
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::data:\n    users: [{id: 1, name: \"Alice\"}, {id: 2, name: \"Bob\"}]\n    settings: {theme: dark, lang: en}\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Mixed flow and block styles - goccy behaviour",
+		subdescription: "Goccy normalizes all to block style regardless of original format",
+		document:       "data:\n  users: [{id: 1, name: \"Alice\"}, {id: 2, name: \"Bob\"}]\n  settings: {theme: dark, lang: en}",
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::data:\n  settings:\n    lang: en\n    theme: dark\n  users:\n  - id: 1\n    name: Alice\n  - id: 2\n    name: Bob\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Empty flow maps - legacy-v3 behaviour",
+		subdescription: "legacy-v3 preserves empty flow map syntax",
+		document:       `{empty: {}, data: {key: value}}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::{empty: {}, data: {key: value}}\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Empty flow maps - goccy behaviour",
+		subdescription: "Goccy normalizes empty flow maps to block style",
+		document:       `{empty: {}, data: {key: value}}`,
+		expression:     `.`,
+		expected: []string{
+			"D0, P[], (!!map)::data:\n    key: value\nempty: {}\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Flow map content access - both parsers",
+		subdescription: "Both parsers access flow map content identically despite display differences",
+		document:       `{a: 1, b: 2, c: 3}`,
+		expression:     `.b`,
+		expected: []string{
+			"D0, P[b], (!!int)::2\n",
+		},
+	},
+	{
+		description:    "Complex flow map navigation - both parsers",
+		subdescription: "Both parsers navigate complex flow maps identically",
+		document:       `config: {database: {host: localhost, port: 5432}, cache: {enabled: true}}`,
+		expression:     `.config.database.host`,
+		expected: []string{
+			"D0, P[config database host], (!!str)::localhost\n",
+		},
+	},
+	{
+		description:    "Flow map style preservation - forced flow style",
+		subdescription: "Both parsers can output in flow style when explicitly requested",
+		document:       `a: 1\nb: 2`,
+		expression:     `. style="flow"`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
+		},
+	},
 }
 
 func TestStyleOperatorScenarios(t *testing.T) {
