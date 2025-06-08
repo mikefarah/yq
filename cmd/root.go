@@ -98,10 +98,10 @@ yq -P -oy sample.json
 			switch yamlParser {
 			case "goccy", "":
 				yqlib.ConfiguredYamlPreferences.UseGoccyParser = true
-			case "v3":
+			case "legacy-v3":
 				yqlib.ConfiguredYamlPreferences.UseGoccyParser = false
 			default:
-				return fmt.Errorf("invalid yaml-parser value '%s'. Valid options are: 'goccy', 'v3'", yamlParser)
+				return fmt.Errorf("invalid yaml-parser value '%s'. Valid options are: 'goccy', 'legacy-v3'", yamlParser)
 			}
 
 			return nil
@@ -207,8 +207,8 @@ yq -P -oy sample.json
 	}
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
 
-	rootCmd.PersistentFlags().StringVar(&yamlParser, "yaml-parser", "v3", "YAML parser to use: 'goccy' (actively maintained) or 'v3' (default, legacy gopkg.in/yaml.v3)")
-	if err = rootCmd.RegisterFlagCompletionFunc("yaml-parser", cobra.FixedCompletions([]string{"goccy", "v3"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
+	rootCmd.PersistentFlags().StringVar(&yamlParser, "yaml-parser", "legacy-v3", "YAML parser to use: 'goccy' (actively maintained) or 'legacy-v3' (default, legacy gopkg.in/yaml.v3)")
+	if err = rootCmd.RegisterFlagCompletionFunc("yaml-parser", cobra.FixedCompletions([]string{"goccy", "legacy-v3"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
 		panic(err)
 	}
 
