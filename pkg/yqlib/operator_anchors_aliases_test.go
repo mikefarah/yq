@@ -53,6 +53,35 @@ foobar:
     thing: foobar_thing
 `
 
+var anchorMergeDocSample = `foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+
+foobarList:
+  b: foobarList_b
+  <<: [*foo,*bar]
+  c: foobarList_c
+
+foobar:
+  c: foobar_c
+  <<: *foo
+  thing: foobar_thing
+`
+
+var anchorBadAliasSample = `
+_common: &common-docker-file
+  - FROM ubuntu:18.04
+
+steps:
+  <<: *common-docker-file
+`
+
 var anchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:       true,
@@ -300,6 +329,90 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       simpleArrayRef,
 		expression:     `.thingOne |= explode(.) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},
+	},
+	// Additional merge anchor test scenarios demonstrating parser differences
+	{
+		description:    "Merge anchor display - legacy-v3 behaviour",
+		subdescription: "legacy-v3 preserves merge anchor notation in output",
+		document:       anchorMergeDocSample,
+		expression:     `.foobar`,
+		expected: []string{
+			"D0, P[foobar], (!!map)::c: foobar_c\n!!merge <<: *foo\nthing: foobar_thing\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Merge anchor display - goccy behaviour",
+		subdescription: "Goccy expands merge anchors in output display",
+		document:       anchorMergeDocSample,
+		expression:     `.foobar`,
+		expected: []string{
+			"D0, P[foobar], (!!map)::<<:\n    a: foo_a\n    c: foo_c\n    thing: foo_thing\nc: foobar_c\nthing: foobar_thing\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Merge anchor content access - both parsers",
+		subdescription: "Both parsers correctly access merged content despite display differences",
+		document:       anchorMergeDocSample,
+		expression:     `.foobar.a`,
+		expected: []string{
+			"D0, P[foo a], (!!str)::foo_a\n",
+		},
+	},
+	{
+		description:    "Merge anchor with override - both parsers",
+		subdescription: "Both parsers handle merge anchor overrides correctly",
+		document:       anchorMergeDocSample,
+		expression:     `.foobar.thing`,
+		expected: []string{
+			"D0, P[foobar thing], (!!str)::foobar_thing\n",
+		},
+	},
+	{
+		description:    "Invalid merge anchor with array - legacy-v3 runtime error",
+		subdescription: "legacy-v3 parses but gives runtime error on access",
+		document:       anchorBadAliasSample,
+		expression:     ".steps[]",
+		expectedError:  "can only use merge anchors with maps (!!map), but got !!seq",
+		skipForGoccy:   true, // Goccy gives parse-time error instead
+	},
+	{
+		description:    "Invalid merge anchor with array - goccy parse error",
+		subdescription: "Goccy provides stricter validation with parse-time error",
+		document:       anchorBadAliasSample,
+		expression:     ".steps[]",
+		expectedError:  "bad file '-': [2:5] string was used where mapping is expected",
+		skipForYamlV3:  true, // legacy-v3 gives runtime error instead
+	},
+	{
+		description:    "Complex merge anchor list - both parsers",
+		subdescription: "Both parsers handle multiple merge anchors with proper precedence",
+		document:       anchorMergeDocSample,
+		expression:     `.foobarList.thing`,
+		expected: []string{
+			"D0, P[bar thing], (!!str)::bar_thing\n",
+		},
+	},
+	{
+		description:    "Merge anchor list display - legacy-v3 behaviour",
+		subdescription: "legacy-v3 shows merge anchor list notation",
+		document:       anchorMergeDocSample,
+		expression:     `.foobarList`,
+		expected: []string{
+			"D0, P[foobarList], (!!map)::b: foobarList_b\n!!merge <<: [*foo, *bar]\nc: foobarList_c\n",
+		},
+		skipForGoccy: true,
+	},
+	{
+		description:    "Merge anchor list display - goccy behaviour",
+		subdescription: "Goccy expands merge anchor lists in output",
+		document:       anchorMergeDocSample,
+		expression:     `.foobarList`,
+		expected: []string{
+			"D0, P[foobarList], (!!map)::<<:\n    - a: foo_a\n      c: foo_c\n      thing: foo_thing\n    - b: bar_b\n      c: bar_c\n      thing: bar_thing\nb: foobarList_b\nc: foobarList_c\n",
+		},
+		skipForYamlV3: true,
 	},
 }
 
