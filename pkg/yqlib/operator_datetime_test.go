@@ -128,19 +128,9 @@ var dateTimeOperatorScenarios = []expressionScenario{
 	},
 }
 
-func testDatetimeScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip datetime arithmetic tests for goccy as it requires explicit timestamp tagging
-	// while yaml.v3 auto-detects ISO8601 strings as timestamps
-	if (s.description == "Date addition" || s.description == "Date subtraction") && ConfiguredYamlPreferences.UseGoccyParser {
-		t.Skip("goccy parser requires explicit timestamp tagging for datetime arithmetic - more YAML spec compliant")
-		return
-	}
-	testScenario(t, s)
-}
-
 func TestDatetimeOperatorScenarios(t *testing.T) {
 	for _, tt := range dateTimeOperatorScenarios {
-		testDatetimeScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "datetime", dateTimeOperatorScenarios)
 }

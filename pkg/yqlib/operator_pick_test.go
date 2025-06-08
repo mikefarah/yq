@@ -50,6 +50,7 @@ var pickOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\nmyMap: {hamster: squeak, cat: meow}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Pick indices from array",
@@ -68,23 +69,13 @@ var pickOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[lion, cat]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
-}
-
-func testPickScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment-related tests for goccy as it handles comment placement more strictly
-	if ConfiguredYamlPreferences.UseGoccyParser {
-		if s.description == "Pick keys from map with comments" || s.description == "Pick indices from array with comments" {
-			t.Skip("goccy parser handles trailing comments more strictly - structurally equivalent but different comment handling")
-			return
-		}
-	}
-	testScenario(t, s)
 }
 
 func TestPickOperatorScenarios(t *testing.T) {
 	for _, tt := range pickOperatorScenarios {
-		testPickScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "pick", pickOperatorScenarios)
 }

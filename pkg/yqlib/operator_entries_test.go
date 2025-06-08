@@ -134,21 +134,13 @@ var entriesOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\na: {b: bird}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
-}
-
-func testEntriesScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment-related tests for goccy as it handles comment placement more strictly
-	if s.description == "Use with_entries to filter the map; head comment" && ConfiguredYamlPreferences.UseGoccyParser {
-		t.Skip("goccy parser handles trailing comments more strictly - structurally equivalent but different comment handling")
-		return
-	}
-	testScenario(t, s)
 }
 
 func TestEntriesOperatorScenarios(t *testing.T) {
 	for _, tt := range entriesOperatorScenarios {
-		testEntriesScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "entries", entriesOperatorScenarios)
 }

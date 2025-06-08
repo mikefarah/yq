@@ -94,6 +94,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::sample:\n    - &a\n    - !!merge <<: *a\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -112,6 +113,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# here\n\na: apple\nb: banana\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -121,6 +123,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[node], (!!map)::# here\na: apple\nb: banana\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -130,6 +133,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# here\n\nb: banana\na: apple\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -139,6 +143,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::b: banana\n# here\na: apple\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -148,6 +153,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: apple\nb: banana\n# footer\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -157,6 +163,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{ // not sure why there's an extra newline *shrug*
 			"D0, P[], (!!map)::a: apple\n# footer\n\nb: banana\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "doc 2 has footer",
@@ -167,6 +174,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::b: banana\na: apple\n# footer\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Multiply integers",
@@ -667,30 +675,36 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 }
 
-func testMultiplyScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip tests where goccy correctly rejects invalid YAML at parse time
-	if ConfiguredYamlPreferences.UseGoccyParser {
-		// Skip merge anchor tests - goccy correctly rejects merge anchors with null values
-		if s.document == mergeArrayWithAnchors {
-			t.Skip("goccy parser correctly rejects merge anchors with null values at parse time")
-			return
-		}
-
-		// Skip comment-related tests - goccy handles comment placement differently
-		if s.document == docWithHeader || s.document == nodeWithHeader ||
-			s.document2 == docWithHeader || s.document2 == nodeWithHeader ||
-			s.document == docWithFooter || s.document == nodeWithFooter ||
-			s.document2 == docWithFooter || s.document2 == nodeWithFooter {
-			t.Skip("goccy parser handles comment placement differently - data integrity preserved")
-			return
-		}
-	}
-	testScenario(t, s)
+// Goccy-specific multiply operator scenarios
+var goccyMultiplyOperatorScenarios = []expressionScenario{
+	{
+		description:    "Goccy: Basic merge operation preserves structure",
+		subdescription: "Goccy parser maintains structural integrity during merge operations",
+		document:       `{a: apple, b: banana}`,
+		expression:     `. * {c: cherry}`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: apple, b: banana, c: cherry}\n",
+		},
+		skipForYamlV3: true, // different comment handling behaviour
+	},
+	{
+		description:    "Goccy: Merge with valid anchor structure",
+		subdescription: "Goccy handles valid YAML anchor structures correctly",
+		document:       `{a: &anchor value, b: *anchor}`,
+		expression:     `. * {c: new}`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: &anchor value, b: *anchor, c: new}\n",
+		},
+		skipForYamlV3: true, // different anchor handling nuances
+	},
 }
 
 func TestMultiplyOperatorScenarios(t *testing.T) {
 	for _, tt := range multiplyOperatorScenarios {
-		testMultiplyScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
+	}
+	for _, tt := range goccyMultiplyOperatorScenarios {
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "multiply-merge", multiplyOperatorScenarios)
 }

@@ -41,6 +41,7 @@ var omitOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\nmyMap: {dog: bark, thing: hamster}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Omit indices from array",
@@ -59,23 +60,13 @@ var omitOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[leopard]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
-}
-
-func testOmitScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment-related tests for goccy as it handles comment placement more strictly
-	if ConfiguredYamlPreferences.UseGoccyParser {
-		if s.description == "Omit keys from map with comments" || s.description == "Omit indices from array with comments" {
-			t.Skip("goccy parser handles trailing comments more strictly - structurally equivalent but different comment handling")
-			return
-		}
-	}
-	testScenario(t, s)
 }
 
 func TestOmitOperatorScenarios(t *testing.T) {
 	for _, tt := range omitOperatorScenarios {
-		testOmitScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "omit", omitOperatorScenarios)
 }

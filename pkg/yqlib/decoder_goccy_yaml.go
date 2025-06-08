@@ -40,6 +40,9 @@ type goccyYamlDecoder struct {
 	// It is reset by Init() for each new stream.
 	anchorMap map[string]*CandidateNode
 
+	// dateTimePreprocessor handles automatic timestamp tagging for datetime arithmetic compatibility
+	dateTimePreprocessor *DateTimePreprocessor
+
 	readAnything  bool // Flag to track if any actual YAML node (or synthesized comment node) has been decoded.
 	firstFile     bool // Flag for 'evaluateTogether' mode to handle leading content only once.
 	documentIndex uint // Index of the current document within the stream.
@@ -48,7 +51,11 @@ type goccyYamlDecoder struct {
 // NewGoccyYAMLDecoder creates a new YAML decoder using the goccy/go-yaml library,
 // configured with the given preferences.
 func NewGoccyYAMLDecoder(prefs YamlPreferences) Decoder {
-	return &goccyYamlDecoder{prefs: prefs, firstFile: true}
+	return &goccyYamlDecoder{
+		prefs:                prefs,
+		firstFile:            true,
+		dateTimePreprocessor: NewDateTimePreprocessor(true), // Enable datetime preprocessing for Goccy
+	}
 }
 
 // processReadStream pre-processes the input stream to extract leading comments,
@@ -129,9 +136,29 @@ func (dec *goccyYamlDecoder) Init(reader io.Reader) error {
 		if err != nil {
 			return err
 		}
+
+		// Apply datetime preprocessing to the remaining content
+		if dec.dateTimePreprocessor != nil {
+			remainingBytes, err := io.ReadAll(readerToUse)
+			if err != nil && errors.Is(err, io.EOF) {
+				return err
+			}
+			preprocessedContent := dec.dateTimePreprocessor.PreprocessDocument(string(remainingBytes))
+			readerToUse = strings.NewReader(preprocessedContent)
+		}
 	} else if !dec.prefs.LeadingContentPreProcessing {
 		// If not preprocessing, TeeReader captures initial bytes in case it's a comment-only document.
-		readerToUse = io.TeeReader(reader, &dec.bufferRead)
+		if dec.dateTimePreprocessor != nil {
+			// Read all content, apply datetime preprocessing, then create new reader
+			allBytes, err := io.ReadAll(reader)
+			if err != nil && errors.Is(err, io.EOF) {
+				return err
+			}
+			preprocessedContent := dec.dateTimePreprocessor.PreprocessDocument(string(allBytes))
+			readerToUse = io.TeeReader(strings.NewReader(preprocessedContent), &dec.bufferRead)
+		} else {
+			readerToUse = io.TeeReader(reader, &dec.bufferRead)
+		}
 	}
 
 	dec.leadingContent = processedLeadingContent

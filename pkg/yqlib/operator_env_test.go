@@ -169,21 +169,13 @@ var envOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\n{v: \"cat meow\"}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
-}
-
-func testEnvScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment-related tests for goccy as it handles comment placement more strictly
-	if s.description == "with header/footer" && ConfiguredYamlPreferences.UseGoccyParser {
-		t.Skip("goccy parser handles trailing comments more strictly - structurally equivalent but different comment handling")
-		return
-	}
-	testScenario(t, s)
 }
 
 func TestEnvOperatorScenarios(t *testing.T) {
 	for _, tt := range envOperatorScenarios {
-		testEnvScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "env-variable-operators", envOperatorScenarios)
 }

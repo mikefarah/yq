@@ -62,21 +62,13 @@ var reverseOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[{a: cat}, {a: banana}, {a: apple}]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
-}
-
-func testReverseScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment-related tests for goccy as it handles comment placement more strictly
-	if s.description == "Sort descending by string field, with comments" && ConfiguredYamlPreferences.UseGoccyParser {
-		t.Skip("goccy parser handles trailing comments more strictly - structurally equivalent but different comment handling")
-		return
-	}
-	testScenario(t, s)
 }
 
 func TestReverseOperatorScenarios(t *testing.T) {
 	for _, tt := range reverseOperatorScenarios {
-		testReverseScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "reverse", reverseOperatorScenarios)
 }

@@ -52,6 +52,7 @@ var styleOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::'bing': &foo {'x': 'z'}\n'a':\n    'c': 'cat'\n    !!merge <<: [*foo]\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Set single quote style",
@@ -169,21 +170,9 @@ g:
 	},
 }
 
-func testStyleScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip tests where goccy correctly rejects invalid YAML at parse time
-	if ConfiguredYamlPreferences.UseGoccyParser {
-		// Check if the document contains merge anchor with sequence (invalid YAML)
-		if s.document == "bing: &foo frog\na:\n  c: cat\n  <<: [*foo]" {
-			t.Skip("goccy parser correctly rejects merge anchors with sequences at parse time")
-			return
-		}
-	}
-	testScenario(t, s)
-}
-
 func TestStyleOperatorScenarios(t *testing.T) {
 	for _, tt := range styleOperatorScenarios {
-		testStyleScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "style", styleOperatorScenarios)
 }

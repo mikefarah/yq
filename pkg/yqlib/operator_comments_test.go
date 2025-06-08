@@ -62,6 +62,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat # single\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Set line comment of a maps/arrays",
@@ -71,6 +72,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: # single\n    b: things\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -79,6 +81,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat # dog\nb: dog\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -88,6 +91,7 @@ var commentOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::a: cat # 0\n",
 			"D1, P[], (!!map)::a: dog # 1\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Use update assign to perform relative updates",
@@ -96,6 +100,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat # cat\nb: dog # dog\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -104,6 +109,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat # cat\n# cat\n\n# cat\nb: dog # dog\n# dog\n\n# dog\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Where is the comment - map key example",
@@ -113,6 +119,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			expectedWhereIsMyCommentMapKey,
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Retrieve comment - map key example",
@@ -122,6 +129,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[hello], (!!str)::hello-world-comment\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Where is the comment - array example",
@@ -131,6 +139,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			expectedWhereIsMyCommentArray,
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Retrieve comment - array example",
@@ -140,6 +149,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[name 0], (!!str)::under-name-comment\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Set head comment",
@@ -148,6 +158,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# single\na: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Set head comment of a map entry",
@@ -156,6 +167,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::f: foo\n# single\na:\n    b: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Set foot comment, using an expression",
@@ -164,6 +176,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n# cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:     true,
@@ -173,6 +186,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -181,6 +195,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,
@@ -189,6 +204,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Remove comment",
@@ -197,6 +213,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb: dog # leave this\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Remove (strip) all comments",
@@ -206,6 +223,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\nb:\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Get line comment",
@@ -214,6 +232,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[a], (!!str)::meow\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:           "Get head comment",
@@ -223,6 +242,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::welcome!\n\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:     true,
@@ -232,6 +252,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:     true,
@@ -241,6 +262,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::a: cat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:           "Head comment with document split",
@@ -250,6 +272,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::welcome!\nbob\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:           "Get foot comment",
@@ -259,6 +282,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::have a great day\nno really\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "leading spaces",
@@ -268,6 +292,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!null):: # hi\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "string spaces",
@@ -277,6 +302,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!str)::# hi\ncat\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "leading spaces with new line",
@@ -286,6 +312,7 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!null):: # hi\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "directive",
@@ -295,22 +322,90 @@ var commentOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!null)::%YAML 1.1\n# hi\n",
 		},
+		skipForGoccy: true,
 	},
 }
 
-func testCommentScenarioWithParserCheck(t *testing.T, s *expressionScenario) {
-	// Skip comment tests for goccy as it handles comment placement and formatting differently
-	// The structural data is preserved but comment positioning varies between parsers
-	if ConfiguredYamlPreferences.UseGoccyParser {
-		t.Skip("goccy parser handles comment placement and formatting differently - data integrity preserved")
-		return
-	}
-	testScenario(t, s)
+// Goccy-specific comment operator scenarios - these validate the actual behaviour of Goccy parser
+var goccyCommentOperatorScenarios = []expressionScenario{
+	{
+		description:    "Goccy: Set line comment - basic functionality",
+		subdescription: "Goccy parser maintains comment functionality with potentially different placement",
+		document:       `a: cat`,
+		expression:     `.a line_comment="single"`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat # single\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Get line comment - basic functionality",
+		subdescription: "Goccy parser can read existing line comments",
+		document:       "a: cat # meow",
+		expression:     `.a | line_comment`,
+		expected: []string{
+			"D0, P[a], (!!str)::meow\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Set head comment - basic functionality",
+		subdescription: "Goccy parser can set head comments",
+		document:       `a: cat`,
+		expression:     `. head_comment="header"`,
+		expected: []string{
+			"D0, P[], (!!map)::# header\na: cat\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Get head comment - basic functionality",
+		subdescription: "Goccy parser can read existing head comments",
+		document:       "# welcome!\na: cat",
+		expression:     `. | head_comment`,
+		expected: []string{
+			"D0, P[], (!!str)::welcome!\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Set foot comment - basic functionality",
+		subdescription: "Goccy parser can set foot comments",
+		document:       `a: cat`,
+		expression:     `. foot_comment="footer"`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat\n# footer\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Remove line comment",
+		subdescription: "Goccy parser can remove comments",
+		document:       "a: cat # remove_me\nb: dog # keep_me",
+		expression:     `.a line_comment=""`,
+		expected: []string{
+			"D0, P[], (!!map)::a: cat\nb: dog # keep_me\n",
+		},
+		skipForYamlV3: true,
+	},
+	{
+		description:    "Goccy: Comment preservation during data operations",
+		subdescription: "Goccy parser preserves structural integrity while handling comments",
+		document:       "# header\na: cat # inline\nb: dog\n# footer",
+		expression:     `.c = "new"`,
+		expected: []string{
+			"D0, P[], (!!map)::# header\na: cat # inline\nb: dog\nc: new\n# footer\n",
+		},
+		skipForYamlV3: true,
+	},
 }
 
 func TestCommentOperatorScenarios(t *testing.T) {
 	for _, tt := range commentOperatorScenarios {
-		testCommentScenarioWithParserCheck(t, &tt)
+		testScenario(t, &tt)
+	}
+	for _, tt := range goccyCommentOperatorScenarios {
+		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "comment-operators", commentOperatorScenarios)
 }
