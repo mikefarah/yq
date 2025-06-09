@@ -273,6 +273,15 @@ var anchorOperatorScenarios = []expressionScenario{
 		skipForGoccy: true, // can't handle no space between alias
 	},
 	{
+		skipDoc:        true,
+		description:    "flow map with alias keys - goccy helpful error",
+		subdescription: "Goccy provides guidance for unsupported flow map alias key syntax",
+		document:       `{f : {a: &a cat, *a: b}}`,
+		expression:     `explode(.f)`,
+		expectedError:  "flow maps with alias keys are not supported in this parser. Consider using block map syntax instead",
+		skipForYamlV3:  true, // yaml.v3 supports this syntax
+	},
+	{
 		description: "Explode with alias keys",
 		document:    `{f : {a: &a cat, *a : b}}`,
 		expression:  `explode(.f)`,

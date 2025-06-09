@@ -46,6 +46,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 		skipForGoccy: true, // throws an error instead, that's fine
 	},
 	{
+		skipDoc:        true,
+		description:    "strange map with key but no value - goccy error",
+		subdescription: "Goccy provides error reporting for malformed YAML",
+		document:       "!!null\n-",
+		expression:     ".x",
+		expectedError:  "bad file '-': [2:1] unexpected scalar value type",
+		skipForYamlV3:  true, // yaml.v3 incorrectly accepts this malformed YAML
+	},
+	{
 		skipDoc:     true,
 		description: "access merge anchors",
 		document:    "foo: &foo {x: y}\nbar:\n  <<: *foo\n",
@@ -555,6 +564,51 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expression:    ".steps[]",
 		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
 		skipForGoccy:  true, // throws an error on parsing, that's fine
+	},
+	{
+		skipDoc:        true,
+		description:    "invalid merge anchor with array - goccy parse error",
+		subdescription: "Goccy provides superior parse-time validation for invalid merge anchor usage",
+		document:       badAliasSample,
+		expression:     ".steps[]",
+		expectedError:  "bad file '-': [2:5] string was used where mapping is expected",
+		skipForYamlV3:  true, // yaml.v3 allows invalid merge anchor to parse, gives runtime error instead
+	},
+	{
+		skipDoc:        true,
+		description:    "duplicate keys - goccy validation",
+		subdescription: "Goccy correctly rejects duplicate keys which violate YAML specification",
+		document:       "key: value1\nkey: value2",
+		expression:     ".",
+		expectedError:  "bad file '-': [2:1] mapping key \"key\" already defined at [1:1]",
+		skipForYamlV3:  true, // yaml.v3 incorrectly accepts duplicate keys
+	},
+	{
+		skipDoc:        true,
+		description:    "unclosed quoted string - goccy error",
+		subdescription: "Goccy provides precise error location for unclosed quoted strings",
+		document:       "key: \"unclosed string",
+		expression:     ".",
+		expectedError:  "bad file '-': [1:6] could not find end character of double-quoted text",
+		skipForYamlV3:  true, // yaml.v3 gives less precise error message
+	},
+	{
+		skipDoc:        true,
+		description:    "empty key malformed syntax - goccy error",
+		subdescription: "Goccy provides detailed error reporting for malformed key syntax",
+		document:       "key: value\n:",
+		expression:     ".",
+		expectedError:  "bad file '-': [1:6] mapping value is not allowed in this context",
+		skipForYamlV3:  true, // yaml.v3 gives less detailed error message
+	},
+	{
+		skipDoc:        true,
+		description:    "malformed array syntax - goccy error",
+		subdescription: "Goccy provides precise error location for malformed array syntax",
+		document:       "key: value\nkey2: [1,2,3\n# missing closing bracket",
+		expression:     ".",
+		expectedError:  "bad file '-': [3:1] ',' or ']' must be specified",
+		skipForYamlV3:  true, // yaml.v3 gives less precise error message
 	},
 }
 
