@@ -125,10 +125,10 @@ func recursiveNodeEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 
 	// Simple alias resolution - if one is alias and other isn't, resolve the alias
 	if lhs.Kind == AliasNode && rhs.Kind != AliasNode {
-		if lhs.Alias != nil && lhs.Alias.Alias != nil {
-			return recursiveNodeEqual(lhs.Alias.Alias, rhs)
+		if lhs.Alias == nil || lhs.Alias.Alias == nil {
+			return false
 		}
-		return false
+		return recursiveNodeEqual(lhs.Alias.Alias, rhs)
 	}
 	if rhs.Kind == AliasNode && lhs.Kind != AliasNode {
 		if rhs.Alias != nil && rhs.Alias.Alias != nil {
