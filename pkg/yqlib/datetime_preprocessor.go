@@ -125,7 +125,7 @@ func (dtp *DateTimePreprocessor) processKeyValueLine(line string, colonIndex int
 
 	// Skip if value is empty, quoted, or already complex
 	if trimmedValue == "" ||
-		strings.HasPrefix(trimmedValue, "\"") ||
+		strings.HasPrefix(trimmedValue, `"`) ||
 		strings.HasPrefix(trimmedValue, "'") ||
 		strings.HasPrefix(trimmedValue, "{") ||
 		strings.HasPrefix(trimmedValue, "[") ||
