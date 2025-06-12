@@ -52,6 +52,62 @@ var addOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `[]`,
+		expression: `.[] | (.a + "|" + .b)`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		document:   `[]`,
+		expression: `.[] | (.a + "|")`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		document:   `[]`,
+		expression: `.[] | ("|" + .a)`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		document:   `resources: [foo, bar, baz]`,
+		expression: `.missing + .resources | .[]`,
+		expected: []string{
+			"D0, P[resources 0], (!!str)::foo\n",
+			"D0, P[resources 1], (!!str)::bar\n",
+			"D0, P[resources 2], (!!str)::baz\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `resources: [foo, bar, baz]`,
+		expression: `. | .missing + .resources | .[]`,
+		expected: []string{
+			"D0, P[resources 0], (!!str)::foo\n",
+			"D0, P[resources 1], (!!str)::bar\n",
+			"D0, P[resources 2], (!!str)::baz\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `resources: [foo, bar, baz]`,
+		expression: `. | .missing + .resources`,
+		expected: []string{
+			"D0, P[resources], (!!seq)::[foo, bar, baz]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `resources: [foo, bar, baz]`,
+		expression: `. | .missing + .resources | .[]`,
+		expected: []string{
+			"D0, P[resources 0], (!!str)::foo\n",
+			"D0, P[resources 1], (!!str)::bar\n",
+			"D0, P[resources 2], (!!str)::baz\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   `[{a: foo, b: bar}, {a: 1, b: 2}]`,
 		expression: ".[] | .a + .b",
 		expected: []string{

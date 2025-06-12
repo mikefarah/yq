@@ -38,9 +38,9 @@ func toNodes(candidate *CandidateNode, lhs *CandidateNode) []*CandidateNode {
 
 func addOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("Add operator")
-	// if we don't have any matching nodes, but we were piped into (have a parent exp?) then we
-	// shouldn't calcWhenEmpt
-	calcWhenEmpty := expressionNode.Parent == nil
+	// only calculate when empty IF we are the root expression; OR
+	// calcWhenEmpty := expressionNode.Parent == nil || expressionNode.Parent.LHS == expressionNode
+	calcWhenEmpty := context.MatchingNodes.Len() > 0
 
 	return crossFunction(d, context.ReadOnlyClone(), expressionNode, add, calcWhenEmpty)
 }
