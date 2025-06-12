@@ -9,6 +9,7 @@ type ExpressionNode struct {
 	Operation *Operation
 	LHS       *ExpressionNode
 	RHS       *ExpressionNode
+	Parent    *ExpressionNode
 }
 
 type ExpressionParserInterface interface {
@@ -57,6 +58,7 @@ func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*
 				}
 				remaining, rhs := stack[:len(stack)-1], stack[len(stack)-1]
 				newNode.RHS = rhs
+				rhs.Parent = &newNode
 				stack = remaining
 			case 2:
 				if len(stack) < 2 {
@@ -64,7 +66,11 @@ func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*
 				}
 				remaining, lhs, rhs := stack[:len(stack)-2], stack[len(stack)-2], stack[len(stack)-1]
 				newNode.LHS = lhs
+				lhs.Parent = &newNode
+
 				newNode.RHS = rhs
+				rhs.Parent = &newNode
+
 				stack = remaining
 			}
 		}

@@ -7,6 +7,51 @@ import (
 var addOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
+		expression: `"foo" + "bar"`,
+		expected: []string{
+			"D0, P[], (!!str)::foobar\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `[] | .[] | "foo" + .`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		expression: `[] | .[] | . + "foo"`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		expression: `select(.) | "foo" + "bar"`,
+		expected: []string{
+			"D0, P[], (!!str)::foobar\n", // jq does not do this :/ - but yq has for quite some time.
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "apples: 3",
+		expression: `.apples + 3`,
+		expected: []string{
+			"D0, P[apples], (!!int)::6\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "apples: 3",
+		expression: `.bobo + 3`,
+		expected: []string{
+			"D0, P[], (!!int)::3\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `select(.) | "cat" + .`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
 		document:   `[{a: foo, b: bar}, {a: 1, b: 2}]`,
 		expression: ".[] | .a + .b",
 		expected: []string{
