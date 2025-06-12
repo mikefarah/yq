@@ -1,3 +1,10 @@
+4.46.1:
+  - Added INI support
+  - Fixed 'add' operator when piped in with no data #2378, #2383, #2384
+  - Fixed delete after slice problem (bad node path) #2387 Thanks @antoinedeschenes
+  - Bumped dependencies
+
+
 4.45.4:
   - Fixing wrong map() behaviour on empty map #2359
   - Bumped dependencies
