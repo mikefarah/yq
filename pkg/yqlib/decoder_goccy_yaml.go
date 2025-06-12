@@ -24,6 +24,9 @@ const (
 	docSeparatorPlaceholder = "$yqDocSeparator$"
 )
 
+var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+var yamlDirectiveLineRegEx = regexp.MustCompile(`^\s*%YA`) // e.g., %YAML
+
 type goccyYamlDecoder struct {
 	decoder yaml.Decoder
 	cm      yaml.CommentMap
@@ -62,8 +65,6 @@ func NewGoccyYAMLDecoder(prefs YamlPreferences) Decoder {
 // directives, and document separators before the main YAML content is parsed.
 // It returns a reader for the remaining stream and the extracted leading content.
 func (dec *goccyYamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, string, error) {
-	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
-	var yamlDirectiveLineRegEx = regexp.MustCompile(`^\s*%YA`) // e.g., %YAML
 	var sb strings.Builder
 	for {
 		peekBytes, err := reader.Peek(4) // Peek up to 4 bytes to identify line types.

@@ -16,16 +16,6 @@ func NewDateTimePreprocessor(enabled bool) *DateTimePreprocessor {
 	return &DateTimePreprocessor{enabled: enabled}
 }
 
-// ISO8601 date/time patterns that should be automatically tagged as timestamps
-var dateTimePatterns = []*regexp.Regexp{
-	// RFC3339 / ISO8601 with timezone: 2006-01-02T15:04:05Z or 2006-01-02T15:04:05+07:00
-	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?(?:Z|[+-][0-9]{2}:[0-9]{2}))\s*$`),
-	// Date only: 2006-01-02
-	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$`),
-	// RFC3339 without timezone: 2006-01-02T15:04:05
-	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)\s*$`),
-}
-
 // isValidDateTime checks if a string represents a valid ISO8601/RFC3339 datetime
 func isValidDateTime(value string) bool {
 	// Try to parse with RFC3339 first
@@ -34,12 +24,12 @@ func isValidDateTime(value string) bool {
 	}
 
 	// Try to parse date-only format
-	if _, err := time.Parse("2006-01-02", value); err == nil {
+	if _, err := time.Parse(time.DateOnly, value); err == nil {
 		return true
 	}
 
 	// Try RFC3339 without timezone
-	if _, err := time.Parse("2006-01-02T15:04:05", value); err == nil {
+	if _, err := time.Parse(strings.TrimSuffix(time.RFC3339, "Z07:00"), value); err == nil {
 		return true
 	}
 
@@ -94,9 +84,10 @@ func isSkippableLine(line string) bool {
 	trimmed := strings.TrimSpace(line)
 
 	// Skip empty lines, comments, directives, document separators
-	if trimmed == "" || strings.HasPrefix(trimmed, "#") ||
+	switch {
+	case trimmed == "" || strings.HasPrefix(trimmed, "#") ||
 		strings.HasPrefix(trimmed, "%") || strings.HasPrefix(trimmed, "---") ||
-		strings.HasPrefix(trimmed, "...") {
+		strings.HasPrefix(trimmed, "..."):
 		return true
 	}
 
@@ -106,9 +97,10 @@ func isSkippableLine(line string) bool {
 	}
 
 	// Skip multi-line scalar indicators
-	if strings.HasSuffix(trimmed, "|") || strings.HasSuffix(trimmed, ">") ||
+	switch {
+	case strings.HasSuffix(trimmed, "|") || strings.HasSuffix(trimmed, ">") ||
 		strings.HasSuffix(trimmed, "|-") || strings.HasSuffix(trimmed, ">-") ||
-		strings.HasSuffix(trimmed, "|+") || strings.HasSuffix(trimmed, ">+") {
+		strings.HasSuffix(trimmed, "|+") || strings.HasSuffix(trimmed, ">+"):
 		return true
 	}
 
@@ -161,13 +153,14 @@ func (dtp *DateTimePreprocessor) processArrayItemLine(line string) string {
 	trimmedValue := strings.TrimSpace(afterDash)
 
 	// Skip if value is empty, quoted, or already complex
-	if trimmedValue == "" ||
+	switch {
+	case trimmedValue == "" ||
 		strings.HasPrefix(trimmedValue, "\"") ||
 		strings.HasPrefix(trimmedValue, "'") ||
 		strings.HasPrefix(trimmedValue, "{") ||
 		strings.HasPrefix(trimmedValue, "[") ||
 		strings.HasPrefix(trimmedValue, "&") ||
-		strings.HasPrefix(trimmedValue, "*") {
+		strings.HasPrefix(trimmedValue, "*"):
 		return line
 	}
 
@@ -178,6 +171,16 @@ func (dtp *DateTimePreprocessor) processArrayItemLine(line string) string {
 	}
 
 	return line
+}
+
+// ISO8601 date/time patterns that should be automatically tagged as timestamps
+var dateTimePatterns = []*regexp.Regexp{
+	// RFC3339 / ISO8601 with timezone: 2006-01-02T15:04:05Z or 2006-01-02T15:04:05+07:00
+	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?(?:Z|[+-][0-9]{2}:[0-9]{2}))\s*$`),
+	// Date only: 2006-01-02
+	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$`),
+	// RFC3339 without timezone: 2006-01-02T15:04:05
+	regexp.MustCompile(`^\s*([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)\s*$`),
 }
 
 // matchesDateTimePattern checks if a value matches any of the datetime regex patterns
