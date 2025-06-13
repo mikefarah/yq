@@ -25,7 +25,7 @@ foobar:
   thing: foobar_thing
 `
 
-// cannot use merge anchors with arrays
+// cannot use merge anchors with arrays of non-maps
 var badAliasSample = `
 _common: &common-docker-file
   - FROM ubuntu:18.04
@@ -367,6 +367,22 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
+		document:   `{<<: {a: 42}}`,
+		expression: `.a`,
+		expected: []string{
+			"D0, P[<< a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{<<: [{a: 42}]}`,
+		expression: `.a`,
+		expected: []string{
+			"D0, P[<< 0 a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobar`,
 		expected: []string{
@@ -553,8 +569,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		document:      badAliasSample,
 		expression:    ".steps[]",
-		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
+		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing !!str",
 		skipForGoccy:  true, // throws an error on parsing, that's fine
+	},
+	{
+		skipDoc:       true,
+		document:      `{<<: 42}`,
+		expression:    ".[]",
+		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got !!int",
+		skipForGoccy:  true,
 	},
 }
 
