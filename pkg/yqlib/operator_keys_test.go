@@ -110,6 +110,7 @@ var keysOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[a x], (!!str)::comment on key\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description: "Check node is a key",

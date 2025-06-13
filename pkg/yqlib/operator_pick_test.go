@@ -50,6 +50,7 @@ var pickOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\nmyMap: {hamster: squeak, cat: meow}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Pick indices from array",
@@ -68,6 +69,7 @@ var pickOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[lion, cat]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 }
 

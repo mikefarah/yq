@@ -134,6 +134,7 @@ var entriesOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\na: {b: bird}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 }
 

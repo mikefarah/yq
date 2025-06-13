@@ -170,10 +170,11 @@ var sortByOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n- def\n# ghi\n",
 		},
+		skipForGoccy: true,
 	},
 }
 
-func TestSortByOperatorScenarios(t *testing.T) {
+func TestSortOperatorScenarios(t *testing.T) {
 	for _, tt := range sortByOperatorScenarios {
 		testScenario(t, &tt)
 	}
