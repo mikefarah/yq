@@ -293,9 +293,10 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 }
 
 func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+	if value.Kind == AliasNode {
+		value = value.Alias
+	}
 	switch value.Kind {
-	case AliasNode:
-		return traverseMergeAnchor(newMatches, value.Alias, wantedKey, prefs, splat)
 	case MappingNode:
 		return doTraverseMap(newMatches, value, wantedKey, prefs, splat)
 	case SequenceNode:
@@ -313,10 +314,10 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode
 				return err
 			}
 		}
+		return nil
 	default:
 		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", value.Tag)
 	}
-	return nil
 }
 
 func traverseArray(candidate *CandidateNode, operation *Operation, prefs traversePreferences) (*list.List, error) {

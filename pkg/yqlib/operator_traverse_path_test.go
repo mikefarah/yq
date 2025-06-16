@@ -365,7 +365,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[0], (!!null)::null\n",
 		},
 	},
-	{
+	{ // Merge anchor with inline map
 		skipDoc:    true,
 		document:   `{<<: {a: 42}}`,
 		expression: `.a`,
@@ -373,12 +373,20 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[<< a], (!!int)::42\n",
 		},
 	},
-	{
+	{ // Merge anchor with sequence with inline map
 		skipDoc:    true,
 		document:   `{<<: [{a: 42}]}`,
 		expression: `.a`,
 		expected: []string{
 			"D0, P[<< 0 a], (!!int)::42\n",
+		},
+	},
+	{ // Merge anchor with aliased sequence with inline map
+		skipDoc:    true,
+		document:   `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression: `.m.a`,
+		expected: []string{
+			"D0, P[s 0 a], (!!int)::42\n",
 		},
 	},
 	{
