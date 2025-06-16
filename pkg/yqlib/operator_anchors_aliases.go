@@ -226,19 +226,23 @@ func explodeNode(node *CandidateNode, context Context) error {
 }
 
 func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int, newContent Context) error {
+	inline := true
 	if merge.Kind == AliasNode {
+		inline = false
 		merge = merge.Alias
 	}
 	switch merge.Kind {
 	case MappingNode:
 		log.Debugf("a merge map!")
-		return applyMergeAnchorMap(node, merge, mergeIndex, newContent)
+		return applyMergeAnchorMap(node, merge, mergeIndex, inline, newContent)
 	case SequenceNode:
 		log.Debugf("a merge list!")
 		// Earlier keys take precedence
 		for index := len(merge.Content) - 1; index >= 0; index = index - 1 {
 			childValue := merge.Content[index]
+			childInline := inline
 			if childValue.Kind == AliasNode {
+				childInline = false
 				childValue = childValue.Alias
 			}
 			if childValue.Kind != MappingNode {
@@ -246,7 +250,7 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
 					childValue.Tag)
 			}
-			err := applyMergeAnchorMap(node, childValue, mergeIndex, newContent)
+			err := applyMergeAnchorMap(node, childValue, mergeIndex, inline && childInline, newContent)
 			if err != nil {
 				return err
 			}
@@ -257,7 +261,7 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 	}
 }
 
-func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, mergeIndex int, newContent Context) error {
+func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, mergeIndex int, explode bool, newContent Context) error {
 	if mergeMap == nil {
 		log.Debug("merge map is nil")
 		return nil
@@ -267,11 +271,18 @@ func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, mergeInde
 		return fmt.Errorf("applyMergeAnchorMap expects !!map, got %v instead", mergeMap.Tag)
 	}
 
+	if explode {
+		err := explodeNode(mergeMap, newContent)
+		if err != nil {
+			return err
+		}
+	}
+
 	for index := 0; index < len(mergeMap.Content); index = index + 2 {
 		keyNode := mergeMap.Content[index]
 		log.Debugf("applying merge map key %v", keyNode.Value)
 		valueNode := mergeMap.Content[index+1]
-		err := overrideEntry(node, keyNode, valueNode, mergeIndex, false, newContent)
+		err := overrideEntry(node, keyNode, valueNode, mergeIndex, explode, newContent)
 		if err != nil {
 			return err
 		}

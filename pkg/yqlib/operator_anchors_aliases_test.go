@@ -316,6 +316,33 @@ var anchorOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
 		},
 	},
+	{ // Exploding sequence merge anchor should not explode neighbors
+		skipDoc: true,
+		// b must not be exploded, as `r: *a` will become invalid
+		document:   `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
+		expression: `explode(.c)`,
+		expected: []string{
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+		},
+	},
+	{ // Exploding inline merge anchor
+		skipDoc: true,
+		// `<<` map must be exploded, otherwise `c: *b` will become invalid
+		document:   `{a: {b: &b 42}, <<: {c: *b}}`,
+		expression: `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
+		},
+	},
+	{ // Exploding inline merge anchor in sequence
+		skipDoc: true,
+		// `<<` map must be exploded, otherwise `c: *b` will become invalid
+		document:   `{a: {b: &b 42}, <<: [{c: *b}]}`,
+		expression: `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
+		},
+	},
 }
 
 func TestAnchorAliasOperatorScenarios(t *testing.T) {
