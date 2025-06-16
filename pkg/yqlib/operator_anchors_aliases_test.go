@@ -45,8 +45,8 @@ bar:
 foobarList:
     b: bar_b
     thing: foo_thing
-    c: foobarList_c
     a: foo_a
+    c: foobarList_c
 foobar:
     c: foo_c
     a: foo_a
@@ -58,7 +58,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		description:   "merge anchor not map",
 		document:      "a: &a\n  - 0\nc:\n  <<: [*a]\n",
-		expectedError: "merge anchor only supports maps, got !!seq instead",
+		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing !!seq",
 		expression:    "explode(.)",
 	},
 	{
@@ -80,7 +80,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
 		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
 	},
 	{
 		description: "Get anchor",
@@ -254,7 +254,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
@@ -264,7 +264,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
@@ -282,6 +282,30 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       simpleArrayRef,
 		expression:     `.thingOne |= explode(.) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},
+	},
+	{ // Merge anchor with inline map
+		skipDoc:    true,
+		document:   `{<<: {a: 42}}`,
+		expression: `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 42}\n",
+		},
+	},
+	{ // Merge anchor with sequence with inline map
+		skipDoc:    true,
+		document:   `{<<: [{a: 42}]}`,
+		expression: `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 42}\n",
+		},
+	},
+	{ // Merge anchor with aliased sequence with inline map
+		skipDoc:    true,
+		document:   `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression: `.m | explode(.)`,
+		expected: []string{
+			"D0, P[m], (!!map)::{a: 42}\n",
+		},
 	},
 }
 

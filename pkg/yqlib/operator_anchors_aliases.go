@@ -147,27 +147,15 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 		keyNode := node.Content[index]
 		valueNode := node.Content[index+1]
 		log.Debugf("traversing %v", keyNode.Value)
-		if keyNode.Value != "<<" {
+		if keyNode.Tag != "!!merge" {
 			err := overrideEntry(node, keyNode, valueNode, index, context.ChildContext(newContent))
 			if err != nil {
 				return err
 			}
 		} else {
-			if valueNode.Kind == SequenceNode {
-				log.Debugf("an alias merge list!")
-				for index := len(valueNode.Content) - 1; index >= 0; index = index - 1 {
-					aliasNode := valueNode.Content[index]
-					err := applyAlias(node, aliasNode.Alias, index, context.ChildContext(newContent))
-					if err != nil {
-						return err
-					}
-				}
-			} else {
-				log.Debugf("an alias merge!")
-				err := applyAlias(node, valueNode.Alias, index, context.ChildContext(newContent))
-				if err != nil {
-					return err
-				}
+			err := applyMergeAnchor(node, valueNode, index, context, newContent)
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -208,7 +196,7 @@ func explodeNode(node *CandidateNode, context Context) error {
 		hasAlias := false
 		for index := 0; index < len(node.Content); index = index + 2 {
 			keyNode := node.Content[index]
-			if keyNode.Value == "<<" {
+			if keyNode.Tag == "!!merge" {
 				hasAlias = true
 				break
 			}
@@ -237,19 +225,51 @@ func explodeNode(node *CandidateNode, context Context) error {
 	}
 }
 
-func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newContent Context) error {
-	log.Debug("alias is nil ?")
-	if alias == nil {
+func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int, context Context, newContent *list.List) error {
+	if merge.Kind == AliasNode {
+		merge = merge.Alias
+	}
+	switch merge.Kind {
+	case MappingNode:
+		log.Debugf("a merge map!")
+		return applyMergeAnchorMap(node, merge, mergeIndex, context.ChildContext(newContent))
+	case SequenceNode:
+		log.Debugf("a merge list!")
+		// Earlier keys take precedence
+		for index := len(merge.Content) - 1; index >= 0; index = index - 1 {
+			childValue := merge.Content[index]
+			if childValue.Kind == AliasNode {
+				childValue = childValue.Alias
+			}
+			if childValue.Kind != MappingNode {
+				return fmt.Errorf(
+					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
+					childValue.Tag)
+			}
+			err := applyMergeAnchorMap(node, childValue, mergeIndex, context.ChildContext(newContent))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	default:
+		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", merge.Tag)
+	}
+}
+
+func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, aliasIndex int, newContent Context) error {
+	log.Debug("merge map is nil ?")
+	if mergeMap == nil {
 		return nil
 	}
-	log.Debug("alias: %v", NodeToString(alias))
-	if alias.Kind != MappingNode {
-		return fmt.Errorf("merge anchor only supports maps, got %v instead", alias.Tag)
+	log.Debug("merge map: %v", NodeToString(mergeMap))
+	if mergeMap.Kind != MappingNode {
+		return fmt.Errorf("applyMergeAnchorMap expects !!map, got %v instead", mergeMap.Tag)
 	}
-	for index := 0; index < len(alias.Content); index = index + 2 {
-		keyNode := alias.Content[index]
-		log.Debugf("applying alias key %v", keyNode.Value)
-		valueNode := alias.Content[index+1]
+	for index := 0; index < len(mergeMap.Content); index = index + 2 {
+		keyNode := mergeMap.Content[index]
+		log.Debugf("applying merge map key %v", keyNode.Value)
+		valueNode := mergeMap.Content[index+1]
 		err := overrideEntry(node, keyNode, valueNode, aliasIndex, newContent)
 		if err != nil {
 			return err
