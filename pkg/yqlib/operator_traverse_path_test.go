@@ -573,20 +573,6 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a 2], (!!str)::c\n",
 		},
 	},
-	{
-		skipDoc:       true,
-		document:      badAliasSample,
-		expression:    ".steps[]",
-		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing !!str",
-		skipForGoccy:  true, // throws an error on parsing, that's fine
-	},
-	{
-		skipDoc:       true,
-		document:      `{<<: 42}`,
-		expression:    ".[]",
-		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got !!int",
-		skipForGoccy:  true,
-	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {

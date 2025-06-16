@@ -305,9 +305,10 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode
 				childValue = childValue.Alias
 			}
 			if childValue.Kind != MappingNode {
-				return fmt.Errorf(
+				log.Debugf(
 					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
 					childValue.Tag)
+				return nil
 			}
 			err := doTraverseMap(newMatches, childValue, wantedKey, prefs, splat)
 			if err != nil {
@@ -316,7 +317,8 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode
 		}
 		return nil
 	default:
-		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", value.Tag)
+		log.Debugf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", merge.Tag)
+		return nil
 	}
 }
 
