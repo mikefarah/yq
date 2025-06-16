@@ -307,6 +307,15 @@ var anchorOperatorScenarios = []expressionScenario{
 			"D0, P[m], (!!map)::{a: 42}\n",
 		},
 	},
+	{ // Exploding merge anchor should not explode neighbors
+		skipDoc: true,
+		// b must not be exploded, as `r: *a` will become invalid
+		document:   `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
+		expression: `explode(.c)`,
+		expected: []string{
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+		},
+	},
 }
 
 func TestAnchorAliasOperatorScenarios(t *testing.T) {
