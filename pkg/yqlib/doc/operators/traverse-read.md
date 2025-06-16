@@ -399,7 +399,7 @@ foobar_thing
 ```
 
 ## Traversing merge anchor lists
-Note that the later merge anchors override previous
+Note that the keys earlier in the merge anchors sequence override later ones
 
 Given a sample.yml file of:
 ```yaml
@@ -428,7 +428,7 @@ yq '.foobarList.thing' sample.yml
 ```
 will output
 ```yaml
-bar_thing
+foo_thing
 ```
 
 ## Splatting merge anchor lists
@@ -460,9 +460,9 @@ yq '.foobarList[]' sample.yml
 will output
 ```yaml
 bar_b
-foo_a
-bar_thing
+foo_thing
 foobarList_c
+foo_a
 ```
 
 ## Select multiple indices

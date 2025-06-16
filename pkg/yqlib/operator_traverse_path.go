@@ -292,15 +292,17 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
-	if value.Kind == AliasNode {
-		value = value.Alias
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+	if merge.Kind == AliasNode {
+		merge = merge.Alias
 	}
-	switch value.Kind {
+	switch merge.Kind {
 	case MappingNode:
-		return doTraverseMap(newMatches, value, wantedKey, prefs, splat)
+		return doTraverseMap(newMatches, merge, wantedKey, prefs, splat)
 	case SequenceNode:
-		for _, childValue := range value.Content {
+		// Earlier keys take precedence
+		for index := len(merge.Content) - 1; index >= 0; index = index - 1 {
+			childValue := merge.Content[index]
 			if childValue.Kind == AliasNode {
 				childValue = childValue.Alias
 			}
