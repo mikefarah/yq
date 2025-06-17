@@ -250,7 +250,7 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
 					childValue.Tag)
 			}
-			err := applyMergeAnchorMap(node, childValue, mergeIndex, inline && childInline, newContent)
+			err := applyMergeAnchorMap(node, childValue, mergeIndex, childInline, newContent)
 			if err != nil {
 				return err
 			}
