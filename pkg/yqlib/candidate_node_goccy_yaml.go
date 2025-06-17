@@ -270,8 +270,15 @@ func (m *goccyMarshaller) Marshal(path string, o *CandidateNode) (ast.Node, erro
 	return node, nil
 }
 
+func (_ *goccyMarshaller) getPosition(o *CandidateNode) *goccyToken.Position {
+	return &goccyToken.Position{
+		Line:   o.Line,
+		Column: o.Column,
+	}
+}
+
 func (m *goccyMarshaller) marshalAlias(path string, o *CandidateNode) (ast.Node, error) {
-	t := m.PushToken(goccyToken.Alias(o.Value, &goccyToken.Position{}))
+	t := m.PushToken(goccyToken.Alias(o.Value, m.getPosition(o)))
 	var value ast.Node
 	var err error
 	value, err = m.Marshal(path, o.Content[0])
@@ -298,7 +305,14 @@ func (m *goccyMarshaller) marshalSequence(path string, o *CandidateNode) (ast.No
 	var err error
 	values := make([]ast.Node, len(o.Content))
 	for i, content := range o.Content {
-		m.PushToken(goccyToken.SequenceEntry("-", &goccyToken.Position{}))
+		if !isFlowStyle {
+			entryToken := goccyToken.SequenceEntry("-", &goccyToken.Position{Line: content.Line, Column: o.Column})
+			m.PushToken(entryToken)
+			if seq.Start == nil {
+				seq.Start = entryToken
+			}
+		}
+
 		values[i], err = m.Marshal(path+"["+strconv.Itoa(i)+"]", content)
 		if err != nil {
 			return nil, err
@@ -315,7 +329,9 @@ func (m *goccyMarshaller) marshalSequence(path string, o *CandidateNode) (ast.No
 
 	seq.Values = values
 	seq.ValueHeadComments = []*ast.CommentGroupNode{ast.CommentGroup([]*goccyToken.Token{goccyToken.Comment(o.HeadComment, o.HeadComment, &goccyToken.Position{})})}
-	seq.FootComment = goccyMarshalFootComment(o.FootComment)
+	if o.FootComment != "" {
+		seq.FootComment = goccyMarshalFootComment(o.FootComment)
+	}
 
 	return seq, nil
 }
@@ -332,7 +348,7 @@ func (m *goccyMarshaller) marshalMapping(path string, o *CandidateNode) (ast.Nod
 	var err error
 	for i := 0; i < len(o.Content); i += 2 {
 		var childNode *ast.MappingValueNode
-		childNode, err = m.marshalMappingValueNode(path, o.Content[i], o.Content[i+1])
+		childNode, err = m.marshalMappingValueNode(path, o, o.Content[i], o.Content[i+1])
 		if err != nil {
 			return nil, err
 		}
@@ -364,7 +380,7 @@ func (m *goccyMarshaller) marshalMapping(path string, o *CandidateNode) (ast.Nod
 	return mapping, nil
 }
 
-func (m *goccyMarshaller) marshalMappingValueNode(path string, keyNode, valueNode *CandidateNode) (*ast.MappingValueNode, error) {
+func (m *goccyMarshaller) marshalMappingValueNode(path string, entryNode, keyNode, valueNode *CandidateNode) (*ast.MappingValueNode, error) {
 	var key ast.MapKeyNode
 	var err error
 	key, err = m.marshalMapKeyNode(path, keyNode)
@@ -372,7 +388,7 @@ func (m *goccyMarshaller) marshalMappingValueNode(path string, keyNode, valueNod
 		return nil, err
 	}
 
-	separatorToken := m.PushToken(goccyToken.MappingValue(&goccyToken.Position{}))
+	separatorToken := m.PushToken(goccyToken.MappingValue(m.getPosition(entryNode)))
 
 	value, err := m.Marshal(key.GetPath(), valueNode)
 	if err != nil {
@@ -414,7 +430,7 @@ func (m *goccyMarshaller) marshalScalar(path string, o *CandidateNode) (ast.Scal
 		return nil, err
 	}
 
-	scalarToken := m.PushToken(goccyToken.Literal(o.Value, o.Value, &goccyToken.Position{}))
+	scalarToken := m.PushToken(goccyToken.Literal(o.Value, o.Value, m.getPosition(o)))
 
 	if v == nil {
 		n := ast.Null(scalarToken)
