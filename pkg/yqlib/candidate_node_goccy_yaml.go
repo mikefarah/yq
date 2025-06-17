@@ -341,7 +341,7 @@ func (m *goccyMarshaller) marshalMapping(path string, o *CandidateNode) (ast.Nod
 	mapping := ast.Mapping(nil, isFlowStyle)
 
 	if isFlowStyle {
-		mapping.Start = m.PushToken(goccyToken.MappingStart("{", &goccyToken.Position{}))
+		mapping.Start = m.PushToken(goccyToken.MappingStart("{", m.getPosition(o)))
 	}
 
 	values := make([]*ast.MappingValueNode, len(o.Content)/2)
@@ -388,7 +388,10 @@ func (m *goccyMarshaller) marshalMappingValueNode(path string, entryNode, keyNod
 		return nil, err
 	}
 
-	separatorToken := m.PushToken(goccyToken.MappingValue(m.getPosition(entryNode)))
+	separatorToken := m.PushToken(goccyToken.MappingValue(&goccyToken.Position{
+		Line:   key.GetToken().Position.Line,
+		Column: key.GetToken().Position.Column + len(key.String()),
+	}))
 
 	value, err := m.Marshal(key.GetPath(), valueNode)
 	if err != nil {
