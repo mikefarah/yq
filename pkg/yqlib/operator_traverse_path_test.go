@@ -25,7 +25,7 @@ foobar:
   thing: foobar_thing
 `
 
-// cannot use merge anchors with arrays
+// cannot use merge anchors with arrays of non-maps
 var badAliasSample = `
 _common: &common-docker-file
   - FROM ubuntu:18.04
@@ -365,6 +365,30 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[0], (!!null)::null\n",
 		},
 	},
+	{ // Merge anchor with inline map
+		skipDoc:    true,
+		document:   `{<<: {a: 42}}`,
+		expression: `.a`,
+		expected: []string{
+			"D0, P[<< a], (!!int)::42\n",
+		},
+	},
+	{ // Merge anchor with sequence with inline map
+		skipDoc:    true,
+		document:   `{<<: [{a: 42}]}`,
+		expression: `.a`,
+		expected: []string{
+			"D0, P[<< 0 a], (!!int)::42\n",
+		},
+	},
+	{ // Merge anchor with aliased sequence with inline map
+		skipDoc:    true,
+		document:   `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression: `.m.a`,
+		expected: []string{
+			"D0, P[s 0 a], (!!int)::42\n",
+		},
+	},
 	{
 		skipDoc:    true,
 		document:   mergeDocSample,
@@ -425,11 +449,11 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Traversing merge anchor lists",
-		subdescription: "Note that the later merge anchors override previous",
+		subdescription: "Note that the keys earlier in the merge anchors sequence override later ones",
 		document:       mergeDocSample,
 		expression:     `.foobarList.thing`,
 		expected: []string{
-			"D0, P[bar thing], (!!str)::bar_thing\n",
+			"D0, P[foo thing], (!!str)::foo_thing\n",
 		},
 	},
 	{
@@ -454,9 +478,9 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expression:  `.foobarList[]`,
 		expected: []string{
 			"D0, P[bar b], (!!str)::bar_b\n",
-			"D0, P[foo a], (!!str)::foo_a\n",
-			"D0, P[bar thing], (!!str)::bar_thing\n",
+			"D0, P[foo thing], (!!str)::foo_thing\n",
 			"D0, P[foobarList c], (!!str)::foobarList_c\n",
+			"D0, P[foo a], (!!str)::foo_a\n",
 		},
 	},
 	{
@@ -548,13 +572,6 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a 1], (!!str)::b\n",
 			"D0, P[a 2], (!!str)::c\n",
 		},
-	},
-	{
-		skipDoc:       true,
-		document:      badAliasSample,
-		expression:    ".steps[]",
-		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
-		skipForGoccy:  true, // throws an error on parsing, that's fine
 	},
 }
 

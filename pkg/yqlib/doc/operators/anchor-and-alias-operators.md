@@ -92,8 +92,8 @@ yq '.[4] | explode(.)' sample.yml
 will output
 ```yaml
 r: 10
-x: 1
 y: 2
+x: 1
 ```
 
 ## Get anchor
@@ -293,8 +293,8 @@ bar:
 foobarList:
   b: bar_b
   thing: foo_thing
-  c: foobarList_c
   a: foo_a
+  c: foobarList_c
 foobar:
   c: foo_c
   a: foo_a
