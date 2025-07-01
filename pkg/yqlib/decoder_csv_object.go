@@ -1,3 +1,6 @@
+
+//go:build !yq_nocsv
+
 package yqlib
 
 import (

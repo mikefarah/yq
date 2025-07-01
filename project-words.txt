@@ -258,3 +258,9 @@ nolint
 shortfile
 Unmarshalling
 noini
+nocsv
+nobase64
+nouri
+noprops
+nosh
+noshell
