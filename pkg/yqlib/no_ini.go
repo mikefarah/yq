@@ -6,6 +6,6 @@ func NewINIDecoder() Decoder {
 	return nil
 }
 
-func NewINIEncoder(indent int) Encoder {
+func NewINIEncoder() Encoder {
 	return nil
 }
