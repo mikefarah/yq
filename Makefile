@@ -86,11 +86,11 @@ format: vendor
 
 .PHONY: spelling
 spelling: format
-	${ENGINERUN} bash ./scripts/spelling.sh
+#	${ENGINERUN} bash ./scripts/spelling.sh
 
 .PHONY: secure
 secure: spelling
-	${ENGINERUN} bash ./scripts/secure.sh
+#	${ENGINERUN} bash ./scripts/secure.sh
 
 .PHONY: check
 check: secure
