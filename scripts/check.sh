@@ -22,4 +22,4 @@ else
     exit 1
 fi
 
-"$LINT_CMD" run --verbose
+"$LINT_CMD" run --verbose --go-build-flags "-buildvcs=false"
