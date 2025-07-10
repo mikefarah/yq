@@ -7,13 +7,16 @@ base: core22
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
 architectures:
-  - build-on: s390x
-  - build-on: ppc64el
-  - build-on: arm64
-  - build-on: armhf
-  - build-on: amd64
-  - build-on: i386
-  - build-on: riscv64
+  - build-on: [amd64]
+    build-for: [all]
+# architectures:
+#   - build-on: s390x
+#   - build-on: ppc64el
+#   - build-on: arm64
+#   - build-on: armhf
+#   - build-on: amd64
+#   - build-on: i386
+#   - build-on: riscv64
 apps:
   yq:
     command: bin/yq
