@@ -1,4 +1,3 @@
-
 //go:build !yq_nobase64
 
 package yqlib
