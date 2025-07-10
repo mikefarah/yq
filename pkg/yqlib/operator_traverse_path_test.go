@@ -25,15 +25,6 @@ foobar:
   thing: foobar_thing
 `
 
-// cannot use merge anchors with arrays of non-maps
-var badAliasSample = `
-_common: &common-docker-file
-  - FROM ubuntu:18.04
-
-steps:
-  <<: *common-docker-file
-`
-
 var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
