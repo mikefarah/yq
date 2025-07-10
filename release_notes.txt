@@ -2,6 +2,7 @@
   - Added INI support
   - Fixed 'add' operator when piped in with no data #2378, #2383, #2384
   - Fixed delete after slice problem (bad node path) #2387 Thanks @antoinedeschenes
+  - Switched to YAML org supported go-yaml!
   - Bumped dependencies
 
 

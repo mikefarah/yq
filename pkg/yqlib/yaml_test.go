@@ -84,6 +84,13 @@ var yamlFormatScenarios = []formatScenario{
 }
 
 var yamlParseScenarios = []expressionScenario{
+	// {
+	// 	description: "with a unquoted question mark in the string",
+	// 	document:    "foo: {bar: a?bc}",
+	// 	expected: []string{
+	// 		"D0, P[], (!!map)::a: hello # things\n",
+	// 	},
+	// },
 	{
 		document: `a: hello # things`,
 		expected: []string{
