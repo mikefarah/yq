@@ -283,62 +283,69 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression:     `.thingOne |= explode(.) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},
 	},
-	{ // Merge anchor with inline map
-		skipDoc:    true,
-		document:   `{<<: {a: 42}}`,
-		expression: `explode(.)`,
+	{
+		skipDoc:     true,
+		description: "Merge anchor with inline map",
+		document:    `{<<: {a: 42}}`,
+		expression:  `explode(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: 42}\n",
 		},
 	},
-	{ // Merge anchor with sequence with inline map
-		skipDoc:    true,
-		document:   `{<<: [{a: 42}]}`,
-		expression: `explode(.)`,
+	{
+		skipDoc:     true,
+		description: "Merge anchor with sequence with inline map",
+		document:    `{<<: [{a: 42}]}`,
+		expression:  `explode(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: 42}\n",
 		},
 	},
-	{ // Merge anchor with aliased sequence with inline map
-		skipDoc:    true,
-		document:   `{s: &s [{a: 42}], m: {<<: *s}}`,
-		expression: `.m | explode(.)`,
+	{
+		skipDoc:     true,
+		description: "Merge anchor with aliased sequence with inline map",
+		document:    `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression:  `.m | explode(.)`,
 		expected: []string{
 			"D0, P[m], (!!map)::{a: 42}\n",
 		},
 	},
-	{ // Exploding merge anchor should not explode neighbors
-		skipDoc: true,
-		// b must not be exploded, as `r: *a` will become invalid
-		document:   `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
-		expression: `explode(.c)`,
+	{
+		skipDoc:        true,
+		description:    "Exploding merge anchor should not explode neighbors",
+		subdescription: "b must not be exploded, as `r: *a` will become invalid",
+		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
+		expression:     `explode(.c)`,
 		expected: []string{
 			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
 		},
 	},
-	{ // Exploding sequence merge anchor should not explode neighbors
-		skipDoc: true,
-		// b must not be exploded, as `r: *a` will become invalid
-		document:   `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
-		expression: `explode(.c)`,
+	{
+		skipDoc:        true,
+		description:    "Exploding sequence merge anchor should not explode neighbors",
+		subdescription: "b must not be exploded, as `r: *a` will become invalid",
+		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
+		expression:     `explode(.c)`,
 		expected: []string{
 			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
 		},
 	},
-	{ // Exploding inline merge anchor
-		skipDoc: true,
-		// `<<` map must be exploded, otherwise `c: *b` will become invalid
-		document:   `{a: {b: &b 42}, <<: {c: *b}}`,
-		expression: `explode(.)`,
+	{
+		skipDoc:        true,
+		description:    "Exploding inline merge anchor",
+		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
+		document:       `{a: {b: &b 42}, <<: {c: *b}}`,
+		expression:     `explode(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
 		},
 	},
-	{ // Exploding inline merge anchor in sequence
-		skipDoc: true,
-		// `<<` map must be exploded, otherwise `c: *b` will become invalid
-		document:   `{a: {b: &b 42}, <<: [{c: *b}]}`,
-		expression: `explode(.)`,
+	{
+		skipDoc:        true,
+		description:    "Exploding inline merge anchor in sequence",
+		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
+		document:       `{a: {b: &b 42}, <<: [{c: *b}]}`,
+		expression:     `explode(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
 		},
