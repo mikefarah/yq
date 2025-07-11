@@ -515,43 +515,6 @@ func TestInitCommand(t *testing.T) {
 			errorContains: "write in place flag only applicable when giving an expression and at least one file",
 		},
 		{
-			name:          "write inplace with dash",
-			args:          []string{"-"},
-			writeInplace:  true,
-			frontMatter:   "",
-			nullInput:     false,
-			expectError:   true,
-			errorContains: "write in place flag only applicable when giving an expression and at least one file",
-		},
-		{
-			name:          "front matter with no args",
-			args:          []string{},
-			writeInplace:  false,
-			frontMatter:   "extract",
-			nullInput:     false,
-			expectError:   true,
-			errorContains: "front matter flag only applicable when giving an expression and at least one file",
-		},
-		{
-			name:          "write inplace with split file",
-			args:          []string{tempFile.Name()},
-			writeInplace:  true,
-			frontMatter:   "",
-			nullInput:     false,
-			splitFileExp:  ".a.b",
-			expectError:   true,
-			errorContains: "write in place cannot be used with split file",
-		},
-		{
-			name:          "null input with args",
-			args:          []string{tempFile.Name()},
-			writeInplace:  false,
-			frontMatter:   "",
-			nullInput:     true,
-			expectError:   true,
-			errorContains: "cannot pass files in when using null-input flag",
-		},
-		{
 			name:             "split file expression from file",
 			args:             []string{tempFile.Name()},
 			writeInplace:     false,
@@ -916,6 +879,32 @@ func TestConfigureEncoderWithPropertiesFormat(t *testing.T) {
 	}
 }
 
+// Mock boolFlag for testing
+type mockBoolFlag struct {
+	explicitlySet bool
+	value         bool
+}
+
+func (f *mockBoolFlag) IsExplicitlySet() bool {
+	return f.explicitlySet
+}
+
+func (f *mockBoolFlag) IsSet() bool {
+	return f.value
+}
+
+func (f *mockBoolFlag) String() string {
+	return "mock"
+}
+
+func (f *mockBoolFlag) Set(_ string) error {
+	return nil
+}
+
+func (f *mockBoolFlag) Type() string {
+	return "bool"
+}
+
 // Helper function to compare string slices
 func stringsEqual(a, b []string) bool {
 	if len(a) != len(b) {
@@ -927,4 +916,520 @@ func stringsEqual(a, b []string) bool {
 		}
 	}
 	return true
+}
+
+func TestSetupColors(t *testing.T) {
+	tests := []struct {
+		name         string
+		forceColor   bool
+		forceNoColor bool
+		expectColors bool
+	}{
+		{
+			name:         "force color enabled",
+			forceColor:   true,
+			forceNoColor: false,
+			expectColors: true,
+		},
+		{
+			name:         "force no color enabled",
+			forceColor:   false,
+			forceNoColor: true,
+			expectColors: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original values
+			originalForceColor := forceColor
+			originalForceNoColor := forceNoColor
+			originalColorsEnabled := colorsEnabled
+			defer func() {
+				forceColor = originalForceColor
+				forceNoColor = originalForceNoColor
+				colorsEnabled = originalColorsEnabled
+			}()
+
+			forceColor = tt.forceColor
+			forceNoColor = tt.forceNoColor
+			colorsEnabled = false // Reset to test the setting
+
+			setupColors()
+
+			if colorsEnabled != tt.expectColors {
+				t.Errorf("setupColors() colorsEnabled = %v, want %v", colorsEnabled, tt.expectColors)
+			}
+		})
+	}
+}
+
+func TestLoadSplitFileExpression(t *testing.T) {
+	// Create a temporary file with expression content
+	tempFile, err := os.CreateTemp("", "split")
+	if err != nil {
+		t.Fatalf("Failed to create temp file: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+	if _, err = tempFile.WriteString(".a.b"); err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	tests := []struct {
+		name             string
+		splitFileExpFile string
+		expectError      bool
+		expectContent    string
+	}{
+		{
+			name:             "load from file",
+			splitFileExpFile: tempFile.Name(),
+			expectError:      false,
+			expectContent:    ".a.b",
+		},
+		{
+			name:             "no file specified",
+			splitFileExpFile: "",
+			expectError:      false,
+			expectContent:    "",
+		},
+		{
+			name:             "non-existent file",
+			splitFileExpFile: "/path/that/does/not/exist",
+			expectError:      true,
+			expectContent:    "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original value
+			originalSplitFileExpFile := splitFileExpFile
+			originalSplitFileExp := splitFileExp
+			defer func() {
+				splitFileExpFile = originalSplitFileExpFile
+				splitFileExp = originalSplitFileExp
+			}()
+
+			splitFileExpFile = tt.splitFileExpFile
+			splitFileExp = ""
+
+			err := loadSplitFileExpression()
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("loadSplitFileExpression() expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("loadSplitFileExpression() unexpected error: %v", err)
+				return
+			}
+
+			if splitFileExp != tt.expectContent {
+				t.Errorf("loadSplitFileExpression() splitFileExp = %v, want %v", splitFileExp, tt.expectContent)
+			}
+		})
+	}
+}
+
+func TestHandleBackwardsCompatibility(t *testing.T) {
+	tests := []struct {
+		name          string
+		outputToJSON  bool
+		initialFormat string
+		expectFormat  string
+	}{
+		{
+			name:          "outputToJSON true",
+			outputToJSON:  true,
+			initialFormat: "yaml",
+			expectFormat:  "json",
+		},
+		{
+			name:          "outputToJSON false",
+			outputToJSON:  false,
+			initialFormat: "yaml",
+			expectFormat:  "yaml",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original value
+			originalOutputToJSON := outputToJSON
+			originalOutputFormat := outputFormat
+			defer func() {
+				outputToJSON = originalOutputToJSON
+				outputFormat = originalOutputFormat
+			}()
+
+			outputToJSON = tt.outputToJSON
+			outputFormat = tt.initialFormat
+
+			handleBackwardsCompatibility()
+
+			if outputFormat != tt.expectFormat {
+				t.Errorf("handleBackwardsCompatibility() outputFormat = %v, want %v", outputFormat, tt.expectFormat)
+			}
+		})
+	}
+}
+
+func TestValidateCommandFlags(t *testing.T) {
+	tests := []struct {
+		name          string
+		args          []string
+		writeInplace  bool
+		frontMatter   string
+		splitFileExp  string
+		nullInput     bool
+		expectError   bool
+		errorContains string
+	}{
+		{
+			name:         "valid flags",
+			args:         []string{"file.yaml"},
+			writeInplace: false,
+			frontMatter:  "",
+			splitFileExp: "",
+			nullInput:    false,
+			expectError:  false,
+		},
+		{
+			name:          "write inplace with no args",
+			args:          []string{},
+			writeInplace:  true,
+			frontMatter:   "",
+			splitFileExp:  "",
+			nullInput:     false,
+			expectError:   true,
+			errorContains: "write in place flag only applicable when giving an expression and at least one file",
+		},
+		{
+			name:          "write inplace with dash",
+			args:          []string{"-"},
+			writeInplace:  true,
+			frontMatter:   "",
+			splitFileExp:  "",
+			nullInput:     false,
+			expectError:   true,
+			errorContains: "write in place flag only applicable when giving an expression and at least one file",
+		},
+		{
+			name:          "front matter with no args",
+			args:          []string{},
+			writeInplace:  false,
+			frontMatter:   "extract",
+			splitFileExp:  "",
+			nullInput:     false,
+			expectError:   true,
+			errorContains: "front matter flag only applicable when giving an expression and at least one file",
+		},
+		{
+			name:          "write inplace with split file",
+			args:          []string{"file.yaml"},
+			writeInplace:  true,
+			frontMatter:   "",
+			splitFileExp:  ".a.b",
+			nullInput:     false,
+			expectError:   true,
+			errorContains: "write in place cannot be used with split file",
+		},
+		{
+			name:          "null input with args",
+			args:          []string{"file.yaml"},
+			writeInplace:  false,
+			frontMatter:   "",
+			splitFileExp:  "",
+			nullInput:     true,
+			expectError:   true,
+			errorContains: "cannot pass files in when using null-input flag",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original values
+			originalWriteInplace := writeInplace
+			originalFrontMatter := frontMatter
+			originalSplitFileExp := splitFileExp
+			originalNullInput := nullInput
+			defer func() {
+				writeInplace = originalWriteInplace
+				frontMatter = originalFrontMatter
+				splitFileExp = originalSplitFileExp
+				nullInput = originalNullInput
+			}()
+
+			writeInplace = tt.writeInplace
+			frontMatter = tt.frontMatter
+			splitFileExp = tt.splitFileExp
+			nullInput = tt.nullInput
+
+			err := validateCommandFlags(tt.args)
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("validateCommandFlags() expected error but got none")
+					return
+				}
+				if tt.errorContains != "" && !strings.Contains(err.Error(), tt.errorContains) {
+					t.Errorf("validateCommandFlags() error '%v' does not contain '%v'", err.Error(), tt.errorContains)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("validateCommandFlags() unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestConfigureFormats(t *testing.T) {
+	tests := []struct {
+		name         string
+		args         []string
+		inputFormat  string
+		outputFormat string
+		expectError  bool
+	}{
+		{
+			name:         "valid formats",
+			args:         []string{"file.yaml"},
+			inputFormat:  "auto",
+			outputFormat: "auto",
+			expectError:  false,
+		},
+		{
+			name:         "invalid output format",
+			args:         []string{"file.yaml"},
+			inputFormat:  "auto",
+			outputFormat: "invalid",
+			expectError:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original values
+			originalInputFormat := inputFormat
+			originalOutputFormat := outputFormat
+			defer func() {
+				inputFormat = originalInputFormat
+				outputFormat = originalOutputFormat
+			}()
+
+			inputFormat = tt.inputFormat
+			outputFormat = tt.outputFormat
+
+			err := configureFormats(tt.args)
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("configureFormats() expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("configureFormats() unexpected error: %v", err)
+			}
+		})
+	}
+}
+
+func TestConfigureInputFormat(t *testing.T) {
+	tests := []struct {
+		name          string
+		inputFilename string
+		inputFormat   string
+		outputFormat  string
+		expectInput   string
+		expectOutput  string
+	}{
+		{
+			name:          "auto format with yaml file",
+			inputFilename: "file.yaml",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			expectInput:   "yaml",
+			expectOutput:  "yaml",
+		},
+		{
+			name:          "auto format with json file",
+			inputFilename: "file.json",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			expectInput:   "json",
+			expectOutput:  "json",
+		},
+		{
+			name:          "auto format with unknown file",
+			inputFilename: "file.unknown",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			expectInput:   "yaml",
+			expectOutput:  "yaml",
+		},
+		{
+			name:          "explicit format",
+			inputFilename: "file.yaml",
+			inputFormat:   "json",
+			outputFormat:  "auto",
+			expectInput:   "json",
+			expectOutput:  "yaml", // backwards compatibility
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original values
+			originalInputFormat := inputFormat
+			originalOutputFormat := outputFormat
+			defer func() {
+				inputFormat = originalInputFormat
+				outputFormat = originalOutputFormat
+			}()
+
+			inputFormat = tt.inputFormat
+			outputFormat = tt.outputFormat
+
+			err := configureInputFormat(tt.inputFilename)
+			if err != nil {
+				t.Errorf("configureInputFormat() unexpected error: %v", err)
+				return
+			}
+
+			if inputFormat != tt.expectInput {
+				t.Errorf("configureInputFormat() inputFormat = %v, want %v", inputFormat, tt.expectInput)
+			}
+			if outputFormat != tt.expectOutput {
+				t.Errorf("configureInputFormat() outputFormat = %v, want %v", outputFormat, tt.expectOutput)
+			}
+		})
+	}
+}
+
+func TestConfigureOutputFormat(t *testing.T) {
+	tests := []struct {
+		name         string
+		outputFormat string
+		expectError  bool
+		expectUnwrap bool
+	}{
+		{
+			name:         "yaml format",
+			outputFormat: "yaml",
+			expectError:  false,
+			expectUnwrap: true,
+		},
+		{
+			name:         "properties format",
+			outputFormat: "properties",
+			expectError:  false,
+			expectUnwrap: true,
+		},
+		{
+			name:         "json format",
+			outputFormat: "json",
+			expectError:  false,
+			expectUnwrap: false,
+		},
+		{
+			name:         "invalid format",
+			outputFormat: "invalid",
+			expectError:  true,
+			expectUnwrap: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original values
+			originalOutputFormat := outputFormat
+			originalUnwrapScalar := unwrapScalar
+			defer func() {
+				outputFormat = originalOutputFormat
+				unwrapScalar = originalUnwrapScalar
+			}()
+
+			outputFormat = tt.outputFormat
+			unwrapScalar = false // Reset to test the setting
+
+			err := configureOutputFormat()
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("configureOutputFormat() expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("configureOutputFormat() unexpected error: %v", err)
+				return
+			}
+
+			if unwrapScalar != tt.expectUnwrap {
+				t.Errorf("configureOutputFormat() unwrapScalar = %v, want %v", unwrapScalar, tt.expectUnwrap)
+			}
+		})
+	}
+}
+
+func TestConfigureUnwrapScalar(t *testing.T) {
+	tests := []struct {
+		name          string
+		explicitlySet bool
+		flagValue     bool
+		initialUnwrap bool
+		expectUnwrap  bool
+	}{
+		{
+			name:          "flag not explicitly set",
+			explicitlySet: false,
+			flagValue:     true,
+			initialUnwrap: true,
+			expectUnwrap:  true, // Should remain unchanged
+		},
+		{
+			name:          "flag explicitly set to true",
+			explicitlySet: true,
+			flagValue:     true,
+			initialUnwrap: false,
+			expectUnwrap:  true,
+		},
+		{
+			name:          "flag explicitly set to false",
+			explicitlySet: true,
+			flagValue:     false,
+			initialUnwrap: true,
+			expectUnwrap:  false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Save original value
+			originalUnwrapScalar := unwrapScalar
+			originalUnwrapScalarFlag := unwrapScalarFlag
+			defer func() {
+				unwrapScalar = originalUnwrapScalar
+				unwrapScalarFlag = originalUnwrapScalarFlag
+			}()
+
+			unwrapScalar = tt.initialUnwrap
+			unwrapScalarFlag = &mockBoolFlag{
+				explicitlySet: tt.explicitlySet,
+				value:         tt.flagValue,
+			}
+
+			configureUnwrapScalar()
+
+			if unwrapScalar != tt.expectUnwrap {
+				t.Errorf("configureUnwrapScalar() unwrapScalar = %v, want %v", unwrapScalar, tt.expectUnwrap)
+			}
+		})
+	}
 }

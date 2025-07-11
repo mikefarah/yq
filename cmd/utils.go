@@ -18,52 +18,100 @@ func isAutomaticOutputFormat() bool {
 func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	cmd.SilenceUsage = true
 
-	fileInfo, _ := os.Stdout.Stat()
-
-	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
-		colorsEnabled = true
-	}
+	setupColors()
 
 	expression, args, err := processArgs(args)
 	if err != nil {
 		return "", nil, err
 	}
 
+	if err := loadSplitFileExpression(); err != nil {
+		return "", nil, err
+	}
+
+	handleBackwardsCompatibility()
+
+	if err := validateCommandFlags(args); err != nil {
+		return "", nil, err
+	}
+
+	if err := configureFormats(args); err != nil {
+		return "", nil, err
+	}
+
+	configureUnwrapScalar()
+
+	return expression, args, nil
+}
+
+func setupColors() {
+	fileInfo, _ := os.Stdout.Stat()
+
+	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
+		colorsEnabled = true
+	}
+}
+
+func loadSplitFileExpression() error {
 	if splitFileExpFile != "" {
 		splitExpressionBytes, err := os.ReadFile(splitFileExpFile)
 		if err != nil {
-			return "", nil, err
+			return err
 		}
 		splitFileExp = string(splitExpressionBytes)
 	}
+	return nil
+}
 
+func handleBackwardsCompatibility() {
 	// backwards compatibility
 	if outputToJSON {
 		outputFormat = "json"
 	}
+}
 
+func validateCommandFlags(args []string) error {
 	if writeInplace && (len(args) == 0 || args[0] == "-") {
-		return "", nil, fmt.Errorf("write in place flag only applicable when giving an expression and at least one file")
+		return fmt.Errorf("write in place flag only applicable when giving an expression and at least one file")
 	}
 
 	if frontMatter != "" && len(args) == 0 {
-		return "", nil, fmt.Errorf("front matter flag only applicable when giving an expression and at least one file")
+		return fmt.Errorf("front matter flag only applicable when giving an expression and at least one file")
 	}
 
 	if writeInplace && splitFileExp != "" {
-		return "", nil, fmt.Errorf("write in place cannot be used with split file")
+		return fmt.Errorf("write in place cannot be used with split file")
 	}
 
 	if nullInput && len(args) > 0 {
-		return "", nil, fmt.Errorf("cannot pass files in when using null-input flag")
+		return fmt.Errorf("cannot pass files in when using null-input flag")
 	}
 
+	return nil
+}
+
+func configureFormats(args []string) error {
 	inputFilename := ""
 	if len(args) > 0 {
 		inputFilename = args[0]
 	}
-	if inputFormat == "" || inputFormat == "auto" || inputFormat == "a" {
 
+	if err := configureInputFormat(inputFilename); err != nil {
+		return err
+	}
+
+	if err := configureOutputFormat(); err != nil {
+		return err
+	}
+
+	yqlib.GetLogger().Debug("Using input format %v", inputFormat)
+	yqlib.GetLogger().Debug("Using output format %v", outputFormat)
+
+	return nil
+}
+
+func configureInputFormat(inputFilename string) error {
+	if inputFormat == "" || inputFormat == "auto" || inputFormat == "a" {
 		inputFormat = yqlib.FormatStringFromFilename(inputFilename)
 
 		_, err := yqlib.FormatFromString(inputFormat)
@@ -88,24 +136,27 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 		}
 		outputFormat = "yaml"
 	}
+	return nil
+}
 
+func configureOutputFormat() error {
 	outputFormatType, err := yqlib.FormatFromString(outputFormat)
-
 	if err != nil {
-		return "", nil, err
+		return err
 	}
-	yqlib.GetLogger().Debug("Using input format %v", inputFormat)
-	yqlib.GetLogger().Debug("Using output format %v", outputFormat)
 
 	if outputFormatType == yqlib.YamlFormat ||
 		outputFormatType == yqlib.PropertiesFormat {
 		unwrapScalar = true
 	}
+
+	return nil
+}
+
+func configureUnwrapScalar() {
 	if unwrapScalarFlag.IsExplicitlySet() {
 		unwrapScalar = unwrapScalarFlag.IsSet()
 	}
-
-	return expression, args, nil
 }
 
 func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
