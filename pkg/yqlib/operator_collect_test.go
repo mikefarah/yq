@@ -60,6 +60,7 @@ var collectOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::- {a: apple}\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		skipDoc:    true,

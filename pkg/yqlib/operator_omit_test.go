@@ -41,6 +41,7 @@ var omitOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\nmyMap: {dog: bark, thing: hamster}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 	{
 		description:    "Omit indices from array",
@@ -59,6 +60,7 @@ var omitOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[leopard]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 }
 

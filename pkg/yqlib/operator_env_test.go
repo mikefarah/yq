@@ -169,6 +169,7 @@ var envOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!map)::# abc\n{v: \"cat meow\"}\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 }
 

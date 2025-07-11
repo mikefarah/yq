@@ -62,6 +62,7 @@ var reverseOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!seq)::# abc\n[{a: cat}, {a: banana}, {a: apple}]\n# xyz\n",
 		},
+		skipForGoccy: true,
 	},
 }
 

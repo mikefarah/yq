@@ -94,6 +94,16 @@ yq -P -oy sample.json
 			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
 
+			// Handle YAML parser selection with validation
+			switch yamlParser {
+			case "goccy", "":
+				yqlib.ConfiguredYamlPreferences.UseGoccyParser = true
+			case "legacy-v3":
+				yqlib.ConfiguredYamlPreferences.UseGoccyParser = false
+			default:
+				return fmt.Errorf("invalid yaml-parser value '%s'. Valid options are: 'goccy', 'legacy-v3'", yamlParser)
+			}
+
 			return nil
 		},
 	}
@@ -196,6 +206,11 @@ yq -P -oy sample.json
 		panic(err)
 	}
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
+
+	rootCmd.PersistentFlags().StringVar(&yamlParser, "yaml-parser", "legacy-v3", "YAML parser to use: 'goccy' (actively maintained) or 'legacy-v3' (default, legacy gopkg.in/yaml.v3)")
+	if err = rootCmd.RegisterFlagCompletionFunc("yaml-parser", cobra.FixedCompletions([]string{"goccy", "legacy-v3"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
+		panic(err)
+	}
 
 	rootCmd.PersistentFlags().StringVarP(&splitFileExp, "split-exp", "s", "", "print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter. The necessary directories will be created.")
 	if err = rootCmd.RegisterFlagCompletionFunc("split-exp", cobra.NoFileCompletions); err != nil {
