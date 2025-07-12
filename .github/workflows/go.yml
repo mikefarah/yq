@@ -27,6 +27,11 @@ jobs:
             dep ensure
         fi
 
+    - name: Run Go tests in test folder
+      run: |
+        export PATH=${PATH}:`go env GOPATH`/bin
+        go test -v ./test/...
+
     - name: Check the build
       shell: bash -l {0}
       run: |
