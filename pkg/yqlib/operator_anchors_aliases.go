@@ -272,7 +272,10 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*CandidateNode).Value)
 		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
 			log.Debugf("overridign new content")
-			valueEl.Value = value
+			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing the merge anchor to override the existing value at %v which isn't to the yaml spec. This flag will default to true in late 2025.", keyNode.GetNicePath())
+				valueEl.Value = value
+			}
 			return nil
 		}
 		newEl = valueEl // move forward twice
