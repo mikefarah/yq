@@ -160,3 +160,47 @@ func TestCandidateNodeAddKeyValueChild(t *testing.T) {
 	test.AssertResult(t, key.IsMapKey, true)
 
 }
+
+func TestConvertToNodeInfo(t *testing.T) {
+	child := &CandidateNode{
+		Kind:   ScalarNode,
+		Style:  DoubleQuotedStyle,
+		Tag:    "!!str",
+		Value:  "childValue",
+		Line:   2,
+		Column: 3,
+	}
+	parent := &CandidateNode{
+		Kind:        MappingNode,
+		Style:       TaggedStyle,
+		Tag:         "!!map",
+		Value:       "",
+		Line:        1,
+		Column:      1,
+		Content:     []*CandidateNode{child},
+		HeadComment: "head",
+		LineComment: "line",
+		FootComment: "foot",
+		Anchor:      "anchor",
+	}
+	info := parent.ConvertToNodeInfo()
+	test.AssertResult(t, "MappingNode", info.Kind)
+	test.AssertResult(t, "TaggedStyle", info.Style)
+	test.AssertResult(t, "!!map", info.Tag)
+	test.AssertResult(t, "head", info.HeadComment)
+	test.AssertResult(t, "line", info.LineComment)
+	test.AssertResult(t, "foot", info.FootComment)
+	test.AssertResult(t, "anchor", info.Anchor)
+	test.AssertResult(t, 1, info.Line)
+	test.AssertResult(t, 1, info.Column)
+	if len(info.Content) != 1 {
+		t.Fatalf("Expected 1 child, got %d", len(info.Content))
+	}
+	childInfo := info.Content[0]
+	test.AssertResult(t, "ScalarNode", childInfo.Kind)
+	test.AssertResult(t, "DoubleQuotedStyle", childInfo.Style)
+	test.AssertResult(t, "!!str", childInfo.Tag)
+	test.AssertResult(t, "childValue", childInfo.Value)
+	test.AssertResult(t, 2, childInfo.Line)
+	test.AssertResult(t, 3, childInfo.Column)
+}

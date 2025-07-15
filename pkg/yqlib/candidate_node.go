@@ -53,6 +53,20 @@ func createScalarNode(value interface{}, stringValue string) *CandidateNode {
 	return node
 }
 
+type NodeInfo struct {
+	Kind        string      `yaml:"kind"`
+	Style       string      `yaml:"style,omitempty"`
+	Anchor      string      `yaml:"anchor,omitempty"`
+	Tag         string      `yaml:"tag,omitempty"`
+	HeadComment string      `yaml:"headComment,omitempty"`
+	LineComment string      `yaml:"lineComment,omitempty"`
+	FootComment string      `yaml:"footComment,omitempty"`
+	Value       string      `yaml:"value,omitempty"`
+	Line        int         `yaml:"line,omitempty"`
+	Column      int         `yaml:"column,omitempty"`
+	Content     []*NodeInfo `yaml:"content,omitempty"`
+}
+
 type CandidateNode struct {
 	Kind  Kind
 	Style Style
@@ -450,4 +464,65 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 	if other.LineComment != "" {
 		n.LineComment = other.LineComment
 	}
+}
+
+func (n *CandidateNode) ConvertToNodeInfo() *NodeInfo {
+	info := &NodeInfo{
+		Kind:        kindToString(n.Kind),
+		Style:       styleToString(n.Style),
+		Anchor:      n.Anchor,
+		Tag:         n.Tag,
+		HeadComment: n.HeadComment,
+		LineComment: n.LineComment,
+		FootComment: n.FootComment,
+		Value:       n.Value,
+		Line:        n.Line,
+		Column:      n.Column,
+	}
+	if len(n.Content) > 0 {
+		info.Content = make([]*NodeInfo, len(n.Content))
+		for i, child := range n.Content {
+			info.Content[i] = child.ConvertToNodeInfo()
+		}
+	}
+	return info
+}
+
+// Helper functions to convert Kind and Style to string for NodeInfo
+func kindToString(k Kind) string {
+	switch k {
+	case SequenceNode:
+		return "SequenceNode"
+	case MappingNode:
+		return "MappingNode"
+	case ScalarNode:
+		return "ScalarNode"
+	case AliasNode:
+		return "AliasNode"
+	default:
+		return "Unknown"
+	}
+}
+
+func styleToString(s Style) string {
+	var styles []string
+	if s&TaggedStyle != 0 {
+		styles = append(styles, "TaggedStyle")
+	}
+	if s&DoubleQuotedStyle != 0 {
+		styles = append(styles, "DoubleQuotedStyle")
+	}
+	if s&SingleQuotedStyle != 0 {
+		styles = append(styles, "SingleQuotedStyle")
+	}
+	if s&LiteralStyle != 0 {
+		styles = append(styles, "LiteralStyle")
+	}
+	if s&FoldedStyle != 0 {
+		styles = append(styles, "FoldedStyle")
+	}
+	if s&FlowStyle != 0 {
+		styles = append(styles, "FlowStyle")
+	}
+	return strings.Join(styles, ",")
 }

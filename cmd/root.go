@@ -99,6 +99,7 @@ yq -P -oy sample.json
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
+	rootCmd.PersistentFlags().BoolVarP(&printNodeInfo, "debug-node-info", "", false, "debug node info")
 
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "(deprecated) output as json. Set indent to 0 to print json in one line.")
 	err := rootCmd.PersistentFlags().MarkDeprecated("tojson", "please use -o=json instead")
