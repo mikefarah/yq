@@ -106,6 +106,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		document:       `{a: 1, a: 2}`,
 		expression:     `explode(.)`,
 		expected: []string{
+			// {a: 2} would also be fine
 			"D0, P[], (!!map)::{a: 1, a: 2}\n",
 		},
 	},
@@ -433,6 +434,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       `{a: 1, a: 2}`,
 		expression:     `explode(.)`,
 		expected: []string{
+			// {a: 2} would also be fine
 			"D0, P[], (!!map)::{a: 1, a: 2}\n",
 		},
 	},
