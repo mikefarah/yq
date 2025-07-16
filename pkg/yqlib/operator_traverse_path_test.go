@@ -612,6 +612,25 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!int)::2\n",
 		},
 	},
+	{
+		skipDoc:        true,
+		description:    "Traversing map with invalid merge anchor should not fail",
+		subdescription: "Otherwise code cannot do anything with it",
+		document:       `{a: 42, <<: 37}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Directly accessing invalid merge anchor should not fail",
+		document:    `{<<: 37}`,
+		expression:  `.<<`,
+		expected: []string{
+			"D0, P[<<], (!!int)::37\n",
+		},
+	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {
