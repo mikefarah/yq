@@ -43,6 +43,18 @@ var fixedTraversePathOperatorScenarios = []expressionScenario{
 			"D0, P[foobar c], (!!str)::foobar_c\n",
 		},
 	},
+
+	// The following tests are the same as below, to verify they still works correctly with the flag:
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+		},
+	},
 }
 
 var traversePathOperatorScenarios = []expressionScenario{
@@ -588,6 +600,16 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a 0], (!!str)::a\n",
 			"D0, P[a 1], (!!str)::b\n",
 			"D0, P[a 2], (!!str)::c\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
 		},
 	},
 }

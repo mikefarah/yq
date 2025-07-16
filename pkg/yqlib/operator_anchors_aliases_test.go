@@ -85,10 +85,29 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:        true,
 		description:    "merge anchor after existing keys",
-		subdescription: "legacy: overrides existing keys",
+		subdescription: "Does not override existing keys",
 		document:       explodeWhenKeysExistDocument,
 		expression:     "explode(.)",
 		expected:       []string{explodeWhenKeysExistExpected},
+	},
+
+	// The following tests are the same as below, to verify they still works correctly with the flag:
+	{
+		description:    "Override",
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
+	},
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, a: 2}\n",
+		},
 	},
 }
 
@@ -405,6 +424,16 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression:     `explode(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, a: 2}\n",
 		},
 	},
 }
