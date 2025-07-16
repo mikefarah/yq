@@ -1,3 +1,5 @@
+//go:build !yq_noprops
+
 package yqlib
 
 import (

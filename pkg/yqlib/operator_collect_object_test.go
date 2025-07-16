@@ -13,6 +13,11 @@ var collectObjectOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:       true,
+		expression:    `{"c": "a", "b", "d"}`,
+		expectedError: "CollectObject: mismatching node sizes; are you creating a map with mismatching key value pairs?",
+	},
+	{
 		skipDoc:    true,
 		expression: `{"person": {"names": ["mike"]}} | .person.names[0]`,
 		expected: []string{

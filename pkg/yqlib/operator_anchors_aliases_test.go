@@ -53,7 +53,54 @@ foobar:
     thing: foobar_thing
 `
 
+var explodeWhenKeysExistDocument = `objects:
+  - &circle
+    name: circle
+    shape: round
+  - name: ellipse
+    !!merge <<: *circle
+  - !!merge <<: *circle
+    name: egg
+`
+
+var explodeWhenKeysExistLegacy = `D0, P[], (!!map)::objects:
+    - name: circle
+      shape: round
+    - name: circle
+      shape: round
+    - shape: round
+      name: egg
+`
+
+var explodeWhenKeysExistExpected = `D0, P[], (!!map)::objects:
+    - name: circle
+      shape: round
+    - name: ellipse
+      shape: round
+    - shape: round
+      name: egg
+`
+
+var fixedAnchorOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:        true,
+		description:    "merge anchor after existing keys",
+		subdescription: "legacy: overrides existing keys",
+		document:       explodeWhenKeysExistDocument,
+		expression:     "explode(.)",
+		expected:       []string{explodeWhenKeysExistExpected},
+	},
+}
+
 var anchorOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:        true,
+		description:    "merge anchor after existing keys",
+		subdescription: "legacy: overrides existing keys",
+		document:       explodeWhenKeysExistDocument,
+		expression:     "explode(.)",
+		expected:       []string{explodeWhenKeysExistLegacy},
+	},
 	{
 		skipDoc:       true,
 		description:   "merge anchor not map",
@@ -357,4 +404,12 @@ func TestAnchorAliasOperatorScenarios(t *testing.T) {
 		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "anchor-and-alias-operators", anchorOperatorScenarios)
+}
+
+func TestAnchorAliasOperatorAlignedToSpecScenarios(t *testing.T) {
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = true
+	for _, tt := range fixedAnchorOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
 }

@@ -1,3 +1,5 @@
+//go:build !yq_nouri
+
 package yqlib
 
 import (

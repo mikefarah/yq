@@ -1,3 +1,5 @@
+//go:build !yq_nosh
+
 package yqlib
 
 import (

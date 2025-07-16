@@ -113,7 +113,7 @@ func FormatStringFromFilename(filename string) string {
 	if filename != "" {
 		GetLogger().Debugf("checking filename '%s' for auto format detection", filename)
 		ext := filepath.Ext(filename)
-		if ext != "" && ext[0] == '.' {
+		if len(ext) >= 2 && ext[0] == '.' {
 			format := strings.ToLower(ext[1:])
 			GetLogger().Debugf("detected format '%s'", format)
 			return format

@@ -6,6 +6,6 @@ func NewXMLDecoder(prefs XmlPreferences) Decoder {
 	return nil
 }
 
-func NewXMLEncoder(indent int, prefs XmlPreferences) Encoder {
+func NewXMLEncoder(prefs XmlPreferences) Encoder {
 	return nil
 }

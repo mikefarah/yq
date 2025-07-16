@@ -2,6 +2,8 @@ package cmd
 
 var unwrapScalarFlag = newUnwrapFlag()
 
+var printNodeInfo = false
+
 var unwrapScalar = false
 
 var writeInplace = false

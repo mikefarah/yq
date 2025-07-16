@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 )
 
 /*
@@ -34,6 +35,9 @@ func collectObjectOperator(d *dataTreeNavigator, originalContext Context, _ *Exp
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidateNode := el.Value.(*CandidateNode)
+		if len(candidateNode.Content) < len(first.Content) {
+			return Context{}, fmt.Errorf("CollectObject: mismatching node sizes; are you creating a map with mismatching key value pairs?")
+		}
 
 		for i := 0; i < len(first.Content); i++ {
 			log.Debugf("rotate[%v] = %v", i, NodeToString(candidateNode.Content[i]))
