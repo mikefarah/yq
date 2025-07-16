@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"slices"
 )
 
 func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -237,9 +238,13 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 		return applyMergeAnchorMap(node, merge, mergeIndex, inline, newContent)
 	case SequenceNode:
 		log.Debugf("a merge list!")
-		// Earlier keys take precedence
-		for index := len(merge.Content) - 1; index >= 0; index = index - 1 {
-			childValue := merge.Content[index]
+		// With FixMergeAnchorToSpec, we rely on overrideEntry to reject duplicates
+		content := slices.All(merge.Content)
+		if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			// Even without FixMergeAnchorToSpec, this already gave preference to earlier keys
+			content = slices.Backward(merge.Content)
+		}
+		for _, childValue := range content {
 			childInline := inline
 			if childValue.Kind == AliasNode {
 				childInline = false
@@ -303,8 +308,9 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 		keyNode := newEl.Value.(*CandidateNode)
 		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*CandidateNode).Value)
 		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
-			log.Debugf("overridign new content")
+			log.Debugf("overriding new content")
 			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				//TODO This also fires in when an earlier element in a list merge anchor overwrites a later element, which *is* to the spec
 				log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing the merge anchor to override the existing value at %v which isn't to the yaml spec. This flag will default to true in late 2025.", keyNode.GetNicePath())
 				valueEl.Value = value
 			}

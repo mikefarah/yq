@@ -122,12 +122,22 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
+	//TODO The following 2 tests warn about overwriting [3].r not being to spec while they shouldn't
 	{
 		description:    "Override",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
+	},
+	// Correctly warns about overwriting [4].x
+	{
+		description: "Override with local key",
+		subdescription: "like https://yaml.org/type/merge.html, but with x: 1 before the merge key. " +
+			"This is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+		document:   specDocument + "- x: 1\n  << : [ *BIG, *LEFT, *SMALL ]\n",
+		expression: ".[4] | explode(.)",
+		expected:   []string{"D0, P[4], (!!map)::x: 0\nr: 10\ny: 2\n"},
 	},
 	{
 		description: "Get anchor",

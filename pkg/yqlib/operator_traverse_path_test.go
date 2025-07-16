@@ -25,6 +25,26 @@ foobar:
   thing: foobar_thing
 `
 
+var fixedTraversePathOperatorScenarios = []expressionScenario{
+	{
+		description:    "Traversing merge anchor lists",
+		subdescription: "Note that the keys earlier in the merge anchors sequence override later ones",
+		document:       mergeDocSample,
+		expression:     `.foobarList.thing`,
+		expected: []string{
+			"D0, P[foo thing], (!!str)::foo_thing\n",
+		},
+	},
+	{
+		description: "Traversing merge anchors with override",
+		document:    mergeDocSample,
+		expression:  `.foobar.c`,
+		expected: []string{
+			"D0, P[foobar c], (!!str)::foobar_c\n",
+		},
+	},
+}
+
 var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
@@ -400,9 +420,10 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Traversing merge anchors with override",
-		document:    mergeDocSample,
-		expression:  `.foobar.c`,
+		description:    "Traversing merge anchors with override",
+		subdescription: "This is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+		document:       mergeDocSample,
+		expression:     `.foobar.c`,
 		expected: []string{
 			"D0, P[foo c], (!!str)::foo_c\n",
 		},
@@ -442,12 +463,13 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Traversing merge anchor lists",
-		subdescription: "Note that the keys earlier in the merge anchors sequence override later ones",
-		document:       mergeDocSample,
-		expression:     `.foobarList.thing`,
+		description: "Traversing merge anchor lists",
+		subdescription: "Note that the later merge anchors override previous, " +
+			"but this is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+		document:   mergeDocSample,
+		expression: `.foobarList.thing`,
 		expected: []string{
-			"D0, P[foo thing], (!!str)::foo_thing\n",
+			"D0, P[bar thing], (!!str)::bar_thing\n",
 		},
 	},
 	{
@@ -467,14 +489,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Splatting merge anchor lists",
-		document:    mergeDocSample,
-		expression:  `.foobarList[]`,
+		description:    "Splatting merge anchor lists",
+		subdescription: "With legacy override behavior, see --yaml-fix-merge-anchor-to-spec",
+		document:       mergeDocSample,
+		expression:     `.foobarList[]`,
 		expected: []string{
 			"D0, P[bar b], (!!str)::bar_b\n",
-			"D0, P[foo thing], (!!str)::foo_thing\n",
-			"D0, P[foobarList c], (!!str)::foobarList_c\n",
 			"D0, P[foo a], (!!str)::foo_a\n",
+			"D0, P[bar thing], (!!str)::bar_thing\n",
+			"D0, P[foobarList c], (!!str)::foobarList_c\n",
 		},
 	},
 	{
@@ -574,4 +597,12 @@ func TestTraversePathOperatorScenarios(t *testing.T) {
 		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "traverse-read", traversePathOperatorScenarios)
+}
+
+func TestTraversePathOperatorAlignedToSpecScenarios(t *testing.T) {
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = true
+	for _, tt := range fixedTraversePathOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
 }

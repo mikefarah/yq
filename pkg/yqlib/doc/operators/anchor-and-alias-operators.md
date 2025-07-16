@@ -96,6 +96,38 @@ y: 2
 x: 1
 ```
 
+## Override with local key
+like https://yaml.org/type/merge.html, but with x: 1 before the merge key. This is legacy behavior, see --yaml-fix-merge-anchor-to-spec
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- x: 1
+  !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+```
+then
+```bash
+yq '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+x: 0
+r: 10
+y: 2
+```
+
 ## Get anchor
 Given a sample.yml file of:
 ```yaml

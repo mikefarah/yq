@@ -3,7 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-
 	"github.com/elliotchance/orderedmap"
 )
 
@@ -280,11 +279,39 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
 				log.Debug("including key")
-				newMatches.Set(key.GetKey(), key)
+				keyName := key.GetKey()
+				if newMatches.Has(keyName) {
+					if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+						log.Debug("not overwriting existing key")
+					} else {
+						log.Warning(
+							"--yaml-fix-merge-anchor-to-spec is false; "+
+								"causing the merge anchor to override the existing key at %v which isn't to the yaml spec. "+
+								"This flag will default to true in late 2025.", key.GetNicePath())
+						log.Debug("overwriting existing key")
+						newMatches.Set(keyName, key)
+					}
+				} else {
+					newMatches.Set(keyName, key)
+				}
 			}
 			if !prefs.DontIncludeMapValues {
 				log.Debug("including value")
-				newMatches.Set(value.GetKey(), value)
+				valueName := value.GetKey()
+				if newMatches.Has(valueName) {
+					if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+						log.Debug("not overwriting existing value")
+					} else {
+						log.Warning(
+							"--yaml-fix-merge-anchor-to-spec is false; "+
+								"causing the merge anchor to override the existing value at %v which isn't to the yaml spec. "+
+								"This flag will default to true in late 2025.", key.GetNicePath())
+						log.Debug("overwriting existing value")
+						newMatches.Set(valueName, value)
+					}
+				} else {
+					newMatches.Set(valueName, value)
+				}
 			}
 		}
 	}
@@ -300,9 +327,7 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode
 	case MappingNode:
 		return doTraverseMap(newMatches, merge, wantedKey, prefs, splat)
 	case SequenceNode:
-		// Earlier keys take precedence
-		for index := len(merge.Content) - 1; index >= 0; index = index - 1 {
-			childValue := merge.Content[index]
+		for _, childValue := range merge.Content {
 			if childValue.Kind == AliasNode {
 				childValue = childValue.Alias
 			}

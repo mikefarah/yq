@@ -304,6 +304,8 @@ foo_a
 ```
 
 ## Traversing merge anchors with override
+This is legacy behavior, see --yaml-fix-merge-anchor-to-spec
+
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -399,7 +401,7 @@ foobar_thing
 ```
 
 ## Traversing merge anchor lists
-Note that the keys earlier in the merge anchors sequence override later ones
+Note that the later merge anchors override previous, but this is legacy behavior, see --yaml-fix-merge-anchor-to-spec
 
 Given a sample.yml file of:
 ```yaml
@@ -428,10 +430,12 @@ yq '.foobarList.thing' sample.yml
 ```
 will output
 ```yaml
-foo_thing
+bar_thing
 ```
 
 ## Splatting merge anchor lists
+With legacy override behavior, see --yaml-fix-merge-anchor-to-spec
+
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -460,9 +464,9 @@ yq '.foobarList[]' sample.yml
 will output
 ```yaml
 bar_b
-foo_thing
-foobarList_c
 foo_a
+bar_thing
+foobarList_c
 ```
 
 ## Select multiple indices
