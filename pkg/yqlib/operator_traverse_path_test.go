@@ -25,14 +25,37 @@ foobar:
   thing: foobar_thing
 `
 
-// cannot use merge anchors with arrays
-var badAliasSample = `
-_common: &common-docker-file
-  - FROM ubuntu:18.04
+var fixedTraversePathOperatorScenarios = []expressionScenario{
+	{
+		description:    "Traversing merge anchor lists",
+		subdescription: "Note that the keys earlier in the merge anchors sequence override later ones",
+		document:       mergeDocSample,
+		expression:     `.foobarList.thing`,
+		expected: []string{
+			"D0, P[foo thing], (!!str)::foo_thing\n",
+		},
+	},
+	{
+		description: "Traversing merge anchors with override",
+		document:    mergeDocSample,
+		expression:  `.foobar.c`,
+		expected: []string{
+			"D0, P[foobar c], (!!str)::foobar_c\n",
+		},
+	},
 
-steps:
-  <<: *common-docker-file
-`
+	// The following tests are the same as below, to verify they still works correctly with the flag:
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+		},
+	},
+}
 
 var traversePathOperatorScenarios = []expressionScenario{
 	{
@@ -366,6 +389,33 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Merge anchor with inline map",
+		document:    `{<<: {a: 42}}`,
+		expression:  `.a`,
+		expected: []string{
+			"D0, P[<< a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Merge anchor with sequence with inline map",
+		document:    `{<<: [{a: 42}]}`,
+		expression:  `.a`,
+		expected: []string{
+			"D0, P[<< 0 a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Merge anchor with aliased sequence with inline map",
+		document:    `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression:  `.m.a`,
+		expected: []string{
+			"D0, P[s 0 a], (!!int)::42\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   mergeDocSample,
 		expression: `.foobar`,
@@ -382,9 +432,10 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Traversing merge anchors with override",
-		document:    mergeDocSample,
-		expression:  `.foobar.c`,
+		description:    "Traversing merge anchors with override",
+		subdescription: "This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
+		document:       mergeDocSample,
+		expression:     `.foobar.c`,
 		expected: []string{
 			"D0, P[foo c], (!!str)::foo_c\n",
 		},
@@ -424,10 +475,11 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Traversing merge anchor lists",
-		subdescription: "Note that the later merge anchors override previous",
-		document:       mergeDocSample,
-		expression:     `.foobarList.thing`,
+		description: "Traversing merge anchor lists",
+		subdescription: "Note that the later merge anchors override previous, " +
+			"but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
+		document:   mergeDocSample,
+		expression: `.foobarList.thing`,
 		expected: []string{
 			"D0, P[bar thing], (!!str)::bar_thing\n",
 		},
@@ -449,9 +501,10 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Splatting merge anchor lists",
-		document:    mergeDocSample,
-		expression:  `.foobarList[]`,
+		description:    "Splatting merge anchor lists",
+		subdescription: "With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec",
+		document:       mergeDocSample,
+		expression:     `.foobarList[]`,
 		expected: []string{
 			"D0, P[bar b], (!!str)::bar_b\n",
 			"D0, P[foo a], (!!str)::foo_a\n",
@@ -550,11 +603,33 @@ var traversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:       true,
-		document:      badAliasSample,
-		expression:    ".steps[]",
-		expectedError: "can only use merge anchors with maps (!!map), but got !!seq",
-		skipForGoccy:  true, // throws an error on parsing, that's fine
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::2\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Traversing map with invalid merge anchor should not fail",
+		subdescription: "Otherwise code cannot do anything with it",
+		document:       `{a: 42, <<: 37}`,
+		expression:     `.a`,
+		expected: []string{
+			"D0, P[a], (!!int)::42\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Directly accessing invalid merge anchor should not fail",
+		document:    `{<<: 37}`,
+		expression:  `.<<`,
+		expected: []string{
+			"D0, P[<<], (!!int)::37\n",
+		},
 	},
 }
 
@@ -563,4 +638,12 @@ func TestTraversePathOperatorScenarios(t *testing.T) {
 		testScenario(t, &tt)
 	}
 	documentOperatorScenarios(t, "traverse-read", traversePathOperatorScenarios)
+}
+
+func TestTraversePathOperatorAlignedToSpecScenarios(t *testing.T) {
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = true
+	for _, tt := range fixedTraversePathOperatorScenarios {
+		testScenario(t, &tt)
+	}
+	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
 }

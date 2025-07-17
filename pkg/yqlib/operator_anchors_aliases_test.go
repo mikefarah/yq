@@ -45,8 +45,8 @@ bar:
 foobarList:
     b: bar_b
     thing: foo_thing
-    c: foobarList_c
     a: foo_a
+    c: foobarList_c
 foobar:
     c: foo_c
     a: foo_a
@@ -85,10 +85,30 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:        true,
 		description:    "merge anchor after existing keys",
-		subdescription: "legacy: overrides existing keys",
+		subdescription: "Does not override existing keys",
 		document:       explodeWhenKeysExistDocument,
 		expression:     "explode(.)",
 		expected:       []string{explodeWhenKeysExistExpected},
+	},
+
+	// The following tests are the same as below, to verify they still works correctly with the flag:
+	{
+		description:    "Override",
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
+	},
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			// {a: 2} would also be fine
+			"D0, P[], (!!map)::{a: 1, a: 2}\n",
+		},
 	},
 }
 
@@ -105,7 +125,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		description:   "merge anchor not map",
 		document:      "a: &a\n  - 0\nc:\n  <<: [*a]\n",
-		expectedError: "merge anchor only supports maps, got !!seq instead",
+		expectedError: "can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing !!seq",
 		expression:    "explode(.)",
 	},
 	{
@@ -122,12 +142,22 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
+	//TODO The following 2 tests warn about overwriting [3].r not being to spec while they shouldn't
 	{
 		description:    "Override",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
 		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
+	},
+	// Correctly warns about overwriting [4].x
+	{
+		description: "Override with local key",
+		subdescription: "like https://yaml.org/type/merge.html, but with x: 1 before the merge key. " +
+			"This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
+		document:   specDocument + "- x: 1\n  << : [ *BIG, *LEFT, *SMALL ]\n",
+		expression: ".[4] | explode(.)",
+		expected:   []string{"D0, P[4], (!!map)::x: 0\nr: 10\ny: 2\n"},
 	},
 	{
 		description: "Get anchor",
@@ -301,7 +331,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
@@ -311,7 +341,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, c: foobarList_c, a: foo_a}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
 			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
@@ -329,6 +359,84 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       simpleArrayRef,
 		expression:     `.thingOne |= explode(.) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},
+	},
+	{
+		skipDoc:     true,
+		description: "Merge anchor with inline map",
+		document:    `{<<: {a: 42}}`,
+		expression:  `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 42}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Merge anchor with sequence with inline map",
+		document:    `{<<: [{a: 42}]}`,
+		expression:  `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 42}\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Merge anchor with aliased sequence with inline map",
+		document:    `{s: &s [{a: 42}], m: {<<: *s}}`,
+		expression:  `.m | explode(.)`,
+		expected: []string{
+			"D0, P[m], (!!map)::{a: 42}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Exploding merge anchor should not explode neighbors",
+		subdescription: "b must not be exploded, as `r: *a` will become invalid",
+		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
+		expression:     `explode(.c)`,
+		expected: []string{
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Exploding sequence merge anchor should not explode neighbors",
+		subdescription: "b must not be exploded, as `r: *a` will become invalid",
+		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
+		expression:     `explode(.c)`,
+		expected: []string{
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Exploding inline merge anchor",
+		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
+		document:       `{a: {b: &b 42}, <<: {c: *b}}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Exploding inline merge anchor in sequence",
+		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
+		document:       `{a: {b: &b 42}, <<: [{c: *b}]}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
+		},
+	},
+	{
+		skipDoc:        true,
+		description:    "Duplicate keys",
+		subdescription: "outside merge anchor",
+		document:       `{a: 1, a: 2}`,
+		expression:     `explode(.)`,
+		expected: []string{
+			// {a: 2} would also be fine
+			"D0, P[], (!!map)::{a: 1, a: 2}\n",
+		},
 	},
 }
 
