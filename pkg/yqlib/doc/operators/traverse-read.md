@@ -304,7 +304,7 @@ foo_a
 ```
 
 ## Traversing merge anchors with override
-This is legacy behavior, see --yaml-fix-merge-anchor-to-spec
+This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
 
 Given a sample.yml file of:
 ```yaml
@@ -401,7 +401,7 @@ foobar_thing
 ```
 
 ## Traversing merge anchor lists
-Note that the later merge anchors override previous, but this is legacy behavior, see --yaml-fix-merge-anchor-to-spec
+Note that the later merge anchors override previous, but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
 
 Given a sample.yml file of:
 ```yaml
@@ -434,7 +434,7 @@ bar_thing
 ```
 
 ## Splatting merge anchor lists
-With legacy override behavior, see --yaml-fix-merge-anchor-to-spec
+With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec
 
 Given a sample.yml file of:
 ```yaml

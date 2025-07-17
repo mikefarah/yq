@@ -97,7 +97,7 @@ x: 1
 ```
 
 ## Override with local key
-like https://yaml.org/type/merge.html, but with x: 1 before the merge key. This is legacy behavior, see --yaml-fix-merge-anchor-to-spec
+like https://yaml.org/type/merge.html, but with x: 1 before the merge key. This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
 
 Given a sample.yml file of:
 ```yaml

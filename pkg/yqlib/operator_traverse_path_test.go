@@ -433,7 +433,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Traversing merge anchors with override",
-		subdescription: "This is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+		subdescription: "This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:       mergeDocSample,
 		expression:     `.foobar.c`,
 		expected: []string{
@@ -477,7 +477,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	{
 		description: "Traversing merge anchor lists",
 		subdescription: "Note that the later merge anchors override previous, " +
-			"but this is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+			"but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:   mergeDocSample,
 		expression: `.foobarList.thing`,
 		expected: []string{
@@ -502,7 +502,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Splatting merge anchor lists",
-		subdescription: "With legacy override behavior, see --yaml-fix-merge-anchor-to-spec",
+		subdescription: "With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:       mergeDocSample,
 		expression:     `.foobarList[]`,
 		expected: []string{

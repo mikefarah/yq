@@ -154,7 +154,7 @@ var anchorOperatorScenarios = []expressionScenario{
 	{
 		description: "Override with local key",
 		subdescription: "like https://yaml.org/type/merge.html, but with x: 1 before the merge key. " +
-			"This is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
+			"This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:   specDocument + "- x: 1\n  << : [ *BIG, *LEFT, *SMALL ]\n",
 		expression: ".[4] | explode(.)",
 		expected:   []string{"D0, P[4], (!!map)::x: 0\nr: 10\ny: 2\n"},
