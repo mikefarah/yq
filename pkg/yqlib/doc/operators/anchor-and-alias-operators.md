@@ -34,68 +34,6 @@ y: 2
 r: 10
 ```
 
-## Merge multiple maps
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *CENTER
-    - *BIG
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-x: 1
-y: 2
-```
-
-## Override
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *BIG
-    - *LEFT
-    - *SMALL
-  x: 1
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-x: 1
-y: 2
-```
-
 ## Get anchor
 Given a sample.yml file of:
 ```yaml
@@ -254,7 +192,101 @@ f:
   cat: b
 ```
 
-## Explode with merge anchors
+## Dereference and update a field
+Use explode with multiply to dereference an object
+
+Given a sample.yml file of:
+```yaml
+item_value: &item_value
+  value: true
+thingOne:
+  name: item_1
+  !!merge <<: *item_value
+thingTwo:
+  name: item_2
+  !!merge <<: *item_value
+```
+then
+```bash
+yq '.thingOne |= explode(.) * {"value": false}' sample.yml
+```
+will output
+```yaml
+item_value: &item_value
+  value: true
+thingOne:
+  name: item_1
+  value: false
+thingTwo:
+  name: item_2
+  !!merge <<: *item_value
+```
+
+## Merge multiple maps
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
+```
+then
+```bash
+yq '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+x: 1
+y: 2
+```
+
+## Override
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
+```
+then
+```bash
+yq '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+x: 1
+y: 2
+```
+
+## LEGACY: Explode with merge anchors
+Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values. Flag will default to true in late 2025
+
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -301,33 +333,52 @@ foobar:
   thing: foobar_thing
 ```
 
-## Dereference and update a field
-Use explode with multiply to dereference an object
+## FIXED: Explode with merge anchors
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
 
 Given a sample.yml file of:
 ```yaml
-item_value: &item_value
-  value: true
-thingOne:
-  name: item_1
-  !!merge <<: *item_value
-thingTwo:
-  name: item_2
-  !!merge <<: *item_value
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
 ```
 then
 ```bash
-yq '.thingOne |= explode(.) * {"value": false}' sample.yml
+yq 'explode(.)' sample.yml
 ```
 will output
 ```yaml
-item_value: &item_value
-  value: true
-thingOne:
-  name: item_1
-  value: false
-thingTwo:
-  name: item_2
-  !!merge <<: *item_value
+foo:
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar:
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  a: foo_a
+  thing: foo_thing
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  a: foo_a
+  thing: foobar_thing
 ```
 
