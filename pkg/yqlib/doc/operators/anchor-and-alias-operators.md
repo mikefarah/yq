@@ -64,6 +64,38 @@ x: 1
 y: 2
 ```
 
+## Override
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
+```
+then
+```bash
+yq '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+y: 2
+x: 1
+```
+
 ## Get anchor
 Given a sample.yml file of:
 ```yaml
