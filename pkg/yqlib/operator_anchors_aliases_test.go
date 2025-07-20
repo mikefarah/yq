@@ -44,12 +44,12 @@ bar:
     c: bar_c
 foobarList:
     b: foobarList_b
-    a: foo_a
     thing: foo_thing
+    a: foo_a
     c: foobarList_c
 foobar:
-    c: foobar_c
     a: foo_a
+    c: foobar_c
     thing: foobar_thing
 `
 
@@ -110,14 +110,6 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expected:       []string{explodeWhenKeysExistExpected},
 	},
 	{
-		skipDoc:        true, // skip doc for now, only difference is order of keys
-		description:    "Merge multiple maps",
-		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
-		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"},
-	},
-	{
 		description:    "FIXED: Explode with merge anchors",
 		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 ",
 		document:       mergeDocSample,
@@ -130,8 +122,8 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{a: foo_a, c: foobar_c, thing: foobar_thing}\n",
 		},
 	},
 	{
@@ -140,8 +132,8 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{a: foo_a, c: foobar_c, thing: foobar_thing}\n",
 		},
 	},
 }
@@ -153,13 +145,6 @@ var badAnchorOperatorScenarios = []expressionScenario{
 		document:    explodeWhenKeysExistDocument,
 		expression:  "explode(.)",
 		expected:    []string{explodeWhenKeysExistLegacy},
-	},
-	{
-		description:    "Merge multiple maps", // functionally correct, but key order gets mangled
-		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
-		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
 	{
 		description:    "LEGACY: Explode with merge anchors", // incorrect overrides
@@ -213,7 +198,13 @@ var anchorOperatorScenarios = []expressionScenario{
 		expected:       []string{expectedSpecResult},
 	},
 	{
-		skipDoc:        true, // skip doc for now, only difference is order of keys
+		description:    "Merge multiple maps", // functionally correct, but key order gets mangled
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+	},
+	{
 		description:    "Override",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
@@ -392,7 +383,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		description:    "Dereference and update a field",
 		subdescription: "Use explode with multiply to dereference an object",
 		document:       simpleArrayRef,
-		expression:     `.thingOne |= explode(.) * {"value": false}`,
+		expression:     `.thingOne |= (explode(.) | sort_keys(.)) * {"value": false}`,
 		expected:       []string{expectedUpdatedArrayRef},
 	},
 	{
@@ -447,7 +438,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		description:    "Exploding inline merge anchor",
 		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
 		document:       `{a: {b: &b 42}, <<: {c: *b}}`,
-		expression:     `explode(.)`,
+		expression:     `explode(.) | sort_keys(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
 		},
@@ -457,7 +448,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		description:    "Exploding inline merge anchor in sequence",
 		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
 		document:       `{a: {b: &b 42}, <<: [{c: *b}]}`,
-		expression:     `explode(.)`,
+		expression:     `explode(.) | sort_keys(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
 		},

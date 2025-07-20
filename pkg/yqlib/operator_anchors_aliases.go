@@ -139,58 +139,38 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	return context, nil
 }
 
-func fixedReconstructAliasedMap(node *CandidateNode) error {
-	var newContent = []*CandidateNode{}
-
-	for index := 0; index < len(node.Content); index = index + 2 {
-		keyNode := node.Content[index]
-		valueNode := node.Content[index+1]
-		if keyNode.Value != "<<" {
-			// always add in plain nodes
-			newContent = append(newContent, keyNode, valueNode)
-		} else {
-			sequence := valueNode
-			if sequence.Kind != SequenceNode {
-				sequence = &CandidateNode{Content: []*CandidateNode{sequence}}
-			}
-			for index := 0; index < len(sequence.Content); index = index + 1 {
-				// for merge anchors, we only set them if the key is not already in node or the newContent
-				mergeNodeSeq := sequence.Content[index]
-				if mergeNodeSeq.Kind == AliasNode {
-					mergeNodeSeq = mergeNodeSeq.Alias
-				}
-				if mergeNodeSeq.Kind != MappingNode {
-					return fmt.Errorf("merge anchor only supports maps, got !!seq instead")
-				}
-				// Only retain keys from merge map that are not already in node.Content or newContent,
-				// to prevent overwriting
-				itemsToAdd := mergeNodeSeq.FilterMapContentByKey(func(keyNode *CandidateNode) bool {
-					return getContentValueByKey(node.Content, keyNode.Value) == nil &&
-						getContentValueByKey(newContent, keyNode.Value) == nil
-				})
-				newContent = append(newContent, itemsToAdd...)
-			}
-		}
-	}
-	node.Content = newContent
-	return nil
-}
-
 func reconstructAliasedMap(node *CandidateNode, context Context) error {
 	var newContent = list.New()
 	// can I short cut here by prechecking if there's an anchor in the map?
 	// no it needs to recurse in overrideEntry.
 
+	if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+	}
+	if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+		for index := len(node.Content) - 2; index >= 0; index -= 2 {
+			keyNode := node.Content[index]
+			valueNode := node.Content[index+1]
+			if keyNode.Tag == "!!merge" {
+				log.Debugf("traversing merge key %v", keyNode.Value)
+				err := applyMergeAnchor(node, valueNode, index, context.ChildContext(newContent))
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
 	for index := 0; index < len(node.Content); index = index + 2 {
 		keyNode := node.Content[index]
 		valueNode := node.Content[index+1]
-		log.Debugf("traversing %v", keyNode.Value)
 		if keyNode.Tag != "!!merge" {
+			log.Debugf("traversing %v", keyNode.Value)
 			err := overrideEntry(node, keyNode, valueNode, index, true, context.ChildContext(newContent))
 			if err != nil {
 				return err
 			}
-		} else {
+		} else if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			log.Debugf("traversing %v", keyNode.Value)
 			err := applyMergeAnchor(node, valueNode, index, context.ChildContext(newContent))
 			if err != nil {
 				return err
@@ -241,10 +221,6 @@ func explodeNode(node *CandidateNode, context Context) error {
 		}
 
 		if hasAlias {
-			if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-				return fixedReconstructAliasedMap(node)
-			}
-			log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
 			// this is a slow op, which is why we want to check before running it.
 			return reconstructAliasedMap(node, context)
 		}
@@ -279,12 +255,7 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 		return applyMergeAnchorMap(node, merge, mergeIndex, inline, newContent)
 	case SequenceNode:
 		log.Debugf("a merge list!")
-		// With FixMergeAnchorToSpec, we rely on overrideEntry to reject duplicates
-		content := slices.All(merge.Content)
-		if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-			// Even without FixMergeAnchorToSpec, this already gave preference to earlier keys
-			content = slices.Backward(merge.Content)
-		}
+		content := slices.Backward(merge.Content)
 		for _, childValue := range content {
 			childInline := inline
 			if childValue.Kind == AliasNode {

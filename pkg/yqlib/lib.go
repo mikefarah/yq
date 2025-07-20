@@ -28,17 +28,6 @@ func GetLogger() *logging.Logger {
 	return log
 }
 
-func getContentValueByKey(content []*CandidateNode, key string) *CandidateNode {
-	for index := 0; index < len(content); index = index + 2 {
-		keyNode := content[index]
-		valueNode := content[index+1]
-		if keyNode.Value == key {
-			return valueNode
-		}
-	}
-	return nil
-}
-
 func recurseNodeArrayEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 	if len(lhs.Content) != len(rhs.Content) {
 		return false

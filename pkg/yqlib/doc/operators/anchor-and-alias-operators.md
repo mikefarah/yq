@@ -34,6 +34,36 @@ y: 2
 r: 10
 ```
 
+## Merge multiple maps
+see https://yaml.org/type/merge.html
+
+Given a sample.yml file of:
+```yaml
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
+```
+then
+```bash
+yq '.[4] | explode(.)' sample.yml
+```
+will output
+```yaml
+r: 10
+x: 1
+y: 2
+```
+
 ## Get anchor
 Given a sample.yml file of:
 ```yaml
@@ -208,7 +238,7 @@ thingTwo:
 ```
 then
 ```bash
-yq '.thingOne |= explode(.) * {"value": false}' sample.yml
+yq '.thingOne |= (explode(.) | sort_keys(.)) * {"value": false}' sample.yml
 ```
 will output
 ```yaml
@@ -220,36 +250,6 @@ thingOne:
 thingTwo:
   name: item_2
   !!merge <<: *item_value
-```
-
-## Merge multiple maps
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *CENTER
-    - *BIG
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-x: 1
-y: 2
 ```
 
 ## LEGACY: Explode with merge anchors
@@ -341,12 +341,12 @@ bar:
   c: bar_c
 foobarList:
   b: foobarList_b
-  a: foo_a
   thing: foo_thing
+  a: foo_a
   c: foobarList_c
 foobar:
-  c: foobar_c
   a: foo_a
+  c: foobar_c
   thing: foobar_thing
 ```
 
