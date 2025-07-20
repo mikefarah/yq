@@ -438,6 +438,15 @@ var anchorOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{a: 1, a: 2}\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "!!str << should not be treated as merge anchor",
+		document:    `{!!str <<: {a: 37}}`,
+		expression:  `explode(.).a`,
+		expected: []string{
+			"D0, P[a], (!!null)::null\n",
+		},
+	},
 }
 
 func TestAnchorAliasOperatorScenarios(t *testing.T) {

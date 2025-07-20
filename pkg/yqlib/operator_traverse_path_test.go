@@ -631,6 +631,15 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[<<], (!!int)::37\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "!!str << should not be treated as merge anchor",
+		document:    `{!!str <<: {a: 37}}`,
+		expression:  `.a`,
+		expected: []string{
+			"D0, P[a], (!!null)::null\n",
+		},
+	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {
