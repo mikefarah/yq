@@ -303,6 +303,55 @@ will output
 foo_a
 ```
 
+## Traversing merge anchors with local override
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar.thing' sample.yml
+```
+will output
+```yaml
+foobar_thing
+```
+
+## Select multiple indices
+Given a sample.yml file of:
+```yaml
+a:
+  - a
+  - b
+  - c
+```
+then
+```bash
+yq '.a[0, 2]' sample.yml
+```
+will output
+```yaml
+a
+c
+```
+
 ## Traversing merge anchors with override
 This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
 
@@ -336,70 +385,6 @@ will output
 foo_c
 ```
 
-## Traversing merge anchors with local override
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq '.foobar.thing' sample.yml
-```
-will output
-```yaml
-foobar_thing
-```
-
-## Splatting merge anchors
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq '.foobar[]' sample.yml
-```
-will output
-```yaml
-foo_c
-foo_a
-foobar_thing
-```
-
 ## Traversing merge anchor lists
 Note that the later merge anchors override previous, but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
 
@@ -431,6 +416,41 @@ yq '.foobarList.thing' sample.yml
 will output
 ```yaml
 bar_thing
+```
+
+## Splatting merge anchors
+With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar[]' sample.yml
+```
+will output
+```yaml
+foo_c
+foo_a
+foobar_thing
 ```
 
 ## Splatting merge anchor lists
@@ -467,23 +487,5 @@ bar_b
 foo_a
 bar_thing
 foobarList_c
-```
-
-## Select multiple indices
-Given a sample.yml file of:
-```yaml
-a:
-  - a
-  - b
-  - c
-```
-then
-```bash
-yq '.a[0, 2]' sample.yml
-```
-will output
-```yaml
-a
-c
 ```
 

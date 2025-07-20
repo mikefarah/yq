@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"slices"
 
 	"github.com/elliotchance/orderedmap"
 )
@@ -265,53 +266,52 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	// if we don't find a match directly on this node first.
 
 	var contents = node.Content
+
+	if !prefs.DontFollowAlias {
+		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			for index := len(node.Content) - 2; index >= 0; index -= 2 {
+				keyNode := node.Content[index]
+				valueNode := node.Content[index+1]
+				if keyNode.Tag == "!!merge" {
+					log.Debug("Merge anchor")
+					err := traverseMergeAnchor(newMatches, valueNode, wantedKey, prefs, splat)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		} else {
+			log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+		}
+	}
+
 	for index := 0; index+1 < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
 
 		//skip the 'merge' tag, find a direct match first
-		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != "<<" {
-			log.Debug("Merge anchor")
-			err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
-			if err != nil {
-				return err
+		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != key.Value {
+			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				log.Debug("Merge anchor")
+				err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
+				if err != nil {
+					return err
+				}
 			}
 		} else if splat || keyMatches(key, wantedKey) {
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
 				log.Debug("including key")
 				keyName := key.GetKey()
-				if newMatches.Has(keyName) {
-					if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-						log.Debug("not overwriting existing key")
-					} else {
-						log.Warning(
-							"--yaml-fix-merge-anchor-to-spec is false; "+
-								"causing the merge anchor to override the existing key at %v which isn't to the yaml spec. "+
-								"This flag will default to true in late 2025.", key.GetNicePath())
-						log.Debug("overwriting existing key")
-						newMatches.Set(keyName, key)
-					}
-				} else {
-					newMatches.Set(keyName, key)
+				if !newMatches.Set(keyName, key) {
+					log.Debug("overwriting existing key")
 				}
 			}
 			if !prefs.DontIncludeMapValues {
 				log.Debug("including value")
 				valueName := value.GetKey()
-				if newMatches.Has(valueName) {
-					if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-						log.Debug("not overwriting existing value")
-					} else {
-						log.Warning(
-							"--yaml-fix-merge-anchor-to-spec is false; "+
-								"causing the merge anchor to override the existing value at %v which isn't to the yaml spec. "+
-								"This flag will default to true in late 2025.", key.GetNicePath())
-						log.Debug("overwriting existing value")
-						newMatches.Set(valueName, value)
-					}
-				} else {
-					newMatches.Set(valueName, value)
+				if !newMatches.Set(valueName, value) {
+					log.Debug("overwriting existing value")
 				}
 			}
 		}
@@ -328,7 +328,11 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode
 	case MappingNode:
 		return doTraverseMap(newMatches, merge, wantedKey, prefs, splat)
 	case SequenceNode:
-		for _, childValue := range merge.Content {
+		content := slices.All(merge.Content)
+		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			content = slices.Backward(merge.Content)
+		}
+		for _, childValue := range content {
 			if childValue.Kind == AliasNode {
 				childValue = childValue.Alias
 			}

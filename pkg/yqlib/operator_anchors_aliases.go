@@ -144,9 +144,6 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 	// can I short cut here by prechecking if there's an anchor in the map?
 	// no it needs to recurse in overrideEntry.
 
-	if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
-	}
 	if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
 		for index := len(node.Content) - 2; index >= 0; index -= 2 {
 			keyNode := node.Content[index]
@@ -159,7 +156,10 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 				}
 			}
 		}
+	} else {
+		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
 	}
+
 	for index := 0; index < len(node.Content); index = index + 2 {
 		keyNode := node.Content[index]
 		valueNode := node.Content[index+1]

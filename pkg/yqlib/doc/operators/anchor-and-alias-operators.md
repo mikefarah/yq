@@ -382,3 +382,52 @@ foobar:
   thing: foobar_thing
 ```
 
+## FIXED: Explode with merge anchors
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq 'explode(.)' sample.yml
+```
+will output
+```yaml
+foo:
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar:
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  thing: foo_thing
+  a: foo_a
+  c: foobarList_c
+foobar:
+  a: foo_a
+  c: foobar_c
+  thing: foobar_thing
+```
+
