@@ -269,6 +269,9 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 
 	if !prefs.DontFollowAlias {
 		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			// First evaluate merge keys to make explicit keys take precedence, following spec
+			// We also iterate in reverse to make earlier merge keys take precedence,
+			// although normally there's just one '<<'
 			for index := len(node.Content) - 2; index >= 0; index -= 2 {
 				keyNode := node.Content[index]
 				valueNode := node.Content[index+1]
@@ -330,6 +333,7 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode
 	case SequenceNode:
 		content := slices.All(merge.Content)
 		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			// Reverse to make earlier values take precedence, following spec
 			content = slices.Backward(merge.Content)
 		}
 		for _, childValue := range content {

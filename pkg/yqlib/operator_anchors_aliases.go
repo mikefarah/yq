@@ -145,6 +145,9 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 	// no it needs to recurse in overrideEntry.
 
 	if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+		// First evaluate merge keys to make explicit keys take precedence, following spec
+		// We also iterate in reverse to make earlier merge keys take precedence,
+		// although normally there's just one '<<'
 		for index := len(node.Content) - 2; index >= 0; index -= 2 {
 			keyNode := node.Content[index]
 			valueNode := node.Content[index+1]
@@ -255,6 +258,8 @@ func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int,
 		return applyMergeAnchorMap(node, merge, mergeIndex, inline, newContent)
 	case SequenceNode:
 		log.Debugf("a merge list!")
+		// Reverse to make earlier values take precedence, following spec
+		// Note: This was already the case before FixMergeAnchorToSpec
 		content := slices.Backward(merge.Content)
 		for _, childValue := range content {
 			childInline := inline
