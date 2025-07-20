@@ -169,6 +169,18 @@ func (n *CandidateNode) getParsedKey() interface{} {
 
 }
 
+func (n *CandidateNode) FilterMapContentByKey(keyPredicate func(*CandidateNode) bool) []*CandidateNode {
+	var result []*CandidateNode
+	for index := 0; index < len(n.Content); index = index + 2 {
+		keyNode := n.Content[index]
+		valueNode := n.Content[index+1]
+		if keyPredicate(keyNode) {
+			result = append(result, keyNode, valueNode)
+		}
+	}
+	return result
+}
+
 func (n *CandidateNode) GetPath() []interface{} {
 	key := n.getParsedKey()
 	if n.Parent != nil && key != nil {

@@ -34,6 +34,25 @@ thingTwo:
     !!merge <<: *item_value
 `
 
+var explodeMergeAnchorsFixedExpected = `D0, P[], (!!map)::foo:
+    a: foo_a
+    thing: foo_thing
+    c: foo_c
+bar:
+    b: bar_b
+    thing: bar_thing
+    c: bar_c
+foobarList:
+    b: foobarList_b
+    a: foo_a
+    thing: foo_thing
+    c: foobarList_c
+foobar:
+    c: foobar_c
+    a: foo_a
+    thing: foobar_thing
+`
+
 var explodeMergeAnchorsExpected = `D0, P[], (!!map)::foo:
     a: foo_a
     thing: foo_thing
@@ -90,36 +109,94 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expression:     "explode(.)",
 		expected:       []string{explodeWhenKeysExistExpected},
 	},
-
-	// The following tests are the same as below, to verify they still works correctly with the flag:
 	{
-		description:    "Override",
+		skipDoc:        true, // skip doc for now, only difference is order of keys
+		description:    "Merge multiple maps",
 		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
+		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
+		expected:       []string{"D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"},
 	},
 	{
-		skipDoc:        true,
-		description:    "Duplicate keys",
-		subdescription: "outside merge anchor",
-		document:       `{a: 1, a: 2}`,
+		description:    "FIXED: Explode with merge anchors",
+		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 ",
+		document:       mergeDocSample,
 		expression:     `explode(.)`,
+		expected:       []string{explodeMergeAnchorsFixedExpected},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample,
+		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
-			// {a: 2} would also be fine
-			"D0, P[], (!!map)::{a: 1, a: 2}\n",
+			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample,
+		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
+		expected: []string{
+			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
+		},
+	},
+}
+
+var badAnchorOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:     true, // incorrect overrides
+		description: "LEGACY: merge anchor after existing keys",
+		document:    explodeWhenKeysExistDocument,
+		expression:  "explode(.)",
+		expected:    []string{explodeWhenKeysExistLegacy},
+	},
+	{
+		description:    "Merge multiple maps", // functionally correct, but key order gets mangled
+		subdescription: "see https://yaml.org/type/merge.html",
+		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
+		expression:     ".[4] | explode(.)",
+		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+	},
+	{
+		description:    "LEGACY: Explode with merge anchors", // incorrect overrides
+		subdescription: "Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values. Flag will default to true in late 2025",
+		document:       mergeDocSample,
+		expression:     `explode(.)`,
+		expected:       []string{explodeMergeAnchorsExpected},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample, // incorrect overrides
+		expression: `.foo* | explode(.) | (. style="flow")`,
+		expected: []string{
+			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   mergeDocSample,
+		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
+		expected: []string{
+			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
+			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
 }
 
 var anchorOperatorScenarios = []expressionScenario{
 	{
-		skipDoc:        true,
-		description:    "merge anchor after existing keys",
-		subdescription: "legacy: overrides existing keys",
-		document:       explodeWhenKeysExistDocument,
-		expression:     "explode(.)",
-		expected:       []string{explodeWhenKeysExistLegacy},
+		skipDoc:     true,
+		description: "merge anchor to alias alias",
+		document:    "b: &b 10\na: &a { k:  *b }\nc:\n   <<: [*a]",
+		expression:  "explode(.)",
+		expected:    []string{"D0, P[], (!!map)::b: 10\na: {k: 10}\nc:\n    k: 10\n"},
 	},
 	{
 		skipDoc:       true,
@@ -136,28 +213,12 @@ var anchorOperatorScenarios = []expressionScenario{
 		expected:       []string{expectedSpecResult},
 	},
 	{
-		description:    "Merge multiple maps",
-		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
-		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
-	},
-	//TODO The following 2 tests warn about overwriting [3].r not being to spec while they shouldn't
-	{
+		skipDoc:        true, // skip doc for now, only difference is order of keys
 		description:    "Override",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
-	},
-	// Correctly warns about overwriting [4].x
-	{
-		description: "Override with local key",
-		subdescription: "like https://yaml.org/type/merge.html, but with x: 1 before the merge key. " +
-			"This is legacy behavior, see --yaml-fix-merge-anchor-to-spec",
-		document:   specDocument + "- x: 1\n  << : [ *BIG, *LEFT, *SMALL ]\n",
-		expression: ".[4] | explode(.)",
-		expected:   []string{"D0, P[4], (!!map)::x: 0\nr: 10\ny: 2\n"},
 	},
 	{
 		description: "Get anchor",
@@ -320,32 +381,6 @@ var anchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Explode with merge anchors",
-		document:    mergeDocSample,
-		expression:  `explode(.)`,
-		expected:    []string{explodeMergeAnchorsExpected},
-	},
-	{
-		skipDoc:    true,
-		document:   mergeDocSample,
-		expression: `.foo* | explode(.) | (. style="flow")`,
-		expected: []string{
-			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
-		},
-	},
-	{
-		skipDoc:    true,
-		document:   mergeDocSample,
-		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
-		expected: []string{
-			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: bar_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{c: foo_c, a: foo_a, thing: foobar_thing}\n",
-		},
-	},
-	{
 		skipDoc:    true,
 		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a: *b}}`,
 		expression: `explode(.f)`,
@@ -450,16 +485,18 @@ var anchorOperatorScenarios = []expressionScenario{
 }
 
 func TestAnchorAliasOperatorScenarios(t *testing.T) {
-	for _, tt := range anchorOperatorScenarios {
+	for _, tt := range append(anchorOperatorScenarios, badAnchorOperatorScenarios...) {
 		testScenario(t, &tt)
 	}
-	documentOperatorScenarios(t, "anchor-and-alias-operators", anchorOperatorScenarios)
+	documentOperatorScenarios(t, "anchor-and-alias-operators", append(anchorOperatorScenarios, badAnchorOperatorScenarios...))
 }
 
 func TestAnchorAliasOperatorAlignedToSpecScenarios(t *testing.T) {
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = true
-	for _, tt := range fixedAnchorOperatorScenarios {
+	for _, tt := range append(fixedAnchorOperatorScenarios, anchorOperatorScenarios...) {
 		testScenario(t, &tt)
+
 	}
+	appendOperatorDocumentScenario(t, "anchor-and-alias-operators", fixedAnchorOperatorScenarios)
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
 }
