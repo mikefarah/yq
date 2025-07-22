@@ -44,12 +44,12 @@ bar:
     c: bar_c
 foobarList:
     b: foobarList_b
-    thing: foo_thing
     a: foo_a
+    thing: foo_thing
     c: foobarList_c
 foobar:
-    a: foo_a
     c: foobar_c
+    a: foo_a
     thing: foobar_thing
 `
 
@@ -122,8 +122,8 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(.) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: foobarList_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{a: foo_a, c: foobar_c, thing: foobar_thing}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
 	{
@@ -132,8 +132,8 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		expression: `.foo* | explode(explode(.)) | (. style="flow")`,
 		expected: []string{
 			"D0, P[foo], (!!map)::{a: foo_a, thing: foo_thing, c: foo_c}\n",
-			"D0, P[foobarList], (!!map)::{b: foobarList_b, thing: foo_thing, a: foo_a, c: foobarList_c}\n",
-			"D0, P[foobar], (!!map)::{a: foo_a, c: foobar_c, thing: foobar_thing}\n",
+			"D0, P[foobarList], (!!map)::{b: foobarList_b, a: foo_a, thing: foo_thing, c: foobarList_c}\n",
+			"D0, P[foobar], (!!map)::{c: foobar_c, a: foo_a, thing: foobar_thing}\n",
 		},
 	},
 }
@@ -198,11 +198,11 @@ var anchorOperatorScenarios = []expressionScenario{
 		expected:       []string{expectedSpecResult},
 	},
 	{
-		description:    "Merge multiple maps", // functionally correct, but key order gets mangled
+		description:    "Merge multiple maps",
 		subdescription: "see https://yaml.org/type/merge.html",
 		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+		expected:       []string{"D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"},
 	},
 	{
 		description:    "Override",
@@ -420,7 +420,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
 		expression:     `explode(.c)`,
 		expected: []string{
-			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: 42}}\n",
 		},
 	},
 	{
@@ -430,7 +430,7 @@ var anchorOperatorScenarios = []expressionScenario{
 		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
 		expression:     `explode(.c)`,
 		expected: []string{
-			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: &a 42}}\n",
+			"D0, P[], (!!map)::{b: &b {a: &a 42}, r: *a, c: {a: 42}}\n",
 		},
 	},
 	{

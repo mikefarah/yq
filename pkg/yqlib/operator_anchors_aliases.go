@@ -3,7 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-	"slices"
 )
 
 var showMergeAnchorToSpecWarning = true
@@ -141,45 +140,92 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	return context, nil
 }
 
-func reconstructAliasedMap(node *CandidateNode, context Context) error {
-	var newContent = list.New()
-	// can I short cut here by prechecking if there's an anchor in the map?
-	// no it needs to recurse in overrideEntry.
-
-	if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-		// First evaluate merge keys to make explicit keys take precedence, following spec
-		// We also iterate in reverse to make earlier merge keys take precedence,
-		// although normally there's just one '<<'
-		for index := len(node.Content) - 2; index >= 0; index -= 2 {
-			keyNode := node.Content[index]
-			valueNode := node.Content[index+1]
-			if keyNode.Tag == "!!merge" {
-				log.Debugf("traversing merge key %v", keyNode.Value)
-				err := applyMergeAnchor(node, valueNode, index, context.ChildContext(newContent))
-				if err != nil {
-					return err
-				}
-			}
-		}
-	} else if showMergeAnchorToSpecWarning {
-		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025. See https://mikefarah.gitbook.io/yq/operators/anchor-and-alias-operators for more details.")
-		showMergeAnchorToSpecWarning = false
-	}
+func fixedReconstructAliasedMap(node *CandidateNode) error {
+	var newContent = []*CandidateNode{}
 
 	for index := 0; index < len(node.Content); index = index + 2 {
 		keyNode := node.Content[index]
 		valueNode := node.Content[index+1]
 		if keyNode.Tag != "!!merge" {
-			log.Debugf("traversing %v", keyNode.Value)
-			err := overrideEntry(node, keyNode, valueNode, index, true, context.ChildContext(newContent))
+			// copy to ensure exploding doesn't modify the original node
+			keyNodeCopy := keyNode.Copy()
+			valueNodeCopy := valueNode.Copy()
+			// always add in plain nodes
+			// explode both the key and value nodes
+			if err := explodeNode(keyNodeCopy, Context{}); err != nil {
+				return err
+			}
+			if err := explodeNode(valueNodeCopy, Context{}); err != nil {
+				return err
+			}
+			newContent = append(newContent, keyNodeCopy, valueNodeCopy)
+		} else {
+			sequence := valueNode
+			if sequence.Kind == AliasNode {
+				sequence = sequence.Alias
+			}
+			if sequence.Kind != SequenceNode {
+				sequence = &CandidateNode{Content: []*CandidateNode{sequence}}
+			}
+			for index := 0; index < len(sequence.Content); index = index + 1 {
+				// for merge anchors, we only set them if the key is not already in node or the newContent
+				mergeNodeSeq := sequence.Content[index]
+				if mergeNodeSeq.Kind == AliasNode {
+					mergeNodeSeq = mergeNodeSeq.Alias
+				}
+				if mergeNodeSeq.Kind != MappingNode {
+					return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v", mergeNodeSeq.Tag)
+				}
+				itemsToAdd := mergeNodeSeq.FilterMapContentByKey(func(keyNode *CandidateNode) bool {
+					return getContentValueByKey(node.Content, keyNode.Value) == nil &&
+						getContentValueByKey(newContent, keyNode.Value) == nil
+				})
+
+				for _, item := range itemsToAdd {
+					// copy to ensure exploding doesn't modify the original node
+					itemCopy := item.Copy()
+					if err := explodeNode(itemCopy, Context{}); err != nil {
+						return err
+					}
+					newContent = append(newContent, itemCopy)
+				}
+			}
+		}
+	}
+	node.Content = newContent
+	return nil
+}
+
+func reconstructAliasedMap(node *CandidateNode, context Context) error {
+	var newContent = list.New()
+	// can I short cut here by prechecking if there's an anchor in the map?
+	// no it needs to recurse in overrideEntry.
+
+	for index := 0; index < len(node.Content); index = index + 2 {
+		keyNode := node.Content[index]
+		valueNode := node.Content[index+1]
+		log.Debugf("traversing %v", keyNode.Value)
+		if keyNode.Value != "<<" {
+			err := overrideEntry(node, keyNode, valueNode, index, context.ChildContext(newContent))
 			if err != nil {
 				return err
 			}
-		} else if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-			log.Debugf("traversing %v", keyNode.Value)
-			err := applyMergeAnchor(node, valueNode, index, context.ChildContext(newContent))
-			if err != nil {
-				return err
+		} else {
+			if valueNode.Kind == SequenceNode {
+				log.Debugf("an alias merge list!")
+				for index := len(valueNode.Content) - 1; index >= 0; index = index - 1 {
+					aliasNode := valueNode.Content[index]
+					err := applyAlias(node, aliasNode.Alias, index, context.ChildContext(newContent))
+					if err != nil {
+						return err
+					}
+				}
+			} else {
+				log.Debugf("an alias merge!")
+				err := applyAlias(node, valueNode.Alias, index, context.ChildContext(newContent))
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -220,13 +266,20 @@ func explodeNode(node *CandidateNode, context Context) error {
 		hasAlias := false
 		for index := 0; index < len(node.Content); index = index + 2 {
 			keyNode := node.Content[index]
-			if keyNode.Tag == "!!merge" {
+			if keyNode.Value == "<<" {
 				hasAlias = true
 				break
 			}
 		}
 
 		if hasAlias {
+			if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				return fixedReconstructAliasedMap(node)
+			}
+			if showMergeAnchorToSpecWarning {
+				log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+				showMergeAnchorToSpecWarning = false
+			}
 			// this is a slow op, which is why we want to check before running it.
 			return reconstructAliasedMap(node, context)
 		}
@@ -249,65 +302,20 @@ func explodeNode(node *CandidateNode, context Context) error {
 	}
 }
 
-func applyMergeAnchor(node *CandidateNode, merge *CandidateNode, mergeIndex int, newContent Context) error {
-	inline := true
-	if merge.Kind == AliasNode {
-		inline = false
-		merge = merge.Alias
-	}
-	switch merge.Kind {
-	case MappingNode:
-		log.Debugf("a merge map!")
-		return applyMergeAnchorMap(node, merge, mergeIndex, inline, newContent)
-	case SequenceNode:
-		log.Debugf("a merge list!")
-		// Reverse to make earlier values take precedence, following spec
-		// Note: This was already the case before FixMergeAnchorToSpec
-		content := slices.Backward(merge.Content)
-		for _, childValue := range content {
-			childInline := inline
-			if childValue.Kind == AliasNode {
-				childInline = false
-				childValue = childValue.Alias
-			}
-			if childValue.Kind != MappingNode {
-				return fmt.Errorf(
-					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
-					childValue.Tag)
-			}
-			err := applyMergeAnchorMap(node, childValue, mergeIndex, childInline, newContent)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	default:
-		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", merge.Tag)
-	}
-}
-
-func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, mergeIndex int, explode bool, newContent Context) error {
-	if mergeMap == nil {
-		log.Debug("merge map is nil")
+func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newContent Context) error {
+	log.Debug("alias is nil ?")
+	if alias == nil {
 		return nil
 	}
-	log.Debug("merge map: %v", NodeToString(mergeMap))
-	if mergeMap.Kind != MappingNode {
-		return fmt.Errorf("applyMergeAnchorMap expects !!map, got %v instead", mergeMap.Tag)
+	log.Debug("alias: %v", NodeToString(alias))
+	if alias.Kind != MappingNode {
+		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v", alias.Tag)
 	}
-
-	if explode {
-		err := explodeNode(mergeMap, newContent)
-		if err != nil {
-			return err
-		}
-	}
-
-	for index := 0; index < len(mergeMap.Content); index = index + 2 {
-		keyNode := mergeMap.Content[index]
-		log.Debugf("applying merge map key %v", keyNode.Value)
-		valueNode := mergeMap.Content[index+1]
-		err := overrideEntry(node, keyNode, valueNode, mergeIndex, explode, newContent)
+	for index := 0; index < len(alias.Content); index = index + 2 {
+		keyNode := alias.Content[index]
+		log.Debugf("applying alias key %v", keyNode.Value)
+		valueNode := alias.Content[index+1]
+		err := overrideEntry(node, keyNode, valueNode, aliasIndex, newContent)
 		if err != nil {
 			return err
 		}
@@ -315,12 +323,12 @@ func applyMergeAnchorMap(node *CandidateNode, mergeMap *CandidateNode, mergeInde
 	return nil
 }
 
-func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode, startIndex int, explode bool, newContent Context) error {
-	if explode {
-		err := explodeNode(value, newContent)
-		if err != nil {
-			return err
-		}
+func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode, startIndex int, newContent Context) error {
+
+	err := explodeNode(value, newContent)
+
+	if err != nil {
+		return err
 	}
 
 	for newEl := newContent.MatchingNodes.Front(); newEl != nil; newEl = newEl.Next() {
@@ -328,7 +336,7 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 		keyNode := newEl.Value.(*CandidateNode)
 		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*CandidateNode).Value)
 		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
-			log.Debugf("overriding new content")
+			log.Debugf("overridign new content")
 			valueEl.Value = value
 			return nil
 		}
@@ -344,11 +352,9 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 		}
 	}
 
-	if explode {
-		err := explodeNode(key, newContent)
-		if err != nil {
-			return err
-		}
+	err = explodeNode(key, newContent)
+	if err != nil {
+		return err
 	}
 	log.Debugf("adding %v:%v", key.Value, value.Value)
 	newContent.MatchingNodes.PushBack(key)
