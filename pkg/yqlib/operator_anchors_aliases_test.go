@@ -104,14 +104,14 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:        true,
 		description:    "merge anchor after existing keys",
-		subdescription: "Does not override existing keys",
+		subdescription: "Does not override existing keys - note the name field in the second element is still ellipse.",
 		document:       explodeWhenKeysExistDocument,
 		expression:     "explode(.)",
 		expected:       []string{explodeWhenKeysExistExpected},
 	},
 	{
 		description:    "FIXED: Explode with merge anchors",
-		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 ",
+		subdescription: "See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 ",
 		document:       mergeDocSample,
 		expression:     `explode(.)`,
 		expected:       []string{explodeMergeAnchorsFixedExpected},
@@ -148,7 +148,7 @@ var badAnchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "LEGACY: Explode with merge anchors", // incorrect overrides
-		subdescription: "Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values. Flag will default to true in late 2025",
+		subdescription: "Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values (foobarList.b is set to bar_b when it should still be foobarList_b). Flag will default to true in late 2025",
 		document:       mergeDocSample,
 		expression:     `explode(.)`,
 		expected:       []string{explodeMergeAnchorsExpected},

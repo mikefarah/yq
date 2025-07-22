@@ -162,7 +162,7 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 			}
 		}
 	} else if showMergeAnchorToSpecWarning {
-		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025. See https://mikefarah.gitbook.io/yq/operators/anchor-and-alias-operators for more details.")
 		showMergeAnchorToSpecWarning = false
 	}
 

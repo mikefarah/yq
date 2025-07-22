@@ -27,9 +27,17 @@ foobar:
 
 var fixedTraversePathOperatorScenarios = []expressionScenario{
 	{
-		skipDoc:        true,
-		description:    "Traversing merge anchor lists",
-		subdescription: "Note that the keys earlier in the merge anchors sequence override later ones",
+		description:    "FIXED: Traversing merge anchors with override",
+		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour.",
+		document:       mergeDocSample,
+		expression:     `.foobar.c`,
+		expected: []string{
+			"D0, P[foobar c], (!!str)::foobar_c\n",
+		},
+	},
+	{
+		description:    "FIXED: Traversing merge anchor lists",
+		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones",
 		document:       mergeDocSample,
 		expression:     `.foobarList.thing`,
 		expected: []string{
@@ -37,19 +45,10 @@ var fixedTraversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:     true,
-		description: "Traversing merge anchors with override",
-		document:    mergeDocSample,
-		expression:  `.foobar.c`,
-		expected: []string{
-			"D0, P[foobar c], (!!str)::foobar_c\n",
-		},
-	},
-	{
-		skipDoc:     true,
-		description: "Splatting merge anchors",
-		document:    mergeDocSample,
-		expression:  `.foobar[]`,
+		description:    "FIXED: Splatting merge anchors",
+		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones",
+		document:       mergeDocSample,
+		expression:     `.foobar[]`,
 		expected: []string{
 			"D0, P[foo a], (!!str)::foo_a\n",
 			"D0, P[foobar thing], (!!str)::foobar_thing\n",
@@ -57,10 +56,10 @@ var fixedTraversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:     true,
-		description: "Splatting merge anchor lists",
-		document:    mergeDocSample,
-		expression:  `.foobarList[]`,
+		description:    "FIXED: Splatting merge anchor lists",
+		subdescription: "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones",
+		document:       mergeDocSample,
+		expression:     `.foobarList[]`,
 		expected: []string{
 			"D0, P[foobarList b], (!!str)::foobarList_b\n",
 			"D0, P[foo thing], (!!str)::foo_thing\n",
@@ -80,7 +79,7 @@ var fixedTraversePathOperatorScenarios = []expressionScenario{
 
 var badTraversePathOperatorScenarios = []expressionScenario{
 	{
-		description:    "Traversing merge anchors with override",
+		description:    "LEGACY: Traversing merge anchors with override",
 		subdescription: "This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:       mergeDocSample,
 		expression:     `.foobar.c`,
@@ -89,7 +88,7 @@ var badTraversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "Traversing merge anchor lists",
+		description: "LEGACY: Traversing merge anchor lists",
 		subdescription: "Note that the later merge anchors override previous, " +
 			"but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:   mergeDocSample,
@@ -99,7 +98,7 @@ var badTraversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Splatting merge anchors",
+		description:    "LEGACY: Splatting merge anchors",
 		subdescription: "With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:       mergeDocSample,
 		expression:     `.foobar[]`,
@@ -110,7 +109,7 @@ var badTraversePathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Splatting merge anchor lists",
+		description:    "LEGACY: Splatting merge anchor lists",
 		subdescription: "With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec",
 		document:       mergeDocSample,
 		expression:     `.foobarList[]`,

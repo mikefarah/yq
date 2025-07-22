@@ -5,6 +5,14 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 `yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
 
 
+## NOTE --yaml-fix-merge-anchor-to-spec flag
+`yq` doesn't merge anchors `<<:` to spec, in some circumstances it incorrectly overrides existing keys when the spec documents not to do that.
+
+To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed)
+
+See examples of the flag difference below.
+
+
 ## Merge one map
 see https://yaml.org/type/merge.html
 
@@ -285,7 +293,7 @@ thingTwo:
 ```
 
 ## LEGACY: Explode with merge anchors
-Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values. Flag will default to true in late 2025
+Caution: this is for when --yaml-fix-merge-anchor-to-spec=false; it's not to YAML spec because the merge anchors incorrectly override the object values (foobarList.b is set to bar_b when it should still be foobarList_b). Flag will default to true in late 2025
 
 Given a sample.yml file of:
 ```yaml
@@ -334,7 +342,7 @@ foobar:
 ```
 
 ## FIXED: Explode with merge anchors
-Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
 
 Given a sample.yml file of:
 ```yaml
@@ -383,7 +391,7 @@ foobar:
 ```
 
 ## FIXED: Explode with merge anchors
-Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
 
 Given a sample.yml file of:
 ```yaml

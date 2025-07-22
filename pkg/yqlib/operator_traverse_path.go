@@ -295,7 +295,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
 				log.Debug("Merge anchor")
 				if showMergeAnchorToSpecWarning {
-					log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+					log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025. See https://mikefarah.gitbook.io/yq/operators/traverse-read for more details.")
 					showMergeAnchorToSpecWarning = false
 				}
 				err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
