@@ -8,9 +8,13 @@ Use the `alias` and `anchor` operators to read and write yaml aliases and anchor
 ## NOTE --yaml-fix-merge-anchor-to-spec flag
 `yq` doesn't merge anchors `<<:` to spec, in some circumstances it incorrectly overrides existing keys when the spec documents not to do that.
 
-To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed)
+To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed).
 
-See examples of the flag difference below.
+This flag also enables advanced merging, like inline maps, as well as fixes to ensure when exploding a particular path, neighbours are not affect ed.
+
+Long story short, you should be setting this flag to true.
+
+See examples of the flag differences below.
 
 
 ## Merge one map
@@ -279,8 +283,8 @@ foobar:
   thing: foobar_thing
 ```
 
-## Merge multiple maps
-see https://yaml.org/type/merge.html
+## LEGACY: Merge multiple maps
+see https://yaml.org/type/merge.html. This has the correct data, but the wrong key order; set --yaml-fix-merge-anchor-to-spec=true to fix the key order.
 
 Given a sample.yml file of:
 ```yaml
@@ -309,8 +313,8 @@ x: 1
 y: 2
 ```
 
-## Override
-see https://yaml.org/type/merge.html
+## LEGACY: Override
+see https://yaml.org/type/merge.html. This has the correct data, but the wrong key order; set --yaml-fix-merge-anchor-to-spec=true to fix the key order.
 
 Given a sample.yml file of:
 ```yaml
@@ -342,7 +346,8 @@ y: 2
 ```
 
 ## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour (flag will default to true in late 2025).
+Observe that foobarList.b property is still foobarList_b.
 
 Given a sample.yml file of:
 ```yaml
@@ -390,8 +395,9 @@ foobar:
   thing: foobar_thing
 ```
 
-## Merge multiple maps
-see https://yaml.org/type/merge.html
+## FIXED: Merge multiple maps
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour (flag will default to true in late 2025).
+Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the correct key order.
 
 Given a sample.yml file of:
 ```yaml
@@ -420,8 +426,9 @@ y: 2
 r: 10
 ```
 
-## Override
-see https://yaml.org/type/merge.html
+## FIXED: Override
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour (flag will default to true in late 2025).
+Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the correct key order.
 
 Given a sample.yml file of:
 ```yaml
@@ -452,114 +459,25 @@ y: 2
 x: 1
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Exploding inline merge anchor
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour (flag will default to true in late 2025).
+
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+a:
+  b: &b 42
+!!merge <<:
+  c: *b
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq 'explode(.) | sort_keys(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
-```
-
-## Merge multiple maps
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *CENTER
-    - *BIG
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-x: 1
-y: 2
-r: 10
-```
-
-## Override
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *BIG
-    - *LEFT
-    - *SMALL
-  x: 1
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-y: 2
-x: 1
+a:
+  b: 42
+c: 42
 ```
 

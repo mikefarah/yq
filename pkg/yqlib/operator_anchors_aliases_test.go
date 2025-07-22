@@ -111,7 +111,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "FIXED: Explode with merge anchors",
-		subdescription: "See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 ",
+		subdescription: "Observe that foobarList.b property is still foobarList_b.",
 		document:       mergeDocSample,
 		expression:     `explode(.)`,
 		expected:       []string{explodeMergeAnchorsFixedExpected},
@@ -137,25 +137,24 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Merge multiple maps",
-		subdescription: "see https://yaml.org/type/merge.html",
+		description:    "FIXED: Merge multiple maps",
+		subdescription: "Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the correct key order.",
 		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"},
 	},
 	{
-		description:    "Override",
-		subdescription: "see https://yaml.org/type/merge.html",
+		description:    "FIXED: Override",
+		subdescription: "Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the correct key order.",
 		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\ny: 2\nx: 1\n"},
 	},
 	{
-		skipDoc:        true,
-		description:    "Exploding inline merge anchor",
-		subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
-		document:       `{a: {b: &b 42}, <<: {c: *b}}`,
-		expression:     `explode(.) | sort_keys(.)`,
+		description: "Exploding inline merge anchor",
+		// subdescription: "`<<` map must be exploded, otherwise `c: *b` will become invalid",
+		document:   `{a: {b: &b 42}, <<: {c: *b}}`,
+		expression: `explode(.) | sort_keys(.)`,
 		expected: []string{
 			"D0, P[], (!!map)::{a: {b: 42}, c: 42}\n",
 		},
@@ -255,18 +254,19 @@ var badAnchorOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description:    "Merge multiple maps",
-		subdescription: "see https://yaml.org/type/merge.html",
+		description:    "LEGACY: Merge multiple maps",
+		subdescription: "see https://yaml.org/type/merge.html. This has the correct data, but the wrong key order; set --yaml-fix-merge-anchor-to-spec=true to fix the key order.",
 		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"}, // correct data, but wrong key order
+		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
 	{
-		description:    "Override",
-		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
-		expression:     ".[4] | explode(.)",
-		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
+		description:    "LEGACY: Override",
+		subdescription: "see https://yaml.org/type/merge.html. This has the correct data, but the wrong key order; set --yaml-fix-merge-anchor-to-spec=true to fix the key order.",
+
+		document:   specDocument + "- << : [ *BIG, *LEFT, *SMALL ]\n  x: 1\n",
+		expression: ".[4] | explode(.)",
+		expected:   []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
 }
 
@@ -501,7 +501,10 @@ func TestAnchorAliasOperatorAlignedToSpecScenarios(t *testing.T) {
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = true
 	for _, tt := range append(fixedAnchorOperatorScenarios, anchorOperatorScenarios...) {
 		testScenario(t, &tt)
+	}
 
+	for i, tt := range fixedAnchorOperatorScenarios {
+		fixedAnchorOperatorScenarios[i].subdescription = "Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour (flag will default to true in late 2025).\n" + tt.subdescription
 	}
 	appendOperatorDocumentScenario(t, "anchor-and-alias-operators", fixedAnchorOperatorScenarios)
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false

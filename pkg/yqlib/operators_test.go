@@ -255,7 +255,7 @@ func documentScenarios(t *testing.T, folder string, title string, scenarios []in
 
 func appendOperatorDocumentScenario(t *testing.T, title string, scenarios []expressionScenario) {
 	filename := fmt.Sprintf("doc/%v/%v.md", "operators", title)
-	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND, fs.ModeAppend)
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, fs.ModeAppend)
 	if err != nil {
 		t.Error(err)
 		return
