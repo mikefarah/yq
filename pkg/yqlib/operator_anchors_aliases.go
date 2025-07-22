@@ -147,18 +147,15 @@ func fixedReconstructAliasedMap(node *CandidateNode) error {
 		keyNode := node.Content[index]
 		valueNode := node.Content[index+1]
 		if keyNode.Tag != "!!merge" {
-			// copy to ensure exploding doesn't modify the original node
-			keyNodeCopy := keyNode.Copy()
-			valueNodeCopy := valueNode.Copy()
 			// always add in plain nodes
 			// explode both the key and value nodes
-			if err := explodeNode(keyNodeCopy, Context{}); err != nil {
+			if err := explodeNode(keyNode, Context{}); err != nil {
 				return err
 			}
-			if err := explodeNode(valueNodeCopy, Context{}); err != nil {
+			if err := explodeNode(valueNode, Context{}); err != nil {
 				return err
 			}
-			newContent = append(newContent, keyNodeCopy, valueNodeCopy)
+			newContent = append(newContent, keyNode, valueNode)
 		} else {
 			sequence := valueNode
 			if sequence.Kind == AliasNode {

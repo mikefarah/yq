@@ -42,68 +42,6 @@ y: 2
 r: 10
 ```
 
-## Merge multiple maps
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *CENTER
-    - *BIG
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-x: 1
-y: 2
-```
-
-## Override
-see https://yaml.org/type/merge.html
-
-Given a sample.yml file of:
-```yaml
-- &CENTER
-  x: 1
-  y: 2
-- &LEFT
-  x: 0
-  y: 2
-- &BIG
-  r: 10
-- &SMALL
-  r: 1
-- !!merge <<:
-    - *BIG
-    - *LEFT
-    - *SMALL
-  x: 1
-```
-then
-```bash
-yq '.[4] | explode(.)' sample.yml
-```
-will output
-```yaml
-r: 10
-x: 1
-y: 2
-```
-
 ## Get anchor
 Given a sample.yml file of:
 ```yaml
@@ -341,151 +279,66 @@ foobar:
   thing: foobar_thing
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Merge multiple maps
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+r: 10
+x: 1
+y: 2
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Override
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
-```
-
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
-
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq 'explode(.)' sample.yml
-```
-will output
-```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+r: 10
+x: 1
+y: 2
 ```
 
 ## FIXED: Explode with merge anchors
@@ -537,151 +390,66 @@ foobar:
   thing: foobar_thing
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Merge multiple maps
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+x: 1
+y: 2
+r: 10
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Override
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
-```
-
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
-
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq 'explode(.)' sample.yml
-```
-will output
-```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+r: 10
+y: 2
+x: 1
 ```
 
 ## FIXED: Explode with merge anchors
@@ -733,199 +501,65 @@ foobar:
   thing: foobar_thing
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Merge multiple maps
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *CENTER
+    - *BIG
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+x: 1
+y: 2
+r: 10
 ```
 
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
+## Override
+see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
+- &CENTER
+  x: 1
+  y: 2
+- &LEFT
+  x: 0
+  y: 2
+- &BIG
+  r: 10
+- &SMALL
+  r: 1
+- !!merge <<:
+    - *BIG
+    - *LEFT
+    - *SMALL
+  x: 1
 ```
 then
 ```bash
-yq 'explode(.)' sample.yml
+yq '.[4] | explode(.)' sample.yml
 ```
 will output
 ```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
-```
-
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
-
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq 'explode(.)' sample.yml
-```
-will output
-```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
-```
-
-## FIXED: Explode with merge anchors
-See the foobarList.b property is still foobarList_b. Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Flag will default to true in late 2025 
-
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq 'explode(.)' sample.yml
-```
-will output
-```yaml
-foo:
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar:
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  a: foo_a
-  thing: foo_thing
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  a: foo_a
-  thing: foobar_thing
+r: 10
+y: 2
+x: 1
 ```
 
