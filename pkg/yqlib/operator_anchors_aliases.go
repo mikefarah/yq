@@ -6,6 +6,8 @@ import (
 	"slices"
 )
 
+var showMergeAnchorToSpecWarning = true
+
 func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignAlias operator!")
@@ -159,8 +161,9 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 				}
 			}
 		}
-	} else {
+	} else if showMergeAnchorToSpecWarning {
 		log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+		showMergeAnchorToSpecWarning = false
 	}
 
 	for index := 0; index < len(node.Content); index = index + 2 {

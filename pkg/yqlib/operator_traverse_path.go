@@ -283,8 +283,6 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 					}
 				}
 			}
-		} else {
-			log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
 		}
 	}
 
@@ -296,6 +294,10 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != key.Value {
 			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
 				log.Debug("Merge anchor")
+				if showMergeAnchorToSpecWarning {
+					log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+					showMergeAnchorToSpecWarning = false
+				}
 				err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
 				if err != nil {
 					return err
