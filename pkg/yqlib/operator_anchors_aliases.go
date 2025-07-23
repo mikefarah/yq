@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var showMergeAnchorToSpecWarning = true
+
 func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debugf("AssignAlias operator!")
@@ -138,6 +140,59 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	return context, nil
 }
 
+func fixedReconstructAliasedMap(node *CandidateNode) error {
+	var newContent = []*CandidateNode{}
+
+	for index := 0; index < len(node.Content); index = index + 2 {
+		keyNode := node.Content[index]
+		valueNode := node.Content[index+1]
+		if keyNode.Tag != "!!merge" {
+			// always add in plain nodes
+			// explode both the key and value nodes
+			if err := explodeNode(keyNode, Context{}); err != nil {
+				return err
+			}
+			if err := explodeNode(valueNode, Context{}); err != nil {
+				return err
+			}
+			newContent = append(newContent, keyNode, valueNode)
+		} else {
+			sequence := valueNode
+			if sequence.Kind == AliasNode {
+				sequence = sequence.Alias
+			}
+			if sequence.Kind != SequenceNode {
+				sequence = &CandidateNode{Content: []*CandidateNode{sequence}}
+			}
+			for index := 0; index < len(sequence.Content); index = index + 1 {
+				// for merge anchors, we only set them if the key is not already in node or the newContent
+				mergeNodeSeq := sequence.Content[index]
+				if mergeNodeSeq.Kind == AliasNode {
+					mergeNodeSeq = mergeNodeSeq.Alias
+				}
+				if mergeNodeSeq.Kind != MappingNode {
+					return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v", mergeNodeSeq.Tag)
+				}
+				itemsToAdd := mergeNodeSeq.FilterMapContentByKey(func(keyNode *CandidateNode) bool {
+					return getContentValueByKey(node.Content, keyNode.Value) == nil &&
+						getContentValueByKey(newContent, keyNode.Value) == nil
+				})
+
+				for _, item := range itemsToAdd {
+					// copy to ensure exploding doesn't modify the original node
+					itemCopy := item.Copy()
+					if err := explodeNode(itemCopy, Context{}); err != nil {
+						return err
+					}
+					newContent = append(newContent, itemCopy)
+				}
+			}
+		}
+	}
+	node.Content = newContent
+	return nil
+}
+
 func reconstructAliasedMap(node *CandidateNode, context Context) error {
 	var newContent = list.New()
 	// can I short cut here by prechecking if there's an anchor in the map?
@@ -215,6 +270,13 @@ func explodeNode(node *CandidateNode, context Context) error {
 		}
 
 		if hasAlias {
+			if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				return fixedReconstructAliasedMap(node)
+			}
+			if showMergeAnchorToSpecWarning {
+				log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025.")
+				showMergeAnchorToSpecWarning = false
+			}
 			// this is a slow op, which is why we want to check before running it.
 			return reconstructAliasedMap(node, context)
 		}
@@ -244,7 +306,7 @@ func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newCo
 	}
 	log.Debug("alias: %v", NodeToString(alias))
 	if alias.Kind != MappingNode {
-		return fmt.Errorf("merge anchor only supports maps, got %v instead", alias.Tag)
+		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v", alias.Tag)
 	}
 	for index := 0; index < len(alias.Content); index = index + 2 {
 		keyNode := alias.Content[index]
@@ -272,10 +334,7 @@ func overrideEntry(node *CandidateNode, key *CandidateNode, value *CandidateNode
 		log.Debugf("checking new content %v:%v", keyNode.Value, valueEl.Value.(*CandidateNode).Value)
 		if keyNode.Value == key.Value && keyNode.Alias == nil && key.Alias == nil {
 			log.Debugf("overridign new content")
-			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
-				log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing the merge anchor to override the existing value at %v which isn't to the yaml spec. This flag will default to true in late 2025.", keyNode.GetNicePath())
-				valueEl.Value = value
-			}
+			valueEl.Value = value
 			return nil
 		}
 		newEl = valueEl // move forward twice

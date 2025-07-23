@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"slices"
 
 	"github.com/elliotchance/orderedmap"
 )
@@ -265,26 +266,58 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	// if we don't find a match directly on this node first.
 
 	var contents = node.Content
+
+	if !prefs.DontFollowAlias {
+		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			// First evaluate merge keys to make explicit keys take precedence, following spec
+			// We also iterate in reverse to make earlier merge keys take precedence,
+			// although normally there's just one '<<'
+			for index := len(node.Content) - 2; index >= 0; index -= 2 {
+				keyNode := node.Content[index]
+				valueNode := node.Content[index+1]
+				if keyNode.Tag == "!!merge" {
+					log.Debug("Merge anchor")
+					err := traverseMergeAnchor(newMatches, valueNode, wantedKey, prefs, splat)
+					if err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
 	for index := 0; index+1 < len(contents); index = index + 2 {
 		key := contents[index]
 		value := contents[index+1]
 
 		//skip the 'merge' tag, find a direct match first
-		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != "<<" {
-			log.Debug("Merge anchor")
-			err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
-			if err != nil {
-				return err
+		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != key.Value {
+			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+				log.Debug("Merge anchor")
+				if showMergeAnchorToSpecWarning {
+					log.Warning("--yaml-fix-merge-anchor-to-spec is false; causing merge anchors to override the existing values which isn't to the yaml spec. This flag will default to true in late 2025. See https://mikefarah.gitbook.io/yq/operators/traverse-read for more details.")
+					showMergeAnchorToSpecWarning = false
+				}
+				err := traverseMergeAnchor(newMatches, value, wantedKey, prefs, splat)
+				if err != nil {
+					return err
+				}
 			}
 		} else if splat || keyMatches(key, wantedKey) {
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
 				log.Debug("including key")
-				newMatches.Set(key.GetKey(), key)
+				keyName := key.GetKey()
+				if !newMatches.Set(keyName, key) {
+					log.Debug("overwriting existing key")
+				}
 			}
 			if !prefs.DontIncludeMapValues {
 				log.Debug("including value")
-				newMatches.Set(value.GetKey(), value)
+				valueName := value.GetKey()
+				if !newMatches.Set(valueName, value) {
+					log.Debug("overwriting existing value")
+				}
 			}
 		}
 	}
@@ -292,22 +325,39 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, value *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
-	switch value.Kind {
-	case AliasNode:
-		if value.Alias.Kind != MappingNode {
-			return fmt.Errorf("can only use merge anchors with maps (!!map), but got %v", value.Alias.Tag)
-		}
-		return doTraverseMap(newMatches, value.Alias, wantedKey, prefs, splat)
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+	if merge.Kind == AliasNode {
+		merge = merge.Alias
+	}
+	switch merge.Kind {
+	case MappingNode:
+		return doTraverseMap(newMatches, merge, wantedKey, prefs, splat)
 	case SequenceNode:
-		for _, childValue := range value.Content {
-			err := traverseMergeAnchor(newMatches, childValue, wantedKey, prefs, splat)
+		content := slices.All(merge.Content)
+		if ConfiguredYamlPreferences.FixMergeAnchorToSpec {
+			// Reverse to make earlier values take precedence, following spec
+			content = slices.Backward(merge.Content)
+		}
+		for _, childValue := range content {
+			if childValue.Kind == AliasNode {
+				childValue = childValue.Alias
+			}
+			if childValue.Kind != MappingNode {
+				log.Debugf(
+					"can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v",
+					childValue.Tag)
+				return nil
+			}
+			err := doTraverseMap(newMatches, childValue, wantedKey, prefs, splat)
 			if err != nil {
 				return err
 			}
 		}
+		return nil
+	default:
+		log.Debugf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got %v", merge.Tag)
+		return nil
 	}
-	return nil
 }
 
 func traverseArray(candidate *CandidateNode, operation *Operation, prefs traversePreferences) (*list.List, error) {

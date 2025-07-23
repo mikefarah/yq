@@ -6,6 +6,7 @@ import (
 	"container/list"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"sort"
 	"strings"
@@ -37,7 +38,7 @@ var goccyTesting = false
 var testingDecoder = NewYamlDecoder(ConfiguredYamlPreferences)
 
 func TestMain(m *testing.M) {
-	logging.SetLevel(logging.ERROR, "")
+	logging.SetLevel(logging.WARNING, "")
 	if os.Getenv("DEBUG") == "true" {
 		logging.SetLevel(logging.DEBUG, "")
 	}
@@ -75,6 +76,7 @@ func testScenario(t *testing.T, s *expressionScenario) {
 	if s.skipForGoccy {
 		return
 	}
+	log.Debugf("\n\ntesting scenario %v", s.description)
 	var err error
 	node, err := getExpressionParser().ParseExpression(s.expression)
 	if err != nil {
@@ -220,7 +222,8 @@ func formatYaml(yaml string, filename string) string {
 type documentScenarioFunc func(t *testing.T, writer *bufio.Writer, scenario interface{})
 
 func documentScenarios(t *testing.T, folder string, title string, scenarios []interface{}, documentScenario documentScenarioFunc) {
-	f, err := os.Create(fmt.Sprintf("doc/%v/%v.md", folder, title))
+	filename := fmt.Sprintf("doc/%v/%v.md", folder, title)
+	f, err := os.Create(filename)
 
 	if err != nil {
 		t.Error(err)
@@ -248,6 +251,22 @@ func documentScenarios(t *testing.T, folder string, title string, scenarios []in
 		documentScenario(t, w, s)
 	}
 	w.Flush()
+}
+
+func appendOperatorDocumentScenario(t *testing.T, title string, scenarios []expressionScenario) {
+	filename := fmt.Sprintf("doc/%v/%v.md", "operators", title)
+	f, err := os.OpenFile(filename, os.O_CREATE|os.O_RDWR|os.O_APPEND, fs.ModeAppend)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	for _, s := range scenarios {
+		documentOperatorScenario(t, w, s)
+	}
+	w.Flush()
+
 }
 
 func documentOperatorScenarios(t *testing.T, title string, scenarios []expressionScenario) {
