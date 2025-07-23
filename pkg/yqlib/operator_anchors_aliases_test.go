@@ -216,6 +216,15 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 			"D0, P[m], (!!map)::{a: 42}\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "deleting after explode",
+		document:    "x: 37\na: &a\n  b: 42\n<<: *a",
+		expression:  `explode(.) | del(.x)`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n    b: 42\nb: 42\n",
+		},
+	},
 }
 
 var badAnchorOperatorScenarios = []expressionScenario{

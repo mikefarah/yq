@@ -1,5 +1,5 @@
 4.47.1:
-  - Fixed merge anchor behaviour (`<<`); #2110, #2386, #2178 Huge thanks to @stevenwdv!
+  - Fixed merge anchor behaviour (`<<`); #2404, #2110, #2386, #2178 Huge thanks to @stevenwdv!
     Note that you will need to set --yaml-fix-merge-anchor-to-spec to see the fixes
   - Fixed panic for syntax error when creating a map #2423
   - Bumped dependencies
