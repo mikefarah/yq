@@ -1,3 +1,9 @@
+4.47.1:
+  - Fixed merge anchor behaviour (`<<`); #2110, #2386, #2178 Huge thanks to @stevenwdv!
+    Note that you will need to set --yaml-fix-merge-anchor-to-spec to see the fixes
+  - Fixed panic for syntax error when creating a map #2423
+  - Bumped dependencies
+
 4.46.1:
   - Added INI support
   - Fixed 'add' operator when piped in with no data #2378, #2383, #2384
