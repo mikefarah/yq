@@ -2,6 +2,15 @@
 
 This is the simplest (and perhaps most used) operator. It is used to navigate deeply into yaml structures.
 
+
+## NOTE --yaml-fix-merge-anchor-to-spec flag
+`yq` doesn't merge anchors `<<:` to spec, in some circumstances it incorrectly overrides existing keys when the spec documents not to do that.
+
+To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed)
+
+See examples of the flag differences below, where LEGACY is the flag off; and FIXED is with the flag on.
+
+
 ## Simple map navigation
 Given a sample.yml file of:
 ```yaml
@@ -303,37 +312,6 @@ will output
 foo_a
 ```
 
-## Traversing merge anchors with override
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq '.foobar.c' sample.yml
-```
-will output
-```yaml
-foo_c
-```
-
 ## Traversing merge anchors with local override
 Given a sample.yml file of:
 ```yaml
@@ -365,7 +343,93 @@ will output
 foobar_thing
 ```
 
-## Splatting merge anchors
+## Select multiple indices
+Given a sample.yml file of:
+```yaml
+a:
+  - a
+  - b
+  - c
+```
+then
+```bash
+yq '.a[0, 2]' sample.yml
+```
+will output
+```yaml
+a
+c
+```
+
+## LEGACY: Traversing merge anchors with override
+This is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar.c' sample.yml
+```
+will output
+```yaml
+foo_c
+```
+
+## LEGACY: Traversing merge anchor lists
+Note that the later merge anchors override previous, but this is legacy behaviour, see --yaml-fix-merge-anchor-to-spec
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobarList.thing' sample.yml
+```
+will output
+```yaml
+bar_thing
+```
+
+## LEGACY: Splatting merge anchors
+With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec
+
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -398,40 +462,9 @@ foo_a
 foobar_thing
 ```
 
-## Traversing merge anchor lists
-Note that the later merge anchors override previous
+## LEGACY: Splatting merge anchor lists
+With legacy override behaviour, see --yaml-fix-merge-anchor-to-spec
 
-Given a sample.yml file of:
-```yaml
-foo: &foo
-  a: foo_a
-  thing: foo_thing
-  c: foo_c
-bar: &bar
-  b: bar_b
-  thing: bar_thing
-  c: bar_c
-foobarList:
-  b: foobarList_b
-  !!merge <<:
-    - *foo
-    - *bar
-  c: foobarList_c
-foobar:
-  c: foobar_c
-  !!merge <<: *foo
-  thing: foobar_thing
-```
-then
-```bash
-yq '.foobarList.thing' sample.yml
-```
-will output
-```yaml
-bar_thing
-```
-
-## Splatting merge anchor lists
 Given a sample.yml file of:
 ```yaml
 foo: &foo
@@ -465,21 +498,140 @@ bar_thing
 foobarList_c
 ```
 
-## Select multiple indices
+## FIXED: Traversing merge anchors with override
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour.
+
 Given a sample.yml file of:
 ```yaml
-a:
-  - a
-  - b
-  - c
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
 ```
 then
 ```bash
-yq '.a[0, 2]' sample.yml
+yq '.foobar.c' sample.yml
 ```
 will output
 ```yaml
-a
-c
+foobar_c
+```
+
+## FIXED: Traversing merge anchor lists
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobarList.thing' sample.yml
+```
+will output
+```yaml
+foo_thing
+```
+
+## FIXED: Splatting merge anchors
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar[]' sample.yml
+```
+will output
+```yaml
+foo_a
+foobar_thing
+foobar_c
+```
+
+## FIXED: Splatting merge anchor lists
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobarList[]' sample.yml
+```
+will output
+```yaml
+foobarList_b
+foo_thing
+foobarList_c
+foo_a
 ```
 
