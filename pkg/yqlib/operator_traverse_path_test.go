@@ -679,6 +679,6 @@ func TestTraversePathOperatorAlignedToSpecScenarios(t *testing.T) {
 	for _, tt := range append(fixedTraversePathOperatorScenarios, traversePathOperatorScenarios...) {
 		testScenario(t, &tt)
 	}
-	appendOperatorDocumentScenario(t, "anchor-and-alias-operators", fixedAnchorOperatorScenarios)
+	appendOperatorDocumentScenario(t, "traverse-read", fixedTraversePathOperatorScenarios)
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
 }

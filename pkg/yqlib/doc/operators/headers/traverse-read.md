@@ -8,5 +8,5 @@ This is the simplest (and perhaps most used) operator. It is used to navigate de
 
 To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed)
 
-See examples of the flag differences below.
+See examples of the flag differences below, where LEGACY is the flag off; and FIXED is with the flag on.
 

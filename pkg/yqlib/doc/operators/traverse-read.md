@@ -8,7 +8,7 @@ This is the simplest (and perhaps most used) operator. It is used to navigate de
 
 To minimise disruption while still fixing the issue, a flag has been added to toggle this behaviour. This will first default to false; and log warnings to users. Then it will default to true (and still allow users to specify false if needed)
 
-See examples of the flag differences below.
+See examples of the flag differences below, where LEGACY is the flag off; and FIXED is with the flag on.
 
 
 ## Simple map navigation
@@ -496,5 +496,142 @@ bar_b
 foo_a
 bar_thing
 foobarList_c
+```
+
+## FIXED: Traversing merge anchors with override
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour.
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar.c' sample.yml
+```
+will output
+```yaml
+foobar_c
+```
+
+## FIXED: Traversing merge anchor lists
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobarList.thing' sample.yml
+```
+will output
+```yaml
+foo_thing
+```
+
+## FIXED: Splatting merge anchors
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobar[]' sample.yml
+```
+will output
+```yaml
+foo_a
+foobar_thing
+foobar_c
+```
+
+## FIXED: Splatting merge anchor lists
+Set `--yaml-fix-merge-anchor-to-spec=true` to get this correct merge behaviour. Note that the keys earlier in the merge anchors sequence override later ones
+
+Given a sample.yml file of:
+```yaml
+foo: &foo
+  a: foo_a
+  thing: foo_thing
+  c: foo_c
+bar: &bar
+  b: bar_b
+  thing: bar_thing
+  c: bar_c
+foobarList:
+  b: foobarList_b
+  !!merge <<:
+    - *foo
+    - *bar
+  c: foobarList_c
+foobar:
+  c: foobar_c
+  !!merge <<: *foo
+  thing: foobar_thing
+```
+then
+```bash
+yq '.foobarList[]' sample.yml
+```
+will output
+```yaml
+foobarList_b
+foo_thing
+foobarList_c
+foo_a
 ```
 

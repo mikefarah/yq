@@ -14,5 +14,5 @@ This flag also enables advanced merging, like inline maps, as well as fixes to e
 
 Long story short, you should be setting this flag to true.
 
-See examples of the flag differences below.
+See examples of the flag differences below, where LEGACY is with the flag off; and FIXED is with the flag on.
 
