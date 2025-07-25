@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 
@@ -191,7 +192,7 @@ func TestProcessArgs(t *testing.T) {
 				t.Errorf("processArgs() expression = %v, want %v", expr, tt.expectedExpr)
 			}
 
-			if !stringsEqual(args, tt.expectedArgs) {
+			if !slices.Equal(args, tt.expectedArgs) {
 				t.Errorf("processArgs() args = %v, want %v", args, tt.expectedArgs)
 			}
 		})
@@ -599,7 +600,7 @@ func TestInitCommand(t *testing.T) {
 			if expr != tt.expectExpr {
 				t.Errorf("initCommand() expr = %v, want %v", expr, tt.expectExpr)
 			}
-			if !stringsEqual(args, tt.expectArgs) {
+			if !slices.Equal(args, tt.expectArgs) {
 				t.Errorf("initCommand() args = %v, want %v", args, tt.expectArgs)
 			}
 		})
@@ -636,7 +637,7 @@ func TestProcessArgsWithExpressionFile(t *testing.T) {
 	}
 
 	expectedArgs := []string{"file1"}
-	if !stringsEqual(args, expectedArgs) {
+	if !slices.Equal(args, expectedArgs) {
 		t.Errorf("processArgs() args = %v, want %v", args, expectedArgs)
 	}
 }
@@ -763,7 +764,7 @@ func TestMaybeFileWithDirectory(t *testing.T) {
 func TestProcessStdInArgsWithDash(t *testing.T) {
 	args := []string{"-", "file1"}
 	result := processStdInArgs(args)
-	if !stringsEqual(result, args) {
+	if !slices.Equal(result, args) {
 		t.Errorf("processStdInArgs() = %v, want %v", result, args)
 	}
 }
@@ -810,7 +811,7 @@ func TestProcessArgsWithYqFileExtension(t *testing.T) {
 	}
 
 	expectedArgs := []string{}
-	if !stringsEqual(args, expectedArgs) {
+	if !slices.Equal(args, expectedArgs) {
 		t.Errorf("processArgs() args = %v, want %v", args, expectedArgs)
 	}
 }
@@ -903,19 +904,6 @@ func (f *mockBoolFlag) Set(_ string) error {
 
 func (f *mockBoolFlag) Type() string {
 	return "bool"
-}
-
-// Helper function to compare string slices
-func stringsEqual(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
 }
 
 func TestSetupColors(t *testing.T) {
