@@ -1,0 +1,34 @@
+name: Scan vulnerabilities for Alauda
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Scan Go vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+          cache: false
+
+      - name: Set up GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: v2.1.0
+          args: release --snapshot -f=.goreleaser-alauda.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'rootfs'
+          scan-ref: 'dist/cosign_linux_amd64_v1/alauda-cosign'
+          exit-code: 1
