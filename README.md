@@ -1,8 +1,8 @@
 # yq
 
-aa lightweight and portable command-line YAML, JSON, INI and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml files as well as json, xml, ini, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
+a lightweight and portable command-line YAML, JSON, INI and XML processor. `yq` uses [jq](https://github.com/stedolan/jq)-like syntax but works with yaml files as well as json, xml, ini, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
-yq is written in go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
+`yq` is written in Go - so you can download a dependency-free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
 
 ## Quick Usage Guide
 
