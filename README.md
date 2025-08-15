@@ -99,6 +99,12 @@ Using [Homebrew](https://brew.sh/)
 brew install yq
 ```
 
+### MacOS / Linux via gah:
+Using [gah](https://github.com/marverix/gah)
+```
+gah install yq
+```
+
 ### Linux via snap:
 ```
 snap install yq
