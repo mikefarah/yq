@@ -95,6 +95,6 @@ jobs:
             -t "${IMAGE_NAME}:4-githubaction" \
             -t "${IMAGE_NAME}:latest-githubaction" \
             -t "ghcr.io/${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
-            -t "ghrc.io/${IMAGE_NAME}:4-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:4-githubaction" \
             -t "ghcr.io/${IMAGE_NAME}:latest-githubaction" \
             .
