@@ -423,6 +423,30 @@ Flags:
 
 Use "yq [command] --help" for more information about a command.
 ```
+
+## Environment Variables
+
+### Color Customization
+
+You can customize the colors used in YAML output by setting these environment variables:
+
+- `YQ_COLOR_BOOL` - Color for boolean values (default: hi-magenta)
+- `YQ_COLOR_NUMBER` - Color for numeric values (default: hi-magenta)  
+- `YQ_COLOR_MAP_KEY` - Color for map keys (default: cyan)
+- `YQ_COLOR_ANCHOR` - Color for YAML anchors (default: hi-yellow)
+- `YQ_COLOR_ALIAS` - Color for YAML aliases (default: hi-yellow)
+- `YQ_COLOR_STRING` - Color for string values (default: green)
+- `YQ_COLOR_COMMENT` - Color for comments (default: hi-black)
+
+Supported color values: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, and their `hi-` prefixed variants (e.g., `hi-red`).
+
+Example:
+```bash
+export YQ_COLOR_STRING=red
+export YQ_COLOR_MAP_KEY=hi-blue
+yq -C '.data' file.yaml
+```
+
 ## Known Issues / Missing Features
 - `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
 - Powershell has its own...[opinions on quoting yq](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell)
