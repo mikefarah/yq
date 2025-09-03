@@ -129,6 +129,8 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 		return nil, err
 	} else if err != nil {
 		return nil, err
+	} else if len(yamlNode.Content) == 0 {
+		return nil, errors.New("yaml node has no content")
 	}
 
 	candidateNode := CandidateNode{document: dec.documentIndex}
