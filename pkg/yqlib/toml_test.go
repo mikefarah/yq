@@ -23,6 +23,7 @@ street = "first street"
 [owner]
 name = "Tom Preston-Werner"
 `
+
 var expectedTableArrayBeforeOwners = `owner:
   addresses:
     - street: first street
@@ -66,6 +67,29 @@ var emptyTable = `
 `
 
 var emptyTableExpected = "dependencies: {}\n"
+
+var multipleEmptyTables = `
+[firstEmptyTable]
+[firstTableWithContent]
+key = "value"
+[secondEmptyTable]
+[thirdEmptyTable]
+[secondTableWithContent]
+key = "value"
+[fourthEmptyTable]
+[fifthEmptyTable]
+`
+
+var expectedMultipleEmptyTables = `firstEmptyTable: {}
+firstTableWithContent:
+  key: value
+secondEmptyTable: {}
+thirdEmptyTable: {}
+secondTableWithContent:
+  key: value
+fourthEmptyTable: {}
+fifthEmptyTable: {}
+`
 
 var sampleWithHeader = `
 [servers]
@@ -236,6 +260,13 @@ var tomlScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        sampleWithHeader,
 		expected:     expectedSampleWithHeader,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse: multiple empty tables",
+		skipDoc:      true,
+		input:        multipleEmptyTables,
+		expected:     expectedMultipleEmptyTables,
 		scenarioType: "decode",
 	},
 }
