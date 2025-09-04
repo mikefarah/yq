@@ -41,7 +41,6 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 	}
 
 	exp, err := getExpressionParser().ParseExpression(expression)
-
 	if err != nil {
 		return "", err
 	}
@@ -65,12 +64,10 @@ func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (
 }
 
 func mustProcessFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) string {
-
 	result, err := processFormatScenario(s, decoder, encoder)
 	if err != nil {
 		log.Error("Bad scenario %v: %w", s.description, err)
 		return fmt.Sprintf("Bad scenario %v: %v", s.description, err.Error())
 	}
 	return result
-
 }

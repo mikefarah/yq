@@ -140,7 +140,6 @@ func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error)
 		Tag:     "!!seq",
 		Content: content,
 	}, nil
-
 }
 
 func (dec *tomlDecoder) createStringScalar(tomlNode *toml.Node) (*CandidateNode, error) {
@@ -190,7 +189,6 @@ func (dec *tomlDecoder) decodeNode(tomlNode *toml.Node) (*CandidateNode, error) 
 	default:
 		return nil, fmt.Errorf("unsupported type %v", tomlNode.Kind)
 	}
-
 }
 
 func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
@@ -200,7 +198,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 	//
 	// toml library likes to panic
 	var deferredError error
-	defer func() { //catch or finally
+	defer func() { // catch or finally
 		if r := recover(); r != nil {
 			var ok bool
 			deferredError, ok = r.(error)
@@ -211,7 +209,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 	}()
 
 	log.Debug("ok here we go")
-	var runAgainstCurrentExp = false
+	runAgainstCurrentExp := false
 	var err error
 	for runAgainstCurrentExp || dec.parser.NextExpression() {
 
@@ -242,7 +240,6 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	return dec.rootMap, deferredError
-
 }
 
 func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error) {
@@ -282,13 +279,13 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		tableValue = dec.parser.Expression()
 		// next expression is not table data, so we are done
 		if tableValue.Kind != toml.KeyValue {
-			log.Debug("got an empty table, returning")
-			return true, nil
-		}
-
-		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-		if err != nil && !errors.Is(err, io.EOF) {
-			return false, err
+			log.Debug("got an empty table")
+			runAgainstCurrentExp = true
+		} else {
+			runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
+			if err != nil && !errors.Is(err, io.EOF) {
+				return false, err
+			}
 		}
 	}
 
