@@ -294,7 +294,7 @@ Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
 winget install --id MikeFarah.yq
 ```
 
-### Mac:
+### MacPorts:
 Using [MacPorts](https://www.macports.org/)
 ```
 sudo port selfupdate
@@ -322,6 +322,14 @@ Flox can be used to install yq on Linux, MacOS, and Windows through WSL.
 
 ```
 flox install yq
+```
+
+
+### MacOS / Linux via gah:
+Using [gah](https://github.com/marverix/gah)
+
+```
+gah install yq
 ```
 
 ## Features
