@@ -1,3 +1,7 @@
+4.47.2:
+  - Conversion from TOML to JSON no longer omits empty tables #2459 (thanks @louislouislouislouis)
+  - Bumped dependencies
+
 4.47.1:
   - Fixed merge anchor behaviour (`<<`); #2404, #2110, #2386, #2178 Huge thanks to @stevenwdv!
     Note that you will need to set --yaml-fix-merge-anchor-to-spec to see the fixes
