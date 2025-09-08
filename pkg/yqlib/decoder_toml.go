@@ -282,13 +282,13 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		tableValue = dec.parser.Expression()
 		// next expression is not table data, so we are done
 		if tableValue.Kind != toml.KeyValue {
-			log.Debug("got an empty table, returning")
-			return true, nil
-		}
-
-		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-		if err != nil && !errors.Is(err, io.EOF) {
-			return false, err
+			log.Debug("got an empty table")
+			runAgainstCurrentExp = true
+		} else {
+			runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
+			if err != nil && !errors.Is(err, io.EOF) {
+				return false, err
+			}
 		}
 	}
 
