@@ -56,6 +56,29 @@ will output
 sam
 ```
 
+## Get parents
+Match all parents
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parents' sample.yml
+```
+will output
+```yaml
+- c: cat
+- b:
+    c: cat
+- a:
+    b:
+      c: cat
+```
+
 ## N-th parent
 You can optionally supply the number of levels to go up for the parent, the default being 1.
 

@@ -6,6 +6,26 @@ type parentOpPreferences struct {
 	Level int
 }
 
+func getParentsOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
+	log.Debugf("getParentsOperator")
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		parentsList := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
+		parent := candidate.Parent
+		for parent != nil {
+			parentsList.AddChild(parent)
+			parent = parent.Parent
+		}
+		results.PushBack(parentsList)
+	}
+
+	return context.ChildContext(results), nil
+
+}
+
 func getParentOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("getParentOperator")
 
