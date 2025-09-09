@@ -3,7 +3,7 @@ package yqlib
 import (
 	"fmt"
 
-	yaml "go.yaml.in/yaml/v3"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 func MapYamlStyle(original yaml.Style) Style {
