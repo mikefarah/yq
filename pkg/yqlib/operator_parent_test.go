@@ -30,6 +30,15 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Get parents",
+		subdescription: "Match all parents",
+		document:       "{a: {b: {c: cat} } }",
+		expression:     `.a.b.c | parents`,
+		expected: []string{
+			"D0, P[], (!!seq)::- {c: cat}\n- {b: {c: cat}}\n- {a: {b: {c: cat}}}\n",
+		},
+	},
+	{
 		description:    "N-th parent",
 		subdescription: "You can optionally supply the number of levels to go up for the parent, the default being 1.",
 		document:       "a:\n  b:\n    c: cat\n",

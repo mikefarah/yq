@@ -130,6 +130,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("contains", containsOpType),
 	simpleOp("split", splitStringOpType),
 
+	simpleOp("parents", getParentsOpType),
 	{"ParentWithLevel", `parent\([0-9]+\)`, parentWithLevel(), 0},
 	{"ParentWithDefaultLevel", `parent`, parentWithDefaultLevel(), 0},
 
