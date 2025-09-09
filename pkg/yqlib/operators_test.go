@@ -385,13 +385,13 @@ func documentOutput(t *testing.T, w *bufio.Writer, s expressionScenario, formatt
 
 		inputs, err = readDocument(formattedDoc, "sample.yml", 0)
 		if err != nil {
-			t.Error(err, s.document, s.expression)
+			t.Error(err, formattedDoc, "exp: "+s.expression)
 			return
 		}
 		if s.document2 != "" {
 			moreInputs, err := readDocument(formattedDoc2, "another.yml", 1)
 			if err != nil {
-				t.Error(err, s.document, s.expression)
+				t.Error(err, formattedDoc2, "exp: "+s.expression)
 				return
 			}
 			inputs.PushBackList(moreInputs)
