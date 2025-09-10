@@ -118,6 +118,7 @@ var participleYqRules = []*participleYqRule{
 
 	simpleOp("sort_?by", sortByOpType),
 	simpleOp("sort", sortOpType),
+	simpleOp("first", firstOpType),
 
 	simpleOp("reverse", reverseOpType),
 

@@ -143,6 +143,7 @@ var delPathsOpType = &operationType{Type: "DEL_PATHS", NumArgs: 1, Precedence: 5
 
 var explodeOpType = &operationType{Type: "EXPLODE", NumArgs: 1, Precedence: 52, Handler: explodeOperator, CheckForPostTraverse: true}
 var sortByOpType = &operationType{Type: "SORT_BY", NumArgs: 1, Precedence: 52, Handler: sortByOperator, CheckForPostTraverse: true}
+var firstOpType = &operationType{Type: "FIRST", NumArgs: 1, Precedence: 52, Handler: firstOperator, CheckForPostTraverse: true}
 var reverseOpType = &operationType{Type: "REVERSE", NumArgs: 0, Precedence: 52, Handler: reverseOperator, CheckForPostTraverse: true}
 var sortOpType = &operationType{Type: "SORT", NumArgs: 0, Precedence: 52, Handler: sortOperator, CheckForPostTraverse: true}
 var shuffleOpType = &operationType{Type: "SHUFFLE", NumArgs: 0, Precedence: 52, Handler: shuffleOperator, CheckForPostTraverse: true}
