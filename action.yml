@@ -1,17 +1,72 @@
-name: 'yq - portable yaml processor'
-description: 'create, read, update, delete, merge, validate and do more with yaml'
+name: "yq - portable yaml processor"
+description: "create, read, update, delete, merge, validate and do more with yaml"
 branding:
   icon: command
   color: gray-dark
 inputs:
+  image:
+    description: 'Container image to run. Example: "mikefarah/yq:4-githubaction" or fully qualified "artifacts.example.com/repo/mikefarah/yq:4-githubaction".'
+    required: false
+    default: "mikefarah/yq:4-githubaction"
+  registry:
+    description: "Optional artifact repository hostname to prefix the `image`. Leave empty if your `image` already includes a registry."
+    required: false
+    default: ""
+  registry_username:
+    description: "Optional registry username for `docker login` (use with `registry_password`)."
+    required: false
+    default: ""
+  registry_password:
+    description: "Optional registry password for `docker login` (use with `registry_username`). Pass secrets via workflow `with:` from secrets."
+    required: false
+    default: ""
   cmd:
-    description: 'The Command which should be run'
+    description: "The Command which should be run"
     required: true
+runs:
+  using: "composite"
+  steps:
+    - id: login
+      name: Login to registry (if credentials provided)
+      if: ${{ inputs.registry_username && inputs.registry_password && inputs.registry }}
+      shell: bash
+      env:
+        REGISTRY: ${{ inputs.registry }}
+        REG_USER: ${{ inputs.registry_username }}
+        REG_PASS: ${{ inputs.registry_password }}
+      run: |
+        set -euo pipefail
+        if [ -z "$REGISTRY" ] || [ -z "$REG_USER" ] || [ -z "$REG_PASS" ]; then
+          echo "Missing registry or credentials; skipping login"
+          exit 0
+        fi
+        echo "Logging into registry: $REGISTRY"
+        echo "$REG_PASS" | docker login "$REGISTRY" --username "$REG_USER" --password-stdin
+
+    - id: run
+      name: Run yq container
+      shell: bash
+      env:
+        IMAGE_INPUT: ${{ inputs.image }}
+        REGISTRY: ${{ inputs.registry }}
+        CMD_INPUT: ${{ inputs.cmd }}
+      run: |
+        set -euo pipefail
+        IMAGE="$IMAGE_INPUT"
+        if [ -n "$REGISTRY" ]; then
+          REG="${REGISTRY%/}"
+          IMAGE="$REG/$IMAGE"
+        fi
+        echo "Using image: $IMAGE"
+        RC=0
+        OUTPUT=$(docker run --rm -v "$GITHUB_WORKSPACE":/work -w /work "$IMAGE" sh -lc "$CMD_INPUT" 2>&1) || RC=$?
+        echo "result<<EOF" >> $GITHUB_OUTPUT
+        echo "$OUTPUT" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        if [ "$RC" -ne 0 ]; then
+          exit "$RC"
+        fi
 outputs:
   result:
     description: "The complete result from the yq command being run"
-runs:
-  using: 'docker'
-  image: 'docker://mikefarah/yq:4-githubaction'
-  args:
-    - ${{ inputs.cmd }}
+    value: ${{ steps.run.outputs.result }}
