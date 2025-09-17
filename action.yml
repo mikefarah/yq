@@ -40,6 +40,10 @@ runs:
           echo "Missing registry or credentials; skipping login"
           exit 0
         fi
+        # Mask sensitive values
+        if [ -n "$REG_PASS" ]; then
+          echo "::add-mask::$REG_PASS"
+        fi
         echo "Logging into registry: $REGISTRY"
         echo "$REG_PASS" | docker login "$REGISTRY" --username "$REG_USER" --password-stdin
 
