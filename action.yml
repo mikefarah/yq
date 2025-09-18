@@ -26,26 +26,55 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - id: login
-      name: Login to registry (if credentials provided)
+    - id: pull-with-credentials
+      name: Pull image using provided credentials
       if: ${{ inputs.registry_username && inputs.registry_password && inputs.registry }}
       shell: bash
       env:
+        IMAGE_INPUT: ${{ inputs.image }}
         REGISTRY: ${{ inputs.registry }}
         REG_USER: ${{ inputs.registry_username }}
         REG_PASS: ${{ inputs.registry_password }}
       run: |
         set -euo pipefail
-        if [ -z "$REGISTRY" ] || [ -z "$REG_USER" ] || [ -z "$REG_PASS" ]; then
-          echo "Missing registry or credentials; skipping login"
-          exit 0
+        IMAGE="$IMAGE_INPUT"
+        if [ -n "$REGISTRY" ]; then
+          REG="${REGISTRY%/}"
+          IMAGE="$REG/$IMAGE"
         fi
-        # Mask sensitive values
+        echo "Using image: $IMAGE"
+        echo "Credentials provided; attempting docker login to $REGISTRY"
         if [ -n "$REG_PASS" ]; then
           echo "::add-mask::$REG_PASS"
         fi
-        echo "Logging into registry: $REGISTRY"
         echo "$REG_PASS" | docker login "$REGISTRY" --username "$REG_USER" --password-stdin
+        if docker pull "$IMAGE" >/dev/null 2>&1; then
+          echo "Image pulled successfully after login."
+        else
+          echo "Failed to pull image after login; proceeding to run (docker run may fail)."
+        fi
+
+    - id: pull-anonymous
+      name: Pull image anonymously
+      if: ${{ !(inputs.registry_username && inputs.registry_password && inputs.registry) }}
+      shell: bash
+      env:
+        IMAGE_INPUT: ${{ inputs.image }}
+        REGISTRY: ${{ inputs.registry }}
+      run: |
+        set -euo pipefail
+        IMAGE="$IMAGE_INPUT"
+        if [ -n "$REGISTRY" ]; then
+          REG="${REGISTRY%/}"
+          IMAGE="$REG/$IMAGE"
+        fi
+        echo "Using image: $IMAGE"
+        echo "No credentials provided (or registry not set); attempting anonymous pull"
+        if docker pull "$IMAGE" >/dev/null 2>&1; then
+          echo "Anonymous pull succeeded."
+        else
+          echo "Anonymous pull failed; proceeding to run (docker run may fail if auth required)."
+        fi
 
     - id: run
       name: Run yq container
