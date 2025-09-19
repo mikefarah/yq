@@ -19,46 +19,47 @@ func format(attr color.Attribute) string {
 
 func colorizeAndPrint(yamlBytes []byte, writer io.Writer) error {
 	tokens := lexer.Tokenize(string(yamlBytes))
+	config := NewColorConfig()
 	var p printer.Printer
 	p.Bool = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgHiMagenta),
+			Prefix: format(config.Bool),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.Number = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgHiMagenta),
+			Prefix: format(config.Number),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.MapKey = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgCyan),
+			Prefix: format(config.MapKey),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.Anchor = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgHiYellow),
+			Prefix: format(config.Anchor),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.Alias = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgHiYellow),
+			Prefix: format(config.Alias),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.String = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgGreen),
+			Prefix: format(config.String),
 			Suffix: format(color.Reset),
 		}
 	}
 	p.Comment = func() *printer.Property {
 		return &printer.Property{
-			Prefix: format(color.FgHiBlack),
+			Prefix: format(config.Comment),
 			Suffix: format(color.Reset),
 		}
 	}
