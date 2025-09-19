@@ -273,7 +273,7 @@ will output
 100
 ```
 
-## First element with no RHS from array
+## First element with no filter from array
 Given a sample.yml file of:
 ```yaml
 - 10
@@ -289,7 +289,7 @@ will output
 10
 ```
 
-## First element with no RHS from array of maps
+## First element with no filter from array of maps
 Given a sample.yml file of:
 ```yaml
 - a: 10
@@ -302,44 +302,5 @@ yq 'first' sample.yml
 will output
 ```yaml
 a: 10
-```
-
-## No RHS on empty array returns nothing
-Given a sample.yml file of:
-```yaml
-[]
-```
-then
-```bash
-yq 'first' sample.yml
-```
-will output
-```yaml
-```
-
-## No RHS on scalar returns nothing
-Given a sample.yml file of:
-```yaml
-hello
-```
-then
-```bash
-yq 'first' sample.yml
-```
-will output
-```yaml
-```
-
-## No RHS on null returns nothing
-Given a sample.yml file of:
-```yaml
-null
-```
-then
-```bash
-yq 'first' sample.yml
-```
-will output
-```yaml
 ```
 
