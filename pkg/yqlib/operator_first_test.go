@@ -139,9 +139,8 @@ var firstOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!int)::100\n",
 		},
 	},
-	// New tests for no RHS (return first child)
 	{
-		description: "First element with no RHS from array",
+		description: "First element with no filter from array",
 		document:    "[10, 100, 1]",
 		expression:  `first`,
 		expected: []string{
@@ -149,7 +148,7 @@ var firstOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "First element with no RHS from array of maps",
+		description: "First element with no filter from array of maps",
 		document:    "[{a: 10},{a: 100}]",
 		expression:  `first`,
 		expected: []string{
@@ -157,19 +156,22 @@ var firstOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
-		description: "No RHS on empty array returns nothing",
+		description: "No filter on empty array returns nothing",
+		skipDoc:     true,
 		document:    "[]",
 		expression:  `first`,
 		expected:    []string{},
 	},
 	{
-		description: "No RHS on scalar returns nothing",
+		description: "No filter on scalar returns nothing",
+		skipDoc:     true,
 		document:    "hello",
 		expression:  `first`,
 		expected:    []string{},
 	},
 	{
-		description: "No RHS on null returns nothing",
+		description: "No filter on null returns nothing",
+		skipDoc:     true,
 		document:    "null",
 		expression:  `first`,
 		expected:    []string{},
