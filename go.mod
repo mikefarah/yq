@@ -19,7 +19,7 @@ require (
 	github.com/yuin/gopher-lua v1.1.1
 	go.yaml.in/yaml/v3 v3.0.4
 	golang.org/x/net v0.43.0
-	golang.org/x/text v0.28.0
+	golang.org/x/text v0.29.0
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 )
 
@@ -30,6 +30,6 @@ require (
 	golang.org/x/sys v0.35.0 // indirect
 )
 
-go 1.24
+go 1.24.0
 
 toolchain go1.24.1
