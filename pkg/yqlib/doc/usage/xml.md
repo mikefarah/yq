@@ -343,7 +343,7 @@ instead of
 <?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
   <item foo="bar">baz</item>
-  <item>foobar</item>
+  <xsi:item>foobar</xsi:item>
 </map>
 ```
 
@@ -366,10 +366,10 @@ yq --xml-raw-token=false '.' sample.xml
 will output
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url">
-  <item foo="bar">baz</item>
-  <item>foobar</item>
-</map>
+<some-namespace:map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url">
+  <some-namespace:item foo="bar">baz</some-namespace:item>
+  <some-instance:item>foobar</some-instance:item>
+</some-namespace:map>
 ```
 
 instead of
@@ -377,7 +377,7 @@ instead of
 <?xml version="1.0"?>
 <map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
   <item foo="bar">baz</item>
-  <item>foobar</item>
+  <xsi:item>foobar</xsi:item>
 </map>
 ```
 

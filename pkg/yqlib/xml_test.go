@@ -200,9 +200,9 @@ map:
   +@xmlns:xsi: some-instance
   +@xsi:schemaLocation: some-url
   item:
-    - +content: baz
-      +@foo: bar
-    - foobar
+    +content: baz
+    +@foo: bar
+  xsi:item: foobar
 `
 
 const expectedYAMLWithRawNamespacedAttr = `+p_xml: version="1.0"
@@ -211,20 +211,20 @@ map:
   +@xmlns:xsi: some-instance
   +@xsi:schemaLocation: some-url
   item:
-    - +content: baz
-      +@foo: bar
-    - foobar
+    +content: baz
+    +@foo: bar
+  xsi:item: foobar
 `
 
 const expectedYAMLWithoutRawNamespacedAttr = `+p_xml: version="1.0"
-map:
+some-namespace:map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
   +@some-instance:schemaLocation: some-url
-  item:
-    - +content: baz
-      +@foo: bar
-    - foobar
+  some-namespace:item:
+    +content: baz
+    +@foo: bar
+  some-instance:item: foobar
 `
 
 const xmlWithCustomDtd = `
