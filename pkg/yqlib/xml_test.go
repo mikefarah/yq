@@ -188,7 +188,10 @@ above_cat
 `
 
 const inputXMLWithNamespacedAttr = `<?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <xsi:item>foobar</xsi:item>
+</map>
 `
 
 const expectedYAMLWithNamespacedAttr = `+p_xml: version="1.0"
@@ -196,6 +199,10 @@ map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
   +@xsi:schemaLocation: some-url
+  item:
+    - +content: baz
+      +@foo: bar
+    - foobar
 `
 
 const expectedYAMLWithRawNamespacedAttr = `+p_xml: version="1.0"
@@ -203,6 +210,10 @@ map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
   +@xsi:schemaLocation: some-url
+  item:
+    - +content: baz
+      +@foo: bar
+    - foobar
 `
 
 const expectedYAMLWithoutRawNamespacedAttr = `+p_xml: version="1.0"
@@ -210,6 +221,10 @@ map:
   +@xmlns: some-namespace
   +@xmlns:xsi: some-instance
   +@some-instance:schemaLocation: some-url
+  item:
+    - +content: baz
+      +@foo: bar
+    - foobar
 `
 
 const xmlWithCustomDtd = `
