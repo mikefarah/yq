@@ -1,4 +1,20 @@
-.# Development
+# Before you begin 
+Not all new PRs will be merged in 
+
+It's recommended to check with the owner first (e.g. raise an issue) to discuss a new feature before developing, to ensure your hard efforts don't go to waste.
+
+PRs to fix bugs and issues are almost always be welcome, just make sure you write tests as well.
+
+** PRs that significantly refactor code and release pipelines PRs will generally _NOT_ be accepted **
+
+Significant refactors take a lot of time to understand and can have all sorts of unintended side effects.
+
+Release pipeline PRs are a security risk - it's too easy for a serious vulnerability to sneak in (either intended or not). If there is a new cool way of releasing things, raise an issue for discussion first - it will need to be gone over with a fine tooth comb.
+
+At this stage, yq is not going to maintain any other release platforms other than GitHub and Docker - that said, I'm more than happy to put in other community maintained methods in the README for visibility :heart:
+
+
+# Development
 
 1. Install (Golang)[https://golang.org/]
 1. Run  `scripts/devtools.sh` to install the required devtools
@@ -12,14 +28,13 @@
 
 # Documentation
 
-The documentation is a bit of a mixed bag (sorry in advance, I do plan on simplifying it...) - with some parts automatically generated and stiched together and some statically defined.
-
-Documentation is written in markdown, and is published in the 'gitbook' branch.
-
 The various operator documentation (e.g. 'strings') are generated from the 'master' branch, and have a statically defined header (e.g. `pkg/yqlib/doc/operators/headers/add.md`) and the bulk of the docs are generated from the unit tests e.g. `pkg/yqlib/operator_add_test.go`.
 
 The pipeline will run the tests and automatically concatenate the files together, and put them under 
 `pkg/qylib/doc/add.md`. These files are checked in the master branch (and are copied to the gitbook branch as part of the release process).
+
+
+Remaining static documentation is in the 'githook' branch (where the generated docs are copied across into)
 
 ## How to contribute
 
