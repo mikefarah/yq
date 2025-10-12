@@ -152,8 +152,6 @@ func TestCandidateNodeAddKeyValueChild(t *testing.T) {
 	key := CandidateNode{Value: "cool", IsMapKey: true}
 	node := CandidateNode{}
 
-	// if we use a key in a new node as a value, it should no longer be marked as a key
-
 	_, keyIsValueNow := node.AddKeyValueChild(&CandidateNode{Value: "newKey"}, &key)
 
 	test.AssertResult(t, keyIsValueNow.IsMapKey, false)
@@ -242,7 +240,6 @@ func TestCandidateNodeGetNicePath(t *testing.T) {
 	nicePath = arrayNode.GetNicePath()
 	test.AssertResult(t, "[0]", nicePath)
 
-	// Test key with dots (should not be bracketed when it's the first element)
 	dotKey := createStringScalarNode("key.with.dots")
 	dotNode := CandidateNode{Key: dotKey}
 	nicePath = dotNode.GetNicePath()

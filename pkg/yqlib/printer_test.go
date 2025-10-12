@@ -452,7 +452,6 @@ func TestPrinterPrintedAnything(t *testing.T) {
 	var writer = bufio.NewWriter(&output)
 	printer := NewSimpleYamlPrinter(writer, true, 2, true)
 
-	// Initially should be false
 	test.AssertResult(t, false, printer.PrintedAnything())
 
 	// Print a scalar value
@@ -495,7 +494,6 @@ func TestPrinterSetNulSepOutput(t *testing.T) {
 
 	// Test setting NUL separator output
 	printer.SetNulSepOutput(true)
-	// No direct way to test this, but it should not cause errors
 	test.AssertResult(t, true, true) // Placeholder assertion
 
 	printer.SetNulSepOutput(false)
@@ -511,6 +509,5 @@ func TestPrinterSetAppendix(t *testing.T) {
 	// Test setting appendix
 	appendix := strings.NewReader("appendix content")
 	printer.SetAppendix(appendix)
-	// No direct way to test this, but it should not cause errors
 	test.AssertResult(t, true, true) // Placeholder assertion
 }
