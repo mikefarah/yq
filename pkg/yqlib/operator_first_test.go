@@ -13,15 +13,15 @@ var firstOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "First matching element from array with multiple matches",
-		document:    "[{a: banana},{a: cat},{a: apple},{a: cat}]",
+		document:    "[{a: banana},{a: cat, b: firstCat},{a: apple},{a: cat, b: secondCat}]",
 		expression:  `first(.a == "cat")`,
 		expected: []string{
-			"D0, P[1], (!!map)::{a: cat}\n",
+			"D0, P[1], (!!map)::{a: cat, b: firstCat}\n",
 		},
 	},
 	{
 		description: "First matching element from array with numeric condition",
-		document:    "[{a: 10},{a: 100},{a: 1}]",
+		document:    "[{a: 10},{a: 100},{a: 1},{a: 101}]",
 		expression:  `first(.a > 50)`,
 		expected: []string{
 			"D0, P[1], (!!map)::{a: 100}\n",
@@ -29,10 +29,10 @@ var firstOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "First matching element from array with boolean condition",
-		document:    "[{a: false},{a: true},{a: false}]",
+		document:    "[{a: false},{a: true, b: firstTrue},{a: false}, {a: true, b: secondTrue}]",
 		expression:  `first(.a == true)`,
 		expected: []string{
-			"D0, P[1], (!!map)::{a: true}\n",
+			"D0, P[1], (!!map)::{a: true, b: firstTrue}\n",
 		},
 	},
 	{
@@ -45,10 +45,10 @@ var firstOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "First matching element from array with complex condition",
-		document:    "[{a: dog, b: 5},{a: cat, b: 3},{a: apple, b: 7}]",
-		expression:  `first(.b > 4)`,
+		document:    "[{a: dog, b: 7},{a: cat, b: 3},{a: apple, b: 5}]",
+		expression:  `first(.b > 4 and .b < 6)`,
 		expected: []string{
-			"D0, P[0], (!!map)::{a: dog, b: 5}\n",
+			"D0, P[2], (!!map)::{a: apple, b: 5}\n",
 		},
 	},
 	{
@@ -61,7 +61,7 @@ var firstOperatorScenarios = []expressionScenario{
 	},
 	{
 		description: "First matching element from map with numeric condition",
-		document:    "x: {a: 10}\ny: {a: 100}\nz: {a: 1}",
+		document:    "x: {a: 10}\ny: {a: 100}\nz: {a: 101}",
 		expression:  `first(.a > 50)`,
 		expected: []string{
 			"D0, P[y], (!!map)::{a: 100}\n",
