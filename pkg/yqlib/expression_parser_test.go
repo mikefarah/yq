@@ -84,3 +84,42 @@ func TestParserExtraArgs(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression("sortKeys(.) explode(.)")
 	test.AssertResultComplex(t, "bad expression, please check expression syntax", err.Error())
 }
+
+func TestParserEmptyExpression(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression("")
+	test.AssertResultComplex(t, nil, err)
+}
+
+func TestParserSingleOperation(t *testing.T) {
+	result, err := getExpressionParser().ParseExpression(".")
+	test.AssertResultComplex(t, nil, err)
+	if result == nil {
+		t.Fatal("Expected non-nil result for single operation")
+	}
+	if result.Operation == nil {
+		t.Fatal("Expected operation to be set")
+	}
+}
+
+func TestParserFirstOpWithZeroArgs(t *testing.T) {
+	// Test the special case where firstOpType can accept zero args
+	result, err := getExpressionParser().ParseExpression("first")
+	test.AssertResultComplex(t, nil, err)
+	if result == nil {
+		t.Fatal("Expected non-nil result for first operation with zero args")
+	}
+}
+
+func TestParserInvalidExpressionTree(t *testing.T) {
+	// This tests the createExpressionTree function with malformed postfix
+	parser := getExpressionParser().(*expressionParserImpl)
+
+	// Create invalid postfix operations that would leave more than one item on stack
+	invalidOps := []*Operation{
+		{OperationType: &operationType{NumArgs: 0}},
+		{OperationType: &operationType{NumArgs: 0}},
+	}
+
+	_, err := parser.createExpressionTree(invalidOps)
+	test.AssertResultComplex(t, "bad expression, please check expression syntax", err.Error())
+}
