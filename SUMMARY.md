@@ -37,6 +37,7 @@
   * [Eval](operators/eval.md)
   * [File Operators](operators/file-operators.md)
   * [Filter Operator](operators/filter.md)
+  * [First Operator](operators/first.md)
   * [Flatten](operators/flatten.md)
   * [Group By](operators/group-by.md)
   * [Has](operators/has.md)

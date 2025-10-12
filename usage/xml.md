@@ -319,7 +319,10 @@ Defaults to true
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <xsi:item>foobar</xsi:item>
+</map>
 
 ```
 then
@@ -329,13 +332,19 @@ yq --xml-keep-namespace=false '.' sample.xml
 will output
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xsi="some-instance" schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <item>foobar</item>
+</map>
 ```
 
 instead of
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <xsi:item>foobar</xsi:item>
+</map>
 ```
 
 ## Parse xml: keep raw attribute namespace
@@ -344,7 +353,10 @@ Defaults to true
 Given a sample.xml file of:
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <xsi:item>foobar</xsi:item>
+</map>
 
 ```
 then
@@ -354,13 +366,19 @@ yq --xml-raw-token=false '.' sample.xml
 will output
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url"></map>
+<some-namespace:map xmlns="some-namespace" xmlns:xsi="some-instance" some-instance:schemaLocation="some-url">
+  <some-namespace:item foo="bar">baz</some-namespace:item>
+  <some-instance:item>foobar</some-instance:item>
+</some-namespace:map>
 ```
 
 instead of
 ```xml
 <?xml version="1.0"?>
-<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url"></map>
+<map xmlns="some-namespace" xmlns:xsi="some-instance" xsi:schemaLocation="some-url">
+  <item foo="bar">baz</item>
+  <xsi:item>foobar</xsi:item>
+</map>
 ```
 
 ## Encode xml: simple
