@@ -1,3 +1,10 @@
+4.48.1:
+  - Added 'parents' operator, to return a list of all the hierarchical parents of a node
+  - Added 'first(exp)' operator, to return the first entry matching an expression in an array 
+  - Fixed xml namespace prefixes #1730 (thanks @baodrate)
+  - Fixed out of range panic in yaml decoder #2460 (thanks @n471d)
+  - Bumped dependencies 
+
 4.47.2:
   - Conversion from TOML to JSON no longer omits empty tables #2459 (thanks @louislouislouislouis)
   - Bumped dependencies
