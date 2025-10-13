@@ -54,12 +54,33 @@ var shellVariablesScenarios = []formatScenario{
 		input:          "name: Miles O'Brien",
 		expected:       `name='Miles O'"'"'Brien'` + "\n",
 	},
+	{
+		description:    "Encode shell variables: custom separator",
+		subdescription: "Use --shell-key-separator to specify a custom separator between keys. This is useful when the original keys contain underscores.",
+		input: "" +
+			"my_app:" + "\n" +
+			"  db_config:" + "\n" +
+			"    host: localhost" + "\n" +
+			"    port: 5432",
+		expected: "" +
+			"my_app__db_config__host=localhost" + "\n" +
+			"my_app__db_config__port=5432" + "\n",
+		scenarioType: "shell-separator",
+	},
 }
 
 func TestShellVariableScenarios(t *testing.T) {
 	for _, s := range shellVariablesScenarios {
 		//fmt.Printf("\t<%s> <%s>\n", s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()))
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
+		if s.scenarioType == "shell-separator" {
+			// Save and restore the original separator
+			originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
+			ConfiguredShellVariablesPreferences.KeySeparator = "__"
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
+			ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
+		} else {
+			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
+		}
 	}
 	genericScenarios := make([]interface{}, len(shellVariablesScenarios))
 	for i, s := range shellVariablesScenarios {
@@ -87,12 +108,22 @@ func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{})
 
 	expression := s.expression
 
-	if expression != "" {
+	if s.scenarioType == "shell-separator" {
+		writeOrPanic(w, "```bash\nyq -o=shell --shell-key-separator=\"__\" sample.yml\n```\n")
+	} else if expression != "" {
 		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=shell '%v' sample.yml\n```\n", expression))
 	} else {
 		writeOrPanic(w, "```bash\nyq -o=shell sample.yml\n```\n")
 	}
 	writeOrPanic(w, "will output\n")
 
-	writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
+	if s.scenarioType == "shell-separator" {
+		// Save and restore the original separator
+		originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
+		ConfiguredShellVariablesPreferences.KeySeparator = "__"
+		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
+		ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
+	} else {
+		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
+	}
 }

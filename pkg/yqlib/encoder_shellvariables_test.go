@@ -91,3 +91,47 @@ func TestShellVariablesEncoderEmptyMap(t *testing.T) {
 func TestShellVariablesEncoderScalarNode(t *testing.T) {
 	assertEncodesTo(t, "some string", "value='some string'")
 }
+
+func assertEncodesToWithSeparator(t *testing.T, yaml string, shellvars string, separator string) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+
+	// Save the original separator
+	originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
+	defer func() {
+		ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
+	}()
+
+	// Set the custom separator
+	ConfiguredShellVariablesPreferences.KeySeparator = separator
+
+	var encoder = NewShellVariablesEncoder()
+	inputs, err := readDocuments(strings.NewReader(yaml), "test.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
+	if err != nil {
+		panic(err)
+	}
+	node := inputs.Front().Value.(*CandidateNode)
+	err = encoder.Encode(writer, node)
+	if err != nil {
+		panic(err)
+	}
+	writer.Flush()
+
+	test.AssertResult(t, shellvars, strings.TrimSuffix(output.String(), "\n"))
+}
+
+func TestShellVariablesEncoderCustomSeparator(t *testing.T) {
+	assertEncodesToWithSeparator(t, "a:\n b: Lewis\n c: Carroll", "a__b=Lewis\na__c=Carroll", "__")
+}
+
+func TestShellVariablesEncoderCustomSeparatorNested(t *testing.T) {
+	assertEncodesToWithSeparator(t, "my_app:\n db_config:\n  host: localhost", "my_app__db_config__host=localhost", "__")
+}
+
+func TestShellVariablesEncoderCustomSeparatorArray(t *testing.T) {
+	assertEncodesToWithSeparator(t, "a: [{n: Alice}, {n: Bob}]", "a__0__n=Alice\na__1__n=Bob", "__")
+}
+
+func TestShellVariablesEncoderCustomSeparatorSingleChar(t *testing.T) {
+	assertEncodesToWithSeparator(t, "a:\n b: value", "aXb=value", "X")
+}
