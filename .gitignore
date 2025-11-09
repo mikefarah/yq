@@ -25,6 +25,7 @@ _testmain.go
 cover.out
 coverage.out
 coverage.html
+coverage_sorted.txt
 *.exe
 *.test
 *.prof

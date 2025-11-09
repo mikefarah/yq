@@ -152,8 +152,6 @@ func TestCandidateNodeAddKeyValueChild(t *testing.T) {
 	key := CandidateNode{Value: "cool", IsMapKey: true}
 	node := CandidateNode{}
 
-	// if we use a key in a new node as a value, it should no longer be marked as a key
-
 	_, keyIsValueNow := node.AddKeyValueChild(&CandidateNode{Value: "newKey"}, &key)
 
 	test.AssertResult(t, keyIsValueNow.IsMapKey, false)
@@ -203,4 +201,194 @@ func TestConvertToNodeInfo(t *testing.T) {
 	test.AssertResult(t, "childValue", childInfo.Value)
 	test.AssertResult(t, 2, childInfo.Line)
 	test.AssertResult(t, 3, childInfo.Column)
+}
+
+func TestCandidateNodeGetPath(t *testing.T) {
+	// Test root node with no parent
+	root := CandidateNode{Value: "root"}
+	path := root.GetPath()
+	test.AssertResult(t, 0, len(path))
+
+	// Test node with key
+	key := createStringScalarNode("myKey")
+	node := CandidateNode{Key: key, Value: "myValue"}
+	path = node.GetPath()
+	test.AssertResult(t, 1, len(path))
+	test.AssertResult(t, "myKey", path[0])
+
+	// Test nested path
+	parent := CandidateNode{}
+	parentKey := createStringScalarNode("parent")
+	parent.Key = parentKey
+	node.Parent = &parent
+	path = node.GetPath()
+	test.AssertResult(t, 2, len(path))
+	test.AssertResult(t, "parent", path[0])
+	test.AssertResult(t, "myKey", path[1])
+}
+
+func TestCandidateNodeGetNicePath(t *testing.T) {
+	// Test simple key
+	key := createStringScalarNode("simple")
+	node := CandidateNode{Key: key}
+	nicePath := node.GetNicePath()
+	test.AssertResult(t, "simple", nicePath)
+
+	// Test array index
+	arrayKey := createScalarNode(0, "0")
+	arrayNode := CandidateNode{Key: arrayKey}
+	nicePath = arrayNode.GetNicePath()
+	test.AssertResult(t, "[0]", nicePath)
+
+	dotKey := createStringScalarNode("key.with.dots")
+	dotNode := CandidateNode{Key: dotKey}
+	nicePath = dotNode.GetNicePath()
+	test.AssertResult(t, "key.with.dots", nicePath)
+
+	// Test nested path
+	parentKey := createStringScalarNode("parent")
+	parent := CandidateNode{Key: parentKey}
+	childKey := createStringScalarNode("child")
+	child := CandidateNode{Key: childKey, Parent: &parent}
+	nicePath = child.GetNicePath()
+	test.AssertResult(t, "parent.child", nicePath)
+}
+
+func TestCandidateNodeFilterMapContentByKey(t *testing.T) {
+	// Create a map with multiple key-value pairs
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+	key3 := createStringScalarNode("key3")
+	value3 := createStringScalarNode("value3")
+
+	mapNode := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key2, value2, key3, value3},
+	}
+
+	// Filter by key predicate that matches key1 and key3
+	filtered := mapNode.FilterMapContentByKey(func(key *CandidateNode) bool {
+		return key.Value == "key1" || key.Value == "key3"
+	})
+
+	// Should return key1, value1, key3, value3
+	test.AssertResult(t, 4, len(filtered))
+	test.AssertResult(t, "key1", filtered[0].Value)
+	test.AssertResult(t, "value1", filtered[1].Value)
+	test.AssertResult(t, "key3", filtered[2].Value)
+	test.AssertResult(t, "value3", filtered[3].Value)
+}
+
+func TestCandidateNodeVisitValues(t *testing.T) {
+	// Test mapping node
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+
+	mapNode := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key2, value2},
+	}
+
+	var visited []string
+	err := mapNode.VisitValues(func(node *CandidateNode) error {
+		visited = append(visited, node.Value)
+		return nil
+	})
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, 2, len(visited))
+	test.AssertResult(t, "value1", visited[0])
+	test.AssertResult(t, "value2", visited[1])
+
+	// Test sequence node
+	item1 := createStringScalarNode("item1")
+	item2 := createStringScalarNode("item2")
+
+	seqNode := &CandidateNode{
+		Kind:    SequenceNode,
+		Content: []*CandidateNode{item1, item2},
+	}
+
+	visited = []string{}
+	err = seqNode.VisitValues(func(node *CandidateNode) error {
+		visited = append(visited, node.Value)
+		return nil
+	})
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, 2, len(visited))
+	test.AssertResult(t, "item1", visited[0])
+	test.AssertResult(t, "item2", visited[1])
+
+	// Test scalar node (should not visit anything)
+	scalarNode := &CandidateNode{
+		Kind:  ScalarNode,
+		Value: "scalar",
+	}
+
+	visited = []string{}
+	err = scalarNode.VisitValues(func(node *CandidateNode) error {
+		visited = append(visited, node.Value)
+		return nil
+	})
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, 0, len(visited))
+}
+
+func TestCandidateNodeCanVisitValues(t *testing.T) {
+	mapNode := &CandidateNode{Kind: MappingNode}
+	seqNode := &CandidateNode{Kind: SequenceNode}
+	scalarNode := &CandidateNode{Kind: ScalarNode}
+
+	test.AssertResult(t, true, mapNode.CanVisitValues())
+	test.AssertResult(t, true, seqNode.CanVisitValues())
+	test.AssertResult(t, false, scalarNode.CanVisitValues())
+}
+
+func TestCandidateNodeAddChild(t *testing.T) {
+	parent := &CandidateNode{Kind: SequenceNode}
+	child := createStringScalarNode("child")
+
+	parent.AddChild(child)
+
+	test.AssertResult(t, 1, len(parent.Content))
+	test.AssertResult(t, false, parent.Content[0].IsMapKey)
+	test.AssertResult(t, "0", parent.Content[0].Key.Value)
+	// Check that parent is set correctly
+	if parent.Content[0].Parent != parent {
+		t.Errorf("Expected parent to be set correctly")
+	}
+}
+
+func TestCandidateNodeAddChildren(t *testing.T) {
+	// Test sequence node
+	parent := &CandidateNode{Kind: SequenceNode}
+	child1 := createStringScalarNode("child1")
+	child2 := createStringScalarNode("child2")
+
+	parent.AddChildren([]*CandidateNode{child1, child2})
+
+	test.AssertResult(t, 2, len(parent.Content))
+	test.AssertResult(t, "child1", parent.Content[0].Value)
+	test.AssertResult(t, "child2", parent.Content[1].Value)
+
+	// Test mapping node
+	mapParent := &CandidateNode{Kind: MappingNode}
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+
+	mapParent.AddChildren([]*CandidateNode{key1, value1, key2, value2})
+
+	test.AssertResult(t, 4, len(mapParent.Content))
+	test.AssertResult(t, true, mapParent.Content[0].IsMapKey)  // key1
+	test.AssertResult(t, false, mapParent.Content[1].IsMapKey) // value1
+	test.AssertResult(t, true, mapParent.Content[2].IsMapKey)  // key2
+	test.AssertResult(t, false, mapParent.Content[3].IsMapKey) // value2
 }

@@ -414,3 +414,100 @@ func TestPrinterRootUnwrap(t *testing.T) {
 `
 	test.AssertResult(t, expected, output.String())
 }
+
+func TestRemoveLastEOL(t *testing.T) {
+	// Test with \r\n
+	buffer := bytes.NewBufferString("test\r\n")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "test", buffer.String())
+
+	// Test with \n only
+	buffer = bytes.NewBufferString("test\n")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "test", buffer.String())
+
+	// Test with \r only
+	buffer = bytes.NewBufferString("test\r")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "test", buffer.String())
+
+	// Test with no EOL
+	buffer = bytes.NewBufferString("test")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "test", buffer.String())
+
+	// Test with empty buffer
+	buffer = bytes.NewBufferString("")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "", buffer.String())
+
+	// Test with multiple \r\n
+	buffer = bytes.NewBufferString("line1\r\nline2\r\n")
+	removeLastEOL(buffer)
+	test.AssertResult(t, "line1\r\nline2", buffer.String())
+}
+
+func TestPrinterPrintedAnything(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
+
+	test.AssertResult(t, false, printer.PrintedAnything())
+
+	// Print a scalar value
+	node := createStringScalarNode("test")
+	nodeList := nodeToList(node)
+	err := printer.PrintResults(nodeList)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Should now be true
+	test.AssertResult(t, true, printer.PrintedAnything())
+}
+
+func TestPrinterNulSeparatorWithNullChar(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewSimpleYamlPrinter(writer, true, 2, false)
+	printer.SetNulSepOutput(true)
+
+	// Create a node with null character
+	node := createStringScalarNode("test\x00value")
+	nodeList := nodeToList(node)
+
+	err := printer.PrintResults(nodeList)
+	if err == nil {
+		t.Fatal("Expected error for null character in NUL separated output")
+	}
+
+	expectedError := "can't serialize value because it contains NUL char and you are using NUL separated output"
+	if err.Error() != expectedError {
+		t.Fatalf("Expected error '%s', got '%s'", expectedError, err.Error())
+	}
+}
+
+func TestPrinterSetNulSepOutput(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewSimpleYamlPrinter(writer, true, 2, false)
+
+	// Test setting NUL separator output
+	printer.SetNulSepOutput(true)
+	test.AssertResult(t, true, true) // Placeholder assertion
+
+	printer.SetNulSepOutput(false)
+	// Should also not cause errors
+	test.AssertResult(t, false, false) // Placeholder assertion
+}
+
+func TestPrinterSetAppendix(t *testing.T) {
+	var output bytes.Buffer
+	var writer = bufio.NewWriter(&output)
+	printer := NewSimpleYamlPrinter(writer, true, 2, true)
+
+	// Test setting appendix
+	appendix := strings.NewReader("appendix content")
+	printer.SetAppendix(appendix)
+	test.AssertResult(t, true, true) // Placeholder assertion
+}

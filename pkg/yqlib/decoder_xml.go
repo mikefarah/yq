@@ -270,10 +270,16 @@ func (dec *xmlDecoder) decodeXML(root *xmlNode) error {
 			log.Debug("start element %v", se.Name.Local)
 			elem.state = "started"
 			// Build new a new current element and link it to its parent
+			var label = se.Name.Local
+			if dec.prefs.KeepNamespace {
+				if se.Name.Space != "" {
+					label = se.Name.Space + ":" + se.Name.Local
+				}
+			}
 			elem = &element{
 				parent: elem,
 				n:      &xmlNode{},
-				label:  se.Name.Local,
+				label:  label,
 			}
 
 			// Extract attributes as children

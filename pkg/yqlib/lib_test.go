@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -159,4 +160,251 @@ func TestParseInt64(t *testing.T) {
 
 		test.AssertResultComplexWithContext(t, tt.expectedFormatString, fmt.Sprintf(format, actualNumber), fmt.Sprintf("Formatting of: %v", tt.numberString))
 	}
+}
+
+func TestGetContentValueByKey(t *testing.T) {
+	// Create content with key-value pairs
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+
+	content := []*CandidateNode{key1, value1, key2, value2}
+
+	// Test finding existing key
+	result := getContentValueByKey(content, "key1")
+	test.AssertResult(t, value1, result)
+
+	// Test finding another existing key
+	result = getContentValueByKey(content, "key2")
+	test.AssertResult(t, value2, result)
+
+	// Test finding non-existing key
+	result = getContentValueByKey(content, "nonexistent")
+	test.AssertResult(t, (*CandidateNode)(nil), result)
+
+	// Test with empty content
+	result = getContentValueByKey([]*CandidateNode{}, "key1")
+	test.AssertResult(t, (*CandidateNode)(nil), result)
+}
+
+func TestRecurseNodeArrayEqual(t *testing.T) {
+	// Create two arrays with same content
+	array1 := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			createStringScalarNode("item1"),
+			createStringScalarNode("item2"),
+		},
+	}
+
+	array2 := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			createStringScalarNode("item1"),
+			createStringScalarNode("item2"),
+		},
+	}
+
+	array3 := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			createStringScalarNode("item1"),
+			createStringScalarNode("different"),
+		},
+	}
+
+	array4 := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			createStringScalarNode("item1"),
+		},
+	}
+
+	test.AssertResult(t, true, recurseNodeArrayEqual(array1, array2))
+	test.AssertResult(t, false, recurseNodeArrayEqual(array1, array3))
+	test.AssertResult(t, false, recurseNodeArrayEqual(array1, array4))
+}
+
+func TestFindInArray(t *testing.T) {
+	item1 := createStringScalarNode("item1")
+	item2 := createStringScalarNode("item2")
+	item3 := createStringScalarNode("item3")
+
+	array := &CandidateNode{
+		Kind:    SequenceNode,
+		Content: []*CandidateNode{item1, item2, item3},
+	}
+
+	// Test finding existing items
+	test.AssertResult(t, 0, findInArray(array, item1))
+	test.AssertResult(t, 1, findInArray(array, item2))
+	test.AssertResult(t, 2, findInArray(array, item3))
+
+	// Test finding non-existing item
+	nonExistent := createStringScalarNode("nonexistent")
+	test.AssertResult(t, -1, findInArray(array, nonExistent))
+}
+
+func TestFindKeyInMap(t *testing.T) {
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+
+	mapNode := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key2, value2},
+	}
+
+	// Test finding existing keys
+	test.AssertResult(t, 0, findKeyInMap(mapNode, key1))
+	test.AssertResult(t, 2, findKeyInMap(mapNode, key2))
+
+	// Test finding non-existing key
+	nonExistent := createStringScalarNode("nonexistent")
+	test.AssertResult(t, -1, findKeyInMap(mapNode, nonExistent))
+}
+
+func TestRecurseNodeObjectEqual(t *testing.T) {
+	// Create two objects with same content
+	key1 := createStringScalarNode("key1")
+	value1 := createStringScalarNode("value1")
+	key2 := createStringScalarNode("key2")
+	value2 := createStringScalarNode("value2")
+
+	obj1 := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key2, value2},
+	}
+
+	obj2 := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key2, value2},
+	}
+
+	// Create object with different values
+	value3 := createStringScalarNode("value3")
+	obj3 := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value3, key2, value2},
+	}
+
+	// Create object with different keys
+	key3 := createStringScalarNode("key3")
+	obj4 := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{key1, value1, key3, value2},
+	}
+
+	test.AssertResult(t, true, recurseNodeObjectEqual(obj1, obj2))
+	test.AssertResult(t, false, recurseNodeObjectEqual(obj1, obj3))
+	test.AssertResult(t, false, recurseNodeObjectEqual(obj1, obj4))
+}
+
+func TestParseInt(t *testing.T) {
+	type parseIntScenario struct {
+		numberString         string
+		expectedParsedNumber int
+		expectedError        string
+	}
+
+	scenarios := []parseIntScenario{
+		{
+			numberString:         "34",
+			expectedParsedNumber: 34,
+		},
+		{
+			numberString:         "10_000",
+			expectedParsedNumber: 10000,
+		},
+		{
+			numberString:         "0x10",
+			expectedParsedNumber: 16,
+		},
+		{
+			numberString:         "0o10",
+			expectedParsedNumber: 8,
+		},
+		{
+			numberString:  "invalid",
+			expectedError: "strconv.ParseInt",
+		},
+	}
+
+	for _, tt := range scenarios {
+		actualNumber, err := parseInt(tt.numberString)
+		if tt.expectedError != "" {
+			if err == nil {
+				t.Errorf("Expected error for '%s' but got none", tt.numberString)
+			} else if !strings.Contains(err.Error(), tt.expectedError) {
+				t.Errorf("Expected error containing '%s' for '%s', got '%s'", tt.expectedError, tt.numberString, err.Error())
+			}
+			continue
+		}
+		if err != nil {
+			t.Errorf("Unexpected error for '%s': %v", tt.numberString, err)
+		}
+		test.AssertResultComplexWithContext(t, tt.expectedParsedNumber, actualNumber, tt.numberString)
+	}
+}
+
+func TestHeadAndLineComment(t *testing.T) {
+	node := &CandidateNode{
+		HeadComment: "# head comment",
+		LineComment: "# line comment",
+	}
+
+	result := headAndLineComment(node)
+	test.AssertResult(t, " head comment line comment", result)
+}
+
+func TestHeadComment(t *testing.T) {
+	node := &CandidateNode{
+		HeadComment: "# head comment",
+	}
+
+	result := headComment(node)
+	test.AssertResult(t, " head comment", result)
+
+	// Test without #
+	node.HeadComment = "no hash comment"
+	result = headComment(node)
+	test.AssertResult(t, "no hash comment", result)
+}
+
+func TestLineComment(t *testing.T) {
+	node := &CandidateNode{
+		LineComment: "# line comment",
+	}
+
+	result := lineComment(node)
+	test.AssertResult(t, " line comment", result)
+
+	// Test without #
+	node.LineComment = "no hash comment"
+	result = lineComment(node)
+	test.AssertResult(t, "no hash comment", result)
+}
+
+func TestFootComment(t *testing.T) {
+	node := &CandidateNode{
+		FootComment: "# foot comment",
+	}
+
+	result := footComment(node)
+	test.AssertResult(t, " foot comment", result)
+
+	// Test without #
+	node.FootComment = "no hash comment"
+	result = footComment(node)
+	test.AssertResult(t, "no hash comment", result)
+}
+
+func TestKindString(t *testing.T) {
+	test.AssertResult(t, "ScalarNode", KindString(ScalarNode))
+	test.AssertResult(t, "SequenceNode", KindString(SequenceNode))
+	test.AssertResult(t, "MappingNode", KindString(MappingNode))
+	test.AssertResult(t, "AliasNode", KindString(AliasNode))
+	test.AssertResult(t, "unknown!", KindString(Kind(999))) // Invalid kind
 }

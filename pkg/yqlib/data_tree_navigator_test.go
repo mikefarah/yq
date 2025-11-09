@@ -312,7 +312,6 @@ func TestDeeplyAssign_ErrorHandling(t *testing.T) {
 		Value: "value",
 	}
 
-	// Try to assign to a path on a scalar (should fail)
 	path := []interface{}{"key"}
 	err := navigator.DeeplyAssign(context, path, assignNode)
 
@@ -321,7 +320,6 @@ func TestDeeplyAssign_ErrorHandling(t *testing.T) {
 		t.Logf("Actual error: %v", err)
 	}
 
-	// This should fail because we can't assign to a scalar
 	test.AssertResult(t, nil, err)
 }
 

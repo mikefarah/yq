@@ -168,6 +168,11 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "properties-separator", yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "separator to use between keys and values")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "properties-array-brackets", yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "use [x] in array paths (e.g. for SpringBoot)")
 
+	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredShellVariablesPreferences.KeySeparator, "shell-key-separator", yqlib.ConfiguredShellVariablesPreferences.KeySeparator, "separator for shell variable key paths")
+	if err = rootCmd.RegisterFlagCompletionFunc("shell-key-separator", cobra.NoFileCompletions); err != nil {
+		panic(err)
+	}
+
 	rootCmd.PersistentFlags().BoolVar(&yqlib.StringInterpolationEnabled, "string-interpolation", yqlib.StringInterpolationEnabled, "Toggles strings interpolation of \\(exp)")
 
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")
