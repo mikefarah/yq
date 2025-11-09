@@ -11,4 +11,3 @@ func NewDefaultShellVariablesPreferences() ShellVariablesPreferences {
 }
 
 var ConfiguredShellVariablesPreferences = NewDefaultShellVariablesPreferences()
-

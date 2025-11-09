@@ -1,3 +1,8 @@
+# First
+
+Returns the first matching element in an array, or first matching value in a map.
+
+Can be given an expression to match with, otherwise will just return the first.
 
 ## First matching element from array
 Given a sample.yml file of:
@@ -20,8 +25,10 @@ Given a sample.yml file of:
 ```yaml
 - a: banana
 - a: cat
+  b: firstCat
 - a: apple
 - a: cat
+  b: secondCat
 ```
 then
 ```bash
@@ -30,6 +37,7 @@ yq 'first(.a == "cat")' sample.yml
 will output
 ```yaml
 a: cat
+b: firstCat
 ```
 
 ## First matching element from array with numeric condition
@@ -38,6 +46,7 @@ Given a sample.yml file of:
 - a: 10
 - a: 100
 - a: 1
+- a: 101
 ```
 then
 ```bash
@@ -53,7 +62,10 @@ Given a sample.yml file of:
 ```yaml
 - a: false
 - a: true
+  b: firstTrue
 - a: false
+- a: true
+  b: secondTrue
 ```
 then
 ```bash
@@ -62,6 +74,7 @@ yq 'first(.a == true)' sample.yml
 will output
 ```yaml
 a: true
+b: firstTrue
 ```
 
 ## First matching element from array with null values
@@ -84,19 +97,19 @@ a: cat
 Given a sample.yml file of:
 ```yaml
 - a: dog
-  b: 5
+  b: 7
 - a: cat
   b: 3
 - a: apple
-  b: 7
+  b: 5
 ```
 then
 ```bash
-yq 'first(.b > 4)' sample.yml
+yq 'first(.b > 4 and .b < 6)' sample.yml
 ```
 will output
 ```yaml
-a: dog
+a: apple
 b: 5
 ```
 
@@ -127,7 +140,7 @@ x:
 y:
   a: 100
 z:
-  a: 1
+  a: 101
 ```
 then
 ```bash
