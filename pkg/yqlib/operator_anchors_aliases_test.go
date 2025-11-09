@@ -464,7 +464,7 @@ var anchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:    true,
-		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a : *b}}`,
+		document:   `{f : {a: &a cat, b: &b {foo: *a}, *a: *b}}`,
 		expression: `explode(.f)`,
 		expected: []string{
 			"D0, P[], (!!map)::{f: {a: cat, b: {foo: cat}, cat: {foo: cat}}}\n",
