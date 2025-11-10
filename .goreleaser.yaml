@@ -23,6 +23,7 @@ builds:
       - linux_amd64
       - linux_arm
       - linux_arm64
+      - linux_loong64
       - linux_mips
       - linux_mips64
       - linux_mips64le
