@@ -2,6 +2,7 @@
   - Strip whitespace when decoding base64 #2507
   - Upgraded to go-yaml v4! (thanks @ccoVeille, @ingydotnet)
   - Add linux/loong64 to release target (thanks @znley)
+  - Added --shell-key-separator flag for customizable shell output format #2497 (thanks @rsleedbx)
   - Bumped dependencies 
 
 4.48.1:
