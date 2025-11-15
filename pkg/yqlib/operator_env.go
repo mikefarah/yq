@@ -29,7 +29,7 @@ func envOperator(_ *dataTreeNavigator, context Context, expressionNode *Expressi
 		node = &CandidateNode{
 			Kind:  ScalarNode,
 			Tag:   "!!str",
-			Value: rawValue,
+			Value: processEscapeCharacters(rawValue),
 		}
 	} else if rawValue == "" {
 		return Context{}, fmt.Errorf("value for env variable '%v' not provided in env()", envName)

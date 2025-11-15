@@ -186,6 +186,22 @@ func parseInt(numberString string) (int, error) {
 	return int(parsed), err
 }
 
+func processEscapeCharacters(original string) string {
+	value := original
+	value = strings.ReplaceAll(value, "\\\"", "\"")
+	value = strings.ReplaceAll(value, "\\n", "\n")
+	value = strings.ReplaceAll(value, "\\t", "\t")
+	value = strings.ReplaceAll(value, "\\r", "\r")
+	value = strings.ReplaceAll(value, "\\f", "\f")
+	value = strings.ReplaceAll(value, "\\v", "\v")
+	value = strings.ReplaceAll(value, "\\b", "\b")
+	value = strings.ReplaceAll(value, "\\a", "\a")
+	if value != original {
+		log.Debug("processEscapeCharacters from [%v] to [%v]", original, value)
+	}
+	return value
+}
+
 func headAndLineComment(node *CandidateNode) string {
 	return headComment(node) + lineComment(node)
 }

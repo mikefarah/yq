@@ -64,6 +64,78 @@ var envOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:          "strenv with newline escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\n"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: |\n    string with a\n",
+		},
+	},
+	{
+		description:          "strenv with tab escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\t"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\t\"\n",
+		},
+	},
+	{
+		description:          "strenv with carriage return escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\r"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\r\"\n",
+		},
+	},
+	{
+		description:          "strenv with form feed escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\f"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\f\"\n",
+		},
+	},
+	{
+		description:          "strenv with vertical tab escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\v"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\v\"\n",
+		},
+	},
+	{
+		description:          "strenv with backspace escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\b"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\b\"\n",
+		},
+	},
+	{
+		description:          "strenv with alert/bell escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\a"},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: \"string with a\\a\"\n",
+		},
+	},
+	{
+		description:          "strenv with double quote escape",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "string with a\\\""},
+		expression:           `.a = strenv(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: string with a\"\n",
+		},
+	},
+	{
 		description:          "Dynamically update a path from an environment variable",
 		subdescription:       "The env variable can be any valid yq expression.",
 		document:             `{a: {b: [{name: dog}, {name: cat}]}}`,
