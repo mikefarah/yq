@@ -9,28 +9,6 @@ import (
 	"strings"
 )
 
-type base64Padder struct {
-	count int
-	io.Reader
-}
-
-func (c *base64Padder) pad(buf []byte) (int, error) {
-	pad := strings.Repeat("=", (4 - c.count%4))
-	n, err := strings.NewReader(pad).Read(buf)
-	c.count += n
-	return n, err
-}
-
-func (c *base64Padder) Read(buf []byte) (int, error) {
-	n, err := c.Reader.Read(buf)
-	c.count += n
-
-	if err == io.EOF && c.count%4 != 0 {
-		return c.pad(buf)
-	}
-	return n, err
-}
-
 type base64Decoder struct {
 	reader       io.Reader
 	finished     bool
@@ -43,7 +21,25 @@ func NewBase64Decoder() Decoder {
 }
 
 func (dec *base64Decoder) Init(reader io.Reader) error {
-	dec.reader = &base64Padder{Reader: reader}
+	// Read all data from the reader and strip leading/trailing whitespace
+	// This is necessary because base64 decoding needs to see the complete input
+	// to handle padding correctly, and we need to strip whitespace before decoding.
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(reader); err != nil {
+		return err
+	}
+
+	// Strip leading and trailing whitespace
+	stripped := strings.TrimSpace(buf.String())
+
+	// Add padding if needed (base64 strings should be a multiple of 4 characters)
+	padLen := len(stripped) % 4
+	if padLen > 0 {
+		stripped += strings.Repeat("=", 4-padLen)
+	}
+
+	// Create a new reader from the stripped and padded data
+	dec.reader = strings.NewReader(stripped)
 	dec.readAnything = false
 	dec.finished = false
 	return nil
