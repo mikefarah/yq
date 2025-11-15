@@ -704,6 +704,90 @@ var participleLexerScenarios = []participleLexerScenario{
 			},
 		},
 	},
+	{
+		expression: `"string with a\r"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\r",
+					StringValue:   "string with a\r",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
+	{
+		expression: `"string with a\t"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\t",
+					StringValue:   "string with a\t",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
+	{
+		expression: `"string with a\f"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\f",
+					StringValue:   "string with a\f",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
+	{
+		expression: `"string with a\v"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\v",
+					StringValue:   "string with a\v",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
+	{
+		expression: `"string with a\b"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\b",
+					StringValue:   "string with a\b",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
+	{
+		expression: `"string with a\a"`,
+		tokens: []*token{
+			{
+				TokenType: operationToken,
+				Operation: &Operation{
+					OperationType: stringInterpolationOpType,
+					Value:         "string with a\a",
+					StringValue:   "string with a\a",
+					Preferences:   nil,
+				},
+			},
+		},
+	},
 }
 
 func TestParticipleLexer(t *testing.T) {

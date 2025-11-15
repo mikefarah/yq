@@ -381,6 +381,12 @@ func stringValue() yqAction {
 		log.Debug("unwrapped: %v", value)
 		value = strings.ReplaceAll(value, "\\\"", "\"")
 		value = strings.ReplaceAll(value, "\\n", "\n")
+		value = strings.ReplaceAll(value, "\\t", "\t")
+		value = strings.ReplaceAll(value, "\\r", "\r")
+		value = strings.ReplaceAll(value, "\\f", "\f")
+		value = strings.ReplaceAll(value, "\\v", "\v")
+		value = strings.ReplaceAll(value, "\\b", "\b")
+		value = strings.ReplaceAll(value, "\\a", "\a")
 		log.Debug("replaced: %v", value)
 		return &token{TokenType: operationToken, Operation: &Operation{
 			OperationType: stringInterpolationOpType,
