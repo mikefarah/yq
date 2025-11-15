@@ -1,3 +1,9 @@
+4.48.2:
+  - Strip whitespace when decoding base64 #2507
+  - Upgraded to go-yaml v4! (thanks @ccoVeille, @ingydotnet)
+  - Add linux/loong64 to release target (thanks @znley)
+  - Bumped dependencies 
+
 4.48.1:
   - Added 'parents' operator, to return a list of all the hierarchical parents of a node
   - Added 'first(exp)' operator, to return the first entry matching an expression in an array 
