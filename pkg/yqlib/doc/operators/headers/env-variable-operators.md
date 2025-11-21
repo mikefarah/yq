@@ -29,3 +29,6 @@ as follows:
 yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ```
 
+## Disabling env operators
+If required, you can use the `--security-disable-env-ops` to disable env operations.
+

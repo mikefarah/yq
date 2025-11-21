@@ -46,3 +46,7 @@ this.is = a properties file
 ```
 bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ```
+
+## Disabling file operators
+If required, you can use the `--security-disable-file-ops` to disable file operations.
+

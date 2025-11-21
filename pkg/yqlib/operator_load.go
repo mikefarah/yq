@@ -63,6 +63,9 @@ func loadWithDecoder(filename string, decoder Decoder) (*CandidateNode, error) {
 
 func loadStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("loadString")
+	if ConfiguredSecurityPreferences.DisableFileOps {
+		return Context{}, fmt.Errorf("file operations have been disabled")
+	}
 
 	var results = list.New()
 
@@ -94,6 +97,9 @@ func loadStringOperator(d *dataTreeNavigator, context Context, expressionNode *E
 
 func loadOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("loadOperator")
+	if ConfiguredSecurityPreferences.DisableFileOps {
+		return Context{}, fmt.Errorf("file operations have been disabled")
+	}
 
 	loadPrefs := expressionNode.Operation.Preferences.(loadPrefs)
 

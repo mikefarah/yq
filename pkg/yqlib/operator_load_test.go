@@ -131,3 +131,52 @@ func TestLoadScenarios(t *testing.T) {
 	}
 	documentOperatorScenarios(t, "load", loadScenarios)
 }
+
+var loadOperatorSecurityDisabledScenarios = []expressionScenario{
+	{
+		description:    "load() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-file-ops` to disable file operations for security.",
+		expression:     `load("../../examples/thing.yml")`,
+		expectedError:  "file operations have been disabled",
+	},
+	{
+		description:    "load_str() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-file-ops` to disable file operations for security.",
+		expression:     `load_str("../../examples/thing.yml")`,
+		expectedError:  "file operations have been disabled",
+	},
+	{
+		description:    "load_xml() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-file-ops` to disable file operations for security.",
+		expression:     `load_xml("../../examples/small.xml")`,
+		expectedError:  "file operations have been disabled",
+	},
+	{
+		description:    "load_props() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-file-ops` to disable file operations for security.",
+		expression:     `load_props("../../examples/small.properties")`,
+		expectedError:  "file operations have been disabled",
+	},
+	{
+		description:    "load_base64() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-file-ops` to disable file operations for security.",
+		expression:     `load_base64("../../examples/base64.txt")`,
+		expectedError:  "file operations have been disabled",
+	},
+}
+
+func TestLoadOperatorSecurityDisabledScenarios(t *testing.T) {
+	// Save original security preferences
+	originalDisableFileOps := ConfiguredSecurityPreferences.DisableFileOps
+	defer func() {
+		ConfiguredSecurityPreferences.DisableFileOps = originalDisableFileOps
+	}()
+
+	// Test that load operations fail when DisableFileOps is true
+	ConfiguredSecurityPreferences.DisableFileOps = true
+
+	for _, tt := range loadOperatorSecurityDisabledScenarios {
+		testScenario(t, &tt)
+	}
+	appendOperatorDocumentScenario(t, "load", loadOperatorSecurityDisabledScenarios)
+}

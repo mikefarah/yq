@@ -250,3 +250,40 @@ func TestEnvOperatorScenarios(t *testing.T) {
 	}
 	documentOperatorScenarios(t, "env-variable-operators", envOperatorScenarios)
 }
+
+var envOperatorSecurityDisabledScenarios = []expressionScenario{
+	{
+		description:    "env() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-env-ops` to disable env operations for security.",
+		expression:     `env("MYENV")`,
+		expectedError:  "env operations have been disabled",
+	},
+	{
+		description:    "strenv() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-env-ops` to disable env operations for security.",
+		expression:     `strenv("MYENV")`,
+		expectedError:  "env operations have been disabled",
+	},
+	{
+		description:    "envsubst() operation fails when security is enabled",
+		subdescription: "Use `--security-disable-env-ops` to disable env operations for security.",
+		expression:     `"value: ${MYENV}" | envsubst`,
+		expectedError:  "env operations have been disabled",
+	},
+}
+
+func TestEnvOperatorSecurityDisabledScenarios(t *testing.T) {
+	// Save original security preferences
+	originalDisableEnvOps := ConfiguredSecurityPreferences.DisableEnvOps
+	defer func() {
+		ConfiguredSecurityPreferences.DisableEnvOps = originalDisableEnvOps
+	}()
+
+	// Test that env() fails when DisableEnvOps is true
+	ConfiguredSecurityPreferences.DisableEnvOps = true
+
+	for _, tt := range envOperatorSecurityDisabledScenarios {
+		testScenario(t, &tt)
+	}
+	appendOperatorDocumentScenario(t, "env-variable-operators", envOperatorSecurityDisabledScenarios)
+}

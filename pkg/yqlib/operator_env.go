@@ -17,6 +17,9 @@ type envOpPreferences struct {
 }
 
 func envOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	if ConfiguredSecurityPreferences.DisableEnvOps {
+		return Context{}, fmt.Errorf("env operations have been disabled")
+	}
 	envName := expressionNode.Operation.CandidateNode.Value
 	log.Debug("EnvOperator, env name:", envName)
 
@@ -54,6 +57,9 @@ func envOperator(_ *dataTreeNavigator, context Context, expressionNode *Expressi
 }
 
 func envsubstOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	if ConfiguredSecurityPreferences.DisableEnvOps {
+		return Context{}, fmt.Errorf("env operations have been disabled")
+	}
 	var results = list.New()
 	preferences := envOpPreferences{}
 	if expressionNode.Operation.Preferences != nil {
