@@ -80,6 +80,7 @@
 ## Usage
 
 * [Output format](usage/output-format.md)
+* [Working with Base64](usage/base64.md)
 * [Working with CSV, TSV](usage/csv-tsv.md)
 * [Working with JSON](usage/convert.md)
 * [Working with Properties](usage/properties.md)

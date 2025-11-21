@@ -84,3 +84,23 @@ will output
 name='Miles O'"'"'Brien'
 ```
 
+## Encode shell variables: custom separator
+Use --shell-key-separator to specify a custom separator between keys. This is useful when the original keys contain underscores.
+
+Given a sample.yml file of:
+```yaml
+my_app:
+  db_config:
+    host: localhost
+    port: 5432
+```
+then
+```bash
+yq -o=shell --shell-key-separator="__" sample.yml
+```
+will output
+```sh
+my_app__db_config__host=localhost
+my_app__db_config__port=5432
+```
+
