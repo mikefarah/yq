@@ -104,6 +104,27 @@ owner:
       suburb: nice
 ```
 
+## Parse: Array of Array Table
+Given a sample.toml file of:
+```toml
+
+[[fruits]]
+name = "apple"
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"
+```
+then
+```bash
+yq -oy '.' sample.toml
+```
+will output
+```yaml
+fruits:
+  - name: apple
+    varieties:
+      - name: red delicious
+```
+
 ## Parse: Empty Table
 Given a sample.toml file of:
 ```toml

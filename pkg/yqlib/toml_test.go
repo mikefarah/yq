@@ -37,6 +37,64 @@ owner:
     age: 36
 `
 
+var doubleArrayTable = `
+[[fruits]]
+name = "apple"
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"`
+
+var doubleArrayTableExpected = `fruits:
+  - name: apple
+    varieties:
+      - name: red delicious
+`
+
+var doubleArrayTableMultipleEntries = `
+[[fruits]]
+name = "banana"
+[[fruits]]
+name = "apple"
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"`
+
+var doubleArrayTableMultipleEntriesExpected = `fruits:
+  - name: banana
+  - name: apple
+    varieties:
+      - name: red delicious
+`
+
+var doubleArrayTableNothingAbove = `
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"`
+
+var doubleArrayTableNothingAboveExpected = `fruits:
+  varieties:
+    - name: red delicious
+`
+
+var doubleArrayTableEmptyAbove = `
+[[fruits]]
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"`
+
+var doubleArrayTableEmptyAboveExpected = `fruits:
+  - varieties:
+      - name: red delicious
+`
+
+var emptyArrayTableThenTable = `
+[[fruits]]
+[animals]
+[[fruits.varieties]]  # nested array of tables
+name = "red delicious"`
+
+var emptyArrayTableThenTableExpected = `fruits:
+  - varieties:
+      - name: red delicious
+animals: {}
+`
+
 var sampleArrayTable = `
 [owner.contact]
 name = "Tom Preston-Werner"
@@ -247,6 +305,40 @@ var tomlScenarios = []formatScenario{
 		description:  "Parse: Array Table",
 		input:        sampleArrayTable,
 		expected:     sampleArrayTableExpected,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse: Array of Array Table",
+		input:        doubleArrayTable,
+		expected:     doubleArrayTableExpected,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse: Array of Array Table; nothing above",
+		input:        doubleArrayTableNothingAbove,
+		expected:     doubleArrayTableNothingAboveExpected,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse: Array of Array Table; empty above",
+		input:        doubleArrayTableEmptyAbove,
+		expected:     doubleArrayTableEmptyAboveExpected,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse: Array of Array Table; multiple entries",
+		input:        doubleArrayTableMultipleEntries,
+		expected:     doubleArrayTableMultipleEntriesExpected,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse: Array of Array Table; then table; then array table",
+		input:        emptyArrayTableThenTable,
+		expected:     emptyArrayTableThenTableExpected,
 		scenarioType: "decode",
 	},
 	{
