@@ -1,3 +1,8 @@
+4.49.1:
+  - Added `--security` flags to disable env and file ops #2515
+  - Fixing TOML ArrayTable parsing issues #1758
+  - Fixing parsing of escaped characters #2506
+
 4.48.2:
   - Strip whitespace when decoding base64 #2507
   - Upgraded to go-yaml v4! (thanks @ccoVeille, @ingydotnet)
