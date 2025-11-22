@@ -1,3 +1,1 @@
-[[fruits]]
-[[fruits.varieties]]  # nested array of tables
-name = "red delicious
+a: apple
