@@ -47,6 +47,10 @@ this.is = a properties file
 bXkgc2VjcmV0IGNoaWxsaSByZWNpcGUgaXMuLi4u
 ```
 
+## Disabling file operators
+If required, you can use the `--security-disable-file-ops` to disable file operations.
+
+
 ## Simple example
 Given a sample.yml file of:
 ```yaml
@@ -192,5 +196,65 @@ will output
 ```yaml
 cool: things
 more_stuff: my secret chilli recipe is....
+```
+
+## load() operation fails when security is enabled
+Use `--security-disable-file-ops` to disable file operations for security.
+
+Running
+```bash
+yq --null-input 'load("../../examples/thing.yml")'
+```
+will output
+```bash
+Error: file operations have been disabled
+```
+
+## load_str() operation fails when security is enabled
+Use `--security-disable-file-ops` to disable file operations for security.
+
+Running
+```bash
+yq --null-input 'load_str("../../examples/thing.yml")'
+```
+will output
+```bash
+Error: file operations have been disabled
+```
+
+## load_xml() operation fails when security is enabled
+Use `--security-disable-file-ops` to disable file operations for security.
+
+Running
+```bash
+yq --null-input 'load_xml("../../examples/small.xml")'
+```
+will output
+```bash
+Error: file operations have been disabled
+```
+
+## load_props() operation fails when security is enabled
+Use `--security-disable-file-ops` to disable file operations for security.
+
+Running
+```bash
+yq --null-input 'load_props("../../examples/small.properties")'
+```
+will output
+```bash
+Error: file operations have been disabled
+```
+
+## load_base64() operation fails when security is enabled
+Use `--security-disable-file-ops` to disable file operations for security.
+
+Running
+```bash
+yq --null-input 'load_base64("../../examples/base64.txt")'
+```
+will output
+```bash
+Error: file operations have been disabled
 ```
 

@@ -29,6 +29,9 @@ as follows:
 yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ```
 
+## Disabling env operators
+If required, you can use the `--security-disable-env-ops` to disable env operations.
+
 
 ## Read string environment variable
 Running
@@ -252,5 +255,41 @@ yq --null-input '"the ${notThere} ${alsoNotThere}" | envsubst(nu,ff)'
 will output
 ```bash
 Error: variable ${notThere} not set
+```
+
+## env() operation fails when security is enabled
+Use `--security-disable-env-ops` to disable env operations for security.
+
+Running
+```bash
+yq --null-input 'env("MYENV")'
+```
+will output
+```bash
+Error: env operations have been disabled
+```
+
+## strenv() operation fails when security is enabled
+Use `--security-disable-env-ops` to disable env operations for security.
+
+Running
+```bash
+yq --null-input 'strenv("MYENV")'
+```
+will output
+```bash
+Error: env operations have been disabled
+```
+
+## envsubst() operation fails when security is enabled
+Use `--security-disable-env-ops` to disable env operations for security.
+
+Running
+```bash
+yq --null-input '"value: ${MYENV}" | envsubst'
+```
+will output
+```bash
+Error: env operations have been disabled
 ```
 
