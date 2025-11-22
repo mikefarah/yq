@@ -8,15 +8,19 @@ grade: stable # devel|stable. must be 'stable' to release into candidate/stable 
 confinement: strict
 architectures:
   - build-on: [amd64]
-    build-for: [all]
-# architectures:
-#   - build-on: s390x
-#   - build-on: ppc64el
-#   - build-on: arm64
-#   - build-on: armhf
-#   - build-on: amd64
-#   - build-on: i386
-#   - build-on: riscv64
+    build-for: [amd64]
+  - build-on: [amd64]
+    build-for: [arm64]
+  - build-on: [amd64]
+    build-for: [armhf]
+  - build-on: [amd64]
+    build-for: [i386]
+  - build-on: [amd64]
+    build-for: [ppc64el]
+  - build-on: [amd64]
+    build-for: [s390x]
+  - build-on: [amd64]
+    build-for: [riscv64]
 apps:
   yq:
     command: bin/yq
