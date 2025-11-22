@@ -267,6 +267,14 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	fullPath := dec.getFullPath(currentNode.Child())
 	log.Debug("fullpath: %v", fullPath)
 
+	c := Context{}
+	c = c.SingleChildContext(dec.rootMap)
+
+	fullPath, err := getPathToUse(fullPath, dec, c)
+	if err != nil {
+		return false, err
+	}
+
 	tableNodeValue := &CandidateNode{
 		Kind:    MappingNode,
 		Tag:     "!!map",
@@ -275,7 +283,6 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 
 	var tableValue *toml.Node
 	runAgainstCurrentExp := false
-	var err error
 	hasValue := dec.parser.NextExpression()
 	// check to see if there is any table data
 	if hasValue {
@@ -292,8 +299,6 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		}
 	}
 
-	c := Context{}
-	c = c.SingleChildContext(dec.rootMap)
 	err = dec.d.DeeplyAssign(c, fullPath, tableNodeValue)
 	if err != nil {
 		return false, err
@@ -324,34 +329,16 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 }
 
 func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) {
-	log.Debug("c")
+	log.Debug("Enter processArrayTable")
 	fullPath := dec.getFullPath(currentNode.Child())
 	log.Debug("Fullpath: %v", fullPath)
 
 	c := Context{}
 	c = c.SingleChildContext(dec.rootMap)
 
-	pathToCheck := fullPath
-	if len(fullPath) >= 1 {
-		pathToCheck = fullPath[:len(fullPath)-1]
-	}
-
-	// if fullPath points to an array of maps rather than a map
-	// then it should set this element into the _last_ element of that array.
-	// Because TOML. So we'll inject the last index into the path.
-	readOp := createTraversalTree(pathToCheck, traversePreferences{DontAutoCreate: true}, false)
-
-	resultContext, err := dec.d.GetMatchingNodes(c, readOp)
+	fullPath, err := getPathToUse(fullPath, dec, c)
 	if err != nil {
 		return false, err
-	}
-	if resultContext.MatchingNodes.Len() >= 1 {
-		match := resultContext.MatchingNodes.Front().Value.(*CandidateNode)
-		// path refers to an array, we need to add this to the last element in the array
-		if match.Kind == SequenceNode {
-			fullPath = append(pathToCheck, len(match.Content)-1, fullPath[len(fullPath)-1])
-			log.Debugf("Adding to end of %v array, using path: %v", pathToCheck, fullPath)
-		}
 	}
 
 	// need to use the array append exp to add another entry to
@@ -381,4 +368,30 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	err = dec.arrayAppend(c, fullPath, tableNodeValue)
 
 	return runAgainstCurrentExp, err
+}
+
+// if fullPath points to an array of maps rather than a map
+// then it should set this element into the _last_ element of that array.
+// Because TOML. So we'll inject the last index into the path.
+
+func getPathToUse(fullPath []interface{}, dec *tomlDecoder, c Context) ([]interface{}, error) {
+	pathToCheck := fullPath
+	if len(fullPath) >= 1 {
+		pathToCheck = fullPath[:len(fullPath)-1]
+	}
+	readOp := createTraversalTree(pathToCheck, traversePreferences{DontAutoCreate: true}, false)
+
+	resultContext, err := dec.d.GetMatchingNodes(c, readOp)
+	if err != nil {
+		return nil, err
+	}
+	if resultContext.MatchingNodes.Len() >= 1 {
+		match := resultContext.MatchingNodes.Front().Value.(*CandidateNode)
+		// path refers to an array, we need to add this to the last element in the array
+		if match.Kind == SequenceNode {
+			fullPath = append(pathToCheck, len(match.Content)-1, fullPath[len(fullPath)-1])
+			log.Debugf("Adding to end of %v array, using path: %v", pathToCheck, fullPath)
+		}
+	}
+	return fullPath, err
 }

@@ -95,6 +95,20 @@ var emptyArrayTableThenTableExpected = `fruits:
 animals: {}
 `
 
+var arrayTableThenArray = `
+[[rootA.kidB]]
+cat = "meow"
+
+[rootA.kidB.kidC]
+dog = "bark"`
+
+var arrayTableThenArrayExpected = `rootA:
+  kidB:
+    - cat: meow
+      kidC:
+        dog: bark
+`
+
 var sampleArrayTable = `
 [owner.contact]
 name = "Tom Preston-Werner"
@@ -339,6 +353,13 @@ var tomlScenarios = []formatScenario{
 		description:  "Parse: Array of Array Table; then table; then array table",
 		input:        emptyArrayTableThenTable,
 		expected:     emptyArrayTableThenTableExpected,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Parse: Array of Array Table; then table",
+		input:        arrayTableThenArray,
+		expected:     arrayTableThenArrayExpected,
 		scenarioType: "decode",
 	},
 	{
