@@ -187,15 +187,69 @@ func parseInt(numberString string) (int, error) {
 }
 
 func processEscapeCharacters(original string) string {
-	value := original
-	value = strings.ReplaceAll(value, "\\\"", "\"")
-	value = strings.ReplaceAll(value, "\\n", "\n")
-	value = strings.ReplaceAll(value, "\\t", "\t")
-	value = strings.ReplaceAll(value, "\\r", "\r")
-	value = strings.ReplaceAll(value, "\\f", "\f")
-	value = strings.ReplaceAll(value, "\\v", "\v")
-	value = strings.ReplaceAll(value, "\\b", "\b")
-	value = strings.ReplaceAll(value, "\\a", "\a")
+	if original == "" {
+		return original
+	}
+
+	var result strings.Builder
+	runes := []rune(original)
+
+	for i := 0; i < len(runes); i++ {
+		if runes[i] == '\\' && i < len(runes)-1 {
+			next := runes[i+1]
+			switch next {
+			case '\\':
+				// Check if followed by opening bracket - if so, preserve both backslashes
+				// this is required for string interpolation to work correctly.
+				if i+2 < len(runes) && runes[i+2] == '(' {
+					// Preserve \\ when followed by (
+					result.WriteRune('\\')
+					result.WriteRune('\\')
+					i++ // Skip the next backslash (we'll process the ( normally on next iteration)
+					continue
+				}
+				// Escaped backslash: \\ -> \
+				result.WriteRune('\\')
+				i++ // Skip the next backslash
+				continue
+			case '"':
+				result.WriteRune('"')
+				i++ // Skip the quote
+				continue
+			case 'n':
+				result.WriteRune('\n')
+				i++ // Skip the 'n'
+				continue
+			case 't':
+				result.WriteRune('\t')
+				i++ // Skip the 't'
+				continue
+			case 'r':
+				result.WriteRune('\r')
+				i++ // Skip the 'r'
+				continue
+			case 'f':
+				result.WriteRune('\f')
+				i++ // Skip the 'f'
+				continue
+			case 'v':
+				result.WriteRune('\v')
+				i++ // Skip the 'v'
+				continue
+			case 'b':
+				result.WriteRune('\b')
+				i++ // Skip the 'b'
+				continue
+			case 'a':
+				result.WriteRune('\a')
+				i++ // Skip the 'a'
+				continue
+			}
+		}
+		result.WriteRune(runes[i])
+	}
+
+	value := result.String()
 	if value != original {
 		log.Debug("processEscapeCharacters from [%v] to [%v]", original, value)
 	}

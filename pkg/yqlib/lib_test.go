@@ -408,3 +408,122 @@ func TestKindString(t *testing.T) {
 	test.AssertResult(t, "AliasNode", KindString(AliasNode))
 	test.AssertResult(t, "unknown!", KindString(Kind(999))) // Invalid kind
 }
+
+type processEscapeCharactersScenario struct {
+	input    string
+	expected string
+}
+
+var processEscapeCharactersScenarios = []processEscapeCharactersScenario{
+	{
+		input:    "",
+		expected: "",
+	},
+	{
+		input:    "hello",
+		expected: "hello",
+	},
+	{
+		input:    "\\\"",
+		expected: "\"",
+	},
+	{
+		input:    "hello\\\"world",
+		expected: "hello\"world",
+	},
+	{
+		input:    "\\n",
+		expected: "\n",
+	},
+	{
+		input:    "line1\\nline2",
+		expected: "line1\nline2",
+	},
+	{
+		input:    "\\t",
+		expected: "\t",
+	},
+	{
+		input:    "hello\\tworld",
+		expected: "hello\tworld",
+	},
+	{
+		input:    "\\r",
+		expected: "\r",
+	},
+	{
+		input:    "hello\\rworld",
+		expected: "hello\rworld",
+	},
+	{
+		input:    "\\f",
+		expected: "\f",
+	},
+	{
+		input:    "hello\\fworld",
+		expected: "hello\fworld",
+	},
+	{
+		input:    "\\v",
+		expected: "\v",
+	},
+	{
+		input:    "hello\\vworld",
+		expected: "hello\vworld",
+	},
+	{
+		input:    "\\b",
+		expected: "\b",
+	},
+	{
+		input:    "hello\\bworld",
+		expected: "hello\bworld",
+	},
+	{
+		input:    "\\a",
+		expected: "\a",
+	},
+	{
+		input:    "hello\\aworld",
+		expected: "hello\aworld",
+	},
+	{
+		input:    "\\\"\\n\\t\\r\\f\\v\\b\\a",
+		expected: "\"\n\t\r\f\v\b\a",
+	},
+	{
+		input:    "multiple\\nlines\\twith\\ttabs",
+		expected: "multiple\nlines\twith\ttabs",
+	},
+	{
+		input:    "quote\\\"here",
+		expected: "quote\"here",
+	},
+	{
+		input:    "\\\\",
+		expected: "\\", // Backslash is processed: "\\\\" becomes "\\"
+	},
+	{
+		input:    "\\\"test\\\"",
+		expected: "\"test\"",
+	},
+	{
+		input:    "a\\\\b",
+		expected: "a\\b", // Tests roundtrip: "a\\\\b" should become "a\\b"
+	},
+	{
+		input:    "Hi \\\\(.value)",
+		expected: "Hi \\\\(.value)",
+	},
+	{
+		input:    `a\\b`,
+		expected: "a\\b",
+	},
+}
+
+func TestProcessEscapeCharacters(t *testing.T) {
+	for _, tt := range processEscapeCharactersScenarios {
+		actual := processEscapeCharacters(tt.input)
+		test.AssertResultComplexWithContext(t, tt.expected, actual, fmt.Sprintf("Input: %q", tt.input))
+	}
+}
