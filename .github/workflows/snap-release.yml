@@ -17,17 +17,22 @@ on:
           - "false"
 
 jobs:
-    buildSnap:
-      environment: snap
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v5
-        - uses: snapcore/action-build@v1
-          id: build
-        - uses: snapcore/action-publish@v1
-          if: ${{ github.event_name == 'release' || github.event.inputs.publish == 'true' }}
-          env:
-            SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-          with:
-            snap: ${{ steps.build.outputs.snap }}
-            release: stable
+  buildSnap:
+    environment: snap
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: snapcore/action-build@v1
+        id: build
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snapcraft-args: "--remote-build --target-arch=${{ matrix.arch }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yq-${{ matrix.arch }}
+          path: ${{ steps.build.outputs.snap }}
