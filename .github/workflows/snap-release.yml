@@ -15,6 +15,10 @@ jobs:
         - uses: actions/checkout@v5
         - uses: snapcore/action-build@v1
           id: build
+          env:
+            SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+          with:
+            snapcraft-args: "remote-build"
         - uses: snapcore/action-publish@v1
           env:
             SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
