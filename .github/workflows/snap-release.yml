@@ -18,7 +18,7 @@ jobs:
           env:
             SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
           with:
-            snapcraft-args: "remote-build"
+            snapcraft-args: "remote-build --launchpad-accept-public-upload"
         - uses: snapcore/action-publish@v1
           env:
             SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
