@@ -3,22 +3,26 @@ version: 'v4.49.2'
 summary: A lightweight and portable command-line data file processor
 description: |
   `yq` uses [jq](https://github.com/stedolan/jq) like syntax but works with yaml, json, xml, csv, properties and TOML files.
-base: core22
+base: core24
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
-architectures:
-  - build-on: [amd64]
+platforms:
+  amd64:
+    build-on: [amd64]
     build-for: [amd64]
-  - build-on: [arm64]
+  arm64:
+    build-on: [arm64]
     build-for: [arm64]
-  - build-on: [armhf]
+  armhf:
+    build-on: [armhf]
     build-for: [armhf]
-  - build-on: [ppc64el]
-    build-for: [ppc64el]
-  - build-on: [s390x]
+  s390x:
+    build-on: [s390x]
     build-for: [s390x]
-  - build-on: [riscv64]
-    build-for: [riscv64]
+  ppc64el:
+    build-on: [ppc64el]
+    build-for: [ppc64el]
+    
 apps:
   yq:
     command: bin/yq
