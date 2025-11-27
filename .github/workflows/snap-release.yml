@@ -12,7 +12,7 @@ jobs:
       environment: snap
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v5
+        - uses: actions/checkout@v6
         - uses: snapcore/action-build@v1
           id: build
           env:
