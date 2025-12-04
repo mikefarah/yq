@@ -14,7 +14,7 @@ require (
 	github.com/magiconair/properties v1.8.10
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/yuin/gopher-lua v1.1.1
 	go.yaml.in/yaml/v4 v4.0.0-rc.3
