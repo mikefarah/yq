@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"io"
-	"regexp"
 	"strings"
 
 	"github.com/fatih/color"
@@ -37,7 +36,8 @@ func (ye *yamlEncoder) PrintDocumentSeparator(writer io.Writer) error {
 func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) error {
 	reader := bufio.NewReader(strings.NewReader(content))
 
-	var commentLineRegEx = regexp.MustCompile(`^\s*#`)
+	// reuse precompiled package-level regex
+	// (declared in decoder_yaml.go)
 
 	for {
 
@@ -46,13 +46,19 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 			return errReading
 		}
 		if strings.Contains(readline, "$yqDocSeparator$") {
-
-			if err := ye.PrintDocumentSeparator(writer); err != nil {
-				return err
+			// Preserve the original line ending (CRLF or LF)
+			lineEnding := "\n"
+			if strings.HasSuffix(readline, "\r\n") {
+				lineEnding = "\r\n"
+			}
+			if ye.prefs.PrintDocSeparators {
+				if err := writeString(writer, "---"+lineEnding); err != nil {
+					return err
+				}
 			}
 
 		} else {
-			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRegEx.MatchString(readline) {
+			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRe.MatchString(readline) {
 				readline = "# " + readline
 			}
 			if ye.prefs.ColorsEnabled && strings.TrimSpace(readline) != "" {
@@ -79,10 +85,15 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 
 func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debug("encoderYaml - going to print %v", NodeToString(node))
+	// Detect line ending style from LeadingContent
+	lineEnding := "\n"
+	if strings.Contains(node.LeadingContent, "\r\n") {
+		lineEnding = "\r\n"
+	}
 	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
 		valueToPrint := node.Value
 		if node.LeadingContent == "" || valueToPrint != "" {
-			valueToPrint = valueToPrint + "\n"
+			valueToPrint = valueToPrint + lineEnding
 		}
 		return writeString(writer, valueToPrint)
 	}

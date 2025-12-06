@@ -14,6 +14,31 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "---\ncat\n",
 	},
 	{
+		description: "CRLF doc separator",
+		skipDoc:     true,
+		input:       "---\r\ncat\r\n",
+		expected:    "---\r\ncat\r\n",
+	},
+	{
+		description: "yaml directive preserved (LF)",
+		skipDoc:     true,
+		input:       "%YAML 1.1\n---\ncat\n",
+		expected:    "%YAML 1.1\n---\ncat\n",
+	},
+	{
+		description: "yaml directive preserved (CRLF)",
+		skipDoc:     true,
+		input:       "%YAML 1.1\r\n---\r\ncat\r\n",
+		expected:    "%YAML 1.1\r\n---\r\ncat\r\n",
+	},
+	{
+		description: "comment only no trailing newline",
+		skipDoc:     true,
+		input:       "# hello",
+		expected:    "# hello\n",
+	},
+
+	{
 		description: "scalar with doc separator",
 		skipDoc:     true,
 		input:       "---cat",
