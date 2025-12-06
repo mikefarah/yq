@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"io"
+	"math/big"
 	"strconv"
 	"strings"
 
@@ -112,11 +113,16 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			b := v.True()
 			return createScalarNode(b, strconv.FormatBool(b))
 		case v.Type() == cty.Number:
-			// represent numbers as float string
+			// prefer integers when the numeric value is integral
 			bf := v.AsBigFloat()
 			if bf == nil {
 				// fallback to string
-				return createScalarNode(nil, v.GoString())
+				return createStringScalarNode(v.GoString())
+			}
+			// check if bf represents an exact integer
+			if intVal, acc := bf.Int(nil); acc == big.Exact {
+				s := intVal.String()
+				return createScalarNode(int64(intVal.Int64()), s)
 			}
 			s := bf.Text('g', -1)
 			return createScalarNode(0.0, s)
@@ -144,7 +150,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		default:
 			// fallback to string
 			s := v.GoString()
-			return createScalarNode(nil, s)
+			return createStringScalarNode(s)
 		}
 	case *hclsyntax.TemplateExpr:
 		// join parts; if single literal, return that string
@@ -177,9 +183,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		end := r.End.Byte
 		if start > 0 && end >= start && end <= len(src) {
 			text := string(src[start-1 : end])
-			return createScalarNode(nil, text)
+			return createStringScalarNode(text)
 		}
-		return createScalarNode(nil, fmt.Sprintf("%v", expr))
+		return createStringScalarNode(fmt.Sprintf("%v", expr))
 	}
 }
 
@@ -196,7 +202,11 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 	case v.Type() == cty.Number:
 		bf := v.AsBigFloat()
 		if bf == nil {
-			return createScalarNode(nil, v.GoString())
+			return createStringScalarNode(v.GoString())
+		}
+		if intVal, acc := bf.Int(nil); acc == big.Exact {
+			s := intVal.String()
+			return createScalarNode(int64(intVal.Int64()), s)
 		}
 		s := bf.Text('g', -1)
 		return createScalarNode(0.0, s)
@@ -219,7 +229,7 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 		}
 		return m
 	default:
-		return createScalarNode(nil, v.GoString())
+		return createStringScalarNode(v.GoString())
 	}
 
 }
