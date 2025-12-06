@@ -122,7 +122,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			// check if bf represents an exact integer
 			if intVal, acc := bf.Int(nil); acc == big.Exact {
 				s := intVal.String()
-				return createScalarNode(int64(intVal.Int64()), s)
+				return createScalarNode(intVal.Int64(), s)
 			}
 			s := bf.Text('g', -1)
 			return createScalarNode(0.0, s)
@@ -152,6 +152,38 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			s := v.GoString()
 			return createStringScalarNode(s)
 		}
+	case *hclsyntax.TupleConsExpr:
+		// parse tuple/list into YAML sequence
+		seq := &CandidateNode{Kind: SequenceNode}
+		for _, exprVal := range e.Exprs {
+			child := convertHclExprToNode(exprVal, src)
+			seq.AddChild(child)
+		}
+		return seq
+	case *hclsyntax.ObjectConsExpr:
+		// parse object into YAML mapping
+		m := &CandidateNode{Kind: MappingNode}
+		for _, item := range e.Items {
+			// evaluate key expression to get the key string
+			keyVal, keyDiags := item.KeyExpr.Value(nil)
+			if keyDiags != nil && keyDiags.HasErrors() {
+				// fallback: try to extract key from source
+				r := item.KeyExpr.Range()
+				start := r.Start.Byte
+				end := r.End.Byte
+				if start > 0 && end >= start && end <= len(src) {
+					keyNode := createStringScalarNode(strings.TrimSpace(string(src[start-1 : end])))
+					valNode := convertHclExprToNode(item.ValueExpr, src)
+					m.AddKeyValueChild(keyNode, valNode)
+				}
+				continue
+			}
+			keyStr := keyVal.AsString()
+			keyNode := createStringScalarNode(keyStr)
+			valNode := convertHclExprToNode(item.ValueExpr, src)
+			m.AddKeyValueChild(keyNode, valNode)
+		}
+		return m
 	case *hclsyntax.TemplateExpr:
 		// join parts; if single literal, return that string
 		var parts []string
@@ -206,7 +238,7 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 		}
 		if intVal, acc := bf.Int(nil); acc == big.Exact {
 			s := intVal.String()
-			return createScalarNode(int64(intVal.Int64()), s)
+			return createScalarNode(intVal.Int64(), s)
 		}
 		s := bf.Text('g', -1)
 		return createScalarNode(0.0, s)

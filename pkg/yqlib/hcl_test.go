@@ -34,13 +34,13 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "list of strings",
 		input:        `tags = ["a", "b"]`,
-		expected:     "tags: ' [\"a\", \"b\"]'\n",
+		expected:     "tags:\n  - a\n  - b\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "object/map attribute",
 		input:        `obj = { a = 1, b = "two" }`,
-		expected:     "obj: ' { a = 1, b = \"two\" }'\n",
+		expected:     "obj:\n  a: 1\n  b: two\n",
 		scenarioType: "decode",
 	},
 	{
