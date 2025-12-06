@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+
 	"strings"
 
 	"github.com/fatih/color"
