@@ -266,3 +266,7 @@ nosh
 noshell
 tinygo
 nonexistent
+hclsyntax
+zclconf
+cty
+go-cty
