@@ -81,14 +81,7 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 	// process blocks
 	for _, block := range body.Blocks {
-		// build a key from type and labels to preserve identity
-		keyName := block.Type
-		if len(block.Labels) > 0 {
-			keyName = keyName + " " + strings.Join(block.Labels, " ")
-		}
-		keyNode := createStringScalarNode(keyName)
-		valueNode := hclBodyToNode(block.Body, dec.fileBytes)
-		root.AddKeyValueChild(keyNode, valueNode)
+		addBlockToMapping(root, block, dec.fileBytes)
 	}
 
 	dec.documentIndex++
@@ -104,15 +97,21 @@ func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 		node.AddKeyValueChild(key, val)
 	}
 	for _, block := range body.Blocks {
-		keyName := block.Type
-		if len(block.Labels) > 0 {
-			keyName = keyName + " " + strings.Join(block.Labels, " ")
-		}
-		key := createStringScalarNode(keyName)
-		val := hclBodyToNode(block.Body, src)
-		node.AddKeyValueChild(key, val)
+		addBlockToMapping(node, block, src)
 	}
 	return node
+}
+
+// addBlockToMapping nests block type and labels into the parent mapping, merging children.
+func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte) {
+	bodyNode := hclBodyToNode(block.Body, src)
+	chain := bodyNode
+	for i := len(block.Labels) - 1; i >= 0; i-- {
+		wrap := &CandidateNode{Kind: MappingNode}
+		wrap.AddKeyValueChild(createStringScalarNode(block.Labels[i]), chain)
+		chain = wrap
+	}
+	parent.AddKeyValueChild(createStringScalarNode(block.Type), chain)
 }
 
 func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode {
