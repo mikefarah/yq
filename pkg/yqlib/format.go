@@ -67,6 +67,11 @@ var TomlFormat = &Format{"toml", []string{},
 	func() Decoder { return NewTomlDecoder() },
 }
 
+var HclFormat = &Format{"hcl", []string{"h", "hcl"},
+	nil,
+	func() Decoder { return NewHclDecoder() },
+}
+
 var ShellVariablesFormat = &Format{"shell", []string{"s", "sh"},
 	func() Encoder { return NewShellVariablesEncoder() },
 	nil,
@@ -93,6 +98,7 @@ var Formats = []*Format{
 	UriFormat,
 	ShFormat,
 	TomlFormat,
+	HclFormat,
 	ShellVariablesFormat,
 	LuaFormat,
 	INIFormat,

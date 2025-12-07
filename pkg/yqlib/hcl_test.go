@@ -49,6 +49,48 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "server:\n  port: 8080\n",
 		scenarioType: "decode",
 	},
+	{
+		description:  "multiple attributes",
+		input:        "name = \"app\"\nversion = 1\nenabled = true",
+		expected:     "name: app\nversion: 1\nenabled: true\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "binary expression",
+		input:        `count = 0 - 42`,
+		expected:     "count: -42\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "negative number",
+		input:        `count = -42`,
+		expected:     "count: -42\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "scientific notation",
+		input:        `value = 1e-3`,
+		expected:     "value: 0.001\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "nested object",
+		input:        `config = { db = { host = "localhost", port = 5432 } }`,
+		expected:     "config:\n  db:\n    host: localhost\n    port: 5432\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "mixed list",
+		input:        `values = [1, "two", true]`,
+		expected:     "values:\n  - 1\n  - two\n  - true\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "block with labels",
+		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
+		expected:     "resource aws_instance example:\n  ami: ami-12345\n",
+		scenarioType: "decode",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {
