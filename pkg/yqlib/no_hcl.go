@@ -6,6 +6,6 @@ func NewHclDecoder() Decoder {
 	return nil
 }
 
-func NewHclEncoder() Encoder {
+func NewHclEncoder(_ HclPreferences) Encoder {
 	return nil
 }

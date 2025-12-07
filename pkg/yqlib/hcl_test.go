@@ -281,7 +281,7 @@ func testHclScenario(t *testing.T, s formatScenario) {
 		result := mustProcessFormatScenario(s, NewHclDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))
 		test.AssertResultWithContext(t, s.expected, result, s.description)
 	case "roundtrip":
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder()), s.description)
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder(ConfiguredHclPreferences)), s.description)
 	}
 }
 
