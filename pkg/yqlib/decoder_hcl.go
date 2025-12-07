@@ -128,7 +128,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			// prefer to extract exact source (to avoid extra quoting) when available
 			// Prefer the actual cty string value
 			s := v.AsString()
-			return createScalarNode(s, s)
+			node := createScalarNode(s, s)
+			// Don't set style for regular quoted strings - let YAML handle naturally
+			return node
 		case v.Type().Equals(cty.Bool):
 			b := v.True()
 			return createScalarNode(b, strconv.FormatBool(b))
@@ -192,8 +194,8 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 				r := item.KeyExpr.Range()
 				start := r.Start.Byte
 				end := r.End.Byte
-				if start > 0 && end >= start && end <= len(src) {
-					keyNode := createStringScalarNode(strings.TrimSpace(string(src[start-1 : end])))
+				if start >= 0 && end >= start && end <= len(src) {
+					keyNode := createStringScalarNode(strings.TrimSpace(string(src[start:end])))
 					valNode := convertHclExprToNode(item.ValueExpr, src)
 					m.AddKeyValueChild(keyNode, valNode)
 				}
@@ -206,7 +208,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		}
 		return m
 	case *hclsyntax.TemplateExpr:
-		// join parts; if single literal, return that string
+		// Reconstruct template string, preserving ${} syntax for interpolations
 		var parts []string
 		for _, p := range e.Parts {
 			switch lp := p.(type) {
@@ -217,18 +219,24 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 					parts = append(parts, lp.Val.GoString())
 				}
 			default:
+				// Non-literal expression - reconstruct with ${} wrapper
 				r := p.Range()
 				start := r.Start.Byte
 				end := r.End.Byte
-				if start > 0 && end >= start && end <= len(src) {
-					parts = append(parts, strings.TrimSpace(string(src[start-1:end])))
+				if start >= 0 && end >= start && end <= len(src) {
+					exprText := string(src[start:end])
+					parts = append(parts, "${"+exprText+"}")
 				} else {
-					parts = append(parts, fmt.Sprintf("%v", p))
+					parts = append(parts, fmt.Sprintf("${%v}", p))
 				}
 			}
 		}
 		combined := strings.Join(parts, "")
-		return createScalarNode(combined, combined)
+		node := createScalarNode(combined, combined)
+		// Set DoubleQuotedStyle for all templates (which includes all quoted strings in HCL)
+		// This ensures HCL roundtrips preserve quotes, and YAML properly quotes strings with ${}
+		node.Style = DoubleQuotedStyle
+		return node
 	default:
 		// try to evaluate the expression (handles unary, binary ops, etc.)
 		val, diags := expr.Value(nil)
@@ -240,8 +248,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		r := expr.Range()
 		start := r.Start.Byte
 		end := r.End.Byte
-		if start > 0 && end >= start && end <= len(src) {
-			text := string(src[start-1 : end])
+		if start >= 0 && end >= start && end <= len(src) {
+			text := string(src[start:end])
+			// Unquoted identifier - no style
 			return createStringScalarNode(text)
 		}
 		return createStringScalarNode(fmt.Sprintf("%v", expr))

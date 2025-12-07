@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	hclwrite "github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/zclconf/go-cty/cty"
 )
@@ -55,6 +58,36 @@ func (he *hclEncoder) compactSpacing(input []byte) []byte {
 	return re.ReplaceAll(input, []byte("$1 ="))
 }
 
+// Helper runes for unquoted identifiers
+func isHCLIdentifierStart(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '_'
+}
+
+func isHCLIdentifierPart(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
+}
+
+// isValidHCLIdentifier checks if a string is a valid HCL identifier (unquoted)
+func isValidHCLIdentifier(s string) bool {
+	if s == "" {
+		return false
+	}
+	// HCL identifiers must start with a letter or underscore
+	// and contain only letters, digits, underscores, and hyphens
+	for i, r := range s {
+		if i == 0 {
+			if !isHCLIdentifierStart(r) {
+				return false
+			}
+			continue
+		}
+		if !isHCLIdentifierPart(r) {
+			return false
+		}
+	}
+	return true
+}
+
 // encodeNode encodes a CandidateNode directly to HCL, preserving style information
 func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error {
 	if node.Kind != MappingNode {
@@ -75,11 +108,79 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 			}
 		} else {
 			// Render as attribute: key = value
-			ctyValue, err := nodeToCtyValue(valueNode)
-			if err != nil {
-				return err
+			// Check the style to determine how to encode strings
+			if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
+				// Check style: DoubleQuotedStyle means template, no style could be unquoted or regular
+				// To distinguish unquoted from regular, we check if the value is a valid identifier
+				if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
+					// Template string - use raw tokens to preserve ${} syntax
+					tokens := hclwrite.Tokens{
+						{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+					}
+					// Parse the string and add tokens
+					for i := 0; i < len(valueNode.Value); i++ {
+						if i < len(valueNode.Value)-1 && valueNode.Value[i] == '$' && valueNode.Value[i+1] == '{' {
+							// Start of template interpolation
+							tokens = append(tokens, &hclwrite.Token{
+								Type:  hclsyntax.TokenTemplateInterp,
+								Bytes: []byte("${"),
+							})
+							i++ // skip the '{'
+							// Find the matching '}'
+							start := i + 1
+							depth := 1
+							for i++; i < len(valueNode.Value) && depth > 0; i++ {
+								switch valueNode.Value[i] {
+								case '{':
+									depth++
+								case '}':
+									depth--
+								}
+							}
+							i-- // back up to the '}'
+							interpExpr := valueNode.Value[start:i]
+							tokens = append(tokens, &hclwrite.Token{
+								Type:  hclsyntax.TokenIdent,
+								Bytes: []byte(interpExpr),
+							})
+							tokens = append(tokens, &hclwrite.Token{
+								Type:  hclsyntax.TokenTemplateSeqEnd,
+								Bytes: []byte("}"),
+							})
+						} else {
+							// Regular character
+							tokens = append(tokens, &hclwrite.Token{
+								Type:  hclsyntax.TokenQuotedLit,
+								Bytes: []byte{valueNode.Value[i]},
+							})
+						}
+					}
+					tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
+					body.SetAttributeRaw(key, tokens)
+				} else if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
+					// Could be unquoted identifier - but only if it came from HCL originally
+					// For safety, only use traversal if style is explicitly 0 (not set)
+					// This avoids treating strings from YAML as unquoted
+					traversal := hcl.Traversal{
+						hcl.TraverseRoot{Name: valueNode.Value},
+					}
+					body.SetAttributeTraversal(key, traversal)
+				} else {
+					// Regular quoted string - use cty.Value
+					ctyValue, err := nodeToCtyValue(valueNode)
+					if err != nil {
+						return err
+					}
+					body.SetAttributeValue(key, ctyValue)
+				}
+			} else {
+				// Non-string value - use cty.Value
+				ctyValue, err := nodeToCtyValue(valueNode)
+				if err != nil {
+					return err
+				}
+				body.SetAttributeValue(key, ctyValue)
 			}
-			body.SetAttributeValue(key, ctyValue)
 		}
 	}
 	return nil
@@ -96,11 +197,21 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
 
-		ctyValue, err := nodeToCtyValue(valueNode)
-		if err != nil {
-			return err
+		// Check if this is an unquoted identifier (no DoubleQuotedStyle)
+		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" && valueNode.Style&DoubleQuotedStyle == 0 {
+			// Unquoted identifier - use traversal
+			traversal := hcl.Traversal{
+				hcl.TraverseRoot{Name: valueNode.Value},
+			}
+			body.SetAttributeTraversal(key, traversal)
+		} else {
+			// Quoted value or non-string - use cty.Value
+			ctyValue, err := nodeToCtyValue(valueNode)
+			if err != nil {
+				return err
+			}
+			body.SetAttributeValue(key, ctyValue)
 		}
-		body.SetAttributeValue(key, ctyValue)
 	}
 	return nil
 }
