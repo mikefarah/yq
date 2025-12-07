@@ -12,6 +12,39 @@ var nestedExample = `service "http" "web_proxy" {
 
 var nestedExampleYaml = "service:\n  http:\n    web_proxy:\n      listen_addr: \"127.0.0.1:8080\"\n"
 
+var multipleBlockLabelKeys = `service "cat" {
+  process "main" {
+    command = ["/usr/local/bin/awesome-app", "server"]
+  }
+
+  process "management" {
+    command = ["/usr/local/bin/awesome-app", "management"]
+  }
+}
+`
+var multipleBlockLabelKeysExpected = `service "cat" {
+  process "main" {
+    command = ["/usr/local/bin/awesome-app", "server"]
+  }
+  process "management" {
+    command = ["/usr/local/bin/awesome-app", "management"]
+  }
+}
+`
+
+var multipleBlockLabelKeysExpectedYaml = `service:
+  cat:
+    process:
+      main:
+        command:
+          - "/usr/local/bin/awesome-app"
+          - "server"
+      management:
+        command:
+          - "/usr/local/bin/awesome-app"
+          - "management"
+`
+
 var hclFormatScenarios = []formatScenario{
 	{
 		description:  "Simple decode",
@@ -131,6 +164,18 @@ var hclFormatScenarios = []formatScenario{
 		description:  "mixed list",
 		input:        `values = [1, "two", true]`,
 		expected:     "values:\n  - 1\n  - \"two\"\n  - true\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "multiple block label keys roundtrip",
+		input:        multipleBlockLabelKeys,
+		expected:     multipleBlockLabelKeysExpected,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "multiple block label keys decode",
+		input:        multipleBlockLabelKeys,
+		expected:     multipleBlockLabelKeysExpectedYaml,
 		scenarioType: "decode",
 	},
 	{
