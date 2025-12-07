@@ -138,6 +138,126 @@ func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
 	return tokens, nil
 }
 
+// encodeAttribute encodes a value as an HCL attribute
+func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode *CandidateNode) error {
+	if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
+		if valueNode.Style&LiteralStyle != 0 {
+			tokens, err := tokensForRawHCLExpr(valueNode.Value)
+			if err != nil {
+				return err
+			}
+			body.SetAttributeRaw(key, tokens)
+			return nil
+		}
+		// Check if template with interpolation
+		if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
+			return he.encodeTemplateAttribute(body, key, valueNode.Value)
+		}
+		// Check if unquoted identifier
+		if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
+			traversal := hcl.Traversal{
+				hcl.TraverseRoot{Name: valueNode.Value},
+			}
+			body.SetAttributeTraversal(key, traversal)
+			return nil
+		}
+	}
+	// Default: use cty.Value for quoted strings and all other types
+	ctyValue, err := nodeToCtyValue(valueNode)
+	if err != nil {
+		return err
+	}
+	body.SetAttributeValue(key, ctyValue)
+	return nil
+}
+
+// encodeTemplateAttribute encodes a template string with ${} interpolations
+func (he *hclEncoder) encodeTemplateAttribute(body *hclwrite.Body, key string, templateStr string) error {
+	tokens := hclwrite.Tokens{
+		{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+	}
+
+	for i := 0; i < len(templateStr); i++ {
+		if i < len(templateStr)-1 && templateStr[i] == '$' && templateStr[i+1] == '{' {
+			// Start of template interpolation
+			tokens = append(tokens, &hclwrite.Token{
+				Type:  hclsyntax.TokenTemplateInterp,
+				Bytes: []byte("${"),
+			})
+			i++ // skip the '{'
+			// Find the matching '}'
+			start := i + 1
+			depth := 1
+			for i++; i < len(templateStr) && depth > 0; i++ {
+				switch templateStr[i] {
+				case '{':
+					depth++
+				case '}':
+					depth--
+				}
+			}
+			i-- // back up to the '}'
+			interpExpr := templateStr[start:i]
+			tokens = append(tokens, &hclwrite.Token{
+				Type:  hclsyntax.TokenIdent,
+				Bytes: []byte(interpExpr),
+			})
+			tokens = append(tokens, &hclwrite.Token{
+				Type:  hclsyntax.TokenTemplateSeqEnd,
+				Bytes: []byte("}"),
+			})
+		} else {
+			// Regular character
+			tokens = append(tokens, &hclwrite.Token{
+				Type:  hclsyntax.TokenQuotedLit,
+				Bytes: []byte{templateStr[i]},
+			})
+		}
+	}
+	tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
+	body.SetAttributeRaw(key, tokens)
+	return nil
+}
+
+// encodeBlockIfMapping attempts to encode a value as a block. Returns true if it was encoded as a block.
+func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valueNode *CandidateNode) bool {
+	if valueNode.Kind != MappingNode || valueNode.Style == FlowStyle {
+		return false
+	}
+
+	// Try to extract block labels from a single-entry mapping chain
+	if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
+		if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
+			primaryLabels := labels[:len(labels)-1]
+			nestedType := labels[len(labels)-1]
+			block := body.AppendNewBlock(key, primaryLabels)
+			if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err == nil && handled {
+				return true
+			}
+			if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
+				return true
+			}
+		}
+		block := body.AppendNewBlock(key, labels)
+		if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
+			return true
+		}
+	}
+
+	// If all child values are mappings, treat each child key as a labeled instance of this block type
+	if handled, _ := he.encodeMappingChildrenAsBlocks(body, key, valueNode); handled {
+		return true
+	}
+
+	// No labels detected, render as unlabeled block
+	block := body.AppendNewBlock(key, nil)
+	if err := he.encodeNodeAttributes(block.Body(), valueNode); err == nil {
+		return true
+	}
+
+	return false
+}
+
 // encodeNode encodes a CandidateNode directly to HCL, preserving style information
 func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error {
 	if node.Kind != MappingNode {
@@ -149,124 +269,14 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
 
-		// Check if value is a mapping without FlowStyle -> render as block
-		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
-			// Try to extract block labels from a single-entry mapping chain
-			if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
-				if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
-					primaryLabels := labels[:len(labels)-1]
-					nestedType := labels[len(labels)-1]
-					block := body.AppendNewBlock(key, primaryLabels)
-					if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
-						return err
-					} else if !handled {
-						if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
-							return err
-						}
-					}
-					continue
-				}
-				block := body.AppendNewBlock(key, labels)
-				if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
-					return err
-				}
-				continue
-			}
-			// If all child values are mappings, treat each child key as a labeled instance of this block type
-			if handled, err := he.encodeMappingChildrenAsBlocks(body, key, valueNode); err != nil {
-				return err
-			} else if handled {
-				continue
-			}
-			// No labels detected, render as unlabeled block
-			block := body.AppendNewBlock(key, nil)
-			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
-				return err
-			}
+		// Render as block or attribute depending on value type
+		if he.encodeBlockIfMapping(body, key, valueNode) {
 			continue
 		}
 
 		// Render as attribute: key = value
-		// Check the style to determine how to encode strings
-		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
-			if valueNode.Style&LiteralStyle != 0 {
-				tokens, err := tokensForRawHCLExpr(valueNode.Value)
-				if err != nil {
-					return err
-				}
-				body.SetAttributeRaw(key, tokens)
-				continue
-			}
-			// Check style: DoubleQuotedStyle means template, no style could be unquoted or regular
-			// To distinguish unquoted from regular, we check if the value is a valid identifier
-			if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
-				// Template string - use raw tokens to preserve ${} syntax
-				tokens := hclwrite.Tokens{
-					{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
-				}
-				// Parse the string and add tokens
-				for i := 0; i < len(valueNode.Value); i++ {
-					if i < len(valueNode.Value)-1 && valueNode.Value[i] == '$' && valueNode.Value[i+1] == '{' {
-						// Start of template interpolation
-						tokens = append(tokens, &hclwrite.Token{
-							Type:  hclsyntax.TokenTemplateInterp,
-							Bytes: []byte("${"),
-						})
-						i++ // skip the '{'
-						// Find the matching '}'
-						start := i + 1
-						depth := 1
-						for i++; i < len(valueNode.Value) && depth > 0; i++ {
-							switch valueNode.Value[i] {
-							case '{':
-								depth++
-							case '}':
-								depth--
-							}
-						}
-						i-- // back up to the '}'
-						interpExpr := valueNode.Value[start:i]
-						tokens = append(tokens, &hclwrite.Token{
-							Type:  hclsyntax.TokenIdent,
-							Bytes: []byte(interpExpr),
-						})
-						tokens = append(tokens, &hclwrite.Token{
-							Type:  hclsyntax.TokenTemplateSeqEnd,
-							Bytes: []byte("}"),
-						})
-					} else {
-						// Regular character
-						tokens = append(tokens, &hclwrite.Token{
-							Type:  hclsyntax.TokenQuotedLit,
-							Bytes: []byte{valueNode.Value[i]},
-						})
-					}
-				}
-				tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
-				body.SetAttributeRaw(key, tokens)
-			} else if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
-				// Could be unquoted identifier - but only if it came from HCL originally
-				// For safety, only use traversal if style is explicitly 0 (not set)
-				// This avoids treating strings from YAML as unquoted
-				traversal := hcl.Traversal{
-					hcl.TraverseRoot{Name: valueNode.Value},
-				}
-				body.SetAttributeTraversal(key, traversal)
-			} else {
-				// Regular quoted string - use cty.Value
-				ctyValue, err := nodeToCtyValue(valueNode)
-				if err != nil {
-					return err
-				}
-				body.SetAttributeValue(key, ctyValue)
-			}
-		} else {
-			// Non-string value - use cty.Value
-			ctyValue, err := nodeToCtyValue(valueNode)
-			if err != nil {
-				return err
-			}
-			body.SetAttributeValue(key, ctyValue)
+		if err := he.encodeAttribute(body, key, valueNode); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -324,61 +334,14 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
 
-		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
-			if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
-				if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
-					primaryLabels := labels[:len(labels)-1]
-					nestedType := labels[len(labels)-1]
-					block := body.AppendNewBlock(key, primaryLabels)
-					if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
-						return err
-					} else if !handled {
-						if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
-							return err
-						}
-					}
-					continue
-				}
-				block := body.AppendNewBlock(key, labels)
-				if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
-					return err
-				}
-				continue
-			}
-			if handled, err := he.encodeMappingChildrenAsBlocks(body, key, valueNode); err != nil {
-				return err
-			} else if handled {
-				continue
-			}
-			block := body.AppendNewBlock(key, nil)
-			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
-				return err
-			}
+		// Render as block or attribute depending on value type
+		if he.encodeBlockIfMapping(body, key, valueNode) {
 			continue
 		}
 
-		// Check if this is an unquoted identifier (no DoubleQuotedStyle)
-		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" && valueNode.Style&DoubleQuotedStyle == 0 {
-			if valueNode.Style&LiteralStyle != 0 {
-				tokens, err := tokensForRawHCLExpr(valueNode.Value)
-				if err != nil {
-					return err
-				}
-				body.SetAttributeRaw(key, tokens)
-				continue
-			}
-			// Unquoted identifier - use traversal
-			traversal := hcl.Traversal{
-				hcl.TraverseRoot{Name: valueNode.Value},
-			}
-			body.SetAttributeTraversal(key, traversal)
-		} else {
-			// Quoted value or non-string - use cty.Value
-			ctyValue, err := nodeToCtyValue(valueNode)
-			if err != nil {
-				return err
-			}
-			body.SetAttributeValue(key, ctyValue)
+		// Render attribute for non-block value
+		if err := he.encodeAttribute(body, key, valueNode); err != nil {
+			return err
 		}
 	}
 	return nil
