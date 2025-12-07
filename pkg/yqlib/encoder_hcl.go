@@ -151,7 +151,15 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 
 		// Check if value is a mapping without FlowStyle -> render as block
 		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
-			// Render as block: key { ... }
+			// Try to extract block labels from a single-entry mapping chain
+			if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
+				block := body.AppendNewBlock(key, labels)
+				if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+					return err
+				}
+				continue
+			}
+			// No labels detected, render as unlabeled block
 			block := body.AppendNewBlock(key, nil)
 			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
 				return err
@@ -280,6 +288,30 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		}
 	}
 	return nil
+}
+
+// extractBlockLabels detects a chain of single-entry mappings that encode block labels.
+// It returns the collected labels and the final mapping to be used as the block body.
+// Pattern: {label1: {label2: { ... {bodyMap} }}}
+func extractBlockLabels(node *CandidateNode) ([]string, *CandidateNode, bool) {
+	var labels []string
+	current := node
+	for current != nil && current.Kind == MappingNode && len(current.Content) == 2 {
+		keyNode := current.Content[0]
+		valNode := current.Content[1]
+		if valNode.Kind != MappingNode {
+			break
+		}
+		labels = append(labels, keyNode.Value)
+		// If the child is itself a single mapping entry with a mapping value, keep descending.
+		if len(valNode.Content) == 2 && valNode.Content[1].Kind == MappingNode {
+			current = valNode
+			continue
+		}
+		// Otherwise, we have reached the body mapping.
+		return labels, valNode, true
+	}
+	return nil, nil, false
 }
 
 // nodeToCtyValue converts a CandidateNode directly to cty.Value, preserving order
