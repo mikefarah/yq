@@ -73,11 +73,11 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 			}
 		} else {
 			// Render as attribute: key = value
-			goValue, err := candidateNodeToGoValue(valueNode)
+			ctyValue, err := nodeToCtyValue(valueNode)
 			if err != nil {
 				return err
 			}
-			body.SetAttributeValue(key, toCtyValue(goValue))
+			body.SetAttributeValue(key, ctyValue)
 		}
 	}
 	return nil
@@ -94,99 +94,69 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
 
-		goValue, err := candidateNodeToGoValue(valueNode)
+		ctyValue, err := nodeToCtyValue(valueNode)
 		if err != nil {
 			return err
 		}
-		body.SetAttributeValue(key, toCtyValue(goValue))
+		body.SetAttributeValue(key, ctyValue)
 	}
 	return nil
 }
 
-// candidateNodeToGoValue converts a CandidateNode to a Go value suitable for HCL encoding
-func candidateNodeToGoValue(node *CandidateNode) (interface{}, error) {
+// nodeToCtyValue converts a CandidateNode directly to cty.Value, preserving order
+func nodeToCtyValue(node *CandidateNode) (cty.Value, error) {
 	switch node.Kind {
 	case ScalarNode:
 		// Parse scalar value based on its tag
 		switch node.Tag {
 		case "!!bool":
-			return node.Value == "true", nil
+			return cty.BoolVal(node.Value == "true"), nil
 		case "!!int":
 			var i int64
 			_, err := fmt.Sscanf(node.Value, "%d", &i)
 			if err != nil {
-				return nil, err
+				return cty.NilVal, err
 			}
-			return i, nil
+			return cty.NumberIntVal(i), nil
 		case "!!float":
 			var f float64
 			_, err := fmt.Sscanf(node.Value, "%f", &f)
 			if err != nil {
-				return nil, err
+				return cty.NilVal, err
 			}
-			return f, nil
+			return cty.NumberFloatVal(f), nil
 		case "!!null":
-			return nil, nil
+			return cty.NullVal(cty.DynamicPseudoType), nil
 		default:
 			// Default to string
-			return node.Value, nil
+			return cty.StringVal(node.Value), nil
 		}
 	case MappingNode:
-		m := make(map[string]interface{})
+		// Preserve order by iterating Content directly
+		m := make(map[string]cty.Value)
 		for i := 0; i < len(node.Content); i += 2 {
 			keyNode := node.Content[i]
 			valueNode := node.Content[i+1]
-			v, err := candidateNodeToGoValue(valueNode)
+			v, err := nodeToCtyValue(valueNode)
 			if err != nil {
-				return nil, err
+				return cty.NilVal, err
 			}
 			m[keyNode.Value] = v
 		}
-		return m, nil
+		return cty.ObjectVal(m), nil
 	case SequenceNode:
-		arr := make([]interface{}, len(node.Content))
+		vals := make([]cty.Value, len(node.Content))
 		for i, item := range node.Content {
-			v, err := candidateNodeToGoValue(item)
+			v, err := nodeToCtyValue(item)
 			if err != nil {
-				return nil, err
+				return cty.NilVal, err
 			}
-			arr[i] = v
+			vals[i] = v
 		}
-		return arr, nil
+		return cty.TupleVal(vals), nil
 	case AliasNode:
-		return nil, fmt.Errorf("HCL encoder does not support aliases")
+		return cty.NilVal, fmt.Errorf("HCL encoder does not support aliases")
 	default:
-		return nil, fmt.Errorf("unsupported node kind: %v", node.Kind)
-	}
-}
-
-// toCtyValue converts Go values to cty.Value for hclwrite
-func toCtyValue(val interface{}) cty.Value {
-	switch v := val.(type) {
-	case string:
-		return cty.StringVal(v)
-	case bool:
-		return cty.BoolVal(v)
-	case int:
-		return cty.NumberIntVal(int64(v))
-	case int64:
-		return cty.NumberIntVal(v)
-	case float64:
-		return cty.NumberFloatVal(v)
-	case []interface{}:
-		vals := make([]cty.Value, len(v))
-		for i, item := range v {
-			vals[i] = toCtyValue(item)
-		}
-		return cty.TupleVal(vals)
-	case map[string]interface{}:
-		m := make(map[string]cty.Value)
-		for k, item := range v {
-			m[k] = toCtyValue(item)
-		}
-		return cty.ObjectVal(m)
-	default:
-		// fallback: treat as string
-		return cty.StringVal(fmt.Sprintf("%v", v))
+		return cty.NilVal, fmt.Errorf("unsupported node kind: %v", node.Kind)
 	}
 }
