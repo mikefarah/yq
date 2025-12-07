@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"math/big"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -21,6 +22,23 @@ type hclDecoder struct {
 
 func NewHclDecoder() Decoder {
 	return &hclDecoder{}
+}
+
+// sortedAttributes returns attributes in declaration order by source position
+func sortedAttributes(attrs hclsyntax.Attributes) []*attributeWithName {
+	var sorted []*attributeWithName
+	for name, attr := range attrs {
+		sorted = append(sorted, &attributeWithName{Name: name, Attr: attr})
+	}
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Attr.Range().Start.Byte < sorted[j].Attr.Range().Start.Byte
+	})
+	return sorted
+}
+
+type attributeWithName struct {
+	Name string
+	Attr *hclsyntax.Attribute
 }
 
 func (dec *hclDecoder) Init(reader io.Reader) error {
@@ -51,11 +69,11 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 	root := &CandidateNode{Kind: MappingNode}
 
-	// process attributes
+	// process attributes in declaration order
 	body := dec.file.Body.(*hclsyntax.Body)
-	for name, attr := range body.Attributes {
-		keyNode := createStringScalarNode(name)
-		valNode := convertHclExprToNode(attr.Expr, dec.fileBytes)
+	for _, attrWithName := range sortedAttributes(body.Attributes) {
+		keyNode := createStringScalarNode(attrWithName.Name)
+		valNode := convertHclExprToNode(attrWithName.Attr.Expr, dec.fileBytes)
 		root.AddKeyValueChild(keyNode, valNode)
 	}
 
@@ -78,9 +96,9 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 	node := &CandidateNode{Kind: MappingNode}
-	for name, attr := range body.Attributes {
-		key := createStringScalarNode(name)
-		val := convertHclExprToNode(attr.Expr, src)
+	for _, attrWithName := range sortedAttributes(body.Attributes) {
+		key := createStringScalarNode(attrWithName.Name)
+		val := convertHclExprToNode(attrWithName.Attr.Expr, src)
 		node.AddKeyValueChild(key, val)
 	}
 	for _, block := range body.Blocks {
@@ -209,6 +227,12 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		combined := strings.Join(parts, "")
 		return createScalarNode(combined, combined)
 	default:
+		// try to evaluate the expression (handles unary, binary ops, etc.)
+		val, diags := expr.Value(nil)
+		if diags == nil || !diags.HasErrors() {
+			// successfully evaluated, convert cty.Value to node
+			return convertCtyValueToNode(val)
+		}
 		// fallback: extract source text for the expression
 		r := expr.Range()
 		start := r.Start.Byte
