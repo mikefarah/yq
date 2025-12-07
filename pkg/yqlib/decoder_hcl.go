@@ -357,5 +357,4 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 	default:
 		return createStringScalarNode(v.GoString())
 	}
-
 }
