@@ -64,8 +64,9 @@ func extractLineComment(src []byte, endPos int) string {
 	return ""
 }
 
-// extractLeadingComments extracts comments from the very beginning of the file
-func extractLeadingComments(src []byte) string {
+// extractLeadingComments extracts comments from the very beginning of the file.
+// It returns the comment text and the byte position of the last character in that leading block.
+func extractLeadingComments(src []byte) (string, int) {
 	var comments []string
 	i := 0
 
@@ -74,6 +75,8 @@ func extractLeadingComments(src []byte) string {
 		i++
 	}
 
+	lastPos := -1
+
 	// Extract comment lines from the start
 	for i < len(src) && src[i] == '#' {
 		lineStart := i
@@ -81,6 +84,7 @@ func extractLeadingComments(src []byte) string {
 		for i < len(src) && src[i] != '\n' {
 			i++
 		}
+		lastPos = i - 1
 		comments = append(comments, strings.TrimSpace(string(src[lineStart:i])))
 		// Skip newline
 		if i < len(src) && src[i] == '\n' {
@@ -93,51 +97,46 @@ func extractLeadingComments(src []byte) string {
 	}
 
 	if len(comments) > 0 {
-		return strings.Join(comments, "\n")
+		return strings.Join(comments, "\n"), lastPos
 	}
-	return ""
+	return "", -1
 }
 
 // extractHeadComment extracts comments before a given start position
 func extractHeadComment(src []byte, startPos int) string {
 	var comments []string
 
-	// Look backwards from startPos for comment lines
+	// Start just before the token and skip trailing whitespace
 	i := startPos - 1
-
-	// Skip whitespace backwards to find comment
 	for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
 		i--
 	}
 
-	// If we found a #, extract the comment
-	if i >= 0 && src[i] == '#' {
-		// Find the start of this line
-		lineStart := i
-		for lineStart > 0 && src[lineStart-1] != '\n' {
-			lineStart--
-		}
-
-		// Extract from line start to comment end
-		comments = append(comments, strings.TrimSpace(string(src[lineStart:i+1])))
-
-		// Look for more comment lines above this one
-		i = lineStart - 1
-		for i >= 0 && (src[i] == '\n' || src[i] == '\r') {
+	for i >= 0 {
+		// Find line boundaries
+		lineEnd := i
+		for i >= 0 && src[i] != '\n' {
 			i--
 		}
+		lineStart := i + 1
 
-		for i >= 0 && src[i] == '#' {
-			lineStart = i
-			for lineStart > 0 && src[lineStart-1] != '\n' {
-				lineStart--
-			}
-			comments = append([]string{strings.TrimSpace(string(src[lineStart : i+1]))}, comments...)
+		line := strings.TrimRight(string(src[lineStart:lineEnd+1]), " \t\r")
+		trimmed := strings.TrimSpace(line)
 
-			i = lineStart - 1
-			for i >= 0 && (src[i] == '\n' || src[i] == '\r') {
-				i--
-			}
+		if trimmed == "" {
+			break
+		}
+
+		if !strings.HasPrefix(trimmed, "#") {
+			break
+		}
+
+		comments = append([]string{trimmed}, comments...)
+
+		// Move to previous line (skip any whitespace/newlines)
+		i = lineStart - 1
+		for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
+			i--
 		}
 	}
 
@@ -176,7 +175,9 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 	root := &CandidateNode{Kind: MappingNode}
 
 	// Extract file-level head comments (comments at the very beginning of the file)
-	if leadingComment := extractLeadingComments(dec.fileBytes); leadingComment != "" {
+	leadingComment, _ := extractLeadingComments(dec.fileBytes)
+	leadingUsed := false
+	if leadingComment != "" {
 		root.HeadComment = leadingComment
 	}
 
@@ -188,7 +189,18 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 		// Attach comments if any
 		attrRange := attrWithName.Attr.Range()
-		if headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte); headComment != "" {
+		headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte)
+		if !leadingUsed && leadingComment != "" {
+			// Avoid double-applying the leading file comment to the first attribute
+			switch headComment {
+			case leadingComment:
+				headComment = ""
+			case "":
+				headComment = leadingComment
+			}
+			leadingUsed = true
+		}
+		if headComment != "" {
 			valNode.HeadComment = headComment
 		}
 		if lineComment := extractLineComment(dec.fileBytes, attrRange.End.Byte); lineComment != "" {

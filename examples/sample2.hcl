@@ -1,9 +1,8 @@
-service "cat" {
-  process "main" {
-    command = ["/usr/local/bin/awesome-app", "server"]
-  }
+# Arithmetic with literals and application-provided variables
+sum = 1 + addend
 
-  process "mgmt" {
-    command = ["/usr/local/bin/awesome-app", "mgmt"]
-  }
-}
+# String interpolation and templates
+message = "Hello, ${name}!"
+
+# Application-provided functions
+shouty_message = upper(message)

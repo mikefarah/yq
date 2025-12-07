@@ -114,22 +114,37 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 	// Convert output to string for easier manipulation
 	result := string(output)
 
-	// Look for head comments at the root level
-	// These are typically comments before the first attribute
+	// Root-level head comment (stored as ".head")
+	for path, comment := range commentMap {
+		if path == ".head" {
+			trimmed := strings.TrimSpace(comment)
+			if trimmed != "" && !strings.HasPrefix(result, trimmed) {
+				result = trimmed + "\n" + result
+			}
+		}
+	}
+
+	// Attribute head comments: insert above matching assignment
 	for path, comment := range commentMap {
 		parts := strings.Split(path, ".")
-		if len(parts) < 2 {
+		if len(parts) != 2 {
 			continue
 		}
 
-		commentType := parts[len(parts)-1] // "head", "line", or "foot"
+		key := parts[0]
+		commentType := parts[1]
+		if commentType != "head" || key == "" {
+			continue
+		}
 
-		if commentType == "head" && len(parts) == 2 {
-			// Root-level head comment - inject at the beginning
-			// Check if comment not already there
-			if !strings.HasPrefix(result, strings.TrimSpace(comment)) {
-				result = comment + "\n" + result
-			}
+		trimmed := strings.TrimSpace(comment)
+		if trimmed == "" {
+			continue
+		}
+
+		re := regexp.MustCompile(`(?m)^(\s*)` + regexp.QuoteMeta(key) + `\s*=`)
+		if re.MatchString(result) {
+			result = re.ReplaceAllString(result, "$1"+trimmed+"\n$0")
 		}
 	}
 
