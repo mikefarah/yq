@@ -43,6 +43,110 @@ type attributeWithName struct {
 	Attr *hclsyntax.Attribute
 }
 
+// extractLineComment extracts any inline comment after the given position
+func extractLineComment(src []byte, endPos int) string {
+	// Look for # comment after the token
+	for i := endPos; i < len(src); i++ {
+		if src[i] == '#' {
+			// Found comment, extract until end of line
+			start := i
+			for i < len(src) && src[i] != '\n' {
+				i++
+			}
+			return strings.TrimSpace(string(src[start:i]))
+		}
+		if src[i] == '\n' {
+			// Hit newline before comment
+			break
+		}
+		// Skip whitespace and other characters
+	}
+	return ""
+}
+
+// extractLeadingComments extracts comments from the very beginning of the file
+func extractLeadingComments(src []byte) string {
+	var comments []string
+	i := 0
+
+	// Skip leading whitespace
+	for i < len(src) && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
+		i++
+	}
+
+	// Extract comment lines from the start
+	for i < len(src) && src[i] == '#' {
+		lineStart := i
+		// Find end of line
+		for i < len(src) && src[i] != '\n' {
+			i++
+		}
+		comments = append(comments, strings.TrimSpace(string(src[lineStart:i])))
+		// Skip newline
+		if i < len(src) && src[i] == '\n' {
+			i++
+		}
+		// Skip whitespace between comment lines
+		for i < len(src) && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
+			i++
+		}
+	}
+
+	if len(comments) > 0 {
+		return strings.Join(comments, "\n")
+	}
+	return ""
+}
+
+// extractHeadComment extracts comments before a given start position
+func extractHeadComment(src []byte, startPos int) string {
+	var comments []string
+
+	// Look backwards from startPos for comment lines
+	i := startPos - 1
+
+	// Skip whitespace backwards to find comment
+	for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
+		i--
+	}
+
+	// If we found a #, extract the comment
+	if i >= 0 && src[i] == '#' {
+		// Find the start of this line
+		lineStart := i
+		for lineStart > 0 && src[lineStart-1] != '\n' {
+			lineStart--
+		}
+
+		// Extract from line start to comment end
+		comments = append(comments, strings.TrimSpace(string(src[lineStart:i+1])))
+
+		// Look for more comment lines above this one
+		i = lineStart - 1
+		for i >= 0 && (src[i] == '\n' || src[i] == '\r') {
+			i--
+		}
+
+		for i >= 0 && src[i] == '#' {
+			lineStart = i
+			for lineStart > 0 && src[lineStart-1] != '\n' {
+				lineStart--
+			}
+			comments = append([]string{strings.TrimSpace(string(src[lineStart : i+1]))}, comments...)
+
+			i = lineStart - 1
+			for i >= 0 && (src[i] == '\n' || src[i] == '\r') {
+				i--
+			}
+		}
+	}
+
+	if len(comments) > 0 {
+		return strings.Join(comments, "\n")
+	}
+	return ""
+}
+
 func (dec *hclDecoder) Init(reader io.Reader) error {
 	data, err := io.ReadAll(reader)
 	if err != nil {
@@ -71,11 +175,26 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 	root := &CandidateNode{Kind: MappingNode}
 
+	// Extract file-level head comments (comments at the very beginning of the file)
+	if leadingComment := extractLeadingComments(dec.fileBytes); leadingComment != "" {
+		root.HeadComment = leadingComment
+	}
+
 	// process attributes in declaration order
 	body := dec.file.Body.(*hclsyntax.Body)
 	for _, attrWithName := range sortedAttributes(body.Attributes) {
 		keyNode := createStringScalarNode(attrWithName.Name)
 		valNode := convertHclExprToNode(attrWithName.Attr.Expr, dec.fileBytes)
+
+		// Attach comments if any
+		attrRange := attrWithName.Attr.Range()
+		if headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte); headComment != "" {
+			valNode.HeadComment = headComment
+		}
+		if lineComment := extractLineComment(dec.fileBytes, attrRange.End.Byte); lineComment != "" {
+			valNode.LineComment = lineComment
+		}
+
 		root.AddKeyValueChild(keyNode, valNode)
 	}
 
@@ -94,6 +213,16 @@ func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 	for _, attrWithName := range sortedAttributes(body.Attributes) {
 		key := createStringScalarNode(attrWithName.Name)
 		val := convertHclExprToNode(attrWithName.Attr.Expr, src)
+
+		// Attach comments if any
+		attrRange := attrWithName.Attr.Range()
+		if headComment := extractHeadComment(src, attrRange.Start.Byte); headComment != "" {
+			val.HeadComment = headComment
+		}
+		if lineComment := extractLineComment(src, attrRange.End.Byte); lineComment != "" {
+			val.LineComment = lineComment
+		}
+
 		node.AddKeyValueChild(key, val)
 	}
 	for _, block := range body.Blocks {

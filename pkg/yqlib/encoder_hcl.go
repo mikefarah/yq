@@ -39,6 +39,11 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	f := hclwrite.NewEmptyFile()
 	body := f.Body()
+
+	// Collect comments as we encode
+	commentMap := make(map[string]string)
+	he.collectComments(node, "", commentMap)
+
 	if err := he.encodeNode(body, node); err != nil {
 		return fmt.Errorf("failed to encode HCL: %w", err)
 	}
@@ -47,7 +52,10 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	output := f.Bytes()
 	compactOutput := he.compactSpacing(output)
 
-	_, err := writer.Write(compactOutput)
+	// Inject comments back into the output
+	finalOutput := he.injectComments(compactOutput, commentMap)
+
+	_, err := writer.Write(finalOutput)
 	return err
 }
 
@@ -56,6 +64,76 @@ func (he *hclEncoder) compactSpacing(input []byte) []byte {
 	// Use regex to replace multiple spaces before = with single space
 	re := regexp.MustCompile(`(\S)\s{2,}=`)
 	return re.ReplaceAll(input, []byte("$1 ="))
+}
+
+// collectComments recursively collects comments from nodes for later injection
+func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commentMap map[string]string) {
+	if node == nil {
+		return
+	}
+
+	// For mapping nodes, collect comments from values
+	if node.Kind == MappingNode {
+		// Collect root-level head comment if at root (prefix is empty)
+		if prefix == "" && node.HeadComment != "" {
+			commentMap[".head"] = node.HeadComment
+		}
+
+		for i := 0; i < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+			valueNode := node.Content[i+1]
+			key := keyNode.Value
+
+			// Create a path for this key
+			path := key
+			if prefix != "" {
+				path = prefix + "." + key
+			}
+
+			// Store comments for this value
+			if valueNode.HeadComment != "" {
+				commentMap[path+".head"] = valueNode.HeadComment
+			}
+			if valueNode.LineComment != "" {
+				commentMap[path+".line"] = valueNode.LineComment
+			}
+			if valueNode.FootComment != "" {
+				commentMap[path+".foot"] = valueNode.FootComment
+			}
+
+			// Recurse into nested mappings
+			if valueNode.Kind == MappingNode {
+				he.collectComments(valueNode, path, commentMap)
+			}
+		}
+	}
+}
+
+// injectComments adds collected comments back into the HCL output
+func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string) []byte {
+	// Convert output to string for easier manipulation
+	result := string(output)
+
+	// Look for head comments at the root level
+	// These are typically comments before the first attribute
+	for path, comment := range commentMap {
+		parts := strings.Split(path, ".")
+		if len(parts) < 2 {
+			continue
+		}
+
+		commentType := parts[len(parts)-1] // "head", "line", or "foot"
+
+		if commentType == "head" && len(parts) == 2 {
+			// Root-level head comment - inject at the beginning
+			// Check if comment not already there
+			if !strings.HasPrefix(result, strings.TrimSpace(comment)) {
+				result = comment + "\n" + result
+			}
+		}
+	}
+
+	return []byte(result)
 }
 
 // Helper runes for unquoted identifiers
