@@ -40,7 +40,7 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "object/map attribute",
 		input:        `obj = { a = 1, b = "two" }`,
-		expected:     "obj:\n  a: 1\n  b: two\n",
+		expected:     "obj: {a: 1, b: two}\n",
 		scenarioType: "decode",
 	},
 	{
@@ -76,7 +76,7 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "nested object",
 		input:        `config = { db = { host = "localhost", port = 5432 } }`,
-		expected:     "config:\n  db:\n    host: localhost\n    port: 5432\n",
+		expected:     "config: {db: {host: localhost, port: 5432}}\n",
 		scenarioType: "decode",
 	},
 	{
@@ -91,11 +91,64 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "resource aws_instance example:\n  ami: ami-12345\n",
 		scenarioType: "decode",
 	},
+	{
+		description:  "roundtrip simple attribute",
+		input:        `io_mode = "async"`,
+		expected:     `io_mode = "async"` + "\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip number attribute",
+		input:        `port = 8080`,
+		expected:     "port = 8080\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip float attribute",
+		input:        `pi = 3.14`,
+		expected:     "pi = 3.14\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip boolean attribute",
+		input:        `enabled = true`,
+		expected:     "enabled = true\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip list of strings",
+		input:        `tags = ["a", "b"]`,
+		expected:     "tags = [\"a\", \"b\"]\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip object/map attribute",
+		input:        `obj = { a = 1, b = "two" }`,
+		expected:     "obj = {\n  a = 1\n  b = \"two\"\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip nested block",
+		input:        `server { port = 8080 }`,
+		expected:     "server {\n  port = 8080\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip multiple attributes",
+		input:        "name = \"app\"\nversion = 1\nenabled = true",
+		expected:     "name = \"app\"\nversion = 1\nenabled = true\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {
-	if s.scenarioType == "decode" {
-		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewHclDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
+	switch s.scenarioType {
+	case "decode":
+		// Decode to YAML, which means we need to clear HCL-specific tags
+		result := mustProcessFormatScenario(s, NewHclDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))
+		test.AssertResultWithContext(t, s.expected, result, s.description)
+	case "roundtrip":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder()), s.description)
 	}
 }
 
