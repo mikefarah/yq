@@ -105,13 +105,40 @@ func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 // addBlockToMapping nests block type and labels into the parent mapping, merging children.
 func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte) {
 	bodyNode := hclBodyToNode(block.Body, src)
-	chain := bodyNode
-	for i := len(block.Labels) - 1; i >= 0; i-- {
-		wrap := &CandidateNode{Kind: MappingNode}
-		wrap.AddKeyValueChild(createStringScalarNode(block.Labels[i]), chain)
-		chain = wrap
+	current := parent
+
+	// ensure block type mapping exists
+	var typeNode *CandidateNode
+	for i := 0; i < len(current.Content); i += 2 {
+		if current.Content[i].Value == block.Type {
+			typeNode = current.Content[i+1]
+			break
+		}
 	}
-	parent.AddKeyValueChild(createStringScalarNode(block.Type), chain)
+	if typeNode == nil {
+		_, typeNode = current.AddKeyValueChild(createStringScalarNode(block.Type), &CandidateNode{Kind: MappingNode})
+	}
+	current = typeNode
+
+	// walk labels, creating/merging mappings
+	for _, label := range block.Labels {
+		var next *CandidateNode
+		for i := 0; i < len(current.Content); i += 2 {
+			if current.Content[i].Value == label {
+				next = current.Content[i+1]
+				break
+			}
+		}
+		if next == nil {
+			_, next = current.AddKeyValueChild(createStringScalarNode(label), &CandidateNode{Kind: MappingNode})
+		}
+		current = next
+	}
+
+	// merge body attributes/blocks into the final mapping
+	for i := 0; i < len(bodyNode.Content); i += 2 {
+		current.AddKeyValueChild(bodyNode.Content[i], bodyNode.Content[i+1])
+	}
 }
 
 func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode {

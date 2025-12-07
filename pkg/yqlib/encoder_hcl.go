@@ -153,10 +153,29 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
 			// Try to extract block labels from a single-entry mapping chain
 			if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
+				if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
+					primaryLabels := labels[:len(labels)-1]
+					nestedType := labels[len(labels)-1]
+					block := body.AppendNewBlock(key, primaryLabels)
+					if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
+						return err
+					} else if !handled {
+						if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+							return err
+						}
+					}
+					continue
+				}
 				block := body.AppendNewBlock(key, labels)
 				if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
 					return err
 				}
+				continue
+			}
+			// If all child values are mappings, treat each child key as a labeled instance of this block type
+			if handled, err := he.encodeMappingChildrenAsBlocks(body, key, valueNode); err != nil {
+				return err
+			} else if handled {
 				continue
 			}
 			// No labels detected, render as unlabeled block
@@ -164,6 +183,7 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
 				return err
 			}
+			continue
 		} else {
 			// Render as attribute: key = value
 			// Check the style to determine how to encode strings
@@ -252,6 +272,47 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 	return nil
 }
 
+// mappingChildrenAllMappings reports whether all values in a mapping node are non-flow mappings.
+func mappingChildrenAllMappings(node *CandidateNode) bool {
+	if node == nil || node.Kind != MappingNode || node.Style == FlowStyle {
+		return false
+	}
+	if len(node.Content) == 0 {
+		return false
+	}
+	for i := 0; i < len(node.Content); i += 2 {
+		childVal := node.Content[i+1]
+		if childVal.Kind != MappingNode || childVal.Style == FlowStyle {
+			return false
+		}
+	}
+	return true
+}
+
+// encodeMappingChildrenAsBlocks emits a block for each mapping child, treating the child key as a label.
+// Returns handled=true when it emitted blocks.
+func (he *hclEncoder) encodeMappingChildrenAsBlocks(body *hclwrite.Body, blockType string, valueNode *CandidateNode) (bool, error) {
+	if !mappingChildrenAllMappings(valueNode) {
+		return false, nil
+	}
+
+	for i := 0; i < len(valueNode.Content); i += 2 {
+		childKey := valueNode.Content[i].Value
+		childVal := valueNode.Content[i+1]
+		labels := []string{childKey}
+		if extraLabels, bodyNode, ok := extractBlockLabels(childVal); ok {
+			labels = append(labels, extraLabels...)
+			childVal = bodyNode
+		}
+		block := body.AppendNewBlock(blockType, labels)
+		if err := he.encodeNodeAttributes(block.Body(), childVal); err != nil {
+			return true, err
+		}
+	}
+
+	return true, nil
+}
+
 // encodeNodeAttributes encodes the attributes of a mapping node (used for blocks)
 func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateNode) error {
 	if node.Kind != MappingNode {
@@ -262,6 +323,39 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		keyNode := node.Content[i]
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
+
+		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
+				if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
+					if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
+						primaryLabels := labels[:len(labels)-1]
+						nestedType := labels[len(labels)-1]
+						block := body.AppendNewBlock(key, primaryLabels)
+						if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
+							return err
+						} else if !handled {
+							if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+								return err
+							}
+						}
+						continue
+					}
+					block := body.AppendNewBlock(key, labels)
+					if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+						return err
+					}
+					continue
+				}
+			if handled, err := he.encodeMappingChildrenAsBlocks(body, key, valueNode); err != nil {
+				return err
+			} else if handled {
+				continue
+			}
+			block := body.AppendNewBlock(key, nil)
+			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
+				return err
+			}
+			continue
+		}
 
 		// Check if this is an unquoted identifier (no DoubleQuotedStyle)
 		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" && valueNode.Style&DoubleQuotedStyle == 0 {
