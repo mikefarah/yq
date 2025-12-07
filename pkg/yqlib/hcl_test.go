@@ -238,6 +238,18 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "name = \"app\"\nversion = 1\nenabled = true\n",
 		scenarioType: "roundtrip",
 	},
+	{
+		description:  "decode with comments",
+		input:        "# Configuration\nport = 8080 # server port",
+		expected:     "# Configuration\nport: 8080 # server port\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "roundtrip with comments",
+		input:        "# Configuration\nport = 8080",
+		expected:     "# Configuration\nport = 8080\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {
