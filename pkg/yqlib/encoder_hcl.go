@@ -88,6 +88,56 @@ func isValidHCLIdentifier(s string) bool {
 	return true
 }
 
+// tokensForRawHCLExpr produces a minimal token stream for a simple HCL expression so we can
+// write it without introducing quotes (e.g. function calls like upper(message)).
+func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
+	var tokens hclwrite.Tokens
+	for i := 0; i < len(expr); {
+		ch := expr[i]
+		switch {
+		case ch == ' ' || ch == '\t':
+			i++
+			continue
+		case isHCLIdentifierStart(rune(ch)):
+			start := i
+			i++
+			for i < len(expr) && isHCLIdentifierPart(rune(expr[i])) {
+				i++
+			}
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenIdent, Bytes: []byte(expr[start:i])})
+			continue
+		case ch >= '0' && ch <= '9':
+			start := i
+			i++
+			for i < len(expr) && ((expr[i] >= '0' && expr[i] <= '9') || expr[i] == '.') {
+				i++
+			}
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenNumberLit, Bytes: []byte(expr[start:i])})
+			continue
+		case ch == '(':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenOParen, Bytes: []byte{'('}})
+		case ch == ')':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCParen, Bytes: []byte{')'}})
+		case ch == ',':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenComma, Bytes: []byte{','}})
+		case ch == '.':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenDot, Bytes: []byte{'.'}})
+		case ch == '+':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenPlus, Bytes: []byte{'+'}})
+		case ch == '-':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenMinus, Bytes: []byte{'-'}})
+		case ch == '*':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenStar, Bytes: []byte{'*'}})
+		case ch == '/':
+			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenSlash, Bytes: []byte{'/'}})
+		default:
+			return nil, fmt.Errorf("unsupported character %q in raw HCL expression", ch)
+		}
+		i++
+	}
+	return tokens, nil
+}
+
 // encodeNode encodes a CandidateNode directly to HCL, preserving style information
 func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error {
 	if node.Kind != MappingNode {
@@ -110,6 +160,14 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 			// Render as attribute: key = value
 			// Check the style to determine how to encode strings
 			if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
+				if valueNode.Style&LiteralStyle != 0 {
+					tokens, err := tokensForRawHCLExpr(valueNode.Value)
+					if err != nil {
+						return err
+					}
+					body.SetAttributeRaw(key, tokens)
+					continue
+				}
 				// Check style: DoubleQuotedStyle means template, no style could be unquoted or regular
 				// To distinguish unquoted from regular, we check if the value is a valid identifier
 				if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
@@ -199,6 +257,14 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 
 		// Check if this is an unquoted identifier (no DoubleQuotedStyle)
 		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" && valueNode.Style&DoubleQuotedStyle == 0 {
+			if valueNode.Style&LiteralStyle != 0 {
+				tokens, err := tokensForRawHCLExpr(valueNode.Value)
+				if err != nil {
+					return err
+				}
+				body.SetAttributeRaw(key, tokens)
+				continue
+			}
 			// Unquoted identifier - use traversal
 			traversal := hcl.Traversal{
 				hcl.TraverseRoot{Name: valueNode.Value},
