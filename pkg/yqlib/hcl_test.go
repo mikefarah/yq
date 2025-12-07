@@ -144,7 +144,6 @@ var hclFormatScenarios = []formatScenario{
 func testHclScenario(t *testing.T, s formatScenario) {
 	switch s.scenarioType {
 	case "decode":
-		// Decode to YAML, which means we need to clear HCL-specific tags
 		result := mustProcessFormatScenario(s, NewHclDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))
 		test.AssertResultWithContext(t, s.expected, result, s.description)
 	case "roundtrip":

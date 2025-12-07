@@ -267,6 +267,7 @@ noshell
 tinygo
 nonexistent
 hclsyntax
+hclwrite
 zclconf
 cty
 go-cty
