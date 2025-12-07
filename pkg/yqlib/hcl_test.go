@@ -6,6 +6,12 @@ import (
 	"github.com/mikefarah/yq/v4/test"
 )
 
+var nestedExample = `service "http" "web_proxy" {
+  listen_addr = "127.0.0.1:8080"
+}`
+
+var nestedExampleYaml = "service:\n  http:\n    web_proxy:\n      listen_addr: \"127.0.0.1:8080\"\n"
+
 var hclFormatScenarios = []formatScenario{
 	{
 		description:  "Simple decode",
@@ -24,6 +30,12 @@ var hclFormatScenarios = []formatScenario{
 		input:        `io_mode = async`,
 		expected:     "io_mode = async\n",
 		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Nested decode",
+		input:        nestedExample,
+		expected:     nestedExampleYaml,
+		scenarioType: "decode",
 	},
 	{
 		description:  "Template decode",
@@ -124,7 +136,7 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "block with labels",
 		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
-		expected:     "resource aws_instance example:\n  ami: \"ami-12345\"\n",
+		expected:     "resource:\n  aws_instance:\n    example:\n      ami: \"ami-12345\"\n",
 		scenarioType: "decode",
 	},
 	{
