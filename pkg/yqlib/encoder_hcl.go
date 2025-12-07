@@ -3,18 +3,18 @@ package yqlib
 import (
 	"fmt"
 	"io"
-	"strconv"
+	"regexp"
+
+	hclwrite "github.com/hashicorp/hcl/v2/hclwrite"
+	"github.com/zclconf/go-cty/cty"
 )
 
 type hclEncoder struct {
-	indentString string
 }
 
 // NewHclEncoder creates a new HCL encoder
 func NewHclEncoder() Encoder {
-	return &hclEncoder{
-		indentString: "  ", // 2 spaces for HCL indentation
-	}
+	return &hclEncoder{}
 }
 
 func (he *hclEncoder) CanHandleAliases() bool {
@@ -32,209 +32,161 @@ func (he *hclEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debugf("I need to encode %v", NodeToString(node))
 
-	return he.encodeNodeInContext(writer, node, "", false)
+	f := hclwrite.NewEmptyFile()
+	body := f.Body()
+	if err := he.encodeNode(body, node); err != nil {
+		return fmt.Errorf("failed to encode HCL: %w", err)
+	}
+
+	// Get the formatted output and remove extra spacing before '='
+	output := f.Bytes()
+	compactOutput := he.compactSpacing(output)
+
+	_, err := writer.Write(compactOutput)
+	return err
 }
 
-func (he *hclEncoder) encodeNodeInContext(writer io.Writer, node *CandidateNode, indent string, isInAttribute bool) error {
-	switch node.Kind {
-	case ScalarNode:
-		return writeString(writer, he.formatScalarValue(node.Value))
-	case MappingNode:
-		return he.encodeMappingInContext(writer, node, indent, isInAttribute)
-	case SequenceNode:
-		return he.encodeSequence(writer, node, indent)
-	case AliasNode:
-		return fmt.Errorf("HCL encoder does not support aliases")
-	default:
-		return fmt.Errorf("unsupported node kind: %v", node.Kind)
-	}
+// compactSpacing removes extra whitespace before '=' in attribute assignments
+func (he *hclEncoder) compactSpacing(input []byte) []byte {
+	// Use regex to replace multiple spaces before = with single space
+	re := regexp.MustCompile(`(\S)\s{2,}=`)
+	return re.ReplaceAll(input, []byte("$1 ="))
 }
 
-func (he *hclEncoder) encodeMappingInContext(writer io.Writer, node *CandidateNode, indent string, isInAttribute bool) error {
-	if len(node.Content) == 0 {
-		return writeString(writer, "{}")
+// encodeNode encodes a CandidateNode directly to HCL, preserving style information
+func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error {
+	if node.Kind != MappingNode {
+		return fmt.Errorf("HCL encoder expects a mapping at the root level")
 	}
 
-	// If this mapping is an attribute value or flow-styled, render as inline object: { a = 1, b = "two" }
-	if isInAttribute || node.Style == FlowStyle {
-		return he.encodeInlineMapping(writer, node, indent)
-	} // If we're at the top level (indent == "") AND all values are scalars OR mappings,
-	// render as attributes (key = value) or blocks (key { ... })
-	if indent == "" {
-		for i := 0; i < len(node.Content); i += 2 {
-			keyNode := node.Content[i]
-			valueNode := node.Content[i+1]
-			key := keyNode.Value
-
-			// Block-style for nested mappings (unless they're inline objects), attribute-style for scalars/sequences
-			if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
-				// Block: key { ... }
-				if err := writeString(writer, key); err != nil {
-					return err
-				}
-				if err := writeString(writer, " {\n"); err != nil {
-					return err
-				}
-
-				nextIndent := he.indentString
-				for j := 0; j < len(valueNode.Content); j += 2 {
-					nestedKeyNode := valueNode.Content[j]
-					nestedValueNode := valueNode.Content[j+1]
-					nestedKey := nestedKeyNode.Value
-
-					if err := writeString(writer, nextIndent); err != nil {
-						return err
-					}
-					if err := writeString(writer, nestedKey); err != nil {
-						return err
-					}
-					if err := writeString(writer, " = "); err != nil {
-						return err
-					}
-					if err := he.encodeNodeInContext(writer, nestedValueNode, nextIndent, true); err != nil {
-						return err
-					}
-					if err := writeString(writer, "\n"); err != nil {
-						return err
-					}
-				}
-
-				if err := writeString(writer, "}\n"); err != nil {
-					return err
-				}
-			} else {
-				// Attribute: key = value
-				if err := writeString(writer, key); err != nil {
-					return err
-				}
-				if err := writeString(writer, " = "); err != nil {
-					return err
-				}
-				if err := he.encodeNodeInContext(writer, valueNode, "", true); err != nil {
-					return err
-				}
-				if err := writeString(writer, "\n"); err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	}
-
-	// Otherwise, this shouldn't happen at nested levels in top-level syntax
-	return writeString(writer, "{}")
-}
-
-func (he *hclEncoder) encodeInlineMapping(writer io.Writer, node *CandidateNode, indent string) error {
-	if len(node.Content) == 0 {
-		return writeString(writer, "{}")
-	}
-
-	if err := writeString(writer, "{\n"); err != nil {
-		return err
-	}
-
-	nextIndent := indent + he.indentString
 	for i := 0; i < len(node.Content); i += 2 {
 		keyNode := node.Content[i]
 		valueNode := node.Content[i+1]
 		key := keyNode.Value
 
-		if err := writeString(writer, nextIndent); err != nil {
-			return err
-		}
-		if err := writeString(writer, key); err != nil {
-			return err
-		}
-		if err := writeString(writer, " = "); err != nil {
-			return err
-		}
-		if err := he.encodeNodeInContext(writer, valueNode, nextIndent, true); err != nil {
-			return err
-		}
-		if err := writeString(writer, "\n"); err != nil {
-			return err
-		}
-	}
-
-	if err := writeString(writer, indent+"}"); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (he *hclEncoder) encodeSequence(writer io.Writer, node *CandidateNode, indent string) error {
-	if len(node.Content) == 0 {
-		return writeString(writer, "[]")
-	}
-
-	// Check if we should use inline format (simple values only)
-	useInline := true
-	for _, item := range node.Content {
-		if item.Kind != ScalarNode {
-			useInline = false
-			break
-		}
-	}
-
-	if useInline {
-		// Inline format: ["a", "b", "c"]
-		if err := writeString(writer, "["); err != nil {
-			return err
-		}
-		for i, item := range node.Content {
-			if i > 0 {
-				if err := writeString(writer, ", "); err != nil {
-					return err
-				}
-			}
-			if err := he.encodeNodeInContext(writer, item, indent, true); err != nil {
+		// Check if value is a mapping without FlowStyle -> render as block
+		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
+			// Render as block: key { ... }
+			block := body.AppendNewBlock(key, nil)
+			if err := he.encodeNodeAttributes(block.Body(), valueNode); err != nil {
 				return err
 			}
-		}
-		if err := writeString(writer, "]"); err != nil {
-			return err
-		}
-		return nil
-	}
-
-	// Multi-line format for complex items
-	if err := writeString(writer, "[\n"); err != nil {
-		return err
-	}
-
-	nextIndent := indent + he.indentString
-	for _, item := range node.Content {
-		if err := writeString(writer, nextIndent); err != nil {
-			return err
-		}
-		if err := he.encodeNodeInContext(writer, item, nextIndent, true); err != nil {
-			return err
-		}
-		if err := writeString(writer, ",\n"); err != nil {
-			return err
+		} else {
+			// Render as attribute: key = value
+			goValue, err := candidateNodeToGoValue(valueNode)
+			if err != nil {
+				return err
+			}
+			body.SetAttributeValue(key, toCtyValue(goValue))
 		}
 	}
-
-	if err := writeString(writer, indent+"]"); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (he *hclEncoder) formatScalarValue(value string) string {
-	// Check if value is a boolean
-	if value == "true" || value == "false" {
-		return value
+// encodeNodeAttributes encodes the attributes of a mapping node (used for blocks)
+func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateNode) error {
+	if node.Kind != MappingNode {
+		return fmt.Errorf("expected mapping node for block body")
 	}
 
-	// Check if value is a number
-	if _, err := strconv.ParseFloat(value, 64); err == nil {
-		return value
-	}
+	for i := 0; i < len(node.Content); i += 2 {
+		keyNode := node.Content[i]
+		valueNode := node.Content[i+1]
+		key := keyNode.Value
 
-	// Treat as string, quote it
-	return strconv.Quote(value)
+		goValue, err := candidateNodeToGoValue(valueNode)
+		if err != nil {
+			return err
+		}
+		body.SetAttributeValue(key, toCtyValue(goValue))
+	}
+	return nil
+}
+
+// candidateNodeToGoValue converts a CandidateNode to a Go value suitable for HCL encoding
+func candidateNodeToGoValue(node *CandidateNode) (interface{}, error) {
+	switch node.Kind {
+	case ScalarNode:
+		// Parse scalar value based on its tag
+		switch node.Tag {
+		case "!!bool":
+			return node.Value == "true", nil
+		case "!!int":
+			var i int64
+			_, err := fmt.Sscanf(node.Value, "%d", &i)
+			if err != nil {
+				return nil, err
+			}
+			return i, nil
+		case "!!float":
+			var f float64
+			_, err := fmt.Sscanf(node.Value, "%f", &f)
+			if err != nil {
+				return nil, err
+			}
+			return f, nil
+		case "!!null":
+			return nil, nil
+		default:
+			// Default to string
+			return node.Value, nil
+		}
+	case MappingNode:
+		m := make(map[string]interface{})
+		for i := 0; i < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+			valueNode := node.Content[i+1]
+			v, err := candidateNodeToGoValue(valueNode)
+			if err != nil {
+				return nil, err
+			}
+			m[keyNode.Value] = v
+		}
+		return m, nil
+	case SequenceNode:
+		arr := make([]interface{}, len(node.Content))
+		for i, item := range node.Content {
+			v, err := candidateNodeToGoValue(item)
+			if err != nil {
+				return nil, err
+			}
+			arr[i] = v
+		}
+		return arr, nil
+	case AliasNode:
+		return nil, fmt.Errorf("HCL encoder does not support aliases")
+	default:
+		return nil, fmt.Errorf("unsupported node kind: %v", node.Kind)
+	}
+}
+
+// toCtyValue converts Go values to cty.Value for hclwrite
+func toCtyValue(val interface{}) cty.Value {
+	switch v := val.(type) {
+	case string:
+		return cty.StringVal(v)
+	case bool:
+		return cty.BoolVal(v)
+	case int:
+		return cty.NumberIntVal(int64(v))
+	case int64:
+		return cty.NumberIntVal(v)
+	case float64:
+		return cty.NumberFloatVal(v)
+	case []interface{}:
+		vals := make([]cty.Value, len(v))
+		for i, item := range v {
+			vals[i] = toCtyValue(item)
+		}
+		return cty.TupleVal(vals)
+	case map[string]interface{}:
+		m := make(map[string]cty.Value)
+		for k, item := range v {
+			m[k] = toCtyValue(item)
+		}
+		return cty.ObjectVal(m)
+	default:
+		// fallback: treat as string
+		return cty.StringVal(fmt.Sprintf("%v", v))
+	}
 }
