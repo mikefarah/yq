@@ -184,89 +184,89 @@ func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error
 				return err
 			}
 			continue
-		} else {
-			// Render as attribute: key = value
-			// Check the style to determine how to encode strings
-			if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
-				if valueNode.Style&LiteralStyle != 0 {
-					tokens, err := tokensForRawHCLExpr(valueNode.Value)
-					if err != nil {
-						return err
-					}
-					body.SetAttributeRaw(key, tokens)
-					continue
+		}
+
+		// Render as attribute: key = value
+		// Check the style to determine how to encode strings
+		if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
+			if valueNode.Style&LiteralStyle != 0 {
+				tokens, err := tokensForRawHCLExpr(valueNode.Value)
+				if err != nil {
+					return err
 				}
-				// Check style: DoubleQuotedStyle means template, no style could be unquoted or regular
-				// To distinguish unquoted from regular, we check if the value is a valid identifier
-				if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
-					// Template string - use raw tokens to preserve ${} syntax
-					tokens := hclwrite.Tokens{
-						{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
-					}
-					// Parse the string and add tokens
-					for i := 0; i < len(valueNode.Value); i++ {
-						if i < len(valueNode.Value)-1 && valueNode.Value[i] == '$' && valueNode.Value[i+1] == '{' {
-							// Start of template interpolation
-							tokens = append(tokens, &hclwrite.Token{
-								Type:  hclsyntax.TokenTemplateInterp,
-								Bytes: []byte("${"),
-							})
-							i++ // skip the '{'
-							// Find the matching '}'
-							start := i + 1
-							depth := 1
-							for i++; i < len(valueNode.Value) && depth > 0; i++ {
-								switch valueNode.Value[i] {
-								case '{':
-									depth++
-								case '}':
-									depth--
-								}
+				body.SetAttributeRaw(key, tokens)
+				continue
+			}
+			// Check style: DoubleQuotedStyle means template, no style could be unquoted or regular
+			// To distinguish unquoted from regular, we check if the value is a valid identifier
+			if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
+				// Template string - use raw tokens to preserve ${} syntax
+				tokens := hclwrite.Tokens{
+					{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+				}
+				// Parse the string and add tokens
+				for i := 0; i < len(valueNode.Value); i++ {
+					if i < len(valueNode.Value)-1 && valueNode.Value[i] == '$' && valueNode.Value[i+1] == '{' {
+						// Start of template interpolation
+						tokens = append(tokens, &hclwrite.Token{
+							Type:  hclsyntax.TokenTemplateInterp,
+							Bytes: []byte("${"),
+						})
+						i++ // skip the '{'
+						// Find the matching '}'
+						start := i + 1
+						depth := 1
+						for i++; i < len(valueNode.Value) && depth > 0; i++ {
+							switch valueNode.Value[i] {
+							case '{':
+								depth++
+							case '}':
+								depth--
 							}
-							i-- // back up to the '}'
-							interpExpr := valueNode.Value[start:i]
-							tokens = append(tokens, &hclwrite.Token{
-								Type:  hclsyntax.TokenIdent,
-								Bytes: []byte(interpExpr),
-							})
-							tokens = append(tokens, &hclwrite.Token{
-								Type:  hclsyntax.TokenTemplateSeqEnd,
-								Bytes: []byte("}"),
-							})
-						} else {
-							// Regular character
-							tokens = append(tokens, &hclwrite.Token{
-								Type:  hclsyntax.TokenQuotedLit,
-								Bytes: []byte{valueNode.Value[i]},
-							})
 						}
+						i-- // back up to the '}'
+						interpExpr := valueNode.Value[start:i]
+						tokens = append(tokens, &hclwrite.Token{
+							Type:  hclsyntax.TokenIdent,
+							Bytes: []byte(interpExpr),
+						})
+						tokens = append(tokens, &hclwrite.Token{
+							Type:  hclsyntax.TokenTemplateSeqEnd,
+							Bytes: []byte("}"),
+						})
+					} else {
+						// Regular character
+						tokens = append(tokens, &hclwrite.Token{
+							Type:  hclsyntax.TokenQuotedLit,
+							Bytes: []byte{valueNode.Value[i]},
+						})
 					}
-					tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
-					body.SetAttributeRaw(key, tokens)
-				} else if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
-					// Could be unquoted identifier - but only if it came from HCL originally
-					// For safety, only use traversal if style is explicitly 0 (not set)
-					// This avoids treating strings from YAML as unquoted
-					traversal := hcl.Traversal{
-						hcl.TraverseRoot{Name: valueNode.Value},
-					}
-					body.SetAttributeTraversal(key, traversal)
-				} else {
-					// Regular quoted string - use cty.Value
-					ctyValue, err := nodeToCtyValue(valueNode)
-					if err != nil {
-						return err
-					}
-					body.SetAttributeValue(key, ctyValue)
 				}
+				tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
+				body.SetAttributeRaw(key, tokens)
+			} else if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
+				// Could be unquoted identifier - but only if it came from HCL originally
+				// For safety, only use traversal if style is explicitly 0 (not set)
+				// This avoids treating strings from YAML as unquoted
+				traversal := hcl.Traversal{
+					hcl.TraverseRoot{Name: valueNode.Value},
+				}
+				body.SetAttributeTraversal(key, traversal)
 			} else {
-				// Non-string value - use cty.Value
+				// Regular quoted string - use cty.Value
 				ctyValue, err := nodeToCtyValue(valueNode)
 				if err != nil {
 					return err
 				}
 				body.SetAttributeValue(key, ctyValue)
 			}
+		} else {
+			// Non-string value - use cty.Value
+			ctyValue, err := nodeToCtyValue(valueNode)
+			if err != nil {
+				return err
+			}
+			body.SetAttributeValue(key, ctyValue)
 		}
 	}
 	return nil
