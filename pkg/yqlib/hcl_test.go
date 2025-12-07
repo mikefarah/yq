@@ -140,6 +140,12 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "block with labels roundtrip",
+		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
+		expected:     "resource \"aws_instance\" \"example\" {\n  ami = \"ami-12345\"\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "roundtrip simple attribute",
 		input:        `io_mode = "async"`,
 		expected:     `io_mode = "async"` + "\n",
