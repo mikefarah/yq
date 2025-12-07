@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	hclwrite "github.com/hashicorp/hcl/v2/hclwrite"
@@ -15,11 +16,12 @@ import (
 )
 
 type hclEncoder struct {
+	prefs HclPreferences
 }
 
 // NewHclEncoder creates a new HCL encoder
-func NewHclEncoder() Encoder {
-	return &hclEncoder{}
+func NewHclEncoder(prefs HclPreferences) Encoder {
+	return &hclEncoder{prefs: prefs}
 }
 
 func (he *hclEncoder) CanHandleAliases() bool {
@@ -54,6 +56,12 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	// Inject comments back into the output
 	finalOutput := he.injectComments(compactOutput, commentMap)
+
+	if he.prefs.ColorsEnabled {
+		colorized := he.colorizeHcl(finalOutput)
+		_, err := writer.Write(colorized)
+		return err
+	}
 
 	_, err := writer.Write(finalOutput)
 	return err
@@ -149,6 +157,108 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 	}
 
 	return []byte(result)
+}
+
+// colorizeHcl applies syntax highlighting to HCL output using fatih/color
+func (he *hclEncoder) colorizeHcl(input []byte) []byte {
+	hcl := string(input)
+	result := strings.Builder{}
+
+	// Create color functions for different token types
+	commentColor := color.New(color.FgHiBlack).SprintFunc()
+	stringColor := color.New(color.FgGreen).SprintFunc()
+	numberColor := color.New(color.FgHiMagenta).SprintFunc()
+	keyColor := color.New(color.FgCyan).SprintFunc()
+	boolColor := color.New(color.FgHiMagenta).SprintFunc()
+
+	// Simple tokenization for HCL coloring
+	i := 0
+	for i < len(hcl) {
+		ch := hcl[i]
+
+		// Comments - from # to end of line
+		if ch == '#' {
+			end := i
+			for end < len(hcl) && hcl[end] != '\n' {
+				end++
+			}
+			result.WriteString(commentColor(hcl[i:end]))
+			i = end
+			continue
+		}
+
+		// Strings - quoted text
+		if ch == '"' || ch == '\'' {
+			quote := ch
+			end := i + 1
+			for end < len(hcl) && hcl[end] != quote {
+				if hcl[end] == '\\' {
+					end++ // skip escaped char
+				}
+				end++
+			}
+			if end < len(hcl) {
+				end++ // include closing quote
+			}
+			result.WriteString(stringColor(hcl[i:end]))
+			i = end
+			continue
+		}
+
+		// Numbers - sequences of digits, possibly with decimal point or minus
+		if (ch >= '0' && ch <= '9') || (ch == '-' && i+1 < len(hcl) && hcl[i+1] >= '0' && hcl[i+1] <= '9') {
+			end := i
+			if ch == '-' {
+				end++
+			}
+			for end < len(hcl) && ((hcl[end] >= '0' && hcl[end] <= '9') || hcl[end] == '.') {
+				end++
+			}
+			result.WriteString(numberColor(hcl[i:end]))
+			i = end
+			continue
+		}
+
+		// Identifiers/keys - alphanumeric + underscore
+		if (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' {
+			end := i
+			for end < len(hcl) && ((hcl[end] >= 'a' && hcl[end] <= 'z') ||
+				(hcl[end] >= 'A' && hcl[end] <= 'Z') ||
+				(hcl[end] >= '0' && hcl[end] <= '9') ||
+				hcl[end] == '_' || hcl[end] == '-') {
+				end++
+			}
+			ident := hcl[i:end]
+
+			// Check if this is a keyword/reserved word
+			switch ident {
+			case "true", "false", "null":
+				result.WriteString(boolColor(ident))
+			default:
+				// Check if followed by = (it's a key)
+				j := end
+				for j < len(hcl) && (hcl[j] == ' ' || hcl[j] == '\t') {
+					j++
+				}
+				if j < len(hcl) && hcl[j] == '=' {
+					result.WriteString(keyColor(ident))
+				} else if j < len(hcl) && hcl[j] == '{' {
+					// Block type
+					result.WriteString(keyColor(ident))
+				} else {
+					result.WriteString(ident) // plain text for other identifiers
+				}
+			}
+			i = end
+			continue
+		}
+
+		// Everything else (whitespace, operators, brackets) - no color
+		result.WriteByte(ch)
+		i++
+	}
+
+	return []byte(result.String())
 }
 
 // Helper runes for unquoted identifiers
