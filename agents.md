@@ -136,7 +136,7 @@ Key methods:
 - Use build tags for optional compilation
 - Add comprehensive tests
 - Handle errors gracefully
-- Add the no build directive, like the xml encoder and decoder, that enables a minimal yq builds. e.g.  `//go:build !yq_<format>`. Be sure to also updqate the build_small-yq.sh and build-tinygo-yq.sh to not include the new format.
+- Add the no build directive, like the xml encoder and decoder, that enables a minimal yq builds. e.g.  `//go:build !yq_<format>`. Be sure to also update the build_small-yq.sh and build-tinygo-yq.sh to not include the new format.
 
 ❌ **DON'T:**
 - Modify `candidate_node.go` to add format-specific logic
