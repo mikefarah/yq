@@ -38,6 +38,18 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "roundtrip",
 	},
 	{
+		description:  "Function roundtrip",
+		input:        `shouty_message = upper(message)`,
+		expected:     "shouty_message = upper(message)\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Arithmetic roundtrip",
+		input:        `sum = 1 + addend`,
+		expected:     "sum = 1 + addend\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "number attribute",
 		input:        `port = 8080`,
 		expected:     "port: 8080\n",

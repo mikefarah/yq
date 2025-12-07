@@ -237,6 +237,36 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		// This ensures HCL roundtrips preserve quotes, and YAML properly quotes strings with ${}
 		node.Style = DoubleQuotedStyle
 		return node
+	case *hclsyntax.ScopeTraversalExpr:
+		// Simple identifier/traversal (e.g. unquoted string literal in HCL)
+		r := e.Range()
+		start := r.Start.Byte
+		end := r.End.Byte
+		if start >= 0 && end >= start && end <= len(src) {
+			text := strings.TrimSpace(string(src[start:end]))
+			return createStringScalarNode(text)
+		}
+		// Fallback to root name if source unavailable
+		if len(e.Traversal) > 0 {
+			if root, ok := e.Traversal[0].(hcl.TraverseRoot); ok {
+				return createStringScalarNode(root.Name)
+			}
+		}
+		return createStringScalarNode("")
+	case *hclsyntax.FunctionCallExpr:
+		// Preserve function calls as raw expressions for roundtrip
+		r := e.Range()
+		start := r.Start.Byte
+		end := r.End.Byte
+		if start >= 0 && end >= start && end <= len(src) {
+			text := strings.TrimSpace(string(src[start:end]))
+			node := createStringScalarNode(text)
+			node.Style = LiteralStyle
+			return node
+		}
+		node := createStringScalarNode(e.Name)
+		node.Style = LiteralStyle
+		return node
 	default:
 		// try to evaluate the expression (handles unary, binary ops, etc.)
 		val, diags := expr.Value(nil)
@@ -250,8 +280,10 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		end := r.End.Byte
 		if start >= 0 && end >= start && end <= len(src) {
 			text := string(src[start:end])
-			// Unquoted identifier - no style
-			return createStringScalarNode(text)
+			// Mark as raw expression so encoder can emit without quoting
+			node := createStringScalarNode(text)
+			node.Style = LiteralStyle
+			return node
 		}
 		return createStringScalarNode(fmt.Sprintf("%v", expr))
 	}
