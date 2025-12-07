@@ -181,6 +181,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 	case *hclsyntax.ObjectConsExpr:
 		// parse object into YAML mapping
 		m := &CandidateNode{Kind: MappingNode}
+		m.Style = FlowStyle // Mark as inline object (flow style) for encoder
 		for _, item := range e.Items {
 			// evaluate key expression to get the key string
 			keyVal, keyDiags := item.KeyExpr.Value(nil)
