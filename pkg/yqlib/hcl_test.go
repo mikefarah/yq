@@ -10,8 +10,32 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "Simple decode",
 		input:        `io_mode = "async"`,
+		expected:     "io_mode: \"async\"\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Simple decode, no quotes",
+		input:        `io_mode = async`,
 		expected:     "io_mode: async\n",
 		scenarioType: "decode",
+	},
+	{
+		description:  "Simple roundtrip, no quotes",
+		input:        `io_mode = async`,
+		expected:     "io_mode = async\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Template decode",
+		input:        `message = "Hello, ${name}!"`,
+		expected:     "message: \"Hello, ${name}!\"\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Template roundtrip",
+		input:        `message = "Hello, ${name}!"`,
+		expected:     "message = \"Hello, ${name}!\"\n",
+		scenarioType: "roundtrip",
 	},
 	{
 		description:  "number attribute",
@@ -34,13 +58,13 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "list of strings",
 		input:        `tags = ["a", "b"]`,
-		expected:     "tags:\n  - a\n  - b\n",
+		expected:     "tags:\n  - \"a\"\n  - \"b\"\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "object/map attribute",
 		input:        `obj = { a = 1, b = "two" }`,
-		expected:     "obj: {a: 1, b: two}\n",
+		expected:     "obj: {a: 1, b: \"two\"}\n",
 		scenarioType: "decode",
 	},
 	{
@@ -52,7 +76,7 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "multiple attributes",
 		input:        "name = \"app\"\nversion = 1\nenabled = true",
-		expected:     "name: app\nversion: 1\nenabled: true\n",
+		expected:     "name: \"app\"\nversion: 1\nenabled: true\n",
 		scenarioType: "decode",
 	},
 	{
@@ -76,19 +100,19 @@ var hclFormatScenarios = []formatScenario{
 	{
 		description:  "nested object",
 		input:        `config = { db = { host = "localhost", port = 5432 } }`,
-		expected:     "config: {db: {host: localhost, port: 5432}}\n",
+		expected:     "config: {db: {host: \"localhost\", port: 5432}}\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "mixed list",
 		input:        `values = [1, "two", true]`,
-		expected:     "values:\n  - 1\n  - two\n  - true\n",
+		expected:     "values:\n  - 1\n  - \"two\"\n  - true\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "block with labels",
 		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
-		expected:     "resource aws_instance example:\n  ami: ami-12345\n",
+		expected:     "resource aws_instance example:\n  ami: \"ami-12345\"\n",
 		scenarioType: "decode",
 	},
 	{
