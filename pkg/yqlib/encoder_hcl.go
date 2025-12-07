@@ -325,26 +325,26 @@ func (he *hclEncoder) encodeNodeAttributes(body *hclwrite.Body, node *CandidateN
 		key := keyNode.Value
 
 		if valueNode.Kind == MappingNode && valueNode.Style != FlowStyle {
-				if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
-					if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
-						primaryLabels := labels[:len(labels)-1]
-						nestedType := labels[len(labels)-1]
-						block := body.AppendNewBlock(key, primaryLabels)
-						if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
-							return err
-						} else if !handled {
-							if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
-								return err
-							}
-						}
-						continue
-					}
-					block := body.AppendNewBlock(key, labels)
-					if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+			if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
+				if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
+					primaryLabels := labels[:len(labels)-1]
+					nestedType := labels[len(labels)-1]
+					block := body.AppendNewBlock(key, primaryLabels)
+					if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err != nil {
 						return err
+					} else if !handled {
+						if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+							return err
+						}
 					}
 					continue
 				}
+				block := body.AppendNewBlock(key, labels)
+				if err := he.encodeNodeAttributes(block.Body(), bodyNode); err != nil {
+					return err
+				}
+				continue
+			}
 			if handled, err := he.encodeMappingChildrenAsBlocks(body, key, valueNode); err != nil {
 				return err
 			} else if handled {
