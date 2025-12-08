@@ -140,11 +140,23 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 	body := dec.file.Body.(*hclsyntax.Body)
 	sortedAttrs := sortedAttributes(body.Attributes)
 	
-	// Extract file-level head comments from before the first attribute
+	// Extract file-level head comments from before the first attribute or block
 	var fileComment string
+	var firstPos int = -1
+	
 	if len(sortedAttrs) > 0 {
-		firstAttrPos := sortedAttrs[0].Attr.Range().Start.Byte
-		fileComment = extractHeadComment(dec.fileBytes, firstAttrPos)
+		firstPos = sortedAttrs[0].Attr.Range().Start.Byte
+	}
+	
+	if len(body.Blocks) > 0 {
+		blockPos := body.Blocks[0].Range().Start.Byte
+		if firstPos == -1 || blockPos < firstPos {
+			firstPos = blockPos
+		}
+	}
+	
+	if firstPos != -1 {
+		fileComment = extractHeadComment(dec.fileBytes, firstPos)
 		if fileComment != "" {
 			root.HeadComment = fileComment
 		}
