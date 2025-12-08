@@ -1,6 +1,8 @@
 package yqlib
 
 import (
+	"bufio"
+	"fmt"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -32,6 +34,16 @@ var multipleBlockLabelKeysExpected = `service "cat" {
 }
 `
 
+var multipleBlockLabelKeysExpectedUpdate = `service "cat" {
+  process "main" {
+    command = ["/usr/local/bin/awesome-app", "server", "meow"]
+  }
+  process "management" {
+    command = ["/usr/local/bin/awesome-app", "management"]
+  }
+}
+`
+
 var multipleBlockLabelKeysExpectedYaml = `service:
   cat:
     process:
@@ -45,7 +57,7 @@ var multipleBlockLabelKeysExpectedYaml = `service:
           - "management"
 `
 
-var roundtripSample = `# Arithmetic with literals and application-provided variables
+var simpleSample = `# Arithmetic with literals and application-provided variables
 sum = 1 + addend
 
 # String interpolation and templates
@@ -54,7 +66,7 @@ message = "Hello, ${name}!"
 # Application-provided functions
 shouty_message = upper(message)`
 
-var roundtripSampleExpected = `# Arithmetic with literals and application-provided variables
+var simpleSampleExpected = `# Arithmetic with literals and application-provided variables
 sum = 1 + addend
 # String interpolation and templates
 message = "Hello, ${name}!"
@@ -62,216 +74,274 @@ message = "Hello, ${name}!"
 shouty_message = upper(message)
 `
 
+var simpleSampleExpectedYaml = `# Arithmetic with literals and application-provided variables
+sum: 1 + addend
+# String interpolation and templates
+message: "Hello, ${name}!"
+# Application-provided functions
+shouty_message: upper(message)
+`
+
 var hclFormatScenarios = []formatScenario{
 	{
-		description:  "Simple decode",
+		description:  "Parse HCL",
 		input:        `io_mode = "async"`,
 		expected:     "io_mode: \"async\"\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "Simple decode, no quotes",
+		skipDoc:      true,
 		input:        `io_mode = async`,
 		expected:     "io_mode: async\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "Simple roundtrip, no quotes",
+		skipDoc:      true,
 		input:        `io_mode = async`,
 		expected:     "io_mode = async\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "Nested decode",
+		skipDoc:      true,
 		input:        nestedExample,
 		expected:     nestedExampleYaml,
 		scenarioType: "decode",
 	},
 	{
 		description:  "Template decode",
+		skipDoc:      true,
 		input:        `message = "Hello, ${name}!"`,
 		expected:     "message: \"Hello, ${name}!\"\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "Template roundtrip",
+		description:  "Roundtrip: with template",
+		skipDoc:      true,
 		input:        `message = "Hello, ${name}!"`,
 		expected:     "message = \"Hello, ${name}!\"\n",
 		scenarioType: "roundtrip",
 	},
 	{
-		description:  "Function roundtrip",
+		description:  "Roundtrip: with function",
+		skipDoc:      true,
 		input:        `shouty_message = upper(message)`,
 		expected:     "shouty_message = upper(message)\n",
 		scenarioType: "roundtrip",
 	},
 	{
-		description:  "Arithmetic roundtrip",
+		description:  "Roundtrip: with arithmetic",
+		skipDoc:      true,
 		input:        `sum = 1 + addend`,
 		expected:     "sum = 1 + addend\n",
 		scenarioType: "roundtrip",
 	},
 	{
+		description:  "Arithmetic decode",
+		skipDoc:      true,
+		input:        `sum = 1 + addend`,
+		expected:     "sum: 1 + addend\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "number attribute",
+		skipDoc:      true,
 		input:        `port = 8080`,
 		expected:     "port: 8080\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "float attribute",
+		skipDoc:      true,
 		input:        `pi = 3.14`,
 		expected:     "pi: 3.14\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "boolean attribute",
+		skipDoc:      true,
 		input:        `enabled = true`,
 		expected:     "enabled: true\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "list of strings",
-		input:        `tags = ["a", "b"]`,
-		expected:     "tags:\n  - \"a\"\n  - \"b\"\n",
-		scenarioType: "decode",
-	},
-	{
 		description:  "object/map attribute",
+		skipDoc:      true,
 		input:        `obj = { a = 1, b = "two" }`,
 		expected:     "obj: {a: 1, b: \"two\"}\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "nested block",
+		skipDoc:      true,
 		input:        `server { port = 8080 }`,
 		expected:     "server:\n  port: 8080\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "multiple attributes",
+		skipDoc:      true,
 		input:        "name = \"app\"\nversion = 1\nenabled = true",
 		expected:     "name: \"app\"\nversion: 1\nenabled: true\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "binary expression",
+		skipDoc:      true,
 		input:        `count = 0 - 42`,
 		expected:     "count: -42\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "negative number",
+		skipDoc:      true,
 		input:        `count = -42`,
 		expected:     "count: -42\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "scientific notation",
+		skipDoc:      true,
 		input:        `value = 1e-3`,
 		expected:     "value: 0.001\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "nested object",
+		skipDoc:      true,
 		input:        `config = { db = { host = "localhost", port = 5432 } }`,
 		expected:     "config: {db: {host: \"localhost\", port: 5432}}\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "mixed list",
+		skipDoc:      true,
 		input:        `values = [1, "two", true]`,
 		expected:     "values:\n  - 1\n  - \"two\"\n  - true\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "multiple block label keys roundtrip",
+		description:  "Roundtrip: Sample Doc",
 		input:        multipleBlockLabelKeys,
 		expected:     multipleBlockLabelKeysExpected,
 		scenarioType: "roundtrip",
 	},
 	{
-		description:  "multiple block label keys decode",
+		description:  "Roundtrip: With an update",
+		input:        multipleBlockLabelKeys,
+		expression:   `.service.cat.process.main.command += "meow"`,
+		expected:     multipleBlockLabelKeysExpectedUpdate,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Parse HCL: Sample Doc",
 		input:        multipleBlockLabelKeys,
 		expected:     multipleBlockLabelKeysExpectedYaml,
 		scenarioType: "decode",
 	},
 	{
 		description:  "block with labels",
+		skipDoc:      true,
 		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
 		expected:     "resource:\n  aws_instance:\n    example:\n      ami: \"ami-12345\"\n",
 		scenarioType: "decode",
 	},
 	{
 		description:  "block with labels roundtrip",
+		skipDoc:      true,
 		input:        `resource "aws_instance" "example" { ami = "ami-12345" }`,
 		expected:     "resource \"aws_instance\" \"example\" {\n  ami = \"ami-12345\"\n}\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip simple attribute",
+		skipDoc:      true,
 		input:        `io_mode = "async"`,
 		expected:     `io_mode = "async"` + "\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip number attribute",
+		skipDoc:      true,
 		input:        `port = 8080`,
 		expected:     "port = 8080\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip float attribute",
+		skipDoc:      true,
 		input:        `pi = 3.14`,
 		expected:     "pi = 3.14\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip boolean attribute",
+		skipDoc:      true,
 		input:        `enabled = true`,
 		expected:     "enabled = true\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip list of strings",
+		skipDoc:      true,
 		input:        `tags = ["a", "b"]`,
 		expected:     "tags = [\"a\", \"b\"]\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip object/map attribute",
+		skipDoc:      true,
 		input:        `obj = { a = 1, b = "two" }`,
 		expected:     "obj = {\n  a = 1\n  b = \"two\"\n}\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip nested block",
+		skipDoc:      true,
 		input:        `server { port = 8080 }`,
 		expected:     "server {\n  port = 8080\n}\n",
 		scenarioType: "roundtrip",
 	},
 	{
 		description:  "roundtrip multiple attributes",
+		skipDoc:      true,
 		input:        "name = \"app\"\nversion = 1\nenabled = true",
 		expected:     "name = \"app\"\nversion = 1\nenabled = true\n",
 		scenarioType: "roundtrip",
 	},
 	{
-		description:  "decode with comments",
+		description:  "Parse HCL: with comments",
 		input:        "# Configuration\nport = 8080 # server port",
 		expected:     "# Configuration\nport: 8080 # server port\n",
 		scenarioType: "decode",
 	},
 	{
-		description:  "roundtrip with comments",
+		description:  "Roundtrip: with comments",
 		input:        "# Configuration\nport = 8080",
 		expected:     "# Configuration\nport = 8080\n",
 		scenarioType: "roundtrip",
 	},
 	{
-		description:  "roundtrip example",
-		input:        roundtripSample,
-		expected:     roundtripSampleExpected,
+		description:  "Roundtrip: With templates, functions and arithmetic",
+		input:        simpleSample,
+		expected:     simpleSampleExpected,
 		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip example",
+		skipDoc:      true,
+		input:        simpleSample,
+		expected:     simpleSampleExpectedYaml,
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse HCL: List of strings",
+		skipDoc:      true,
+		input:        `tags = ["a", "b"]`,
+		expected:     "tags:\n  - \"a\"\n  - \"b\"\n",
+		scenarioType: "decode",
 	},
 }
 
@@ -285,8 +355,73 @@ func testHclScenario(t *testing.T, s formatScenario) {
 	}
 }
 
+func documentHclScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
+	s := i.(formatScenario)
+
+	if s.skipDoc {
+		return
+	}
+	switch s.scenarioType {
+	case "", "decode":
+		documentHclDecodeScenario(w, s)
+	case "roundtrip":
+		documentHclRoundTripScenario(w, s)
+	default:
+		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
+	}
+}
+
+func documentHclDecodeScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.hcl file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```hcl\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if s.expression != "" {
+		expression = fmt.Sprintf(" '%v'", s.expression)
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -oy%v sample.hcl\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewHclDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
+}
+
+func documentHclRoundTripScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.hcl file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```hcl\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if s.expression != "" {
+		expression = fmt.Sprintf(" '%v'", s.expression)
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq%v sample.hcl\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```hcl\n%v```\n\n", mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder(ConfiguredHclPreferences))))
+}
+
 func TestHclFormatScenarios(t *testing.T) {
 	for _, tt := range hclFormatScenarios {
 		testHclScenario(t, tt)
 	}
+	genericScenarios := make([]interface{}, len(hclFormatScenarios))
+	for i, s := range hclFormatScenarios {
+		genericScenarios[i] = s
+	}
+	documentScenarios(t, "usage", "hcl", genericScenarios, documentHclScenario)
 }

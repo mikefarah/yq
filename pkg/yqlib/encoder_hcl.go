@@ -80,7 +80,7 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 		return
 	}
 
-	// For mapping nodes, collect comments from values
+	// For mapping nodes, collect comments from keys and values
 	if node.Kind == MappingNode {
 		// Collect root-level head comment if at root (prefix is empty)
 		if prefix == "" && node.HeadComment != "" {
@@ -98,10 +98,11 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 				path = prefix + "." + key
 			}
 
-			// Store comments for this value
-			if valueNode.HeadComment != "" {
-				commentMap[path+".head"] = valueNode.HeadComment
+			// Store comments from the key (head comments appear before the attribute)
+			if keyNode.HeadComment != "" {
+				commentMap[path+".head"] = keyNode.HeadComment
 			}
+			// Store comments from the value (line comments appear after the value)
 			if valueNode.LineComment != "" {
 				commentMap[path+".line"] = valueNode.LineComment
 			}
@@ -344,6 +345,15 @@ func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
 // encodeAttribute encodes a value as an HCL attribute
 func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode *CandidateNode) error {
 	if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
+		// Handle unquoted expressions (as-is, without quotes)
+		if valueNode.Style == 0 {
+			tokens, err := tokensForRawHCLExpr(valueNode.Value)
+			if err != nil {
+				return err
+			}
+			body.SetAttributeRaw(key, tokens)
+			return nil
+		}
 		if valueNode.Style&LiteralStyle != 0 {
 			tokens, err := tokensForRawHCLExpr(valueNode.Value)
 			if err != nil {

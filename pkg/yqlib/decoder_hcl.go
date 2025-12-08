@@ -201,7 +201,7 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 			leadingUsed = true
 		}
 		if headComment != "" {
-			valNode.HeadComment = headComment
+			keyNode.HeadComment = headComment
 		}
 		if lineComment := extractLineComment(dec.fileBytes, attrRange.End.Byte); lineComment != "" {
 			valNode.LineComment = lineComment
@@ -229,7 +229,7 @@ func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 		// Attach comments if any
 		attrRange := attrWithName.Attr.Range()
 		if headComment := extractHeadComment(src, attrRange.Start.Byte); headComment != "" {
-			val.HeadComment = headComment
+			key.HeadComment = headComment
 		}
 		if lineComment := extractLineComment(src, attrRange.End.Byte); lineComment != "" {
 			val.LineComment = lineComment
@@ -428,11 +428,11 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		if start >= 0 && end >= start && end <= len(src) {
 			text := strings.TrimSpace(string(src[start:end]))
 			node := createStringScalarNode(text)
-			node.Style = LiteralStyle
+			node.Style = 0
 			return node
 		}
 		node := createStringScalarNode(e.Name)
-		node.Style = LiteralStyle
+		node.Style = 0
 		return node
 	default:
 		// try to evaluate the expression (handles unary, binary ops, etc.)
@@ -447,9 +447,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		end := r.End.Byte
 		if start >= 0 && end >= start && end <= len(src) {
 			text := string(src[start:end])
-			// Mark as raw expression so encoder can emit without quoting
+			// Mark as unquoted expression so encoder emits without quoting
 			node := createStringScalarNode(text)
-			node.Style = LiteralStyle
+			node.Style = 0
 			return node
 		}
 		return createStringScalarNode(fmt.Sprintf("%v", expr))
