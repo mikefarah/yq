@@ -438,6 +438,13 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 		return false
 	}
 
+	// If EncodeSeparate is set, emit children as separate blocks regardless of label extraction
+	if valueNode.EncodeSeparate {
+		if handled, _ := he.encodeMappingChildrenAsBlocks(body, key, valueNode); handled {
+			return true
+		}
+	}
+
 	// Try to extract block labels from a single-entry mapping chain
 	if labels, bodyNode, ok := extractBlockLabels(valueNode); ok {
 		if len(labels) > 1 && mappingChildrenAllMappings(bodyNode) {
@@ -519,17 +526,46 @@ func (he *hclEncoder) encodeMappingChildrenAsBlocks(body *hclwrite.Body, blockTy
 		return false, nil
 	}
 
+	// Only emit as separate blocks if EncodeSeparate is true
+	// This allows the encoder to respect the original block structure preserved by the decoder
+	if !valueNode.EncodeSeparate {
+		return false, nil
+	}
+
 	for i := 0; i < len(valueNode.Content); i += 2 {
 		childKey := valueNode.Content[i].Value
 		childVal := valueNode.Content[i+1]
-		labels := []string{childKey}
-		if extraLabels, bodyNode, ok := extractBlockLabels(childVal); ok {
-			labels = append(labels, extraLabels...)
-			childVal = bodyNode
-		}
-		block := body.AppendNewBlock(blockType, labels)
-		if err := he.encodeNodeAttributes(block.Body(), childVal); err != nil {
-			return true, err
+
+		// Check if this child also represents multiple blocks (all children are mappings)
+		if mappingChildrenAllMappings(childVal) {
+			// Recursively emit each grandchild as a separate block with extended labels
+			for j := 0; j < len(childVal.Content); j += 2 {
+				grandchildKey := childVal.Content[j].Value
+				grandchildVal := childVal.Content[j+1]
+				labels := []string{childKey, grandchildKey}
+
+				// Try to extract additional labels if this is a single-entry chain
+				if extraLabels, bodyNode, ok := extractBlockLabels(grandchildVal); ok {
+					labels = append(labels, extraLabels...)
+					grandchildVal = bodyNode
+				}
+
+				block := body.AppendNewBlock(blockType, labels)
+				if err := he.encodeNodeAttributes(block.Body(), grandchildVal); err != nil {
+					return true, err
+				}
+			}
+		} else {
+			// Single block with this child as label(s)
+			labels := []string{childKey}
+			if extraLabels, bodyNode, ok := extractBlockLabels(childVal); ok {
+				labels = append(labels, extraLabels...)
+				childVal = bodyNode
+			}
+			block := body.AppendNewBlock(blockType, labels)
+			if err := he.encodeNodeAttributes(block.Body(), childVal); err != nil {
+				return true, err
+			}
 		}
 	}
 

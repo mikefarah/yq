@@ -135,6 +135,7 @@ Key methods:
 - Use the candidate_node style attribute to store style information for round-trip. Ask if this needs to be updated with new styles.
 - Use build tags for optional compilation
 - Add comprehensive tests
+- Run the specific encoder/decoder test (e.g. <format>_test.go) whenever you make ay changes to the encoder_<format> or decoder_<format>
 - Handle errors gracefully
 - Add the no build directive, like the xml encoder and decoder, that enables a minimal yq builds. e.g.  `//go:build !yq_<format>`. Be sure to also update the build_small-yq.sh and build-tinygo-yq.sh to not include the new format.
 

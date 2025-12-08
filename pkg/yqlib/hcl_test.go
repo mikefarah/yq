@@ -345,6 +345,68 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "tags:\n  - \"a\"\n  - \"b\"\n",
 		scenarioType: "decode",
 	},
+	{
+		description:  "roundtrip list of objects",
+		skipDoc:      true,
+		input:        `items = [{ name = "a", value = 1 }, { name = "b", value = 2 }]`,
+		expected:     "items = [{\n  name = \"a\"\n  value = 1\n  }, {\n  name = \"b\"\n  value = 2\n}]\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip nested blocks with same name",
+		skipDoc:      true,
+		input:        "database \"primary\" {\n  host = \"localhost\"\n  port = 5432\n}\ndatabase \"replica\" {\n  host = \"replica.local\"\n  port = 5433\n}",
+		expected:     "database \"primary\" {\n  host = \"localhost\"\n  port = 5432\n}\ndatabase \"replica\" {\n  host = \"replica.local\"\n  port = 5433\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip mixed nested structure",
+		skipDoc:      true,
+		input:        "servers \"web\" {\n  addresses = [\"10.0.1.1\", \"10.0.1.2\"]\n  port = 8080\n}",
+		expected:     "servers \"web\" {\n  addresses = [\"10.0.1.1\", \"10.0.1.2\"]\n  port = 8080\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip null value",
+		skipDoc:      true,
+		input:        `value = null`,
+		expected:     "value = null\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip empty list",
+		skipDoc:      true,
+		input:        `items = []`,
+		expected:     "items = []\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip empty object",
+		skipDoc:      true,
+		input:        `config = {}`,
+		expected:     "config = {}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: Separate blocks with same name.",
+		input:        "resource \"aws_instance\" \"web\" {\n  ami = \"ami-12345\"\n}\nresource \"aws_instance\" \"db\" {\n  ami = \"ami-67890\"\n}",
+		expected:     "resource \"aws_instance\" \"web\" {\n  ami = \"ami-12345\"\n}\nresource \"aws_instance\" \"db\" {\n  ami = \"ami-67890\"\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip deeply nested structure",
+		skipDoc:      true,
+		input:        "app \"database\" \"primary\" \"connection\" {\n  host = \"db.local\"\n  port = 5432\n}",
+		expected:     "app \"database\" \"primary\" \"connection\" {\n  host = \"db.local\"\n  port = 5432\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip with leading comments",
+		skipDoc:      true,
+		input:        "# Main config\nenabled = true\nport = 8080",
+		expected:     "# Main config\nenabled = true\nport = 8080\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {

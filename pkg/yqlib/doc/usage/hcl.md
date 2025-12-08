@@ -175,3 +175,27 @@ message = "Hello, ${name}!"
 shouty_message = upper(message)
 ```
 
+## Roundtrip: Separate blocks with same name.
+Given a sample.hcl file of:
+```hcl
+resource "aws_instance" "web" {
+  ami = "ami-12345"
+}
+resource "aws_instance" "db" {
+  ami = "ami-67890"
+}
+```
+then
+```bash
+yq sample.hcl
+```
+will output
+```hcl
+resource "aws_instance" "web" {
+  ami = "ami-12345"
+}
+resource "aws_instance" "db" {
+  ami = "ami-67890"
+}
+```
+

@@ -161,8 +161,14 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	// process blocks
+	// Count blocks by type at THIS level to detect multiple separate blocks
+	blocksByType := make(map[string]int)
 	for _, block := range body.Blocks {
-		addBlockToMapping(root, block, dec.fileBytes)
+		blocksByType[block.Type]++
+	}
+
+	for _, block := range body.Blocks {
+		addBlockToMapping(root, block, dec.fileBytes, blocksByType[block.Type] > 1)
 	}
 
 	dec.documentIndex++
@@ -187,14 +193,23 @@ func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 
 		node.AddKeyValueChild(key, val)
 	}
+
+	// Process nested blocks, counting blocks by type at THIS level
+	// to detect which block types appear multiple times
+	blocksByType := make(map[string]int)
 	for _, block := range body.Blocks {
-		addBlockToMapping(node, block, src)
+		blocksByType[block.Type]++
+	}
+
+	for _, block := range body.Blocks {
+		addBlockToMapping(node, block, src, blocksByType[block.Type] > 1)
 	}
 	return node
 }
 
 // addBlockToMapping nests block type and labels into the parent mapping, merging children.
-func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte) {
+// isMultipleBlocksOfType indicates if there are multiple blocks of this type at THIS level
+func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte, isMultipleBlocksOfType bool) {
 	bodyNode := hclBodyToNode(block.Body, src)
 	current := parent
 
@@ -208,6 +223,11 @@ func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte
 	}
 	if typeNode == nil {
 		_, typeNode = current.AddKeyValueChild(createStringScalarNode(block.Type), &CandidateNode{Kind: MappingNode})
+		// Mark the type node if there are multiple blocks of this type at this level
+		// This tells the encoder to emit them as separate blocks rather than consolidating them
+		if isMultipleBlocksOfType {
+			typeNode.EncodeSeparate = true
+		}
 	}
 	current = typeNode
 
