@@ -64,44 +64,6 @@ func extractLineComment(src []byte, endPos int) string {
 	return ""
 }
 
-// extractLeadingComments extracts comments from the very beginning of the file.
-// It returns the comment text and the byte position of the last character in that leading block.
-func extractLeadingComments(src []byte) (string, int) {
-	var comments []string
-	i := 0
-
-	// Skip leading whitespace
-	for i < len(src) && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
-		i++
-	}
-
-	lastPos := -1
-
-	// Extract comment lines from the start
-	for i < len(src) && src[i] == '#' {
-		lineStart := i
-		// Find end of line
-		for i < len(src) && src[i] != '\n' {
-			i++
-		}
-		lastPos = i - 1
-		comments = append(comments, strings.TrimSpace(string(src[lineStart:i])))
-		// Skip newline
-		if i < len(src) && src[i] == '\n' {
-			i++
-		}
-		// Skip whitespace between comment lines
-		for i < len(src) && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
-			i++
-		}
-	}
-
-	if len(comments) > 0 {
-		return strings.Join(comments, "\n"), lastPos
-	}
-	return "", -1
-}
-
 // extractHeadComment extracts comments before a given start position
 func extractHeadComment(src []byte, startPos int) string {
 	var comments []string
@@ -174,32 +136,33 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 	root := &CandidateNode{Kind: MappingNode}
 
-	// Extract file-level head comments (comments at the very beginning of the file)
-	leadingComment, _ := extractLeadingComments(dec.fileBytes)
-	leadingUsed := false
-	if leadingComment != "" {
-		root.HeadComment = leadingComment
-	}
-
 	// process attributes in declaration order
 	body := dec.file.Body.(*hclsyntax.Body)
-	for _, attrWithName := range sortedAttributes(body.Attributes) {
+	sortedAttrs := sortedAttributes(body.Attributes)
+	
+	// Extract file-level head comments from before the first attribute
+	var fileComment string
+	if len(sortedAttrs) > 0 {
+		firstAttrPos := sortedAttrs[0].Attr.Range().Start.Byte
+		fileComment = extractHeadComment(dec.fileBytes, firstAttrPos)
+		if fileComment != "" {
+			root.HeadComment = fileComment
+		}
+	}
+	
+	for i, attrWithName := range sortedAttrs {
 		keyNode := createStringScalarNode(attrWithName.Name)
 		valNode := convertHclExprToNode(attrWithName.Attr.Expr, dec.fileBytes)
 
 		// Attach comments if any
 		attrRange := attrWithName.Attr.Range()
 		headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte)
-		if !leadingUsed && leadingComment != "" {
-			// Avoid double-applying the leading file comment to the first attribute
-			switch headComment {
-			case leadingComment:
-				headComment = ""
-			case "":
-				headComment = leadingComment
-			}
-			leadingUsed = true
+		
+		// For the first attribute, avoid duplicating the file-level comment
+		if i == 0 && fileComment != "" && headComment == fileComment {
+			headComment = ""
 		}
+		
 		if headComment != "" {
 			keyNode.HeadComment = headComment
 		}
