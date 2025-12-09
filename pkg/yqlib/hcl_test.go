@@ -407,6 +407,62 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "# Main config\nenabled = true\nport = 8080\n",
 		scenarioType: "roundtrip",
 	},
+	{
+		description:  "Multiple attributes with comments (comment safety with safe path separator)",
+		skipDoc:      true,
+		input:        "# Database config\ndb_host = \"localhost\"\n# Connection pool\ndb_pool = 10",
+		expected:     "# Database config\ndb_host = \"localhost\"\n# Connection pool\ndb_pool = 10\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Nested blocks with head comments",
+		skipDoc:      true,
+		input:        "service \"api\" {\n  # Listen address\n  listen = \"0.0.0.0:8080\"\n  # TLS enabled\n  tls = true\n}",
+		expected:     "service \"api\" {\n  # Listen address\n  listen = \"0.0.0.0:8080\"\n  # TLS enabled\n  tls = true\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Multiple blocks with EncodeSeparate preservation",
+		skipDoc:      true,
+		input:        "resource \"aws_s3_bucket\" \"bucket1\" {\n  bucket = \"my-bucket-1\"\n}\nresource \"aws_s3_bucket\" \"bucket2\" {\n  bucket = \"my-bucket-2\"\n}",
+		expected:     "resource \"aws_s3_bucket\" \"bucket1\" {\n  bucket = \"my-bucket-1\"\n}\nresource \"aws_s3_bucket\" \"bucket2\" {\n  bucket = \"my-bucket-2\"\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Blocks with same name handled separately",
+		skipDoc:      true,
+		input:        "server \"primary\" { port = 8080 }\nserver \"backup\" { port = 8081 }",
+		expected:     "server \"primary\" {\n  port = 8080\n}\nserver \"backup\" {\n  port = 8081\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Block label with dot roundtrip (commentPathSep)",
+		skipDoc:      true,
+		input:        "service \"api.service\" {\n  port = 8080\n}",
+		expected:     "service \"api.service\" {\n  port = 8080\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Nested template expression",
+		skipDoc:      true,
+		input:        `message = "User: ${username}, Role: ${user_role}"`,
+		expected:     "message = \"User: ${username}, Role: ${user_role}\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Empty object roundtrip",
+		skipDoc:      true,
+		input:        `obj = {}`,
+		expected:     "obj = {}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Null value in block",
+		skipDoc:      true,
+		input:        `service { optional_field = null }`,
+		expected:     "service {\n  optional_field = null\n}\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {

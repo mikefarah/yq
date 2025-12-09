@@ -19,6 +19,11 @@ type hclEncoder struct {
 	prefs HclPreferences
 }
 
+// commentPathSep is used to join path segments when collecting comments.
+// It uses a rarely used ASCII control character to avoid collisions with
+// normal key names (including dots).
+const commentPathSep = "\x1e"
+
 // NewHclEncoder creates a new HCL encoder
 func NewHclEncoder(prefs HclPreferences) Encoder {
 	return &hclEncoder{prefs: prefs}
@@ -84,7 +89,7 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 	if node.Kind == MappingNode {
 		// Collect root-level head comment if at root (prefix is empty)
 		if prefix == "" && node.HeadComment != "" {
-			commentMap[".head"] = node.HeadComment
+			commentMap[joinCommentPath("__root__", "head")] = node.HeadComment
 		}
 
 		for i := 0; i < len(node.Content); i += 2 {
@@ -93,21 +98,18 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 			key := keyNode.Value
 
 			// Create a path for this key
-			path := key
-			if prefix != "" {
-				path = prefix + "." + key
-			}
+			path := joinCommentPath(prefix, key)
 
 			// Store comments from the key (head comments appear before the attribute)
 			if keyNode.HeadComment != "" {
-				commentMap[path+".head"] = keyNode.HeadComment
+				commentMap[joinCommentPath(path, "head")] = keyNode.HeadComment
 			}
 			// Store comments from the value (line comments appear after the value)
 			if valueNode.LineComment != "" {
-				commentMap[path+".line"] = valueNode.LineComment
+				commentMap[joinCommentPath(path, "line")] = valueNode.LineComment
 			}
 			if valueNode.FootComment != "" {
-				commentMap[path+".foot"] = valueNode.FootComment
+				commentMap[joinCommentPath(path, "foot")] = valueNode.FootComment
 			}
 
 			// Recurse into nested mappings
@@ -118,14 +120,22 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 	}
 }
 
+// joinCommentPath concatenates path segments using commentPathSep, safely handling empty prefixes.
+func joinCommentPath(prefix, segment string) string {
+	if prefix == "" {
+		return segment
+	}
+	return prefix + commentPathSep + segment
+}
+
 // injectComments adds collected comments back into the HCL output
 func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string) []byte {
 	// Convert output to string for easier manipulation
 	result := string(output)
 
-	// Root-level head comment (stored as ".head")
+	// Root-level head comment (stored on the synthetic __root__/head path)
 	for path, comment := range commentMap {
-		if path == ".head" {
+		if path == joinCommentPath("__root__", "head") {
 			trimmed := strings.TrimSpace(comment)
 			if trimmed != "" && !strings.HasPrefix(result, trimmed) {
 				result = trimmed + "\n" + result
@@ -135,13 +145,13 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 
 	// Attribute head comments: insert above matching assignment
 	for path, comment := range commentMap {
-		parts := strings.Split(path, ".")
-		if len(parts) != 2 {
+		parts := strings.Split(path, commentPathSep)
+		if len(parts) < 2 {
 			continue
 		}
 
-		key := parts[0]
-		commentType := parts[1]
+		commentType := parts[len(parts)-1]
+		key := parts[len(parts)-2]
 		if commentType != "head" || key == "" {
 			continue
 		}
@@ -271,7 +281,6 @@ func isHCLIdentifierPart(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
 }
 
-// isValidHCLIdentifier checks if a string is a valid HCL identifier (unquoted)
 func isValidHCLIdentifier(s string) bool {
 	if s == "" {
 		return false
