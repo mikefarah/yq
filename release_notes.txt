@@ -1,5 +1,6 @@
 4.50.1:
   - Added HCL support!
+  - Fixing handling of CRLF #2352
   - Bumped dependencies
 
 4.49.2:
