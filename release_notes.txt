@@ -1,3 +1,7 @@
+4.50.1:
+  - Added HCL support!
+  - Bumped dependencies
+
 4.49.2:
   - Fixing escape character bugs :sweat: #2517
   - Fixing snap release pipeline #2518 Thanks @aalexjo
