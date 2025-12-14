@@ -41,6 +41,23 @@ func (te *tomlEncoder) CanHandleAliases() bool {
 
 // ---- helpers ----
 
+func (te *tomlEncoder) writeComment(w io.Writer, comment string) error {
+	if comment == "" {
+		return nil
+	}
+	lines := strings.Split(comment, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "#") {
+			line = "# " + line
+		}
+		if _, err := w.Write([]byte(line + "\n")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	switch node.Tag {
 	case "!!str":
@@ -122,16 +139,47 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 
 func (te *tomlEncoder) writeAttribute(w io.Writer, key string, value *CandidateNode) error {
 	te.wroteRootAttr = true // Mark that we wrote a root attribute
-	_, err := w.Write([]byte(key + " = " + te.formatScalar(value) + "\n"))
+
+	// Write head comment before the attribute
+	if err := te.writeComment(w, value.HeadComment); err != nil {
+		return err
+	}
+
+	// Write the attribute
+	line := key + " = " + te.formatScalar(value)
+
+	// Add line comment if present
+	if value.LineComment != "" {
+		lineComment := strings.TrimSpace(value.LineComment)
+		if !strings.HasPrefix(lineComment, "#") {
+			lineComment = "# " + lineComment
+		}
+		line += "  " + lineComment
+	}
+
+	_, err := w.Write([]byte(line + "\n"))
 	return err
 }
 
 func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *CandidateNode) error {
 	te.wroteRootAttr = true // Mark that we wrote a root attribute
 
+	// Write head comment before the array
+	if err := te.writeComment(w, seq.HeadComment); err != nil {
+		return err
+	}
+
 	// Handle empty arrays
 	if len(seq.Content) == 0 {
-		_, err := w.Write([]byte(key + " = []\n"))
+		line := key + " = []"
+		if seq.LineComment != "" {
+			lineComment := strings.TrimSpace(seq.LineComment)
+			if !strings.HasPrefix(lineComment, "#") {
+				lineComment = "# " + lineComment
+			}
+			line += "  " + lineComment
+		}
+		_, err := w.Write([]byte(line + "\n"))
 		return err
 	}
 
@@ -161,7 +209,19 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 			return fmt.Errorf("unsupported array item kind: %v", it.Kind)
 		}
 	}
-	_, err := w.Write([]byte(key + " = [" + strings.Join(items, ", ") + "]\n"))
+
+	line := key + " = [" + strings.Join(items, ", ") + "]"
+
+	// Add line comment if present
+	if seq.LineComment != "" {
+		lineComment := strings.TrimSpace(seq.LineComment)
+		if !strings.HasPrefix(lineComment, "#") {
+			lineComment = "# " + lineComment
+		}
+		line += "  " + lineComment
+	}
+
+	_, err := w.Write([]byte(line + "\n"))
 	return err
 }
 
@@ -229,17 +289,25 @@ func (te *tomlEncoder) writeInlineTableAttribute(w io.Writer, key string, m *Can
 	return err
 }
 
-func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string) error {
-	// Add blank line before table header if we wrote root attributes
-	prefix := ""
-	if te.wroteRootAttr {
-		prefix = "\n"
+func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string, m *CandidateNode) error {
+	// Add blank line before table header (or before comment if present) if we wrote root attributes
+	needsBlankLine := te.wroteRootAttr
+	if needsBlankLine {
+		if _, err := w.Write([]byte("\n")); err != nil {
+			return err
+		}
 		te.wroteRootAttr = false // Only add once
 	}
 
-	// Write headers progressively to ensure nested tables
-	// Collapse to a single header line [a.b.c]
-	header := prefix + "[" + strings.Join(path, ".") + "]\n"
+	// Write head comment before the table header
+	if m.HeadComment != "" {
+		if err := te.writeComment(w, m.HeadComment); err != nil {
+			return err
+		}
+	}
+
+	// Write table header [a.b.c]
+	header := "[" + strings.Join(path, ".") + "]\n"
 	_, err := w.Write([]byte(header))
 	return err
 }
@@ -273,7 +341,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 
 	// If there are attributes or if the mapping is empty, emit the table header
 	if hasAttrs || len(m.Content) == 0 {
-		if err := te.writeTableHeader(w, path); err != nil {
+		if err := te.writeTableHeader(w, path, m); err != nil {
 			return err
 		}
 		if err := te.encodeMappingBodyWithPath(w, path, m); err != nil {
@@ -290,7 +358,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 		case MappingNode:
 			// Emit [path.k]
 			newPath := append(append([]string{}, path...), k)
-			if err := te.writeTableHeader(w, newPath); err != nil {
+			if err := te.writeTableHeader(w, newPath, v); err != nil {
 				return err
 			}
 			if err := te.encodeMappingBodyWithPath(w, newPath, v); err != nil {

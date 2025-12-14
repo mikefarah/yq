@@ -216,6 +216,15 @@ age = 36
 var rtEmptyTable = `[dependencies]
 `
 
+var rtComments = `# This is a comment
+A = "hello"  # inline comment
+B = 12
+
+# Table comment
+[person]
+name = "Tom"  # name comment
+`
+
 var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
@@ -485,6 +494,13 @@ var tomlScenarios = []formatScenario{
 		input:        rtEmptyTable,
 		expression:   ".",
 		expected:     rtEmptyTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: comments",
+		input:        rtComments,
+		expression:   ".",
+		expected:     rtComments,
 		scenarioType: "roundtrip",
 	},
 }

@@ -8,16 +8,18 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	toml "github.com/pelletier/go-toml/v2/unstable"
 )
 
 type tomlDecoder struct {
-	parser   toml.Parser
-	finished bool
-	d        DataTreeNavigator
-	rootMap  *CandidateNode
+	parser    toml.Parser
+	finished  bool
+	d         DataTreeNavigator
+	rootMap   *CandidateNode
+	fileBytes []byte
 }
 
 func NewTomlDecoder() Decoder {
@@ -34,12 +36,85 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 	if err != nil {
 		return err
 	}
-	dec.parser.Reset(buf.Bytes())
+	dec.fileBytes = buf.Bytes()
+	dec.parser.Reset(dec.fileBytes)
 	dec.rootMap = &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
 	}
 	return nil
+}
+
+// extractLineComment extracts any inline comment (# ...) after the given position
+func (dec *tomlDecoder) extractLineComment(endPos int) string {
+	src := dec.fileBytes
+	// Look for # comment after the token
+	for i := endPos; i < len(src); i++ {
+		if src[i] == '#' {
+			// Found comment, extract until end of line
+			start := i
+			for i < len(src) && src[i] != '\n' {
+				i++
+			}
+			return strings.TrimSpace(string(src[start:i]))
+		}
+		if src[i] == '\n' {
+			// Hit newline before comment
+			break
+		}
+		// Skip whitespace and other characters
+	}
+	return ""
+}
+
+// extractHeadComment extracts comments before a given start position
+// Only extracts comments from immediately preceding lines (no blank lines in between)
+func (dec *tomlDecoder) extractHeadComment(startPos int) string {
+	src := dec.fileBytes
+	var comments []string
+
+	// Start just before the token and go back to previous newline
+	i := startPos - 1
+	for i >= 0 && src[i] != '\n' {
+		i--
+	}
+	// Now i is at the newline before the current line, or -1 if at start
+
+	// Keep collecting comment lines going backwards
+	for i >= 0 {
+		// Move to end of previous line
+		i-- // skip the newline
+		if i < 0 {
+			break
+		}
+
+		// Find the start of this line
+		lineEnd := i
+		for i >= 0 && src[i] != '\n' {
+			i--
+		}
+		lineStart := i + 1
+
+		line := strings.TrimSpace(string(src[lineStart : lineEnd+1]))
+
+		// Empty line stops the comment block
+		if line == "" {
+			break
+		}
+
+		// Non-comment line stops the comment block
+		if !strings.HasPrefix(line, "#") {
+			break
+		}
+
+		// Prepend this comment line
+		comments = append([]string{line}, comments...)
+	}
+
+	if len(comments) > 0 {
+		return strings.Join(comments, "\n")
+	}
+	return ""
 }
 
 func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
@@ -61,6 +136,21 @@ func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode 
 	valueNode, err := dec.decodeNode(value)
 	if err != nil {
 		return err
+	}
+
+	// Extract comments using the value's Raw range (more reliable than KeyValue node)
+	startPos := int(value.Raw.Offset)
+	endPos := int(value.Raw.Offset + value.Raw.Length)
+
+	// HeadComment appears before the key-value line
+	if startPos > 0 {
+		if headComment := dec.extractHeadComment(startPos); headComment != "" {
+			valueNode.HeadComment = headComment
+		}
+	}
+	// LineComment appears after the value on the same line
+	if lineComment := dec.extractLineComment(endPos); lineComment != "" {
+		valueNode.LineComment = lineComment
 	}
 
 	context := Context{}
@@ -264,7 +354,8 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 
 func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processTable")
-	fullPath := dec.getFullPath(currentNode.Child())
+	child := currentNode.Child()
+	fullPath := dec.getFullPath(child)
 	log.Debug("fullpath: %v", fullPath)
 
 	c := Context{}
@@ -280,6 +371,14 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		Tag:            "!!map",
 		Content:        make([]*CandidateNode, 0),
 		EncodeSeparate: true,
+	}
+
+	// Extract head comment for the table section using the child node (first key in the table path)
+	startPos := int(child.Raw.Offset)
+	if startPos > 0 {
+		if headComment := dec.extractHeadComment(startPos); headComment != "" {
+			tableNodeValue.HeadComment = headComment
+		}
 	}
 
 	var tableValue *toml.Node
@@ -331,7 +430,8 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 
 func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processArrayTable")
-	fullPath := dec.getFullPath(currentNode.Child())
+	child := currentNode.Child()
+	fullPath := dec.getFullPath(child)
 	log.Debug("Fullpath: %v", fullPath)
 
 	c := Context{}
@@ -351,6 +451,15 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 		Tag:            "!!map",
 		EncodeSeparate: true,
 	}
+
+	// Extract head comment for the array table section using child node
+	startPos := int(child.Raw.Offset)
+	if startPos > 0 {
+		if headComment := dec.extractHeadComment(startPos); headComment != "" {
+			tableNodeValue.HeadComment = headComment
+		}
+	}
+
 	runAgainstCurrentExp := false
 	// if the next value is a ArrayTable or Table, then its not part of this declaration (not a key value pair)
 	// so lets leave that expression for the next round of parsing

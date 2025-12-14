@@ -302,3 +302,30 @@ will output
 [dependencies]
 ```
 
+## Roundtrip: comments
+Given a sample.toml file of:
+```toml
+# This is a comment
+A = "hello"  # inline comment
+B = 12
+
+# Table comment
+[person]
+name = "Tom"  # name comment
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+# This is a comment
+A = "hello"  # inline comment
+B = 12
+
+# Table comment
+[person]
+name = "Tom"  # name comment
+```
+
