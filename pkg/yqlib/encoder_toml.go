@@ -1,17 +1,25 @@
 package yqlib
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type tomlEncoder struct {
 	wroteRootAttr bool // Track if we wrote root-level attributes before tables
+	prefs         TomlPreferences
 }
 
 func NewTomlEncoder() Encoder {
-	return &tomlEncoder{}
+	return NewTomlEncoderWithPrefs(ConfiguredTomlPreferences)
+}
+
+func NewTomlEncoderWithPrefs(prefs TomlPreferences) Encoder {
+	return &tomlEncoder{prefs: prefs}
 }
 
 func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
@@ -23,8 +31,28 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return fmt.Errorf("TOML encoder expects a mapping at the root level")
 	}
 
+	// Encode to a buffer first if colors are enabled
+	var buf bytes.Buffer
+	var targetWriter io.Writer
+	if te.prefs.ColorsEnabled {
+		targetWriter = &buf
+	} else {
+		targetWriter = writer
+	}
+
 	// Encode a root mapping as a sequence of attributes, tables, and arrays of tables
-	return te.encodeRootMapping(writer, node)
+	if err := te.encodeRootMapping(targetWriter, node); err != nil {
+		return err
+	}
+
+	// Apply colorization if enabled
+	if te.prefs.ColorsEnabled {
+		colorized := te.colorizeToml(buf.Bytes())
+		_, err := writer.Write(colorized)
+		return err
+	}
+
+	return nil
 }
 
 func (te *tomlEncoder) PrintDocumentSeparator(_ io.Writer) error {
@@ -496,4 +524,131 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		}
 	}
 	return nil
+}
+
+// colorizeToml applies syntax highlighting to TOML output using fatih/color
+func (te *tomlEncoder) colorizeToml(input []byte) []byte {
+	toml := string(input)
+	result := strings.Builder{}
+
+	// Force color output (don't check for TTY)
+	color.NoColor = false
+
+	// Create color functions for different token types
+	commentColor := color.New(color.FgHiBlack).SprintFunc()
+	stringColor := color.New(color.FgGreen).SprintFunc()
+	numberColor := color.New(color.FgHiMagenta).SprintFunc()
+	keyColor := color.New(color.FgCyan).SprintFunc()
+	boolColor := color.New(color.FgHiMagenta).SprintFunc()
+	sectionColor := color.New(color.FgYellow, color.Bold).SprintFunc()
+
+	// Simple tokenization for TOML coloring
+	i := 0
+	for i < len(toml) {
+		ch := toml[i]
+
+		// Comments - from # to end of line
+		if ch == '#' {
+			end := i
+			for end < len(toml) && toml[end] != '\n' {
+				end++
+			}
+			result.WriteString(commentColor(toml[i:end]))
+			i = end
+			continue
+		}
+
+		// Table sections - [section] or [[array]]
+		if ch == '[' {
+			end := i + 1
+			// Check for [[
+			if end < len(toml) && toml[end] == '[' {
+				end++
+			}
+			// Find closing ]
+			for end < len(toml) && toml[end] != ']' {
+				end++
+			}
+			// Include closing ]
+			if end < len(toml) {
+				end++
+				// Check for ]]
+				if end < len(toml) && toml[end] == ']' {
+					end++
+				}
+			}
+			result.WriteString(sectionColor(toml[i:end]))
+			i = end
+			continue
+		}
+
+		// Strings - quoted text (double or single quotes)
+		if ch == '"' || ch == '\'' {
+			quote := ch
+			end := i + 1
+			for end < len(toml) && toml[end] != quote {
+				if toml[end] == '\\' {
+					end++ // skip escaped char
+				}
+				end++
+			}
+			if end < len(toml) {
+				end++ // include closing quote
+			}
+			result.WriteString(stringColor(toml[i:end]))
+			i = end
+			continue
+		}
+
+		// Numbers - sequences of digits, possibly with decimal point or minus
+		if (ch >= '0' && ch <= '9') || (ch == '-' && i+1 < len(toml) && toml[i+1] >= '0' && toml[i+1] <= '9') {
+			end := i
+			if ch == '-' {
+				end++
+			}
+			for end < len(toml) && ((toml[end] >= '0' && toml[end] <= '9') || toml[end] == '.' || toml[end] == 'e' || toml[end] == 'E' || toml[end] == '+' || toml[end] == '-') {
+				end++
+			}
+			result.WriteString(numberColor(toml[i:end]))
+			i = end
+			continue
+		}
+
+		// Identifiers/keys - alphanumeric + underscore + dash
+		if (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' {
+			end := i
+			for end < len(toml) && ((toml[end] >= 'a' && toml[end] <= 'z') ||
+				(toml[end] >= 'A' && toml[end] <= 'Z') ||
+				(toml[end] >= '0' && toml[end] <= '9') ||
+				toml[end] == '_' || toml[end] == '-') {
+				end++
+			}
+			ident := toml[i:end]
+
+			// Check if this is a boolean/null keyword
+			switch ident {
+			case "true", "false":
+				result.WriteString(boolColor(ident))
+			default:
+				// Check if followed by = or whitespace then = (it's a key)
+				j := end
+				for j < len(toml) && (toml[j] == ' ' || toml[j] == '\t') {
+					j++
+				}
+				if j < len(toml) && toml[j] == '=' {
+					result.WriteString(keyColor(ident))
+				} else {
+					result.WriteString(ident) // plain text for other identifiers
+				}
+			}
+			i = end
+			continue
+		}
+
+		// Everything else (whitespace, operators, brackets) - no color
+		result.WriteByte(ch)
+		i++
+	}
+
+	return []byte(result.String())
 }
