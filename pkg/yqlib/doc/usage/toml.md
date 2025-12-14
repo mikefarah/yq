@@ -141,3 +141,164 @@ will output
 dependencies: {}
 ```
 
+## Roundtrip: inline table attribute
+Given a sample.toml file of:
+```toml
+name = { first = "Tom", last = "Preston-Werner" }
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+name = { first = "Tom", last = "Preston-Werner" }
+```
+
+## Roundtrip: table section
+Given a sample.toml file of:
+```toml
+[owner.contact]
+name = "Tom"
+age = 36
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+[owner.contact]
+name = "Tom"
+age = 36
+```
+
+## Roundtrip: array of tables
+Given a sample.toml file of:
+```toml
+[[fruits]]
+name = "apple"
+[[fruits.varieties]]
+name = "red delicious"
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+[[fruits]]
+name = "apple"
+[[fruits.varieties]]
+name = "red delicious"
+```
+
+## Roundtrip: arrays and scalars
+Given a sample.toml file of:
+```toml
+A = ["hello", ["world", "again"]]
+B = 12
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+A = ["hello", ["world", "again"]]
+B = 12
+```
+
+## Roundtrip: simple
+Given a sample.toml file of:
+```toml
+A = "hello"
+B = 12
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+A = "hello"
+B = 12
+```
+
+## Roundtrip: deep paths
+Given a sample.toml file of:
+```toml
+[person]
+name = "hello"
+address = "12 cat st"
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+[person]
+name = "hello"
+address = "12 cat st"
+```
+
+## Roundtrip: empty array
+Given a sample.toml file of:
+```toml
+A = []
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+A = []
+```
+
+## Roundtrip: sample table
+Given a sample.toml file of:
+```toml
+var = "x"
+
+[owner.contact]
+name = "Tom Preston-Werner"
+age = 36
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+var = "x"
+
+[owner.contact]
+name = "Tom Preston-Werner"
+age = 36
+```
+
+## Roundtrip: empty table
+Given a sample.toml file of:
+```toml
+[dependencies]
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+[dependencies]
+```
+

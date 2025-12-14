@@ -3,9 +3,11 @@ package yqlib
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 type tomlEncoder struct {
+	wroteRootAttr bool // Track if we wrote root-level attributes before tables
 }
 
 func NewTomlEncoder() Encoder {
@@ -13,10 +15,16 @@ func NewTomlEncoder() Encoder {
 }
 
 func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	if node.Kind == ScalarNode {
-		return writeString(writer, node.Value+"\n")
+	if node.Kind != MappingNode {
+		// For standalone selections, TOML tests expect raw value for scalars
+		if node.Kind == ScalarNode {
+			return writeString(writer, node.Value+"\n")
+		}
+		return fmt.Errorf("TOML encoder expects a mapping at the root level")
 	}
-	return fmt.Errorf("only scalars (e.g. strings, numbers, booleans) are supported for TOML output at the moment. Please use yaml output format (-oy) until the encoder has been fully implemented")
+
+	// Encode a root mapping as a sequence of attributes, tables, and arrays of tables
+	return te.encodeRootMapping(writer, node)
 }
 
 func (te *tomlEncoder) PrintDocumentSeparator(_ io.Writer) error {
@@ -29,4 +37,395 @@ func (te *tomlEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 
 func (te *tomlEncoder) CanHandleAliases() bool {
 	return false
+}
+
+// ---- helpers ----
+
+func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
+	switch node.Tag {
+	case "!!str":
+		// Quote strings per TOML spec
+		return fmt.Sprintf("%q", node.Value)
+	case "!!bool", "!!int", "!!float":
+		return node.Value
+	case "!!null":
+		// TOML does not have null; encode as empty string
+		return "\"\""
+	default:
+		return node.Value
+	}
+}
+
+func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error {
+	te.wroteRootAttr = false // Reset state
+
+	// Preserve existing order by iterating Content
+	for i := 0; i < len(node.Content); i += 2 {
+		keyNode := node.Content[i]
+		valNode := node.Content[i+1]
+		if err := te.encodeTopLevelEntry(w, []string{keyNode.Value}, valNode); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// encodeTopLevelEntry encodes a key/value at the root, dispatching to attribute, table, or array-of-tables
+func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *CandidateNode) error {
+	switch node.Kind {
+	case ScalarNode:
+		// key = value
+		return te.writeAttribute(w, path[len(path)-1], node)
+	case SequenceNode:
+		// Empty arrays should be encoded as [] attributes
+		if len(node.Content) == 0 {
+			return te.writeArrayAttribute(w, path[len(path)-1], node)
+		}
+
+		// If all items are mappings => array of tables; else => array attribute
+		allMaps := true
+		for _, it := range node.Content {
+			if it.Kind != MappingNode {
+				allMaps = false
+				break
+			}
+		}
+		if allMaps {
+			key := path[len(path)-1]
+			for _, it := range node.Content {
+				// [[key]] then body
+				if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
+					return err
+				}
+				if err := te.encodeMappingBodyWithPath(w, []string{key}, it); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+		// Regular array attribute
+		return te.writeArrayAttribute(w, path[len(path)-1], node)
+	case MappingNode:
+		// Inline table if not EncodeSeparate, else emit separate tables/arrays of tables for children under this path
+		if !node.EncodeSeparate {
+			// If children contain mappings or arrays of mappings, prefer separate sections
+			if te.hasEncodeSeparateChild(node) || te.hasStructuralChildren(node) {
+				return te.encodeSeparateMapping(w, path, node)
+			}
+			return te.writeInlineTableAttribute(w, path[len(path)-1], node)
+		}
+		return te.encodeSeparateMapping(w, path, node)
+	default:
+		return fmt.Errorf("unsupported node kind for TOML: %v", node.Kind)
+	}
+}
+
+func (te *tomlEncoder) writeAttribute(w io.Writer, key string, value *CandidateNode) error {
+	te.wroteRootAttr = true // Mark that we wrote a root attribute
+	_, err := w.Write([]byte(key + " = " + te.formatScalar(value) + "\n"))
+	return err
+}
+
+func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *CandidateNode) error {
+	te.wroteRootAttr = true // Mark that we wrote a root attribute
+
+	// Handle empty arrays
+	if len(seq.Content) == 0 {
+		_, err := w.Write([]byte(key + " = []\n"))
+		return err
+	}
+
+	// Join scalars or nested arrays recursively into TOML array syntax
+	items := make([]string, 0, len(seq.Content))
+	for _, it := range seq.Content {
+		switch it.Kind {
+		case ScalarNode:
+			items = append(items, te.formatScalar(it))
+		case SequenceNode:
+			// Nested arrays: encode inline
+			nested, err := te.sequenceToInlineArray(it)
+			if err != nil {
+				return err
+			}
+			items = append(items, nested)
+		case MappingNode:
+			// Inline table inside array
+			inline, err := te.mappingToInlineTable(it)
+			if err != nil {
+				return err
+			}
+			items = append(items, inline)
+		case AliasNode:
+			return fmt.Errorf("aliases are not supported in TOML")
+		default:
+			return fmt.Errorf("unsupported array item kind: %v", it.Kind)
+		}
+	}
+	_, err := w.Write([]byte(key + " = [" + strings.Join(items, ", ") + "]\n"))
+	return err
+}
+
+func (te *tomlEncoder) sequenceToInlineArray(seq *CandidateNode) (string, error) {
+	items := make([]string, 0, len(seq.Content))
+	for _, it := range seq.Content {
+		switch it.Kind {
+		case ScalarNode:
+			items = append(items, te.formatScalar(it))
+		case SequenceNode:
+			nested, err := te.sequenceToInlineArray(it)
+			if err != nil {
+				return "", err
+			}
+			items = append(items, nested)
+		case MappingNode:
+			inline, err := te.mappingToInlineTable(it)
+			if err != nil {
+				return "", err
+			}
+			items = append(items, inline)
+		default:
+			return "", fmt.Errorf("unsupported array item kind: %v", it.Kind)
+		}
+	}
+	return "[" + strings.Join(items, ", ") + "]", nil
+}
+
+func (te *tomlEncoder) mappingToInlineTable(m *CandidateNode) (string, error) {
+	// key = { a = 1, b = "x" }
+	parts := make([]string, 0, len(m.Content)/2)
+	for i := 0; i < len(m.Content); i += 2 {
+		k := m.Content[i].Value
+		v := m.Content[i+1]
+		switch v.Kind {
+		case ScalarNode:
+			parts = append(parts, fmt.Sprintf("%s = %s", k, te.formatScalar(v)))
+		case SequenceNode:
+			// inline array in inline table
+			arr, err := te.sequenceToInlineArray(v)
+			if err != nil {
+				return "", err
+			}
+			parts = append(parts, fmt.Sprintf("%s = %s", k, arr))
+		case MappingNode:
+			// nested inline table
+			inline, err := te.mappingToInlineTable(v)
+			if err != nil {
+				return "", err
+			}
+			parts = append(parts, fmt.Sprintf("%s = %s", k, inline))
+		default:
+			return "", fmt.Errorf("unsupported inline table value kind: %v", v.Kind)
+		}
+	}
+	return "{ " + strings.Join(parts, ", ") + " }", nil
+}
+
+func (te *tomlEncoder) writeInlineTableAttribute(w io.Writer, key string, m *CandidateNode) error {
+	inline, err := te.mappingToInlineTable(m)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write([]byte(key + " = " + inline + "\n"))
+	return err
+}
+
+func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string) error {
+	// Add blank line before table header if we wrote root attributes
+	prefix := ""
+	if te.wroteRootAttr {
+		prefix = "\n"
+		te.wroteRootAttr = false // Only add once
+	}
+
+	// Write headers progressively to ensure nested tables
+	// Collapse to a single header line [a.b.c]
+	header := prefix + "[" + strings.Join(path, ".") + "]\n"
+	_, err := w.Write([]byte(header))
+	return err
+}
+
+// encodeSeparateMapping handles a mapping that should be encoded as table sections.
+// It emits the table header for this mapping if it has any content, then processes children.
+func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *CandidateNode) error {
+	// Check if this mapping has any non-mapping, non-array-of-tables children (i.e., attributes)
+	hasAttrs := false
+	for i := 0; i < len(m.Content); i += 2 {
+		v := m.Content[i+1]
+		if v.Kind == ScalarNode {
+			hasAttrs = true
+			break
+		}
+		if v.Kind == SequenceNode {
+			// Check if it's NOT an array of tables
+			allMaps := true
+			for _, it := range v.Content {
+				if it.Kind != MappingNode {
+					allMaps = false
+					break
+				}
+			}
+			if !allMaps {
+				hasAttrs = true
+				break
+			}
+		}
+	}
+
+	// If there are attributes or if the mapping is empty, emit the table header
+	if hasAttrs || len(m.Content) == 0 {
+		if err := te.writeTableHeader(w, path); err != nil {
+			return err
+		}
+		if err := te.encodeMappingBodyWithPath(w, path, m); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// No attributes, just nested structures - process children
+	for i := 0; i < len(m.Content); i += 2 {
+		k := m.Content[i].Value
+		v := m.Content[i+1]
+		switch v.Kind {
+		case MappingNode:
+			// Emit [path.k]
+			newPath := append(append([]string{}, path...), k)
+			if err := te.writeTableHeader(w, newPath); err != nil {
+				return err
+			}
+			if err := te.encodeMappingBodyWithPath(w, newPath, v); err != nil {
+				return err
+			}
+		case SequenceNode:
+			// If sequence of maps, emit [[path.k]] per element
+			allMaps := true
+			for _, it := range v.Content {
+				if it.Kind != MappingNode {
+					allMaps = false
+					break
+				}
+			}
+			if allMaps {
+				key := strings.Join(append(append([]string{}, path...), k), ".")
+				for _, it := range v.Content {
+					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
+						return err
+					}
+					if err := te.encodeMappingBodyWithPath(w, append(append([]string{}, path...), k), it); err != nil {
+						return err
+					}
+				}
+			} else {
+				// Regular array attribute under the current table path
+				if err := te.writeArrayAttribute(w, k, v); err != nil {
+					return err
+				}
+			}
+		case ScalarNode:
+			// Attributes directly under the current table path
+			if err := te.writeAttribute(w, k, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (te *tomlEncoder) hasEncodeSeparateChild(m *CandidateNode) bool {
+	for i := 0; i < len(m.Content); i += 2 {
+		v := m.Content[i+1]
+		if v.Kind == MappingNode && v.EncodeSeparate {
+			return true
+		}
+	}
+	return false
+}
+
+func (te *tomlEncoder) hasStructuralChildren(m *CandidateNode) bool {
+	for i := 0; i < len(m.Content); i += 2 {
+		v := m.Content[i+1]
+		// Only consider it structural if mapping has EncodeSeparate or is non-empty
+		if v.Kind == MappingNode && v.EncodeSeparate {
+			return true
+		}
+		if v.Kind == SequenceNode {
+			allMaps := true
+			for _, it := range v.Content {
+				if it.Kind != MappingNode {
+					allMaps = false
+					break
+				}
+			}
+			if allMaps {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// encodeMappingBodyWithPath encodes attributes and nested arrays of tables using full dotted path context
+func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *CandidateNode) error {
+	// First, attributes (scalars and non-map arrays)
+	for i := 0; i < len(m.Content); i += 2 {
+		k := m.Content[i].Value
+		v := m.Content[i+1]
+		switch v.Kind {
+		case ScalarNode:
+			if err := te.writeAttribute(w, k, v); err != nil {
+				return err
+			}
+		case SequenceNode:
+			allMaps := true
+			for _, it := range v.Content {
+				if it.Kind != MappingNode {
+					allMaps = false
+					break
+				}
+			}
+			if !allMaps {
+				if err := te.writeArrayAttribute(w, k, v); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// Then, nested arrays of tables with full path
+	for i := 0; i < len(m.Content); i += 2 {
+		k := m.Content[i].Value
+		v := m.Content[i+1]
+		if v.Kind == SequenceNode {
+			allMaps := true
+			for _, it := range v.Content {
+				if it.Kind != MappingNode {
+					allMaps = false
+					break
+				}
+			}
+			if allMaps {
+				dotted := strings.Join(append(append([]string{}, path...), k), ".")
+				for _, it := range v.Content {
+					if _, err := w.Write([]byte("[[" + dotted + "]]\n")); err != nil {
+						return err
+					}
+					if err := te.encodeMappingBodyWithPath(w, append(append([]string{}, path...), k), it); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
+	// Finally, child mappings that are not marked EncodeSeparate get inlined as attributes
+	for i := 0; i < len(m.Content); i += 2 {
+		k := m.Content[i].Value
+		v := m.Content[i+1]
+		if v.Kind == MappingNode && !v.EncodeSeparate {
+			if err := te.writeInlineTableAttribute(w, k, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

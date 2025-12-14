@@ -175,6 +175,47 @@ var expectedSampleWithHeader = `servers:
     ip: 10.0.0.1
 `
 
+// Roundtrip fixtures
+var rtInlineTableAttr = `name = { first = "Tom", last = "Preston-Werner" }
+`
+
+var rtTableSection = `[owner.contact]
+name = "Tom"
+age = 36
+`
+
+var rtArrayOfTables = `[[fruits]]
+name = "apple"
+[[fruits.varieties]]
+name = "red delicious"
+`
+
+var rtArraysAndScalars = `A = ["hello", ["world", "again"]]
+B = 12
+`
+
+var rtSimple = `A = "hello"
+B = 12
+`
+
+var rtDeepPaths = `[person]
+name = "hello"
+address = "12 cat st"
+`
+
+var rtEmptyArray = `A = []
+`
+
+var rtSampleTable = `var = "x"
+
+[owner.contact]
+name = "Tom Preston-Werner"
+age = 36
+`
+
+var rtEmptyTable = `[dependencies]
+`
+
 var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
@@ -381,6 +422,70 @@ var tomlScenarios = []formatScenario{
 		input:        multipleEmptyTables,
 		expected:     expectedMultipleEmptyTables,
 		scenarioType: "decode",
+	},
+	// Roundtrip scenarios
+	{
+		description:  "Roundtrip: inline table attribute",
+		input:        rtInlineTableAttr,
+		expression:   ".",
+		expected:     rtInlineTableAttr,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: table section",
+		input:        rtTableSection,
+		expression:   ".",
+		expected:     rtTableSection,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: array of tables",
+		input:        rtArrayOfTables,
+		expression:   ".",
+		expected:     rtArrayOfTables,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: arrays and scalars",
+		input:        rtArraysAndScalars,
+		expression:   ".",
+		expected:     rtArraysAndScalars,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: simple",
+		input:        rtSimple,
+		expression:   ".",
+		expected:     rtSimple,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: deep paths",
+		input:        rtDeepPaths,
+		expression:   ".",
+		expected:     rtDeepPaths,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: empty array",
+		input:        rtEmptyArray,
+		expression:   ".",
+		expected:     rtEmptyArray,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: sample table",
+		input:        rtSampleTable,
+		expression:   ".",
+		expected:     rtSampleTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: empty table",
+		input:        rtEmptyTable,
+		expression:   ".",
+		expected:     rtEmptyTable,
+		scenarioType: "roundtrip",
 	},
 }
 

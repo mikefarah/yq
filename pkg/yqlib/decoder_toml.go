@@ -276,9 +276,10 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	}
 
 	tableNodeValue := &CandidateNode{
-		Kind:    MappingNode,
-		Tag:     "!!map",
-		Content: make([]*CandidateNode, 0),
+		Kind:           MappingNode,
+		Tag:            "!!map",
+		Content:        make([]*CandidateNode, 0),
+		EncodeSeparate: true,
 	}
 
 	var tableValue *toml.Node
@@ -346,8 +347,9 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	hasValue := dec.parser.NextExpression()
 
 	tableNodeValue := &CandidateNode{
-		Kind: MappingNode,
-		Tag:  "!!map",
+		Kind:           MappingNode,
+		Tag:            "!!map",
+		EncodeSeparate: true,
 	}
 	runAgainstCurrentExp := false
 	// if the next value is a ArrayTable or Table, then its not part of this declaration (not a key value pair)

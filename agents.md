@@ -1,3 +1,16 @@
+# General rules
+✅ **DO:**
+- You can use ./yq with the `--debug-node-info` flag to get a deeper understanding of the ast.
+- run ./scripts/format.sh then ./scripts/check.sh to format, then validate linting and spelling
+- Add comprehensive tests to cover the changes
+- Run test suite to ensure there is no regression
+
+
+❌ **DON'T:**
+- Git add or commit
+
+
+
 # Adding a New Encoder/Decoder
 
 This guide explains how to add support for a new format (encoder/decoder) to yq without modifying `candidate_node.go`.
