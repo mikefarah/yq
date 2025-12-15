@@ -53,7 +53,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -100,7 +100,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -157,7 +157,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -177,7 +177,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -196,7 +196,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -225,7 +225,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq '.' sample.xml
+yq sample.xml
 ```
 will output
 ```xml
@@ -256,7 +256,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq --xml-skip-directives '.' sample.xml
+yq --xml-skip-directives sample.xml
 ```
 will output
 ```xml
@@ -292,7 +292,7 @@ for x --></x>
 ```
 then
 ```bash
-yq -oy '.' sample.xml
+yq -oy sample.xml
 ```
 will output
 ```yaml
@@ -327,7 +327,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq --xml-keep-namespace=false '.' sample.xml
+yq --xml-keep-namespace=false sample.xml
 ```
 will output
 ```xml
@@ -361,7 +361,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq --xml-raw-token=false '.' sample.xml
+yq --xml-raw-token=false sample.xml
 ```
 will output
 ```xml
@@ -542,7 +542,7 @@ for x --></x>
 ```
 then
 ```bash
-yq '.' sample.xml
+yq sample.xml
 ```
 will output
 ```xml
@@ -575,7 +575,7 @@ Given a sample.xml file of:
 ```
 then
 ```bash
-yq '.' sample.xml
+yq sample.xml
 ```
 will output
 ```xml
