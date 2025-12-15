@@ -15,11 +15,12 @@ import (
 )
 
 type tomlDecoder struct {
-	parser    toml.Parser
-	finished  bool
-	d         DataTreeNavigator
-	rootMap   *CandidateNode
-	fileBytes []byte
+	parser        toml.Parser
+	finished      bool
+	d             DataTreeNavigator
+	rootMap       *CandidateNode
+	fileBytes     []byte
+	firstKeyValue bool // Track if this is the first key-value for root comment
 }
 
 func NewTomlDecoder() Decoder {
@@ -42,6 +43,7 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 		Kind: MappingNode,
 		Tag:  "!!map",
 	}
+	dec.firstKeyValue = true
 	return nil
 }
 
@@ -68,47 +70,54 @@ func (dec *tomlDecoder) extractLineComment(endPos int) string {
 }
 
 // extractHeadComment extracts comments before a given start position
-// Only extracts comments from immediately preceding lines (no blank lines in between)
+// Skips whitespace (including blank lines) first, then collects comments
 func (dec *tomlDecoder) extractHeadComment(startPos int) string {
 	src := dec.fileBytes
 	var comments []string
 
-	// Start just before the token and go back to previous newline
+	// Start just before the token and skip trailing whitespace (including newlines)
 	i := startPos - 1
-	for i >= 0 && src[i] != '\n' {
+	for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
 		i--
 	}
-	// Now i is at the newline before the current line, or -1 if at start
 
 	// Keep collecting comment lines going backwards
 	for i >= 0 {
-		// Move to end of previous line
-		i-- // skip the newline
-		if i < 0 {
-			break
-		}
-
-		// Find the start of this line
+		// Find line boundaries: go back to find start, then forward to find end
 		lineEnd := i
+		// Find the end of this line
+		for lineEnd < len(src) && src[lineEnd] != '\n' {
+			lineEnd++
+		}
+		lineEnd-- // Back up from the newline
+		
+		// Now find the start of this line
 		for i >= 0 && src[i] != '\n' {
 			i--
 		}
 		lineStart := i + 1
 
-		line := strings.TrimSpace(string(src[lineStart : lineEnd+1]))
+		line := strings.TrimRight(string(src[lineStart:lineEnd+1]), " \t\r")
+		trimmed := strings.TrimSpace(line)
 
 		// Empty line stops the comment block
-		if line == "" {
+		if trimmed == "" {
 			break
 		}
 
 		// Non-comment line stops the comment block
-		if !strings.HasPrefix(line, "#") {
+		if !strings.HasPrefix(trimmed, "#") {
 			break
 		}
 
 		// Prepend this comment line
-		comments = append([]string{line}, comments...)
+		comments = append([]string{trimmed}, comments...)
+
+		// Move to previous line (skip any whitespace/newlines)
+		i = lineStart - 1
+		for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
+			i--
+		}
 	}
 
 	if len(comments) > 0 {
@@ -131,28 +140,37 @@ func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
 func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode *toml.Node) error {
 	value := tomlNode.Value()
 	path := dec.getFullPath(value.Next())
-	log.Debug("processKeyValueIntoMap: %v", path)
 
 	valueNode, err := dec.decodeNode(value)
 	if err != nil {
 		return err
 	}
 
-	// Extract comments using the value's Raw range (more reliable than KeyValue node)
-	startPos := int(value.Raw.Offset)
-	endPos := int(value.Raw.Offset + value.Raw.Length)
-
+	// Extract comments using the KeyValue node's start and value's end
+	kvStartPos := int(tomlNode.Raw.Offset)
+	valueEndPos := int(value.Raw.Offset + value.Raw.Length)
+	
+	log.Debug("processKeyValueIntoMap: kvStartPos=%d, valueEndPos=%d, firstKeyValue=%v", kvStartPos, valueEndPos, dec.firstKeyValue)
+	
 	// HeadComment appears before the key-value line
-	if startPos > 0 {
-		if headComment := dec.extractHeadComment(startPos); headComment != "" {
+	// Use kvStartPos + 1 to ensure we look before the key, not at position 0
+	headComment := dec.extractHeadComment(kvStartPos + 1)
+	log.Debug("processKeyValueIntoMap: extracted headComment: %q", headComment)
+	if headComment != "" {
+		// For the first key-value, attach head comment to root
+		if dec.firstKeyValue {
+			log.Debug("processKeyValueIntoMap: attaching head comment to root")
+			dec.rootMap.HeadComment = headComment
+			dec.firstKeyValue = false
+		} else {
 			valueNode.HeadComment = headComment
 		}
 	}
 	// LineComment appears after the value on the same line
-	if lineComment := dec.extractLineComment(endPos); lineComment != "" {
+	if lineComment := dec.extractLineComment(valueEndPos); lineComment != "" {
 		valueNode.LineComment = lineComment
 	}
-
+	
 	context := Context{}
 	context = context.SingleChildContext(rootMap)
 

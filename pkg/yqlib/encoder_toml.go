@@ -104,6 +104,19 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error {
 	te.wroteRootAttr = false // Reset state
 
+	// Write root head comment if present
+	if node.HeadComment != "" {
+		if _, err := w.Write([]byte("\n")); err != nil {
+			return err
+		}
+		if err := te.writeComment(w, node.HeadComment); err != nil {
+			return err
+		}
+		if _, err := w.Write([]byte("\n")); err != nil {
+			return err
+		}
+	}
+
 	// Preserve existing order by iterating Content
 	for i := 0; i < len(node.Content); i += 2 {
 		keyNode := node.Content[i]
