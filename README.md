@@ -363,7 +363,7 @@ gah install yq
 - [Load content from other files](https://mikefarah.gitbook.io/yq/operators/load)
 - [Convert to/from json/ndjson](https://mikefarah.gitbook.io/yq/v/v4.x/usage/convert)
 - [Convert to/from xml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/xml)
-- [Convert to/from hcl](https://mikefarah.gitbook.io/yq/v/v4.x/usage/hcl)
+- [Convert to/from hcl (terraform)](https://mikefarah.gitbook.io/yq/v/v4.x/usage/hcl)
 - [Convert to/from toml](https://mikefarah.gitbook.io/yq/v/v4.x/usage/toml)
 - [Convert to/from properties](https://mikefarah.gitbook.io/yq/v/v4.x/usage/properties)
 - [Convert to/from csv/tsv](https://mikefarah.gitbook.io/yq/usage/csv-tsv)
