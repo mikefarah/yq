@@ -43,6 +43,9 @@ func (he *hclEncoder) PrintLeadingContent(_ io.Writer, _ string) error {
 
 func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debugf("I need to encode %v", NodeToString(node))
+	if node.Kind == ScalarNode {
+		return writeString(writer, node.Value+"\n")
+	}
 
 	f := hclwrite.NewEmptyFile()
 	body := f.Body()
@@ -490,7 +493,7 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 // encodeNode encodes a CandidateNode directly to HCL, preserving style information
 func (he *hclEncoder) encodeNode(body *hclwrite.Body, node *CandidateNode) error {
 	if node.Kind != MappingNode {
-		return fmt.Errorf("HCL encoder expects a mapping at the root level")
+		return fmt.Errorf("HCL encoder expects a mapping at the root level, got %v", kindToString(node.Kind))
 	}
 
 	for i := 0; i < len(node.Content); i += 2 {
