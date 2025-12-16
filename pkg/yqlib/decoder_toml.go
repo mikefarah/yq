@@ -15,12 +15,12 @@ import (
 )
 
 type tomlDecoder struct {
-	parser        toml.Parser
-	finished      bool
-	d             DataTreeNavigator
-	rootMap       *CandidateNode
-	fileBytes     []byte
-	firstKeyValue bool // Track if this is the first key-value for root comment
+	parser           toml.Parser
+	finished         bool
+	d                DataTreeNavigator
+	rootMap          *CandidateNode
+	pendingComments  []string // Head comments collected from Comment nodes
+	firstContentSeen bool     // Track if we've processed the first non-comment node
 }
 
 func NewTomlDecoder() Decoder {
@@ -31,99 +31,20 @@ func NewTomlDecoder() Decoder {
 }
 
 func (dec *tomlDecoder) Init(reader io.Reader) error {
-	dec.parser = toml.Parser{}
+	dec.parser = toml.Parser{KeepComments: true}
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(reader)
 	if err != nil {
 		return err
 	}
-	dec.fileBytes = buf.Bytes()
-	dec.parser.Reset(dec.fileBytes)
+	dec.parser.Reset(buf.Bytes())
 	dec.rootMap = &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
 	}
-	dec.firstKeyValue = true
+	dec.pendingComments = make([]string, 0)
+	dec.firstContentSeen = false
 	return nil
-}
-
-// extractLineComment extracts any inline comment (# ...) after the given position
-func (dec *tomlDecoder) extractLineComment(endPos int) string {
-	src := dec.fileBytes
-	// Look for # comment after the token
-	for i := endPos; i < len(src); i++ {
-		if src[i] == '#' {
-			// Found comment, extract until end of line
-			start := i
-			for i < len(src) && src[i] != '\n' {
-				i++
-			}
-			return strings.TrimSpace(string(src[start:i]))
-		}
-		if src[i] == '\n' {
-			// Hit newline before comment
-			break
-		}
-		// Skip whitespace and other characters
-	}
-	return ""
-}
-
-// extractHeadComment extracts comments before a given start position
-// Skips whitespace (including blank lines) first, then collects comments
-func (dec *tomlDecoder) extractHeadComment(startPos int) string {
-	src := dec.fileBytes
-	var comments []string
-
-	// Start just before the token and skip trailing whitespace (including newlines)
-	i := startPos - 1
-	for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
-		i--
-	}
-
-	// Keep collecting comment lines going backwards
-	for i >= 0 {
-		// Find line boundaries: go back to find start, then forward to find end
-		lineEnd := i
-		// Find the end of this line
-		for lineEnd < len(src) && src[lineEnd] != '\n' {
-			lineEnd++
-		}
-		lineEnd-- // Back up from the newline
-		
-		// Now find the start of this line
-		for i >= 0 && src[i] != '\n' {
-			i--
-		}
-		lineStart := i + 1
-
-		line := strings.TrimRight(string(src[lineStart:lineEnd+1]), " \t\r")
-		trimmed := strings.TrimSpace(line)
-
-		// Empty line stops the comment block
-		if trimmed == "" {
-			break
-		}
-
-		// Non-comment line stops the comment block
-		if !strings.HasPrefix(trimmed, "#") {
-			break
-		}
-
-		// Prepend this comment line
-		comments = append([]string{trimmed}, comments...)
-
-		// Move to previous line (skip any whitespace/newlines)
-		i = lineStart - 1
-		for i >= 0 && (src[i] == ' ' || src[i] == '\t' || src[i] == '\n' || src[i] == '\r') {
-			i--
-		}
-	}
-
-	if len(comments) > 0 {
-		return strings.Join(comments, "\n")
-	}
-	return ""
 }
 
 func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
@@ -146,31 +67,18 @@ func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode 
 		return err
 	}
 
-	// Extract comments using the KeyValue node's start and value's end
-	kvStartPos := int(tomlNode.Raw.Offset)
-	valueEndPos := int(value.Raw.Offset + value.Raw.Length)
-	
-	log.Debug("processKeyValueIntoMap: kvStartPos=%d, valueEndPos=%d, firstKeyValue=%v", kvStartPos, valueEndPos, dec.firstKeyValue)
-	
-	// HeadComment appears before the key-value line
-	// Use kvStartPos + 1 to ensure we look before the key, not at position 0
-	headComment := dec.extractHeadComment(kvStartPos + 1)
-	log.Debug("processKeyValueIntoMap: extracted headComment: %q", headComment)
-	if headComment != "" {
-		// For the first key-value, attach head comment to root
-		if dec.firstKeyValue {
-			log.Debug("processKeyValueIntoMap: attaching head comment to root")
-			dec.rootMap.HeadComment = headComment
-			dec.firstKeyValue = false
-		} else {
-			valueNode.HeadComment = headComment
-		}
+	// Attach pending head comments
+	if len(dec.pendingComments) > 0 {
+		valueNode.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
 	}
-	// LineComment appears after the value on the same line
-	if lineComment := dec.extractLineComment(valueEndPos); lineComment != "" {
-		valueNode.LineComment = lineComment
+
+	// Check for inline comment chained to the KeyValue node
+	nextNode := tomlNode.Next()
+	if nextNode != nil && nextNode.Kind == toml.Comment {
+		valueNode.LineComment = string(nextNode.Data)
 	}
-	
+
 	context := Context{}
 	context = context.SingleChildContext(rootMap)
 
@@ -187,11 +95,15 @@ func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode 
 		nextItem := dec.parser.Expression()
 		log.Debug("decodeKeyValuesIntoMap -- next exp, its a %v", nextItem.Kind)
 
-		if nextItem.Kind == toml.KeyValue {
+		switch nextItem.Kind {
+		case toml.KeyValue:
 			if err := dec.processKeyValueIntoMap(rootMap, nextItem); err != nil {
 				return false, err
 			}
-		} else {
+		case toml.Comment:
+			// Standalone comment - add to pending for next element
+			dec.pendingComments = append(dec.pendingComments, string(nextItem.Data))
+		default:
 			// run out of key values
 			log.Debug("done in decodeKeyValuesIntoMap, gota a %v", nextItem.Kind)
 			return true, nil
@@ -358,11 +270,29 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 	var err error
 	log.Debug("processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
 	switch currentNode.Kind {
+	case toml.Comment:
+		// Collect comment to attach to next element
+		commentText := string(currentNode.Data)
+		// If we haven't seen any content yet, accumulate comments for root
+		if !dec.firstContentSeen {
+			if dec.rootMap.HeadComment == "" {
+				dec.rootMap.HeadComment = commentText
+			} else {
+				dec.rootMap.HeadComment = dec.rootMap.HeadComment + "\n" + commentText
+			}
+		} else {
+			// We've seen content, so these comments are for the next element
+			dec.pendingComments = append(dec.pendingComments, commentText)
+		}
+		return false, nil
 	case toml.Table:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.processTable(currentNode)
 	case toml.ArrayTable:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.processArrayTable(currentNode)
 	default:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(dec.rootMap, currentNode)
 	}
 
@@ -391,12 +321,10 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		EncodeSeparate: true,
 	}
 
-	// Extract head comment for the table section using the child node (first key in the table path)
-	startPos := int(child.Raw.Offset)
-	if startPos > 0 {
-		if headComment := dec.extractHeadComment(startPos); headComment != "" {
-			tableNodeValue.HeadComment = headComment
-		}
+	// Attach pending head comments to the table
+	if len(dec.pendingComments) > 0 {
+		tableNodeValue.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
 	}
 
 	var tableValue *toml.Node
@@ -470,12 +398,10 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 		EncodeSeparate: true,
 	}
 
-	// Extract head comment for the array table section using child node
-	startPos := int(child.Raw.Offset)
-	if startPos > 0 {
-		if headComment := dec.extractHeadComment(startPos); headComment != "" {
-			tableNodeValue.HeadComment = headComment
-		}
+	// Attach pending head comments to the array table
+	if len(dec.pendingComments) > 0 {
+		tableNodeValue.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
 	}
 
 	runAgainstCurrentExp := false
