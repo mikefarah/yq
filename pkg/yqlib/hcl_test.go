@@ -326,6 +326,14 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "roundtrip",
 	},
 	{
+		description:  "Roundtrip:  extraction",
+		skipDoc:      true,
+		input:        simpleSample,
+		expression:   ".shouty_message",
+		expected:     "upper(message)\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "Roundtrip: With templates, functions and arithmetic",
 		input:        simpleSample,
 		expected:     simpleSampleExpected,
