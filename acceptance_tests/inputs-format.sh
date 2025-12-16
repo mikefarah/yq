@@ -6,6 +6,7 @@ setUp() {
   rm test*.csv 2>/dev/null || true
   rm test*.tsv 2>/dev/null || true
   rm test*.xml 2>/dev/null || true
+  rm test*.tf 2>/dev/null || true
 }
 
 testInputProperties() {
@@ -252,6 +253,63 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(cat /dev/null | ./yq ea -p=xml test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testInputTerraform() {
+  cat >test.tf <<EOL
+resource "aws_s3_bucket" "example" {
+  bucket = "my-bucket"
+  tags = {
+    Environment = "Dev"
+    Project = "Test"
+  }
+}
+EOL
+
+  read -r -d '' expected << EOM
+resource "aws_s3_bucket" "example" {
+  bucket = "my-bucket"
+  tags = {
+    Environment = "Dev"
+    Project = "Test"
+  }
+}
+EOM
+
+  X=$(./yq test.tf)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea test.tf)
+  assertEquals "$expected" "$X"
+}
+
+testInputTerraformGithubAction() {
+  cat >test.tf <<EOL
+resource "aws_s3_bucket" "example" {
+  bucket = "my-bucket"
+  
+  tags = {
+    Environment = "Dev"
+    Project = "Test"
+  }
+}
+EOL
+
+  read -r -d '' expected << EOM
+resource "aws_s3_bucket" "example" {
+  bucket = "my-bucket"
+  tags = {
+    Environment = "Dev"
+    Project = "Test"
+  }
+}
+EOM
+
+  X=$(cat /dev/null | ./yq test.tf)
+  assertEquals "$expected" "$X"
+
+  X=$(cat /dev/null | ./yq ea test.tf)
   assertEquals "$expected" "$X"
 }
 
