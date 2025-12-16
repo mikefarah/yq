@@ -67,7 +67,7 @@ var TomlFormat = &Format{"toml", []string{},
 	func() Decoder { return NewTomlDecoder() },
 }
 
-var HclFormat = &Format{"hcl", []string{"h"},
+var HclFormat = &Format{"hcl", []string{"h", "tf"},
 	func() Encoder { return NewHclEncoder(ConfiguredHclPreferences) },
 	func() Decoder { return NewHclDecoder() },
 }

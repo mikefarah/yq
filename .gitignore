@@ -43,6 +43,7 @@ yq*.snap
 
 test.yml
 test*.yml
+test*.tf
 test*.xml
 test*.toml
 test*.yaml
