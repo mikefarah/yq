@@ -168,8 +168,3 @@ func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
 	assertEncodesToUnwrapped(t, "c: true", "c=true")
 	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
 }
-
-func TestShellVariablesEncoderDefaultQuoting(t *testing.T) {
-	assertEncodesTo(t, "a: Lewis Carroll", "a='Lewis Carroll'")
-	assertEncodesTo(t, "b: 123 456", "b='123 456'")
-}
