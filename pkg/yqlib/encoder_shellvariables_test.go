@@ -135,3 +135,41 @@ func TestShellVariablesEncoderCustomSeparatorArray(t *testing.T) {
 func TestShellVariablesEncoderCustomSeparatorSingleChar(t *testing.T) {
 	assertEncodesToWithSeparator(t, "a:\n b: value", "aXb=value", "X")
 }
+
+func assertEncodesToUnwrapped(t *testing.T, yaml string, shellvars string) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+
+	originalUnwrapScalar := ConfiguredShellVariablesPreferences.UnwrapScalar
+	defer func() {
+		ConfiguredShellVariablesPreferences.UnwrapScalar = originalUnwrapScalar
+	}()
+
+	ConfiguredShellVariablesPreferences.UnwrapScalar = true
+
+	var encoder = NewShellVariablesEncoder()
+	inputs, err := readDocuments(strings.NewReader(yaml), "test.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
+	if err != nil {
+		panic(err)
+	}
+	node := inputs.Front().Value.(*CandidateNode)
+	err = encoder.Encode(writer, node)
+	if err != nil {
+		panic(err)
+	}
+	writer.Flush()
+
+	test.AssertResult(t, shellvars, strings.TrimSuffix(output.String(), "\n"))
+}
+
+func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
+	assertEncodesToUnwrapped(t, "a: Lewis Carroll", "a=Lewis Carroll")
+	assertEncodesToUnwrapped(t, "b: 123", "b=123")
+	assertEncodesToUnwrapped(t, "c: true", "c=true")
+	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
+}
+
+func TestShellVariablesEncoderDefaultQuoting(t *testing.T) {
+	assertEncodesTo(t, "a: Lewis Carroll", "a='Lewis Carroll'")
+	assertEncodesTo(t, "b: 123 456", "b='123 456'")
+}
