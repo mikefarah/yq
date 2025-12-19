@@ -45,7 +45,6 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return err
 	}
 
-	// Apply colorization if enabled
 	if te.prefs.ColorsEnabled {
 		colorized := te.colorizeToml(buf.Bytes())
 		_, err := writer.Write(colorized)

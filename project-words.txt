@@ -277,3 +277,4 @@ zclconf
 cty
 go-cty
 unlabeled
+colorisation

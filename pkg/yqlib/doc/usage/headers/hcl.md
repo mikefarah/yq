@@ -7,5 +7,5 @@ HCL is commonly used in HashiCorp tools like Terraform for configuration files. 
 - String interpolation and expressions (preserved without quotes)
 - Comments (leading, head, and line comments)
 - Nested structures (maps and lists)
-- Syntax colorization when enabled
+- Syntax colorisation when enabled
 
