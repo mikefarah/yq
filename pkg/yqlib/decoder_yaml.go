@@ -78,7 +78,7 @@ func (dec *yamlDecoder) processReadStream(reader *bufio.Reader) (io.Reader, stri
 		if separatorPrefixRe.MatchString(line) {
 			match := separatorPrefixRe.FindString(line)
 			remainder := line[len(match):]
-			// normalize separator newline: if original had none, default to LF
+			// normalise separator newline: if original had none, default to LF
 			sepNewline := newline
 			if sepNewline == "" {
 				sepNewline = "\n"

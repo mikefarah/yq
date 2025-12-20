@@ -16,7 +16,7 @@ type iniDecoder struct {
 
 func NewINIDecoder() Decoder {
 	return &iniDecoder{
-		finished: false, // Initialize the flag as false
+		finished: false, // Initialise the flag as false
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var specDocument = `- &CENTER { x: 1, y: 2 }
+var specDocument = `- &CENTRE { x: 1, y: 2 }
 - &LEFT { x: 0, y: 2 }
 - &BIG { r: 10 }
 - &SMALL { r: 1 }
@@ -139,7 +139,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	{
 		description:    "FIXED: Merge multiple maps",
 		subdescription: "Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the correct key order.",
-		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
+		document:       specDocument + "- << : [ *CENTRE, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::x: 1\ny: 2\nr: 10\n"},
 	},
@@ -171,7 +171,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:        true,
-		description:    "Exploding merge anchor should not explode neighbors",
+		description:    "Exploding merge anchor should not explode neighbours",
 		subdescription: "b must not be exploded, as `r: *a` will become invalid",
 		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: *b}}`,
 		expression:     `explode(.c)`,
@@ -181,7 +181,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:        true,
-		description:    "Exploding sequence merge anchor should not explode neighbors",
+		description:    "Exploding sequence merge anchor should not explode neighbours",
 		subdescription: "b must not be exploded, as `r: *a` will become invalid",
 		document:       `{b: &b {a: &a 42}, r: *a, c: {<<: [*b]}}`,
 		expression:     `explode(.c)`,
@@ -265,7 +265,7 @@ var badAnchorOperatorScenarios = []expressionScenario{
 	{
 		description:    "LEGACY: Merge multiple maps",
 		subdescription: "see https://yaml.org/type/merge.html. This has the correct data, but the wrong key order; set --yaml-fix-merge-anchor-to-spec=true to fix the key order.",
-		document:       specDocument + "- << : [ *CENTER, *BIG ]\n",
+		document:       specDocument + "- << : [ *CENTRE, *BIG ]\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{"D0, P[4], (!!map)::r: 10\nx: 1\ny: 2\n"},
 	},
@@ -297,7 +297,7 @@ var anchorOperatorScenarios = []expressionScenario{
 	{
 		description:    "Merge one map",
 		subdescription: "see https://yaml.org/type/merge.html",
-		document:       specDocument + "- << : *CENTER\n  r: 10\n",
+		document:       specDocument + "- << : *CENTRE\n  r: 10\n",
 		expression:     ".[4] | explode(.)",
 		expected:       []string{expectedSpecResult},
 	},
