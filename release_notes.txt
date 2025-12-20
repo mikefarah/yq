@@ -1,3 +1,10 @@
+4.51.1:
+  - TOML encoder support - you can now roundtrip! #1364
+  - Parent now supports negative indices, and added a 'root' command for referencing the top level document
+  - Fixed scalar encoding for HCL
+  - Bumped dependencies
+  - Special shout out to @ccoVeille for reviewing my PRs!
+
 4.50.1:
   - Added HCL support!
   - Fixing handling of CRLF #2352
