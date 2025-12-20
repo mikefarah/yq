@@ -122,6 +122,10 @@ func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error
 
 // encodeTopLevelEntry encodes a key/value at the root, dispatching to attribute, table, or array-of-tables
 func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *CandidateNode) error {
+	if len(path) == 0 {
+		return fmt.Errorf("cannot encode TOML entry with empty path")
+	}
+
 	switch node.Kind {
 	case ScalarNode:
 		// key = value

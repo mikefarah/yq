@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -795,6 +796,28 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Tests that the encoder handles empty path slices gracefully
+func TestTomlEmptyPathPanic(t *testing.T) {
+	encoder := NewTomlEncoder()
+	tomlEncoder := encoder.(*tomlEncoder)
+
+	var buf bytes.Buffer
+
+	// Create a simple scalar node
+	scalarNode := &CandidateNode{
+		Kind:  ScalarNode,
+		Tag:   "!!str",
+		Value: "test",
+	}
+
+	// Test with empty path - this should not panic
+	err := tomlEncoder.encodeTopLevelEntry(&buf, []string{}, scalarNode)
+	if err == nil {
+		t.Error("Expected error when encoding with empty path, got nil")
+	}
+
 }
 
 // TestTomlStringEscapeColourization tests that string colourization correctly
