@@ -34,10 +34,9 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	// Encode to a buffer first if colors are enabled
 	var buf bytes.Buffer
 	var targetWriter io.Writer
+	targetWriter = writer
 	if te.prefs.ColorsEnabled {
 		targetWriter = &buf
-	} else {
-		targetWriter = writer
 	}
 
 	// Encode a root mapping as a sequence of attributes, tables, and arrays of tables
@@ -635,8 +634,16 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 			if ch == '-' {
 				end++
 			}
-			for end < len(toml) && ((toml[end] >= '0' && toml[end] <= '9') || toml[end] == '.' || toml[end] == 'e' || toml[end] == 'E' || toml[end] == '+' || toml[end] == '-') {
-				end++
+			for end < len(toml) {
+				c := toml[end]
+				if (c >= '0' && c <= '9') || c == '.' || c == 'e' || c == 'E' {
+					end++
+				} else if (c == '+' || c == '-') && end > 0 && (toml[end-1] == 'e' || toml[end-1] == 'E') {
+					// Only allow + or - immediately after 'e' or 'E' for scientific notation
+					end++
+				} else {
+					break
+				}
 			}
 			result.WriteString(numberColor(toml[i:end]))
 			i = end

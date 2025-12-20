@@ -4,7 +4,7 @@
 - run ./scripts/format.sh then ./scripts/check.sh to format, then validate linting and spelling
 - Add comprehensive tests to cover the changes
 - Run test suite to ensure there is no regression
-
+- Use UK english spelling (e.g. Colorisation not Colorization)
 
 ❌ **DON'T:**
 - Git add or commit
