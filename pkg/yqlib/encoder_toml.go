@@ -566,7 +566,7 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 
 		// Table sections - [section] or [[array]]
 		// Only treat '[' as a table section if it appears at the start of the line
-		// (possibly after whitespace). This avoids mis-coloring inline arrays like
+		// (possibly after whitespace). This avoids mis-colouring inline arrays like
 		// "ports = [8000, 8001]" as table sections.
 		if ch == '[' {
 			isSectionHeader := true
