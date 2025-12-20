@@ -3,8 +3,10 @@ package yqlib
 import (
 	"bufio"
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/fatih/color"
 	"github.com/mikefarah/yq/v4/test"
 )
 
@@ -624,4 +626,115 @@ func TestTomlScenarios(t *testing.T) {
 		genericScenarios[i] = s
 	}
 	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
+}
+
+func TestTomlColorisationNumberBug(t *testing.T) {
+	// Save and restore color state
+	oldNoColor := color.NoColor
+	color.NoColor = false
+	defer func() { color.NoColor = oldNoColor }()
+
+	encoder := NewTomlEncoder()
+	tomlEncoder := encoder.(*tomlEncoder)
+
+	// Test case that exposes the bug: "123-+-45" should NOT be colorized as a single number
+	input := "A = 123-+-45\n"
+	result := string(tomlEncoder.colorizeToml([]byte(input)))
+
+	// The bug causes "123-+-45" to be colorized as one token
+	// It should stop at "123" because the next character '-' is not valid in this position
+	if strings.Contains(result, "123-+-45") {
+		// Check if it's colorized as a single token (no color codes in the middle)
+		idx := strings.Index(result, "123-+-45")
+		// Look backwards for color code
+		beforeIdx := idx - 1
+		for beforeIdx >= 0 && result[beforeIdx] != '\x1b' {
+			beforeIdx--
+		}
+		// Look forward for reset code
+		afterIdx := idx + 8 // length of "123-+-45"
+		hasResetAfter := false
+		for afterIdx < len(result) && afterIdx < idx+20 {
+			if result[afterIdx] == '\x1b' {
+				hasResetAfter = true
+				break
+			}
+			afterIdx++
+		}
+
+		if beforeIdx >= 0 && hasResetAfter {
+			// The entire "123-+-45" is wrapped in color codes - this is the bug!
+			t.Errorf("BUG DETECTED: '123-+-45' is incorrectly colorized as a single number")
+			t.Errorf("Expected only '123' to be colorized as a number, but got the entire '123-+-45'")
+			t.Logf("Full output: %q", result)
+			t.Fail()
+		}
+	}
+
+	// Additional test cases for the bug
+	bugTests := []struct {
+		name            string
+		input           string
+		invalidSequence string
+		description     string
+	}{
+		{
+			name:            "consecutive minuses",
+			input:           "A = 123--45\n",
+			invalidSequence: "123--45",
+			description:     "'123--45' should not be colorized as a single number",
+		},
+		{
+			name:            "plus in middle",
+			input:           "A = 123+45\n",
+			invalidSequence: "123+45",
+			description:     "'123+45' should not be colorized as a single number",
+		},
+	}
+
+	for _, tt := range bugTests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := string(tomlEncoder.colorizeToml([]byte(tt.input)))
+			if strings.Contains(result, tt.invalidSequence) {
+				idx := strings.Index(result, tt.invalidSequence)
+				beforeIdx := idx - 1
+				for beforeIdx >= 0 && result[beforeIdx] != '\x1b' {
+					beforeIdx--
+				}
+				afterIdx := idx + len(tt.invalidSequence)
+				hasResetAfter := false
+				for afterIdx < len(result) && afterIdx < idx+20 {
+					if result[afterIdx] == '\x1b' {
+						hasResetAfter = true
+						break
+					}
+					afterIdx++
+				}
+
+				if beforeIdx >= 0 && hasResetAfter {
+					t.Errorf("BUG: %s", tt.description)
+					t.Logf("Full output: %q", result)
+				}
+			}
+		})
+	}
+
+	// Test that valid scientific notation still works
+	validTests := []struct {
+		name  string
+		input string
+	}{
+		{"scientific positive", "A = 1.23e+45\n"},
+		{"scientific negative", "A = 6.626e-34\n"},
+		{"scientific uppercase", "A = 1.23E+10\n"},
+	}
+
+	for _, tt := range validTests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tomlEncoder.colorizeToml([]byte(tt.input))
+			if len(result) == 0 {
+				t.Error("Expected non-empty colorized output")
+			}
+		})
+	}
 }
