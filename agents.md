@@ -8,6 +8,7 @@
 
 ❌ **DON'T:**
 - Git add or commit
+- Add comments to functions that are self-explanatory
 
 
 

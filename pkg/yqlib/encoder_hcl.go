@@ -173,7 +173,6 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 	return []byte(result)
 }
 
-// colorizeHcl applies syntax highlighting to HCL output using fatih/color //nolint:misspell
 func (he *hclEncoder) colorizeHcl(input []byte) []byte {
 	hcl := string(input)
 	result := strings.Builder{}

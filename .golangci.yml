@@ -19,8 +19,6 @@ linters:
       ignore-rules:
         - color
         - colors
-        - COLOR
-        - github.com/fatih/color
     depguard:
       rules:
         prevent_unmaintained_packages:
