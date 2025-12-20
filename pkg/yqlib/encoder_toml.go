@@ -34,10 +34,9 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	// Encode to a buffer first if colors are enabled
 	var buf bytes.Buffer
 	var targetWriter io.Writer
+	targetWriter = writer
 	if te.prefs.ColorsEnabled {
 		targetWriter = &buf
-	} else {
-		targetWriter = writer
 	}
 
 	// Encode a root mapping as a sequence of attributes, tables, and arrays of tables
