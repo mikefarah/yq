@@ -852,7 +852,7 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 			if len(result) == 0 {
 				t.Error("Expected non-empty colorized output")
 			}
-			
+
 			// Check that the result contains the input string (with color codes)
 			// At minimum, it should contain "A" and "="
 			resultStr := string(result)
