@@ -45,8 +45,8 @@ func (te *tomlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	}
 
 	if te.prefs.ColorsEnabled {
-		colorized := te.colorizeToml(buf.Bytes())
-		_, err := writer.Write(colorized)
+		colourised := te.colorizeToml(buf.Bytes())
+		_, err := writer.Write(colourised)
 		return err
 	}
 
@@ -547,7 +547,7 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 	boolColor := color.New(color.FgHiMagenta).SprintFunc()
 	sectionColor := color.New(color.FgYellow, color.Bold).SprintFunc()
 
-	// Simple tokenization for TOML coloring
+	// Simple tokenization for TOML colouring
 	i := 0
 	for i < len(toml) {
 		ch := toml[i]

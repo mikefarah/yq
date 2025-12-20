@@ -22,7 +22,7 @@ see https://yaml.org/type/merge.html
 
 Given a sample.yml file of:
 ```yaml
-- &CENTER
+- &CENTRE
   x: 1
   y: 2
 - &LEFT
@@ -32,7 +32,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<: *CENTER
+- !!merge <<: *CENTRE
   r: 10
 ```
 then
@@ -288,7 +288,7 @@ see https://yaml.org/type/merge.html. This has the correct data, but the wrong k
 
 Given a sample.yml file of:
 ```yaml
-- &CENTER
+- &CENTRE
   x: 1
   y: 2
 - &LEFT
@@ -299,7 +299,7 @@ Given a sample.yml file of:
 - &SMALL
   r: 1
 - !!merge <<:
-    - *CENTER
+    - *CENTRE
     - *BIG
 ```
 then
@@ -318,7 +318,7 @@ see https://yaml.org/type/merge.html. This has the correct data, but the wrong k
 
 Given a sample.yml file of:
 ```yaml
-- &CENTER
+- &CENTRE
   x: 1
   y: 2
 - &LEFT
@@ -401,7 +401,7 @@ Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the
 
 Given a sample.yml file of:
 ```yaml
-- &CENTER
+- &CENTRE
   x: 1
   y: 2
 - &LEFT
@@ -412,7 +412,7 @@ Given a sample.yml file of:
 - &SMALL
   r: 1
 - !!merge <<:
-    - *CENTER
+    - *CENTRE
     - *BIG
 ```
 then
@@ -432,7 +432,7 @@ Taken from https://yaml.org/type/merge.html. Same values as legacy, but with the
 
 Given a sample.yml file of:
 ```yaml
-- &CENTER
+- &CENTRE
   x: 1
   y: 2
 - &LEFT

@@ -695,14 +695,14 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 	encoder := NewTomlEncoder()
 	tomlEncoder := encoder.(*tomlEncoder)
 
-	// Test case that exposes the bug: "123-+-45" should NOT be colorized as a single number
+	// Test case that exposes the bug: "123-+-45" should NOT be colourised as a single number
 	input := "A = 123-+-45\n"
 	result := string(tomlEncoder.colorizeToml([]byte(input)))
 
-	// The bug causes "123-+-45" to be colorized as one token
+	// The bug causes "123-+-45" to be colourised as one token
 	// It should stop at "123" because the next character '-' is not valid in this position
 	if strings.Contains(result, "123-+-45") {
-		// Check if it's colorized as a single token (no color codes in the middle)
+		// Check if it's colourised as a single token (no color codes in the middle)
 		idx := strings.Index(result, "123-+-45")
 		// Look backwards for color code
 		beforeIdx := idx - 1
@@ -722,8 +722,8 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 
 		if beforeIdx >= 0 && hasResetAfter {
 			// The entire "123-+-45" is wrapped in color codes - this is the bug!
-			t.Errorf("BUG DETECTED: '123-+-45' is incorrectly colorized as a single number")
-			t.Errorf("Expected only '123' to be colorized as a number, but got the entire '123-+-45'")
+			t.Errorf("BUG DETECTED: '123-+-45' is incorrectly colourised as a single number")
+			t.Errorf("Expected only '123' to be colourised as a number, but got the entire '123-+-45'")
 			t.Logf("Full output: %q", result)
 			t.Fail()
 		}
@@ -740,13 +740,13 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 			name:            "consecutive minuses",
 			input:           "A = 123--45\n",
 			invalidSequence: "123--45",
-			description:     "'123--45' should not be colorized as a single number",
+			description:     "'123--45' should not be colourised as a single number",
 		},
 		{
 			name:            "plus in middle",
 			input:           "A = 123+45\n",
 			invalidSequence: "123+45",
-			description:     "'123+45' should not be colorized as a single number",
+			description:     "'123+45' should not be colourised as a single number",
 		},
 	}
 
@@ -791,7 +791,7 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			result := tomlEncoder.colorizeToml([]byte(tt.input))
 			if len(result) == 0 {
-				t.Error("Expected non-empty colorized output")
+				t.Error("Expected non-empty colourised output")
 			}
 		})
 	}
@@ -816,7 +816,7 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 		{
 			name:        "escaped quote at end",
 			input:       `A = "test\""` + "\n",
-			description: "String ending with escaped quote should be colorized correctly",
+			description: "String ending with escaped quote should be colourised correctly",
 		},
 		{
 			name:        "escaped backslash then quote",
@@ -826,7 +826,7 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 		{
 			name:        "escaped quote in middle",
 			input:       `A = "test\"middle"` + "\n",
-			description: "String with escaped quote in the middle should be colorized correctly",
+			description: "String with escaped quote in the middle should be colourised correctly",
 		},
 		{
 			name:        "multiple escaped quotes",
@@ -836,7 +836,7 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 		{
 			name:        "escaped newline",
 			input:       `A = "test\n"` + "\n",
-			description: "String with escaped newline should be colorized correctly",
+			description: "String with escaped newline should be colourised correctly",
 		},
 		{
 			name:        "single quote with escaped single quote",
@@ -850,7 +850,7 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 			// The test should not panic and should return some output
 			result := tomlEncoder.colorizeToml([]byte(tt.input))
 			if len(result) == 0 {
-				t.Error("Expected non-empty colorized output")
+				t.Error("Expected non-empty colourised output")
 			}
 
 			// Check that the result contains the input string (with color codes)

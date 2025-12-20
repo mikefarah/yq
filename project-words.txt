@@ -277,3 +277,4 @@ nohcl
 zclconf
 cty
 go-cty
+Colorisation
