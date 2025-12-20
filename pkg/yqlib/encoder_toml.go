@@ -614,9 +614,14 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 		if ch == '"' || ch == '\'' {
 			quote := ch
 			end := i + 1
-			for end < len(toml) && toml[end] != quote {
-				if toml[end] == '\\' {
-					end++ // skip escaped char
+			for end < len(toml) {
+				if toml[end] == quote {
+					break
+				}
+				if toml[end] == '\\' && end+1 < len(toml) {
+					// Skip the backslash and the escaped character
+					end += 2
+					continue
 				}
 				end++
 			}
