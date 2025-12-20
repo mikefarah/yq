@@ -66,10 +66,28 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "boundary negative",
+		skipDoc:     true,
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(-3)`,
+		expected: []string{
+			"D0, P[a b], (!!map)::c: cat\n",
+		},
+	},
+	{
 		description: "large negative",
 		skipDoc:     true,
 		document:    "a:\n  b:\n    c: cat\n",
 		expression:  `.a.b.c | parent(-10)`,
+		expected: []string{
+			"D0, P[a b c], (!!str)::cat\n",
+		},
+	},
+	{
+		description: "parent zero",
+		skipDoc:     true,
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(0)`,
 		expected: []string{
 			"D0, P[a b c], (!!str)::cat\n",
 		},
