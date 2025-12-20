@@ -633,7 +633,7 @@ func TestTomlScenarios(t *testing.T) {
 func TestTomlColourization(t *testing.T) {
 	// Test that inline arrays are not coloured as table sections
 	encoder := &tomlEncoder{prefs: TomlPreferences{ColorsEnabled: true}}
-	
+
 	// Create TOML with both table sections and inline arrays
 	input := []byte(`[database]
 enabled = true
@@ -642,21 +642,21 @@ ports = [8000, 8001, 8002]
 [servers]
 alpha = "test"
 `)
-	
+
 	result := encoder.colorizeToml(input)
 	resultStr := string(result)
-	
+
 	// The bug would cause the inline array [8000, 8001, 8002] to be
 	// coloured with the section colour (Yellow + Bold) instead of being
 	// left uncoloured or coloured differently.
-	// 
+	//
 	// To test this, we check that the section colour codes appear only
 	// for actual table sections, not for inline arrays.
-	
+
 	// Get the ANSI codes for section colour (Yellow + Bold)
 	sectionColour := color.New(color.FgYellow, color.Bold).SprintFunc()
 	sampleSection := sectionColour("[database]")
-	
+
 	// Extract just the ANSI codes from the sample
 	// ANSI codes start with \x1b[
 	var ansiStart string
@@ -673,12 +673,12 @@ alpha = "test"
 			}
 		}
 	}
-	
+
 	// Count how many times the section colour appears in the output
 	// It should appear exactly twice: once for [database] and once for [servers]
 	// If it appears more times (e.g., for [8000, 8001, 8002]), that's the bug
 	sectionColourCount := strings.Count(resultStr, ansiStart)
-	
+
 	// We expect exactly 2 occurrences (for [database] and [servers])
 	// The bug would cause more occurrences (e.g., also for [8000)
 	if sectionColourCount != 2 {
