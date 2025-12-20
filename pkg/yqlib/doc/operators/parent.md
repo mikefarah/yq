@@ -79,6 +79,46 @@ will output
       c: cat
 ```
 
+## Get the top (root) parent
+Use negative numbers to get the top parents
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(-1)' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
+## Root
+Alias for parent(-1), returns the top level parent. This is usually the document node.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | root' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
 ## N-th parent
 You can optionally supply the number of levels to go up for the parent, the default being 1.
 
