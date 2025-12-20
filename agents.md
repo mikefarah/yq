@@ -1,7 +1,7 @@
 # General rules
 ✅ **DO:**
 - You can use ./yq with the `--debug-node-info` flag to get a deeper understanding of the ast.
-- run ./scripts/format.sh then ./scripts/check.sh to format, then validate linting and spelling
+- run ./scripts/format.sh to format the code; then ./scripts/check.sh lint and finally ./scripts/spelling.sh to check spelling.
 - Add comprehensive tests to cover the changes
 - Run test suite to ensure there is no regression
 - Use UK english spelling (e.g. Colorisation not Colorization)
