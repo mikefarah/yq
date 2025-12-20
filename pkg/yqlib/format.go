@@ -63,7 +63,7 @@ var ShFormat = &Format{"", nil,
 }
 
 var TomlFormat = &Format{"toml", []string{},
-	func() Encoder { return NewTomlEncoder() },
+	func() Encoder { return NewTomlEncoderWithPrefs(ConfiguredTomlPreferences) },
 	func() Decoder { return NewTomlDecoder() },
 }
 

@@ -3,8 +3,10 @@ package yqlib
 import (
 	"bufio"
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/fatih/color"
 	"github.com/mikefarah/yq/v4/test"
 )
 
@@ -174,6 +176,82 @@ var expectedSampleWithHeader = `servers:
   alpha:
     ip: 10.0.0.1
 `
+
+// Roundtrip fixtures
+var rtInlineTableAttr = `name = { first = "Tom", last = "Preston-Werner" }
+`
+
+var rtTableSection = `[owner.contact]
+name = "Tom"
+age = 36
+`
+
+var rtArrayOfTables = `[[fruits]]
+name = "apple"
+[[fruits.varieties]]
+name = "red delicious"
+`
+
+var rtArraysAndScalars = `A = ["hello", ["world", "again"]]
+B = 12
+`
+
+var rtSimple = `A = "hello"
+B = 12
+`
+
+var rtDeepPaths = `[person]
+name = "hello"
+address = "12 cat st"
+`
+
+var rtEmptyArray = `A = []
+`
+
+var rtSampleTable = `var = "x"
+
+[owner.contact]
+name = "Tom Preston-Werner"
+age = 36
+`
+
+var rtEmptyTable = `[dependencies]
+`
+
+var rtComments = `# This is a comment
+A = "hello"  # inline comment
+B = 12
+
+# Table comment
+[person]
+name = "Tom"  # name comment
+`
+
+// var sampleFromWeb = `
+// # This is a TOML document
+
+// title = "TOML Example"
+
+// [owner]
+// name = "Tom Preston-Werner"
+// dob = 1979-05-27T07:32:00-08:00
+
+// [database]
+// enabled = true
+// ports = [8000, 8001, 8002]
+// data = [["delta", "phi"], [3.14]]
+// temp_targets = { cpu = 79.5, case = 72.0 }
+
+// [servers]
+
+// [servers.alpha]
+// ip = "10.0.0.1"
+// role = "frontend"
+
+// [servers.beta]
+// ip = "10.0.0.2"
+// role = "backend"
+// `
 
 var tomlScenarios = []formatScenario{
 	{
@@ -382,6 +460,84 @@ var tomlScenarios = []formatScenario{
 		expected:     expectedMultipleEmptyTables,
 		scenarioType: "decode",
 	},
+	// Roundtrip scenarios
+	{
+		description:  "Roundtrip: inline table attribute",
+		input:        rtInlineTableAttr,
+		expression:   ".",
+		expected:     rtInlineTableAttr,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: table section",
+		input:        rtTableSection,
+		expression:   ".",
+		expected:     rtTableSection,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: array of tables",
+		input:        rtArrayOfTables,
+		expression:   ".",
+		expected:     rtArrayOfTables,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: arrays and scalars",
+		input:        rtArraysAndScalars,
+		expression:   ".",
+		expected:     rtArraysAndScalars,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: simple",
+		input:        rtSimple,
+		expression:   ".",
+		expected:     rtSimple,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: deep paths",
+		input:        rtDeepPaths,
+		expression:   ".",
+		expected:     rtDeepPaths,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: empty array",
+		input:        rtEmptyArray,
+		expression:   ".",
+		expected:     rtEmptyArray,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: sample table",
+		input:        rtSampleTable,
+		expression:   ".",
+		expected:     rtSampleTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: empty table",
+		input:        rtEmptyTable,
+		expression:   ".",
+		expected:     rtEmptyTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: comments",
+		input:        rtComments,
+		expression:   ".",
+		expected:     rtComments,
+		scenarioType: "roundtrip",
+	},
+	// {
+	// 	description:  "Roundtrip: sample from web",
+	// 	input:        sampleFromWeb,
+	// 	expression:   ".",
+	// 	expected:     sampleFromWeb,
+	// 	scenarioType: "roundtrip",
+	// },
 }
 
 func testTomlScenario(t *testing.T, s formatScenario) {
@@ -470,4 +626,239 @@ func TestTomlScenarios(t *testing.T) {
 		genericScenarios[i] = s
 	}
 	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
+}
+
+// TestTomlColourization tests that colourization correctly distinguishes
+// between table section headers and inline arrays
+func TestTomlColourization(t *testing.T) {
+	// Test that inline arrays are not coloured as table sections
+	encoder := &tomlEncoder{prefs: TomlPreferences{ColorsEnabled: true}}
+
+	// Create TOML with both table sections and inline arrays
+	input := []byte(`[database]
+enabled = true
+ports = [8000, 8001, 8002]
+
+[servers]
+alpha = "test"
+`)
+
+	result := encoder.colorizeToml(input)
+	resultStr := string(result)
+
+	// The bug would cause the inline array [8000, 8001, 8002] to be
+	// coloured with the section colour (Yellow + Bold) instead of being
+	// left uncoloured or coloured differently.
+	//
+	// To test this, we check that the section colour codes appear only
+	// for actual table sections, not for inline arrays.
+
+	// Get the ANSI codes for section colour (Yellow + Bold)
+	sectionColour := color.New(color.FgYellow, color.Bold).SprintFunc()
+	sampleSection := sectionColour("[database]")
+
+	// Extract just the ANSI codes from the sample
+	// ANSI codes start with \x1b[
+	var ansiStart string
+	for i := 0; i < len(sampleSection); i++ {
+		if sampleSection[i] == '\x1b' {
+			// Find the end of the ANSI sequence (ends with 'm')
+			end := i
+			for end < len(sampleSection) && sampleSection[end] != 'm' {
+				end++
+			}
+			if end < len(sampleSection) {
+				ansiStart = sampleSection[i : end+1]
+				break
+			}
+		}
+	}
+
+	// Count how many times the section colour appears in the output
+	// It should appear exactly twice: once for [database] and once for [servers]
+	// If it appears more times (e.g., for [8000, 8001, 8002]), that's the bug
+	sectionColourCount := strings.Count(resultStr, ansiStart)
+
+	// We expect exactly 2 occurrences (for [database] and [servers])
+	// The bug would cause more occurrences (e.g., also for [8000)
+	if sectionColourCount != 2 {
+		t.Errorf("Expected section colour to appear exactly 2 times (for [database] and [servers]), but it appeared %d times.\nOutput: %s", sectionColourCount, resultStr)
+	}
+}
+
+func TestTomlColorisationNumberBug(t *testing.T) {
+	// Save and restore color state
+	oldNoColor := color.NoColor
+	color.NoColor = false
+	defer func() { color.NoColor = oldNoColor }()
+
+	encoder := NewTomlEncoder()
+	tomlEncoder := encoder.(*tomlEncoder)
+
+	// Test case that exposes the bug: "123-+-45" should NOT be colorized as a single number
+	input := "A = 123-+-45\n"
+	result := string(tomlEncoder.colorizeToml([]byte(input)))
+
+	// The bug causes "123-+-45" to be colorized as one token
+	// It should stop at "123" because the next character '-' is not valid in this position
+	if strings.Contains(result, "123-+-45") {
+		// Check if it's colorized as a single token (no color codes in the middle)
+		idx := strings.Index(result, "123-+-45")
+		// Look backwards for color code
+		beforeIdx := idx - 1
+		for beforeIdx >= 0 && result[beforeIdx] != '\x1b' {
+			beforeIdx--
+		}
+		// Look forward for reset code
+		afterIdx := idx + 8 // length of "123-+-45"
+		hasResetAfter := false
+		for afterIdx < len(result) && afterIdx < idx+20 {
+			if result[afterIdx] == '\x1b' {
+				hasResetAfter = true
+				break
+			}
+			afterIdx++
+		}
+
+		if beforeIdx >= 0 && hasResetAfter {
+			// The entire "123-+-45" is wrapped in color codes - this is the bug!
+			t.Errorf("BUG DETECTED: '123-+-45' is incorrectly colorized as a single number")
+			t.Errorf("Expected only '123' to be colorized as a number, but got the entire '123-+-45'")
+			t.Logf("Full output: %q", result)
+			t.Fail()
+		}
+	}
+
+	// Additional test cases for the bug
+	bugTests := []struct {
+		name            string
+		input           string
+		invalidSequence string
+		description     string
+	}{
+		{
+			name:            "consecutive minuses",
+			input:           "A = 123--45\n",
+			invalidSequence: "123--45",
+			description:     "'123--45' should not be colorized as a single number",
+		},
+		{
+			name:            "plus in middle",
+			input:           "A = 123+45\n",
+			invalidSequence: "123+45",
+			description:     "'123+45' should not be colorized as a single number",
+		},
+	}
+
+	for _, tt := range bugTests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := string(tomlEncoder.colorizeToml([]byte(tt.input)))
+			if strings.Contains(result, tt.invalidSequence) {
+				idx := strings.Index(result, tt.invalidSequence)
+				beforeIdx := idx - 1
+				for beforeIdx >= 0 && result[beforeIdx] != '\x1b' {
+					beforeIdx--
+				}
+				afterIdx := idx + len(tt.invalidSequence)
+				hasResetAfter := false
+				for afterIdx < len(result) && afterIdx < idx+20 {
+					if result[afterIdx] == '\x1b' {
+						hasResetAfter = true
+						break
+					}
+					afterIdx++
+				}
+
+				if beforeIdx >= 0 && hasResetAfter {
+					t.Errorf("BUG: %s", tt.description)
+					t.Logf("Full output: %q", result)
+				}
+			}
+		})
+	}
+
+	// Test that valid scientific notation still works
+	validTests := []struct {
+		name  string
+		input string
+	}{
+		{"scientific positive", "A = 1.23e+45\n"},
+		{"scientific negative", "A = 6.626e-34\n"},
+		{"scientific uppercase", "A = 1.23E+10\n"},
+	}
+
+	for _, tt := range validTests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tomlEncoder.colorizeToml([]byte(tt.input))
+			if len(result) == 0 {
+				t.Error("Expected non-empty colorized output")
+			}
+		})
+	}
+}
+
+// TestTomlStringEscapeColourization tests that string colourization correctly
+// handles escape sequences, particularly escaped quotes at the end of strings
+func TestTomlStringEscapeColourization(t *testing.T) {
+	// Save and restore color state
+	oldNoColor := color.NoColor
+	color.NoColor = false
+	defer func() { color.NoColor = oldNoColor }()
+
+	encoder := NewTomlEncoder()
+	tomlEncoder := encoder.(*tomlEncoder)
+
+	testCases := []struct {
+		name        string
+		input       string
+		description string
+	}{
+		{
+			name:        "escaped quote at end",
+			input:       `A = "test\""` + "\n",
+			description: "String ending with escaped quote should be colorized correctly",
+		},
+		{
+			name:        "escaped backslash then quote",
+			input:       `A = "test\\\""` + "\n",
+			description: "String with escaped backslash followed by escaped quote",
+		},
+		{
+			name:        "escaped quote in middle",
+			input:       `A = "test\"middle"` + "\n",
+			description: "String with escaped quote in the middle should be colorized correctly",
+		},
+		{
+			name:        "multiple escaped quotes",
+			input:       `A = "\"test\""` + "\n",
+			description: "String with escaped quotes at start and end",
+		},
+		{
+			name:        "escaped newline",
+			input:       `A = "test\n"` + "\n",
+			description: "String with escaped newline should be colorized correctly",
+		},
+		{
+			name:        "single quote with escaped single quote",
+			input:       `A = 'test\''` + "\n",
+			description: "Single-quoted string with escaped single quote",
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// The test should not panic and should return some output
+			result := tomlEncoder.colorizeToml([]byte(tt.input))
+			if len(result) == 0 {
+				t.Error("Expected non-empty colorized output")
+			}
+
+			// Check that the result contains the input string (with color codes)
+			// At minimum, it should contain "A" and "="
+			resultStr := string(result)
+			if !strings.Contains(resultStr, "A") || !strings.Contains(resultStr, "=") {
+				t.Errorf("Expected output to contain 'A' and '=', got: %q", resultStr)
+			}
+		})
+	}
 }

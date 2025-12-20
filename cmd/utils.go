@@ -206,6 +206,7 @@ func configureEncoder() (yqlib.Encoder, error) {
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredJSONPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredHclPreferences.ColorsEnabled = colorsEnabled
+	yqlib.ConfiguredTomlPreferences.ColorsEnabled = colorsEnabled
 
 	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
 

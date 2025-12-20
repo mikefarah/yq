@@ -465,6 +465,9 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 		n.Anchor = other.Anchor
 	}
 
+	// Preserve EncodeSeparate flag for format-specific encoding hints
+	n.EncodeSeparate = other.EncodeSeparate
+
 	// merge will pickup the style of the new thing
 	// when autocreating nodes
 

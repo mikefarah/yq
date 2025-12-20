@@ -8,16 +8,19 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	toml "github.com/pelletier/go-toml/v2/unstable"
 )
 
 type tomlDecoder struct {
-	parser   toml.Parser
-	finished bool
-	d        DataTreeNavigator
-	rootMap  *CandidateNode
+	parser           toml.Parser
+	finished         bool
+	d                DataTreeNavigator
+	rootMap          *CandidateNode
+	pendingComments  []string // Head comments collected from Comment nodes
+	firstContentSeen bool     // Track if we've processed the first non-comment node
 }
 
 func NewTomlDecoder() Decoder {
@@ -28,7 +31,7 @@ func NewTomlDecoder() Decoder {
 }
 
 func (dec *tomlDecoder) Init(reader io.Reader) error {
-	dec.parser = toml.Parser{}
+	dec.parser = toml.Parser{KeepComments: true}
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(reader)
 	if err != nil {
@@ -39,6 +42,8 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 		Kind: MappingNode,
 		Tag:  "!!map",
 	}
+	dec.pendingComments = make([]string, 0)
+	dec.firstContentSeen = false
 	return nil
 }
 
@@ -56,11 +61,22 @@ func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
 func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode *toml.Node) error {
 	value := tomlNode.Value()
 	path := dec.getFullPath(value.Next())
-	log.Debug("processKeyValueIntoMap: %v", path)
 
 	valueNode, err := dec.decodeNode(value)
 	if err != nil {
 		return err
+	}
+
+	// Attach pending head comments
+	if len(dec.pendingComments) > 0 {
+		valueNode.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
+	}
+
+	// Check for inline comment chained to the KeyValue node
+	nextNode := tomlNode.Next()
+	if nextNode != nil && nextNode.Kind == toml.Comment {
+		valueNode.LineComment = string(nextNode.Data)
 	}
 
 	context := Context{}
@@ -79,11 +95,15 @@ func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode 
 		nextItem := dec.parser.Expression()
 		log.Debug("decodeKeyValuesIntoMap -- next exp, its a %v", nextItem.Kind)
 
-		if nextItem.Kind == toml.KeyValue {
+		switch nextItem.Kind {
+		case toml.KeyValue:
 			if err := dec.processKeyValueIntoMap(rootMap, nextItem); err != nil {
 				return false, err
 			}
-		} else {
+		case toml.Comment:
+			// Standalone comment - add to pending for next element
+			dec.pendingComments = append(dec.pendingComments, string(nextItem.Data))
+		default:
 			// run out of key values
 			log.Debug("done in decodeKeyValuesIntoMap, gota a %v", nextItem.Kind)
 			return true, nil
@@ -250,11 +270,29 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 	var err error
 	log.Debug("processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
 	switch currentNode.Kind {
+	case toml.Comment:
+		// Collect comment to attach to next element
+		commentText := string(currentNode.Data)
+		// If we haven't seen any content yet, accumulate comments for root
+		if !dec.firstContentSeen {
+			if dec.rootMap.HeadComment == "" {
+				dec.rootMap.HeadComment = commentText
+			} else {
+				dec.rootMap.HeadComment = dec.rootMap.HeadComment + "\n" + commentText
+			}
+		} else {
+			// We've seen content, so these comments are for the next element
+			dec.pendingComments = append(dec.pendingComments, commentText)
+		}
+		return false, nil
 	case toml.Table:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.processTable(currentNode)
 	case toml.ArrayTable:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.processArrayTable(currentNode)
 	default:
+		dec.firstContentSeen = true
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(dec.rootMap, currentNode)
 	}
 
@@ -264,7 +302,8 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 
 func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processTable")
-	fullPath := dec.getFullPath(currentNode.Child())
+	child := currentNode.Child()
+	fullPath := dec.getFullPath(child)
 	log.Debug("fullpath: %v", fullPath)
 
 	c := Context{}
@@ -276,9 +315,16 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	}
 
 	tableNodeValue := &CandidateNode{
-		Kind:    MappingNode,
-		Tag:     "!!map",
-		Content: make([]*CandidateNode, 0),
+		Kind:           MappingNode,
+		Tag:            "!!map",
+		Content:        make([]*CandidateNode, 0),
+		EncodeSeparate: true,
+	}
+
+	// Attach pending head comments to the table
+	if len(dec.pendingComments) > 0 {
+		tableNodeValue.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
 	}
 
 	var tableValue *toml.Node
@@ -330,7 +376,8 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 
 func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processArrayTable")
-	fullPath := dec.getFullPath(currentNode.Child())
+	child := currentNode.Child()
+	fullPath := dec.getFullPath(child)
 	log.Debug("Fullpath: %v", fullPath)
 
 	c := Context{}
@@ -346,9 +393,17 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	hasValue := dec.parser.NextExpression()
 
 	tableNodeValue := &CandidateNode{
-		Kind: MappingNode,
-		Tag:  "!!map",
+		Kind:           MappingNode,
+		Tag:            "!!map",
+		EncodeSeparate: true,
 	}
+
+	// Attach pending head comments to the array table
+	if len(dec.pendingComments) > 0 {
+		tableNodeValue.HeadComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
+	}
+
 	runAgainstCurrentExp := false
 	// if the next value is a ArrayTable or Table, then its not part of this declaration (not a key value pair)
 	// so lets leave that expression for the next round of parsing
