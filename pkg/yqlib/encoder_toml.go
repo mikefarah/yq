@@ -93,7 +93,7 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 		return node.Value
 	case "!!null":
 		// TOML does not have null; encode as empty string
-		return "\"\""
+		return `""`
 	default:
 		return node.Value
 	}
