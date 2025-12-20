@@ -35,9 +35,28 @@ func getParentOperator(_ *dataTreeNavigator, context Context, expressionNode *Ex
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+
+		// Handle negative levels: count total parents first
+		levelsToGoUp := prefs.Level
+		if prefs.Level < 0 {
+			// Count all parents
+			totalParents := 0
+			temp := candidate.Parent
+			for temp != nil {
+				totalParents++
+				temp = temp.Parent
+			}
+			// Convert negative index to positive
+			// -1 means last parent (root), -2 means second to last, etc.
+			levelsToGoUp = totalParents + prefs.Level + 1
+			if levelsToGoUp < 0 {
+				levelsToGoUp = 0
+			}
+		}
+
 		currentLevel := 0
-		for currentLevel < prefs.Level && candidate != nil {
-			log.Debugf("currentLevel: %v, desired: %v", currentLevel, prefs.Level)
+		for currentLevel < levelsToGoUp && candidate != nil {
+			log.Debugf("currentLevel: %v, desired: %v", currentLevel, levelsToGoUp)
 			log.Debugf("candidate: %v", NodeToString(candidate))
 			candidate = candidate.Parent
 			currentLevel++
