@@ -66,8 +66,8 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	finalOutput := he.injectComments(compactOutput, commentMap)
 
 	if he.prefs.ColorsEnabled {
-		colorized := he.colorizeHcl(finalOutput)
-		_, err := writer.Write(colorized)
+		colourized := he.colorizeHcl(finalOutput)
+		_, err := writer.Write(colourized)
 		return err
 	}
 
@@ -173,19 +173,18 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 	return []byte(result)
 }
 
-// colorizeHcl applies syntax highlighting to HCL output using fatih/color
 func (he *hclEncoder) colorizeHcl(input []byte) []byte {
 	hcl := string(input)
 	result := strings.Builder{}
 
-	// Create color functions for different token types
+	// Create colour functions for different token types
 	commentColor := color.New(color.FgHiBlack).SprintFunc()
 	stringColor := color.New(color.FgGreen).SprintFunc()
 	numberColor := color.New(color.FgHiMagenta).SprintFunc()
 	keyColor := color.New(color.FgCyan).SprintFunc()
 	boolColor := color.New(color.FgHiMagenta).SprintFunc()
 
-	// Simple tokenization for HCL coloring
+	// Simple tokenization for HCL colouring
 	i := 0
 	for i < len(hcl) {
 		ch := hcl[i]
@@ -476,12 +475,12 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 		}
 	}
 
-	// If all child values are mappings, treat each child key as a labeled instance of this block type
+	// If all child values are mappings, treat each child key as a labelled instance of this block type
 	if handled, _ := he.encodeMappingChildrenAsBlocks(body, key, valueNode); handled {
 		return true
 	}
 
-	// No labels detected, render as unlabeled block
+	// No labels detected, render as unlabelled block
 	block := body.AppendNewBlock(key, nil)
 	if err := he.encodeNodeAttributes(block.Body(), valueNode); err == nil {
 		return true

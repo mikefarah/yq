@@ -38,7 +38,8 @@ cleanup
 cmlu
 colorise
 colors
-coloring
+Colors
+colourize
 compinit
 coolioo
 coverprofile
@@ -276,5 +277,11 @@ nohcl
 zclconf
 cty
 go-cty
-unlabeled
-colorisation
+Colorisation
+goimports
+errorlint
+RDBMS
+expeñded
+bananabananabananabanana
+edwinjhlee
+flox

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-npx cspell --no-progress "**/*.{sh,go}"
+npx cspell --no-progress "**/*.{sh,go,md}"

@@ -132,7 +132,7 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 			tempBufferBytes := tempBuffer.Bytes()
 			if bytes.IndexByte(tempBufferBytes, 0) != -1 {
 				return fmt.Errorf(
-					"can't serialize value because it contains NUL char and you are using NUL separated output",
+					"can't serialise value because it contains NUL char and you are using NUL separated output",
 				)
 			}
 			if _, err := writer.Write(tempBufferBytes); err != nil {

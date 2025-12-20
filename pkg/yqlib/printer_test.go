@@ -481,7 +481,7 @@ func TestPrinterNulSeparatorWithNullChar(t *testing.T) {
 		t.Fatal("Expected error for null character in NUL separated output")
 	}
 
-	expectedError := "can't serialize value because it contains NUL char and you are using NUL separated output"
+	expectedError := "can't serialise value because it contains NUL char and you are using NUL separated output"
 	if err.Error() != expectedError {
 		t.Fatalf("Expected error '%s', got '%s'", expectedError, err.Error())
 	}

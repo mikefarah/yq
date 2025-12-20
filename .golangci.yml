@@ -14,6 +14,11 @@ linters:
     - unconvert
     - unparam
   settings:
+    misspell:
+      locale: UK
+      ignore-rules:
+        - color
+        - colors
     depguard:
       rules:
         prevent_unmaintained_packages:

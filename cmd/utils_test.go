@@ -926,13 +926,13 @@ func TestSetupColors(t *testing.T) {
 		expectColors bool
 	}{
 		{
-			name:         "force color enabled",
+			name:         "force colour enabled",
 			forceColor:   true,
 			forceNoColor: false,
 			expectColors: true,
 		},
 		{
-			name:         "force no color enabled",
+			name:         "force no colour enabled",
 			forceColor:   false,
 			forceNoColor: true,
 			expectColors: false,
