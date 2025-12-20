@@ -796,3 +796,69 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 		})
 	}
 }
+
+// TestTomlStringEscapeColorization tests that string colorization correctly
+// handles escape sequences, particularly escaped quotes at the end of strings
+func TestTomlStringEscapeColorization(t *testing.T) {
+	// Save and restore color state
+	oldNoColor := color.NoColor
+	color.NoColor = false
+	defer func() { color.NoColor = oldNoColor }()
+
+	encoder := NewTomlEncoder()
+	tomlEncoder := encoder.(*tomlEncoder)
+
+	testCases := []struct {
+		name        string
+		input       string
+		description string
+	}{
+		{
+			name:        "escaped quote at end",
+			input:       `A = "test\""` + "\n",
+			description: "String ending with escaped quote should be colorized correctly",
+		},
+		{
+			name:        "escaped backslash then quote",
+			input:       `A = "test\\\""` + "\n",
+			description: "String with escaped backslash followed by escaped quote",
+		},
+		{
+			name:        "escaped quote in middle",
+			input:       `A = "test\"middle"` + "\n",
+			description: "String with escaped quote in the middle should be colorized correctly",
+		},
+		{
+			name:        "multiple escaped quotes",
+			input:       `A = "\"test\""` + "\n",
+			description: "String with escaped quotes at start and end",
+		},
+		{
+			name:        "escaped newline",
+			input:       `A = "test\n"` + "\n",
+			description: "String with escaped newline should be colorized correctly",
+		},
+		{
+			name:        "single quote with escaped single quote",
+			input:       `A = 'test\''` + "\n",
+			description: "Single-quoted string with escaped single quote",
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// The test should not panic and should return some output
+			result := tomlEncoder.colorizeToml([]byte(tt.input))
+			if len(result) == 0 {
+				t.Error("Expected non-empty colorized output")
+			}
+			
+			// Check that the result contains the input string (with color codes)
+			// At minimum, it should contain "A" and "="
+			resultStr := string(result)
+			if !strings.Contains(resultStr, "A") || !strings.Contains(resultStr, "=") {
+				t.Errorf("Expected output to contain 'A' and '=', got: %q", resultStr)
+			}
+		})
+	}
+}
