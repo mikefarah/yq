@@ -3,8 +3,10 @@ package yqlib
 import (
 	"bufio"
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/fatih/color"
 	"github.com/mikefarah/yq/v4/test"
 )
 
@@ -624,4 +626,62 @@ func TestTomlScenarios(t *testing.T) {
 		genericScenarios[i] = s
 	}
 	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
+}
+
+// TestTomlColorization tests that colorization correctly distinguishes
+// between table section headers and inline arrays
+func TestTomlColorization(t *testing.T) {
+	// Test that inline arrays are not colored as table sections
+	encoder := &tomlEncoder{prefs: TomlPreferences{ColorsEnabled: true}}
+	
+	// Create TOML with both table sections and inline arrays
+	input := []byte(`[database]
+enabled = true
+ports = [8000, 8001, 8002]
+
+[servers]
+alpha = "test"
+`)
+	
+	result := encoder.colorizeToml(input)
+	resultStr := string(result)
+	
+	// The bug would cause the inline array [8000, 8001, 8002] to be
+	// colored with the section color (Yellow + Bold) instead of being
+	// left uncolored or colored differently.
+	// 
+	// To test this, we check that the section color codes appear only
+	// for actual table sections, not for inline arrays.
+	
+	// Get the ANSI codes for section color (Yellow + Bold)
+	sectionColor := color.New(color.FgYellow, color.Bold).SprintFunc()
+	sampleSection := sectionColor("[database]")
+	
+	// Extract just the ANSI codes from the sample
+	// ANSI codes start with \x1b[
+	var ansiStart string
+	for i := 0; i < len(sampleSection); i++ {
+		if sampleSection[i] == '\x1b' {
+			// Find the end of the ANSI sequence (ends with 'm')
+			end := i
+			for end < len(sampleSection) && sampleSection[end] != 'm' {
+				end++
+			}
+			if end < len(sampleSection) {
+				ansiStart = sampleSection[i : end+1]
+				break
+			}
+		}
+	}
+	
+	// Count how many times the section color appears in the output
+	// It should appear exactly twice: once for [database] and once for [servers]
+	// If it appears more times (e.g., for [8000, 8001, 8002]), that's the bug
+	sectionColorCount := strings.Count(resultStr, ansiStart)
+	
+	// We expect exactly 2 occurrences (for [database] and [servers])
+	// The bug would cause more occurrences (e.g., also for [8000)
+	if sectionColorCount != 2 {
+		t.Errorf("Expected section color to appear exactly 2 times (for [database] and [servers]), but it appeared %d times.\nOutput: %s", sectionColorCount, resultStr)
+	}
 }

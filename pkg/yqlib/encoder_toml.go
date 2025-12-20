@@ -565,27 +565,50 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 		}
 
 		// Table sections - [section] or [[array]]
+		// Only treat '[' as a table section if it appears at the start of the line
+		// (possibly after whitespace). This avoids mis-coloring inline arrays like
+		// "ports = [8000, 8001]" as table sections.
 		if ch == '[' {
-			end := i + 1
-			// Check for [[
-			if end < len(toml) && toml[end] == '[' {
-				end++
-			}
-			// Find closing ]
-			for end < len(toml) && toml[end] != ']' {
-				end++
-			}
-			// Include closing ]
-			if end < len(toml) {
-				end++
-				// Check for ]]
-				if end < len(toml) && toml[end] == ']' {
-					end++
+			isSectionHeader := true
+			if i > 0 {
+				isSectionHeader = false
+				j := i - 1
+				for j >= 0 && toml[j] != '\n' {
+					if toml[j] != ' ' && toml[j] != '\t' && toml[j] != '\r' {
+						// Found a non-whitespace character before this '[' on the same line,
+						// so this is not a table header.
+						break
+					}
+					j--
+				}
+				if j < 0 || toml[j] == '\n' {
+					// Reached the start of the string or a newline without encountering
+					// any non-whitespace, so '[' is at the logical start of the line.
+					isSectionHeader = true
 				}
 			}
-			result.WriteString(sectionColor(toml[i:end]))
-			i = end
-			continue
+			if isSectionHeader {
+				end := i + 1
+				// Check for [[
+				if end < len(toml) && toml[end] == '[' {
+					end++
+				}
+				// Find closing ]
+				for end < len(toml) && toml[end] != ']' {
+					end++
+				}
+				// Include closing ]
+				if end < len(toml) {
+					end++
+					// Check for ]]
+					if end < len(toml) && toml[end] == ']' {
+						end++
+					}
+				}
+				result.WriteString(sectionColor(toml[i:end]))
+				i = end
+				continue
+			}
 		}
 
 		// Strings - quoted text (double or single quotes)
