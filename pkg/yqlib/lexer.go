@@ -61,7 +61,7 @@ func unwrap(value string) string {
 }
 
 func extractNumberParameter(value string) (int, error) {
-	parameterParser := regexp.MustCompile(`.*\(([0-9]+)\)`)
+	parameterParser := regexp.MustCompile(`.*\((-?[0-9]+)\)`)
 	matches := parameterParser.FindStringSubmatch(value)
 	var indent, errParsingInt = parseInt(matches[1])
 	if errParsingInt != nil {

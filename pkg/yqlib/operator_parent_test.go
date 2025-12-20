@@ -39,6 +39,49 @@ var parentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Get the top (root) parent",
+		subdescription: "Use negative numbers to get the top parents",
+		document:       "a:\n  b:\n    c: cat\n",
+		expression:     `.a.b.c | parent(-1)`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n    b:\n        c: cat\n",
+		},
+	},
+	{
+		description:    "Root",
+		subdescription: "Alias for parent(-1), returns the top level parent. This is usually the document node.",
+		document:       "a:\n  b:\n    c: cat\n",
+		expression:     `.a.b.c | root`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n    b:\n        c: cat\n",
+		},
+	},
+	{
+		description: "N-th negative",
+		skipDoc:     true,
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(-2)`,
+		expected: []string{
+			"D0, P[a], (!!map)::b:\n    c: cat\n",
+		},
+	},
+	{
+		description: "large negative",
+		skipDoc:     true,
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(-10)`,
+		expected: []string{
+			"D0, P[a b c], (!!str)::cat\n",
+		},
+	},
+	{
+		description: "large positive",
+		skipDoc:     true,
+		document:    "a:\n  b:\n    c: cat\n",
+		expression:  `.a.b.c | parent(10)`,
+		expected:    []string{},
+	},
+	{
 		description:    "N-th parent",
 		subdescription: "You can optionally supply the number of levels to go up for the parent, the default being 1.",
 		document:       "a:\n  b:\n    c: cat\n",

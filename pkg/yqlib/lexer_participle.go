@@ -57,7 +57,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("sort_?keys", sortKeysOpType),
 
 	{"ArrayToMap", "array_?to_?map", expressionOpToken(`(.[] | select(. != null) ) as $i ireduce({}; .[$i | key] = $i)`), 0},
-
+	{"Root", "root", expressionOpToken(`parent(-1)`), 0},
 	{"YamlEncodeWithIndent", `to_?yaml\([0-9]+\)`, encodeParseIndent(YamlFormat), 0},
 	{"XMLEncodeWithIndent", `to_?xml\([0-9]+\)`, encodeParseIndent(XMLFormat), 0},
 	{"JSONEncodeWithIndent", `to_?json\([0-9]+\)`, encodeParseIndent(JSONFormat), 0},
@@ -132,7 +132,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("split", splitStringOpType),
 
 	simpleOp("parents", getParentsOpType),
-	{"ParentWithLevel", `parent\([0-9]+\)`, parentWithLevel(), 0},
+	{"ParentWithLevel", `parent\(-?[0-9]+\)`, parentWithLevel(), 0},
 	{"ParentWithDefaultLevel", `parent`, parentWithDefaultLevel(), 0},
 
 	simpleOp("keys", keysOpType),
