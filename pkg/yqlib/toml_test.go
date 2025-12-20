@@ -797,9 +797,9 @@ func TestTomlColorisationNumberBug(t *testing.T) {
 	}
 }
 
-// TestTomlStringEscapeColorization tests that string colorization correctly
+// TestTomlStringEscapeColourization tests that string colourization correctly
 // handles escape sequences, particularly escaped quotes at the end of strings
-func TestTomlStringEscapeColorization(t *testing.T) {
+func TestTomlStringEscapeColourization(t *testing.T) {
 	// Save and restore color state
 	oldNoColor := color.NoColor
 	color.NoColor = false
