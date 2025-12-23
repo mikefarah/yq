@@ -280,6 +280,55 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputKYaml() {
+  cat >test.yml <<'EOL'
+# leading
+a: 1 # a line
+# head b
+b: 2
+c:
+  # head d
+  - d # d line
+EOL
+
+  read -r -d '' expected <<'EOM'
+# leading
+{
+  a: 1, # a line
+  # head b
+  b: 2,
+  c: [
+    # head d
+    "d", # d line
+  ],
+}
+EOM
+
+  X=$(./yq e --output-format=kyaml test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=kyaml test.yml)
+  assertEquals "$expected" "$X"
+}
+
+testOutputKYamlShort() {
+  cat >test.yml <<EOL
+a: b
+EOL
+
+  read -r -d '' expected <<'EOM'
+{
+  a: "b",
+}
+EOM
+
+  X=$(./yq e -o=ky test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -o=ky test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testOutputXmComplex() {
   cat >test.yml <<EOL
 a: {b: {c: ["cat", "dog"], +@f: meow}}

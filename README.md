@@ -3,7 +3,7 @@
 ![Build](https://github.com/mikefarah/yq/workflows/Build/badge.svg)  ![Docker Pulls](https://img.shields.io/docker/pulls/mikefarah/yq.svg) ![Github Releases (by Release)](https://img.shields.io/github/downloads/mikefarah/yq/total.svg) ![Go Report](https://goreportcard.com/badge/github.com/mikefarah/yq) ![CodeQL](https://github.com/mikefarah/yq/workflows/CodeQL/badge.svg)
 
 
-A lightweight and portable command-line YAML, JSON, INI and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) (a popular JSON processor) like syntax but works with yaml files as well as json, xml, ini, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
+A lightweight and portable command-line YAML, JSON, INI and XML processor. `yq` uses [jq](https://github.com/stedolan/jq) (a popular JSON processor) like syntax but works with yaml files as well as json, kyaml, xml, ini, properties, csv and tsv. It doesn't yet support everything `jq` does - but it does support the most common operations and functions, and more is being added continuously.
 
 yq is written in Go - so you can download a dependency free binary for your platform and you are good to go! If you prefer there are a variety of package managers that can be used as well as Docker and Podman, all listed below.
 
@@ -415,7 +415,7 @@ Flags:
   -h, --help                            help for yq
   -I, --indent int                      sets indent level for output (default 2)
   -i, --inplace                         update the file in place of first file given.
-  -p, --input-format string             [auto|a|yaml|y|json|j|props|p|csv|c|tsv|t|xml|x|base64|uri|toml|hcl|h|lua|l|ini|i] parse format for input. (default "auto")
+  -p, --input-format string             [auto|a|yaml|y|json|j|kyaml|ky|props|p|csv|c|tsv|t|xml|x|base64|uri|toml|hcl|h|lua|l|ini|i] parse format for input. (default "auto")
       --lua-globals                     output keys as top-level global variables
       --lua-prefix string               prefix (default "return ")
       --lua-suffix string               suffix (default ";\n")
@@ -424,7 +424,7 @@ Flags:
   -N, --no-doc                          Don't print document separators (---)
   -0, --nul-output                      Use NUL char to separate values. If unwrap scalar is also set, fail if unwrapped scalar contains NUL char.
   -n, --null-input                      Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.
-  -o, --output-format string            [auto|a|yaml|y|json|j|props|p|csv|c|tsv|t|xml|x|base64|uri|toml|hcl|h|shell|s|lua|l|ini|i] output format type. (default "auto")
+  -o, --output-format string            [auto|a|yaml|y|json|j|kyaml|ky|props|p|csv|c|tsv|t|xml|x|base64|uri|toml|hcl|h|shell|s|lua|l|ini|i] output format type. (default "auto")
   -P, --prettyPrint                     pretty print, shorthand for '... style = ""'
       --properties-array-brackets       use [x] in array paths (e.g. for SpringBoot)
       --properties-separator string     separator to use between keys and values (default " = ")
