@@ -154,6 +154,37 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testInputKYaml() {
+  cat >test.kyaml <<'EOL'
+# leading
+{
+  a: 1, # a line
+  # head b
+  b: 2,
+  c: [
+    # head d
+    "d", # d line
+  ],
+}
+EOL
+
+  read -r -d '' expected <<'EOM'
+# leading
+a: 1 # a line
+# head b
+b: 2
+c:
+  # head d
+  - d # d line
+EOM
+
+  X=$(./yq e -p=kyaml -P test.kyaml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=kyaml -P test.kyaml)
+  assertEquals "$expected" "$X"
+}
+
 
 
 
