@@ -80,7 +80,7 @@ will output
 ```
 
 ## Get the top (root) parent
-Use negative numbers to get the top parents
+Use negative numbers to get the top parents. You can think of this as indexing into the 'parents' array above
 
 Given a sample.yml file of:
 ```yaml
@@ -154,6 +154,25 @@ will output
 a:
   b:
     c: cat
+```
+
+## N-th negative
+Similarly, use negative numbers to index backwards from the parents array
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(-2)' sample.yml
+```
+will output
+```yaml
+b:
+  c: cat
 ```
 
 ## No parent

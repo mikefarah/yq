@@ -40,7 +40,7 @@ var parentOperatorScenarios = []expressionScenario{
 	},
 	{
 		description:    "Get the top (root) parent",
-		subdescription: "Use negative numbers to get the top parents",
+		subdescription: "Use negative numbers to get the top parents. You can think of this as indexing into the 'parents' array above",
 		document:       "a:\n  b:\n    c: cat\n",
 		expression:     `.a.b.c | parent(-1)`,
 		expected: []string{
@@ -54,15 +54,6 @@ var parentOperatorScenarios = []expressionScenario{
 		expression:     `.a.b.c | root`,
 		expected: []string{
 			"D0, P[], (!!map)::a:\n    b:\n        c: cat\n",
-		},
-	},
-	{
-		description: "N-th negative",
-		skipDoc:     true,
-		document:    "a:\n  b:\n    c: cat\n",
-		expression:  `.a.b.c | parent(-2)`,
-		expected: []string{
-			"D0, P[a], (!!map)::b:\n    c: cat\n",
 		},
 	},
 	{
@@ -114,6 +105,15 @@ var parentOperatorScenarios = []expressionScenario{
 		expression:  `.a.b.c | parent(3)`,
 		expected: []string{
 			"D0, P[], (!!map)::a:\n    b:\n        c: cat\n",
+		},
+	},
+	{
+		description:    "N-th negative",
+		subdescription: "Similarly, use negative numbers to index backwards from the parents array",
+		document:       "a:\n  b:\n    c: cat\n",
+		expression:     `.a.b.c | parent(-2)`,
+		expected: []string{
+			"D0, P[a], (!!map)::b:\n    c: cat\n",
 		},
 	},
 	{
