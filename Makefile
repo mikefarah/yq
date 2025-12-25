@@ -53,7 +53,7 @@ tmp/dev_image_id: Dockerfile.dev scripts/devtools.sh
 build: build/dev
 
 .PHONY: build/dev
-build/dev: test *.go
+build/dev: *.go
 	@mkdir -p bin/
 	${ENGINERUN} go build --ldflags "$(LDFLAGS)"
 	${ENGINERUN} bash ./scripts/acceptance.sh

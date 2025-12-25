@@ -22,6 +22,11 @@ var YamlFormat = &Format{"yaml", []string{"y", "yml"},
 	func() Decoder { return NewYamlDecoder(ConfiguredYamlPreferences) },
 }
 
+var KYamlFormat = &Format{"kyaml", []string{"ky"},
+	func() Encoder { return NewKYamlEncoder(ConfiguredKYamlPreferences) },
+	func() Decoder { return NewKYamlDecoder(ConfiguredYamlPreferences) },
+}
+
 var JSONFormat = &Format{"json", []string{"j"},
 	func() Encoder { return NewJSONEncoder(ConfiguredJSONPreferences) },
 	func() Decoder { return NewJSONDecoder() },
@@ -89,6 +94,7 @@ var INIFormat = &Format{"ini", []string{"i"},
 
 var Formats = []*Format{
 	YamlFormat,
+	KYamlFormat,
 	JSONFormat,
 	PropertiesFormat,
 	CSVFormat,

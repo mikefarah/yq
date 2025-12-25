@@ -69,3 +69,7 @@ debian/files
 .vscode
 
 yq3
+
+# Golang
+.gomodcache/
+.gocache/
