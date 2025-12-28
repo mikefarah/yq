@@ -291,3 +291,4 @@ KYAML
 nokyaml
 buildvcs
 behaviour
+GOFLAGS

@@ -35,6 +35,7 @@ clean:
 ## prefix before other make targets to run in your local dev environment
 local: | quiet
 	@$(eval ENGINERUN= )
+	@$(eval GOFLAGS="$(GOFLAGS)" )
 	@mkdir -p tmp
 	@touch tmp/dev_image_id
 quiet: # this is silly but shuts up 'Nothing to be done for `local`'

@@ -197,6 +197,21 @@ Note: PRs with small changes (e.g. minor typos) may not be merged (see https://j
   make [local] test    # Run in Docker container
   ```
 
+- **Problem**: Tests fail with a VCS error:
+  ```bash
+  error obtaining VCS status: exit status 128
+  Use -buildvcs=false to disable VCS stamping.
+  ```
+- **Solution**:
+  Git security mechanisms prevent Golang from detecting the Git details inside
+  the container; either build with the `local` option, or pass GOFLAGS to
+  disable Golang buildvcs behaviour.
+  ```bash
+  make local test
+  # OR
+  make test GOFLAGS='-buildvcs=true'
+  ```
+
 ### Documentation Generation Issues
 - **Problem**: Generated docs don't update after test changes
 - **Solution**: 
