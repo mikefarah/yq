@@ -783,7 +783,7 @@ _FAIL_NOT_SAME_='eval failNotSame --lineno "${LINENO:-}"'
 #   None
 startSkipping() { __shunit_skip=${SHUNIT_TRUE}; }
 
-# Resume the normal recording behavior of assert and fail calls.
+# Resume the normal recording behaviour of assert and fail calls.
 #
 # Args:
 #   None
@@ -1293,7 +1293,7 @@ if command [ "${__shunit_mode}" = "${__SHUNIT_MODE_STANDALONE}" ]; then
   command . "`_shunit_prepForSourcing \"${__shunit_script}\"`"
 fi
 
-# Configure default output coloring behavior.
+# Configure default output coloring behaviour.
 _shunit_configureColor "${SHUNIT_COLOR}"
 
 # Execute the oneTimeSetUp function (if it exists).

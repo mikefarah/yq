@@ -34,13 +34,13 @@ The command you ran:
 yq eval-all 'select(fileIndex==0) | .a.b.c' data1.yml data2.yml
 ```
 
-**Actual behavior**
+**Actual behaviour**
 
 ```yaml
 cat: meow
 ```
 
-**Expected behavior**
+**Expected behaviour**
 
 ```yaml
 this: should really work
