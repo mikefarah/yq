@@ -3,9 +3,11 @@
 set -o errexit
 set -o pipefail
 
-if command -v gosec &> /dev/null
-then
-    gosec "${PWD}" ./...
-else
-  ./bin/gosec "${PWD}" ./...
-fi
+OPTS=(
+  -exclude-dir=vendor
+  -exclude-dir=.gomodcache
+  -exclude-dir=.gocache
+)
+
+command -v gosec &> /dev/null && BIN=gosec || BIN=./bin/gosec
+"${BIN}" "${OPTS[@]}" "${PWD}" ./...

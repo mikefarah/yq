@@ -292,3 +292,4 @@ nokyaml
 buildvcs
 behaviour
 GOFLAGS
+gocache
