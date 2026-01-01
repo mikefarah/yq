@@ -83,6 +83,7 @@ Create a test file `pkg/yqlib/<format>_test.go` using the `formatScenario` patte
 - `scenarioType` can be `"decode"` (test decoding to YAML) or `"roundtrip"` (encode/decode preservation)
 - Create a helper function `test<Format>Scenario()` that switches on `scenarioType`
 - Create main test function `Test<Format>FormatScenarios()` that iterates over scenarios
+- The main test function should use `documentScenarios` to ensure testcase documentation is generated.
 
 Test coverage must include:
 - Basic data types (scalars, arrays, objects/maps)
@@ -338,6 +339,7 @@ Create `pkg/yqlib/operator_<type>_test.go` using the `expressionScenario` patter
 - Include `subdescription` for longer test names
 - Set `expectedError` if testing error cases
 - Create main test function that iterates over scenarios
+- The main test function should use `documentScenarios` to ensure testcase documentation is generated.
 
 Test coverage must include:
 - Basic data types and nested structures

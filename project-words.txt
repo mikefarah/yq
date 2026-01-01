@@ -285,3 +285,11 @@ expeñded
 bananabananabananabanana
 edwinjhlee
 flox
+unlabelled
+kyaml
+KYAML
+nokyaml
+buildvcs
+behaviour
+GOFLAGS
+gocache

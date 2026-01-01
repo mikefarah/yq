@@ -166,6 +166,9 @@ func configureDecoder(evaluateTogether bool) (yqlib.Decoder, error) {
 	}
 	yqlib.ConfiguredYamlPreferences.EvaluateTogether = evaluateTogether
 
+	if format.DecoderFactory == nil {
+		return nil, fmt.Errorf("no support for %s input format", inputFormat)
+	}
 	yqlibDecoder := format.DecoderFactory()
 	if yqlibDecoder == nil {
 		return nil, fmt.Errorf("no support for %s input format", inputFormat)
@@ -197,18 +200,22 @@ func configureEncoder() (yqlib.Encoder, error) {
 	}
 	yqlib.ConfiguredXMLPreferences.Indent = indent
 	yqlib.ConfiguredYamlPreferences.Indent = indent
+	yqlib.ConfiguredKYamlPreferences.Indent = indent
 	yqlib.ConfiguredJSONPreferences.Indent = indent
 
 	yqlib.ConfiguredYamlPreferences.UnwrapScalar = unwrapScalar
+	yqlib.ConfiguredKYamlPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredJSONPreferences.UnwrapScalar = unwrapScalar
 
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
+	yqlib.ConfiguredKYamlPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredJSONPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredHclPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredTomlPreferences.ColorsEnabled = colorsEnabled
 
 	yqlib.ConfiguredYamlPreferences.PrintDocSeparators = !noDocSeparators
+	yqlib.ConfiguredKYamlPreferences.PrintDocSeparators = !noDocSeparators
 
 	encoder := yqlibOutputFormat.EncoderFactory()
 

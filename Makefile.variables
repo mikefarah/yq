@@ -4,6 +4,7 @@ IMPORT_PATH := github.com/mikefarah/${PROJECT}
 export GIT_COMMIT = $(shell git rev-parse --short HEAD)
 export GIT_DIRTY = $(shell test -n "$$(git status --porcelain)" && echo "+CHANGES" || true)
 export GIT_DESCRIBE = $(shell git describe --tags --always)
+GOFLAGS :=
 LDFLAGS :=
 LDFLAGS += -X main.GitCommit=${GIT_COMMIT}${GIT_DIRTY}
 LDFLAGS += -X main.GitDescribe=${GIT_DESCRIBE}
@@ -33,6 +34,7 @@ DEV_IMAGE := ${PROJECT}_dev
 
 ENGINERUN := ${ENGINE} run --rm \
 	-e LDFLAGS="${LDFLAGS}" \
+	-e GOFLAGS="${GOFLAGS}" \
 	-e GITHUB_TOKEN="${GITHUB_TOKEN}" \
 	-v ${ROOT}/vendor:/go/src${SELINUX} \
 	-v ${ROOT}:/${PROJECT}/src/${IMPORT_PATH}${SELINUX} \
