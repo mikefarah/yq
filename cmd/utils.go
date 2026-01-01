@@ -207,6 +207,7 @@ func configureEncoder() (yqlib.Encoder, error) {
 	yqlib.ConfiguredKYamlPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredPropertiesPreferences.UnwrapScalar = unwrapScalar
 	yqlib.ConfiguredJSONPreferences.UnwrapScalar = unwrapScalar
+	yqlib.ConfiguredShellVariablesPreferences.UnwrapScalar = unwrapScalar
 
 	yqlib.ConfiguredYamlPreferences.ColorsEnabled = colorsEnabled
 	yqlib.ConfiguredKYamlPreferences.ColorsEnabled = colorsEnabled
