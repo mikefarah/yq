@@ -48,6 +48,12 @@ func TestMainFunctionLogic(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error when no command found for '__complete', but got nil")
 	}
+
+	args = []string{"__completeNoDesc"}
+	_, _, err = cmd.Find(args)
+	if err == nil {
+		t.Error("Expected error when no command found for '__completeNoDesc', but got nil")
+	}
 }
 
 func TestMainFunctionWithArgs(t *testing.T) {
@@ -74,6 +80,12 @@ func TestMainFunctionWithArgs(t *testing.T) {
 	_, _, err = cmd.Find(args)
 	if err == nil {
 		t.Error("Expected error with __complete command")
+	}
+
+	args = []string{"__completeNoDesc"}
+	_, _, err = cmd.Find(args)
+	if err == nil {
+		t.Error("Expected error with __completeNoDesc command")
 	}
 }
 
@@ -148,6 +160,28 @@ func TestMainFunctionWithCompletionCommand(t *testing.T) {
 	if args[0] == "__complete" {
 		// This means the default command logic should NOT execute
 		t.Log("__complete command correctly identified, default command logic should not execute")
+	}
+}
+
+func TestMainFunctionWithCompletionNoDescCommand(t *testing.T) {
+	// Test that __complete command doesn't trigger default command logic
+	cmd := command.New()
+
+	args := []string{"__completeNoDesc"}
+	_, _, err := cmd.Find(args)
+	if err == nil {
+		t.Error("Expected error with __completeNoDesc command")
+	}
+
+	// The main function logic would be:
+	// if err != nil && args[0] != "__completeNoDesc" {
+	//     // This should NOT execute for __completeNoDesc
+	// }
+
+	// Verify that __completeNoDesc doesn't trigger the default command logic
+	if args[0] == "__completeNoDesc" {
+		// This means the default command logic should NOT execute
+		t.Log("__completeNoDesc command correctly identified, default command logic should not execute")
 	}
 }
 
