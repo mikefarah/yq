@@ -22,4 +22,4 @@ else
     exit 1
 fi
 
-"$LINT_CMD" run --verbose
+GOFLAGS="${GOFLAGS}" "$LINT_CMD" run --verbose
