@@ -1,0 +1,18 @@
+// JSON5 example file for yq
+{
+  // comments
+  unquotedKey: 'single quoted string',
+  trailingCommaArray: [1, 2,],
+
+  // numbers
+  hexInt: 0x10,
+  posInf: Infinity,
+  negInf: -Infinity,
+  notANumber: NaN,
+
+  nested: {
+    a: 1,
+    b: 2,
+  },
+}
+

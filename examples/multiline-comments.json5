@@ -1,0 +1,15 @@
+{
+  /*
+    multiline block comment
+    spanning multiple lines
+  */
+  first: 1,
+  second/* inline block comment */: 2,
+  third: /* before value */ 3,
+  fourth: [
+    1,
+    /* between elements */
+    2,
+  ],
+}
+

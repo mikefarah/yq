@@ -5,6 +5,7 @@ setUp() {
   rm test*.toml 2>/dev/null || true
   rm test*.tfstate 2>/dev/null || true
   rm test*.json 2>/dev/null || true
+  rm test*.json5 2>/dev/null || true
   rm test*.properties 2>/dev/null || true
   rm test*.csv 2>/dev/null || true
   rm test*.tsv 2>/dev/null || true
@@ -28,6 +29,29 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea test.json)
+  assertEquals "$expected" "$X"
+}
+
+testInputJson5() {
+  cat >test.json5 <<'EOL'
+{ /* hello */
+  mike: { things: "cool", },
+}
+EOL
+
+  read -r -d '' expected << EOM
+// hello
+{
+  "mike": {
+    "things": "cool"
+  }
+}
+EOM
+
+  X=$(./yq test.json5)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea test.json5)
   assertEquals "$expected" "$X"
 }
 
@@ -81,6 +105,27 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea test.json -oy)
+  assertEquals "$expected" "$X"
+}
+
+testInputJson5OutputYaml() {
+  cat >test.json5 <<'EOL'
+{
+  // comment
+  mike: { things: "cool", },
+}
+EOL
+
+  read -r -d '' expected << EOM
+# comment
+mike:
+  things: cool
+EOM
+
+  X=$(./yq test.json5 -oy)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea test.json5 -oy)
   assertEquals "$expected" "$X"
 }
 
