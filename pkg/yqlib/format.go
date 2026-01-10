@@ -33,6 +33,11 @@ var JSONFormat = &Format{"json", []string{"j"},
 	func() Decoder { return NewJSONDecoder() },
 }
 
+var JSON5Format = &Format{"json5", []string{"j5"},
+	func() Encoder { return NewJSON5Encoder(ConfiguredJSONPreferences) },
+	func() Decoder { return NewJSON5Decoder() },
+}
+
 var PropertiesFormat = &Format{"props", []string{"p", "properties"},
 	func() Encoder { return NewPropertiesEncoder(ConfiguredPropertiesPreferences) },
 	func() Decoder { return NewPropertiesDecoder() },
@@ -97,6 +102,7 @@ var Formats = []*Format{
 	YamlFormat,
 	KYamlFormat,
 	JSONFormat,
+	JSON5Format,
 	PropertiesFormat,
 	CSVFormat,
 	TSVFormat,

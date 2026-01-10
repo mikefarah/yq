@@ -221,6 +221,13 @@ func TestConfigureDecoder(t *testing.T) {
 			expectType:       "jsonDecoder",
 		},
 		{
+			name:             "json5 format",
+			inputFormat:      "json5",
+			evaluateTogether: true,
+			expectError:      false,
+			expectType:       "json5Decoder",
+		},
+		{
 			name:             "xml format",
 			inputFormat:      "xml",
 			evaluateTogether: false,
@@ -389,6 +396,12 @@ func TestConfigureEncoder(t *testing.T) {
 			outputFormat: "json",
 			expectError:  false,
 			expectType:   "jsonEncoder",
+		},
+		{
+			name:         "json5 format",
+			outputFormat: "json5",
+			expectError:  false,
+			expectType:   "json5Encoder",
 		},
 		{
 			name:         "xml format",
@@ -1264,6 +1277,14 @@ func TestConfigureInputFormat(t *testing.T) {
 			outputFormat:  "auto",
 			expectInput:   "json",
 			expectOutput:  "json",
+		},
+		{
+			name:          "auto format with json5 file",
+			inputFilename: "file.json5",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			expectInput:   "json5",
+			expectOutput:  "json5",
 		},
 		{
 			name:          "auto format with unknown file",

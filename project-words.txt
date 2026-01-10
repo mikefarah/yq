@@ -293,3 +293,4 @@ buildvcs
 behaviour
 GOFLAGS
 gocache
+json5
