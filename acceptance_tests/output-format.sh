@@ -48,6 +48,28 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testOutputJson5() {
+  cat >test.yml <<EOL
+a: {b: ["cat"]}
+EOL
+
+  read -r -d '' expected << EOM
+{
+  "a": {
+    "b": [
+      "cat"
+    ]
+  }
+}
+EOM
+
+  X=$(./yq e --output-format=json5 test.yml)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --output-format=json5 test.yml)
+  assertEquals "$expected" "$X"
+}
+
 testOutputYamlRawDefault() {
   cat >test.yml <<EOL
 a: "cat"

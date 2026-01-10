@@ -17,6 +17,8 @@ type formatScenario struct {
 	skipDoc        bool
 	scenarioType   string
 	expectedError  string
+	// expectedErrorContains allows less brittle error assertions (e.g. where line/column may change).
+	expectedErrorContains string
 }
 
 func processFormatScenario(s formatScenario, decoder Decoder, encoder Encoder) (string, error) {
