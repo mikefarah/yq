@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-ini/ini"
+	ini "gopkg.in/ini.v1"
 )
 
 type iniEncoder struct {

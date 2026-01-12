@@ -7,7 +7,6 @@ require (
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.8.0
 	github.com/fatih/color v1.18.0
-	github.com/go-ini/ini v1.67.0
 	github.com/goccy/go-json v0.10.5
 	github.com/goccy/go-yaml v1.19.1
 	github.com/hashicorp/hcl/v2 v2.24.0
@@ -22,6 +21,7 @@ require (
 	go.yaml.in/yaml/v4 v4.0.0-rc.3
 	golang.org/x/net v0.48.0
 	golang.org/x/text v0.32.0
+	gopkg.in/ini.v1 v1.67.1
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 )
 
