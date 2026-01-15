@@ -7,7 +7,15 @@ import (
 )
 
 func tryRenameFile(from string, to string) error {
-	if renameError := os.Rename(from, to); renameError != nil {
+	if info, err := os.Lstat(to); err == nil && info.Mode()&os.ModeSymlink != 0 {
+		log.Debug("Target file is symlink, skipping rename and attempting to copy contents")
+
+		if copyError := copyFileContents(from, to); copyError != nil {
+			return fmt.Errorf("failed copying from %v to %v: %w", from, to, copyError)
+		}
+		tryRemoveTempFile(from)
+		return nil
+	} else if renameError := os.Rename(from, to); renameError != nil {
 		log.Debugf("Error renaming from %v to %v, attempting to copy contents", from, to)
 		log.Debug(renameError.Error())
 		log.Debug("going to try copying instead")
