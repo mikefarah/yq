@@ -139,6 +139,66 @@ func TestWriteInPlaceHandlerImpl_FinishWriteInPlace_Failure(t *testing.T) {
 	}
 }
 
+func TestWriteInPlaceHandlerImpl_FinishWriteInPlace_Symlink_Success(t *testing.T) {
+	// Create a temporary directory and file for testing
+	tempDir := t.TempDir()
+	inputFile := filepath.Join(tempDir, "input.yaml")
+	symlinkFile := filepath.Join(tempDir, "symlink.yaml")
+
+	// Create input file with some content
+	content := []byte("test: value\n")
+	err := os.WriteFile(inputFile, content, 0600)
+	if err != nil {
+		t.Fatalf("Failed to create input file: %v", err)
+	}
+
+	err = os.Symlink(inputFile, symlinkFile)
+	if err != nil {
+		t.Fatalf("Failed to symlink to input file: %v", err)
+	}
+
+	handler := NewWriteInPlaceHandler(symlinkFile)
+	tempFile, err := handler.CreateTempFile()
+	if err != nil {
+		t.Fatalf("CreateTempFile failed: %v", err)
+	}
+	defer tempFile.Close()
+
+	// Write some content to temp file
+	tempContent := []byte("updated: content\n")
+	_, err = tempFile.Write(tempContent)
+	if err != nil {
+		t.Fatalf("Failed to write to temp file: %v", err)
+	}
+	tempFile.Close()
+
+	// Test successful finish
+	err = handler.FinishWriteInPlace(true)
+	if err != nil {
+		t.Fatalf("FinishWriteInPlace failed: %v", err)
+	}
+
+	// Verify that the symlink is still present
+	info, err := os.Lstat(symlinkFile)
+	if err != nil {
+		t.Fatalf("Failed to lstat input file: %v", err)
+	}
+	if info.Mode()&os.ModeSymlink == 0 {
+		t.Errorf("Input file symlink is no longer present")
+	}
+
+	// Verify the original file was updated
+	updatedContent, err := os.ReadFile(inputFile)
+	if err != nil {
+		t.Fatalf("Failed to read updated file: %v", err)
+	}
+
+	if string(updatedContent) != string(tempContent) {
+		t.Errorf("File content not updated correctly. Expected %q, got %q",
+			string(tempContent), string(updatedContent))
+	}
+}
+
 func TestWriteInPlaceHandlerImpl_CreateTempFile_Permissions(t *testing.T) {
 	// Create a temporary directory and file for testing
 	tempDir := t.TempDir()
