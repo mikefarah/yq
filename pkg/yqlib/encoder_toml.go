@@ -546,12 +546,20 @@ func (te *tomlEncoder) colorizeToml(input []byte) []byte {
 	color.NoColor = false
 
 	// Create color functions for different token types
-	commentColor := color.New(color.FgHiBlack).SprintFunc()
-	stringColor := color.New(color.FgGreen).SprintFunc()
-	numberColor := color.New(color.FgHiMagenta).SprintFunc()
-	keyColor := color.New(color.FgCyan).SprintFunc()
-	boolColor := color.New(color.FgHiMagenta).SprintFunc()
-	sectionColor := color.New(color.FgYellow, color.Bold).SprintFunc()
+	// Use EnableColor() to ensure colors work even when NO_COLOR env is set
+	commentColorObj := color.New(color.FgHiBlack); commentColorObj.EnableColor()
+	stringColorObj := color.New(color.FgGreen); stringColorObj.EnableColor()
+	numberColorObj := color.New(color.FgHiMagenta); numberColorObj.EnableColor()
+	keyColorObj := color.New(color.FgCyan); keyColorObj.EnableColor()
+	boolColorObj := color.New(color.FgHiMagenta); boolColorObj.EnableColor()
+	sectionColorObj := color.New(color.FgYellow, color.Bold); sectionColorObj.EnableColor()
+
+	commentColor := commentColorObj.SprintFunc()
+	stringColor := stringColorObj.SprintFunc()
+	numberColor := numberColorObj.SprintFunc()
+	keyColor := keyColorObj.SprintFunc()
+	boolColor := boolColorObj.SprintFunc()
+	sectionColor := sectionColorObj.SprintFunc()
 
 	// Simple tokenization for TOML colouring
 	i := 0
