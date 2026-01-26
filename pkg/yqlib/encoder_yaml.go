@@ -52,6 +52,9 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	var encoder = yaml.NewEncoder(destination)
 
 	encoder.SetIndent(ye.prefs.Indent)
+	if ye.prefs.CompactSequenceIndent {
+		encoder.CompactSeqIndent()
+	}
 
 	target, err := node.MarshalYAML()
 

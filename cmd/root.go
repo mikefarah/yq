@@ -203,6 +203,7 @@ yq -P -oy sample.json
 	}
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing, "header-preprocess", "", true, "Slurp any header comments and separators before processing expression.")
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.FixMergeAnchorToSpec, "yaml-fix-merge-anchor-to-spec", "", false, "Fix merge anchor to match YAML spec. Will default to true in late 2025")
+	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredYamlPreferences.CompactSequenceIndent, "yaml-compact-seq-indent", "c", false, "Use compact sequence indentation where '- ' is considered part of the indentation.")
 
 	rootCmd.PersistentFlags().StringVarP(&splitFileExp, "split-exp", "s", "", "print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter. The necessary directories will be created.")
 	if err = rootCmd.RegisterFlagCompletionFunc("split-exp", cobra.NoFileCompletions); err != nil {
