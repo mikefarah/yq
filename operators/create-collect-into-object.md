@@ -2,6 +2,12 @@
 
 This is used to construct objects (or maps). This can be used against existing yaml, or to create fresh yaml documents.
 
+{% hint style="info" %}
+
+_Note_ for jq users: yq does not support shorthand object construction like `{name, version}`. Use the explicit form `{"name": .name, "version": .version}` or `pick(["name", "version"])` instead.
+
+{% endhint %}
+
 ## Collect empty object
 Running
 ```bash

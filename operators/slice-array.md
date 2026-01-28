@@ -4,6 +4,22 @@ The slice array operator takes an array as input and returns a subarray. Like th
 
 You may leave out the first or second number, which will refer to the start or end of the array respectively.
 
+{% hint style="warning" %}
+
+_Note_ that slicing only works on arrays, not strings. Using slice syntax on a string (e.g., `.text | .[0:5]`) will return an empty result instead of a substring.
+
+For string slicing, use split/join or regex:
+
+```bash
+# Split into array, slice, rejoin
+yq '.text | split("") | .[0:5] | join("")'
+
+# Or use regex substitution
+yq '.text | sub("^(.{5}).*"; "${1}")'
+```
+
+{% endhint %}
+
 ## Slicing arrays
 Given a sample.yml file of:
 ```yaml

@@ -14,6 +14,26 @@ select(.a == .b)
 
 The not equals `!=` operator returns `false` if the LHS is equal to the RHS.
 
+{% hint style="info" %}
+
+_Note_ that the `!=` operator contains `!` which can trigger bash history expansion in interactive shells:
+
+```bash
+# May fail with: bash: !": event not found
+yq '.status != "healthy"' file.yaml
+```
+
+Workarounds:
+```bash
+# Use $'...' quoting
+yq $'.status != "healthy"' file.yaml
+
+# Or use | not instead of !=
+yq '.status == "healthy" | not' file.yaml
+```
+
+{% endhint %}
+
 ## Related Operators
 
 - comparison (`>=`, `<` etc) operators [here](https://mikefarah.gitbook.io/yq/operators/compare)

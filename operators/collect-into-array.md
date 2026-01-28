@@ -2,6 +2,19 @@
 
 This creates an array using the expression between the square brackets.
 
+{% hint style="warning" %}
+
+_Note_ the placement of `|` when collecting. These two forms behave differently:
+
+```bash
+# Pipe then splat - creates separate context
+[.items | .[] | has("id")]
+
+# Splat directly on path - more common pattern
+[.items[] | has("id")]
+```
+
+{% endhint %}
 
 ## Collect empty
 Running
