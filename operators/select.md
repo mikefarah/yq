@@ -137,3 +137,37 @@ a:
   horse: dog
 ```
 
+## Piping select to a literal
+
+{% hint style="warning" %}
+
+_Note_ that piping `select()` to a literal value produces that literal for each match. When there are no matches, the literal is still produced once:
+
+Given a sample.yml file of:
+```yaml
+a: 1
+```
+then
+```bash
+yq '(.a | select(. == 999) | "matched") // "default"' sample.yml
+```
+will output
+```yaml
+matched
+```
+
+Since `.a` is `1`, not `999`, you might expect `"default"` here.
+
+The select does filter correctly when not followed by a literal:
+```bash
+yq '.a | select(. == 999)' sample.yml
+```
+will output nothing (empty).
+
+**Workaround**: Return the matched value itself, or use `with()`:
+```bash
+yq '(.a | select(. == 1)) // "default"' sample.yml
+```
+
+{% endhint %}
+
