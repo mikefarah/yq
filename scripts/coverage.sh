@@ -3,7 +3,9 @@
 set -e
 
 echo "Running tests and generating coverage..."
-go test -coverprofile=coverage.out -v $(go list ./... | grep -v -E 'examples' | grep -v -E 'test')
+packages=$(go list ./... | grep -v -E 'examples' | grep -v -E 'test' | tr '\n' ',' | sed 's/,$//')
+test_packages=$(go list ./... | grep -v -E 'examples' | grep -v -E 'test' | grep -v '^github.com/mikefarah/yq/v4$')
+go test -coverprofile=coverage.out -coverpkg="$packages" -v $test_packages
 
 echo "Generating HTML coverage report..."
 go tool cover -html=coverage.out -o coverage.html
@@ -58,11 +60,31 @@ tail -n +1 coverage_sorted.txt | while read percent file; do
 done
 
 echo ""
-echo "Top 10 files needing attention (lowest coverage):"
+echo "Top 10 files by uncovered statements:"
 echo "================================================="
-grep -v "TOTAL:" coverage_sorted.txt | tail -10 | while read percent file; do
+# Calculate uncovered statements for each file and sort by that
+go tool cover -func=coverage.out | grep -E "\.go:[0-9]+:" | \
+awk '{
+    # Extract filename and percentage
+    split($1, parts, ":")
+    file = parts[1]
+    pct = $NF
+    gsub(/%/, "", pct)
+    
+    # Track stats per file
+    total[file]++
+    covered[file] += pct
+}
+END {
+    for (file in total) {
+        avg_pct = covered[file] / total[file]
+        uncovered = total[file] * (100 - avg_pct) / 100
+        covered_count = total[file] - uncovered
+        printf "%.0f %d %.0f %.1f %s\n", uncovered, total[file], covered_count, avg_pct, file
+    }
+}' | sort -rn | head -10 | while read uncovered total covered pct file; do
     filename=$(basename "$file")
-    printf "%-60s %8.1f%%\n" "$filename" "$percent"
+    printf "%-60s %4d uncovered (%4d/%4d, %5.1f%%)\n" "$filename" "$uncovered" "$covered" "$total" "$pct"
 done
 
 echo ""

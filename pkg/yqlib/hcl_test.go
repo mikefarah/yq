@@ -4,6 +4,7 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"testing"
 
@@ -541,6 +542,35 @@ func documentHclRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```hcl\n%v```\n\n", mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder(ConfiguredHclPreferences))))
+}
+
+func TestHclEncoderPrintDocumentSeparator(t *testing.T) {
+	encoder := NewHclEncoder(ConfiguredHclPreferences)
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+
+	err := encoder.PrintDocumentSeparator(writer)
+	writer.Flush()
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, "", buf.String())
+}
+
+func TestHclEncoderPrintLeadingContent(t *testing.T) {
+	encoder := NewHclEncoder(ConfiguredHclPreferences)
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+
+	err := encoder.PrintLeadingContent(writer, "some content")
+	writer.Flush()
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, "", buf.String())
+}
+
+func TestHclEncoderCanHandleAliases(t *testing.T) {
+	encoder := NewHclEncoder(ConfiguredHclPreferences)
+	test.AssertResult(t, false, encoder.CanHandleAliases())
 }
 
 func TestHclFormatScenarios(t *testing.T) {

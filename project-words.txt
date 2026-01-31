@@ -294,3 +294,7 @@ behaviour
 GOFLAGS
 gocache
 subsubarray
+Ffile
+Fquery
+coverpkg
+gsub

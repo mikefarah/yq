@@ -230,10 +230,14 @@ name = "Tom"  # name comment
 
 // Reproduce bug for https://github.com/mikefarah/yq/issues/2588
 // Bug: standalone comments inside a table cause subsequent key-values to be assigned at root.
-var issue2588RustToolchainWithComments = `
-[owner]
+var issue2588RustToolchainWithComments = `[owner]
 # comment
 name = "Tomer"
+`
+
+var tableWithComment = `[owner]
+# comment
+[things]
 `
 
 var sampleFromWeb = `# This is a TOML document
@@ -573,6 +577,19 @@ var tomlScenarios = []formatScenario{
 		expression:   ".name",
 		expected:     "null\n",
 		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		input:        issue2588RustToolchainWithComments,
+		expected:     issue2588RustToolchainWithComments,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		input:        tableWithComment,
+		expression:   ".owner | headComment",
+		expected:     "comment\n",
+		scenarioType: "roundtrip",
 	},
 	{
 		description:  "Roundtrip: sample from web",
@@ -932,4 +949,33 @@ func TestTomlStringEscapeColourization(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestTomlEncoderPrintDocumentSeparator(t *testing.T) {
+	encoder := NewTomlEncoder()
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+
+	err := encoder.PrintDocumentSeparator(writer)
+	writer.Flush()
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, "", buf.String())
+}
+
+func TestTomlEncoderPrintLeadingContent(t *testing.T) {
+	encoder := NewTomlEncoder()
+	var buf bytes.Buffer
+	writer := bufio.NewWriter(&buf)
+
+	err := encoder.PrintLeadingContent(writer, "some content")
+	writer.Flush()
+
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, "", buf.String())
+}
+
+func TestTomlEncoderCanHandleAliases(t *testing.T) {
+	encoder := NewTomlEncoder()
+	test.AssertResult(t, false, encoder.CanHandleAliases())
 }
