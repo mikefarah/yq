@@ -47,6 +47,7 @@ test*.tf
 test*.xml
 test*.toml
 test*.yaml
+*.kyaml
 test_dir1/
 test_dir2/
 0.yml

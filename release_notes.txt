@@ -1,7 +1,13 @@
-4.51.1:
+4.52.1:
   - TOML encoder support - you can now roundtrip! #1364
   - Parent now supports negative indices, and added a 'root' command for referencing the top level document
   - Fixed scalar encoding for HCL
+  - Add --yaml-compact-seq-indent / -c flag for compact sequence indentation (#2583) Thanks @jfenal
+  - Add symlink check to file rename util (#2576) Thanks @Elias-elastisys
+  - Powershell fixed default command used for __completeNoDesc alias (#2568) Thanks @teejaded
+  - Unwrap scalars in shell output mode. (#2548) Thanks @flintwinters
+  - Added K8S KYAML output format support (#2560) Thanks @robbat2
+
   - Bumped dependencies
   - Special shout out to @ccoVeille for reviewing my PRs!
 
