@@ -27,7 +27,8 @@ ifeq ($(CYG_CHECK),1)
 else
 	# all non-windows environments
 	ROOT := $(shell pwd)
-	SELINUX := $(shell which getenforce 2>&1 >/dev/null && echo :z)
+	# Deliberately use `command -v` instead of `which` to be POSIX compliant
+	SELINUX := $(shell command -v getenforce >/dev/null 2>&1 && echo :z)
 endif
 
 DEV_IMAGE := ${PROJECT}_dev
