@@ -97,6 +97,15 @@ var mergeWithGlobB = `
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
+		description: "multiple should be readonly",
+		skipDoc:     true,
+		document:    "",
+		expression:  ".x |= (root | (.a * .b))",
+		expected: []string{
+			"D0, P[], ()::x: null\n",
+		},
+	},
+	{
 		description: "glob keys are treated as literals when merging",
 		skipDoc:     true,
 		document:    mergeWithGlobA,
