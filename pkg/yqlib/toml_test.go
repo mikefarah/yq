@@ -632,6 +632,11 @@ func TestTomlScenarios(t *testing.T) {
 // TestTomlColourization tests that colourization correctly distinguishes
 // between table section headers and inline arrays
 func TestTomlColourization(t *testing.T) {
+	// Save and restore color state
+	oldNoColor := color.NoColor
+	color.NoColor = false
+	defer func() { color.NoColor = oldNoColor }()
+
 	// Test that inline arrays are not coloured as table sections
 	encoder := &tomlEncoder{prefs: TomlPreferences{ColorsEnabled: true}}
 
@@ -655,8 +660,9 @@ alpha = "test"
 	// for actual table sections, not for inline arrays.
 
 	// Get the ANSI codes for section colour (Yellow + Bold)
-	sectionColour := color.New(color.FgYellow, color.Bold).SprintFunc()
-	sampleSection := sectionColour("[database]")
+	sectionColourObj := color.New(color.FgYellow, color.Bold)
+	sectionColourObj.EnableColor()
+	sampleSection := sectionColourObj.Sprint("[database]")
 
 	// Extract just the ANSI codes from the sample
 	// ANSI codes start with \x1b[
