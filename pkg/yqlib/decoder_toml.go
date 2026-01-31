@@ -430,23 +430,42 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 // Because TOML. So we'll inject the last index into the path.
 
 func getPathToUse(fullPath []interface{}, dec *tomlDecoder, c Context) ([]interface{}, error) {
-	pathToCheck := fullPath
-	if len(fullPath) >= 1 {
-		pathToCheck = fullPath[:len(fullPath)-1]
-	}
-	readOp := createTraversalTree(pathToCheck, traversePreferences{DontAutoCreate: true}, false)
+	// We need to check the entire path (except the last element), not just the immediate parent,
+	// because we may have nested array tables like [[array.subarray.subsubarray]]
+	// where both 'array' and 'subarray' are arrays that already exist.
 
-	resultContext, err := dec.d.GetMatchingNodes(c, readOp)
-	if err != nil {
-		return nil, err
+	if len(fullPath) == 0 {
+		return fullPath, nil
 	}
-	if resultContext.MatchingNodes.Len() >= 1 {
-		match := resultContext.MatchingNodes.Front().Value.(*CandidateNode)
-		// path refers to an array, we need to add this to the last element in the array
-		if match.Kind == SequenceNode {
-			fullPath = append(pathToCheck, len(match.Content)-1, fullPath[len(fullPath)-1])
-			log.Debugf("Adding to end of %v array, using path: %v", pathToCheck, fullPath)
+
+	resultPath := make([]interface{}, 0, len(fullPath)*2) // preallocate with extra space for indices
+
+	// Process all segments except the last one
+	for i := 0; i < len(fullPath)-1; i++ {
+		resultPath = append(resultPath, fullPath[i])
+
+		// Check if the current path segment points to an array
+		readOp := createTraversalTree(resultPath, traversePreferences{DontAutoCreate: true}, false)
+		resultContext, err := dec.d.GetMatchingNodes(c, readOp)
+		if err != nil {
+			return nil, err
+		}
+
+		if resultContext.MatchingNodes.Len() >= 1 {
+			match := resultContext.MatchingNodes.Front().Value.(*CandidateNode)
+			// If this segment points to an array, we need to add the last index
+			// before continuing with the rest of the path
+			if match.Kind == SequenceNode && len(match.Content) > 0 {
+				lastIndex := len(match.Content) - 1
+				resultPath = append(resultPath, lastIndex)
+				log.Debugf("Path segment %v is an array, injecting index %d", resultPath[:len(resultPath)-1], lastIndex)
+			}
 		}
 	}
-	return fullPath, err
+
+	// Add the last segment
+	resultPath = append(resultPath, fullPath[len(fullPath)-1])
+
+	log.Debugf("getPathToUse: original path %v -> result path %v", fullPath, resultPath)
+	return resultPath, nil
 }
