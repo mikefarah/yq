@@ -1,3 +1,10 @@
+4.52.2:
+  - Fixed bad instructions file breaking go-install (#2587) Thanks @theyoprst
+  - Fixed TOML table scope after comments (#2588) Thanks @tomers
+  - Multiply uses a readonly context (#2558)
+  - Fixed merge globbing wildcards in keys (#2564)
+  - Fixing TOML subarray parsing issue (#2581)
+
 4.52.1:
   - TOML encoder support - you can now roundtrip! #1364
   - Parent now supports negative indices, and added a 'root' command for referencing the top level document
