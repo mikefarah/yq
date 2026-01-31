@@ -47,6 +47,18 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
+func (dec *tomlDecoder) attachOrphanedCommentsToNode(tableNodeValue *CandidateNode) {
+	if len(dec.pendingComments) > 0 {
+		comments := strings.Join(dec.pendingComments, "\n")
+		if tableNodeValue.HeadComment == "" {
+			tableNodeValue.HeadComment = comments
+		} else {
+			tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
+		}
+		dec.pendingComments = make([]string, 0)
+	}
+}
+
 func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
 	path := make([]interface{}, 0)
 	for {
@@ -344,14 +356,8 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 		if tableValue.Kind != toml.KeyValue {
 			log.Debug("got an empty table (or reached next section)")
 			// If the table had only comments, attach them to the table itself so they don't leak to the next node.
-			if !sawKeyValue && len(dec.pendingComments) > 0 {
-				comments := strings.Join(dec.pendingComments, "\n")
-				if tableNodeValue.HeadComment == "" {
-					tableNodeValue.HeadComment = comments
-				} else {
-					tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
-				}
-				dec.pendingComments = make([]string, 0)
+			if !sawKeyValue {
+				dec.attachOrphanedCommentsToNode(tableNodeValue)
 			}
 			runAgainstCurrentExp = true
 			break
@@ -366,14 +372,8 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	}
 	// If we hit EOF after only seeing comments inside this table, attach them to the table itself
 	// so they don't leak to whatever comes next.
-	if !sawKeyValue && len(dec.pendingComments) > 0 {
-		comments := strings.Join(dec.pendingComments, "\n")
-		if tableNodeValue.HeadComment == "" {
-			tableNodeValue.HeadComment = comments
-		} else {
-			tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
-		}
-		dec.pendingComments = make([]string, 0)
+	if !sawKeyValue {
+		dec.attachOrphanedCommentsToNode(tableNodeValue)
 	}
 
 	err = dec.d.DeeplyAssign(c, fullPath, tableNodeValue)
@@ -454,14 +454,8 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 			// so lets leave that expression for the next round of parsing
 			if exp.Kind == toml.ArrayTable || exp.Kind == toml.Table {
 				// If this array-table entry had only comments, attach them to the entry so they don't leak.
-				if !sawKeyValue && len(dec.pendingComments) > 0 {
-					comments := strings.Join(dec.pendingComments, "\n")
-					if tableNodeValue.HeadComment == "" {
-						tableNodeValue.HeadComment = comments
-					} else {
-						tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
-					}
-					dec.pendingComments = make([]string, 0)
+				if !sawKeyValue {
+					dec.attachOrphanedCommentsToNode(tableNodeValue)
 				}
 				runAgainstCurrentExp = true
 				break
