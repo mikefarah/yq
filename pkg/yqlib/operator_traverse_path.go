@@ -14,6 +14,7 @@ type traversePreferences struct {
 	DontAutoCreate       bool // by default, we automatically create entries on the fly.
 	DontIncludeMapValues bool
 	OptionalTraverse     bool // e.g. .adf?
+	ExactKeyMatch        bool // by default we let wild/glob patterns. Don't do that for merge though.
 }
 
 func splat(context Context, prefs traversePreferences) (Context, error) {
@@ -216,7 +217,11 @@ func traverseArrayWithIndices(node *CandidateNode, indices []*CandidateNode, pre
 	return newMatches, nil
 }
 
-func keyMatches(key *CandidateNode, wantedKey string) bool {
+func keyMatches(key *CandidateNode, wantedKey string, exactKeyMatch bool) bool {
+	if exactKeyMatch {
+		// this is used for merge
+		return key.Value == wantedKey
+	}
 	return matchKey(key.Value, wantedKey)
 }
 
@@ -303,7 +308,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 					return err
 				}
 			}
-		} else if splat || keyMatches(key, wantedKey) {
+		} else if splat || keyMatches(key, wantedKey, prefs.ExactKeyMatch) {
 			log.Debug("MATCHED")
 			if prefs.IncludeMapKeys {
 				log.Debug("including key")

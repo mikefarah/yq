@@ -86,7 +86,26 @@ c:
   <<: *cat
 `
 
+var mergeWithGlobA = `
+"**cat": things,
+"meow**cat": stuff
+`
+
+var mergeWithGlobB = `
+"**cat": newThings,
+`
+
 var multiplyOperatorScenarios = []expressionScenario{
+	{
+		description: "glob keys are treated as literals when merging",
+		skipDoc:     true,
+		document:    mergeWithGlobA,
+		document2:   mergeWithGlobB,
+		expression:  `select(fi == 0) * select(fi == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::\n\"**cat\": newThings,\n\"meow**cat\": stuff\n",
+		},
+	},
 	{
 		skipDoc:    true,
 		document:   mergeArrayWithAnchors,

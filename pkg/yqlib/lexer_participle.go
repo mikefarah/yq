@@ -451,6 +451,7 @@ func multiplyWithPrefs(op *operationType) yqAction {
 			prefs.AssignPrefs.ClobberCustomTags = true
 		}
 		prefs.TraversePrefs.DontFollowAlias = true
+		prefs.TraversePrefs.ExactKeyMatch = true
 		op := &Operation{OperationType: op, Value: multiplyOpType.Type, StringValue: options, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op}, nil
 	}
