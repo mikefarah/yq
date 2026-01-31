@@ -228,7 +228,7 @@ B = 12
 name = "Tom"  # name comment
 `
 
-// Repro for https://github.com/mikefarah/yq/issues/2588
+// Reproduce bug for https://github.com/mikefarah/yq/issues/2588
 // Bug: standalone comments inside a table cause subsequent key-values to be assigned at root.
 var issue2588RustToolchainWithComments = `
 [owner]
