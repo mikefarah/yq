@@ -7,6 +7,8 @@ setUp() {
   rm test*.tsv 2>/dev/null || true
   rm test*.xml 2>/dev/null || true
   rm test*.tf 2>/dev/null || true
+  rm test*.json5 2>/dev/null || true
+  rm test*.kyaml 2>/dev/null || true
 }
 
 testInputProperties() {
@@ -182,6 +184,40 @@ EOM
   assertEquals "$expected" "$X"
 
   X=$(./yq ea -p=kyaml -P test.kyaml)
+  assertEquals "$expected" "$X"
+}
+
+testInputJson5MultilineBlockComments() {
+  cat >test.json5 <<'EOL'
+{
+  /*
+    multiline
+    block comment
+  */
+  first: 1,
+  second/* inline block */: 2,
+  third: /* before value */ 3,
+  fourth: [1, /* between elements */ 2,],
+}
+EOL
+
+  read -r -d '' expected <<'EOM'
+# multiline
+# block comment
+first: 1
+second: 2 # inline block
+third: 3
+# before value
+fourth:
+  - 1
+  # between elements
+  - 2
+EOM
+
+  X=$(./yq e -p=json5 test.json5)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea -p=json5 test.json5)
   assertEquals "$expected" "$X"
 }
 
