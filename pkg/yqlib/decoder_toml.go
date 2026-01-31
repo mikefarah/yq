@@ -329,20 +329,51 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 
 	var tableValue *toml.Node
 	runAgainstCurrentExp := false
-	hasValue := dec.parser.NextExpression()
-	// check to see if there is any table data
-	if hasValue {
+	sawKeyValue := false
+	for dec.parser.NextExpression() {
 		tableValue = dec.parser.Expression()
-		// next expression is not table data, so we are done
-		if tableValue.Kind != toml.KeyValue {
-			log.Debug("got an empty table")
-			runAgainstCurrentExp = true
-		} else {
-			runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-			if err != nil && !errors.Is(err, io.EOF) {
-				return false, err
-			}
+		// Allow standalone comments inside the table before the first key-value.
+		// These should be associated with the next element in the table (usually the first key-value),
+		// not treated as "end of table" (which would cause subsequent key-values to be parsed at root).
+		if tableValue.Kind == toml.Comment {
+			dec.pendingComments = append(dec.pendingComments, string(tableValue.Data))
+			continue
 		}
+
+		// next expression is not table data, so we are done (but we need to re-process it at top-level)
+		if tableValue.Kind != toml.KeyValue {
+			log.Debug("got an empty table (or reached next section)")
+			// If the table had only comments, attach them to the table itself so they don't leak to the next node.
+			if !sawKeyValue && len(dec.pendingComments) > 0 {
+				comments := strings.Join(dec.pendingComments, "\n")
+				if tableNodeValue.HeadComment == "" {
+					tableNodeValue.HeadComment = comments
+				} else {
+					tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
+				}
+				dec.pendingComments = make([]string, 0)
+			}
+			runAgainstCurrentExp = true
+			break
+		}
+
+		sawKeyValue = true
+		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
+		if err != nil && !errors.Is(err, io.EOF) {
+			return false, err
+		}
+		break
+	}
+	// If we hit EOF after only seeing comments inside this table, attach them to the table itself
+	// so they don't leak to whatever comes next.
+	if !sawKeyValue && len(dec.pendingComments) > 0 {
+		comments := strings.Join(dec.pendingComments, "\n")
+		if tableNodeValue.HeadComment == "" {
+			tableNodeValue.HeadComment = comments
+		} else {
+			tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
+		}
+		dec.pendingComments = make([]string, 0)
 	}
 
 	err = dec.d.DeeplyAssign(c, fullPath, tableNodeValue)
@@ -405,18 +436,57 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	}
 
 	runAgainstCurrentExp := false
-	// if the next value is a ArrayTable or Table, then its not part of this declaration (not a key value pair)
-	// so lets leave that expression for the next round of parsing
-	if hasValue && (dec.parser.Expression().Kind == toml.ArrayTable || dec.parser.Expression().Kind == toml.Table) {
-		runAgainstCurrentExp = true
-	} else if hasValue {
-		// otherwise, if there is a value, it must be some key value pairs of the
-		// first object in the array!
-		tableValue := dec.parser.Expression()
-		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, tableValue)
-		if err != nil && !errors.Is(err, io.EOF) {
-			return false, err
+	sawKeyValue := false
+	if hasValue {
+		for {
+			exp := dec.parser.Expression()
+			// Allow standalone comments inside array tables before the first key-value.
+			if exp.Kind == toml.Comment {
+				dec.pendingComments = append(dec.pendingComments, string(exp.Data))
+				hasValue = dec.parser.NextExpression()
+				if !hasValue {
+					break
+				}
+				continue
+			}
+
+			// if the next value is a ArrayTable or Table, then its not part of this declaration (not a key value pair)
+			// so lets leave that expression for the next round of parsing
+			if exp.Kind == toml.ArrayTable || exp.Kind == toml.Table {
+				// If this array-table entry had only comments, attach them to the entry so they don't leak.
+				if !sawKeyValue && len(dec.pendingComments) > 0 {
+					comments := strings.Join(dec.pendingComments, "\n")
+					if tableNodeValue.HeadComment == "" {
+						tableNodeValue.HeadComment = comments
+					} else {
+						tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
+					}
+					dec.pendingComments = make([]string, 0)
+				}
+				runAgainstCurrentExp = true
+				break
+			}
+
+			sawKeyValue = true
+			// otherwise, if there is a value, it must be some key value pairs of the
+			// first object in the array!
+			runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(tableNodeValue, exp)
+			if err != nil && !errors.Is(err, io.EOF) {
+				return false, err
+			}
+			break
 		}
+	}
+	// If we hit EOF after only seeing comments inside this array-table entry, attach them to the entry
+	// so they don't leak to whatever comes next.
+	if !sawKeyValue && len(dec.pendingComments) > 0 {
+		comments := strings.Join(dec.pendingComments, "\n")
+		if tableNodeValue.HeadComment == "" {
+			tableNodeValue.HeadComment = comments
+		} else {
+			tableNodeValue.HeadComment = tableNodeValue.HeadComment + "\n" + comments
+		}
+		dec.pendingComments = make([]string, 0)
 	}
 
 	// += function
