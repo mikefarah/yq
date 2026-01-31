@@ -228,6 +228,14 @@ B = 12
 name = "Tom"  # name comment
 `
 
+// Reproduce bug for https://github.com/mikefarah/yq/issues/2588
+// Bug: standalone comments inside a table cause subsequent key-values to be assigned at root.
+var issue2588RustToolchainWithComments = `
+[owner]
+# comment
+name = "Tomer"
+`
+
 var sampleFromWeb = `# This is a TOML document
 title = "TOML Example"
 
@@ -549,6 +557,22 @@ var tomlScenarios = []formatScenario{
 		expression:   ".",
 		expected:     rtComments,
 		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2588: comments inside table must not flatten (.owner.name)",
+		input:        issue2588RustToolchainWithComments,
+		expression:   ".owner.name",
+		expected:     "Tomer\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2588: comments inside table must not flatten (.name)",
+		input:        issue2588RustToolchainWithComments,
+		expression:   ".name",
+		expected:     "null\n",
+		scenarioType: "decode",
 	},
 	{
 		description:  "Roundtrip: sample from web",
