@@ -271,6 +271,16 @@ var subArrays = `
 [[array.subarray.subsubarray]]
 `
 
+var tomlTableWithComments = `[section]
+the_array = [
+  # comment
+  "value 1",
+
+  # comment
+  "value 2",
+]
+`
+
 var expectedSubArrays = `array:
   - subarray:
       - subsubarray:
@@ -596,6 +606,12 @@ var tomlScenarios = []formatScenario{
 		input:        sampleFromWeb,
 		expression:   ".",
 		expected:     sampleFromWeb,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		input:        tomlTableWithComments,
+		expected:     tomlTableWithComments,
 		scenarioType: "roundtrip",
 	},
 }
