@@ -222,6 +222,81 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 		return err
 	}
 
+	// Check if any array elements have head comments - if so, use multiline format
+	hasElementComments := false
+	for _, it := range seq.Content {
+		if it.HeadComment != "" {
+			hasElementComments = true
+			break
+		}
+	}
+
+	if hasElementComments {
+		// Write multiline array format with comments
+		if _, err := w.Write([]byte(key + " = [\n")); err != nil {
+			return err
+		}
+
+		for i, it := range seq.Content {
+			// Write head comment for this element
+			if it.HeadComment != "" {
+				commentLines := strings.Split(it.HeadComment, "\n")
+				for _, commentLine := range commentLines {
+					if strings.TrimSpace(commentLine) != "" {
+						if !strings.HasPrefix(strings.TrimSpace(commentLine), "#") {
+							commentLine = "# " + commentLine
+						}
+						if _, err := w.Write([]byte("  " + commentLine + "\n")); err != nil {
+							return err
+						}
+					}
+				}
+			}
+
+			// Write the element value
+			var itemStr string
+			switch it.Kind {
+			case ScalarNode:
+				itemStr = te.formatScalar(it)
+			case SequenceNode:
+				nested, err := te.sequenceToInlineArray(it)
+				if err != nil {
+					return err
+				}
+				itemStr = nested
+			case MappingNode:
+				inline, err := te.mappingToInlineTable(it)
+				if err != nil {
+					return err
+				}
+				itemStr = inline
+			case AliasNode:
+				return fmt.Errorf("aliases are not supported in TOML")
+			default:
+				return fmt.Errorf("unsupported array item kind: %v", it.Kind)
+			}
+
+			// Always add trailing comma in multiline arrays
+			itemStr += ","
+
+			if _, err := w.Write([]byte("  " + itemStr + "\n")); err != nil {
+				return err
+			}
+
+			// Add blank line between elements (except after the last one)
+			if i < len(seq.Content)-1 {
+				if _, err := w.Write([]byte("\n")); err != nil {
+					return err
+				}
+			}
+		}
+
+		if _, err := w.Write([]byte("]\n")); err != nil {
+			return err
+		}
+		return nil
+	}
+
 	// Join scalars or nested arrays recursively into TOML array syntax
 	items := make([]string, 0, len(seq.Content))
 	for _, it := range seq.Content {

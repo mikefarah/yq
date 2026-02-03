@@ -157,13 +157,30 @@ func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNod
 
 func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := make([]*CandidateNode, 0)
+	var pendingArrayComments []string
+
 	iterator := tomlNode.Children()
 	for iterator.Next() {
 		child := iterator.Node()
+
+		// Handle comments within arrays
+		if child.Kind == toml.Comment {
+			// Collect comments to attach to the next array element
+			pendingArrayComments = append(pendingArrayComments, string(child.Data))
+			continue
+		}
+
 		yamlNode, err := dec.decodeNode(child)
 		if err != nil {
 			return nil, err
 		}
+
+		// Attach any pending comments to this array element
+		if len(pendingArrayComments) > 0 {
+			yamlNode.HeadComment = strings.Join(pendingArrayComments, "\n")
+			pendingArrayComments = make([]string, 0)
+		}
+
 		content = append(content, yamlNode)
 	}
 
