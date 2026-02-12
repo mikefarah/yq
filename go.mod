@@ -20,9 +20,9 @@ require (
 	github.com/yuin/gopher-lua v1.1.1
 	github.com/zclconf/go-cty v1.17.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.3
-	golang.org/x/mod v0.31.0
-	golang.org/x/net v0.49.0
-	golang.org/x/text v0.33.0
+	golang.org/x/mod v0.32.0
+	golang.org/x/net v0.50.0
+	golang.org/x/text v0.34.0
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
 )
 
@@ -35,8 +35,8 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/tools v0.40.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/tools v0.41.0 // indirect
 )
 
 go 1.24.0
