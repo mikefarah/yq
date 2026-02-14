@@ -1,3 +1,8 @@
+4.52.3:
+  - Fixing comments in TOML arrays (#2592)
+  - Bumped dependencies
+
+
 4.52.2:
   - Fixed bad instructions file breaking go-install (#2587) Thanks @theyoprst
   - Fixed TOML table scope after comments (#2588) Thanks @tomers
