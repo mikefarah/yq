@@ -82,9 +82,8 @@ Use wget to download pre-compiled binaries. Choose your platform and architectur
 
 **For Linux (example):**
 ```bash
-# Set your platform variables (adjust as needed)
-VERSION=v4.2.0
-PLATFORM=linux_amd64
+PLATFORM=linux_amd64  # adjust as needed
+VERSION=$(wget -qO- https://api.github.com/repos/mikefarah/yq/releases/latest | jq -r .tag_name)
 
 # Download compressed binary
 wget https://github.com/mikefarah/yq/releases/download/${VERSION}/yq_${PLATFORM}.tar.gz -O - |\
