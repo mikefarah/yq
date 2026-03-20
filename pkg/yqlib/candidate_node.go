@@ -280,7 +280,7 @@ func (n *CandidateNode) AddChild(rawChild *CandidateNode) {
 
 func (n *CandidateNode) AddChildren(children []*CandidateNode) {
 	if n.Kind == MappingNode {
-		for i := 0; i < len(children); i += 2 {
+		for i := 0; i < len(children)-1; i += 2 {
 			key := children[i]
 			value := children[i+1]
 			n.AddKeyValueChild(key, value)

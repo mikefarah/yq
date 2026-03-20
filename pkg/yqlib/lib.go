@@ -29,7 +29,7 @@ func GetLogger() *logging.Logger {
 }
 
 func getContentValueByKey(content []*CandidateNode, key string) *CandidateNode {
-	for index := 0; index < len(content); index = index + 2 {
+	for index := 0; index < len(content)-1; index = index + 2 {
 		keyNode := content[index]
 		valueNode := content[index+1]
 		if keyNode.Value == key {

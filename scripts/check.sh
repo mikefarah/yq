@@ -3,8 +3,6 @@
 set -o errexit
 set -o pipefail
 
-# TODO: Check if the found golangci-lint version matches the expected version (e.g., v1.62.0), especially if falling back to PATH version.
-
 GOPATH_LINT="$(go env GOPATH)/bin/golangci-lint"
 BIN_LINT="./bin/golangci-lint"
 LINT_CMD=""

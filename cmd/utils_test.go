@@ -911,7 +911,7 @@ func stringsEqual(a, b []string) bool {
 		return false
 	}
 	for i := range a {
-		if a[i] != b[i] {
+		if a[i] != b[i] { //nolint:gosec // G602 false positive: b length equality is checked above
 			return false
 		}
 	}
