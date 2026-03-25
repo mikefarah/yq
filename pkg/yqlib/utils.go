@@ -9,6 +9,29 @@ import (
 	"os"
 )
 
+// filenameAliases maps real file paths to display names.
+// Used by front matter handling to preserve original filenames
+// when the actual content is read from temporary files.
+var filenameAliases = map[string]string{}
+
+// SetFilenameAlias registers a display name for a file path so that
+// the filename operator returns the original name instead of a temp path.
+func SetFilenameAlias(realPath string, displayName string) {
+	filenameAliases[realPath] = displayName
+}
+
+// ClearFilenameAliases removes all filename aliases.
+func ClearFilenameAliases() {
+	filenameAliases = map[string]string{}
+}
+
+func resolveFilename(filename string) string {
+	if alias, ok := filenameAliases[filename]; ok {
+		return alias
+	}
+	return filename
+}
+
 func readStream(filename string) (io.Reader, error) {
 	var reader *bufio.Reader
 	if filename == "-" {
@@ -36,6 +59,7 @@ func ReadDocuments(reader io.Reader, decoder Decoder) (*list.List, error) {
 }
 
 func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Decoder) (*list.List, error) {
+	filename = resolveFilename(filename)
 	err := decoder.Init(reader)
 	if err != nil {
 		return nil, err

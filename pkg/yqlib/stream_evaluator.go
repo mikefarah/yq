@@ -76,6 +76,7 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 }
 
 func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
+	filename = resolveFilename(filename)
 
 	var currentIndex uint
 	err := decoder.Init(reader)
