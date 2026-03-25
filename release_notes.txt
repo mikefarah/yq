@@ -1,3 +1,9 @@
+4.52.5:
+  - Fix: reset TOML decoder state between files (#2634) thanks @terminalchai
+  - Fix: preserve original filename when using --front-matter (#2613) thanks @cobyfrombrooklyn-bot
+  - Fix typo in filename (#2611) thanks @alexandear
+  - Bumped dependencies
+
 4.52.4:
   - Dropping windows/arm - no longer supported in cross-compile
 
