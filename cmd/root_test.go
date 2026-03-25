@@ -195,6 +195,7 @@ func TestNew(t *testing.T) {
 
 	if rootCmd == nil {
 		t.Fatal("New() returned nil")
+		return
 	}
 
 	// Test basic command properties

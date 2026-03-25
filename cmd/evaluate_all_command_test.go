@@ -13,6 +13,7 @@ func TestCreateEvaluateAllCommand(t *testing.T) {
 
 	if cmd == nil {
 		t.Fatal("createEvaluateAllCommand returned nil")
+		return
 	}
 
 	// Test basic command properties

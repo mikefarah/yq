@@ -95,6 +95,7 @@ func TestParserSingleOperation(t *testing.T) {
 	test.AssertResultComplex(t, nil, err)
 	if result == nil {
 		t.Fatal("Expected non-nil result for single operation")
+		return
 	}
 	if result.Operation == nil {
 		t.Fatal("Expected operation to be set")

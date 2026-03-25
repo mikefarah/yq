@@ -14,6 +14,7 @@ func TestMainFunction(t *testing.T) {
 	cmd := command.New()
 	if cmd == nil {
 		t.Fatal("command.New() returned nil")
+		return
 	}
 
 	if cmd.Use != "yq" {
@@ -99,6 +100,7 @@ func TestMainFunctionExecution(t *testing.T) {
 	// the command structure is correct and can be configured
 	if cmd == nil {
 		t.Fatal("Command should not be nil")
+		return
 	}
 
 	if cmd.Use != "yq" {

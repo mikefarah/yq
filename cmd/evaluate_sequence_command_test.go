@@ -13,6 +13,7 @@ func TestCreateEvaluateSequenceCommand(t *testing.T) {
 
 	if cmd == nil {
 		t.Fatal("createEvaluateSequenceCommand returned nil")
+		return
 	}
 
 	// Test basic command properties
