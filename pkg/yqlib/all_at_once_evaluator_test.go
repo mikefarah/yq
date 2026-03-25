@@ -54,3 +54,25 @@ func TestAllAtOnceEvaluateNodes(t *testing.T) {
 		test.AssertResultComplex(t, tt.expected, resultsToString(t, list))
 	}
 }
+
+func TestTomlDecoderCanBeReinitializedAcrossDocuments(t *testing.T) {
+	decoder := NewTomlDecoder()
+
+	firstDocuments, err := ReadDocuments(strings.NewReader("id = \"Foobar\"\n"), decoder)
+	if err != nil {
+		t.Fatalf("failed to read first TOML document: %v", err)
+	}
+	if firstDocuments.Len() != 1 {
+		t.Fatalf("expected first document count to be 1, got %d", firstDocuments.Len())
+	}
+	test.AssertResult(t, "Foobar", firstDocuments.Front().Value.(*CandidateNode).Content[1].Value)
+
+	secondDocuments, err := ReadDocuments(strings.NewReader("id = \"Banana\"\n"), decoder)
+	if err != nil {
+		t.Fatalf("failed to read second TOML document: %v", err)
+	}
+	if secondDocuments.Len() != 1 {
+		t.Fatalf("expected second document count to be 1, got %d", secondDocuments.Len())
+	}
+	test.AssertResult(t, "Banana", secondDocuments.Front().Value.(*CandidateNode).Content[1].Value)
+}

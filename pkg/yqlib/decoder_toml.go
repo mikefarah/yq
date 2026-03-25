@@ -44,6 +44,7 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 	}
 	dec.pendingComments = make([]string, 0)
 	dec.firstContentSeen = false
+	dec.finished = false
 	return nil
 }
 
