@@ -37,7 +37,7 @@ func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode 
 
 	prefs := getAssignPreferences(expressionNode.Operation.Preferences)
 
-	log.Debug("assignUpdateOperator prefs: %v", prefs)
+	log.Debugf("assignUpdateOperator prefs: %v", prefs)
 
 	if !expressionNode.Operation.UpdateAssign {
 		// this works because we already ran against LHS with an editable context.

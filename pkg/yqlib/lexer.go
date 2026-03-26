@@ -105,7 +105,7 @@ func handleToken(tokens []*token, index int, postProcessedTokens []*token) (toke
 	skipNextToken = false
 	currentToken := tokens[index]
 
-	log.Debug("processing %v", currentToken.toString(true))
+	log.Debugf("processing %v", currentToken.toString(true))
 
 	if currentToken.TokenType == traverseArrayCollect {
 		// `.[exp]`` works by creating a traversal array of [self, exp] and piping that into the traverse array operator

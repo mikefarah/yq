@@ -3,9 +3,9 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"log/slog"
 
 	"github.com/jinzhu/copier"
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 type operatorHandler func(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error)
@@ -88,7 +88,7 @@ func resultsForRHS(d *dataTreeNavigator, context Context, lhsCandidate *Candidat
 
 	for rightEl := rhs.MatchingNodes.Front(); rightEl != nil; rightEl = rightEl.Next() {
 		rhsCandidate := rightEl.Value.(*CandidateNode)
-		if !log.IsEnabledFor(logging.DEBUG) {
+		if !log.IsEnabledFor(slog.LevelDebug) {
 			log.Debugf("Applying lhs: %v, rhsCandidate, %v", NodeToString(lhsCandidate), NodeToString(rhsCandidate))
 		}
 		resultCandidate, err := prefs.Calculation(d, context, lhsCandidate, rhsCandidate)

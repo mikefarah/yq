@@ -2,11 +2,11 @@ package yqlib
 
 import (
 	"container/list"
+	"log/slog"
 	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 func TestChildContext(t *testing.T) {
@@ -155,8 +155,8 @@ func TestToString(t *testing.T) {
 	test.AssertResultComplex(t, "", result)
 
 	// Test with debug logging enabled
-	logging.SetLevel(logging.DEBUG, "")
-	defer logging.SetLevel(logging.INFO, "") // Reset to default
+	GetLogger().SetLevel(slog.LevelDebug)
+	defer GetLogger().SetLevel(slog.LevelWarn) // Reset to default
 
 	result2 := context.ToString()
 	test.AssertResultComplex(t, true, len(result2) > 0)

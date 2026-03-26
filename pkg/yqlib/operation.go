@@ -25,7 +25,7 @@ var valueToStringFunc = func(p *Operation) string {
 }
 
 func createValueOperation(value interface{}, stringValue string) *Operation {
-	log.Debug("creating value op for string %v", stringValue)
+	log.Debugf("creating value op for string %v", stringValue)
 	var node = createScalarNode(value, stringValue)
 
 	return &Operation{

@@ -70,7 +70,7 @@ func removeLastEOL(b *bytes.Buffer) {
 }
 
 func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
-	log.Debug("PrintResults for %v matches", matchingNodes.Len())
+	log.Debugf("PrintResults for %v matches", matchingNodes.Len())
 
 	if matchingNodes.Len() == 0 {
 		log.Debug("no matching results, nothing to print")
@@ -97,8 +97,8 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
 
 		mappedDoc := el.Value.(*CandidateNode)
-		log.Debug("print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v", p.firstTimePrinting, p.previousDocIndex)
-		log.Debug("%v", NodeToString(mappedDoc))
+		log.Debugf("print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v", p.firstTimePrinting, p.previousDocIndex)
+		log.Debugf("%v", NodeToString(mappedDoc))
 		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc)
 		if errorWriting != nil {
 			return errorWriting

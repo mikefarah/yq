@@ -106,7 +106,7 @@ func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode 
 
 	for dec.parser.NextExpression() {
 		nextItem := dec.parser.Expression()
-		log.Debug("decodeKeyValuesIntoMap -- next exp, its a %v", nextItem.Kind)
+		log.Debugf("decodeKeyValuesIntoMap -- next exp, its a %v", nextItem.Kind)
 
 		switch nextItem.Kind {
 		case toml.KeyValue:
@@ -118,7 +118,7 @@ func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode 
 			dec.pendingComments = append(dec.pendingComments, string(nextItem.Data))
 		default:
 			// run out of key values
-			log.Debug("done in decodeKeyValuesIntoMap, gota a %v", nextItem.Kind)
+			log.Debugf("done in decodeKeyValuesIntoMap, gota a %v", nextItem.Kind)
 			return true, nil
 		}
 	}
@@ -271,7 +271,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 
 		currentNode := dec.parser.Expression()
 
-		log.Debug("currentNode: %v ", currentNode.Kind)
+		log.Debugf("currentNode: %v ", currentNode.Kind)
 		runAgainstCurrentExp, err = dec.processTopLevelNode(currentNode)
 		if err != nil {
 			return dec.rootMap, err
@@ -298,7 +298,7 @@ func (dec *tomlDecoder) Decode() (*CandidateNode, error) {
 func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error) {
 	var runAgainstCurrentExp bool
 	var err error
-	log.Debug("processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
+	log.Debugf("processTopLevelNode: Going to process %v state is current %v", currentNode.Kind, NodeToString(dec.rootMap))
 	switch currentNode.Kind {
 	case toml.Comment:
 		// Collect comment to attach to next element
@@ -326,7 +326,7 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 		runAgainstCurrentExp, err = dec.decodeKeyValuesIntoMap(dec.rootMap, currentNode)
 	}
 
-	log.Debug("processTopLevelNode: DONE Processing state is now %v", NodeToString(dec.rootMap))
+	log.Debugf("processTopLevelNode: DONE Processing state is now %v", NodeToString(dec.rootMap))
 	return runAgainstCurrentExp, err
 }
 
@@ -334,7 +334,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processTable")
 	child := currentNode.Child()
 	fullPath := dec.getFullPath(child)
-	log.Debug("fullpath: %v", fullPath)
+	log.Debugf("fullpath: %v", fullPath)
 
 	c := Context{}
 	c = c.SingleChildContext(dec.rootMap)
@@ -402,7 +402,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 }
 
 func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode *CandidateNode) error {
-	log.Debug("arrayAppend to path: %v,%v", path, NodeToString(rhsNode))
+	log.Debugf("arrayAppend to path: %v,%v", path, NodeToString(rhsNode))
 	rhsCandidateNode := &CandidateNode{
 		Kind:    SequenceNode,
 		Tag:     "!!seq",
@@ -427,7 +427,7 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	log.Debug("Enter processArrayTable")
 	child := currentNode.Child()
 	fullPath := dec.getFullPath(child)
-	log.Debug("Fullpath: %v", fullPath)
+	log.Debugf("Fullpath: %v", fullPath)
 
 	c := Context{}
 	c = c.SingleChildContext(dec.rootMap)

@@ -18,7 +18,7 @@ func changeOwner(info fs.FileInfo, file *os.File) error {
 			// this happens with snap confinement
 			// not really a big issue as users can chown
 			// the file themselves if required.
-			log.Info("Skipping chown: %v", err)
+			log.Infof("Skipping chown: %v", err)
 		}
 	}
 	return nil

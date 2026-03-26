@@ -58,7 +58,7 @@ func (f *frontMatterHandlerImpl) Split() error {
 		return err
 	}
 	f.yamlFrontMatterFilename = yamlTempFile.Name()
-	log.Debug("yamlTempFile: %v", yamlTempFile.Name())
+	log.Debugf("yamlTempFile: %v", yamlTempFile.Name())
 
 	lineCount := 0
 

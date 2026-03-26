@@ -30,7 +30,7 @@ func tryRenameFile(from string, to string) error {
 }
 
 func tryRemoveTempFile(filename string) {
-	log.Debug("Removing temp file: %v", filename)
+	log.Debugf("Removing temp file: %v", filename)
 	removeErr := os.Remove(filename)
 	if removeErr != nil {
 		log.Errorf("Failed to remove temp file: %v", filename)
@@ -68,8 +68,7 @@ func SafelyCloseReader(reader io.Reader) {
 func safelyCloseFile(file *os.File) {
 	err := file.Close()
 	if err != nil {
-		log.Error("Error closing file!")
-		log.Error(err.Error())
+		log.Errorf("Error closing file %v: %v", file.Name(), err)
 	}
 }
 

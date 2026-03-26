@@ -55,13 +55,13 @@ func (o *CandidateNode) copyFromYamlNode(node *yaml.Node, anchorMap map[string]*
 
 	if o.Anchor != "" {
 		anchorMap[o.Anchor] = o
-		log.Debug("set anchor %v to %v", o.Anchor, NodeToString(o))
+		log.Debugf("set anchor %v to %v", o.Anchor, NodeToString(o))
 	}
 
 	// its a single alias
 	if node.Alias != nil && node.Alias.Anchor != "" {
 		o.Alias = anchorMap[node.Alias.Anchor]
-		log.Debug("set alias to %v", NodeToString(anchorMap[node.Alias.Anchor]))
+		log.Debugf("set alias to %v", NodeToString(anchorMap[node.Alias.Anchor]))
 	}
 	o.HeadComment = node.HeadComment
 	o.LineComment = node.LineComment
@@ -106,7 +106,7 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 	log.Debugf("UnmarshalYAML %v", node.Tag)
 	switch node.Kind {
 	case yaml.AliasNode:
-		log.Debug("UnmarshalYAML - alias from yaml: %v", o.Tag)
+		log.Debugf("UnmarshalYAML - alias from yaml: %v", o.Tag)
 		o.Kind = AliasNode
 		o.copyFromYamlNode(node, anchorMap)
 		return nil
@@ -176,15 +176,15 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 }
 
 func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
-	log.Debug("MarshalYAML to yaml: %v", o.Tag)
+	log.Debugf("MarshalYAML to yaml: %v", o.Tag)
 	switch o.Kind {
 	case AliasNode:
-		log.Debug("MarshalYAML - alias to yaml: %v", o.Tag)
+		log.Debugf("MarshalYAML - alias to yaml: %v", o.Tag)
 		target := &yaml.Node{Kind: yaml.AliasNode}
 		o.copyToYamlNode(target)
 		return target, nil
 	case ScalarNode:
-		log.Debug("MarshalYAML - scalar: %v", o.Value)
+		log.Debugf("MarshalYAML - scalar: %v", o.Value)
 		target := &yaml.Node{Kind: yaml.ScalarNode}
 		o.copyToYamlNode(target)
 		return target, nil

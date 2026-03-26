@@ -59,7 +59,7 @@ func (e *xmlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 					return err
 				}
 				if _, err := e.writer.Write([]byte("\n")); err != nil {
-					log.Warning("Unable to write newline, skipping: %w", err)
+					log.Warningf("Unable to write newline, skipping: %v", err)
 				}
 			}
 		}
@@ -131,7 +131,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode
 				return err
 			}
 			if _, err := e.writer.Write([]byte("\n")); err != nil {
-				log.Warning("Unable to write newline, skipping: %w", err)
+				log.Warningf("Unable to write newline, skipping: %v", err)
 			}
 		} else if key.Value == e.prefs.DirectiveName {
 			var directive xml.Directive = []byte(value.Value)
@@ -139,7 +139,7 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode
 				return err
 			}
 			if _, err := e.writer.Write([]byte("\n")); err != nil {
-				log.Warning("Unable to write newline, skipping: %w", err)
+				log.Warningf("Unable to write newline, skipping: %v", err)
 			}
 		} else {
 

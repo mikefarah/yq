@@ -157,10 +157,10 @@ func withEntriesOperator(d *dataTreeNavigator, context Context, expressionNode *
 		if err != nil {
 			return Context{}, err
 		}
-		log.Debug("candidate %v", NodeToString(candidate))
-		log.Debug("candidate leading content: %v", candidate.LeadingContent)
+		log.Debugf("candidate %v", NodeToString(candidate))
+		log.Debugf("candidate leading content: %v", candidate.LeadingContent)
 		collected.LeadingContent = candidate.LeadingContent
-		log.Debug("candidate FootComment: [%v]", candidate.FootComment)
+		log.Debugf("candidate FootComment: [%v]", candidate.FootComment)
 
 		collected.HeadComment = candidate.HeadComment
 		collected.FootComment = candidate.FootComment

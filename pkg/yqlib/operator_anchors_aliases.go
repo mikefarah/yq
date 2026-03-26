@@ -256,7 +256,7 @@ func explodeNode(node *CandidateNode, context Context) error {
 			node.Value = node.Alias.Value
 			node.Alias = nil
 		}
-		log.Debug("now I'm %v", NodeToString(node))
+		log.Debugf("now I'm %v", NodeToString(node))
 		return nil
 	case MappingNode:
 		// //check the map has an alias in it
@@ -304,7 +304,7 @@ func applyAlias(node *CandidateNode, alias *CandidateNode, aliasIndex int, newCo
 	if alias == nil {
 		return nil
 	}
-	log.Debug("alias: %v", NodeToString(alias))
+	log.Debugf("alias: %v", NodeToString(alias))
 	if alias.Kind != MappingNode {
 		return fmt.Errorf("can only use merge anchors with maps (!!map) or sequences (!!seq) of maps, but got sequence containing %v", alias.Tag)
 	}

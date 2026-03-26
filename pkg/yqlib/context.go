@@ -3,9 +3,8 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"log/slog"
 	"time"
-
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 type Context struct {
@@ -75,7 +74,7 @@ func (n *Context) ChildContext(results *list.List) Context {
 }
 
 func (n *Context) ToString() string {
-	if !log.IsEnabledFor(logging.DEBUG) {
+	if !log.IsEnabledFor(slog.LevelDebug) {
 		return ""
 	}
 	result := fmt.Sprintf("Context\nDontAutoCreate: %v\n", n.DontAutoCreate)

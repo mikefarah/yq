@@ -3,12 +3,12 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
-	"gopkg.in/op/go-logging.v1"
 )
 
 func isAutomaticOutputFormat() bool {
@@ -104,8 +104,8 @@ func configureFormats(args []string) error {
 		return err
 	}
 
-	yqlib.GetLogger().Debug("Using input format %v", inputFormat)
-	yqlib.GetLogger().Debug("Using output format %v", outputFormat)
+	yqlib.GetLogger().Debugf("Using input format %v", inputFormat)
+	yqlib.GetLogger().Debugf("Using output format %v", outputFormat)
 
 	return nil
 }
@@ -117,7 +117,7 @@ func configureInputFormat(inputFilename string) error {
 		_, err := yqlib.FormatFromString(inputFormat)
 		if err != nil {
 			// unknown file type, default to yaml
-			yqlib.GetLogger().Debug("Unknown file format extension '%v', defaulting to yaml", inputFormat)
+			yqlib.GetLogger().Debugf("Unknown file format extension '%v', defaulting to yaml", inputFormat)
 			inputFormat = "yaml"
 			if isAutomaticOutputFormat() {
 				outputFormat = "yaml"
@@ -132,7 +132,7 @@ func configureInputFormat(inputFilename string) error {
 		//
 		outputFormat = yqlib.FormatStringFromFilename(inputFilename)
 		if inputFilename != "-" {
-			yqlib.GetLogger().Warning("yq default output is now 'auto' (based on the filename extension). Normally yq would output '%v', but for backwards compatibility 'yaml' has been set. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
+			yqlib.GetLogger().Warningf("yq default output is now 'auto' (based on the filename extension). Normally yq would output '%v', but for backwards compatibility 'yaml' has been set. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
 		}
 		outputFormat = "yaml"
 	}
@@ -235,7 +235,7 @@ func maybeFile(str string) bool {
 	yqlib.GetLogger().Debugf("checking '%v' is a file", str)
 	stat, err := os.Stat(str) // #nosec
 	result := err == nil && !stat.IsDir()
-	if yqlib.GetLogger().IsEnabledFor(logging.DEBUG) {
+	if yqlib.GetLogger().IsEnabledFor(slog.LevelDebug) {
 		if err != nil {
 			yqlib.GetLogger().Debugf("error: %v", err)
 		} else {
@@ -280,7 +280,7 @@ func processArgs(originalArgs []string) (string, []string, error) {
 
 	if expressionFile == "" && maybeFirstArgIsAFile && strings.HasSuffix(args[0], ".yq") {
 		// lets check if an expression file was given
-		yqlib.GetLogger().Debug("Assuming arg %v is an expression file", args[0])
+		yqlib.GetLogger().Debugf("Assuming arg %v is an expression file", args[0])
 		expressionFile = args[0]
 		args = args[1:]
 	}
@@ -296,7 +296,7 @@ func processArgs(originalArgs []string) (string, []string, error) {
 
 	yqlib.GetLogger().Debugf("processed args: %v", args)
 	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
-		yqlib.GetLogger().Debug("assuming expression is '%v'", args[0])
+		yqlib.GetLogger().Debugf("assuming expression is '%v'", args[0])
 		expression = args[0]
 		args = args[1:]
 	}

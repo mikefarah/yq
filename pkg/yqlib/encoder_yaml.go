@@ -29,7 +29,7 @@ func (ye *yamlEncoder) PrintLeadingContent(writer io.Writer, content string) err
 }
 
 func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
-	log.Debug("encoderYaml - going to print %v", NodeToString(node))
+	log.Debugf("encoderYaml - going to print %v", NodeToString(node))
 	// Detect line ending style from LeadingContent
 	lineEnding := "\n"
 	if strings.Contains(node.LeadingContent, "\r\n") {

@@ -120,7 +120,7 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 	if err != nil {
 		return err
 	}
-	log.Debug("UnmarshalJSON -  scalar is %v", scalar)
+	log.Debugf("UnmarshalJSON -  scalar is %v", scalar)
 
 	return o.setScalarFromJson(scalar)
 

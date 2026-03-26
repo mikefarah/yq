@@ -68,7 +68,7 @@ func mustProcessFormatScenario(s formatScenario, decoder Decoder, encoder Encode
 
 	result, err := processFormatScenario(s, decoder, encoder)
 	if err != nil {
-		log.Error("Bad scenario %v: %w", s.description, err)
+		log.Errorf("Bad scenario %v: %v", s.description, err)
 		return fmt.Sprintf("Bad scenario %v: %v", s.description, err.Error())
 	}
 	return result

@@ -33,7 +33,7 @@ func configureEncoder(format *Format, indent int) Encoder {
 
 func encodeToString(candidate *CandidateNode, prefs encoderPreferences) (string, error) {
 	var output bytes.Buffer
-	log.Debug("printing with indent: %v", prefs.indent)
+	log.Debugf("printing with indent: %v", prefs.indent)
 
 	encoder := configureEncoder(prefs.format, prefs.indent)
 	if encoder == nil {

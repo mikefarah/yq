@@ -283,7 +283,7 @@ func pathToken(wrapped bool) yqAction {
 		if wrapped {
 			value = unwrap(value)
 		}
-		log.Debug("PathToken %v", value)
+		log.Debugf("PathToken %v", value)
 		op := &Operation{OperationType: traversePathOpType, Value: value, StringValue: value, Preferences: prefs}
 		return &token{TokenType: operationToken, Operation: op, CheckForPostTraverse: true}, nil
 	}
@@ -336,7 +336,7 @@ func flattenWithDepth() yqAction {
 
 func assignAllCommentsOp(updateAssign bool) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
-		log.Debug("assignAllCommentsOp %v", rawToken.Value)
+		log.Debugf("assignAllCommentsOp %v", rawToken.Value)
 		value := rawToken.Value
 		op := &Operation{
 			OperationType: assignCommentOpType,
@@ -351,7 +351,7 @@ func assignAllCommentsOp(updateAssign bool) yqAction {
 
 func assignOpToken(updateAssign bool) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
-		log.Debug("assignOpToken %v", rawToken.Value)
+		log.Debugf("assignOpToken %v", rawToken.Value)
 		value := rawToken.Value
 		prefs := assignPreferences{DontOverWriteAnchor: true}
 		if strings.Contains(value, "c") {
@@ -376,9 +376,9 @@ func nullValue() yqAction {
 
 func stringValue() yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
-		log.Debug("rawTokenvalue: %v", rawToken.Value)
+		log.Debugf("rawTokenvalue: %v", rawToken.Value)
 		value := unwrap(rawToken.Value)
-		log.Debug("unwrapped: %v", value)
+		log.Debugf("unwrapped: %v", value)
 		value = processEscapeCharacters(value)
 		return &token{TokenType: operationToken, Operation: &Operation{
 			OperationType: stringInterpolationOpType,

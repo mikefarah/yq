@@ -323,11 +323,11 @@ func (n *CandidateNode) guessTagFromCustomType() string {
 	dataBucket, errorReading := parseSnippet(n.Value)
 
 	if errorReading != nil {
-		log.Debug("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
+		log.Debugf("guessTagFromCustomType: could not guess underlying tag type %v", errorReading)
 		return n.Tag
 	}
 	guessedTag := dataBucket.Tag
-	log.Info("im guessing the tag %v is a %v", n.Tag, guessedTag)
+	log.Infof("im guessing the tag %v is a %v", n.Tag, guessedTag)
 	return guessedTag
 }
 
@@ -445,7 +445,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
-	log.Debug("UpdateAttributesFrom: n: %v other: %v", NodeToString(n), NodeToString(other))
+	log.Debugf("UpdateAttributesFrom: n: %v other: %v", NodeToString(n), NodeToString(other))
 	if n.Kind != other.Kind {
 		// clear out the contents when switching to a different type
 		// e.g. map to array

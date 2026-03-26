@@ -4,11 +4,10 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"log/slog"
 	"math"
 	"strconv"
 	"strings"
-
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 var ExpressionParser ExpressionParserInterface
@@ -19,12 +18,12 @@ func InitExpressionParser() {
 	}
 }
 
-var log = logging.MustGetLogger("yq-lib")
+var log = newLogger()
 
 var PrettyPrintExp = `(... | (select(tag != "!!str"), select(tag == "!!str") | select(test("(?i)^(y|yes|n|no|on|off)$") | not))  ) style=""`
 
 // GetLogger returns the yq logger instance.
-func GetLogger() *logging.Logger {
+func GetLogger() *Logger {
 	return log
 }
 
@@ -251,7 +250,7 @@ func processEscapeCharacters(original string) string {
 
 	value := result.String()
 	if value != original {
-		log.Debug("processEscapeCharacters from [%v] to [%v]", original, value)
+		log.Debugf("processEscapeCharacters from [%v] to [%v]", original, value)
 	}
 	return value
 }
@@ -274,7 +273,7 @@ func footComment(node *CandidateNode) string {
 
 // use for debugging only
 func NodesToString(collection *list.List) string {
-	if !log.IsEnabledFor(logging.DEBUG) {
+	if !log.IsEnabledFor(slog.LevelDebug) {
 		return ""
 	}
 
@@ -286,7 +285,7 @@ func NodesToString(collection *list.List) string {
 }
 
 func NodeToString(node *CandidateNode) string {
-	if !log.IsEnabledFor(logging.DEBUG) {
+	if !log.IsEnabledFor(slog.LevelDebug) {
 		return ""
 	}
 	if node == nil {
@@ -304,7 +303,7 @@ func NodeToString(node *CandidateNode) string {
 }
 
 func NodeContentToString(node *CandidateNode, depth int) string {
-	if !log.IsEnabledFor(logging.DEBUG) {
+	if !log.IsEnabledFor(slog.LevelDebug) {
 		return ""
 	}
 	var sb strings.Builder
