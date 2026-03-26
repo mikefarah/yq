@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/repr v0.5.2
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.8.0
-	github.com/fatih/color v1.18.0
+	github.com/fatih/color v1.19.0
 	github.com/go-ini/ini v1.67.0
 	github.com/goccy/go-json v0.10.5
 	github.com/goccy/go-yaml v1.19.2
