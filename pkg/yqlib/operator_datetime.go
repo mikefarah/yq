@@ -80,7 +80,7 @@ func formatDateTime(d *dataTreeNavigator, context Context, expressionNode *Expre
 
 		node, errorReading := parseSnippet(formattedTimeStr)
 		if errorReading != nil {
-			log.Debugf("could not parse %v - lets just leave it as a string: %w", formattedTimeStr, errorReading)
+			log.Debugf("could not parse %v - lets just leave it as a string: %v", formattedTimeStr, errorReading)
 			node = &CandidateNode{
 				Kind:  ScalarNode,
 				Tag:   "!!str",

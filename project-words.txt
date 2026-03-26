@@ -109,6 +109,7 @@ hostpath
 hotdog
 howdy
 incase
+Infof
 inlinetables
 inplace
 ints

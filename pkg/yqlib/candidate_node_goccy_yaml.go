@@ -36,13 +36,13 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 					switch commentMapComment.Position {
 					case yaml.CommentHeadPosition:
 						o.HeadComment = comment.String()
-						log.Debug("its a head comment %v", comment.String())
+						log.Debugf("its a head comment %v", comment.String())
 					case yaml.CommentLinePosition:
 						o.LineComment = comment.String()
-						log.Debug("its a line comment %v", comment.String())
+						log.Debugf("its a line comment %v", comment.String())
 					case yaml.CommentFootPosition:
 						o.FootComment = comment.String()
-						log.Debug("its a foot comment %v", comment.String())
+						log.Debugf("its a foot comment %v", comment.String())
 					}
 				}
 			}
@@ -93,8 +93,8 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 			log.Debugf("folded Type %v", astLiteral.Start.Type)
 			o.Style = FoldedStyle
 		}
-		log.Debug("start value: %v ", node.(*ast.LiteralNode).Start.Value)
-		log.Debug("start value: %v ", node.(*ast.LiteralNode).Start.Type)
+		log.Debugf("start value: %v ", node.(*ast.LiteralNode).Start.Value)
+		log.Debugf("start value: %v ", node.(*ast.LiteralNode).Start.Type)
 		// TODO: here I could put the original value with line breaks
 		// to solve the multiline > problem
 		o.Value = astLiteral.Value.Value
@@ -187,7 +187,7 @@ func (o *CandidateNode) UnmarshalGoccyYAML(node ast.Node, cm yaml.CommentMap, an
 }
 
 func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingValueNode, cm yaml.CommentMap, anchorMap map[string]*CandidateNode) error {
-	log.Debug("UnmarshalYAML MAP KEY entry %v", mappingEntry.Key)
+	log.Debugf("UnmarshalYAML MAP KEY entry %v", mappingEntry.Key)
 
 	// AddKeyValueFirst because it clones the nodes, and we want to have the real refs when Unmarshalling
 	// particularly for the anchorMap
@@ -197,7 +197,7 @@ func (o *CandidateNode) goccyProcessMappingValueNode(mappingEntry *ast.MappingVa
 		return err
 	}
 
-	log.Debug("UnmarshalYAML MAP VALUE entry %v", mappingEntry.Value)
+	log.Debugf("UnmarshalYAML MAP VALUE entry %v", mappingEntry.Value)
 	if err := valueNode.UnmarshalGoccyYAML(mappingEntry.Value, cm, anchorMap); err != nil {
 		return err
 	}

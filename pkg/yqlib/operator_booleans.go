@@ -142,7 +142,7 @@ func notOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Cont
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		log.Debug("notOperation checking %v", candidate)
+		log.Debugf("notOperation checking %v", candidate)
 		truthy := isTruthyNode(candidate)
 		result := createBooleanCandidate(candidate, !truthy)
 		results.PushBack(result)

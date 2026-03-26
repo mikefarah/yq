@@ -7,7 +7,7 @@ import (
 
 func getVariableOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	variableName := expressionNode.Operation.StringValue
-	log.Debug("getVariableOperator %v", variableName)
+	log.Debugf("getVariableOperator %v", variableName)
 	result := context.GetVariable(variableName)
 	if result == nil {
 		result = list.New()
@@ -67,7 +67,7 @@ func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp 
 
 	// now we loop over lhs, set variable to each result and calculate originalExp.Rhs
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
-		log.Debug("PROCESSING VARIABLE: ", NodeToString(el.Value.(*CandidateNode)))
+		log.Debugf("PROCESSING VARIABLE: %v", NodeToString(el.Value.(*CandidateNode)))
 		var variableValue = list.New()
 		if prefs.IsReference {
 			variableValue.PushBack(el.Value)
@@ -83,7 +83,7 @@ func variableLoopSingleChild(d *dataTreeNavigator, context Context, originalExp 
 		if err != nil {
 			return Context{}, err
 		}
-		log.Debug("PROCESSING VARIABLE DONE, got back: ", rhs.MatchingNodes.Len())
+		log.Debugf("PROCESSING VARIABLE DONE, got back: %v", rhs.MatchingNodes.Len())
 		results.PushBackList(rhs.MatchingNodes)
 	}
 

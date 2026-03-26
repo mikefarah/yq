@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 type runeValue rune
@@ -68,30 +68,21 @@ yq -P -oy sample.json
 		},
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			cmd.SetOut(cmd.OutOrStdout())
-			level := logging.WARNING
-			stringFormat := `[%{level}] %{color}%{time:15:04:05}%{color:reset} %{message}`
 
 			// when NO_COLOR environment variable presents and not an empty string the coloured output should be disabled;
 			// refer to no-color.org
 			forceNoColor = forceNoColor || os.Getenv("NO_COLOR") != ""
 
-			if verbose && forceNoColor {
-				level = logging.DEBUG
-				stringFormat = `[%{level:5.5s}] %{time:15:04:05} %{shortfile:-33s} %{shortfunc:-25s} %{message}`
-			} else if verbose {
-				level = logging.DEBUG
-				stringFormat = `[%{level:5.5s}] %{color}%{time:15:04:05}%{color:bold} %{shortfile:-33s} %{shortfunc:-25s}%{color:reset} %{message}`
-			} else if forceNoColor {
-				stringFormat = `[%{level}] %{time:15:04:05} %{message}`
+			level := slog.LevelWarn
+			if verbose {
+				level = slog.LevelDebug
 			}
 
-			var format = logging.MustStringFormatter(stringFormat)
-			var backend = logging.AddModuleLevel(
-				logging.NewBackendFormatter(logging.NewLogBackend(os.Stderr, "", 0), format))
+			yqlib.GetLogger().SetLevel(level)
+			opts := &slog.HandlerOptions{Level: level, AddSource: verbose}
+			handler := slog.NewTextHandler(os.Stderr, opts)
+			yqlib.GetLogger().SetSlogger(slog.New(handler))
 
-			backend.SetLevel(level, "")
-
-			logging.SetBackend(backend)
 			yqlib.InitExpressionParser()
 
 			return nil

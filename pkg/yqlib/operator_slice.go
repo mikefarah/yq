@@ -19,8 +19,8 @@ func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, 
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debug("slice array operator!")
-	log.Debug("lhs: %v", expressionNode.LHS.Operation.toString())
-	log.Debug("rhs: %v", expressionNode.RHS.Operation.toString())
+	log.Debugf("lhs: %v", expressionNode.LHS.Operation.toString())
+	log.Debugf("rhs: %v", expressionNode.RHS.Operation.toString())
 
 	results := list.New()
 
@@ -49,7 +49,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 			relativeSecondNumber = len(lhsNode.Content)
 		}
 
-		log.Debug("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
+		log.Debugf("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
 
 		var newResults []*CandidateNode
 		for i := relativeFirstNumber; i < relativeSecondNumber; i++ {

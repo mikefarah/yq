@@ -142,12 +142,12 @@ func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateT
 	} else if isDateTime {
 		lhsTime, err := parseDateTime(layout, lhs.Value)
 		if err != nil {
-			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %w", lhs.Value, layout, err)
+			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %v", lhs.Value, layout, err)
 			return strings.Compare(lhs.Value, rhs.Value)
 		}
 		rhsTime, err := parseDateTime(layout, rhs.Value)
 		if err != nil {
-			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %w", rhs.Value, layout, err)
+			log.Warningf("Could not parse time %v with layout %v for sort, sorting by string instead: %v", rhs.Value, layout, err)
 			return strings.Compare(lhs.Value, rhs.Value)
 		}
 		if lhsTime.Equal(rhsTime) {

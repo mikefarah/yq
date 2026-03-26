@@ -45,7 +45,7 @@ func removeFromContext(context Context, candidate *CandidateNode) (Context, erro
 		if nodeInContext != candidate {
 			newResults.PushBack(nodeInContext)
 		} else {
-			log.Info("Need to delete this %v", NodeToString(nodeInContext))
+			log.Infof("Need to delete this %v", NodeToString(nodeInContext))
 		}
 	}
 	return context.ChildContext(newResults), nil

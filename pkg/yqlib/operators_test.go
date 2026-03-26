@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"log/slog"
 	"os"
 	"sort"
 	"strings"
@@ -14,7 +15,6 @@ import (
 	"time"
 
 	"github.com/mikefarah/yq/v4/test"
-	logging "gopkg.in/op/go-logging.v1"
 )
 
 type expressionScenario struct {
@@ -38,9 +38,9 @@ var goccyTesting = false
 var testingDecoder = NewYamlDecoder(ConfiguredYamlPreferences)
 
 func TestMain(m *testing.M) {
-	logging.SetLevel(logging.WARNING, "")
+	GetLogger().SetLevel(slog.LevelWarn)
 	if os.Getenv("DEBUG") == "true" {
-		logging.SetLevel(logging.DEBUG, "")
+		GetLogger().SetLevel(slog.LevelDebug)
 	}
 	ConfiguredYamlPreferences.ColorsEnabled = false
 	ConfiguredJSONPreferences.ColorsEnabled = false

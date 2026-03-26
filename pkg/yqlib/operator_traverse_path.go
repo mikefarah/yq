@@ -37,7 +37,7 @@ func traversePathOperator(_ *dataTreeNavigator, context Context, expressionNode 
 }
 
 func traverse(context Context, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
-	log.Debug("Traversing %v", NodeToString(matchingNode))
+	log.Debugf("Traversing %v", NodeToString(matchingNode))
 
 	if matchingNode.Tag == "!!null" && operation.Value != "[]" && !context.DontAutoCreate {
 		log.Debugf("Guessing kind")
@@ -55,11 +55,11 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 
 	switch matchingNode.Kind {
 	case MappingNode:
-		log.Debug("its a map with %v entries", len(matchingNode.Content)/2)
+		log.Debugf("its a map with %v entries", len(matchingNode.Content)/2)
 		return traverseMap(context, matchingNode, createStringScalarNode(operation.StringValue), operation.Preferences.(traversePreferences), false)
 
 	case SequenceNode:
-		log.Debug("its a sequence of %v things!", len(matchingNode.Content))
+		log.Debugf("its a sequence of %v things!", len(matchingNode.Content))
 		return traverseArray(matchingNode, operation, operation.Preferences.(traversePreferences))
 
 	case AliasNode:
@@ -158,7 +158,7 @@ func traverseMapWithIndices(context Context, candidate *CandidateNode, indices [
 	var matchingNodeMap = list.New()
 
 	for _, indexNode := range indices {
-		log.Debug("traverseMapWithIndices: %v", indexNode.Value)
+		log.Debugf("traverseMapWithIndices: %v", indexNode.Value)
 		newNodes, err := traverseMap(context, candidate, indexNode, prefs, false)
 		if err != nil {
 			return nil, err
@@ -183,7 +183,7 @@ func traverseArrayWithIndices(node *CandidateNode, indices []*CandidateNode, pre
 	}
 
 	for _, indexNode := range indices {
-		log.Debug("traverseArrayWithIndices: '%v'", indexNode.Value)
+		log.Debugf("traverseArrayWithIndices: '%v'", indexNode.Value)
 		index, err := parseInt(indexNode.Value)
 		if err != nil && prefs.OptionalTraverse {
 			continue
@@ -366,7 +366,7 @@ func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode
 }
 
 func traverseArray(candidate *CandidateNode, operation *Operation, prefs traversePreferences) (*list.List, error) {
-	log.Debug("operation Value %v", operation.Value)
+	log.Debugf("operation Value %v", operation.Value)
 	indices := []*CandidateNode{{Value: operation.StringValue}}
 	return traverseArrayWithIndices(candidate, indices, prefs)
 }

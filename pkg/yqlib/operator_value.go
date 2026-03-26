@@ -7,7 +7,7 @@ func referenceOperator(_ *dataTreeNavigator, context Context, expressionNode *Ex
 }
 
 func valueOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	log.Debug("value = %v", expressionNode.Operation.CandidateNode.Value)
+	log.Debugf("value = %v", expressionNode.Operation.CandidateNode.Value)
 	if context.MatchingNodes.Len() == 0 {
 		clone := expressionNode.Operation.CandidateNode.Copy()
 		return context.SingleChildContext(clone), nil
