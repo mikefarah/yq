@@ -169,8 +169,10 @@ will output
 ```hcl
 # Arithmetic with literals and application-provided variables
 sum = 1 + addend
+
 # String interpolation and templates
 message = "Hello, ${name}!"
+
 # Application-provided functions
 shouty_message = upper(message)
 ```
@@ -196,6 +198,64 @@ resource "aws_instance" "web" {
 }
 resource "aws_instance" "db" {
   ami = "ami-67890"
+}
+```
+
+## Roundtrip: blank lines between attributes are preserved
+Given a sample.hcl file of:
+```hcl
+name = "app"
+
+version = 1
+
+enabled = true
+
+```
+then
+```bash
+yq sample.hcl
+```
+will output
+```hcl
+name = "app"
+
+version = 1
+
+enabled = true
+```
+
+## Roundtrip: blank lines between blocks are preserved
+Given a sample.hcl file of:
+```hcl
+terraform {
+  source = "git::https://example.com/module.git"
+}
+
+include {
+  path = "../root.hcl"
+}
+
+dependency "base" {
+  config_path = "../base"
+}
+
+```
+then
+```bash
+yq sample.hcl
+```
+will output
+```hcl
+terraform {
+  source = "git::https://example.com/module.git"
+}
+
+include {
+  path = "../root.hcl"
+}
+
+dependency "base" {
+  config_path = "../base"
 }
 ```
 

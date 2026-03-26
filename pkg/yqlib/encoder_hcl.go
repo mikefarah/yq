@@ -50,9 +50,11 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	f := hclwrite.NewEmptyFile()
 	body := f.Body()
 
-	// Collect comments as we encode
+	// Collect comments and blank-line markers as we encode
 	commentMap := make(map[string]string)
+	blankLineSet := make(map[string]bool)
 	he.collectComments(node, "", commentMap)
+	he.collectBlankLines(node, blankLineSet)
 
 	if err := he.encodeNode(body, node); err != nil {
 		return fmt.Errorf("failed to encode HCL: %w", err)
@@ -62,8 +64,12 @@ func (he *hclEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	output := f.Bytes()
 	compactOutput := he.compactSpacing(output)
 
-	// Inject comments back into the output
-	finalOutput := he.injectComments(compactOutput, commentMap)
+	// Inject comments first so that blank lines are inserted before comment+attribute groups.
+	withComments := he.injectComments(compactOutput, commentMap)
+
+	// Inject blank lines before appropriate elements (after comments, so blanks appear before
+	// the comment that precedes an attribute, not between the comment and the attribute).
+	finalOutput := he.injectBlankLines(withComments, blankLineSet)
 
 	if he.prefs.ColorsEnabled {
 		colourized := he.colorizeHcl(finalOutput)
@@ -123,6 +129,79 @@ func (he *hclEncoder) collectComments(node *CandidateNode, prefix string, commen
 	}
 }
 
+// collectBlankLines recursively collects keys that have BlankLineBefore set, so
+// the encoder can re-insert blank lines into the output.
+func (he *hclEncoder) collectBlankLines(node *CandidateNode, blankLineSet map[string]bool) {
+	if node == nil || node.Kind != MappingNode {
+		return
+	}
+
+	for i := 0; i < len(node.Content); i += 2 {
+		keyNode := node.Content[i]
+		valueNode := node.Content[i+1]
+		key := keyNode.Value
+
+		if keyNode.BlankLineBefore {
+			blankLineSet[key] = true
+		}
+
+		if valueNode.Kind == MappingNode {
+			he.collectBlankLines(valueNode, blankLineSet)
+		}
+	}
+}
+
+// injectBlankLines inserts a blank line before each HCL element (or its preceding comment block)
+// whose key name is in blankLineSet. It scans lines in reverse: when it finds a key that needs a
+// blank line, it walks backward over any immediately preceding comment lines and inserts the blank
+// line before that comment block (so the blank line precedes the comment+key group, not between them).
+func (he *hclEncoder) injectBlankLines(output []byte, blankLineSet map[string]bool) []byte {
+	if len(blankLineSet) == 0 {
+		return output
+	}
+
+	// identRe captures the first identifier on a line (possibly indented).
+	identRe := regexp.MustCompile(`^\s*([A-Za-z_][A-Za-z0-9_-]*)(\s*(=|\{|"))`)
+	commentRe := regexp.MustCompile(`^\s*#`)
+
+	lines := strings.Split(string(output), "\n")
+
+	// Mark which line indices need a blank line inserted before them.
+	insertBefore := make(map[int]bool)
+
+	for i, line := range lines {
+		m := identRe.FindStringSubmatch(line)
+		if m == nil || !blankLineSet[m[1]] {
+			continue
+		}
+
+		// Walk backward over comment lines to find the insertion point.
+		insertAt := i
+		for insertAt > 0 && commentRe.MatchString(lines[insertAt-1]) {
+			insertAt--
+		}
+
+		// Only insert if the line before the insertion point is not already blank.
+		if insertAt > 0 && strings.TrimSpace(lines[insertAt-1]) != "" {
+			insertBefore[insertAt] = true
+		}
+	}
+
+	if len(insertBefore) == 0 {
+		return output
+	}
+
+	out := make([]string, 0, len(lines)+len(insertBefore))
+	for i, line := range lines {
+		if insertBefore[i] {
+			out = append(out, "")
+		}
+		out = append(out, line)
+	}
+
+	return []byte(strings.Join(out, "\n"))
+}
+
 // joinCommentPath concatenates path segments using commentPathSep, safely handling empty prefixes.
 func joinCommentPath(prefix, segment string) string {
 	if prefix == "" {
@@ -164,9 +243,16 @@ func (he *hclEncoder) injectComments(output []byte, commentMap map[string]string
 			continue
 		}
 
-		re := regexp.MustCompile(`(?m)^(\s*)` + regexp.QuoteMeta(key) + `\s*=`)
-		if re.MatchString(result) {
-			result = re.ReplaceAllString(result, "$1"+trimmed+"\n$0")
+		// Match both attribute assignments (key =) and block openers (key { or key "label").
+		// Use ( *) instead of (\s*) to only capture indentation spaces, not newlines.
+		// Replace only the first occurrence to avoid duplicating comments before same-named keys.
+		re := regexp.MustCompile(`(?m)^( *)` + regexp.QuoteMeta(key) + `( *(=|\{|"))`)
+		submatches := re.FindStringSubmatchIndex(result)
+		if submatches != nil {
+			// submatches[2] and submatches[3] are the bounds of the ( *) indentation group.
+			indent := result[submatches[2]:submatches[3]]
+			insertPos := submatches[0]
+			result = result[:insertPos] + indent + trimmed + "\n" + result[insertPos:]
 		}
 	}
 
@@ -345,12 +431,152 @@ func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
 			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenStar, Bytes: []byte{'*'}})
 		case ch == '/':
 			tokens = append(tokens, &hclwrite.Token{Type: hclsyntax.TokenSlash, Bytes: []byte{'/'}})
+		case ch == '"':
+			// Quoted string literal: consume until closing quote, respecting backslash escapes.
+			start := i
+			i++ // skip opening quote
+			for i < len(expr) && expr[i] != '"' {
+				if expr[i] == '\\' {
+					i++ // skip escape character
+				}
+				i++
+			}
+			if i < len(expr) {
+				i++ // skip closing quote
+			}
+			// Emit as a sequence of OQuote + QuotedLit + CQuote tokens so hclwrite renders it correctly.
+			raw := expr[start:i]
+			tokens = append(tokens,
+				&hclwrite.Token{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+				&hclwrite.Token{Type: hclsyntax.TokenQuotedLit, Bytes: []byte(raw[1 : len(raw)-1])},
+				&hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}},
+			)
+			continue
 		default:
 			return nil, fmt.Errorf("unsupported character %q in raw HCL expression", ch)
 		}
 		i++
 	}
 	return tokens, nil
+}
+
+// tokensForValue builds an hclwrite token stream for any node value, preserving raw HCL
+// expressions (Style==0 !!str scalars) and recursing into mappings and sequences.
+func tokensForValue(node *CandidateNode) (hclwrite.Tokens, error) {
+	switch node.Kind {
+	case ScalarNode:
+		if node.Tag == "!!str" {
+			if node.Style == 0 || node.Style&LiteralStyle != 0 {
+				// Raw HCL expression — emit without quotes.
+				return tokensForRawHCLExpr(node.Value)
+			}
+			if node.Style&DoubleQuotedStyle != 0 {
+				// Template or quoted string.
+				inner := node.Value
+				var toks hclwrite.Tokens
+				toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}})
+				for i := 0; i < len(inner); {
+					if i < len(inner)-1 && inner[i] == '$' && inner[i+1] == '{' {
+						toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenTemplateInterp, Bytes: []byte("${")})
+						i += 2
+						start := i
+						depth := 1
+						for i < len(inner) && depth > 0 {
+							switch inner[i] {
+							case '{':
+								depth++
+							case '}':
+								depth--
+							}
+							i++
+						}
+						expr := inner[start : i-1]
+						toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenIdent, Bytes: []byte(expr)})
+						toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenTemplateSeqEnd, Bytes: []byte("}")})
+					} else {
+						toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenQuotedLit, Bytes: []byte{inner[i]}})
+						i++
+					}
+				}
+				toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}})
+				return toks, nil
+			}
+			// Any other string style: emit as quoted string.
+			var toks hclwrite.Tokens
+			toks = append(toks,
+				&hclwrite.Token{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+				&hclwrite.Token{Type: hclsyntax.TokenQuotedLit, Bytes: []byte(node.Value)},
+				&hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}},
+			)
+			return toks, nil
+		}
+		// Non-string scalar: use cty conversion and let hclwrite render it.
+		ctyVal, err := nodeToCtyValue(node)
+		if err != nil {
+			return nil, err
+		}
+		return hclwrite.TokensForValue(ctyVal), nil
+	case MappingNode:
+		// Build {\n  key = value\n  ...\n} as properly typed tokens so
+		// hclwrite's formatter counts brackets correctly and indents properly.
+		// Empty mappings are rendered as {} on a single line.
+		if len(node.Content) == 0 {
+			return hclwrite.Tokens{
+				{Type: hclsyntax.TokenOBrace, Bytes: []byte("{")},
+				{Type: hclsyntax.TokenCBrace, Bytes: []byte("}")},
+			}, nil
+		}
+		var toks hclwrite.Tokens
+		toks = append(toks,
+			&hclwrite.Token{Type: hclsyntax.TokenOBrace, Bytes: []byte("{")},
+			&hclwrite.Token{Type: hclsyntax.TokenNewline, Bytes: []byte("\n")},
+		)
+		for i := 0; i < len(node.Content); i += 2 {
+			keyNode := node.Content[i]
+			valNode := node.Content[i+1]
+			// Key token
+			if isValidHCLIdentifier(keyNode.Value) {
+				toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenIdent, Bytes: []byte(keyNode.Value)})
+			} else {
+				toks = append(toks,
+					&hclwrite.Token{Type: hclsyntax.TokenOQuote, Bytes: []byte{'"'}},
+					&hclwrite.Token{Type: hclsyntax.TokenQuotedLit, Bytes: []byte(keyNode.Value)},
+					&hclwrite.Token{Type: hclsyntax.TokenCQuote, Bytes: []byte{'"'}},
+				)
+			}
+			// Equals token
+			toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenEqual, Bytes: []byte("=")})
+			// Value tokens
+			valToks, err := tokensForValue(valNode)
+			if err != nil {
+				return nil, err
+			}
+			toks = append(toks, valToks...)
+			// Newline after each entry
+			toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenNewline, Bytes: []byte("\n")})
+		}
+		toks = append(toks,
+			&hclwrite.Token{Type: hclsyntax.TokenCBrace, Bytes: []byte("}")},
+		)
+		return toks, nil
+	case SequenceNode:
+		var toks hclwrite.Tokens
+		toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenOBrack, Bytes: []byte("[")})
+		for i, child := range node.Content {
+			if i > 0 {
+				toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenComma, Bytes: []byte(",")})
+			}
+			childToks, err := tokensForValue(child)
+			if err != nil {
+				return nil, err
+			}
+			toks = append(toks, childToks...)
+		}
+		toks = append(toks, &hclwrite.Token{Type: hclsyntax.TokenCBrack, Bytes: []byte("]")})
+		return toks, nil
+	default:
+		return nil, fmt.Errorf("unsupported node kind for HCL value: %v", kindToString(node.Kind))
+	}
 }
 
 // encodeAttribute encodes a value as an HCL attribute
@@ -385,6 +611,15 @@ func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode
 			body.SetAttributeTraversal(key, traversal)
 			return nil
 		}
+	}
+	// Flow-style mapping or sequence: use tokensForValue to preserve raw expressions inside.
+	if valueNode.Kind == MappingNode || valueNode.Kind == SequenceNode {
+		tokens, err := tokensForValue(valueNode)
+		if err != nil {
+			return err
+		}
+		body.SetAttributeRaw(key, tokens)
+		return nil
 	}
 	// Default: use cty.Value for quoted strings and all other types
 	ctyValue, err := nodeToCtyValue(valueNode)
@@ -465,14 +700,12 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 			if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err == nil && handled {
 				return true
 			}
-			if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
-				return true
-			}
-		}
-		block := body.AppendNewBlock(key, labels)
-		if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
+			_ = he.encodeNodeAttributes(block.Body(), bodyNode)
 			return true
 		}
+		block := body.AppendNewBlock(key, labels)
+		_ = he.encodeNodeAttributes(block.Body(), bodyNode)
+		return true
 	}
 
 	// If all child values are mappings, treat each child key as a labelled instance of this block type
@@ -480,13 +713,12 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 		return true
 	}
 
-	// No labels detected, render as unlabelled block
+	// No labels detected, render as unlabelled block.
+	// Note: AppendNewBlock writes to the underlying buffer immediately, so we must return true
+	// regardless of whether encodeNodeAttributes succeeds to avoid double-emitting the key.
 	block := body.AppendNewBlock(key, nil)
-	if err := he.encodeNodeAttributes(block.Body(), valueNode); err == nil {
-		return true
-	}
-
-	return false
+	_ = he.encodeNodeAttributes(block.Body(), valueNode)
+	return true
 }
 
 // encodeNode encodes a CandidateNode directly to HCL, preserving style information
