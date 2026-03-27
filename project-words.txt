@@ -299,3 +299,7 @@ Ffile
 Fquery
 coverpkg
 gsub
+ralia
+Austr
+ustrali
+héllo

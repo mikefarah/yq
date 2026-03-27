@@ -98,6 +98,84 @@ var sliceArrayScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::- cat1\n",
 		},
 	},
+	{
+		description: "Slicing strings",
+		document:    `country: Australia`,
+		expression:  `.country[4:]`,
+		expected: []string{
+			"D0, P[country], (!!str)::ralia\n",
+		},
+	},
+	{
+		description:    "Slicing strings - without the second number",
+		subdescription: "Finishes at the end of the string",
+		document:       `country: Australia`,
+		expression:     `.country[0:5]`,
+		expected: []string{
+			"D0, P[country], (!!str)::Austr\n",
+		},
+	},
+	{
+		description:    "Slicing strings - without the first number",
+		subdescription: "Starts from the start of the string",
+		document:       `country: Australia`,
+		expression:     `.country[:5]`,
+		expected: []string{
+			"D0, P[country], (!!str)::Austr\n",
+		},
+	},
+	{
+		description:    "Slicing strings - use negative numbers to count backwards from the end",
+		subdescription: "Negative indices count from the end of the string",
+		document:       `country: Australia`,
+		expression:     `.country[-5:]`,
+		expected: []string{
+			"D0, P[country], (!!str)::ralia\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `country: Australia`,
+		expression: `.country[1:-1]`,
+		expected: []string{
+			"D0, P[country], (!!str)::ustrali\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `country: Australia`,
+		expression: `.country[:]`,
+		expected: []string{
+			"D0, P[country], (!!str)::Australia\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "second index beyond string length clamps",
+		document:    `country: Australia`,
+		expression:  `.country[:100]`,
+		expected: []string{
+			"D0, P[country], (!!str)::Australia\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "first index beyond string length returns empty string",
+		document:    `country: Australia`,
+		expression:  `.country[100:]`,
+		expected: []string{
+			"D0, P[country], (!!str)::\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Unicode string slicing",
+		document:    `greeting: héllo`,
+		expression:  `.greeting[1:3]`,
+		expected: []string{
+			"D0, P[greeting], (!!str)::él\n",
+		},
+	},
 }
 
 func TestSliceOperatorScenarios(t *testing.T) {
