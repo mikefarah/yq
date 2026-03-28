@@ -16,7 +16,7 @@ func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, 
 	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Value)
 }
 
-func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) (*CandidateNode, error) {
+func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) *CandidateNode {
 	runes := []rune(lhsNode.Value)
 	length := len(runes)
 
@@ -45,7 +45,7 @@ func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) 
 	}
 
 	slicedString := string(runes[relativeFirstNumber:relativeSecondNumber])
-	return lhsNode.CreateReplacement(ScalarNode, "!!str", slicedString), nil
+	return lhsNode.CreateReplacement(ScalarNode, "!!str", slicedString)
 }
 
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -70,11 +70,7 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		}
 
 		if lhsNode.Kind == ScalarNode && lhsNode.guessTagFromCustomType() == "!!str" {
-			slicedNode, err := sliceStringNode(lhsNode, firstNumber, secondNumber)
-			if err != nil {
-				return Context{}, err
-			}
-			results.PushBack(slicedNode)
+			results.PushBack(sliceStringNode(lhsNode, firstNumber, secondNumber))
 			continue
 		}
 

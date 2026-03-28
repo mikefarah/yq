@@ -101,18 +101,18 @@ var sliceArrayScenarios = []expressionScenario{
 	{
 		description: "Slicing strings",
 		document:    `country: Australia`,
-		expression:  `.country[4:]`,
+		expression:  `.country[0:5]`,
 		expected: []string{
-			"D0, P[country], (!!str)::ralia\n",
+			"D0, P[country], (!!str)::Austr\n",
 		},
 	},
 	{
 		description:    "Slicing strings - without the second number",
 		subdescription: "Finishes at the end of the string",
 		document:       `country: Australia`,
-		expression:     `.country[0:5]`,
+		expression:     `.country[5:]`,
 		expected: []string{
-			"D0, P[country], (!!str)::Austr\n",
+			"D0, P[country], (!!str)::alia\n",
 		},
 	},
 	{

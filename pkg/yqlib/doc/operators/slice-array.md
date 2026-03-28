@@ -110,11 +110,11 @@ country: Australia
 ```
 then
 ```bash
-yq '.country[4:]' sample.yml
+yq '.country[0:5]' sample.yml
 ```
 will output
 ```yaml
-ralia
+Austr
 ```
 
 ## Slicing strings - without the second number
@@ -126,11 +126,11 @@ country: Australia
 ```
 then
 ```bash
-yq '.country[0:5]' sample.yml
+yq '.country[5:]' sample.yml
 ```
 will output
 ```yaml
-Austr
+alia
 ```
 
 ## Slicing strings - without the first number
