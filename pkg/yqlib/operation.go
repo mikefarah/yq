@@ -164,6 +164,8 @@ var stringInterpolationOpType = &operationType{Type: "STRING_INT", NumArgs: 0, P
 var loadOpType = &operationType{Type: "LOAD", NumArgs: 1, Precedence: 52, Handler: loadOperator, CheckForPostTraverse: true}
 var loadStringOpType = &operationType{Type: "LOAD_STRING", NumArgs: 1, Precedence: 52, Handler: loadStringOperator}
 
+var systemOpType = &operationType{Type: "SYSTEM", NumArgs: 1, Precedence: 50, Handler: systemOperator}
+
 var keysOpType = &operationType{Type: "KEYS", NumArgs: 0, Precedence: 52, Handler: keysOperator, CheckForPostTraverse: true}
 
 var collectObjectOpType = &operationType{Type: "COLLECT_OBJECT", NumArgs: 0, Precedence: 50, Handler: collectObjectOperator}
