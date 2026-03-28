@@ -45,7 +45,9 @@ func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) 
 	}
 
 	slicedString := string(runes[relativeFirstNumber:relativeSecondNumber])
-	return lhsNode.CreateReplacement(ScalarNode, "!!str", slicedString)
+	replacement := lhsNode.CreateReplacement(ScalarNode, lhsNode.Tag, slicedString)
+	replacement.Style = lhsNode.Style
+	return replacement
 }
 
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
