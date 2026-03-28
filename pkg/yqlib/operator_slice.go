@@ -16,6 +16,40 @@ func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, 
 	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Value)
 }
 
+func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) *CandidateNode {
+	runes := []rune(lhsNode.Value)
+	length := len(runes)
+
+	relativeFirstNumber := firstNumber
+	if relativeFirstNumber < 0 {
+		relativeFirstNumber = length + firstNumber
+	}
+	if relativeFirstNumber < 0 {
+		relativeFirstNumber = 0
+	}
+
+	relativeSecondNumber := secondNumber
+	if relativeSecondNumber < 0 {
+		relativeSecondNumber = length + secondNumber
+	} else if relativeSecondNumber > length {
+		relativeSecondNumber = length
+	}
+
+	log.Debugf("sliceStringNode: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
+
+	if relativeFirstNumber > length {
+		relativeFirstNumber = length
+	}
+	if relativeSecondNumber < relativeFirstNumber {
+		relativeSecondNumber = relativeFirstNumber
+	}
+
+	slicedString := string(runes[relativeFirstNumber:relativeSecondNumber])
+	replacement := lhsNode.CreateReplacement(ScalarNode, lhsNode.Tag, slicedString)
+	replacement.Style = lhsNode.Style
+	return replacement
+}
+
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debug("slice array operator!")
@@ -28,13 +62,8 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		lhsNode := el.Value.(*CandidateNode)
 
 		firstNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.LHS)
-
 		if err != nil {
 			return Context{}, err
-		}
-		relativeFirstNumber := firstNumber
-		if relativeFirstNumber < 0 {
-			relativeFirstNumber = len(lhsNode.Content) + firstNumber
 		}
 
 		secondNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.RHS)
@@ -42,11 +71,32 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 			return Context{}, err
 		}
 
+		if lhsNode.Kind == ScalarNode && lhsNode.guessTagFromCustomType() == "!!str" {
+			results.PushBack(sliceStringNode(lhsNode, firstNumber, secondNumber))
+			continue
+		}
+
+		relativeFirstNumber := firstNumber
+		if relativeFirstNumber < 0 {
+			relativeFirstNumber = len(lhsNode.Content) + firstNumber
+		}
+		if relativeFirstNumber < 0 {
+			relativeFirstNumber = 0
+		} else if relativeFirstNumber > len(lhsNode.Content) {
+			relativeFirstNumber = len(lhsNode.Content)
+		}
+
 		relativeSecondNumber := secondNumber
 		if relativeSecondNumber < 0 {
 			relativeSecondNumber = len(lhsNode.Content) + secondNumber
+		}
+		if relativeSecondNumber < 0 {
+			relativeSecondNumber = 0
 		} else if relativeSecondNumber > len(lhsNode.Content) {
 			relativeSecondNumber = len(lhsNode.Content)
+		}
+		if relativeSecondNumber < relativeFirstNumber {
+			relativeSecondNumber = relativeFirstNumber
 		}
 
 		log.Debugf("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
