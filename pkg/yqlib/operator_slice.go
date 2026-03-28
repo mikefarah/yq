@@ -80,12 +80,23 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		if relativeFirstNumber < 0 {
 			relativeFirstNumber = len(lhsNode.Content) + firstNumber
 		}
+		if relativeFirstNumber < 0 {
+			relativeFirstNumber = 0
+		} else if relativeFirstNumber > len(lhsNode.Content) {
+			relativeFirstNumber = len(lhsNode.Content)
+		}
 
 		relativeSecondNumber := secondNumber
 		if relativeSecondNumber < 0 {
 			relativeSecondNumber = len(lhsNode.Content) + secondNumber
+		}
+		if relativeSecondNumber < 0 {
+			relativeSecondNumber = 0
 		} else if relativeSecondNumber > len(lhsNode.Content) {
 			relativeSecondNumber = len(lhsNode.Content)
+		}
+		if relativeSecondNumber < relativeFirstNumber {
+			relativeSecondNumber = relativeFirstNumber
 		}
 
 		log.Debugf("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)

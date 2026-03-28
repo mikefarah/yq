@@ -99,6 +99,22 @@ var sliceArrayScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		document:   `[cat, dog, frog]`,
+		expression: `.[-100:]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- cat\n- dog\n- frog\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[cat, dog, frog]`,
+		expression: `.[:-100]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
 		description: "Slicing strings",
 		document:    `country: Australia`,
 		expression:  `.country[0:5]`,
