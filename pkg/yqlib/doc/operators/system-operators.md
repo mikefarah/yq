@@ -47,7 +47,7 @@ country: Australia
 ```
 then
 ```bash
-yq '.country = system("/usr/bin/echo"; "test")' sample.yml
+yq --enable-system-operator '.country = system("/usr/bin/echo"; "test")' sample.yml
 ```
 will output
 ```yaml
@@ -63,7 +63,7 @@ a: hello
 ```
 then
 ```bash
-yq '.a = system("/usr/bin/echo")' sample.yml
+yq --enable-system-operator '.a = system("/usr/bin/echo")' sample.yml
 ```
 will output
 ```yaml
