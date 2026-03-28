@@ -212,7 +212,11 @@ yq -P -oy sample.json
 
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredSecurityPreferences.DisableEnvOps, "security-disable-env-ops", "", false, "Disable env related operations.")
 	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredSecurityPreferences.DisableFileOps, "security-disable-file-ops", "", false, "Disable file related operations (e.g. load)")
-	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredSecurityPreferences.EnableSystemOps, "enable-system-operator", "", false, "Enable system operator to allow execution of external commands.")
+	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredSecurityPreferences.EnableSystemOps, "security-enable-system-operator", "", false, "Enable system operator to allow execution of external commands.")
+	rootCmd.PersistentFlags().BoolVarP(&yqlib.ConfiguredSecurityPreferences.EnableSystemOps, "enable-system-operator", "", false, "DEPRECATED: use --security-enable-system-operator instead. Enable system operator to allow execution of external commands.")
+	if err = rootCmd.MarkPersistentFlagDeprecated("enable-system-operator", "use --security-enable-system-operator instead."); err != nil {
+		panic(err)
+	}
 
 	rootCmd.AddCommand(
 		createEvaluateSequenceCommand(),

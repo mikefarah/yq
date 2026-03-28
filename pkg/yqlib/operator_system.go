@@ -33,6 +33,9 @@ func resolveCommandNode(commandNodes Context) (string, error) {
 	if cmdNode.Kind != ScalarNode || cmdNode.Tag == "!!null" {
 		return "", fmt.Errorf("system operator: command must be a string scalar")
 	}
+	if cmdNode.Value == "" {
+		return "", fmt.Errorf("system operator: command must be a non-empty string")
+	}
 	return cmdNode.Value, nil
 }
 
@@ -89,13 +92,11 @@ func systemOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		var stdin bytes.Buffer
-		if candidate.Tag != "!!null" {
-			encoded, err := encodeToYamlString(candidate)
-			if err != nil {
-				return Context{}, err
-			}
-			stdin.WriteString(encoded)
+		encoded, err := encodeToYamlString(candidate)
+		if err != nil {
+			return Context{}, err
 		}
+		stdin.WriteString(encoded)
 
 		// #nosec G204 - intentional: user must explicitly enable this operator
 		cmd := exec.Command(command, args...)
