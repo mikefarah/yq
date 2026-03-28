@@ -93,7 +93,12 @@ func systemOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			return Context{}, fmt.Errorf("system command '%v' failed: %w", command, err)
 		}
 
-		result := strings.TrimRight(string(output), "\n")
+		result := string(output)
+		if strings.HasSuffix(result, "\r\n") {
+			result = result[:len(result)-2]
+		} else if strings.HasSuffix(result, "\n") {
+			result = result[:len(result)-1]
+		}
 		newNode := candidate.CreateReplacement(ScalarNode, "!!str", result)
 		results.PushBack(newNode)
 	}
