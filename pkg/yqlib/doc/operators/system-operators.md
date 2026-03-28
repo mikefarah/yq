@@ -63,7 +63,7 @@ a: hello
 ```
 then
 ```bash
-yq '.a = system("/bin/echo")' sample.yml
+yq '.a = system("/usr/bin/echo")' sample.yml
 ```
 will output
 ```yaml
