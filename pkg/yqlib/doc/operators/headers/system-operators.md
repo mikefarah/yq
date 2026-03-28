@@ -7,7 +7,7 @@ The `system` operator allows you to run an external command and use its output a
 ## Usage
 
 ```bash
-yq --null-input --enable-system-operator '.field = system("command"; "arg1")'
+yq --enable-system-operator --null-input '.field = system("command"; "arg1")'
 ```
 
 The operator takes:

@@ -98,6 +98,13 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 			expression:    `.a = system("` + falsePath + `")`,
 			expectedError: "system command '" + falsePath + "' failed: exit status 1",
 		},
+		{
+			description:   "Null command returns error",
+			skipDoc:       true,
+			document:      "a: hello",
+			expression:    `.a = system(null)`,
+			expectedError: "system operator: command must be a string scalar",
+		},
 	}
 
 	for _, tt := range scenarios {

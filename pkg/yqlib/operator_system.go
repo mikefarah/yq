@@ -22,6 +22,20 @@ func resolveSystemArgs(argsNode *CandidateNode) []string {
 	return nil
 }
 
+func resolveCommandNode(commandNodes Context) (string, error) {
+	if commandNodes.MatchingNodes.Front() == nil {
+		return "", fmt.Errorf("system operator: command expression returned no results")
+	}
+	if commandNodes.MatchingNodes.Len() > 1 {
+		log.Debugf("system operator: command expression returned %d results, using first", commandNodes.MatchingNodes.Len())
+	}
+	cmdNode := commandNodes.MatchingNodes.Front().Value.(*CandidateNode)
+	if cmdNode.Kind != ScalarNode || cmdNode.Tag == "!!null" {
+		return "", fmt.Errorf("system operator: command must be a string scalar")
+	}
+	return cmdNode.Value, nil
+}
+
 func systemOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if !ConfiguredSecurityPreferences.EnableSystemOps {
 		log.Warning("system operator is disabled, use --enable-system-operator flag to enable")
@@ -51,10 +65,10 @@ func systemOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			if err != nil {
 				return Context{}, err
 			}
-			if commandNodes.MatchingNodes.Front() == nil {
-				return Context{}, fmt.Errorf("system operator: command expression returned no results")
+			command, err = resolveCommandNode(commandNodes)
+			if err != nil {
+				return Context{}, err
 			}
-			command = commandNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 
 			argsNodes, err := d.GetMatchingNodes(nodeContext, block.RHS)
 			if err != nil {
@@ -68,10 +82,10 @@ func systemOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			if err != nil {
 				return Context{}, err
 			}
-			if commandNodes.MatchingNodes.Front() == nil {
-				return Context{}, fmt.Errorf("system operator: command expression returned no results")
+			command, err = resolveCommandNode(commandNodes)
+			if err != nil {
+				return Context{}, err
 			}
-			command = commandNodes.MatchingNodes.Front().Value.(*CandidateNode).Value
 		}
 
 		var stdin bytes.Buffer
