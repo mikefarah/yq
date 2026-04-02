@@ -17,7 +17,7 @@ require (
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
-	github.com/yuin/gopher-lua v1.1.1
+	github.com/yuin/gopher-lua v1.1.2
 	github.com/zclconf/go-cty v1.18.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.3
 	golang.org/x/mod v0.34.0
