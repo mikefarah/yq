@@ -17,7 +17,7 @@ func findExec(t *testing.T, name string) string {
 var systemOperatorDisabledScenarios = []expressionScenario{
 	{
 		description:    "system operator returns null when disabled",
-		subdescription: "Use `--enable-system-operator` to enable the system operator.",
+		subdescription: "Use `--security-enable-system-operator` to enable the system operator.",
 		document:       "country: Australia",
 		expression:     `.country = system("/usr/bin/echo"; "test")`,
 		expected: []string{
@@ -54,8 +54,8 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 	scenarios := []expressionScenario{
 		{
 			description:    "Run a command with an argument",
-			subdescription: "Use `--enable-system-operator` to enable the system operator.",
-			yqFlags:        "--enable-system-operator",
+			subdescription: "Use `--security-enable-system-operator` to enable the system operator.",
+			yqFlags:        "--security-enable-system-operator",
 			document:       "country: Australia",
 			expression:     `.country = system("` + echoPath + `"; "test")`,
 			expected: []string{
@@ -65,7 +65,7 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 		{
 			description:    "Run a command without arguments",
 			subdescription: "Omit the semicolon and args to run the command with no extra arguments.",
-			yqFlags:        "--enable-system-operator",
+			yqFlags:        "--security-enable-system-operator",
 			document:       "a: hello",
 			expression:     `.a = system("` + echoPath + `")`,
 			expected: []string{

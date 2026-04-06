@@ -41,7 +41,7 @@ func resolveCommandNode(commandNodes Context) (string, error) {
 
 func systemOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if !ConfiguredSecurityPreferences.EnableSystemOps {
-		log.Warning("system operator is disabled, use --enable-system-operator flag to enable")
+		log.Warning("system operator is disabled, use --security-enable-system-operator flag to enable")
 		results := list.New()
 		for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 			candidate := el.Value.(*CandidateNode)
