@@ -80,7 +80,7 @@ func recurseNodeObjectEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 		key := lhs.Content[index]
 		value := lhs.Content[index+1]
 
-		indexInRHS := findInArray(rhs, key)
+		indexInRHS := findKeyInMap(rhs, key)
 
 		if indexInRHS == -1 || !recursiveNodeEqual(value, rhs.Content[indexInRHS+1]) {
 			return false

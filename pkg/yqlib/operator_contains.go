@@ -46,9 +46,9 @@ func containsObject(lhs *CandidateNode, rhs *CandidateNode) (bool, error) {
 		rhsKey := rhs.Content[index]
 		rhsValue := rhs.Content[index+1]
 		log.Debugf("Looking for %v in the lhs", rhsKey.Value)
-		lhsKeyIndex := findInArray(lhs, rhsKey)
+		lhsKeyIndex := findKeyInMap(lhs, rhsKey)
 		log.Debugf("index is %v", lhsKeyIndex)
-		if lhsKeyIndex < 0 || lhsKeyIndex%2 != 0 {
+		if lhsKeyIndex < 0 {
 			return false, nil
 		}
 		lhsValue := lhs.Content[lhsKeyIndex+1]
