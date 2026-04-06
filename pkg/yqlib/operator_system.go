@@ -9,17 +9,38 @@ import (
 )
 
 func resolveSystemArgs(argsNode *CandidateNode) []string {
+	if argsNode == nil {
+		return nil
+	}
+
 	if argsNode.Kind == SequenceNode {
 		args := make([]string, 0, len(argsNode.Content))
 		for _, child := range argsNode.Content {
+			// Only non-null scalar children are valid arguments.
+			if child == nil {
+				continue
+			}
+			if child.Kind != ScalarNode || child.Tag == "!!null" {
+				log.Warningf("system operator: argument must be a non-null scalar; got kind=%v tag=%v - ignoring", child.Kind, child.Tag)
+				continue
+			}
 			args = append(args, child.Value)
+		}
+		if len(args) == 0 {
+			return nil
 		}
 		return args
 	}
-	if argsNode.Tag != "!!null" {
-		return []string{argsNode.Value}
+
+	// Single-argument case: only accept a non-null scalar node.
+	if argsNode.Tag == "!!null" {
+		return nil
 	}
-	return nil
+	if argsNode.Kind != ScalarNode {
+		log.Warningf("system operator: args must be a non-null scalar or sequence of non-null scalars; got kind=%v tag=%v - ignoring", argsNode.Kind, argsNode.Tag)
+		return nil
+	}
+	return []string{argsNode.Value}
 }
 
 func resolveCommandNode(commandNodes Context) (string, error) {
