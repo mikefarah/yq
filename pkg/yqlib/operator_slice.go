@@ -16,6 +16,21 @@ func getSliceNumber(d *dataTreeNavigator, context Context, node *CandidateNode, 
 	return parseInt(result.MatchingNodes.Front().Value.(*CandidateNode).Value)
 }
 
+// clampSliceIndex resolves a possibly-negative slice index against
+// length and clamps the result to [0, length].
+func clampSliceIndex(index, length int) int {
+	if index < 0 {
+		index += length
+	}
+	if index < 0 {
+		return 0
+	}
+	if index > length {
+		return length
+	}
+	return index
+}
+
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debug("slice array operator!")
@@ -32,22 +47,13 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		if err != nil {
 			return Context{}, err
 		}
-		relativeFirstNumber := firstNumber
-		if relativeFirstNumber < 0 {
-			relativeFirstNumber = len(lhsNode.Content) + firstNumber
-		}
+		relativeFirstNumber := clampSliceIndex(firstNumber, len(lhsNode.Content))
 
 		secondNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
-
-		relativeSecondNumber := secondNumber
-		if relativeSecondNumber < 0 {
-			relativeSecondNumber = len(lhsNode.Content) + secondNumber
-		} else if relativeSecondNumber > len(lhsNode.Content) {
-			relativeSecondNumber = len(lhsNode.Content)
-		}
+		relativeSecondNumber := clampSliceIndex(secondNumber, len(lhsNode.Content))
 
 		log.Debugf("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
 
