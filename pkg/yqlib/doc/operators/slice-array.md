@@ -166,7 +166,7 @@ ralia
 ```
 
 ## Slicing strings - Unicode
-Indices are rune-based, so multibyte characters are handled correctly
+Indices are rune-based, so multi-byte characters are handled correctly
 
 Given a sample.yml file of:
 ```yaml

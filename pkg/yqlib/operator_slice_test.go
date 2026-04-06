@@ -200,7 +200,7 @@ var sliceArrayScenarios = []expressionScenario{
 	},
 	{
 		description:    "Slicing strings - Unicode",
-		subdescription: "Indices are rune-based, so multibyte characters are handled correctly",
+		subdescription: "Indices are rune-based, so multi-byte characters are handled correctly",
 		document:       `greeting: héllo`,
 		expression:     `.greeting[1:3]`,
 		expected: []string{
