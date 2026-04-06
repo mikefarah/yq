@@ -155,8 +155,10 @@ func repeatString(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error
 		return nil, err
 	} else if count < 0 {
 		return nil, fmt.Errorf("cannot repeat string by a negative number (%v)", count)
-	} else if count > 10000000 {
-		return nil, fmt.Errorf("cannot repeat string by more than 100 million (%v)", count)
+	}
+	maxResultLen := 10 * 1024 * 1024 // 10 MiB
+	if count > 0 && len(stringNode.Value) > maxResultLen/count {
+		return nil, fmt.Errorf("result of repeating string (%v bytes) by %v would exceed %v bytes", len(stringNode.Value), count, maxResultLen)
 	}
 	target.Value = strings.Repeat(stringNode.Value, count)
 

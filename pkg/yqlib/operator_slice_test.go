@@ -99,17 +99,32 @@ var sliceArrayScenarios = []expressionScenario{
 		},
 	},
 	{
+		// Regression test for https://issues.oss-fuzz.com/issues/438776028
+		// Negative second index that underflows after adjustment must
+		// clamp to zero, yielding an empty sequence.
 		skipDoc:    true,
-		document:   `[cat, dog, frog]`,
-		expression: `.[-100:]`,
+		document:   `[a, b, c]`,
+		expression: `.[0:-99999]`,
 		expected: []string{
-			"D0, P[], (!!seq)::- cat\n- dog\n- frog\n",
+			"D0, P[], (!!seq)::[]\n",
 		},
 	},
 	{
+		// First-index underflow: without clamping, the loop starts at a
+		// negative index and panics on Content access.
 		skipDoc:    true,
-		document:   `[cat, dog, frog]`,
-		expression: `.[:-100]`,
+		document:   `[a, b, c]`,
+		expression: `.[-99999:3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- a\n- b\n- c\n",
+		},
+	},
+	{
+		// Both indices underflow: both clamp to zero, yielding an empty
+		// sequence.
+		skipDoc:    true,
+		document:   `[a, b, c]`,
+		expression: `.[-99999:-99998]`,
 		expected: []string{
 			"D0, P[], (!!seq)::[]\n",
 		},
@@ -184,10 +199,10 @@ var sliceArrayScenarios = []expressionScenario{
 		},
 	},
 	{
-		skipDoc:     true,
-		description: "Unicode string slicing",
-		document:    `greeting: héllo`,
-		expression:  `.greeting[1:3]`,
+		description:    "Slicing strings - Unicode",
+		subdescription: "Indices are rune-based, so multibyte characters are handled correctly",
+		document:       `greeting: héllo`,
+		expression:     `.greeting[1:3]`,
 		expected: []string{
 			"D0, P[greeting], (!!str)::él\n",
 		},
