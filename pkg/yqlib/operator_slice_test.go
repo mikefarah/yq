@@ -98,6 +98,37 @@ var sliceArrayScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::- cat1\n",
 		},
 	},
+	{
+		// Regression test for https://issues.oss-fuzz.com/issues/438776028
+		// Negative second index that underflows after adjustment must
+		// clamp to zero, yielding an empty sequence.
+		skipDoc:    true,
+		document:   `[a, b, c]`,
+		expression: `.[0:-99999]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
+	{
+		// First-index underflow: without clamping, the loop starts at a
+		// negative index and panics on Content access.
+		skipDoc:    true,
+		document:   `[a, b, c]`,
+		expression: `.[-99999:3]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- a\n- b\n- c\n",
+		},
+	},
+	{
+		// Both indices underflow: both clamp to zero, yielding an empty
+		// sequence.
+		skipDoc:    true,
+		document:   `[a, b, c]`,
+		expression: `.[-99999:-99998]`,
+		expected: []string{
+			"D0, P[], (!!seq)::[]\n",
+		},
+	},
 }
 
 func TestSliceOperatorScenarios(t *testing.T) {
