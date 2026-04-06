@@ -36,8 +36,32 @@ func traversePathOperator(_ *dataTreeNavigator, context Context, expressionNode 
 	return context.ChildContext(matches), nil
 }
 
+// resolveAliasChain follows an alias chain iteratively, returning the
+// first non-alias node. Returns an error if a cycle is detected.
+func resolveAliasChain(node *CandidateNode) (*CandidateNode, error) {
+	if node.Kind != AliasNode {
+		return node, nil
+	}
+	visited := map[*CandidateNode]bool{}
+	for node.Kind == AliasNode {
+		if visited[node] {
+			return nil, fmt.Errorf("alias cycle detected")
+		}
+		visited[node] = true
+		log.Debug("its an alias!")
+		node = node.Alias
+	}
+	return node, nil
+}
+
 func traverse(context Context, matchingNode *CandidateNode, operation *Operation) (*list.List, error) {
 	log.Debugf("Traversing %v", NodeToString(matchingNode))
+
+	var err error
+	matchingNode, err = resolveAliasChain(matchingNode)
+	if err != nil {
+		return nil, err
+	}
 
 	if matchingNode.Tag == "!!null" && operation.Value != "[]" && !context.DontAutoCreate {
 		log.Debugf("Guessing kind")
@@ -62,10 +86,6 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 		log.Debugf("its a sequence of %v things!", len(matchingNode.Content))
 		return traverseArray(matchingNode, operation, operation.Preferences.(traversePreferences))
 
-	case AliasNode:
-		log.Debug("its an alias!")
-		matchingNode = matchingNode.Alias
-		return traverse(context, matchingNode, operation)
 	default:
 		return list.New(), nil
 	}
@@ -125,7 +145,13 @@ func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*Candida
 	return context.ChildContext(matchingNodeMap), nil
 }
 
-func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesToTraverse []*CandidateNode, prefs traversePreferences) (*list.List, error) { // call this if doc / alias like the other traverse
+func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesToTraverse []*CandidateNode, prefs traversePreferences) (*list.List, error) {
+	var err error
+	matchingNode, err = resolveAliasChain(matchingNode)
+	if err != nil {
+		return nil, err
+	}
+
 	if matchingNode.Tag == "!!null" {
 		log.Debugf("OperatorArrayTraverse got a null - turning it into an empty array")
 		// auto vivification
@@ -138,9 +164,6 @@ func traverseArrayIndices(context Context, matchingNode *CandidateNode, indicesT
 	}
 
 	switch matchingNode.Kind {
-	case AliasNode:
-		matchingNode = matchingNode.Alias
-		return traverseArrayIndices(context, matchingNode, indicesToTraverse, prefs)
 	case SequenceNode:
 		return traverseArrayWithIndices(matchingNode, indicesToTraverse, prefs)
 	case MappingNode:

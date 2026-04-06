@@ -665,6 +665,16 @@ var traversePathOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!null)::null\n",
 		},
 	},
+	{
+		// Regression test for https://issues.oss-fuzz.com/issues/390467412
+		// go-yaml accepts cross-document alias references (invalid per
+		// YAML spec). A nested assignment on such an alias can create a
+		// circular alias node, which must not cause a stack overflow.
+		skipDoc:       true,
+		document:      "&-- a\n---\n*--",
+		expression:    ". = (.x = 1)",
+		expectedError: "alias cycle detected",
+	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {
@@ -681,4 +691,59 @@ func TestTraversePathOperatorAlignedToSpecScenarios(t *testing.T) {
 	}
 	appendOperatorDocumentScenario(t, "traverse-read", fixedTraversePathOperatorScenarios)
 	ConfiguredYamlPreferences.FixMergeAnchorToSpec = false
+}
+
+// Regression test for https://issues.oss-fuzz.com/issues/390467412
+// A circular alias (alias pointing back to itself) must not cause a
+// stack overflow. resolveAliasChain should detect the cycle and return
+// an error; both traverse() and traverseArrayIndices() use it.
+func TestTraverseAliasCycle(t *testing.T) {
+	aliasNode := &CandidateNode{
+		Kind: AliasNode,
+	}
+	aliasNode.Alias = aliasNode // A -> A
+
+	op := &Operation{
+		OperationType: traversePathOpType,
+		Value:         "key",
+		StringValue:   "key",
+		Preferences:   traversePreferences{},
+	}
+	_, err := traverse(Context{}, aliasNode, op)
+	if err == nil {
+		t.Fatal("expected error for alias cycle, got nil")
+	}
+	if err.Error() != "alias cycle detected" {
+		t.Fatalf("expected 'alias cycle detected', got %q", err.Error())
+	}
+
+	// Same cycle must be caught through the array traversal path.
+	_, err = traverseArrayIndices(Context{}, aliasNode, nil, traversePreferences{})
+	if err == nil {
+		t.Fatal("expected error for alias cycle via traverseArrayIndices, got nil")
+	}
+	if err.Error() != "alias cycle detected" {
+		t.Fatalf("expected 'alias cycle detected', got %q", err.Error())
+	}
+}
+
+func TestTraverseAliasCycleChain(t *testing.T) {
+	nodeA := &CandidateNode{Kind: AliasNode}
+	nodeB := &CandidateNode{Kind: AliasNode}
+	nodeA.Alias = nodeB
+	nodeB.Alias = nodeA // A -> B -> A
+
+	op := &Operation{
+		OperationType: traversePathOpType,
+		Value:         "key",
+		StringValue:   "key",
+		Preferences:   traversePreferences{},
+	}
+	_, err := traverse(Context{}, nodeA, op)
+	if err == nil {
+		t.Fatal("expected error for alias cycle chain, got nil")
+	}
+	if err.Error() != "alias cycle detected" {
+		t.Fatalf("expected 'alias cycle detected', got %q", err.Error())
+	}
 }
