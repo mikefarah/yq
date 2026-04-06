@@ -52,7 +52,9 @@ func recurseNodeArrayEqual(lhs *CandidateNode, rhs *CandidateNode) bool {
 }
 
 func findInArray(array *CandidateNode, item *CandidateNode) int {
-
+	if array.Kind != SequenceNode {
+		panic(fmt.Sprintf("findInArray called on %v node, expected SequenceNode", array.Tag))
+	}
 	for index := 0; index < len(array.Content); index = index + 1 {
 		if recursiveNodeEqual(array.Content[index], item) {
 			return index
@@ -62,7 +64,9 @@ func findInArray(array *CandidateNode, item *CandidateNode) int {
 }
 
 func findKeyInMap(dataMap *CandidateNode, item *CandidateNode) int {
-
+	if dataMap.Kind != MappingNode {
+		panic(fmt.Sprintf("findKeyInMap called on %v node, expected MappingNode", dataMap.Tag))
+	}
 	for index := 0; index < len(dataMap.Content); index = index + 2 {
 		if recursiveNodeEqual(dataMap.Content[index], item) {
 			return index
