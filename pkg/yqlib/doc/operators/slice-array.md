@@ -1,4 +1,4 @@
-# Slice/Splice Array or String
+# Slice Array or String
 
 The slice operator works on both arrays and strings. Like the `jq` equivalent, `.[10:15]` will return a subarray (or substring) of length 5, starting from index 10 inclusive, up to index 15 exclusive. Negative numbers count backwards from the end of the array or string.
 
@@ -163,5 +163,21 @@ yq '.country[-5:]' sample.yml
 will output
 ```yaml
 ralia
+```
+
+## Slicing strings - Unicode
+Indices are rune-based, so multibyte characters are handled correctly
+
+Given a sample.yml file of:
+```yaml
+greeting: héllo
+```
+then
+```bash
+yq '.greeting[1:3]' sample.yml
+```
+will output
+```yaml
+él
 ```
 
