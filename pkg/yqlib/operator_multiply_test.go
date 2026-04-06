@@ -237,12 +237,11 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expectedError: "cannot repeat string by a negative number (-4)",
 	},
 	{
-		description: "Multiply string X by more than 100 million",
-		// very large string.repeats causes a panic
+		description:   "Multiply string by count that exceeds result size limit",
 		skipDoc:       true,
 		document:      `n: 100000001`,
 		expression:    `"banana" * .n`,
-		expectedError: "cannot repeat string by more than 100 million (100000001)",
+		expectedError: "result of repeating string (6 bytes) by 100000001 would exceed 10485760 bytes",
 	},
 	{
 		description: "Multiply int node X string",
@@ -692,6 +691,27 @@ var multiplyOperatorScenarios = []expressionScenario{
 		expected: []string{
 			"D0, P[], (!!null)::null\n",
 		},
+	},
+	{
+		// Regression test for https://issues.oss-fuzz.com/issues/418818862
+		// Large repeat count with a long string must not panic.
+		skipDoc:       true,
+		expression:    `"abc" * 99999999`,
+		expectedError: "result of repeating string (3 bytes) by 99999999 would exceed 10485760 bytes",
+	},
+	{
+		// Regression test for https://issues.oss-fuzz.com/issues/383195001
+		// Product of string length * repeat count must be bounded.
+		skipDoc:       true,
+		expression:    `"x" * 99999999`,
+		expectedError: "result of repeating string (1 bytes) by 99999999 would exceed 10485760 bytes",
+	},
+	{
+		// The size guard must not overflow: len * count can wrap to
+		// a negative or small value on 64-bit, bypassing the check.
+		skipDoc:       true,
+		expression:    `"ab" * 4611686018427387904`,
+		expectedError: "result of repeating string (2 bytes) by 4611686018427387904 would exceed 10485760 bytes",
 	},
 }
 
