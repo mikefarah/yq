@@ -31,6 +31,24 @@ func clampSliceIndex(index, length int) int {
 	return index
 }
 
+func sliceStringNode(lhsNode *CandidateNode, firstNumber int, secondNumber int) *CandidateNode {
+	runes := []rune(lhsNode.Value)
+	length := len(runes)
+
+	relativeFirstNumber := clampSliceIndex(firstNumber, length)
+	relativeSecondNumber := clampSliceIndex(secondNumber, length)
+	if relativeSecondNumber < relativeFirstNumber {
+		relativeSecondNumber = relativeFirstNumber
+	}
+
+	log.Debugf("sliceStringNode: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)
+
+	slicedString := string(runes[relativeFirstNumber:relativeSecondNumber])
+	replacement := lhsNode.CreateReplacement(ScalarNode, lhsNode.Tag, slicedString)
+	replacement.Style = lhsNode.Style
+	return replacement
+}
+
 func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 
 	log.Debug("slice array operator!")
@@ -43,16 +61,21 @@ func sliceArrayOperator(d *dataTreeNavigator, context Context, expressionNode *E
 		lhsNode := el.Value.(*CandidateNode)
 
 		firstNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.LHS)
-
 		if err != nil {
 			return Context{}, err
 		}
-		relativeFirstNumber := clampSliceIndex(firstNumber, len(lhsNode.Content))
 
 		secondNumber, err := getSliceNumber(d, context, lhsNode, expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
+
+		if lhsNode.Kind == ScalarNode && lhsNode.guessTagFromCustomType() == "!!str" {
+			results.PushBack(sliceStringNode(lhsNode, firstNumber, secondNumber))
+			continue
+		}
+
+		relativeFirstNumber := clampSliceIndex(firstNumber, len(lhsNode.Content))
 		relativeSecondNumber := clampSliceIndex(secondNumber, len(lhsNode.Content))
 
 		log.Debugf("calculateIndicesToTraverse: slice from %v to %v", relativeFirstNumber, relativeSecondNumber)

@@ -99,7 +99,11 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	log.Debugf("--traverseArrayOperator")
 
 	if expressionNode.RHS != nil && expressionNode.RHS.RHS != nil && expressionNode.RHS.RHS.Operation.OperationType == createMapOpType {
-		return sliceArrayOperator(d, context, expressionNode.RHS.RHS)
+		lhsContext, err := d.GetMatchingNodes(context, expressionNode.LHS)
+		if err != nil {
+			return Context{}, err
+		}
+		return sliceArrayOperator(d, lhsContext, expressionNode.RHS.RHS)
 	}
 
 	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
