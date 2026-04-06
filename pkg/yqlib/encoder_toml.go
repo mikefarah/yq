@@ -162,12 +162,10 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		// Regular array attribute
 		return te.writeArrayAttribute(w, path[len(path)-1], node)
 	case MappingNode:
-		// Inline table if not EncodeSeparate, else emit separate tables/arrays of tables for children under this path
-		if !node.EncodeSeparate {
-			// If children contain mappings or arrays of mappings, prefer separate sections
-			if te.hasEncodeSeparateChild(node) || te.hasStructuralChildren(node) {
-				return te.encodeSeparateMapping(w, path, node)
-			}
+		// Use inline table syntax only for nodes explicitly marked with flow/inline style
+		// (e.g. TOML inline tables or YAML flow mappings). All other mappings become
+		// readable TOML table sections.
+		if node.Style&FlowStyle != 0 {
 			return te.writeInlineTableAttribute(w, path[len(path)-1], node)
 		}
 		return te.encodeSeparateMapping(w, path, node)
@@ -429,11 +427,16 @@ func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string, m *Candidate
 // encodeSeparateMapping handles a mapping that should be encoded as table sections.
 // It emits the table header for this mapping if it has any content, then processes children.
 func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *CandidateNode) error {
-	// Check if this mapping has any non-mapping, non-array-of-tables children (i.e., attributes)
+	// Check if this mapping has any non-mapping, non-array-of-tables children (i.e., attributes).
+	// Flow-style (inline) mapping children also count as attributes since they render as key = { ... }.
 	hasAttrs := false
 	for i := 0; i < len(m.Content); i += 2 {
 		v := m.Content[i+1]
 		if v.Kind == ScalarNode {
+			hasAttrs = true
+			break
+		}
+		if v.Kind == MappingNode && v.Style&FlowStyle != 0 {
 			hasAttrs = true
 			break
 		}
@@ -464,18 +467,14 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 		return nil
 	}
 
-	// No attributes, just nested structures - process children
+	// No attributes, just nested table structures - process children recursively
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
 		switch v.Kind {
 		case MappingNode:
-			// Emit [path.k]
 			newPath := append(append([]string{}, path...), k)
-			if err := te.writeTableHeader(w, newPath, v); err != nil {
-				return err
-			}
-			if err := te.encodeMappingBodyWithPath(w, newPath, v); err != nil {
+			if err := te.encodeSeparateMapping(w, newPath, v); err != nil {
 				return err
 			}
 		case SequenceNode:
@@ -599,13 +598,21 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		}
 	}
 
-	// Finally, child mappings that are not marked EncodeSeparate get inlined as attributes
+	// Finally, child mappings: flow-style (inline) ones become inline table attributes,
+	// while all others are emitted as separate sub-table sections.
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
-		if v.Kind == MappingNode && !v.EncodeSeparate {
-			if err := te.writeInlineTableAttribute(w, k, v); err != nil {
-				return err
+		if v.Kind == MappingNode {
+			if v.Style&FlowStyle != 0 {
+				if err := te.writeInlineTableAttribute(w, k, v); err != nil {
+					return err
+				}
+			} else {
+				subPath := append(append([]string{}, path...), k)
+				if err := te.encodeSeparateMapping(w, subPath, v); err != nil {
+					return err
+				}
 			}
 		}
 	}

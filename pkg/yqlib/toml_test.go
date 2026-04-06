@@ -182,6 +182,12 @@ var expectedSampleWithHeader = `servers:
 var rtInlineTableAttr = `name = { first = "Tom", last = "Preston-Werner" }
 `
 
+// Inline tables are converted to readable table sections on encode
+var rtInlineTableAttrEncoded = `[name]
+first = "Tom"
+last = "Preston-Werner"
+`
+
 var rtTableSection = `[owner.contact]
 name = "Tom"
 age = 36
@@ -252,6 +258,33 @@ enabled = true
 ports = [8000, 8001, 8002]
 data = [["delta", "phi"], [3.14]]
 temp_targets = { cpu = 79.5, case = 72.0 }
+
+# [servers] yq can't do this one yet
+[servers.alpha]
+ip = "10.0.0.1"
+role = "frontend"
+
+[servers.beta]
+ip = "10.0.0.2"
+role = "backend"
+`
+
+// Inline table temp_targets is expanded to a readable sub-table when re-encoding
+var sampleFromWebEncoded = `# This is a TOML document
+title = "TOML Example"
+
+[owner]
+name = "Tom Preston-Werner"
+dob = 1979-05-27T07:32:00-08:00
+
+[database]
+enabled = true
+ports = [8000, 8001, 8002]
+data = [["delta", "phi"], [3.14]]
+
+[database.temp_targets]
+cpu = 79.5
+case = 72.0
 
 # [servers] yq can't do this one yet
 [servers.alpha]
@@ -506,7 +539,7 @@ var tomlScenarios = []formatScenario{
 		description:  "Roundtrip: inline table attribute",
 		input:        rtInlineTableAttr,
 		expression:   ".",
-		expected:     rtInlineTableAttr,
+		expected:     rtInlineTableAttrEncoded,
 		scenarioType: "roundtrip",
 	},
 	{
@@ -605,7 +638,7 @@ var tomlScenarios = []formatScenario{
 		description:  "Roundtrip: sample from web",
 		input:        sampleFromWeb,
 		expression:   ".",
-		expected:     sampleFromWeb,
+		expected:     sampleFromWebEncoded,
 		scenarioType: "roundtrip",
 	},
 	{
@@ -613,6 +646,34 @@ var tomlScenarios = []formatScenario{
 		input:        tomlTableWithComments,
 		expected:     tomlTableWithComments,
 		scenarioType: "roundtrip",
+	},
+	// Encode (YAML → TOML) scenarios - verify readable table sections are produced
+	{
+		description:  "Encode: Simple mapping produces table section",
+		input:        "arg:\n  hello: foo\n",
+		expected:     "[arg]\nhello = \"foo\"\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Encode: Nested mappings produce nested table sections",
+		input:        "a:\n  b:\n    c: val\n",
+		expected:     "[a.b]\nc = \"val\"\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Encode: Mixed scalars and nested mapping",
+		input:        "a:\n  hello: foo\n  nested:\n    key: val\n",
+		expected:     "[a]\nhello = \"foo\"\n\n[a.nested]\nkey = \"val\"\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Encode: YAML flow mapping stays inline",
+		input:        "arg: {hello: foo}\n",
+		expected:     "arg = { hello = \"foo\" }\n",
+		scenarioType: "encode",
 	},
 }
 
@@ -629,6 +690,8 @@ func testTomlScenario(t *testing.T, s formatScenario) {
 		}
 	case "roundtrip":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewTomlEncoder()), s.description)
+	case "encode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewTomlEncoder()), s.description)
 	}
 }
 
@@ -652,6 +715,28 @@ func documentTomlDecodeScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewTomlDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))))
+}
+
+func documentTomlEncodeScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.yml file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	expression := s.expression
+	if expression == "" {
+		expression = "."
+	}
+	writeOrPanic(w, fmt.Sprintf("```bash\nyq -o toml '%v' sample.yml\n```\n", expression))
+	writeOrPanic(w, "will output\n")
+
+	writeOrPanic(w, fmt.Sprintf("```toml\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewTomlEncoder())))
 }
 
 func documentTomlRoundtripScenario(w *bufio.Writer, s formatScenario) {
@@ -687,6 +772,8 @@ func documentTomlScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		documentTomlDecodeScenario(w, s)
 	case "roundtrip":
 		documentTomlRoundtripScenario(w, s)
+	case "encode":
+		documentTomlEncodeScenario(w, s)
 
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))

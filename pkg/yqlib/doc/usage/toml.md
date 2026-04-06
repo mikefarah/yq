@@ -153,7 +153,9 @@ yq '.' sample.toml
 ```
 will output
 ```yaml
-name = { first = "Tom", last = "Preston-Werner" }
+[name]
+first = "Tom"
+last = "Preston-Werner"
 ```
 
 ## Roundtrip: table section
@@ -372,7 +374,10 @@ dob = 1979-05-27T07:32:00-08:00
 enabled = true
 ports = [8000, 8001, 8002]
 data = [["delta", "phi"], [3.14]]
-temp_targets = { cpu = 79.5, case = 72.0 }
+
+[database.temp_targets]
+cpu = 79.5
+case = 72.0
 
 # [servers] yq can't do this one yet
 [servers.alpha]
@@ -382,5 +387,22 @@ role = "frontend"
 [servers.beta]
 ip = "10.0.0.2"
 role = "backend"
+```
+
+## Encode: Simple mapping produces table section
+Given a sample.yml file of:
+```yaml
+arg:
+  hello: foo
+
+```
+then
+```bash
+yq -o toml '.' sample.yml
+```
+will output
+```toml
+[arg]
+hello = "foo"
 ```
 
