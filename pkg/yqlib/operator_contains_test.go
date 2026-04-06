@@ -66,6 +66,16 @@ var containsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		// Regression: findInArray could match a null key against a null
+		// value at an earlier odd index, producing a false negative.
+		skipDoc:    true,
+		document:   "? 1\n: ~\n? ~\n: x",
+		expression: `contains({~: "x"})`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
 		description: "String contains substring",
 		document:    `"foobar"`,
 		expression:  `contains("bar")`,

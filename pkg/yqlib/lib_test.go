@@ -300,6 +300,24 @@ func TestRecurseNodeObjectEqual(t *testing.T) {
 	test.AssertResult(t, true, recurseNodeObjectEqual(obj1, obj2))
 	test.AssertResult(t, false, recurseNodeObjectEqual(obj1, obj3))
 	test.AssertResult(t, false, recurseNodeObjectEqual(obj1, obj4))
+
+	// A null key must not match a null value in the other map.
+	// Regression test for https://issues.oss-fuzz.com/issues/383860504
+	nullKey := &CandidateNode{Kind: ScalarNode, Tag: "!!null"}
+	nullVal := &CandidateNode{Kind: ScalarNode, Tag: "!!null"}
+	intKey := createScalarNode(2, "2")
+	intKey.Tag = "!!int"
+	intVal := &CandidateNode{Kind: ScalarNode, Tag: "!!null"}
+
+	mapWithNullKey := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{nullKey, nullVal},
+	}
+	mapWithIntKey := &CandidateNode{
+		Kind:    MappingNode,
+		Content: []*CandidateNode{intKey, intVal},
+	}
+	test.AssertResult(t, false, recurseNodeObjectEqual(mapWithNullKey, mapWithIntKey))
 }
 
 func TestParseInt(t *testing.T) {

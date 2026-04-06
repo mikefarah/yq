@@ -527,6 +527,18 @@ var addOperatorScenarios = []expressionScenario{
 		expression:    `.a += [2]`,
 		expectedError: "!!seq () cannot be added to a !!str (a)",
 	},
+	{
+		// Regression test for https://issues.oss-fuzz.com/issues/383860504
+		// Adding a map to itself must not panic when sequence keys contain
+		// single-entry mappings with a null key in one and a non-null key
+		// in the other.
+		skipDoc:    true,
+		document:   "? [{~: ~}]\n: v1\n? [{2: ~}]\n: v2",
+		expression: `. += .`,
+		expected: []string{
+			"D0, P[], (!!map)::? [{~: ~}]\n: v1\n? [{2: ~}]\n: v2\n",
+		},
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {
