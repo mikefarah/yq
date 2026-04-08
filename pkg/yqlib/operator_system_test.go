@@ -16,13 +16,11 @@ func findExec(t *testing.T, name string) string {
 
 var systemOperatorDisabledScenarios = []expressionScenario{
 	{
-		description:    "system operator returns null when disabled",
+		description:    "system operator returns error when disabled",
 		subdescription: "Use `--security-enable-system-operator` to enable the system operator.",
 		document:       "country: Australia",
 		expression:     `.country = system("/usr/bin/echo"; "test")`,
-		expected: []string{
-			"D0, P[], (!!map)::country: null\n",
-		},
+		expectedError:  "system operations are disabled, use --security-enable-system-operator to enable",
 	},
 }
 
@@ -104,6 +102,17 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 			document:      "a: hello",
 			expression:    `.a = system(null)`,
 			expectedError: "system operator: command must be a string scalar",
+		},
+		{
+			description: "System operator processes multiple matched nodes",
+			skipDoc:     true,
+			document:    "a: first",
+			document2:   "a: second",
+			expression:  `.a = system("` + echoPath + `"; "replaced")`,
+			expected: []string{
+				"D0, P[], (!!map)::a: replaced\n",
+				"D0, P[], (!!map)::a: replaced\n",
+			},
 		},
 	}
 

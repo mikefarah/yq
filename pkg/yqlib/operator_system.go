@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func resolveSystemArgs(argsNode *CandidateNode) []string {
+func resolveSystemArgs(argsNode *CandidateNode) ([]string, error) {
 	if argsNode == nil {
-		return nil
+		return nil, nil
 	}
 
 	if argsNode.Kind == SequenceNode {
@@ -21,26 +21,24 @@ func resolveSystemArgs(argsNode *CandidateNode) []string {
 				continue
 			}
 			if child.Kind != ScalarNode || child.Tag == "!!null" {
-				log.Warningf("system operator: argument must be a non-null scalar; got kind=%v tag=%v - ignoring", child.Kind, child.Tag)
-				continue
+				return nil, fmt.Errorf("system operator: argument must be a non-null scalar; got kind=%v tag=%v", child.Kind, child.Tag)
 			}
 			args = append(args, child.Value)
 		}
 		if len(args) == 0 {
-			return nil
+			return nil, nil
 		}
-		return args
+		return args, nil
 	}
 
 	// Single-argument case: only accept a non-null scalar node.
 	if argsNode.Tag == "!!null" {
-		return nil
+		return nil, nil
 	}
 	if argsNode.Kind != ScalarNode {
-		log.Warningf("system operator: args must be a non-null scalar or sequence of non-null scalars; got kind=%v tag=%v - ignoring", argsNode.Kind, argsNode.Tag)
-		return nil
+		return nil, fmt.Errorf("system operator: args must be a non-null scalar or sequence of non-null scalars; got kind=%v tag=%v", argsNode.Kind, argsNode.Tag)
 	}
-	return []string{argsNode.Value}
+	return []string{argsNode.Value}, nil
 }
 
 func resolveCommandNode(commandNodes Context) (string, error) {
@@ -51,7 +49,7 @@ func resolveCommandNode(commandNodes Context) (string, error) {
 		log.Debugf("system operator: command expression returned %d results, using first", commandNodes.MatchingNodes.Len())
 	}
 	cmdNode := commandNodes.MatchingNodes.Front().Value.(*CandidateNode)
-	if cmdNode.Kind != ScalarNode || cmdNode.Tag == "!!null" {
+	if cmdNode.Kind != ScalarNode || cmdNode.guessTagFromCustomType() != "!!str" {
 		return "", fmt.Errorf("system operator: command must be a string scalar")
 	}
 	if cmdNode.Value == "" {
@@ -62,13 +60,7 @@ func resolveCommandNode(commandNodes Context) (string, error) {
 
 func systemOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if !ConfiguredSecurityPreferences.EnableSystemOps {
-		log.Warning("system operator is disabled, use --security-enable-system-operator flag to enable")
-		results := list.New()
-		for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
-			candidate := el.Value.(*CandidateNode)
-			results.PushBack(candidate.CreateReplacement(ScalarNode, "!!null", "null"))
-		}
-		return context.ChildContext(results), nil
+		return Context{}, fmt.Errorf("system operations are disabled, use --security-enable-system-operator to enable")
 	}
 
 	// determine at parse time whether we have (command; args) or just (command)
@@ -98,8 +90,14 @@ func systemOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 			if err != nil {
 				return Context{}, err
 			}
+			if argsNodes.MatchingNodes.Len() > 1 {
+				log.Debugf("system operator: args expression returned %d results, using first", argsNodes.MatchingNodes.Len())
+			}
 			if argsNodes.MatchingNodes.Front() != nil {
-				args = resolveSystemArgs(argsNodes.MatchingNodes.Front().Value.(*CandidateNode))
+				args, err = resolveSystemArgs(argsNodes.MatchingNodes.Front().Value.(*CandidateNode))
+				if err != nil {
+					return Context{}, err
+				}
 			}
 		} else {
 			commandNodes, err := d.GetMatchingNodes(nodeContext, expressionNode.RHS)
