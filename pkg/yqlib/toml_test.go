@@ -295,6 +295,10 @@ var rtSpecialKeyTableSection = `["/tmp/blah"]
 value = "hello"
 `
 
+var rtSpecialKeyDottedTableSection = `[servers."http://localhost:8080"]
+ip = "127.0.0.1"
+`
+
 var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
@@ -636,6 +640,14 @@ var tomlScenarios = []formatScenario{
 		input:        rtSpecialKeyTableSection,
 		expression:   ".",
 		expected:     rtSpecialKeyTableSection,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: special character key in dotted table section header",
+		input:        rtSpecialKeyDottedTableSection,
+		expression:   ".",
+		expected:     rtSpecialKeyDottedTableSection,
 		scenarioType: "roundtrip",
 	},
 }
