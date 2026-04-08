@@ -100,6 +100,9 @@ type CandidateNode struct {
 	// For formats like HCL and TOML: indicates that child entries should be emitted as separate blocks/tables
 	// rather than consolidated into nested mappings (default behaviour)
 	EncodeSeparate bool
+	// For TOML: indicates that this mapping was originally a TOML inline table and should be
+	// re-encoded as an inline table rather than a separate table section.
+	TomlInline bool
 }
 
 func (n *CandidateNode) CreateChild() *CandidateNode {
@@ -412,6 +415,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		IsMapKey:         n.IsMapKey,
 
 		EncodeSeparate: n.EncodeSeparate,
+		TomlInline:     n.TomlInline,
 	}
 
 	if cloneContent {
@@ -467,6 +471,8 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 
 	// Preserve EncodeSeparate flag for format-specific encoding hints
 	n.EncodeSeparate = other.EncodeSeparate
+	// Preserve TomlInline flag for TOML inline table round-trips
+	n.TomlInline = other.TomlInline
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes

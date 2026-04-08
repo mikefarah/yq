@@ -150,10 +150,10 @@ func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNod
 	}
 
 	return &CandidateNode{
-		Kind:    MappingNode,
-		Tag:     "!!map",
-		Style:   FlowStyle,
-		Content: content,
+		Kind:       MappingNode,
+		Tag:        "!!map",
+		TomlInline: true,
+		Content:    content,
 	}, nil
 }
 

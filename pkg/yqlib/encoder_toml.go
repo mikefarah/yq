@@ -162,10 +162,9 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		// Regular array attribute
 		return te.writeArrayAttribute(w, path[len(path)-1], node)
 	case MappingNode:
-		// Use inline table syntax only for nodes explicitly marked with flow/inline style
-		// (e.g. TOML inline tables or YAML flow mappings). All other mappings become
-		// readable TOML table sections.
-		if node.Style&FlowStyle != 0 {
+		// Use inline table syntax for nodes explicitly marked as TOML inline tables
+		// or YAML flow mappings. All other mappings become readable TOML table sections.
+		if node.TomlInline || node.Style&FlowStyle != 0 {
 			return te.writeInlineTableAttribute(w, path[len(path)-1], node)
 		}
 		return te.encodeSeparateMapping(w, path, node)
@@ -428,7 +427,7 @@ func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string, m *Candidate
 // It emits the table header for this mapping if it has any content, then processes children.
 func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *CandidateNode) error {
 	// Check if this mapping has any non-mapping, non-array-of-tables children (i.e., attributes).
-	// Flow-style (inline) mapping children also count as attributes since they render as key = { ... }.
+	// TomlInline mapping children also count as attributes since they render as key = { ... }.
 	hasAttrs := false
 	for i := 0; i < len(m.Content); i += 2 {
 		v := m.Content[i+1]
@@ -436,7 +435,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			hasAttrs = true
 			break
 		}
-		if v.Kind == MappingNode && v.Style&FlowStyle != 0 {
+		if v.Kind == MappingNode && (v.TomlInline || v.Style&FlowStyle != 0) {
 			hasAttrs = true
 			break
 		}
@@ -598,13 +597,13 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		}
 	}
 
-	// Finally, child mappings: flow-style (inline) ones become inline table attributes,
+	// Finally, child mappings: TomlInline or flow-style ones become inline table attributes,
 	// while all others are emitted as separate sub-table sections.
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
 		if v.Kind == MappingNode {
-			if v.Style&FlowStyle != 0 {
+			if v.TomlInline || v.Style&FlowStyle != 0 {
 				if err := te.writeInlineTableAttribute(w, k, v); err != nil {
 					return err
 				}

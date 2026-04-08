@@ -182,12 +182,6 @@ var expectedSampleWithHeader = `servers:
 var rtInlineTableAttr = `name = { first = "Tom", last = "Preston-Werner" }
 `
 
-// Inline tables are converted to readable table sections on encode
-var rtInlineTableAttrEncoded = `[name]
-first = "Tom"
-last = "Preston-Werner"
-`
-
 var rtTableSection = `[owner.contact]
 name = "Tom"
 age = 36
@@ -258,33 +252,6 @@ enabled = true
 ports = [8000, 8001, 8002]
 data = [["delta", "phi"], [3.14]]
 temp_targets = { cpu = 79.5, case = 72.0 }
-
-# [servers] yq can't do this one yet
-[servers.alpha]
-ip = "10.0.0.1"
-role = "frontend"
-
-[servers.beta]
-ip = "10.0.0.2"
-role = "backend"
-`
-
-// Inline table temp_targets is expanded to a readable sub-table when re-encoding
-var sampleFromWebEncoded = `# This is a TOML document
-title = "TOML Example"
-
-[owner]
-name = "Tom Preston-Werner"
-dob = 1979-05-27T07:32:00-08:00
-
-[database]
-enabled = true
-ports = [8000, 8001, 8002]
-data = [["delta", "phi"], [3.14]]
-
-[database.temp_targets]
-cpu = 79.5
-case = 72.0
 
 # [servers] yq can't do this one yet
 [servers.alpha]
@@ -539,7 +506,7 @@ var tomlScenarios = []formatScenario{
 		description:  "Roundtrip: inline table attribute",
 		input:        rtInlineTableAttr,
 		expression:   ".",
-		expected:     rtInlineTableAttrEncoded,
+		expected:     rtInlineTableAttr,
 		scenarioType: "roundtrip",
 	},
 	{
@@ -638,7 +605,7 @@ var tomlScenarios = []formatScenario{
 		description:  "Roundtrip: sample from web",
 		input:        sampleFromWeb,
 		expression:   ".",
-		expected:     sampleFromWebEncoded,
+		expected:     sampleFromWeb,
 		scenarioType: "roundtrip",
 	},
 	{
