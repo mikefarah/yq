@@ -134,6 +134,38 @@ var badTraversePathOperatorScenarios = []expressionScenario{
 var traversePathOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
+		description: "traverse array with streaming indices from keys",
+		document:    `["a","b"]`,
+		expression:  `. as $o | keys[] | $o[.]`,
+		expected: []string{
+			"D0, P[0], (!!str)::a\n",
+			"D0, P[1], (!!str)::b\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "traverse map with streaming indices from keys",
+		document:    `{x: "a", y: "b"}`,
+		expression:  `. as $o | keys[] | $o[.]`,
+		expected: []string{
+			"D0, P[x], (!!str)::a\n",
+			"D0, P[y], (!!str)::b\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "traverse longer array with streaming indices from keys",
+		document:    `["a","b","c","d"]`,
+		expression:  `. as $o | keys[] | $o[.]`,
+		expected: []string{
+			"D0, P[0], (!!str)::a\n",
+			"D0, P[1], (!!str)::b\n",
+			"D0, P[2], (!!str)::c\n",
+			"D0, P[3], (!!str)::d\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "strange map with key but no value",
 		document:    "!!null\n-",
 		expression:  ".x",
