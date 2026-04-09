@@ -1,4 +1,4 @@
-FROM golang:1.26.1 AS builder
+FROM golang:1.26.2 AS builder
 
 WORKDIR /go/src/mikefarah/yq
 
