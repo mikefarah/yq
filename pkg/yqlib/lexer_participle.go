@@ -96,6 +96,8 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("load_?str|str_?load", loadStringOpType),
 	{"LoadYaml", `load`, loadOp(NewYamlDecoder(LoadYamlPreferences)), 0},
 
+	simpleOp("system", systemOpType),
+
 	{"SplitDocument", `splitDoc|split_?doc`, opToken(splitDocumentOpType), 0},
 
 	simpleOp("select", selectOpType),

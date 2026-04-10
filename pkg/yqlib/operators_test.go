@@ -31,6 +31,7 @@ type expressionScenario struct {
 	dontFormatInputForDoc bool // dont format input doc for documentation generation
 	requiresFormat        string
 	skipForGoccy          bool
+	yqFlags               string // extra yq flags to include in generated doc command snippets
 }
 
 var goccyTesting = false
@@ -356,14 +357,22 @@ func documentInput(w *bufio.Writer, s expressionScenario) (string, string) {
 
 		writeOrPanic(w, "then\n")
 
+		flagsPrefix := ""
+		if s.yqFlags != "" {
+			flagsPrefix = s.yqFlags + " "
+		}
 		if s.expression != "" {
-			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v'%v' %v\n```\n", envCommand, command, strings.ReplaceAll(s.expression, "'", `'\''`), files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v'%v' %v\n```\n", envCommand, flagsPrefix, command, strings.ReplaceAll(s.expression, "'", `'\''`), files))
 		} else {
-			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v\n```\n", envCommand, command, files))
+			writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v%v\n```\n", envCommand, flagsPrefix, command, files))
 		}
 	} else {
 		writeOrPanic(w, "Running\n")
-		writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v--null-input '%v'\n```\n", envCommand, command, s.expression))
+		flagsPrefix := ""
+		if s.yqFlags != "" {
+			flagsPrefix = s.yqFlags + " "
+		}
+		writeOrPanic(w, fmt.Sprintf("```bash\n%vyq %v%v--null-input '%v'\n```\n", envCommand, flagsPrefix, command, s.expression))
 	}
 	return formattedDoc, formattedDoc2
 }
