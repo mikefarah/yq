@@ -74,7 +74,7 @@ func (te *tomlEncoder) CanHandleAliases() bool {
 // digits, underscores, and dashes.
 func tomlKey(key string) string {
 	for _, r := range key {
-		if !((r >= 'A' && r <= 'Z') || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_' || r == '-') {
+		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' {
 			return fmt.Sprintf("%q", key)
 		}
 	}
