@@ -514,7 +514,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 func (te *tomlEncoder) hasStructuralChildren(m *CandidateNode) bool {
 	for i := 0; i < len(m.Content); i += 2 {
 		v := m.Content[i+1]
-		// Only consider it structural if mapping has EncodeHintSeparateBlock or is non-empty
+		// Only consider it structural if mapping has EncodeHintSeparateBlock
 		if v.Kind == MappingNode && v.EncodeHint == EncodeHintSeparateBlock {
 			return true
 		}
