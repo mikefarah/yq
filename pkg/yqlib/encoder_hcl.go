@@ -449,8 +449,8 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 		return false
 	}
 
-	// If EncodeSeparate is set, emit children as separate blocks regardless of label extraction
-	if valueNode.EncodeSeparate {
+	// If EncodeHintSeparateBlock is set, emit children as separate blocks regardless of label extraction
+	if valueNode.EncodeHint == EncodeHintSeparateBlock {
 		if handled, _ := he.encodeMappingChildrenAsBlocks(body, key, valueNode); handled {
 			return true
 		}
@@ -537,9 +537,9 @@ func (he *hclEncoder) encodeMappingChildrenAsBlocks(body *hclwrite.Body, blockTy
 		return false, nil
 	}
 
-	// Only emit as separate blocks if EncodeSeparate is true
+	// Only emit as separate blocks if EncodeHintSeparateBlock is set
 	// This allows the encoder to respect the original block structure preserved by the decoder
-	if !valueNode.EncodeSeparate {
+	if valueNode.EncodeHint != EncodeHintSeparateBlock {
 		return false, nil
 	}
 

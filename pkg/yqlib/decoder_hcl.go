@@ -226,7 +226,7 @@ func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte
 		// Mark the type node if there are multiple blocks of this type at this level
 		// This tells the encoder to emit them as separate blocks rather than consolidating them
 		if isMultipleBlocksOfType {
-			typeNode.EncodeSeparate = true
+			typeNode.EncodeHint = EncodeHintSeparateBlock
 		}
 	}
 	current = typeNode
