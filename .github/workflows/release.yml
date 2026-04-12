@@ -8,6 +8,9 @@ on:
 jobs:
   publishGitRelease:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
@@ -37,11 +40,19 @@ jobs:
             --output=yq.1
             man.md
 
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
           go install github.com/goreleaser/goreleaser/v2@latest
           ./scripts/xcompile.sh
+
+      - name: Sign checksums
+        run: |
+          cosign sign-blob --yes --output-bundle build/checksums.bundle build/checksums
+          cosign sign-blob --yes --output-bundle build/checksums-bsd.bundle build/checksums-bsd
 
       - name: Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2

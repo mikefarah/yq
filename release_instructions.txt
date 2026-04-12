@@ -13,6 +13,11 @@
   then update the FROM line in github-action/Dockerfile with the new digest:
     FROM mikefarah/yq:4@sha256:<new-digest>
 
+// release artifacts are signed with cosign keyless signing (Sigstore)
+// users can verify with:
+//   cosign verify-blob --bundle checksums.bundle checksums
+// install cosign: brew install cosign  OR  go install github.com/sigstore/cosign/v2/cmd/cosign@latest
+
 
 - snapcraft
   - update snapcraft version
