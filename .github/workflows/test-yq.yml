@@ -13,16 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Get test
         id: get_value
-        uses: mikefarah/yq@master
+        uses: mikefarah/yq@2927a282833541e91cb3a9802209aa7b730f10aa # master
         with:
           cmd: yq '.test' examples/multiline-text.yaml
       - name: Multiline test
         run: echo "### It was [${{ steps.get_value.outputs.result }}]" >> $GITHUB_STEP_SUMMARY
       - name: Write inplace test
         id: lookupSdkVersion
-        uses: mikefarah/yq@master
+        uses: mikefarah/yq@2927a282833541e91cb3a9802209aa7b730f10aa # master
         with:
           cmd: yq -i '.b.c = 5' examples/sample.yaml
