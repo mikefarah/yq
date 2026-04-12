@@ -27,6 +27,22 @@ const (
 	FlowStyle
 )
 
+// EncodeHint controls how a mapping node is serialised by format-specific encoders
+// that distinguish between inline and block/section representations (e.g. TOML, HCL).
+type EncodeHint int
+
+const (
+	// EncodeHintDefault lets the encoder choose the representation (e.g. TOML block
+	// mappings default to [section] headers).
+	EncodeHintDefault EncodeHint = iota
+	// EncodeHintSeparateBlock forces the node to be emitted as a separate block or
+	// table-section header (used by TOML [section] and HCL block decoders).
+	EncodeHintSeparateBlock
+	// EncodeHintInline forces the node to be emitted as an inline / flow table
+	// (used by TOML inline-table decoder and TOML encoder).
+	EncodeHintInline
+)
+
 func createStringScalarNode(stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
@@ -97,9 +113,9 @@ type CandidateNode struct {
 	// (e.g. top level cross document merge). This property does not propagate to child nodes.
 	EvaluateTogether bool
 	IsMapKey         bool
-	// For formats like HCL and TOML: indicates that child entries should be emitted as separate blocks/tables
-	// rather than consolidated into nested mappings (default behaviour)
-	EncodeSeparate bool
+	// EncodeHint controls how a mapping node is serialised by format-specific encoders
+	// (e.g. TOML, HCL) that support both inline and block/section representations.
+	EncodeHint EncodeHint
 }
 
 func (n *CandidateNode) CreateChild() *CandidateNode {
@@ -411,7 +427,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		EvaluateTogether: n.EvaluateTogether,
 		IsMapKey:         n.IsMapKey,
 
-		EncodeSeparate: n.EncodeSeparate,
+		EncodeHint: n.EncodeHint,
 	}
 
 	if cloneContent {
@@ -465,8 +481,8 @@ func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignP
 		n.Anchor = other.Anchor
 	}
 
-	// Preserve EncodeSeparate flag for format-specific encoding hints
-	n.EncodeSeparate = other.EncodeSeparate
+	// Preserve EncodeHint for format-specific encoding hints
+	n.EncodeHint = other.EncodeHint
 
 	// merge will pickup the style of the new thing
 	// when autocreating nodes

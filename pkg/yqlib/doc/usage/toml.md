@@ -384,3 +384,20 @@ ip = "10.0.0.2"
 role = "backend"
 ```
 
+## Encode: Simple mapping produces table section
+Given a sample.yml file of:
+```yaml
+arg:
+  hello: foo
+
+```
+then
+```bash
+yq -o toml '.' sample.yml
+```
+will output
+```toml
+[arg]
+hello = "foo"
+```
+

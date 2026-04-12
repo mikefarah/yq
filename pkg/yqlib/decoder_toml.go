@@ -150,9 +150,10 @@ func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNod
 	}
 
 	return &CandidateNode{
-		Kind:    MappingNode,
-		Tag:     "!!map",
-		Content: content,
+		Kind:       MappingNode,
+		Tag:        "!!map",
+		EncodeHint: EncodeHintInline,
+		Content:    content,
 	}, nil
 }
 
@@ -345,10 +346,10 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	}
 
 	tableNodeValue := &CandidateNode{
-		Kind:           MappingNode,
-		Tag:            "!!map",
-		Content:        make([]*CandidateNode, 0),
-		EncodeSeparate: true,
+		Kind:       MappingNode,
+		Tag:        "!!map",
+		Content:    make([]*CandidateNode, 0),
+		EncodeHint: EncodeHintSeparateBlock,
 	}
 
 	// Attach pending head comments to the table
@@ -442,9 +443,9 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 	hasValue := dec.parser.NextExpression()
 
 	tableNodeValue := &CandidateNode{
-		Kind:           MappingNode,
-		Tag:            "!!map",
-		EncodeSeparate: true,
+		Kind:       MappingNode,
+		Tag:        "!!map",
+		EncodeHint: EncodeHintSeparateBlock,
 	}
 
 	// Attach pending head comments to the array table
