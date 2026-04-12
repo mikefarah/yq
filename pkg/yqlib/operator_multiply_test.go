@@ -553,7 +553,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:   document,
 		expression: `.b * .c`,
 		expected: []string{
-			"D0, P[b], (!!map)::{name: dog, <<: *cat}\n",
+			"D0, P[b], (!!map)::{name: dog, \"<<\": *cat}\n",
 		},
 	},
 	{
