@@ -43,6 +43,36 @@ type attributeWithName struct {
 	Attr *hclsyntax.Attribute
 }
 
+// bodyItem represents either an attribute or a block at a given byte position in the source,
+// allowing attributes and blocks to be processed together in source order.
+type bodyItem struct {
+	startByte int
+	attr      *attributeWithName // non-nil for attributes
+	block     *hclsyntax.Block   // non-nil for blocks
+}
+
+// sortedBodyItems returns attributes and blocks interleaved in source declaration order.
+func sortedBodyItems(attrs hclsyntax.Attributes, blocks hclsyntax.Blocks) []bodyItem {
+	var items []bodyItem
+	for name, attr := range attrs {
+		items = append(items, bodyItem{
+			startByte: attr.Range().Start.Byte,
+			attr:      &attributeWithName{Name: name, Attr: attr},
+		})
+	}
+	for _, block := range blocks {
+		b := block
+		items = append(items, bodyItem{
+			startByte: b.TypeRange.Start.Byte,
+			block:     b,
+		})
+	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].startByte < items[j].startByte
+	})
+	return items
+}
+
 // extractLineComment extracts any inline comment after the given position
 func extractLineComment(src []byte, endPos int) string {
 	// Look for # comment after the token
@@ -62,6 +92,59 @@ func extractLineComment(src []byte, endPos int) string {
 		// Skip whitespace and other characters
 	}
 	return ""
+}
+
+// hasPrecedingBlankLine reports whether there is a blank line immediately before startPos,
+// skipping over any immediately preceding comment lines and whitespace.
+func hasPrecedingBlankLine(src []byte, startPos int) bool {
+	i := startPos - 1
+
+	// Skip trailing spaces/tabs on the current token's preceding content
+	for i >= 0 && (src[i] == ' ' || src[i] == '\t') {
+		i--
+	}
+
+	// We expect to be sitting just before a newline that ends the previous line.
+	// Walk backwards skipping comment lines until we find a blank line or a non-comment line.
+	for i >= 0 {
+		// We should be pointing at '\n' (end of previous line) or start of file.
+		if src[i] != '\n' {
+			return false
+		}
+		i-- // step past the '\n'
+
+		// Skip '\r' for Windows line endings
+		if i >= 0 && src[i] == '\r' {
+			i--
+		}
+
+		// If immediately another '\n', this is a blank line.
+		if i < 0 || src[i] == '\n' {
+			return true
+		}
+
+		// Read the previous line to see if it's a comment or blank.
+		lineEnd := i
+		for i >= 0 && src[i] != '\n' {
+			i--
+		}
+		lineStart := i + 1
+		line := strings.TrimSpace(string(src[lineStart : lineEnd+1]))
+
+		if line == "" {
+			return true
+		}
+
+		if strings.HasPrefix(line, "#") {
+			// This line is a comment belonging to the current element; keep scanning upward.
+			continue
+		}
+
+		// A non-blank, non-comment line: no blank line precedes this element.
+		return false
+	}
+
+	return false
 }
 
 // extractHeadComment extracts comments before a given start position
@@ -136,39 +219,47 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 	root := &CandidateNode{Kind: MappingNode}
 
-	// process attributes in declaration order
 	body := dec.file.Body.(*hclsyntax.Body)
-	firstAttr := true
-	for _, attrWithName := range sortedAttributes(body.Attributes) {
-		keyNode := createStringScalarNode(attrWithName.Name)
-		valNode := convertHclExprToNode(attrWithName.Attr.Expr, dec.fileBytes)
 
-		// Attach comments if any
-		attrRange := attrWithName.Attr.Range()
-		headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte)
-		if firstAttr && headComment != "" {
-			// For the first attribute, apply its head comment to the root
-			root.HeadComment = headComment
-			firstAttr = false
-		} else if headComment != "" {
-			keyNode.HeadComment = headComment
-		}
-		if lineComment := extractLineComment(dec.fileBytes, attrRange.End.Byte); lineComment != "" {
-			valNode.LineComment = lineComment
-		}
-
-		root.AddKeyValueChild(keyNode, valNode)
-	}
-
-	// process blocks
-	// Count blocks by type at THIS level to detect multiple separate blocks
+	// Count blocks by type at THIS level to detect multiple separate blocks of the same type.
 	blocksByType := make(map[string]int)
 	for _, block := range body.Blocks {
 		blocksByType[block.Type]++
 	}
 
-	for _, block := range body.Blocks {
-		addBlockToMapping(root, block, dec.fileBytes, blocksByType[block.Type] > 1)
+	// Process attributes and blocks together in source declaration order.
+	isFirst := true
+	for _, item := range sortedBodyItems(body.Attributes, body.Blocks) {
+		if item.attr != nil {
+			aw := item.attr
+			keyNode := createStringScalarNode(aw.Name)
+			valNode := convertHclExprToNode(aw.Attr.Expr, dec.fileBytes)
+
+			attrRange := aw.Attr.Range()
+			headComment := extractHeadComment(dec.fileBytes, attrRange.Start.Byte)
+			if isFirst && headComment != "" {
+				// For the first element, apply its head comment to the root node
+				root.HeadComment = headComment
+			} else if headComment != "" {
+				keyNode.HeadComment = headComment
+			}
+			if lineComment := extractLineComment(dec.fileBytes, attrRange.End.Byte); lineComment != "" {
+				valNode.LineComment = lineComment
+			}
+			if !isFirst && hasPrecedingBlankLine(dec.fileBytes, attrRange.Start.Byte) {
+				keyNode.BlankLineBefore = true
+			}
+
+			root.AddKeyValueChild(keyNode, valNode)
+		} else {
+			block := item.block
+			headComment := extractHeadComment(dec.fileBytes, block.TypeRange.Start.Byte)
+			if isFirst && headComment != "" {
+				root.HeadComment = headComment
+			}
+			addBlockToMappingOrdered(root, block, dec.fileBytes, blocksByType[block.Type] > 1, isFirst, headComment)
+		}
+		isFirst = false
 	}
 
 	dec.documentIndex++
@@ -178,71 +269,105 @@ func (dec *hclDecoder) Decode() (*CandidateNode, error) {
 
 func hclBodyToNode(body *hclsyntax.Body, src []byte) *CandidateNode {
 	node := &CandidateNode{Kind: MappingNode}
-	for _, attrWithName := range sortedAttributes(body.Attributes) {
-		key := createStringScalarNode(attrWithName.Name)
-		val := convertHclExprToNode(attrWithName.Attr.Expr, src)
 
-		// Attach comments if any
-		attrRange := attrWithName.Attr.Range()
-		if headComment := extractHeadComment(src, attrRange.Start.Byte); headComment != "" {
-			key.HeadComment = headComment
-		}
-		if lineComment := extractLineComment(src, attrRange.End.Byte); lineComment != "" {
-			val.LineComment = lineComment
-		}
-
-		node.AddKeyValueChild(key, val)
-	}
-
-	// Process nested blocks, counting blocks by type at THIS level
-	// to detect which block types appear multiple times
 	blocksByType := make(map[string]int)
 	for _, block := range body.Blocks {
 		blocksByType[block.Type]++
 	}
 
-	for _, block := range body.Blocks {
-		addBlockToMapping(node, block, src, blocksByType[block.Type] > 1)
+	isFirst := true
+	for _, item := range sortedBodyItems(body.Attributes, body.Blocks) {
+		if item.attr != nil {
+			aw := item.attr
+			key := createStringScalarNode(aw.Name)
+			val := convertHclExprToNode(aw.Attr.Expr, src)
+
+			attrRange := aw.Attr.Range()
+			if headComment := extractHeadComment(src, attrRange.Start.Byte); headComment != "" {
+				key.HeadComment = headComment
+			}
+			if lineComment := extractLineComment(src, attrRange.End.Byte); lineComment != "" {
+				val.LineComment = lineComment
+			}
+			if !isFirst && hasPrecedingBlankLine(src, attrRange.Start.Byte) {
+				key.BlankLineBefore = true
+			}
+
+			node.AddKeyValueChild(key, val)
+		} else {
+			block := item.block
+			headComment := extractHeadComment(src, block.TypeRange.Start.Byte)
+			addBlockToMappingOrdered(node, block, src, blocksByType[block.Type] > 1, isFirst, headComment)
+		}
+		isFirst = false
 	}
 	return node
 }
 
-// addBlockToMapping nests block type and labels into the parent mapping, merging children.
-// isMultipleBlocksOfType indicates if there are multiple blocks of this type at THIS level
-func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte, isMultipleBlocksOfType bool) {
+// addBlockToMappingOrdered nests a block's type and labels into the parent mapping, merging children.
+// isMultipleBlocksOfType: there are multiple blocks of this type at this level.
+// isFirstInParent: this block is the first element in the parent (no preceding sibling).
+// headComment: any comment extracted before this block's type keyword.
+func addBlockToMappingOrdered(parent *CandidateNode, block *hclsyntax.Block, src []byte, isMultipleBlocksOfType bool, isFirstInParent bool, headComment string) {
 	bodyNode := hclBodyToNode(block.Body, src)
 	current := parent
 
 	// ensure block type mapping exists
 	var typeNode *CandidateNode
+	var typeKeyNode *CandidateNode
 	for i := 0; i < len(current.Content); i += 2 {
 		if current.Content[i].Value == block.Type {
+			typeKeyNode = current.Content[i]
 			typeNode = current.Content[i+1]
 			break
 		}
 	}
 	if typeNode == nil {
-		_, typeNode = current.AddKeyValueChild(createStringScalarNode(block.Type), &CandidateNode{Kind: MappingNode})
-		// Mark the type node if there are multiple blocks of this type at this level
-		// This tells the encoder to emit them as separate blocks rather than consolidating them
+		var newTypeKey *CandidateNode
+		newTypeKey, typeNode = current.AddKeyValueChild(createStringScalarNode(block.Type), &CandidateNode{Kind: MappingNode})
+		typeKeyNode = newTypeKey
+		// Mark the type node if there are multiple blocks of this type at this level.
+		// This tells the encoder to emit them as separate blocks rather than consolidating them.
 		if isMultipleBlocksOfType {
 			typeNode.EncodeSeparate = true
+		}
+		// Store the head comment on the type key (non-first elements only; first element's
+		// comment is handled by the caller and applied to the root node).
+		if !isFirstInParent && headComment != "" {
+			typeKeyNode.HeadComment = headComment
+		}
+		// Detect blank line before this block in the source.
+		// Only set it when this is not the first element (i.e. something already precedes it).
+		if !isFirstInParent && hasPrecedingBlankLine(src, block.TypeRange.Start.Byte) {
+			typeKeyNode.BlankLineBefore = true
 		}
 	}
 	current = typeNode
 
 	// walk labels, creating/merging mappings
-	for _, label := range block.Labels {
+	for labelIdx, label := range block.Labels {
 		var next *CandidateNode
+		var labelKey *CandidateNode
 		for i := 0; i < len(current.Content); i += 2 {
 			if current.Content[i].Value == label {
+				labelKey = current.Content[i]
 				next = current.Content[i+1]
 				break
 			}
 		}
 		if next == nil {
-			_, next = current.AddKeyValueChild(createStringScalarNode(label), &CandidateNode{Kind: MappingNode})
+			var newLabelKey *CandidateNode
+			newLabelKey, next = current.AddKeyValueChild(createStringScalarNode(label), &CandidateNode{Kind: MappingNode})
+			labelKey = newLabelKey
+			// For same-type blocks: mark the first label key with BlankLineBefore when
+			// there is a blank line before this block in the source.
+			if labelIdx == 0 && len(current.Content) > 2 {
+				if hasPrecedingBlankLine(src, block.TypeRange.Start.Byte) {
+					labelKey.BlankLineBefore = true
+				}
+			}
 		}
+		_ = labelKey
 		current = next
 	}
 

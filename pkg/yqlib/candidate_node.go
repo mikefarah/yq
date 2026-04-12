@@ -100,6 +100,9 @@ type CandidateNode struct {
 	// For formats like HCL and TOML: indicates that child entries should be emitted as separate blocks/tables
 	// rather than consolidated into nested mappings (default behaviour)
 	EncodeSeparate bool
+	// For formats like HCL: indicates that a blank line preceded this node in the original source,
+	// so the encoder should emit a blank line before it to preserve formatting.
+	BlankLineBefore bool
 }
 
 func (n *CandidateNode) CreateChild() *CandidateNode {
@@ -411,7 +414,8 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		EvaluateTogether: n.EvaluateTogether,
 		IsMapKey:         n.IsMapKey,
 
-		EncodeSeparate: n.EncodeSeparate,
+		EncodeSeparate:  n.EncodeSeparate,
+		BlankLineBefore: n.BlankLineBefore,
 	}
 
 	if cloneContent {

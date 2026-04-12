@@ -71,8 +71,10 @@ shouty_message = upper(message)`
 
 var simpleSampleExpected = `# Arithmetic with literals and application-provided variables
 sum = 1 + addend
+
 # String interpolation and templates
 message = "Hello, ${name}!"
+
 # Application-provided functions
 shouty_message = upper(message)
 `
@@ -83,6 +85,51 @@ sum: 1 + addend
 message: "Hello, ${name}!"
 # Application-provided functions
 shouty_message: upper(message)
+`
+
+var blankLinesBetweenAttributes = "name = \"app\"\n\nversion = 1\n\nenabled = true\n"
+
+var blankLinesBetweenBlocks = `terraform {
+  source = "git::https://example.com/module.git"
+}
+
+include {
+  path = "../root.hcl"
+}
+
+dependency "base" {
+  config_path = "../base"
+}
+`
+
+var blankLinesMixedAttributesAndBlocks = `# Root comment
+name = "app"
+
+version = 1
+
+terraform {
+  source = "git::https://example.com/module.git"
+}
+
+dependency "base" {
+  config_path = "../base"
+}
+`
+
+var blocksWithCommentsAndBlankLines = `# First block comment
+terraform {
+  source = "example"
+}
+
+# Second block comment
+include {
+  path = "../root.hcl"
+}
+
+# Third block comment
+dependencies {
+  paths = ["../base"]
+}
 `
 
 var hclFormatScenarios = []formatScenario{
@@ -470,6 +517,46 @@ var hclFormatScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        `service { optional_field = null }`,
 		expected:     "service {\n  optional_field = null\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "block with function call containing quoted string argument",
+		skipDoc:      true,
+		input:        "include {\n  path = find_in_parent_folders(\"root.hcl\")\n}\n",
+		expected:     "include {\n  path = find_in_parent_folders(\"root.hcl\")\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: object attribute with traversal expression values",
+		skipDoc:      true,
+		input:        "inputs = {\n  sub_id = dependency.base.outputs.subscription_id\n  rg_name = dependency.base.outputs.resource_group_name\n}\n",
+		expected:     "inputs = {\n  sub_id = dependency.base.outputs.subscription_id\n  rg_name = dependency.base.outputs.resource_group_name\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: blank lines between attributes are preserved",
+		input:        blankLinesBetweenAttributes,
+		expected:     blankLinesBetweenAttributes,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: blank lines between blocks are preserved",
+		input:        blankLinesBetweenBlocks,
+		expected:     blankLinesBetweenBlocks,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: blank lines between mixed attributes and blocks are preserved",
+		skipDoc:      true,
+		input:        blankLinesMixedAttributesAndBlocks,
+		expected:     blankLinesMixedAttributesAndBlocks,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: blocks with comments and blank lines are preserved",
+		skipDoc:      true,
+		input:        blocksWithCommentsAndBlankLines,
+		expected:     blocksWithCommentsAndBlankLines,
 		scenarioType: "roundtrip",
 	},
 }
