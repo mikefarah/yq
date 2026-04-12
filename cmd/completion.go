@@ -18,7 +18,7 @@ $ source <(yq completion bash)
 
 # To load completions for each session, execute once:
 Linux:
-  $ yq completion bash > /etc/bash_completion.d/yq
+  $ yq completion bash > /usr/share/bash-completion/completions/yq
 MacOS:
   $ yq completion bash > /usr/local/etc/bash_completion.d/yq
 
