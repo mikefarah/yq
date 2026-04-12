@@ -8,6 +8,10 @@
 - git push --tags
 - use github actions to publish docker and make github release
 - check github updated yq action in marketplace
+- update github-action/Dockerfile to pin the newly published docker image digest:
+    skopeo inspect docker://docker.io/mikefarah/yq:4 | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Digest'])"
+  then update the FROM line in github-action/Dockerfile with the new digest:
+    FROM mikefarah/yq:4@sha256:<new-digest>
 
 
 - snapcraft
