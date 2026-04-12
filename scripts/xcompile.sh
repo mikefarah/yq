@@ -4,7 +4,7 @@ set -eo pipefail
 
 # You may need to go install github.com/goreleaser/goreleaser/v2@latest first
 GORELEASER="goreleaser build --clean"
-if [ -z "$CI" ]; then
+if [ -z "$CI" ] || [[ "${GITHUB_REF_NAME:-}" == draft-* ]]; then
   GORELEASER+=" --snapshot"
 fi
 
