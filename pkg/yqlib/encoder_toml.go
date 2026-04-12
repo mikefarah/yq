@@ -69,6 +69,27 @@ func (te *tomlEncoder) CanHandleAliases() bool {
 
 // ---- helpers ----
 
+// tomlKey returns the key quoted if it contains characters that are not valid
+// in a TOML bare key. TOML bare keys may only contain ASCII letters, ASCII
+// digits, underscores, and dashes.
+func tomlKey(key string) string {
+	for _, r := range key {
+		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' {
+			return fmt.Sprintf("%q", key)
+		}
+	}
+	return key
+}
+
+// tomlDottedKey joins path components, quoting any that require it.
+func tomlDottedKey(path []string) string {
+	parts := make([]string, len(path))
+	for i, p := range path {
+		parts[i] = tomlKey(p)
+	}
+	return strings.Join(parts, ".")
+}
+
 func (te *tomlEncoder) writeComment(w io.Writer, comment string) error {
 	if comment == "" {
 		return nil
@@ -148,9 +169,10 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		}
 		if allMaps {
 			key := path[len(path)-1]
+			quotedKey := tomlKey(key)
 			for _, it := range node.Content {
 				// [[key]] then body
-				if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
+				if _, err := w.Write([]byte("[[" + quotedKey + "]]\n")); err != nil {
 					return err
 				}
 				if err := te.encodeMappingBodyWithPath(w, []string{key}, it); err != nil {
@@ -182,7 +204,7 @@ func (te *tomlEncoder) writeAttribute(w io.Writer, key string, value *CandidateN
 	}
 
 	// Write the attribute
-	line := key + " = " + te.formatScalar(value)
+	line := tomlKey(key) + " = " + te.formatScalar(value)
 
 	// Add line comment if present
 	if value.LineComment != "" {
@@ -207,7 +229,7 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 
 	// Handle empty arrays
 	if len(seq.Content) == 0 {
-		line := key + " = []"
+		line := tomlKey(key) + " = []"
 		if seq.LineComment != "" {
 			lineComment := strings.TrimSpace(seq.LineComment)
 			if !strings.HasPrefix(lineComment, "#") {
@@ -230,7 +252,7 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 
 	if hasElementComments {
 		// Write multiline array format with comments
-		if _, err := w.Write([]byte(key + " = [\n")); err != nil {
+		if _, err := w.Write([]byte(tomlKey(key) + " = [\n")); err != nil {
 			return err
 		}
 
@@ -321,7 +343,7 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 		}
 	}
 
-	line := key + " = [" + strings.Join(items, ", ") + "]"
+	line := tomlKey(key) + " = [" + strings.Join(items, ", ") + "]"
 
 	// Add line comment if present
 	if seq.LineComment != "" {
@@ -369,21 +391,21 @@ func (te *tomlEncoder) mappingToInlineTable(m *CandidateNode) (string, error) {
 		v := m.Content[i+1]
 		switch v.Kind {
 		case ScalarNode:
-			parts = append(parts, fmt.Sprintf("%s = %s", k, te.formatScalar(v)))
+			parts = append(parts, fmt.Sprintf("%s = %s", tomlKey(k), te.formatScalar(v)))
 		case SequenceNode:
 			// inline array in inline table
 			arr, err := te.sequenceToInlineArray(v)
 			if err != nil {
 				return "", err
 			}
-			parts = append(parts, fmt.Sprintf("%s = %s", k, arr))
+			parts = append(parts, fmt.Sprintf("%s = %s", tomlKey(k), arr))
 		case MappingNode:
 			// nested inline table
 			inline, err := te.mappingToInlineTable(v)
 			if err != nil {
 				return "", err
 			}
-			parts = append(parts, fmt.Sprintf("%s = %s", k, inline))
+			parts = append(parts, fmt.Sprintf("%s = %s", tomlKey(k), inline))
 		default:
 			return "", fmt.Errorf("unsupported inline table value kind: %v", v.Kind)
 		}
@@ -396,7 +418,7 @@ func (te *tomlEncoder) writeInlineTableAttribute(w io.Writer, key string, m *Can
 	if err != nil {
 		return err
 	}
-	_, err = w.Write([]byte(key + " = " + inline + "\n"))
+	_, err = w.Write([]byte(tomlKey(key) + " = " + inline + "\n"))
 	return err
 }
 
@@ -418,7 +440,7 @@ func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string, m *Candidate
 	}
 
 	// Write table header [a.b.c]
-	header := "[" + strings.Join(path, ".") + "]\n"
+	header := "[" + tomlDottedKey(path) + "]\n"
 	_, err := w.Write([]byte(header))
 	return err
 }
@@ -486,7 +508,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 				}
 			}
 			if allMaps {
-				key := strings.Join(append(append([]string{}, path...), k), ".")
+				key := tomlDottedKey(append(append([]string{}, path...), k))
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
 						return err
@@ -574,7 +596,7 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 				}
 			}
 			if allMaps {
-				dotted := strings.Join(append(append([]string{}, path...), k), ".")
+				dotted := tomlDottedKey(append(append([]string{}, path...), k))
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + dotted + "]]\n")); err != nil {
 						return err
