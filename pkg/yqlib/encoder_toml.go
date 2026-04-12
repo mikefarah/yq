@@ -533,29 +533,6 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 	return nil
 }
 
-func (te *tomlEncoder) hasStructuralChildren(m *CandidateNode) bool {
-	for i := 0; i < len(m.Content); i += 2 {
-		v := m.Content[i+1]
-		// Only consider it structural if mapping has EncodeHintSeparateBlock
-		if v.Kind == MappingNode && v.EncodeHint == EncodeHintSeparateBlock {
-			return true
-		}
-		if v.Kind == SequenceNode {
-			allMaps := true
-			for _, it := range v.Content {
-				if it.Kind != MappingNode {
-					allMaps = false
-					break
-				}
-			}
-			if allMaps {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // encodeMappingBodyWithPath encodes attributes and nested arrays of tables using full dotted path context
 func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *CandidateNode) error {
 	// First, attributes (scalars and non-map arrays)
