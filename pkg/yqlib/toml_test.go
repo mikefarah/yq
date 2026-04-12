@@ -287,6 +287,18 @@ var expectedSubArrays = `array:
           - {}
 `
 
+// Keys with special characters that require quoting in TOML
+var rtSpecialKeyInlineTable = `host = { "http://sealos.hub:5000" = { capabilities = ["pull", "resolve", "push"], skip_verify = true } }
+`
+
+var rtSpecialKeyTableSection = `["/tmp/blah"]
+value = "hello"
+`
+
+var rtSpecialKeyDottedTableSection = `[servers."http://localhost:8080"]
+ip = "127.0.0.1"
+`
+
 var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
@@ -612,6 +624,30 @@ var tomlScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        tomlTableWithComments,
 		expected:     tomlTableWithComments,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: key with special characters in inline table",
+		input:        rtSpecialKeyInlineTable,
+		expression:   ".",
+		expected:     rtSpecialKeyInlineTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: key with special characters in table section",
+		input:        rtSpecialKeyTableSection,
+		expression:   ".",
+		expected:     rtSpecialKeyTableSection,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: special character key in dotted table section header",
+		input:        rtSpecialKeyDottedTableSection,
+		expression:   ".",
+		expected:     rtSpecialKeyDottedTableSection,
 		scenarioType: "roundtrip",
 	},
 }
