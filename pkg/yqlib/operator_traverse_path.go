@@ -123,6 +123,27 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	if expressionNode.Operation.Preferences != nil {
 		prefs = expressionNode.Operation.Preferences.(traversePreferences)
 	}
+
+	// When streaming values produce per-value index sets in the RHS and the LHS
+	// is a single node (e.g. a bound variable), traverse the LHS with each
+	// index set separately. Without this, only the first set of indices is used
+	// and the rest are silently dropped.
+	if rhs.MatchingNodes.Len() > 1 && lhs.MatchingNodes.Len() < rhs.MatchingNodes.Len() {
+		var allResults = list.New()
+		for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+			seqNode := el.Value.(*CandidateNode)
+			if seqNode.Kind != SequenceNode {
+				continue
+			}
+			result, err := traverseNodesWithArrayIndices(lhs, seqNode.Content, prefs)
+			if err != nil {
+				return Context{}, err
+			}
+			allResults.PushBackList(result.MatchingNodes)
+		}
+		return context.ChildContext(allResults), nil
+	}
+
 	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Content
 
 	log.Debugf("indicesToTraverse %v", len(indicesToTraverse))
