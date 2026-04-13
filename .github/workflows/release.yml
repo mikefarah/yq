@@ -5,6 +5,8 @@ on:
       - 'v4.*'
       - 'draft-*'
 
+permissions: {}
+
 jobs:
   publishGitRelease:
     runs-on: ubuntu-latest
