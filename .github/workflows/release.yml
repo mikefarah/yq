@@ -41,18 +41,18 @@ jobs:
             man.md
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003 # v4.1.1
 
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
-          go install github.com/goreleaser/goreleaser/v2@latest
+          go install github.com/goreleaser/goreleaser/v2@v2.15.2
           ./scripts/xcompile.sh
 
       - name: Sign checksums
         run: |
-          cosign sign-blob --yes --output-bundle build/checksums.bundle build/checksums
-          cosign sign-blob --yes --output-bundle build/checksums-bsd.bundle build/checksums-bsd
+          cosign sign-blob --yes --bundle build/checksums.bundle build/checksums
+          cosign sign-blob --yes --bundle build/checksums-bsd.bundle build/checksums-bsd
 
       - name: Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
