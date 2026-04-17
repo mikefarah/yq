@@ -49,5 +49,5 @@ fi
 
 git add cmd/version.go snap/snapcraft.yaml
 git commit -m 'Bumping version'
-git tag $version
-git tag -f v4
+git tag $version -m "releasing"
+git tag -f v4 -m "releasing $version"
