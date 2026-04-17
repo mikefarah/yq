@@ -1,3 +1,16 @@
+4.53.1:
+  - Releases now signed and immutable!
+  - Add system(command; args) operator (disabled by default) (#2640)
+  - TOML encoder: prefer readable table sections over inline tables (#2649)
+  - Fix TOML encoder to quote keys containing special characters (#2648)
+  - Add string slicing support (#2639)
+  - Fix findInArray misuse on MappingNodes in equality and contains (#2645) Thanks @jandubois!
+  - Fix panic on negative slice indices that underflow after adjustment (#2646) Thanks @jandubois!
+  - Fix stack overflow from circular alias in traverse (#2647) Thanks @jandubois!
+  - Fix panic and OOM in repeatString for large repeat counts (#2644) Thanks @jandubois!
+  - Bumped dependencies
+
+
 4.52.5:
   - Fix: reset TOML decoder state between files (#2634) thanks @terminalchai
   - Fix: preserve original filename when using --front-matter (#2613) thanks @cobyfrombrooklyn-bot
