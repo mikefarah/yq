@@ -79,6 +79,46 @@ will output
       c: cat
 ```
 
+## Get the top (root) parent
+Use negative numbers to get the top parents. You can think of this as indexing into the 'parents' array above
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(-1)' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
+## Root
+Alias for parent(-1), returns the top level parent. This is usually the document node.
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | root' sample.yml
+```
+will output
+```yaml
+a:
+  b:
+    c: cat
+```
+
 ## N-th parent
 You can optionally supply the number of levels to go up for the parent, the default being 1.
 
@@ -114,6 +154,25 @@ will output
 a:
   b:
     c: cat
+```
+
+## N-th negative
+Similarly, use negative numbers to index backwards from the parents array
+
+Given a sample.yml file of:
+```yaml
+a:
+  b:
+    c: cat
+```
+then
+```bash
+yq '.a.b.c | parent(-2)' sample.yml
+```
+will output
+```yaml
+b:
+  c: cat
 ```
 
 ## No parent
