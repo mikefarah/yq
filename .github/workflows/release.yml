@@ -53,8 +53,8 @@ jobs:
 
       - name: Sign checksums
         run: |
-          cosign sign-blob --yes --output-bundle build/checksums.bundle build/checksums
-          cosign sign-blob --yes --output-bundle build/checksums-bsd.bundle build/checksums-bsd
+          cosign sign-blob --yes --bundle build/checksums.bundle build/checksums
+          cosign sign-blob --yes --bundle build/checksums-bsd.bundle build/checksums-bsd
 
       - name: Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
