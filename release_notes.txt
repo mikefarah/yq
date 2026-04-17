@@ -1,5 +1,8 @@
+4.53.2:
+  - Fixing release process
+  
 4.53.1:
-  - Releases now signed and immutable!
+  - Releases and tags now signed and immutable!
   - Add system(command; args) operator (disabled by default) (#2640)
   - TOML encoder: prefer readable table sections over inline tables (#2649)
   - Fix TOML encoder to quote keys containing special characters (#2648)
