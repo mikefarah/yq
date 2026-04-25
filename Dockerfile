@@ -10,7 +10,7 @@ RUN ./scripts/acceptance.sh
 
 # Choose alpine as a base image to make this useful for CI, as many
 # CI tools expect an interactive shell inside the container
-FROM alpine:3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659 AS production
+FROM alpine:3@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11 AS production
 LABEL maintainer="Mike Farah <mikefarah@users.noreply.github.com>"
 
 COPY --from=builder /go/src/mikefarah/yq/yq /usr/bin/yq
