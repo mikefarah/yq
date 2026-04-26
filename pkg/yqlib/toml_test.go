@@ -209,6 +209,34 @@ address = "12 cat st"
 var rtEmptyArray = `A = []
 `
 
+var rtEmptyArrayInTable = `[features]
+my-feature = []
+`
+
+var rtMixedEmptyArraysInTable = `[features]
+my-other-feature = []
+my-feature = ["my-other-feature"]
+`
+
+var yamlEmptyArrayInTable = `features:
+  my-feature: []
+`
+
+var expectedTomlEmptyArrayInTable = `[features]
+my-feature = []
+`
+
+var yamlMixedEmptyArraysInTable = `features:
+  my-other-feature: []
+  my-feature:
+    - my-other-feature
+`
+
+var expectedTomlMixedEmptyArraysInTable = `[features]
+my-other-feature = []
+my-feature = ["my-other-feature"]
+`
+
 var rtSampleTable = `var = "x"
 
 [owner.contact]
@@ -562,6 +590,36 @@ var tomlScenarios = []formatScenario{
 		expression:   ".",
 		expected:     rtEmptyArray,
 		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2674: roundtrip empty array in table",
+		input:        rtEmptyArrayInTable,
+		expression:   ".",
+		expected:     rtEmptyArrayInTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2674: roundtrip mixed empty and non-empty arrays in table",
+		input:        rtMixedEmptyArraysInTable,
+		expression:   ".",
+		expected:     rtMixedEmptyArraysInTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2674: encode empty array in table",
+		input:        yamlEmptyArrayInTable,
+		expected:     expectedTomlEmptyArrayInTable,
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2674: encode mixed empty and non-empty arrays in table",
+		input:        yamlMixedEmptyArraysInTable,
+		expected:     expectedTomlMixedEmptyArraysInTable,
+		scenarioType: "encode",
 	},
 	{
 		description:  "Roundtrip: sample table",
