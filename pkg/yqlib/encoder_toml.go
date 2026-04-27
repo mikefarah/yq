@@ -184,9 +184,12 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		// Regular array attribute
 		return te.writeArrayAttribute(w, path[len(path)-1], node)
 	case MappingNode:
-		// Use inline table syntax for nodes explicitly marked as TOML inline tables
-		// or YAML flow mappings. All other mappings become readable TOML table sections.
-		if node.EncodeHint == EncodeHintInline || node.Style&FlowStyle != 0 {
+		// Use inline table syntax only for nodes explicitly marked as TOML inline tables.
+		// YAML flow-style mappings are not treated as inline tables; the FlowStyle attribute
+		// is a YAML-specific rendering hint and should not affect TOML output. This ensures
+		// that auto-detected JSON input (parsed as YAML flow style) produces readable table
+		// sections, consistent with explicitly parsed JSON input.
+		if node.EncodeHint == EncodeHintInline {
 			return te.writeInlineTableAttribute(w, path[len(path)-1], node)
 		}
 		return te.encodeSeparateMapping(w, path, node)
@@ -469,7 +472,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			hasAttrs = true
 			break
 		}
-		if v.Kind == MappingNode && (v.EncodeHint == EncodeHintInline || v.Style&FlowStyle != 0) {
+		if v.Kind == MappingNode && v.EncodeHint == EncodeHintInline {
 			hasAttrs = true
 			break
 		}
@@ -569,13 +572,13 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		}
 	}
 
-	// Finally, child mappings: inline-hint or flow-style ones become inline table attributes,
+	// Finally, child mappings: inline-hint ones become inline table attributes,
 	// while all others are emitted as separate sub-table sections.
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
 		if v.Kind == MappingNode {
-			if v.EncodeHint == EncodeHintInline || v.Style&FlowStyle != 0 {
+			if v.EncodeHint == EncodeHintInline {
 				if err := te.writeInlineTableAttribute(w, k, v); err != nil {
 					return err
 				}
