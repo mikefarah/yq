@@ -707,10 +707,24 @@ var tomlScenarios = []formatScenario{
 	},
 	{
 		skipDoc:      true,
-		description:  "Encode: YAML flow mapping stays inline",
+		description:  "Encode: YAML flow mapping produces table section (same as block mapping)",
 		input:        "arg: {hello: foo}\n",
-		expected:     "arg = { hello = \"foo\" }\n",
+		expected:     "[arg]\nhello = \"foo\"\n",
 		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue: JSON auto-detected via YAML decoder produces table sections",
+		input:        `{"arg":{"hello": "foo"}}`,
+		expected:     "[arg]\nhello = \"foo\"\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue: JSON via JSON decoder produces table sections",
+		input:        `{"arg":{"hello": "foo"}}`,
+		expected:     "[arg]\nhello = \"foo\"\n",
+		scenarioType: "encode-json",
 	},
 	{
 		skipDoc:      true,
@@ -753,6 +767,8 @@ func testTomlScenario(t *testing.T, s formatScenario) {
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewTomlDecoder(), NewTomlEncoder()), s.description)
 	case "encode":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewTomlEncoder()), s.description)
+	case "encode-json":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewJSONDecoder(), NewTomlEncoder()), s.description)
 	}
 }
 
@@ -833,7 +849,7 @@ func documentTomlScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		documentTomlDecodeScenario(w, s)
 	case "roundtrip":
 		documentTomlRoundtripScenario(w, s)
-	case "encode":
+	case "encode", "encode-json":
 		documentTomlEncodeScenario(w, s)
 
 	default:
