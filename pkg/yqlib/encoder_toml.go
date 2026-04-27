@@ -195,6 +195,18 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 	}
 }
 
+func isTomlArrayOfTables(seq *CandidateNode) bool {
+	if len(seq.Content) == 0 {
+		return false
+	}
+	for _, it := range seq.Content {
+		if it.Kind != MappingNode {
+			return false
+		}
+	}
+	return true
+}
+
 func (te *tomlEncoder) writeAttribute(w io.Writer, key string, value *CandidateNode) error {
 	te.wroteRootAttr = true // Mark that we wrote a root attribute
 
@@ -462,15 +474,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			break
 		}
 		if v.Kind == SequenceNode {
-			// Check if it's NOT an array of tables
-			allMaps := true
-			for _, it := range v.Content {
-				if it.Kind != MappingNode {
-					allMaps = false
-					break
-				}
-			}
-			if !allMaps {
+			if !isTomlArrayOfTables(v) {
 				hasAttrs = true
 				break
 			}
@@ -500,14 +504,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			}
 		case SequenceNode:
 			// If sequence of maps, emit [[path.k]] per element
-			allMaps := true
-			for _, it := range v.Content {
-				if it.Kind != MappingNode {
-					allMaps = false
-					break
-				}
-			}
-			if allMaps {
+			if isTomlArrayOfTables(v) {
 				key := tomlDottedKey(append(append([]string{}, path...), k))
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
@@ -545,14 +542,7 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 				return err
 			}
 		case SequenceNode:
-			allMaps := true
-			for _, it := range v.Content {
-				if it.Kind != MappingNode {
-					allMaps = false
-					break
-				}
-			}
-			if !allMaps {
+			if !isTomlArrayOfTables(v) {
 				if err := te.writeArrayAttribute(w, k, v); err != nil {
 					return err
 				}
@@ -565,14 +555,7 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		k := m.Content[i].Value
 		v := m.Content[i+1]
 		if v.Kind == SequenceNode {
-			allMaps := true
-			for _, it := range v.Content {
-				if it.Kind != MappingNode {
-					allMaps = false
-					break
-				}
-			}
-			if allMaps {
+			if isTomlArrayOfTables(v) {
 				dotted := tomlDottedKey(append(append([]string{}, path...), k))
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + dotted + "]]\n")); err != nil {
