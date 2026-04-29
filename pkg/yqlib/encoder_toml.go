@@ -132,12 +132,23 @@ func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error
 		}
 	}
 
-	// Preserve existing order by iterating Content
 	for i := 0; i < len(node.Content); i += 2 {
 		keyNode := node.Content[i]
 		valNode := node.Content[i+1]
-		if err := te.encodeTopLevelEntry(w, []string{keyNode.Value}, valNode); err != nil {
-			return err
+		if isTomlAttribute(valNode) {
+			if err := te.encodeTopLevelEntry(w, []string{keyNode.Value}, valNode); err != nil {
+				return err
+			}
+		}
+	}
+
+	for i := 0; i < len(node.Content); i += 2 {
+		keyNode := node.Content[i]
+		valNode := node.Content[i+1]
+		if !isTomlAttribute(valNode) {
+			if err := te.encodeTopLevelEntry(w, []string{keyNode.Value}, valNode); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -170,8 +181,13 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		if allMaps {
 			key := path[len(path)-1]
 			quotedKey := tomlKey(key)
+			if te.wroteRootAttr {
+				if _, err := w.Write([]byte("\n")); err != nil {
+					return err
+				}
+				te.wroteRootAttr = false
+			}
 			for _, it := range node.Content {
-				// [[key]] then body
 				if _, err := w.Write([]byte("[[" + quotedKey + "]]\n")); err != nil {
 					return err
 				}
@@ -210,7 +226,18 @@ func isTomlArrayOfTables(seq *CandidateNode) bool {
 	return true
 }
 
+func isTomlAttribute(node *CandidateNode) bool {
+	if node.Kind == ScalarNode {
+		return true
+	}
+	return node.Kind == SequenceNode && !isTomlArrayOfTables(node)
+}
+
 func (te *tomlEncoder) writeAttribute(w io.Writer, key string, value *CandidateNode) error {
+	if value.Tag == "!!null" {
+		return nil
+	}
+
 	te.wroteRootAttr = true // Mark that we wrote a root attribute
 
 	// Write head comment before the attribute
@@ -406,6 +433,9 @@ func (te *tomlEncoder) mappingToInlineTable(m *CandidateNode) (string, error) {
 		v := m.Content[i+1]
 		switch v.Kind {
 		case ScalarNode:
+			if v.Tag == "!!null" {
+				continue
+			}
 			parts = append(parts, fmt.Sprintf("%s = %s", tomlKey(k), te.formatScalar(v)))
 		case SequenceNode:
 			// inline array in inline table
@@ -468,7 +498,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 	hasAttrs := false
 	for i := 0; i < len(m.Content); i += 2 {
 		v := m.Content[i+1]
-		if v.Kind == ScalarNode {
+		if v.Kind == ScalarNode && v.Tag != "!!null" {
 			hasAttrs = true
 			break
 		}
@@ -509,6 +539,12 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			// If sequence of maps, emit [[path.k]] per element
 			if isTomlArrayOfTables(v) {
 				key := tomlDottedKey(append(append([]string{}, path...), k))
+				if te.wroteRootAttr {
+					if _, err := w.Write([]byte("\n")); err != nil {
+						return err
+					}
+					te.wroteRootAttr = false
+				}
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
 						return err

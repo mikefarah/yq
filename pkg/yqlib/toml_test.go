@@ -868,6 +868,60 @@ func TestTomlScenarios(t *testing.T) {
 	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
 }
 
+func TestTomlEncodeJsonKeepsRootArrayBeforeTables(t *testing.T) {
+	scenario := formatScenario{
+		description: "Encode: JSON root array stays outside later tables",
+		input: `{
+  "_source": {
+    "cookie": [
+      {
+        "Domain": "",
+        "Expires": "0001-01-01T00:00:00Z",
+        "HttpOnly": false,
+        "MaxAge": 0,
+        "Name": "name",
+        "Path": "",
+        "Raw": "",
+        "RawExpires": "",
+        "SameSite": 0,
+        "Secure": false,
+        "Unparsed": null,
+        "Value": "value"
+      }
+    ]
+  },
+  "highlight": {
+    "did": [
+      "did"
+    ]
+  },
+  "sort": [
+    1
+  ]
+}`,
+		expected: `sort = [1]
+
+[[_source.cookie]]
+Domain = ""
+Expires = "0001-01-01T00:00:00Z"
+HttpOnly = false
+MaxAge = 0
+Name = "name"
+Path = ""
+Raw = ""
+RawExpires = ""
+SameSite = 0
+Secure = false
+Value = "value"
+
+[highlight]
+did = ["did"]
+`,
+	}
+
+	test.AssertResultWithContext(t, scenario.expected, mustProcessFormatScenario(scenario, NewJSONDecoder(), NewTomlEncoder()), scenario.description)
+}
+
 // TestTomlColourization tests that colourization correctly distinguishes
 // between table section headers and inline arrays
 func TestTomlColourization(t *testing.T) {
