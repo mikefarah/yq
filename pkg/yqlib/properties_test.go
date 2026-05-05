@@ -202,6 +202,26 @@ var propertyScenarios = []formatScenario{
 		expected:     expectedDecodedYaml,
 		scenarioType: "decode",
 	},
+	{
+		skipDoc:     true,
+		description: "Decode properties with array brackets",
+		input: `user.credentials[0].username=user1
+user.credentials[0].password=$2b$08$...
+user.credentials[1].username=user2
+user.credentials[1].password=$2b$08$...
+user.credentials[2].username=user3
+user.credentials[2].password=$2b$10$...`,
+		expected: `user:
+  credentials:
+    - username: user1
+      password: $2b$08$...
+    - username: user2
+      password: $2b$08$...
+    - username: user3
+      password: $2b$10$...
+`,
+		scenarioType: "decode-array-brackets",
+	},
 
 	{
 		skipDoc:      true,
@@ -442,6 +462,12 @@ func TestPropertyScenarios(t *testing.T) {
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewPropertiesEncoder(ConfiguredPropertiesPreferences)), s.description)
 		case "decode":
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
+		case "decode-array-brackets":
+			previousPreferences := ConfiguredPropertiesPreferences.Copy()
+			ConfiguredPropertiesPreferences.UseArrayBrackets = true
+			actual := mustProcessFormatScenario(s, NewPropertiesDecoder(), NewYamlEncoder(ConfiguredYamlPreferences))
+			ConfiguredPropertiesPreferences = previousPreferences
+			test.AssertResultWithContext(t, s.expected, actual, s.description)
 		case "encode-wrapped":
 			prefs := ConfiguredPropertiesPreferences.Copy()
 			prefs.UnwrapScalar = false

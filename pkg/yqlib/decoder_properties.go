@@ -16,10 +16,11 @@ type propertiesDecoder struct {
 	reader   io.Reader
 	finished bool
 	d        DataTreeNavigator
+	prefs    PropertiesPreferences
 }
 
 func NewPropertiesDecoder() Decoder {
-	return &propertiesDecoder{d: NewDataTreeNavigator(), finished: false}
+	return &propertiesDecoder{d: NewDataTreeNavigator(), finished: false, prefs: ConfiguredPropertiesPreferences.Copy()}
 }
 
 func (dec *propertiesDecoder) Init(reader io.Reader) error {
@@ -28,18 +29,54 @@ func (dec *propertiesDecoder) Init(reader io.Reader) error {
 	return nil
 }
 
-func parsePropKey(key string) []interface{} {
+func parsePropKey(key string, prefs PropertiesPreferences) []interface{} {
 	pathStrArray := strings.Split(key, ".")
-	path := make([]interface{}, len(pathStrArray))
-	for i, pathStr := range pathStrArray {
-		num, err := strconv.ParseInt(pathStr, 10, 32)
-		if err == nil {
-			path[i] = num
-		} else {
-			path[i] = pathStr
-		}
+	path := make([]interface{}, 0, len(pathStrArray))
+	for _, pathStr := range pathStrArray {
+		path = appendPropKeySegment(path, pathStr, prefs.UseArrayBrackets)
 	}
 	return path
+}
+
+func appendPropKeySegment(path []interface{}, segment string, useArrayBrackets bool) []interface{} {
+	if useArrayBrackets && strings.Contains(segment, "[") {
+		bracketPath, ok := parsePropKeyArrayBracketSegment(segment)
+		if ok {
+			return append(path, bracketPath...)
+		}
+	}
+
+	num, err := strconv.ParseInt(segment, 10, 32)
+	if err == nil {
+		return append(path, num)
+	}
+	return append(path, segment)
+}
+
+func parsePropKeyArrayBracketSegment(segment string) ([]interface{}, bool) {
+	path := []interface{}{}
+	bracketIndex := strings.Index(segment, "[")
+	if bracketIndex > 0 {
+		path = append(path, segment[:bracketIndex])
+	}
+
+	remaining := segment[bracketIndex:]
+	for remaining != "" {
+		if !strings.HasPrefix(remaining, "[") {
+			return nil, false
+		}
+		closingBracket := strings.Index(remaining, "]")
+		if closingBracket < 0 {
+			return nil, false
+		}
+		arrayIndex, err := strconv.ParseInt(remaining[1:closingBracket], 10, 32)
+		if err != nil {
+			return nil, false
+		}
+		path = append(path, arrayIndex)
+		remaining = remaining[closingBracket+1:]
+	}
+	return path, true
 }
 
 func (dec *propertiesDecoder) processComment(c string) string {
@@ -75,7 +112,7 @@ func (dec *propertiesDecoder) applyPropertyComments(context Context, path []inte
 
 func (dec *propertiesDecoder) applyProperty(context Context, properties *properties.Properties, key string) error {
 	value, _ := properties.Get(key)
-	path := parsePropKey(key)
+	path := parsePropKey(key, dec.prefs)
 
 	propertyComments := properties.GetComments(key)
 	if len(propertyComments) > 0 {
