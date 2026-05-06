@@ -237,6 +237,22 @@ my-other-feature = []
 my-feature = ["my-other-feature"]
 `
 
+var issue2688SampleToml = `[project]
+name = "some-project"
+version = "0.5.1"
+authors = [{name = "Author", email = "author@example.com"}]
+license = { file = "LICENSE" }
+readme = "README.md"
+`
+
+var issue2688SampleExpected = `[project]
+name = "some-project"
+version = "0.5.2"
+authors = [{ name = "Author", email = "author@example.com" }]
+license = { file = "LICENSE" }
+readme = "README.md"
+`
+
 var rtSampleTable = `var = "x"
 
 [owner.contact]
@@ -725,6 +741,14 @@ var tomlScenarios = []formatScenario{
 		input:        `{"arg":{"hello": "foo"}}`,
 		expected:     "[arg]\nhello = \"foo\"\n",
 		scenarioType: "encode-json",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue 2688: inline table arrays do not change following table scope",
+		input:        issue2688SampleToml,
+		expression:   `.project.version = "0.5.2"`,
+		expected:     issue2688SampleExpected,
+		scenarioType: "roundtrip",
 	},
 	{
 		skipDoc:      true,

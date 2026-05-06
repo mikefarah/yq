@@ -203,7 +203,7 @@ func isTomlArrayOfTables(seq *CandidateNode) bool {
 		return false
 	}
 	for _, it := range seq.Content {
-		if it.Kind != MappingNode {
+		if it.Kind != MappingNode || it.EncodeHint == EncodeHintInline {
 			return false
 		}
 	}
@@ -535,7 +535,7 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 
 // encodeMappingBodyWithPath encodes attributes and nested arrays of tables using full dotted path context
 func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *CandidateNode) error {
-	// First, attributes (scalars and non-map arrays)
+	// First, attributes (scalars, inline mappings, and non-map arrays)
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
@@ -543,6 +543,12 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		case ScalarNode:
 			if err := te.writeAttribute(w, k, v); err != nil {
 				return err
+			}
+		case MappingNode:
+			if v.EncodeHint == EncodeHintInline {
+				if err := te.writeInlineTableAttribute(w, k, v); err != nil {
+					return err
+				}
 			}
 		case SequenceNode:
 			if !isTomlArrayOfTables(v) {
@@ -572,21 +578,15 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		}
 	}
 
-	// Finally, child mappings: inline-hint ones become inline table attributes,
+	// Finally, child mappings: inline-hint ones were emitted above as attributes,
 	// while all others are emitted as separate sub-table sections.
 	for i := 0; i < len(m.Content); i += 2 {
 		k := m.Content[i].Value
 		v := m.Content[i+1]
-		if v.Kind == MappingNode {
-			if v.EncodeHint == EncodeHintInline {
-				if err := te.writeInlineTableAttribute(w, k, v); err != nil {
-					return err
-				}
-			} else {
-				subPath := append(append([]string{}, path...), k)
-				if err := te.encodeSeparateMapping(w, subPath, v); err != nil {
-					return err
-				}
+		if v.Kind == MappingNode && v.EncodeHint != EncodeHintInline {
+			subPath := append(append([]string{}, path...), k)
+			if err := te.encodeSeparateMapping(w, subPath, v); err != nil {
+				return err
 			}
 		}
 	}
