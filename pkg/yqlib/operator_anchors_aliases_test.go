@@ -200,6 +200,15 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Nested merge anchor with inline map",
+		document:    `{<<: {<<: {a: 42}}}`,
+		expression:  `explode(.)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 42}\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Merge anchor with sequence with inline map",
 		document:    `{<<: [{a: 42}]}`,
 		expression:  `explode(.)`,
