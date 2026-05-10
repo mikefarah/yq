@@ -7,6 +7,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
+	"strconv"
+	"strings"
 
 	"github.com/goccy/go-json"
 )
@@ -140,6 +143,12 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 		return buf.Bytes(), err
 	case ScalarNode:
 		log.Debugf("MarshalJSON ScalarNode")
+		if o.guessTagFromCustomType() == "!!float" {
+			if raw, ok := jsonFloatLiteral(o.Value); ok {
+				buf.WriteString(raw)
+				return buf.Bytes(), nil
+			}
+		}
 		value, err := o.GetValueRep()
 		if err != nil {
 			return buf.Bytes(), err
@@ -176,4 +185,86 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 		err := enc.Encode(nil)
 		return buf.Bytes(), err
 	}
+}
+
+// jsonFloatLiteral returns a JSON-shaped representation of a YAML !!float scalar
+// value, preserving the original textual form (e.g. "50.0" stays "50.0") whenever
+// possible. The second return value is false when the value cannot be safely
+// rendered as a JSON number (e.g. ".inf", ".nan", or anything that parses to a
+// non-finite float); callers should fall back to the normal encoding path in
+// that case, which preserves the existing behaviour for those inputs.
+func jsonFloatLiteral(raw string) (string, bool) {
+	if raw == "" {
+		return "", false
+	}
+	f, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return "", false
+	}
+	if math.IsInf(f, 0) || math.IsNaN(f) {
+		return "", false
+	}
+	if isJSONNumberLiteral(raw) {
+		return raw, true
+	}
+	formatted := strconv.FormatFloat(f, 'f', -1, 64)
+	if !strings.ContainsAny(formatted, ".eE") {
+		formatted += ".0"
+	}
+	return formatted, true
+}
+
+// isJSONNumberLiteral reports whether s is already a valid JSON number literal
+// representing a fractional value (i.e. contains a "." or an exponent), so it
+// can be emitted verbatim without round-tripping through a float64.
+func isJSONNumberLiteral(s string) bool {
+	if s == "" {
+		return false
+	}
+	i := 0
+	if s[i] == '-' {
+		i++
+		if i == len(s) {
+			return false
+		}
+	}
+	// integer part: 0 or [1-9][0-9]*
+	if s[i] == '0' {
+		i++
+	} else if s[i] >= '1' && s[i] <= '9' {
+		for i < len(s) && s[i] >= '0' && s[i] <= '9' {
+			i++
+		}
+	} else {
+		return false
+	}
+	hasFraction := false
+	if i < len(s) && s[i] == '.' {
+		hasFraction = true
+		i++
+		if i == len(s) || s[i] < '0' || s[i] > '9' {
+			return false
+		}
+		for i < len(s) && s[i] >= '0' && s[i] <= '9' {
+			i++
+		}
+	}
+	hasExponent := false
+	if i < len(s) && (s[i] == 'e' || s[i] == 'E') {
+		hasExponent = true
+		i++
+		if i < len(s) && (s[i] == '+' || s[i] == '-') {
+			i++
+		}
+		if i == len(s) || s[i] < '0' || s[i] > '9' {
+			return false
+		}
+		for i < len(s) && s[i] >= '0' && s[i] <= '9' {
+			i++
+		}
+	}
+	if i != len(s) {
+		return false
+	}
+	return hasFraction || hasExponent
 }

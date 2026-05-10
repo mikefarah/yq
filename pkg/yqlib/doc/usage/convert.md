@@ -125,6 +125,22 @@ will output
 {"whatever":"cat"}
 ```
 
+## Encode json: preserve floats with trailing zero
+Whole-number floats keep their decimal point so downstream consumers see a JSON number with a fractional part (matches Go's encoding/json, Python's json, and jq).
+
+Given a sample.yml file of:
+```yaml
+percentiles: [50.0, 95.0, 99.0, 99.9]
+```
+then
+```bash
+yq -o=json -I=0 '.' sample.yml
+```
+will output
+```json
+{"percentiles":[50.0,95.0,99.0,99.9]}
+```
+
 ## Roundtrip JSON Lines / NDJSON
 Given a sample.json file of:
 ```json
