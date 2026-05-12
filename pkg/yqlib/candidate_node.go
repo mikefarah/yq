@@ -46,7 +46,11 @@ const (
 func createStringScalarNode(stringValue string) *CandidateNode {
 	var node = &CandidateNode{Kind: ScalarNode}
 	node.Value = stringValue
-	node.Tag = "!!str"
+	if stringValue == "<<" {
+		node.Tag = "!!merge"
+	} else {
+		node.Tag = "!!str"
+	}
 	return node
 }
 
