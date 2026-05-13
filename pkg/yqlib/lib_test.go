@@ -24,7 +24,7 @@ type parseSnippetScenario struct {
 var parseSnippetScenarios = []parseSnippetScenario{
 	{
 		snippet:       ":",
-		expectedError: "yaml: while parsing a block mapping at <unknown position>: did not find expected key",
+		expectedError: "go-yaml load error in parser (while parsing a block mapping) at L1.C1: did not find expected key",
 	},
 	{
 		snippet: "",

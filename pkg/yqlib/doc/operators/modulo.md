@@ -34,7 +34,7 @@ yq '.a = .a % .b' sample.yml
 ```
 will output
 ```yaml
-a: !!float 2
+a: 2
 b: 2.5
 ```
 
@@ -69,7 +69,7 @@ yq '.a = .a % .b' sample.yml
 ```
 will output
 ```yaml
-a: !!float NaN
+a: NaN
 b: 0
 ```
 

@@ -31,7 +31,7 @@ thingOne:
     value: false
 thingTwo:
     name: item_2
-    !!merge <<: *item_value
+    <<: *item_value
 `
 
 var explodeMergeAnchorsFixedExpected = `D0, P[], (!!map)::foo:
