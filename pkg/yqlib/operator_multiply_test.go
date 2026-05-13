@@ -121,7 +121,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:   mergeArrayWithAnchors,
 		expression: `. * .`,
 		expected: []string{
-			"D0, P[], (!!map)::sample:\n    - &a\n    - !!merge <<: *a\n",
+			"D0, P[], (!!map)::sample:\n    - &a\n    - <<: *a\n",
 		},
 	},
 	{
@@ -514,7 +514,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		environmentVariables: map[string]string{"originalPath": ".myArray", "otherPath": ".newArray", "idPath": ".a"},
 		expression:           mergeExpression,
 		expected: []string{
-			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}, {a: dingo, c: dingoC}], something: else}\n",
+			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC},\n        {a: dingo, c: dingoC}], something: else}\n",
 		},
 	},
 	{
@@ -546,7 +546,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:    mergeDocSample,
 		expression:  `.foobar * .foobarList`,
 		expected: []string{
-			"D0, P[foobar], (!!map)::c: foobarList_c\n!!merge <<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
+			"D0, P[foobar], (!!map)::c: foobarList_c\n<<: [*foo, *bar]\nthing: foobar_thing\nb: foobarList_b\n",
 		},
 	},
 	{
@@ -554,7 +554,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:   document,
 		expression: `.b * .c`,
 		expected: []string{
-			"D0, P[b], (!!map)::{name: dog, \"<<\": *cat}\n",
+			"D0, P[b], (!!map)::{name: dog, <<: *cat}\n",
 		},
 	},
 	{
@@ -581,7 +581,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		document:    "a: 2\nb: !goat 3.5",
 		expression:  ".a = .a * .b",
 		expected: []string{
-			"D0, P[], (!!map)::a: !!float 7\nb: !goat 3.5\n",
+			"D0, P[], (!!map)::a: 7\nb: !goat 3.5\n",
 		},
 	},
 	{

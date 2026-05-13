@@ -45,7 +45,7 @@ var divideOperatorScenarios = []expressionScenario{
 		document:       `{a: 1, b: -1}`,
 		expression:     `.a = .a / 0 | .b = .b / 0`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: !!float +Inf, b: !!float -Inf}\n",
+			"D0, P[], (!!map)::{a: +Inf, b: -Inf}\n",
 		},
 	},
 	{

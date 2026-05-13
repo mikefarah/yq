@@ -98,7 +98,7 @@ var selectOperatorScenarios = []expressionScenario{
 		document:    `[{animal: cat, legs: {cool: true}}, {animal: fish}]`,
 		expression:  `(.[] | select(.legs.cool == true).canWalk) = true | (.[] | .alive.things) = "yes"`,
 		expected: []string{
-			"D0, P[], (!!seq)::[{animal: cat, legs: {cool: true}, canWalk: true, alive: {things: yes}}, {animal: fish, alive: {things: yes}}]\n",
+			"D0, P[], (!!seq)::[{animal: cat, legs: {cool: true}, canWalk: true, alive: {things: yes}}, {animal: fish,\n        alive: {things: yes}}]\n",
 		},
 	},
 	{
