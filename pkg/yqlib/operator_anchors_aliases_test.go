@@ -288,7 +288,51 @@ var badAnchorOperatorScenarios = []expressionScenario{
 	},
 }
 
+var mixedMergeTagStyleDocument = `
+constants:
+    errorResponse: &errorResponse
+        status: 200
+endpoints:
+    - condition: true
+      !!merge <<: *errorResponse
+    - condition: false
+      <<: *errorResponse
+other:
+    !!merge <<: *errorResponse
+somethingElse:
+    <<: *errorResponse
+`
+
+var mixedMergeTagStyleExplodedDocument = `
+constants:
+    errorResponse:
+        status: 200
+endpoints:
+    - condition: true
+      status: 200
+    - condition: false
+      status: 200
+other:
+    status: 200
+somethingElse:
+    status: 200
+`
+
 var anchorOperatorScenarios = []expressionScenario{
+	{
+		skipDoc:     true,
+		description: "explicit !!merge tag on << key is preserved through ireduce merge",
+		document:    mixedMergeTagStyleDocument,
+		expression:  `. as $item ireduce ({}; . *+ $item)`,
+		expected:    []string{"D0, P[], (!!map)::" + mixedMergeTagStyleDocument},
+	},
+	{
+		skipDoc:     true,
+		description: "explode expands << merge keys regardless of explicit tag style (!!merge or plain)",
+		document:    mixedMergeTagStyleDocument,
+		expression:  `explode(.)`,
+		expected:    []string{"D0, P[], (!!map)::" + mixedMergeTagStyleExplodedDocument},
+	},
 	{
 		skipDoc:     true,
 		description: "merge anchor to alias alias",
