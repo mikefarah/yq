@@ -189,10 +189,6 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 
 		log.Debugf("going to applied assignment to LHS: %v with RHS: %v", NodeToString(lhs), NodeToString(candidate))
 
-		if candidate.Tag == "!!merge" && !candidate.IsMapKey {
-			continue
-		}
-
 		err := applyAssignment(d, context, pathIndexToStartFrom, lhs, candidate, preferences)
 		if err != nil {
 			return nil, err

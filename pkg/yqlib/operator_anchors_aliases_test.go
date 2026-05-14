@@ -320,6 +320,18 @@ somethingElse:
 
 var anchorOperatorScenarios = []expressionScenario{
 	{
+		// mergeObjects previously skipped all !!merge-tagged nodes. Since !!merge only appears on
+		// << map keys, this meant applyAssignment was never called for the << key. It was later
+		// autocreated by createStringScalarNode("<<") with tag !!str, silently dropping !!merge.
+		// DontFollowAlias:true already prevents aliases being followed, so the skip was redundant.
+		// Old (buggy) output: "D0, P[], (!!map)::base: &base\n    x: 1\ndest:\n    <<: *base\n"
+		skipDoc:     true,
+		description: "direct *+ preserves explicit !!merge tag on << key (regression for issue 2677)",
+		document:    "base: &base\n    x: 1\ndest:\n    !!merge <<: *base\n",
+		expression:  `. as $d | {} *+ $d`,
+		expected:    []string{"D0, P[], (!!map)::base: &base\n    x: 1\ndest:\n    !!merge <<: *base\n"},
+	},
+	{
 		skipDoc:     true,
 		description: "explicit !!merge tag on << key is preserved through ireduce merge",
 		document:    mixedMergeTagStyleDocument,
