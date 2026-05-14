@@ -222,6 +222,17 @@ user.credentials[2].password=$2b$10$...`,
 `,
 		scenarioType: "decode-array-brackets",
 	},
+	{
+		skipDoc:     true,
+		description: "Decode properties with nested array brackets",
+		input:       `user.clowns[0][1] = "cool"`,
+		expected: `user:
+  clowns:
+    - - null
+      - '"cool"'
+`,
+		scenarioType: "decode-array-brackets",
+	},
 
 	{
 		skipDoc:      true,
