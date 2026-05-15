@@ -230,8 +230,7 @@ var goccyYamlFormatScenarios = []formatScenario{
 		description: "merge anchor",
 		skipDoc:     true,
 		input:       "a: &remember\n  c: mike\nb:\n  <<: *remember",
-		// fine to have !!merge as that's what the current impl does
-		expected: "a: &remember\n  c: mike\nb:\n  !!merge <<: *remember\n",
+		expected: "a: &remember\n  c: mike\nb:\n  <<: *remember\n",
 	},
 	{
 		description: "custom tag",

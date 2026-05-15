@@ -494,7 +494,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		document:   mergeDocSample,
 		expression: `.foobar`,
 		expected: []string{
-			"D0, P[foobar], (!!map)::c: foobar_c\n!!merge <<: *foo\nthing: foobar_thing\n",
+			"D0, P[foobar], (!!map)::c: foobar_c\n<<: *foo\nthing: foobar_thing\n",
 		},
 	},
 	{
@@ -518,7 +518,7 @@ var traversePathOperatorScenarios = []expressionScenario{
 		document:   mergeDocSample,
 		expression: `.foobarList`,
 		expected: []string{
-			"D0, P[foobarList], (!!map)::b: foobarList_b\n!!merge <<: [*foo, *bar]\nc: foobarList_c\n",
+			"D0, P[foobarList], (!!map)::b: foobarList_b\n<<: [*foo, *bar]\nc: foobarList_c\n",
 		},
 	},
 	{

@@ -31,7 +31,7 @@ thingOne:
     value: false
 thingTwo:
     name: item_2
-    !!merge <<: *item_value
+    <<: *item_value
 `
 
 var explodeMergeAnchorsFixedExpected = `D0, P[], (!!map)::foo:
@@ -288,7 +288,63 @@ var badAnchorOperatorScenarios = []expressionScenario{
 	},
 }
 
+var mixedMergeTagStyleDocument = `
+constants:
+    errorResponse: &errorResponse
+        status: 200
+endpoints:
+    - condition: true
+      !!merge <<: *errorResponse
+    - condition: false
+      <<: *errorResponse
+other:
+    !!merge <<: *errorResponse
+somethingElse:
+    <<: *errorResponse
+`
+
+var mixedMergeTagStyleExplodedDocument = `
+constants:
+    errorResponse:
+        status: 200
+endpoints:
+    - condition: true
+      status: 200
+    - condition: false
+      status: 200
+other:
+    status: 200
+somethingElse:
+    status: 200
+`
+
 var anchorOperatorScenarios = []expressionScenario{
+	{
+		// mergeObjects previously skipped all !!merge-tagged nodes. Since !!merge only appears on
+		// << map keys, this meant applyAssignment was never called for the << key. It was later
+		// autocreated by createStringScalarNode("<<") with tag !!str, silently dropping !!merge.
+		// DontFollowAlias:true already prevents aliases being followed, so the skip was redundant.
+		// Old (buggy) output: "D0, P[], (!!map)::base: &base\n    x: 1\ndest:\n    <<: *base\n"
+		skipDoc:     true,
+		description: "direct *+ preserves explicit !!merge tag on << key (regression for issue 2677)",
+		document:    "base: &base\n    x: 1\ndest:\n    !!merge <<: *base\n",
+		expression:  `. as $d | {} *+ $d`,
+		expected:    []string{"D0, P[], (!!map)::base: &base\n    x: 1\ndest:\n    !!merge <<: *base\n"},
+	},
+	{
+		skipDoc:     true,
+		description: "explicit !!merge tag on << key is preserved through ireduce merge",
+		document:    mixedMergeTagStyleDocument,
+		expression:  `. as $item ireduce ({}; . *+ $item)`,
+		expected:    []string{"D0, P[], (!!map)::" + mixedMergeTagStyleDocument},
+	},
+	{
+		skipDoc:     true,
+		description: "explode expands << merge keys regardless of explicit tag style (!!merge or plain)",
+		document:    mixedMergeTagStyleDocument,
+		expression:  `explode(.)`,
+		expected:    []string{"D0, P[], (!!map)::" + mixedMergeTagStyleExplodedDocument},
+	},
 	{
 		skipDoc:     true,
 		description: "merge anchor to alias alias",

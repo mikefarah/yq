@@ -55,7 +55,7 @@ yq '.a = .a / 0 | .b = .b / 0' sample.yml
 ```
 will output
 ```yaml
-a: !!float +Inf
-b: !!float -Inf
+a: +Inf
+b: -Inf
 ```
 

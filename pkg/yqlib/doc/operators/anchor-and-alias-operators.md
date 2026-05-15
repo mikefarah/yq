@@ -32,7 +32,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<: *CENTRE
+- <<: *CENTRE
   r: 10
 ```
 then
@@ -213,10 +213,10 @@ item_value: &item_value
   value: true
 thingOne:
   name: item_1
-  !!merge <<: *item_value
+  <<: *item_value
 thingTwo:
   name: item_2
-  !!merge <<: *item_value
+  <<: *item_value
 ```
 then
 ```bash
@@ -231,7 +231,7 @@ thingOne:
   value: false
 thingTwo:
   name: item_2
-  !!merge <<: *item_value
+  <<: *item_value
 ```
 
 ## LEGACY: Explode with merge anchors
@@ -249,13 +249,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -298,7 +298,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *CENTRE
     - *BIG
 ```
@@ -328,7 +328,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *BIG
     - *LEFT
     - *SMALL
@@ -361,13 +361,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -411,7 +411,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *CENTRE
     - *BIG
 ```
@@ -442,7 +442,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *BIG
     - *LEFT
     - *SMALL
@@ -467,7 +467,7 @@ Given a sample.yml file of:
 ```yaml
 a:
   b: &b 42
-!!merge <<:
+<<:
   c: *b
 ```
 then
