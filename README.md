@@ -478,3 +478,4 @@ yq ".a.b[0].c = \"value\"" file.yaml
 - "yes", "no" were dropped as boolean values in the yaml 1.2 standard - which is the standard yq assumes.
 
 See [tips and tricks](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks) for more common problems and solutions.
+
