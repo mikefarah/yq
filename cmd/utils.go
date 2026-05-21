@@ -186,7 +186,7 @@ func configurePrinterWriter(format *yqlib.Format, out io.Writer) (yqlib.PrinterW
 		if err != nil {
 			return nil, fmt.Errorf("bad split document expression: %w", err)
 		}
-		printerWriter = yqlib.NewMultiPrinterWriter(splitExp, format)
+		printerWriter = yqlib.NewMultiPrinterWriterWithOptions(splitExp, format, splitFileNoOverwrite)
 	} else {
 		printerWriter = yqlib.NewSinglePrinterWriter(out)
 	}
