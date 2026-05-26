@@ -5,6 +5,7 @@ package yqlib
 import (
 	"bufio"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -173,6 +174,21 @@ func documentDecodeErrorINIScenario(w *bufio.Writer, s formatScenario) {
 
 	writeOrPanic(w, "then an error is expected:\n")
 	writeOrPanic(w, fmt.Sprintf("```\n%v\n```\n\n", s.expectedError))
+}
+
+func TestINIDecoderInitResetsFinished(t *testing.T) {
+	decoder := NewINIDecoder()
+	firstDocuments, err := readDocuments(strings.NewReader("[first]\nkey = value\n"), "first.ini", 0, decoder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	test.AssertResult(t, 1, firstDocuments.Len())
+
+	secondDocuments, err := readDocuments(strings.NewReader("[second]\nkey = value\n"), "second.ini", 1, decoder)
+	if err != nil {
+		t.Fatal(err)
+	}
+	test.AssertResult(t, 1, secondDocuments.Len())
 }
 
 func TestINIScenarios(t *testing.T) {
