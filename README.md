@@ -97,7 +97,7 @@ wget https://github.com/mikefarah/yq/releases/download/${VERSION}/yq_${PLATFORM}
 
 **Latest version (Linux AMD64):**
 ```bash
-wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq &&\
+wget https://github.com/mikefarah/yq/releases/download/latest/yq_linux_amd64 -O /usr/local/bin/yq &&\
     chmod +x /usr/local/bin/yq
 ```
 
