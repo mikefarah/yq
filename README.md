@@ -303,7 +303,12 @@ scoop install main/yq
 ```
 
 Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
+```powershell
+winget install MikeFarah.yq
 ```
+
+Alternatively, you can specify the package id explicitly:
+```powershell
 winget install --id MikeFarah.yq
 ```
 
