@@ -1,18 +1,21 @@
 package yqlib
 
 type INIPreferences struct {
-	ColorsEnabled bool
+	ColorsEnabled           bool
+	PreserveSurroundedQuote bool
 }
 
 func NewDefaultINIPreferences() INIPreferences {
 	return INIPreferences{
-		ColorsEnabled: false,
+		ColorsEnabled:           false,
+		PreserveSurroundedQuote: false,
 	}
 }
 
 func (p *INIPreferences) Copy() INIPreferences {
 	return INIPreferences{
-		ColorsEnabled: p.ColorsEnabled,
+		ColorsEnabled:           p.ColorsEnabled,
+		PreserveSurroundedQuote: p.PreserveSurroundedQuote,
 	}
 }
 
