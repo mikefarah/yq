@@ -234,6 +234,29 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::a:\n    b: 42\nb: 42\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Merge after explode preserves correct parent references",
+		document:    `opensearch: &opensearch-cluster
+  ip2geo:
+    enabled: false
+
+opensearch-client:
+  <<: *opensearch-cluster
+  nodeGroup: client
+  opensearchJavaOpts: "-Xmx1024m -Xms1024m"`,
+		document2: `opensearch: &opensearch-cluster
+  ip2geo:
+    enabled: true
+
+opensearch-client:
+  <<: *opensearch-cluster
+  opensearchJavaOpts: "-Xmx1536m -Xms1536m"`,
+		expression: `(select(fi == 0) | explode(.)) * (select(fi == 1) | explode(.))`,
+		expected: []string{
+			"D0, P[], (!!map)::opensearch:\n    ip2geo:\n        enabled: true\nopensearch-client:\n    ip2geo:\n        enabled: true\n    nodeGroup: client\n    opensearchJavaOpts: \"-Xmx1536m -Xms1536m\"\n",
+		},
+	},
 }
 
 var badAnchorOperatorScenarios = []expressionScenario{
