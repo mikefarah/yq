@@ -8,12 +8,12 @@
 - git push --tags
 - use github actions to publish docker and make github release
 - check github updated yq action in marketplace
-- update github-action/Dockerfile to pin the newly published docker image digest:
-    skopeo inspect docker://docker.io/mikefarah/yq:4  --override-arch amd64 --override-os linux | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Digest'])"
+- update github-action/Dockerfile to pin the newly published docker image digest (must match the mikefarah/yq:4 manifest digest):
+    docker buildx imagetools inspect docker.io/mikefarah/yq:4 --format '{{.Digest}}'
   then update the FROM line in github-action/Dockerfile with the new digest:
-    FROM mikefarah/yq:4@sha256:<new-digest>
+    FROM mikefarah/yq:4@<digest-from-above>
 - commit the Dockerfile change, then manually run the "Release Docker GitHub Action" workflow
-  (Actions -> Release Docker GitHub Action -> Run workflow) with the new version number
+  (Actions -> Release Docker GitHub Action -> Run workflow)
 
 // release artifacts are signed with cosign keyless signing (Sigstore)
 // users can verify with:

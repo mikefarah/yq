@@ -2,10 +2,6 @@ name: Release Docker GitHub Action
 
 on:
   workflow_dispatch:
-    inputs:
-      image_version:
-        description: 'yq version to tag the github-action image with (e.g. 4.53.3)'
-        required: true
 
 permissions: {}
 
@@ -14,7 +10,6 @@ jobs:
     environment: dockerhub
     env:
       IMAGE_NAME: mikefarah/yq
-      IMAGE_VERSION: ${{ inputs.image_version }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,6 +27,36 @@ jobs:
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
         with:
           version: latest
+
+      - name: Verify Dockerfile base image digest matches yq:4
+        run: |
+          PINNED_DIGEST=$(grep -oE 'sha256:[a-f0-9]{64}' github-action/Dockerfile | head -1)
+          if [ -z "${PINNED_DIGEST}" ]; then
+            echo "::error::Could not find a sha256 digest in github-action/Dockerfile"
+            exit 1
+          fi
+
+          LATEST_DIGEST=$(docker buildx imagetools inspect "${IMAGE_NAME}:4" --format '{{.Digest}}')
+
+          echo "Dockerfile pins: ${PINNED_DIGEST}"
+          echo "mikefarah/yq:4 is:  ${LATEST_DIGEST}"
+
+          if [ "${PINNED_DIGEST}" != "${LATEST_DIGEST}" ]; then
+            echo "::error::github-action/Dockerfile digest does not match the current mikefarah/yq:4 image"
+            echo "Update the FROM line in github-action/Dockerfile to:"
+            echo "  FROM mikefarah/yq:4@${LATEST_DIGEST}"
+            exit 1
+          fi
+
+      - name: Resolve version from yq:4
+        run: |
+          IMAGE_VERSION=$(docker run --rm "${IMAGE_NAME}:4" --version | awk '{print $NF}' | sed 's/^v//')
+          if [ -z "${IMAGE_VERSION}" ]; then
+            echo "::error::Could not determine yq version from ${IMAGE_NAME}:4"
+            exit 1
+          fi
+          echo "Resolved yq version: ${IMAGE_VERSION}"
+          echo "IMAGE_VERSION=${IMAGE_VERSION}" >> "${GITHUB_ENV}"
 
       - name: Login to Docker Hub
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
