@@ -203,7 +203,7 @@ func documentDecodeErrorINIScenario(w *bufio.Writer, s formatScenario) {
 }
 
 func TestINIDecoderInitResetsFinished(t *testing.T) {
-	decoder := NewINIDecoder()
+	decoder := NewINIDecoder(NewDefaultINIPreferences())
 	firstDocuments, err := readDocuments(strings.NewReader("[first]\nkey = value\n"), "first.ini", 0, decoder)
 	if err != nil {
 		t.Fatal(err)
