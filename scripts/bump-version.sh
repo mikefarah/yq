@@ -8,14 +8,17 @@ fi
 
 version=$1
 
-# validate version is in the right format
-echo $version | sed -r '/v4\.[0-9][0-9]\.[0-9][0-9]?$/!{q1}'
+# validate version is in the right format (bash regex — portable; GNU sed's q1 is not on macOS)
+if [[ ! $version =~ ^v4\.[0-9][0-9]\.[0-9][0-9]?$ ]]; then
+  echo "Please specify a valid version (e.g. v4.53.3)"
+  exit 1
+fi
 
 previousVersion=$(cat cmd/version.go| sed -n 's/.*Version = "\([^"]*\)"/\1/p')
 
 echo "Updating from $previousVersion to $version"
 
-sed -i "s/\(.*Version =\).*/\1 \"$version\"/" cmd/version.go
+sed "s/\(.*Version =\).*/\1 \"$version\"/" cmd/version.go > cmd/version.go.tmp && mv cmd/version.go.tmp cmd/version.go
 
 go build .
 actualVersion=$(./yq --version)
