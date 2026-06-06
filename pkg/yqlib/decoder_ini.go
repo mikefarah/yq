@@ -25,6 +25,7 @@ func NewINIDecoder(prefs INIPreferences) Decoder {
 func (dec *iniDecoder) Init(reader io.Reader) error {
 	// Store the reader for use in Decode
 	dec.reader = reader
+	dec.finished = false
 	return nil
 }
 
