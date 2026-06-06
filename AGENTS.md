@@ -2,6 +2,14 @@
 
 See [agents.md](./agents.md) for contributor workflow (formatting, testing patterns, adding encoders/decoders).
 
+Always run the spellcheck before raising a PR:
+
+```bash
+bash scripts/spelling.sh
+```
+
+This is also included in the full CI pipeline via `make local test`.
+
 ## Cursor Cloud specific instructions
 
 ### Overview
@@ -39,7 +47,7 @@ export PATH="$HOME/go/bin:$PATH"
 
 `make local build` runs the full CI chain (format → spelling → gosec → lint → unit tests → build → acceptance). For a faster loop, build with `go build -o yq .` and run `bash scripts/acceptance.sh`.
 
-### Gotchas
+### Caveats
 
 - **`make` without `local`** tries Docker/Podman (`Dockerfile.dev`). In Cloud Agent VMs without Docker, always prefix with `make local`.
 - **Spelling step** uses `npx cspell` and may download cspell on first run (network required).
