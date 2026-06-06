@@ -9,7 +9,7 @@
 - use github actions to publish docker and make github release
 - check github updated yq action in marketplace
 - update github-action/Dockerfile to pin the newly published docker image digest (must match the mikefarah/yq:4 manifest digest):
-    docker buildx imagetools inspect docker.io/mikefarah/yq:4 --format '{{.Digest}}'
+    docker buildx imagetools inspect docker.io/mikefarah/yq:4 --format '{{printf "%s" .Manifest.Digest}}'
   then update the FROM line in github-action/Dockerfile with the new digest:
     FROM mikefarah/yq:4@<digest-from-above>
 - commit the Dockerfile change, then manually run the "Release Docker GitHub Action" workflow

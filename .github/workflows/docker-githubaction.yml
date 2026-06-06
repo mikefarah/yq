@@ -36,7 +36,7 @@ jobs:
             exit 1
           fi
 
-          LATEST_DIGEST=$(docker buildx imagetools inspect "${IMAGE_NAME}:4" --format '{{.Digest}}')
+          LATEST_DIGEST=$(docker buildx imagetools inspect "${IMAGE_NAME}:4" --format '{{printf "%s" .Manifest.Digest}}')
 
           echo "Dockerfile pins: ${PINNED_DIGEST}"
           echo "mikefarah/yq:4 is:  ${LATEST_DIGEST}"
