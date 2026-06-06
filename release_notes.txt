@@ -1,3 +1,18 @@
+4.53.3:
+  - Add `--ini-preserve-quotes` flag for INI round-trip quote preservation (#2728) Thanks @toller892!
+  - Fix: reset INI decoder state on init (#2719) Thanks @xieby1!
+  - Fix: decode properties array bracket paths (#2693) Thanks @cyphercodes!
+  - Fix: preserve floats with trailing zero when encoding YAML to JSON (#2701) Thanks @ChrisJr404!
+  - Fix: JSON to TOML root scope and null handling (#2689) Thanks @LovesAsuna!
+  - Fix: reset TOML decoder finished flag on Init for multi-doc evaluation (#2704) Thanks @terminalchai!
+  - Fix: reset TOML decoder between files when evaluating all at once (#2685) Thanks @terminalchai!
+  - Fix: preserve TOML inline table array scope (#2694) Thanks @cyphercodes!
+  - Fix: preserve empty TOML arrays in tables (#2686) Thanks @cyphercodes!
+  - Fix: TOML encoder uses inline tables for YAML FlowStyle mappings (#2687)
+  - Fix nested inline YAML merge explode (#2699) Thanks @cyphercodes!
+  - Fix repeatString overflow test on 32-bit platforms (#2680) Thanks @jandubois!
+  - Bumped dependencies
+
 4.53.2:
   - Fixing release process
   
