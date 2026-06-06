@@ -1,19 +1,20 @@
-name: Release Docker
+name: Release Docker GitHub Action
 
 on:
-  release:
-    types: [released]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      image_version:
+        description: 'yq version to tag the github-action image with (e.g. 4.53.3)'
+        required: true
 
 permissions: {}
 
 jobs:
-  publishDocker:
+  publishGithubActionDocker:
     environment: dockerhub
     env:
       IMAGE_NAME: mikefarah/yq
+      IMAGE_VERSION: ${{ inputs.image_version }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,9 +33,6 @@ jobs:
         with:
           version: latest
 
-      - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }} && docker version
-
       - name: Login to Docker Hub
         uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
@@ -48,17 +46,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build and push github-action image
+        working-directory: github-action
         run: |
-          echo "GithubRef: ${GITHUB_REF}"
-          VERSION=${GITHUB_REF##*/}
-          echo "VERSION: ${VERSION}"
-          IMAGE_VERSION=${VERSION:1}
-          echo "IMAGE_VERSION: ${IMAGE_VERSION}"
-
           PLATFORMS="linux/amd64,linux/ppc64le,linux/arm64,linux/arm/v7,linux/s390x"
 
-          echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
+          echo "Building and pushing github-action image for version ${IMAGE_VERSION}"
           docker buildx build \
             --label "org.opencontainers.image.authors=https://github.com/mikefarah/yq/graphs/contributors" \
             --label "org.opencontainers.image.created=$(date --rfc-3339=seconds)" \
@@ -73,10 +66,10 @@ jobs:
             --platform "${PLATFORMS}" \
             --pull \
             --push \
-            -t "${IMAGE_NAME}:${IMAGE_VERSION}" \
-            -t "${IMAGE_NAME}:4" \
-            -t "${IMAGE_NAME}:latest" \
-            -t "ghcr.io/${IMAGE_NAME}:${IMAGE_VERSION}" \
-            -t "ghcr.io/${IMAGE_NAME}:4" \
-            -t "ghcr.io/${IMAGE_NAME}:latest" \
+            -t "${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
+            -t "${IMAGE_NAME}:4-githubaction" \
+            -t "${IMAGE_NAME}:latest-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:${IMAGE_VERSION}-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:4-githubaction" \
+            -t "ghcr.io/${IMAGE_NAME}:latest-githubaction" \
             .

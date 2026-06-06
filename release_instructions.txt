@@ -12,6 +12,8 @@
     skopeo inspect docker://docker.io/mikefarah/yq:4  --override-arch amd64 --override-os linux | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Digest'])"
   then update the FROM line in github-action/Dockerfile with the new digest:
     FROM mikefarah/yq:4@sha256:<new-digest>
+- commit the Dockerfile change, then manually run the "Release Docker GitHub Action" workflow
+  (Actions -> Release Docker GitHub Action -> Run workflow) with the new version number
 
 // release artifacts are signed with cosign keyless signing (Sigstore)
 // users can verify with:
