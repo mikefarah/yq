@@ -156,6 +156,8 @@ yq -P -oy sample.json
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredLuaPreferences.UnquotedKeys, "lua-unquoted", yqlib.ConfiguredLuaPreferences.UnquotedKeys, "output unquoted string keys (e.g. {foo=\"bar\"})")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredLuaPreferences.Globals, "lua-globals", yqlib.ConfiguredLuaPreferences.Globals, "output keys as top-level global variables")
 
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredINIPreferences.PreserveSurroundedQuote, "ini-preserve-quotes", yqlib.ConfiguredINIPreferences.PreserveSurroundedQuote, "preserve surrounding quotes on INI values during round-trip")
+
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "properties-separator", yqlib.ConfiguredPropertiesPreferences.KeyValueSeparator, "separator to use between keys and values")
 	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "properties-array-brackets", yqlib.ConfiguredPropertiesPreferences.UseArrayBrackets, "use [x] in array paths (e.g. for SpringBoot)")
 

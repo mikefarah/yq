@@ -12,11 +12,13 @@ import (
 type iniDecoder struct {
 	reader   io.Reader
 	finished bool // Flag to signal completion of processing
+	prefs    INIPreferences
 }
 
-func NewINIDecoder() Decoder {
+func NewINIDecoder(prefs INIPreferences) Decoder {
 	return &iniDecoder{
 		finished: false, // Initialise the flag as false
+		prefs:    prefs,
 	}
 }
 
@@ -39,7 +41,10 @@ func (dec *iniDecoder) Decode() (*CandidateNode, error) {
 	}
 
 	// Parse the INI content
-	cfg, err := ini.Load(content)
+	loadOpts := ini.LoadOptions{
+		PreserveSurroundedQuote: dec.prefs.PreserveSurroundedQuote,
+	}
+	cfg, err := ini.LoadSources(loadOpts, content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse INI content: %w", err)
 	}
