@@ -49,7 +49,7 @@ jobs:
       run: |
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            curl -sSfL https://raw.githubusercontent.com/golang/dep/v0.5.4/install.sh | env DEP_RELEASE_TAG=v0.5.4 sh
             dep ensure
         fi
 
