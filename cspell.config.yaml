@@ -1,5 +1,5 @@
 ---
-$schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+$schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/0f43abf29e5da0ecbcb08214055cdc1e3267c3ea/cspell.schema.json
 version: '0.2'
 language: en-GB
 dictionaryDefinitions:

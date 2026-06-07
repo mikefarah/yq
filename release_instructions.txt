@@ -23,7 +23,7 @@
 // release artifacts are signed with cosign keyless signing (Sigstore)
 // users can verify with:
 //   cosign verify-blob --bundle checksums.bundle checksums
-// install cosign: brew install cosign  OR  go install github.com/sigstore/cosign/v2/cmd/cosign@latest
+// install cosign: brew install cosign  OR  go install github.com/sigstore/cosign/v2/cmd/cosign@v2.6.1
 
 
 - snapcraft

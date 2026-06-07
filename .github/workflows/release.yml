@@ -29,7 +29,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF##*/}" >> "${GITHUB_OUTPUT}"
 
       - name: Generate man page
-        uses: docker://pandoc/core:2.14.2
+        uses: docker://pandoc/core:2.14.2@sha256:04e127c6642a2b9d447c26fe0ac6a5932efa8f508eda9f07da51b6e621dd7c19
         id: gen-man-page
         with:
           args: >-
@@ -43,12 +43,12 @@ jobs:
             man.md
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
 
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
-          go install github.com/goreleaser/goreleaser/v2@latest
+          go install github.com/goreleaser/goreleaser/v2@v2.16.0
           ./scripts/xcompile.sh
 
       - name: Sign checksums

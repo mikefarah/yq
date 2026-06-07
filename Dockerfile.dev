@@ -2,7 +2,7 @@ FROM golang:1.26.4@sha256:68cb6d68bed024785b69195b89af7ac7a444f27791435f98647edf
 
 RUN apt-get update && \
     apt-get install -y npm && \
-    npm install -g npx cspell@latest
+    npm install -g npx cspell@10.0.1
 
 COPY scripts/devtools.sh /opt/devtools.sh
 
