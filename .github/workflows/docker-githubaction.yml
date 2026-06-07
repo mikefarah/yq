@@ -98,3 +98,10 @@ jobs:
             -t "ghcr.io/${IMAGE_NAME}:4-githubaction" \
             -t "ghcr.io/${IMAGE_NAME}:latest-githubaction" \
             .
+
+      - name: Report action.yml digest to pin
+        run: |
+          GITHUBACTION_DIGEST=$(docker buildx imagetools inspect "${IMAGE_NAME}:4-githubaction" --format '{{printf "%s" .Manifest.Digest}}')
+          echo "Published ${IMAGE_NAME}:4-githubaction at ${GITHUBACTION_DIGEST}"
+          echo "Update action.yml image to:"
+          echo "  docker://${IMAGE_NAME}:4-githubaction@${GITHUBACTION_DIGEST}"

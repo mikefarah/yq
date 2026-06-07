@@ -12,6 +12,6 @@ outputs:
     description: "The complete result from the yq command being run"
 runs:
   using: 'docker'
-  image: 'docker://mikefarah/yq:4-githubaction'
+  image: 'docker://mikefarah/yq:4-githubaction@sha256:e1b8c865f299ea6b02910a7ddf147d5d431244d4cc116f89c2148c9f53822906'
   args:
     - ${{ inputs.cmd }}

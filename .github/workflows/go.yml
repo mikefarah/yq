@@ -5,6 +5,32 @@ permissions:
 
 jobs:
 
+  verify-action-digest:
+    name: Verify action.yml image digest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Verify action.yml digest matches published image
+        run: |
+          PINNED_DIGEST=$(grep -oE 'sha256:[a-f0-9]{64}' action.yml | head -1)
+          if [ -z "${PINNED_DIGEST}" ]; then
+            echo "::error::action.yml does not pin the runtime image by digest"
+            exit 1
+          fi
+
+          LATEST_DIGEST=$(docker buildx imagetools inspect docker.io/mikefarah/yq:4-githubaction --format '{{printf "%s" .Manifest.Digest}}')
+
+          echo "action.yml pins:              ${PINNED_DIGEST}"
+          echo "mikefarah/yq:4-githubaction: ${LATEST_DIGEST}"
+
+          if [ "${PINNED_DIGEST}" != "${LATEST_DIGEST}" ]; then
+            echo "::error::action.yml digest does not match the current mikefarah/yq:4-githubaction image"
+            echo "Update the image line in action.yml to:"
+            echo "  docker://mikefarah/yq:4-githubaction@${LATEST_DIGEST}"
+            exit 1
+          fi
+
   build:
     name: Build
     runs-on: ubuntu-latest
