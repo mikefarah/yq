@@ -1,0 +1,20 @@
+[files]
+extend-exclude = ["vendor", "bin"]
+
+[default]
+locale = "en"
+extend-ignore-identifiers-re = [
+  "NdJson",
+]
+
+[default.extend-identifiers]
+AttributeIDSupressMenu = "AttributeIDSupressMenu"
+
+[default.extend-words]
+Teh = "Teh"
+teh = "teh"
+Supress = "Supress"
+HashiCorp = "HashiCorp"
+Hashi = "Hashi"
+fot = "fot"
+nd = "nd"

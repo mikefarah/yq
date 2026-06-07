@@ -39,7 +39,6 @@ This is also included in the full CI pipeline via `make local test`.
 ### Prerequisites
 
 - **Go ≥ 1.25** (see `go.mod`)
-- **Node.js** (for `npx cspell` spelling checks in the full `make test` pipeline)
 - **Bash** (acceptance tests)
 - **Docker/Podman** is optional; use `make local <target>` to run natively when containers are unavailable
 
@@ -51,7 +50,7 @@ After `scripts/devtools.sh`, add Go tool binaries to PATH:
 export PATH="$HOME/go/bin:$PATH"
 ```
 
-`golangci-lint` installs to `$HOME/go/bin`; `gosec` installs to `./bin/gosec` in the repo root.
+`golangci-lint` and `typos` install to `$HOME/go/bin`; `gosec` installs to `./bin/gosec` in the repo root.
 
 ### Common commands (local, no Docker)
 
@@ -70,7 +69,7 @@ export PATH="$HOME/go/bin:$PATH"
 ### Caveats
 
 - **`make` without `local`** tries Docker/Podman (`Dockerfile.dev`). In Cloud Agent VMs without Docker, always prefix with `make local`.
-- **Spelling step** uses `npx cspell` and may download cspell on first run (network required).
+- **Spelling step** uses `typos` (installed by `scripts/devtools.sh`).
 - **`make local test` / `scripts/check.sh`** require `golangci-lint` on PATH (`devtools.sh`).
 
 ---
