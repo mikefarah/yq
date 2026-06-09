@@ -246,6 +246,20 @@ func maybeFile(str string) bool {
 	return result
 }
 
+func expressionLikeArg(str string) bool {
+	return strings.HasPrefix(str, ".") && !strings.HasPrefix(str, "./") && !strings.HasPrefix(str, "../")
+}
+
+func firstArgIsExpression(args []string, firstArgIsFile bool) bool {
+	if len(args) == 0 || args[0] == "-" {
+		return false
+	}
+	if !firstArgIsFile {
+		return true
+	}
+	return len(args) > 1 && expressionLikeArg(args[0])
+}
+
 func processStdInArgs(args []string) []string {
 	stat, err := os.Stdin.Stat()
 	if err != nil {
@@ -295,7 +309,7 @@ func processArgs(originalArgs []string) (string, []string, error) {
 	}
 
 	yqlib.GetLogger().Debugf("processed args: %v", args)
-	if expression == "" && len(args) > 0 && args[0] != "-" && !maybeFile(args[0]) {
+	if expression == "" && firstArgIsExpression(args, maybeFirstArgIsAFile) {
 		yqlib.GetLogger().Debugf("assuming expression is '%v'", args[0])
 		expression = args[0]
 		args = args[1:]
