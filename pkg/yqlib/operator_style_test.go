@@ -50,7 +50,7 @@ var styleOperatorScenarios = []expressionScenario{
 		document:   "bing: &foo {x: z}\na:\n  c: cat\n  <<: [*foo]",
 		expression: `(... | select(tag=="!!str")) style="single"`,
 		expected: []string{
-			"D0, P[], (!!map)::'bing': &foo {'x': 'z'}\n'a':\n    'c': 'cat'\n    !!merge <<: [*foo]\n",
+			"D0, P[], (!!map)::'bing': &foo {'x': 'z'}\n'a':\n    'c': 'cat'\n    <<: [*foo]\n",
 		},
 	},
 	{

@@ -37,7 +37,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:       `{a: 12, b: 2.5}`,
 		expression:     `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: !!float 2, b: 2.5}\n",
+			"D0, P[], (!!map)::{a: 2, b: 2.5}\n",
 		},
 	},
 	{
@@ -53,7 +53,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:       `{a: 1.1, b: 0}`,
 		expression:     `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (!!map)::{a: !!float NaN, b: 0}\n",
+			"D0, P[], (!!map)::{a: NaN, b: 0}\n",
 		},
 	},
 	{
@@ -70,7 +70,7 @@ var moduloOperatorScenarios = []expressionScenario{
 		document:   "a: 2\nb: !goat 2.3",
 		expression: `.a = .a % .b`,
 		expected: []string{
-			"D0, P[], (!!map)::a: !!float 2\nb: !goat 2.3\n",
+			"D0, P[], (!!map)::a: 2\nb: !goat 2.3\n",
 		},
 	},
 	{

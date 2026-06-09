@@ -294,13 +294,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -325,13 +325,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -376,13 +376,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -409,13 +409,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -442,13 +442,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -477,13 +477,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -513,13 +513,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -546,13 +546,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -579,13 +579,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -614,13 +614,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
