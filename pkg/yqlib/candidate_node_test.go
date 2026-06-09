@@ -106,6 +106,31 @@ func TestCreateScalarNodeScenarios(t *testing.T) {
 	}
 }
 
+type createStringScalarNodeScenario struct {
+	stringValue string
+	expectedTag string
+}
+
+var createStringScalarNodeScenarios = []createStringScalarNodeScenario{
+	{
+		stringValue: "yourKey",
+		expectedTag: "!!str",
+	},
+	{
+		stringValue: "<<",
+		expectedTag: "!!merge",
+	},
+}
+
+func TestCreateStringScalarNodeScenarios(t *testing.T) {
+	for _, tt := range createStringScalarNodeScenarios {
+		actual := createStringScalarNode(tt.stringValue)
+		test.AssertResultWithContext(t, tt.stringValue, actual.Value, fmt.Sprintf("Value for: %v", tt.stringValue))
+		test.AssertResultWithContext(t, tt.expectedTag, actual.Tag, fmt.Sprintf("Tag for: %v", tt.stringValue))
+		test.AssertResultWithContext(t, ScalarNode, actual.Kind, fmt.Sprintf("Kind for: %v", tt.stringValue))
+	}
+}
+
 func TestGetKeyForMapValue(t *testing.T) {
 	key := createStringScalarNode("yourKey")
 	n := CandidateNode{Key: key, Value: "meow", document: 3}
