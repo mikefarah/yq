@@ -87,6 +87,10 @@ func validateCommandFlags(args []string) error {
 		return fmt.Errorf("cannot pass files in when using null-input flag")
 	}
 
+	if indent < 0 {
+		return fmt.Errorf("indent must not be negative")
+	}
+
 	return nil
 }
 
