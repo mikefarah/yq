@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"fmt"
-	"math/bits"
 	"strings"
 	"testing"
 )
@@ -709,12 +708,11 @@ var multiplyOperatorScenarios = []expressionScenario{
 	},
 	{
 		// Pick a count whose product with len("ab") overflows int on
-		// any architecture: 2^30 on 32-bit, 2^62 on 64-bit. Doubling
-		// either yields MaxInt+1, which wraps to MinInt and bypasses
-		// a naive len*count guard.
+		// 64-bit architectures; it must still report the repeat size
+		// limit on 32-bit architectures instead of an int range error.
 		skipDoc:       true,
-		expression:    fmt.Sprintf(`"ab" * %d`, 1<<(bits.UintSize-2)),
-		expectedError: fmt.Sprintf("result of repeating string (2 bytes) by %d would exceed 10485760 bytes", 1<<(bits.UintSize-2)),
+		expression:    fmt.Sprintf(`"ab" * %d`, int64(1)<<62),
+		expectedError: fmt.Sprintf("result of repeating string (2 bytes) by %d would exceed 10485760 bytes", int64(1)<<62),
 	},
 }
 
