@@ -7,24 +7,16 @@ base: core24
 grade: stable # devel|stable. must be 'stable' to release into candidate/stable channels
 confinement: strict
 platforms:
+  # we dont need to specify the build-on/for unless we're cross-compiling.
   amd64:
-    build-on: [amd64]
-    build-for: [amd64]
   arm64:
-    build-on: [arm64]
-    build-for: [arm64]
   armhf:
-    build-on: [armhf]
-    build-for: [armhf]
   s390x:
-    build-on: [s390x]
-    build-for: [s390x]
   ppc64el:
-    build-on: [ppc64el]
-    build-for: [ppc64el]
 apps:
   yq:
     command: bin/yq
+    completer: bin/yq-completion.bash
     plugs: [home, removable-media]
 parts:
   yq:
@@ -32,6 +24,12 @@ parts:
     build-environment:
       - CGO_ENABLED: 0
     source: https://github.com/mikefarah/yq.git
+    source-type: git
     source-tag: v4.53.3
+    source-depth: 1  # faster clone
     build-snaps:
       - go/latest/stable
+    override-build: |
+      craftctl default
+      # generate the bash completion file
+      $CRAFT_PART_INSTALL/bin/yq shell-completion bash > $CRAFT_PART_INSTALL/bin/yq-completion.bash
