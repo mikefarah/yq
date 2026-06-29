@@ -5,6 +5,8 @@ import (
 	"errors"
 	"io"
 	"os"
+
+	"github.com/dimchansky/utfbom"
 )
 
 type frontMatterHandler interface {
@@ -43,13 +45,15 @@ func (f *frontMatterHandlerImpl) Split() error {
 	var reader *bufio.Reader
 	var err error
 	if f.originalFilename == "-" {
-		reader = bufio.NewReader(os.Stdin)
+		cleanReader, _ := utfbom.Skip(os.Stdin)
+		reader = bufio.NewReader(cleanReader)
 	} else {
 		file, err := os.Open(f.originalFilename) // #nosec
 		if err != nil {
 			return err
 		}
-		reader = bufio.NewReader(file)
+		cleanReader, _ := utfbom.Skip(file)
+		reader = bufio.NewReader(cleanReader)
 	}
 	f.contentReader = reader
 
