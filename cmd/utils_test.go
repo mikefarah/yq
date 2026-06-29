@@ -77,6 +77,9 @@ func TestMaybeFile(t *testing.T) {
 }
 
 func TestProcessArgs(t *testing.T) {
+	workDir := t.TempDir()
+	t.Chdir(workDir)
+
 	// Create a temporary file for testing
 	tempFile, err := os.CreateTemp("", "test")
 	if err != nil {
@@ -95,6 +98,13 @@ func TestProcessArgs(t *testing.T) {
 		t.Fatalf("Failed to write to temp yq file: %v", err)
 	}
 	tempYqFile.Close()
+
+	if err := os.WriteFile(".version", []byte("boom"), 0o600); err != nil {
+		t.Fatalf("Failed to write .version file: %v", err)
+	}
+	if err := os.WriteFile("data.yml", []byte("version: 1.1.1"), 0o600); err != nil {
+		t.Fatalf("Failed to write data.yml file: %v", err)
+	}
 
 	tests := []struct {
 		name            string
@@ -130,6 +140,33 @@ func TestProcessArgs(t *testing.T) {
 			expressionFile:  "",
 			expectedExpr:    ".a.b",
 			expectedArgs:    []string{"file1"},
+			expectError:     false,
+		},
+		{
+			name:            "expression-looking file as first arg before file",
+			args:            []string{".version", "data.yml"},
+			forceExpression: "",
+			expressionFile:  "",
+			expectedExpr:    ".version",
+			expectedArgs:    []string{"data.yml"},
+			expectError:     false,
+		},
+		{
+			name:            "expression-looking file as first arg before stdin",
+			args:            []string{".version", "-"},
+			forceExpression: "",
+			expressionFile:  "",
+			expectedExpr:    ".version",
+			expectedArgs:    []string{"-"},
+			expectError:     false,
+		},
+		{
+			name:            "path-qualified expression-looking file stays file arg",
+			args:            []string{"./.version", "data.yml"},
+			forceExpression: "",
+			expressionFile:  "",
+			expectedExpr:    "",
+			expectedArgs:    []string{"./.version", "data.yml"},
 			expectError:     false,
 		},
 		{
