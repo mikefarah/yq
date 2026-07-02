@@ -2,12 +2,25 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"io"
 	"os"
-
-	"github.com/dimchansky/utfbom"
 )
+
+var utf8BOM = []byte{0xEF, 0xBB, 0xBF}
+
+// stripUTF8BOM returns a reader that skips a leading UTF-8 BOM, if present.
+func stripUTF8BOM(r io.Reader) io.Reader {
+	br := bufio.NewReader(r)
+
+	peek, err := br.Peek(3)
+	if err == nil && bytes.Equal(peek, utf8BOM) {
+		_, _ = br.Discard(3)
+	}
+
+	return br
+}
 
 type frontMatterHandler interface {
 	Split() error
@@ -45,15 +58,13 @@ func (f *frontMatterHandlerImpl) Split() error {
 	var reader *bufio.Reader
 	var err error
 	if f.originalFilename == "-" {
-		cleanReader, _ := utfbom.Skip(os.Stdin)
-		reader = bufio.NewReader(cleanReader)
+		reader = bufio.NewReader(stripUTF8BOM(os.Stdin))
 	} else {
 		file, err := os.Open(f.originalFilename) // #nosec
 		if err != nil {
 			return err
 		}
-		cleanReader, _ := utfbom.Skip(file)
-		reader = bufio.NewReader(cleanReader)
+		reader = bufio.NewReader(stripUTF8BOM(file))
 	}
 	f.contentReader = reader
 

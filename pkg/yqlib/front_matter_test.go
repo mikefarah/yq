@@ -193,6 +193,56 @@ yaml: doc
 	fmHandler.CleanUp()
 }
 
+func TestFrontMatterSplitWithBOMFromStdin(t *testing.T) {
+	// Regression test for https://github.com/mikefarah/yq/issues/2496
+	// A UTF-8 BOM must also be skipped when reading front matter from stdin.
+	originalStdin := os.Stdin
+	defer func() { os.Stdin = originalStdin }()
+
+	r, w, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	os.Stdin = r
+	defer safelyCloseFile(r)
+
+	go func() {
+		_, writeErr := w.WriteString("\ufeff---\na: apple\nb: banana\n---\nnot a\nyaml: doc\n")
+		if writeErr != nil {
+			t.Errorf("failed to write front matter to the stdin pipe: %v", writeErr)
+		}
+		safelyCloseFile(w)
+	}()
+
+	expectedYamlFm := `---
+a: apple
+b: banana
+`
+
+	expectedContent := `---
+not a
+yaml: doc
+`
+
+	fmHandler := NewFrontMatterHandler("-")
+	err = fmHandler.Split()
+	if err != nil {
+		panic(err)
+	}
+
+	yamlFm := readFile(fmHandler.GetYamlFrontMatterFilename())
+
+	test.AssertResult(t, expectedYamlFm, yamlFm)
+
+	contentBytes, err := io.ReadAll(fmHandler.GetContentReader())
+	if err != nil {
+		panic(err)
+	}
+	test.AssertResult(t, expectedContent, string(contentBytes))
+
+	fmHandler.CleanUp()
+}
+
 func TestFrontMatterSplitWithArray(t *testing.T) {
 	file := createTestFile(`[1,2,3]
 ---
