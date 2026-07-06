@@ -166,7 +166,12 @@ func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateT
 		if err != nil {
 			panic(err)
 		}
-		return int(lhsNum - rhsNum)
+		if lhsNum < rhsNum {
+			return -1
+		} else if lhsNum > rhsNum {
+			return 1
+		}
+		return 0
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
 		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
 		if err != nil {
