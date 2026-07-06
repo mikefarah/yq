@@ -44,7 +44,7 @@ func hasOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 				if errParsingInt != nil {
 					return Context{}, errParsingInt
 				}
-				candidateHasKey = int64(len(contents)) > number
+				candidateHasKey = number >= 0 && int64(len(contents)) > number
 			}
 			results.PushBack(createBooleanCandidate(candidate, candidateHasKey))
 		default:

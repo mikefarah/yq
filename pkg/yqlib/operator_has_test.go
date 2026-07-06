@@ -71,6 +71,16 @@ var hasOperatorScenarios = []expressionScenario{
 			"D0, P[4], (!!bool)::true\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Negative array index is never present",
+		document:    "[[1, 2, 3], []]",
+		expression:  `.[] | has(-1)`,
+		expected: []string{
+			"D0, P[0], (!!bool)::false\n",
+			"D0, P[1], (!!bool)::false\n",
+		},
+	},
 }
 
 func TestHasOperatorScenarios(t *testing.T) {
