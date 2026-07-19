@@ -13,6 +13,8 @@ var outputFormat = ""
 
 var inputFormat = ""
 
+var stdinFilename = ""
+
 var exitStatus = false
 var indent = 2
 var noDocSeparators = false

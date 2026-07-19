@@ -111,8 +111,13 @@ func configureFormats(args []string) error {
 }
 
 func configureInputFormat(inputFilename string) error {
+	formatFilename := inputFilename
+	if inputFilename == "-" && stdinFilename != "" {
+		formatFilename = stdinFilename
+	}
+
 	if inputFormat == "" || inputFormat == "auto" || inputFormat == "a" {
-		inputFormat = yqlib.FormatStringFromFilename(inputFilename)
+		inputFormat = yqlib.FormatStringFromFilename(formatFilename)
 
 		_, err := yqlib.FormatFromString(inputFormat)
 		if err != nil {
@@ -130,7 +135,7 @@ func configureInputFormat(inputFilename string) error {
 		// before this was introduced, `yq -pcsv things.csv`
 		// would produce *yaml* output.
 		//
-		outputFormat = yqlib.FormatStringFromFilename(inputFilename)
+		outputFormat = yqlib.FormatStringFromFilename(formatFilename)
 		if inputFilename != "-" {
 			yqlib.GetLogger().Warningf("yq default output is now 'auto' (based on the filename extension). Normally yq would output '%v', but for backwards compatibility 'yaml' has been set. Please use -oy to specify yaml, or drop the -p flag.", outputFormat)
 		}

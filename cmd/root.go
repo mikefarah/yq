@@ -118,6 +118,11 @@ yq -P -oy sample.json
 		panic(err)
 	}
 
+	rootCmd.PersistentFlags().StringVar(&stdinFilename, "stdin-filename", "", "filename to assume for input read from STDIN, used to automatically detect the format. The file does not need to exist.")
+	if err = rootCmd.MarkPersistentFlagFilename("stdin-filename"); err != nil {
+		panic(err)
+	}
+
 	rootCmd.PersistentFlags().StringVar(&yqlib.ConfiguredXMLPreferences.AttributePrefix, "xml-attribute-prefix", yqlib.ConfiguredXMLPreferences.AttributePrefix, "prefix for xml attributes")
 	if err = rootCmd.RegisterFlagCompletionFunc("xml-attribute-prefix", cobra.NoFileCompletions); err != nil {
 		panic(err)

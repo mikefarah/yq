@@ -1190,11 +1190,14 @@ func TestValidateCommandFlags(t *testing.T) {
 
 func TestConfigureFormats(t *testing.T) {
 	tests := []struct {
-		name         string
-		args         []string
-		inputFormat  string
-		outputFormat string
-		expectError  bool
+		name          string
+		args          []string
+		inputFormat   string
+		outputFormat  string
+		stdinFilename string
+		expectError   bool
+		expectInput   string
+		expectOutput  string
 	}{
 		{
 			name:         "valid formats",
@@ -1202,6 +1205,8 @@ func TestConfigureFormats(t *testing.T) {
 			inputFormat:  "auto",
 			outputFormat: "auto",
 			expectError:  false,
+			expectInput:  "yaml",
+			expectOutput: "yaml",
 		},
 		{
 			name:         "invalid output format",
@@ -1210,6 +1215,16 @@ func TestConfigureFormats(t *testing.T) {
 			outputFormat: "invalid",
 			expectError:  true,
 		},
+		{
+			name:          "stdin filename",
+			args:          []string{"-"},
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "file.json",
+			expectError:   false,
+			expectInput:   "json",
+			expectOutput:  "json",
+		},
 	}
 
 	for _, tt := range tests {
@@ -1217,13 +1232,16 @@ func TestConfigureFormats(t *testing.T) {
 			// Save original values
 			originalInputFormat := inputFormat
 			originalOutputFormat := outputFormat
+			originalStdinFilename := stdinFilename
 			defer func() {
 				inputFormat = originalInputFormat
 				outputFormat = originalOutputFormat
+				stdinFilename = originalStdinFilename
 			}()
 
 			inputFormat = tt.inputFormat
 			outputFormat = tt.outputFormat
+			stdinFilename = tt.stdinFilename
 
 			err := configureFormats(tt.args)
 			if tt.expectError {
@@ -1236,6 +1254,13 @@ func TestConfigureFormats(t *testing.T) {
 			if err != nil {
 				t.Errorf("configureFormats() unexpected error: %v", err)
 			}
+
+			if inputFormat != tt.expectInput {
+				t.Errorf("configureFormats() inputFormat = %v, want %v", inputFormat, tt.expectInput)
+			}
+			if outputFormat != tt.expectOutput {
+				t.Errorf("configureFormats() outputFormat = %v, want %v", outputFormat, tt.expectOutput)
+			}
 		})
 	}
 }
@@ -1246,6 +1271,7 @@ func TestConfigureInputFormat(t *testing.T) {
 		inputFilename string
 		inputFormat   string
 		outputFormat  string
+		stdinFilename string
 		expectInput   string
 		expectOutput  string
 	}{
@@ -1281,6 +1307,68 @@ func TestConfigureInputFormat(t *testing.T) {
 			expectInput:   "json",
 			expectOutput:  "yaml", // backwards compatibility
 		},
+		{
+			name:          "stdin without stdin filename",
+			inputFilename: "-",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			expectInput:   "yaml",
+			expectOutput:  "yaml",
+		},
+		{
+			name:          "stdin filename with json file",
+			inputFilename: "-",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "file.json",
+			expectInput:   "json",
+			expectOutput:  "json",
+		},
+		{
+			name:          "stdin filename with xml file",
+			inputFilename: "-",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "file.xml",
+			expectInput:   "xml",
+			expectOutput:  "xml",
+		},
+		{
+			name:          "stdin filename with unknown extension",
+			inputFilename: "-",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "file.unknown",
+			expectInput:   "yaml",
+			expectOutput:  "yaml",
+		},
+		{
+			name:          "stdin filename without extension",
+			inputFilename: "-",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "Makefile",
+			expectInput:   "yaml",
+			expectOutput:  "yaml",
+		},
+		{
+			name:          "stdin filename ignored when a file is given",
+			inputFilename: "file.json",
+			inputFormat:   "auto",
+			outputFormat:  "auto",
+			stdinFilename: "file.xml",
+			expectInput:   "json",
+			expectOutput:  "json",
+		},
+		{
+			name:          "stdin filename with explicit format",
+			inputFilename: "-",
+			inputFormat:   "json",
+			outputFormat:  "auto",
+			stdinFilename: "file.csv",
+			expectInput:   "json",
+			expectOutput:  "yaml", // backwards compatibility
+		},
 	}
 
 	for _, tt := range tests {
@@ -1288,13 +1376,16 @@ func TestConfigureInputFormat(t *testing.T) {
 			// Save original values
 			originalInputFormat := inputFormat
 			originalOutputFormat := outputFormat
+			originalStdinFilename := stdinFilename
 			defer func() {
 				inputFormat = originalInputFormat
 				outputFormat = originalOutputFormat
+				stdinFilename = originalStdinFilename
 			}()
 
 			inputFormat = tt.inputFormat
 			outputFormat = tt.outputFormat
+			stdinFilename = tt.stdinFilename
 
 			err := configureInputFormat(tt.inputFilename)
 			if err != nil {

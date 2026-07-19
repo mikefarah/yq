@@ -31,6 +31,81 @@ EOM
   assertEquals "$expected" "$X"
 }
 
+testStdinFilenameJson() {
+  read -r -d '' expected << EOM
+{
+  "mike": {
+    "things": "cool"
+  }
+}
+EOM
+
+  X=$(echo '{ "mike" : { "things": "cool" } }' | ./yq --stdin-filename test.json)
+  assertEquals "$expected" "$X"
+
+  X=$(echo '{ "mike" : { "things": "cool" } }' | ./yq --stdin-filename test.json -)
+  assertEquals "$expected" "$X"
+
+  X=$(echo '{ "mike" : { "things": "cool" } }' | ./yq ea --stdin-filename test.json)
+  assertEquals "$expected" "$X"
+}
+
+testStdinFilenameUnknownExtension() {
+  read -r -d '' expected << EOM
+mike:
+  things: cool
+EOM
+
+  X=$(printf 'mike:\n  things: cool\n' | ./yq --stdin-filename test.unknown)
+  assertEquals "$expected" "$X"
+
+  X=$(printf 'mike:\n  things: cool\n' | ./yq ea --stdin-filename test.unknown)
+  assertEquals "$expected" "$X"
+}
+
+testStdinFilenameIgnoredWhenFileGiven() {
+  cat >test.json <<EOL
+{ "mike" : { "things": "cool" } }
+EOL
+
+  read -r -d '' expected << EOM
+{
+  "mike": {
+    "things": "cool"
+  }
+}
+EOM
+
+  X=$(./yq --stdin-filename thing.xml test.json)
+  assertEquals "$expected" "$X"
+
+  X=$(./yq ea --stdin-filename thing.xml test.json)
+  assertEquals "$expected" "$X"
+}
+
+testStdinFilenameXml() {
+  read -r -d '' expected << EOM
+mike:
+  things: cool
+EOM
+
+  X=$(echo '<mike><things>cool</things></mike>' | ./yq -o=yaml --stdin-filename test.xml)
+  assertEquals "$expected" "$X"
+
+  X=$(echo '<mike><things>cool</things></mike>' | ./yq ea -o=yaml --stdin-filename test.xml)
+  assertEquals "$expected" "$X"
+}
+
+testStdinFilenameWithExplicitInputFormat() {
+  read -r -d '' expected << EOM
+mike:
+  things: cool
+EOM
+
+  X=$(echo '{ "mike" : { "things": "cool" } }' | ./yq -p json --stdin-filename test.csv 2>&1)
+  assertEquals "$expected" "$X"
+}
+
 testInputToml() {
   cat >test.toml <<EOL
 [owner]
