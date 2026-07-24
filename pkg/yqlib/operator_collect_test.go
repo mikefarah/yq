@@ -7,7 +7,7 @@ import (
 var collectOperatorScenarios = []expressionScenario{
 	{
 		// https://github.com/mikefarah/yq/issues/2782: collects in read-only
-		// contexts materialize missing keys as nulls (jq-aligned) without
+		// contexts materialise missing keys as nulls (jq-aligned) without
 		// modifying the input
 		skipDoc:     true,
 		description: "Assign collect of missing key",

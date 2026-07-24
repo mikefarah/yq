@@ -31,7 +31,7 @@ func (n *Context) SingleChildContext(candidate *CandidateNode) Context {
 
 // CollectingChildContext evaluates a collect expression without allowing a
 // read-only parent context to suppress missing-key nulls. Missing values are
-// materialized by traversal without being added to a read-only input node.
+// materialised by traversal without being added to a read-only input node.
 func (n *Context) CollectingChildContext(candidate *CandidateNode) Context {
 	newContext := n.SingleChildContext(candidate)
 	newContext.AutoCreateOnMissing = true
@@ -39,7 +39,7 @@ func (n *Context) CollectingChildContext(candidate *CandidateNode) Context {
 }
 
 // CollectingReadonlyChildContext is CollectingChildContext with the read-only
-// flag forced: missing keys materialize as detached nulls and the input node
+// flag forced: missing keys materialise as detached nulls and the input node
 // is never modified. Used when collecting over documents that must not gain
 // auto-created keys (e.g. collect-together over multiple documents).
 func (n *Context) CollectingReadonlyChildContext(candidate *CandidateNode) Context {
@@ -123,7 +123,7 @@ func (n *Context) Clone() Context {
 func (n *Context) ReadOnlyClone() Context {
 	clone := n.Clone()
 	clone.DontAutoCreate = true
-	// a read-only lookup wants existing nodes only: never materialize
+	// a read-only lookup wants existing nodes only: never materialise
 	// missing-key nulls here, even inside a collect (see CollectingChildContext)
 	clone.AutoCreateOnMissing = false
 	return clone
