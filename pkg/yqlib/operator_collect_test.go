@@ -6,6 +6,18 @@ import (
 
 var collectOperatorScenarios = []expressionScenario{
 	{
+		// https://github.com/mikefarah/yq/issues/2782: collects in read-only
+		// contexts materialize missing keys as nulls (jq-aligned) without
+		// modifying the input
+		skipDoc:     true,
+		description: "Assign collect of missing key",
+		document:    `{a: 1}`,
+		expression:  `.result = [.missing]`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, result: [null]}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `["x", "y"] | .[1]`,
 		expected: []string{

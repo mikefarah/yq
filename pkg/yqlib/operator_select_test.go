@@ -12,6 +12,39 @@ var selectOperatorScenarios = []expressionScenario{
 		expected:   []string{},
 	},
 	{
+		// https://github.com/mikefarah/yq/issues/2782
+		skipDoc:     true,
+		description: "Select with collected missing key",
+		document:    `{}`,
+		expression:  `select([.a] | length == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		// child-node input: the scenario harness evaluates documents
+		// together, so this is what pins the streaming (collectOperator)
+		// path that the CLI default and `yq -n` actually run
+		skipDoc:     true,
+		description: "Select with collected missing key on child node",
+		document:    `{a: {}}`,
+		expression:  `.a | select([.b] | length == 1)`,
+		expected: []string{
+			"D0, P[a], (!!map)::{}\n",
+		},
+	},
+	{
+		// collecting a path under an existing null must not mutate the
+		// input (the null-kind guess used to flip it to a map in place)
+		skipDoc:     true,
+		description: "Select with collected key under existing null",
+		document:    `{a: null}`,
+		expression:  `select([.a.b] | length == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: null}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `cat`,
 		expression: `select(false, true)`,

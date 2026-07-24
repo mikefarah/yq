@@ -6,6 +6,26 @@ import (
 
 var deleteOperatorScenarios = []expressionScenario{
 	{
+		// https://github.com/mikefarah/yq/issues/2782 follow-up: a collect
+		// wrapping a delete of a missing key must not panic
+		skipDoc:     true,
+		description: "Collect delete of missing key",
+		document:    `a: 1`,
+		expression:  `[del(.b)]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- a: 1\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Select over collect delete of missing key",
+		document:    `a: 1`,
+		expression:  `select([del(.b)] | length == 1)`,
+		expected: []string{
+			"D0, P[], (!!map)::a: 1\n",
+		},
+	},
+	{
 		description: "Delete entry in map",
 		document:    `{a: cat, b: dog}`,
 		expression:  `del(.b)`,
