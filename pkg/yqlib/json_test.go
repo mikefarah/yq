@@ -222,6 +222,14 @@ var jsonScenarios = []formatScenario{
 		scenarioType: "encode",
 	},
 	{
+		description:  "Encode json: integer outside int64 range",
+		skipDoc:      true,
+		input:        `{small: 42, big: 12345678901234567890}`,
+		indent:       0,
+		expected:     "{\"small\":42,\"big\":12345678901234567890}\n",
+		scenarioType: "encode",
+	},
+	{
 		description:  "Encode json: simple - in one line",
 		input:        `cat: meow # this is a comment, and it will be dropped.`,
 		indent:       0,

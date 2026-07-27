@@ -149,6 +149,12 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 				return buf.Bytes(), nil
 			}
 		}
+		if o.guessTagFromCustomType() == "!!int" {
+			if raw, ok := jsonIntLiteral(o.Value); ok {
+				buf.WriteString(raw)
+				return buf.Bytes(), nil
+			}
+		}
 		value, err := o.GetValueRep()
 		if err != nil {
 			return buf.Bytes(), err
@@ -212,6 +218,39 @@ func jsonFloatLiteral(raw string) (string, bool) {
 		formatted += ".0"
 	}
 	return formatted, true
+}
+
+// jsonIntLiteral returns the JSON representation of a YAML !!int scalar when its
+// textual value is already a valid JSON integer literal (an optional "-" followed
+// by "0" or a non-zero digit and further digits). Such values are emitted verbatim
+// so that integers outside the int64 range - which JSON permits - are preserved
+// instead of overflowing. The second return value is false for other forms (e.g.
+// hexadecimal, a leading "+", or leading zeros), which fall back to the normal
+// encoding path.
+func jsonIntLiteral(raw string) (string, bool) {
+	if raw == "" {
+		return "", false
+	}
+	i := 0
+	if raw[i] == '-' {
+		i++
+		if i == len(raw) {
+			return "", false
+		}
+	}
+	if raw[i] == '0' {
+		i++
+	} else if raw[i] >= '1' && raw[i] <= '9' {
+		for i < len(raw) && raw[i] >= '0' && raw[i] <= '9' {
+			i++
+		}
+	} else {
+		return "", false
+	}
+	if i != len(raw) {
+		return "", false
+	}
+	return raw, true
 }
 
 // isJSONNumberLiteral reports whether s is already a valid JSON number literal
