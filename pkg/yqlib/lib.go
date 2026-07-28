@@ -8,14 +8,24 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var ExpressionParser ExpressionParserInterface
 
+var expressionParserOnce sync.Once
+
+// InitExpressionParser initializes the package level ExpressionParser, and is
+// safe to call concurrently. The evaluators call it on every Evaluate, so
+// without the guard two goroutines could construct a parser at the same time,
+// and newParticipleLexer populates the shared participleYqRules entries as it
+// goes, which a third goroutine could be reading through getYqDefinition.
 func InitExpressionParser() {
-	if ExpressionParser == nil {
-		ExpressionParser = newExpressionParser()
-	}
+	expressionParserOnce.Do(func() {
+		if ExpressionParser == nil {
+			ExpressionParser = newExpressionParser()
+		}
+	})
 }
 
 var log = newLogger()

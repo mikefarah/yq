@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -543,5 +544,41 @@ func TestProcessEscapeCharacters(t *testing.T) {
 	for _, tt := range processEscapeCharactersScenarios {
 		actual := processEscapeCharacters(tt.input)
 		test.AssertResultComplexWithContext(t, tt.expected, actual, fmt.Sprintf("Input: %q", tt.input))
+	}
+}
+
+// TestInitExpressionParserConcurrent covers the data race described in #2788.
+// The evaluators call InitExpressionParser on every Evaluate, so before it was
+// guarded two goroutines could build a parser at the same time while a third
+// read the shared participleYqRules entries that newParticipleLexer fills in.
+//
+// To reproduce the original race the process must not have initialized the
+// parser yet, so run this test on its own with the detector enabled:
+//
+//	go test -race -run TestInitExpressionParserConcurrent ./pkg/yqlib/
+func TestInitExpressionParserConcurrent(t *testing.T) {
+	const goroutines = 32
+
+	var wg sync.WaitGroup
+	errs := make(chan error, goroutines)
+
+	for range goroutines {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			InitExpressionParser()
+			if _, err := ExpressionParser.ParseExpression(".a.b"); err != nil {
+				errs <- err
+			}
+		}()
+	}
+	wg.Wait()
+	close(errs)
+
+	for err := range errs {
+		t.Fatalf("concurrent ParseExpression failed: %v", err)
+	}
+	if ExpressionParser == nil {
+		t.Fatal("ExpressionParser should be initialized after concurrent InitExpressionParser calls")
 	}
 }
