@@ -381,15 +381,21 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		end := r.End.Byte
 		if start >= 0 && end >= start && end <= len(src) {
 			text := strings.TrimSpace(string(src[start:end]))
-			return createStringScalarNode(text)
+			node := createStringScalarNode(text)
+			node.EncodeHint = EncodeHintRawExpression
+			return node
 		}
 		// Fallback to root name if source unavailable
 		if len(e.Traversal) > 0 {
 			if root, ok := e.Traversal[0].(hcl.TraverseRoot); ok {
-				return createStringScalarNode(root.Name)
+				node := createStringScalarNode(root.Name)
+				node.EncodeHint = EncodeHintRawExpression
+				return node
 			}
 		}
-		return createStringScalarNode("")
+		node := createStringScalarNode("")
+		node.EncodeHint = EncodeHintRawExpression
+		return node
 	case *hclsyntax.FunctionCallExpr:
 		// Preserve function calls as raw expressions for roundtrip
 		r := e.Range()
@@ -398,11 +404,11 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		if start >= 0 && end >= start && end <= len(src) {
 			text := strings.TrimSpace(string(src[start:end]))
 			node := createStringScalarNode(text)
-			node.Style = 0
+			node.EncodeHint = EncodeHintRawExpression
 			return node
 		}
 		node := createStringScalarNode(e.Name)
-		node.Style = 0
+		node.EncodeHint = EncodeHintRawExpression
 		return node
 	default:
 		// try to evaluate the expression (handles unary, binary ops, etc.)
@@ -419,7 +425,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			text := string(src[start:end])
 			// Mark as unquoted expression so encoder emits without quoting
 			node := createStringScalarNode(text)
-			node.Style = 0
+			node.EncodeHint = EncodeHintRawExpression
 			return node
 		}
 		return createStringScalarNode(fmt.Sprintf("%v", expr))

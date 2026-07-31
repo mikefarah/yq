@@ -27,8 +27,8 @@ const (
 	FlowStyle
 )
 
-// EncodeHint controls how a mapping node is serialised by format-specific encoders
-// that distinguish between inline and block/section representations (e.g. TOML, HCL).
+// EncodeHint controls how a node is serialised by format-specific encoders, e.g.
+// distinguishing between inline and block/section representations (TOML, HCL).
 type EncodeHint int
 
 const (
@@ -41,6 +41,11 @@ const (
 	// EncodeHintInline forces the node to be emitted as an inline / flow table
 	// (used by TOML inline-table decoder and TOML encoder).
 	EncodeHintInline
+	// EncodeHintRawExpression marks a scalar string node as a raw HCL expression
+	// (an identifier traversal, function call, or arithmetic expression) that must
+	// be emitted without quotes. Only the HCL decoder sets this, for nodes that were
+	// unquoted in the source; ordinary strings are always quoted on encode.
+	EncodeHintRawExpression
 )
 
 func createStringScalarNode(stringValue string) *CandidateNode {
