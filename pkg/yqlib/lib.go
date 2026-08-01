@@ -192,6 +192,27 @@ func parseInt64(numberString string) (string, int64, error) {
 	return "%v", num, err
 }
 
+// isDecimalIntWithLeadingZero reports whether value is an integer literal with
+// a redundant leading zero, e.g. "090" or "-018" (but not "0", "0.5" or "0o17").
+// The yaml parser tries to resolve such values as base-0 (octal) integers and
+// falls back to !!float when they are not valid octal; YAML 1.2 treats them as
+// plain decimal integers instead (see github issue #1634).
+func isDecimalIntWithLeadingZero(value string) bool {
+	i := 0
+	if len(value) > 0 && (value[0] == '-' || value[0] == '+') {
+		i = 1
+	}
+	if len(value)-i < 2 || value[i] != '0' {
+		return false
+	}
+	for ; i < len(value); i++ {
+		if value[i] < '0' || value[i] > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 func parseInt(numberString string) (int, error) {
 	_, parsed, err := parseInt64(numberString)
 

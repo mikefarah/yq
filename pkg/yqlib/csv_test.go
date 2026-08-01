@@ -243,6 +243,18 @@ func testCSVScenario(t *testing.T, s formatScenario) {
 	}
 }
 
+// Regression test for https://github.com/mikefarah/yq/issues/1634:
+// CSV numbers with leading zeros must be decoded as decimal integers,
+// not assumed to be octal (040) or floats (090).
+func TestCSVLeadingZeroNumbersToJSON(t *testing.T) {
+	input := "Name,Price\nCongee,090\nNaan,040\nChilli Chicken,035\n"
+	expected := "[\n  {\n    \"Name\": \"Congee\",\n    \"Price\": 90\n  },\n  {\n    \"Name\": \"Naan\",\n    \"Price\": 40\n  },\n  {\n    \"Name\": \"Chilli Chicken\",\n    \"Price\": 35\n  }\n]\n"
+	scenario := formatScenario{input: input}
+	prefs := JsonPreferences{Indent: 2}
+	actual := mustProcessFormatScenario(scenario, NewCSVObjectDecoder(ConfiguredCsvPreferences), NewJSONEncoder(prefs))
+	test.AssertResult(t, expected, actual)
+}
+
 func documentCSVDecodeObjectScenario(w *bufio.Writer, s formatScenario, formatType string) {
 	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
 
