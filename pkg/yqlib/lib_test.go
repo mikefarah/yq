@@ -3,6 +3,7 @@ package yqlib
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -13,6 +14,27 @@ func TestGetLogger(t *testing.T) {
 	if l != log {
 		t.Fatal("GetLogger should return the yq logger instance, not a copy")
 	}
+}
+
+// Regression test for https://github.com/mikefarah/yq/issues/2788: calling
+// InitExpressionParser (directly, or indirectly via a StringEvaluator) from
+// multiple goroutines concurrently used to race on the package-level
+// ExpressionParser variable and on shared lexer rule state mutated while
+// building it. Run with -race to check.
+func TestInitExpressionParser_ConcurrentEvaluate(t *testing.T) {
+	var wg sync.WaitGroup
+	for range 32 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			encoder := NewYamlEncoder(ConfiguredYamlPreferences)
+			decoder := NewYamlDecoder(ConfiguredYamlPreferences)
+			if _, err := NewStringEvaluator().Evaluate(".a.b", "a:\n  b: value\n", encoder, decoder); err != nil {
+				t.Error(err)
+			}
+		}()
+	}
+	wg.Wait()
 }
 
 type parseSnippetScenario struct {

@@ -8,14 +8,21 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var ExpressionParser ExpressionParserInterface
 
+var initExpressionParserOnce sync.Once
+
+// InitExpressionParser initialises the package-level ExpressionParser, if it
+// hasn't been already. Safe to call from multiple goroutines concurrently:
+// the parser is built at most once, and every caller observes the same
+// fully-initialised instance.
 func InitExpressionParser() {
-	if ExpressionParser == nil {
+	initExpressionParserOnce.Do(func() {
 		ExpressionParser = newExpressionParser()
-	}
+	})
 }
 
 var log = newLogger()
