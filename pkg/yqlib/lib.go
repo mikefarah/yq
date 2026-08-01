@@ -15,7 +15,7 @@ var ExpressionParser ExpressionParserInterface
 
 var expressionParserOnce sync.Once
 
-// InitExpressionParser initializes the package level ExpressionParser, and is
+// InitExpressionParser initialises the package level ExpressionParser, and is
 // safe to call concurrently. The evaluators call it on every Evaluate, so
 // without the guard two goroutines could construct a parser at the same time,
 // and newParticipleLexer populates the shared participleYqRules entries as it

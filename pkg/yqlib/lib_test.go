@@ -552,7 +552,7 @@ func TestProcessEscapeCharacters(t *testing.T) {
 // guarded two goroutines could build a parser at the same time while a third
 // read the shared participleYqRules entries that newParticipleLexer fills in.
 //
-// To reproduce the original race the process must not have initialized the
+// To reproduce the original race the process must not have initialised the
 // parser yet, so run this test on its own with the detector enabled:
 //
 //	go test -race -run TestInitExpressionParserConcurrent ./pkg/yqlib/
@@ -579,6 +579,6 @@ func TestInitExpressionParserConcurrent(t *testing.T) {
 		t.Fatalf("concurrent ParseExpression failed: %v", err)
 	}
 	if ExpressionParser == nil {
-		t.Fatal("ExpressionParser should be initialized after concurrent InitExpressionParser calls")
+		t.Fatal("ExpressionParser should be initialised after concurrent InitExpressionParser calls")
 	}
 }
