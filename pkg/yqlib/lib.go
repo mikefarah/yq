@@ -161,12 +161,21 @@ func parseInt64(numberString string) (string, int64, error) {
 		numberString = strings.ReplaceAll(numberString, "_", "")
 	}
 
-	if strings.HasPrefix(numberString, "0x") ||
-		strings.HasPrefix(numberString, "0X") {
-		num, err := strconv.ParseInt(numberString[2:], 16, 64)
+	// A leading +/- sign would hide the 0x/0o prefix below, so peel it off and
+	// hand it back to ParseInt with the digits.
+	sign := ""
+	digits := numberString
+	if len(digits) > 0 && (digits[0] == '+' || digits[0] == '-') {
+		sign = digits[:1]
+		digits = digits[1:]
+	}
+
+	if strings.HasPrefix(digits, "0x") ||
+		strings.HasPrefix(digits, "0X") {
+		num, err := strconv.ParseInt(sign+digits[2:], 16, 64)
 		return "0x%X", num, err
-	} else if strings.HasPrefix(numberString, "0o") {
-		num, err := strconv.ParseInt(numberString[2:], 8, 64)
+	} else if strings.HasPrefix(digits, "0o") {
+		num, err := strconv.ParseInt(sign+digits[2:], 8, 64)
 		return "0o%o", num, err
 	}
 	num, err := strconv.ParseInt(numberString, 10, 64)
