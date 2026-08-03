@@ -325,6 +325,33 @@ the_array = [
 ]
 `
 
+// Bug: a head comment directly above an [[array-of-tables]] header is dropped
+// on round-trip when other content precedes the array-of-tables.
+var rtArrayTableHeadComment = `[package]
+name = "x"
+
+# the binary
+[[bin]]
+name = "y"
+`
+
+// Same bug via a nested array-of-tables ([[a.b]]) under a table with attributes.
+var rtNestedArrayTableHeadComment = `[fruit]
+name = "apple"
+# a variety
+[[fruit.variety]]
+name = "red delicious"
+`
+
+// Bug: an inline (trailing) comment on an array item detaches from its item and
+// floats onto its own line as a head comment on the next item, with a spurious
+// blank line.
+var rtArrayItemInlineComment = `default = [
+  "a",  # why a
+  "b",
+]
+`
+
 var expectedSubArrays = `array:
   - subarray:
       - subsubarray:
@@ -369,7 +396,7 @@ var tomlScenarios = []formatScenario{
 		skipDoc:       true,
 		description:   "blank",
 		input:         `A = "hello`,
-		expectedError: `bad file 'sample.yml': basic string not terminated by "`,
+		expectedError: `bad file 'sample.yml': unterminated basic string`,
 		scenarioType:  "decode-error",
 	},
 	{
@@ -698,6 +725,30 @@ var tomlScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        tomlTableWithComments,
 		expected:     tomlTableWithComments,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: head comment above array-of-tables",
+		input:        rtArrayTableHeadComment,
+		expression:   ".",
+		expected:     rtArrayTableHeadComment,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: head comment above nested array-of-tables",
+		input:        rtNestedArrayTableHeadComment,
+		expression:   ".",
+		expected:     rtNestedArrayTableHeadComment,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: inline comment on array item",
+		input:        rtArrayItemInlineComment,
+		expression:   ".",
+		expected:     rtArrayItemInlineComment,
 		scenarioType: "roundtrip",
 	},
 	// Encode (YAML → TOML) scenarios - verify readable table sections are produced

@@ -188,6 +188,10 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 				te.wroteRootAttr = false
 			}
 			for _, it := range node.Content {
+				// Write head comment before the array-of-tables header
+				if err := te.writeComment(w, it.HeadComment); err != nil {
+					return err
+				}
 				if _, err := w.Write([]byte("[[" + quotedKey + "]]\n")); err != nil {
 					return err
 				}
@@ -283,10 +287,10 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 		return err
 	}
 
-	// Check if any array elements have head comments - if so, use multiline format
+	// Check if any array elements have head or line comments - if so, use multiline format
 	hasElementComments := false
 	for _, it := range seq.Content {
-		if it.HeadComment != "" {
+		if it.HeadComment != "" || it.LineComment != "" {
 			hasElementComments = true
 			break
 		}
@@ -299,6 +303,13 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 		}
 
 		for i, it := range seq.Content {
+			// Separate a head-commented element from the previous one with a blank line
+			if i > 0 && it.HeadComment != "" {
+				if _, err := w.Write([]byte("\n")); err != nil {
+					return err
+				}
+			}
+
 			// Write head comment for this element
 			if it.HeadComment != "" {
 				commentLines := strings.Split(it.HeadComment, "\n")
@@ -340,15 +351,17 @@ func (te *tomlEncoder) writeArrayAttribute(w io.Writer, key string, seq *Candida
 			// Always add trailing comma in multiline arrays
 			itemStr += ","
 
-			if _, err := w.Write([]byte("  " + itemStr + "\n")); err != nil {
-				return err
+			// Append trailing (inline) comment on the same line, if present
+			if it.LineComment != "" {
+				lineComment := strings.TrimSpace(it.LineComment)
+				if !strings.HasPrefix(lineComment, "#") {
+					lineComment = "# " + lineComment
+				}
+				itemStr += "  " + lineComment
 			}
 
-			// Add blank line between elements (except after the last one)
-			if i < len(seq.Content)-1 {
-				if _, err := w.Write([]byte("\n")); err != nil {
-					return err
-				}
+			if _, err := w.Write([]byte("  " + itemStr + "\n")); err != nil {
+				return err
 			}
 		}
 
@@ -546,6 +559,10 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 					te.wroteRootAttr = false
 				}
 				for _, it := range v.Content {
+					// Write head comment before the array-of-tables header
+					if err := te.writeComment(w, it.HeadComment); err != nil {
+						return err
+					}
 					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
 						return err
 					}
@@ -603,6 +620,10 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 			if isTomlArrayOfTables(v) {
 				dotted := tomlDottedKey(append(append([]string{}, path...), k))
 				for _, it := range v.Content {
+					// Write head comment before the array-of-tables header
+					if err := te.writeComment(w, it.HeadComment); err != nil {
+						return err
+					}
 					if _, err := w.Write([]byte("[[" + dotted + "]]\n")); err != nil {
 						return err
 					}
