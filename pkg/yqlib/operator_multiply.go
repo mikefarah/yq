@@ -150,17 +150,25 @@ func repeatString(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, error
 	target := lhs.CopyWithoutContent()
 	target.UpdateAttributesFrom(stringNode, assignPreferences{})
 
-	count, err := parseInt(intNode.Value)
+	_, count, err := parseInt64(intNode.Value)
 	if err != nil {
 		return nil, err
 	} else if count < 0 {
 		return nil, fmt.Errorf("cannot repeat string by a negative number (%v)", count)
 	}
-	maxResultLen := 10 * 1024 * 1024 // 10 MiB
-	if count > 0 && len(stringNode.Value) > maxResultLen/count {
+	if stringNode.Value == "" {
+		target.Value = ""
+		return target, nil
+	}
+	maxResultLen := int64(10 * 1024 * 1024) // 10 MiB
+	if count > 0 && int64(len(stringNode.Value)) > maxResultLen/count {
 		return nil, fmt.Errorf("result of repeating string (%v bytes) by %v would exceed %v bytes", len(stringNode.Value), count, maxResultLen)
 	}
-	target.Value = strings.Repeat(stringNode.Value, count)
+	repeatCount, err := parseInt(intNode.Value)
+	if err != nil {
+		return nil, err
+	}
+	target.Value = strings.Repeat(stringNode.Value, repeatCount)
 
 	return target, nil
 }
