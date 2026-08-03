@@ -183,7 +183,9 @@ func fixedReconstructAliasedMap(node *CandidateNode) error {
 				})
 
 				for _, item := range itemsToAdd {
-					newContent = append(newContent, item.Copy())
+					copied := item.Copy()
+					copied.Parent = node
+					newContent = append(newContent, copied)
 				}
 			}
 		}
@@ -226,8 +228,12 @@ func reconstructAliasedMap(node *CandidateNode, context Context) error {
 		}
 	}
 	node.Content = make([]*CandidateNode, 0)
+	entries := make([]*CandidateNode, 0, newContent.Len())
 	for newEl := newContent.Front(); newEl != nil; newEl = newEl.Next() {
-		node.AddChild(newEl.Value.(*CandidateNode))
+		entries = append(entries, newEl.Value.(*CandidateNode))
+	}
+	for i := 0; i < len(entries); i += 2 {
+		node.AddKeyValueChild(entries[i], entries[i+1])
 	}
 	return nil
 }
