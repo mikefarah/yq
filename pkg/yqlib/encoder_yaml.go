@@ -35,7 +35,7 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if strings.Contains(node.LeadingContent, "\r\n") {
 		lineEnding = "\r\n"
 	}
-	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
+	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar && !bareStringNeedsQuoting(node) {
 		valueToPrint := node.Value
 		if node.LeadingContent == "" || valueToPrint != "" {
 			valueToPrint = valueToPrint + lineEnding
@@ -77,4 +77,29 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return colorizeAndPrint(tempBuffer.Bytes(), writer)
 	}
 	return nil
+}
+
+// bareStringNeedsQuoting reports whether a top-level string scalar would be
+// structurally reinterpreted if emitted as an unquoted bare value. The
+// unwrap-scalar fast-path writes node.Value verbatim, which silently turns a
+// string like "this: should really work" into a mapping on the next read, or
+// "- item" into a sequence. When this returns true the caller falls through
+// to the full yaml encoder, which applies the quoting style required by the
+// YAML spec. Scalar-to-scalar reinterpretations (e.g. "123" parsing as an int
+// tag) are not covered here: they preserve the node shape and are handled by
+// callers that care about explicit tag preservation.
+func bareStringNeedsQuoting(node *CandidateNode) bool {
+	if node.Tag != "!!str" {
+		return false
+	}
+	var parsed yaml.Node
+	if err := yaml.Unmarshal([]byte(node.Value), &parsed); err != nil {
+		// Unparseable bare form (e.g. control characters): leave it on the
+		// fast-path so callers that check for those characters still see them.
+		return false
+	}
+	if parsed.Kind != yaml.DocumentNode || len(parsed.Content) != 1 {
+		return false
+	}
+	return parsed.Content[0].Kind != yaml.ScalarNode
 }
