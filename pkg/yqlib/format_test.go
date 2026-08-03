@@ -59,4 +59,7 @@ func TestFormatStringFromFilename(t *testing.T) {
 	test.AssertResult(t, "json", FormatStringFromFilename("TEST.JSON"))
 	test.AssertResult(t, "yaml", FormatStringFromFilename("test.json/foo"))
 	test.AssertResult(t, "yaml", FormatStringFromFilename(""))
+	// unrecognised extensions should default to yaml instead of being passed through verbatim
+	// (see https://github.com/mikefarah/yq/issues/1608)
+	test.AssertResult(t, "yaml", FormatStringFromFilename("test.tfstate"))
 }

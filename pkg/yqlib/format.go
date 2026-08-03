@@ -128,8 +128,11 @@ func FormatStringFromFilename(filename string) string {
 		ext := filepath.Ext(filename)
 		if len(ext) >= 2 && ext[0] == '.' {
 			format := strings.ToLower(ext[1:])
-			GetLogger().Debugf("detected format '%s'", format)
-			return format
+			if _, err := FormatFromString(format); err == nil {
+				GetLogger().Debugf("detected format '%s'", format)
+				return format
+			}
+			GetLogger().Debugf("extension '%s' is not a recognised format, defaulting to yaml", format)
 		}
 	}
 
