@@ -171,6 +171,15 @@ var sortByOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::# abc\n- def\n# ghi\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Sort large integers (no int64 subtraction overflow)",
+		document:    "[5000000000000000000, -5000000000000000000]",
+		expression:  `sort`,
+		expected: []string{
+			"D0, P[], (!!seq)::[-5000000000000000000, 5000000000000000000]\n",
+		},
+	},
 }
 
 func TestSortByOperatorScenarios(t *testing.T) {
