@@ -119,6 +119,19 @@ The project uses a documentation system that combines static headers with dynami
 3. **Generated docs** are created in `pkg/yqlib/doc/*.md` by concatenating headers with test-generated content
 4. **Documentation is synced** to the gitbook branch for the website
 
+### Previewing documentation locally
+
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install mkdocs-material
+deactivate
+source .venv/bin/activate
+cp -r pkg/yqlib/doc/ mkdocs
+mkdocs build
+mkdocs serve
+```
+
 ### Updating Operator Documentation
 
 #### For Test-Generated Documentation
@@ -150,6 +163,7 @@ For documentation not in the master branch:
 3. **Create a PR** to the gitbook branch
 
 ### Documentation Best Practices
+
 
 - **Write clear, concise examples** in test scenarios
 - **Use meaningful variable names** in examples
