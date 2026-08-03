@@ -121,6 +121,19 @@ var deleteOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Delete all entries from list with inline key comment",
+		document: `testList: # A comment
+- name: test1
+  value: 123
+- name: test2
+  value: 456`,
+		expression: `del(.testList[])`,
+		expected: []string{
+			"D0, P[], (!!map)::testList: [] # A comment\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Delete entry appended to an array",
 		document:    `[1,2]`,
 		expression:  `. += [3] | del(.[2])`,
