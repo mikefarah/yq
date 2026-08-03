@@ -1086,6 +1086,7 @@ func TestValidateCommandFlags(t *testing.T) {
 		frontMatter   string
 		splitFileExp  string
 		nullInput     bool
+		indent        int
 		expectError   bool
 		errorContains string
 	}{
@@ -1148,6 +1149,27 @@ func TestValidateCommandFlags(t *testing.T) {
 			expectError:   true,
 			errorContains: "cannot pass files in when using null-input flag",
 		},
+		{
+			name:          "negative indent",
+			args:          []string{"file.yaml"},
+			writeInplace:  false,
+			frontMatter:   "",
+			splitFileExp:  "",
+			nullInput:     false,
+			indent:        -1,
+			expectError:   true,
+			errorContains: "indent must not be negative",
+		},
+		{
+			name:         "zero indent is valid",
+			args:         []string{"file.yaml"},
+			writeInplace: false,
+			frontMatter:  "",
+			splitFileExp: "",
+			nullInput:    false,
+			indent:       0,
+			expectError:  false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -1157,17 +1179,20 @@ func TestValidateCommandFlags(t *testing.T) {
 			originalFrontMatter := frontMatter
 			originalSplitFileExp := splitFileExp
 			originalNullInput := nullInput
+			originalIndent := indent
 			defer func() {
 				writeInplace = originalWriteInplace
 				frontMatter = originalFrontMatter
 				splitFileExp = originalSplitFileExp
 				nullInput = originalNullInput
+				indent = originalIndent
 			}()
 
 			writeInplace = tt.writeInplace
 			frontMatter = tt.frontMatter
 			splitFileExp = tt.splitFileExp
 			nullInput = tt.nullInput
+			indent = tt.indent
 
 			err := validateCommandFlags(tt.args)
 			if tt.expectError {
