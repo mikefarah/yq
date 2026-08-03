@@ -69,10 +69,11 @@ func deleteFromMap(node *CandidateNode, childPath interface{}) {
 		}
 	}
 	node.Content = newContents
+	normaliseEmptyCollectionMapKeyComment(node)
 }
 
-func normaliseEmptySequenceMapKeyComment(node *CandidateNode) {
-	if node.Kind != SequenceNode || len(node.Content) != 0 || node.LineComment != "" {
+func normaliseEmptyCollectionMapKeyComment(node *CandidateNode) {
+	if (node.Kind != SequenceNode && node.Kind != MappingNode) || len(node.Content) != 0 || node.LineComment != "" {
 		return
 	}
 
@@ -110,5 +111,5 @@ func deleteFromArray(node *CandidateNode, childPath interface{}) {
 		}
 	}
 	node.Content = newContents
-	normaliseEmptySequenceMapKeyComment(node)
+	normaliseEmptyCollectionMapKeyComment(node)
 }

@@ -237,7 +237,7 @@ var fixedAnchorOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:     true,
 		description: "Merge after explode preserves correct parent references",
-		document:    `opensearch: &opensearch-cluster
+		document: `opensearch: &opensearch-cluster
   ip2geo:
     enabled: false
 
