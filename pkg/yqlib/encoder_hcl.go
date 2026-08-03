@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	hclwrite "github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/zclconf/go-cty/cty"
@@ -283,26 +282,6 @@ func isHCLIdentifierPart(r rune) bool {
 	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-'
 }
 
-func isValidHCLIdentifier(s string) bool {
-	if s == "" {
-		return false
-	}
-	// HCL identifiers must start with a letter or underscore
-	// and contain only letters, digits, underscores, and hyphens
-	for i, r := range s {
-		if i == 0 {
-			if !isHCLIdentifierStart(r) {
-				return false
-			}
-			continue
-		}
-		if !isHCLIdentifierPart(r) {
-			return false
-		}
-	}
-	return true
-}
-
 // tokensForRawHCLExpr produces a minimal token stream for a simple HCL expression so we can
 // write it without introducing quotes (e.g. function calls like upper(message)).
 func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
@@ -356,16 +335,11 @@ func tokensForRawHCLExpr(expr string) (hclwrite.Tokens, error) {
 // encodeAttribute encodes a value as an HCL attribute
 func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode *CandidateNode) error {
 	if valueNode.Kind == ScalarNode && valueNode.Tag == "!!str" {
-		// Handle unquoted expressions (as-is, without quotes)
-		if valueNode.Style == 0 {
-			tokens, err := tokensForRawHCLExpr(valueNode.Value)
-			if err != nil {
-				return err
-			}
-			body.SetAttributeRaw(key, tokens)
-			return nil
-		}
-		if valueNode.Style&LiteralStyle != 0 {
+		// Handle raw HCL expressions (identifier traversals, function calls, arithmetic)
+		// preserved verbatim from a round-tripped HCL source, without quotes. Ordinary
+		// strings (including those with no explicit style, e.g. yq-constructed values)
+		// are quoted below via cty.Value, since HCL requires all plain strings to be quoted.
+		if valueNode.EncodeHint == EncodeHintRawExpression {
 			tokens, err := tokensForRawHCLExpr(valueNode.Value)
 			if err != nil {
 				return err
@@ -376,14 +350,6 @@ func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode
 		// Check if template with interpolation
 		if valueNode.Style&DoubleQuotedStyle != 0 && strings.Contains(valueNode.Value, "${") {
 			return he.encodeTemplateAttribute(body, key, valueNode.Value)
-		}
-		// Check if unquoted identifier
-		if isValidHCLIdentifier(valueNode.Value) && valueNode.Style == 0 {
-			traversal := hcl.Traversal{
-				hcl.TraverseRoot{Name: valueNode.Value},
-			}
-			body.SetAttributeTraversal(key, traversal)
-			return nil
 		}
 	}
 	// Default: use cty.Value for quoted strings and all other types

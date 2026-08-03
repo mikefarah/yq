@@ -472,6 +472,29 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "service {\n  optional_field = null\n}\n",
 		scenarioType: "roundtrip",
 	},
+	{
+		description:  "Regression: string set via expression is quoted (#2594)",
+		skipDoc:      true,
+		input:        ``,
+		expression:   `.zone = "us-east1-b"`,
+		expected:     "zone = \"us-east1-b\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Regression: identifier-shaped string set via expression is still quoted (#2594)",
+		skipDoc:      true,
+		input:        ``,
+		expression:   `.name = "web_proxy"`,
+		expected:     "name = \"web_proxy\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "Roundtrip: preserves unquoted variable reference",
+		skipDoc:      true,
+		input:        `attr = var.foo`,
+		expected:     "attr = var.foo\n",
+		scenarioType: "roundtrip",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {
