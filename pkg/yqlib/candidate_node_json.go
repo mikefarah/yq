@@ -225,10 +225,14 @@ func jsonFloatLiteral(raw string) (string, bool) {
 // by "0" or a non-zero digit and further digits). Such values are emitted verbatim
 // so that integers outside the int64 range - which JSON permits - are preserved
 // instead of overflowing. The second return value is false for other forms (e.g.
-// hexadecimal, a leading "+", or leading zeros), which fall back to the normal
-// encoding path.
+// hexadecimal, a leading "+", leading zeros, or negative zero), which fall back
+// to the normal encoding path.
 func jsonIntLiteral(raw string) (string, bool) {
 	if raw == "" {
+		return "", false
+	}
+	// "-0" is valid JSON but a non-canonical spelling of 0; fall back so it emits "0".
+	if raw == "-0" {
 		return "", false
 	}
 	i := 0
