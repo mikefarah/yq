@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 )
 
 // A yaml expression evaluator that runs the expression multiple times for each given yaml document.
@@ -50,21 +49,11 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	for _, filename := range filenames {
-		reader, err := readStream(filename)
-
-		if err != nil {
-			return err
-		}
-		processedDocs, err := s.Evaluate(filename, reader, node, printer, decoder)
+		processedDocs, err := s.evaluateFile(filename, node, printer, decoder)
 		if err != nil {
 			return err
 		}
 		totalProcessDocs = totalProcessDocs + processedDocs
-
-		switch reader := reader.(type) {
-		case *os.File:
-			safelyCloseFile(reader)
-		}
 	}
 
 	if totalProcessDocs == 0 {
@@ -73,6 +62,16 @@ func (s *streamEvaluator) EvaluateFiles(expression string, filenames []string, p
 	}
 
 	return nil
+}
+
+func (s *streamEvaluator) evaluateFile(filename string, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
+	reader, err := readStream(filename)
+	if err != nil {
+		return 0, err
+	}
+	defer SafelyCloseReader(reader)
+
+	return s.Evaluate(filename, reader, node, printer, decoder)
 }
 
 func (s *streamEvaluator) Evaluate(filename string, reader io.Reader, node *ExpressionNode, printer Printer, decoder Decoder) (uint, error) {
