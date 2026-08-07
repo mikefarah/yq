@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"os"
 	"strings"
 	"testing"
 
@@ -75,4 +76,24 @@ func TestTomlDecoderCanBeReinitializedAcrossDocuments(t *testing.T) {
 		t.Fatalf("expected second document count to be 1, got %d", secondDocuments.Len())
 	}
 	test.AssertResult(t, "Banana", secondDocuments.Front().Value.(*CandidateNode).Content[1].Value)
+}
+
+func TestReadDocumentsLeavesReaderOpen(t *testing.T) {
+	filename := t.TempDir() + "/input.yml"
+	if err := os.WriteFile(filename, []byte("a: apple\n"), 0600); err != nil {
+		t.Fatalf("failed to write input file: %v", err)
+	}
+
+	file, err := os.Open(filename)
+	if err != nil {
+		t.Fatalf("failed to open input file: %v", err)
+	}
+	defer file.Close()
+
+	if _, err := ReadDocuments(file, NewYamlDecoder(ConfiguredYamlPreferences)); err != nil {
+		t.Fatalf("failed to read documents: %v", err)
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		t.Fatalf("ReadDocuments closed the caller-owned reader: %v", err)
+	}
 }

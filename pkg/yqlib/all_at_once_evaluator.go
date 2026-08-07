@@ -49,12 +49,7 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 
 	var allDocuments = list.New()
 	for _, filename := range filenames {
-		reader, err := readStream(filename)
-		if err != nil {
-			return err
-		}
-
-		fileDocuments, err := readDocuments(reader, filename, fileIndex, decoder)
+		fileDocuments, err := readDocumentsFromFile(filename, fileIndex, decoder)
 		if err != nil {
 			return err
 		}
@@ -72,4 +67,14 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 		return err
 	}
 	return printer.PrintResults(matches)
+}
+
+func readDocumentsFromFile(filename string, fileIndex int, decoder Decoder) (*list.List, error) {
+	reader, err := readStream(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer SafelyCloseReader(reader)
+
+	return readDocuments(reader, filename, fileIndex, decoder)
 }

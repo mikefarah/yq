@@ -62,6 +62,10 @@ func SafelyCloseReader(reader io.Reader) {
 	switch reader := reader.(type) {
 	case *os.File:
 		safelyCloseFile(reader)
+	case io.Closer:
+		if err := reader.Close(); err != nil {
+			log.Errorf("Error closing reader: %v", err)
+		}
 	}
 }
 

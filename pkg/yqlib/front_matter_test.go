@@ -142,6 +142,7 @@ Some content
 	}
 	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
 	docs, err := readDocuments(reader, tempFilename, 0, decoder)
+	SafelyCloseReader(reader)
 	if err != nil {
 		panic(err)
 	}

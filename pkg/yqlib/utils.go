@@ -32,21 +32,23 @@ func resolveFilename(filename string) string {
 	return filename
 }
 
-func readStream(filename string) (io.Reader, error) {
-	var reader *bufio.Reader
-	if filename == "-" {
-		reader = bufio.NewReader(os.Stdin)
-	} else {
-		// ignore CWE-22 gosec issue - that's more targeted for http based apps that run in a public directory,
-		// and ensuring that it's not possible to give a path to a file outside that directory.
-		file, err := os.Open(filename) // #nosec
-		if err != nil {
-			return nil, err
-		}
-		reader = bufio.NewReader(file)
-	}
-	return reader, nil
+type readCloser struct {
+	io.Reader
+	io.Closer
+}
 
+func readStream(filename string) (io.ReadCloser, error) {
+	if filename == "-" {
+		return io.NopCloser(bufio.NewReader(os.Stdin)), nil
+	}
+
+	// ignore CWE-22 gosec issue - that's more targeted for http based apps that run in a public directory,
+	// and ensuring that it's not possible to give a path to a file outside that directory.
+	file, err := os.Open(filename) // #nosec
+	if err != nil {
+		return nil, err
+	}
+	return &readCloser{Reader: bufio.NewReader(file), Closer: file}, nil
 }
 
 func writeString(writer io.Writer, txt string) error {
@@ -71,10 +73,6 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 		candidateNode, errorReading := decoder.Decode()
 
 		if errors.Is(errorReading, io.EOF) {
-			switch reader := reader.(type) {
-			case *os.File:
-				safelyCloseFile(reader)
-			}
 			return inputList, nil
 		} else if errorReading != nil {
 			return nil, fmt.Errorf("bad file '%v': %w", filename, errorReading)
