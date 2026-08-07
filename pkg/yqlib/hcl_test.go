@@ -472,6 +472,20 @@ var hclFormatScenarios = []formatScenario{
 		expected:     "service {\n  optional_field = null\n}\n",
 		scenarioType: "roundtrip",
 	},
+	{
+		description:  "Non-string object keys are coerced to strings",
+		skipDoc:      true,
+		input:        `intdict = { 1 = {} }`,
+		expected:     "intdict: {\"1\": {}}\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Mixed non-string object keys are coerced to strings",
+		skipDoc:      true,
+		input:        `d = { 1 = "a", 2 = "b", true = "c" }`,
+		expected:     "d: {\"1\": \"a\", \"2\": \"b\", \"true\": \"c\"}\n",
+		scenarioType: "decode",
+	},
 }
 
 func testHclScenario(t *testing.T, s formatScenario) {
