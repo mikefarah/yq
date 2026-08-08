@@ -307,6 +307,8 @@ Using [winget](https://learn.microsoft.com/en-us/windows/package-manager/)
 winget install --id MikeFarah.yq
 ```
 
+After Chocolatey, Scoop, or Winget, open a **new** terminal so `yq` is available on `PATH`.
+
 ### MacPorts:
 Using [MacPorts](https://www.macports.org/)
 ```
