@@ -49,12 +49,13 @@ func (e *allAtOnceEvaluator) EvaluateFiles(expression string, filenames []string
 
 	var allDocuments = list.New()
 	for _, filename := range filenames {
-		reader, err := readStream(filename)
+		reader, cleanup, err := readStream(filename)
 		if err != nil {
 			return err
 		}
 
 		fileDocuments, err := readDocuments(reader, filename, fileIndex, decoder)
+		cleanup()
 		if err != nil {
 			return err
 		}
