@@ -177,6 +177,13 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "object attribute with a non-string key",
+		skipDoc:      true,
+		input:        `intdict = { 1 = {} }`,
+		expected:     "intdict: {\"1\": {}}\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "nested block",
 		skipDoc:      true,
 		input:        `server { port = 8080 }`,

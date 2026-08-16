@@ -326,8 +326,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 		for _, item := range e.Items {
 			// evaluate key expression to get the key string
 			keyVal, keyDiags := item.KeyExpr.Value(nil)
-			if keyDiags != nil && keyDiags.HasErrors() {
+			if (keyDiags != nil && keyDiags.HasErrors()) || keyVal.Type() != cty.String {
 				// fallback: try to extract key from source
+				// (also covers non-string keys, e.g. numeric object keys, which AsString would panic on)
 				r := item.KeyExpr.Range()
 				start := r.Start.Byte
 				end := r.End.Byte
