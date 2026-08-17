@@ -252,6 +252,29 @@ func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte
 	}
 }
 
+// ctyValueToKeyString converts a cty.Value to its string key representation
+// without panicking on non-string types.
+func ctyValueToKeyString(v cty.Value) string {
+	if v.Type().Equals(cty.String) {
+		return v.AsString()
+	}
+	switch {
+	case v.Type() == cty.Number:
+		bf := v.AsBigFloat()
+		if bf == nil {
+			return v.GoString()
+		}
+		if intVal, acc := bf.Int(nil); acc == big.Exact {
+			return intVal.String()
+		}
+		return bf.Text('g', -1)
+	case v.Type().Equals(cty.Bool):
+		return strconv.FormatBool(v.True())
+	default:
+		return v.GoString()
+	}
+}
+
 func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode {
 	// handle literal values directly
 	switch e := expr.(type) {
@@ -338,7 +361,9 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 				}
 				continue
 			}
-			keyStr := keyVal.AsString()
+			// Convert key to string safely — non-string types (e.g. integers) must not
+			// call AsString() directly as that panics; use ctyValueToKeyString instead.
+			keyStr := ctyValueToKeyString(keyVal)
 			keyNode := createStringScalarNode(keyStr)
 			valNode := convertHclExprToNode(item.ValueExpr, src)
 			m.AddKeyValueChild(keyNode, valNode)
