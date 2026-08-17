@@ -27,7 +27,7 @@ a: |
   cat
 ```
 
-Using `$( exp )` wont work, as it will trim the trailing newline.
+Using `$( exp )` won't work, as it will trim the trailing newline.
 
 ```
 m=$(echo "cat\n") yq -n '.a = strenv(m)'
