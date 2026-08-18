@@ -598,3 +598,22 @@ will output
 - some
 ```
 
+## Merge does not overwrite existing values with null
+A `null` value on the right hand side does not clobber the value on the left, matching the behaviour of merging with an explicit `null`. New keys are still added.
+
+Given a sample.yml file of:
+```yaml
+a: cat
+b: dog
+```
+then
+```bash
+yq '. * {"a": null, "c": null}' sample.yml
+```
+will output
+```yaml
+a: cat
+b: dog
+c: null
+```
+

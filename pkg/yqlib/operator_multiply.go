@@ -205,7 +205,16 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	lhsPath := rhs.GetPath()[pathIndexToStartFrom:]
 	log.Debugf("merge - lhsPath %v", lhsPath)
 
-	assignmentOp := &Operation{OperationType: assignAttributesOpType, Preferences: preferences.AssignPrefs}
+	assignPrefs := preferences.AssignPrefs
+	if rhs.Tag == "!!null" {
+		// A null value on the RHS must not clobber an existing value on the
+		// LHS. This mirrors merging against a null (e.g. '{a: 1} * null'
+		// returns 'a: 1'). Restricting the write to null targets keeps that
+		// behaviour while still allowing brand new keys to be added as null.
+		assignPrefs.OnlyWriteNull = true
+	}
+
+	assignmentOp := &Operation{OperationType: assignAttributesOpType, Preferences: assignPrefs}
 	if shouldAppendArrays && rhs.Kind == SequenceNode {
 		assignmentOp.OperationType = addAssignOpType
 		log.Debugf("merge - assignmentOp.OperationType = addAssignOpType")

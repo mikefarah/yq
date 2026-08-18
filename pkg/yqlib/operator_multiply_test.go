@@ -687,6 +687,34 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Merge does not overwrite existing values with null",
+		subdescription: "A `null` value on the right hand side does not clobber the value on the left, matching the behaviour of merging with an explicit `null`. New keys are still added.",
+		document:       `{a: cat, b: dog}`,
+		expression:     `. * {"a": null, "c": null}`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: cat, b: dog, c: null}\n",
+		},
+	},
+	{
+		// Regression test for https://github.com/mikefarah/yq/issues/2224
+		// A null value must not clobber an existing map or array.
+		skipDoc:    true,
+		document:   `{a: {b: bird}, c: [1]}`,
+		expression: `. * {"a": null, "c": null}`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: bird}, c: [1]}\n",
+		},
+	},
+	{
+		// Regression test for https://github.com/mikefarah/yq/issues/2224
+		// Appending arrays across a null value must not drop earlier entries.
+		skipDoc:    true,
+		expression: `{"list": [1]} *+ {"list": null} *+ {"list": [3]}`,
+		expected: []string{
+			"D0, P[], (!!map)::list:\n    - 1\n    - 3\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		expression: `null * null`,
 		expected: []string{
