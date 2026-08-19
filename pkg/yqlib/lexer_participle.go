@@ -81,6 +81,9 @@ var participleYqRules = []*participleYqRule{
 	{"TSVDecode", `from_?tsv|@tsvd`, decodeOp(TSVFormat), 0},
 	{"TSVEncode", `to_?tsv|@tsv`, encodeWithIndent(TSVFormat, 0), 0},
 
+	{"Base64Urld", `@base64urld`, decodeOp(Base64UrlFormat), 0},
+	{"Base64Url", `@base64url`, encodeWithIndent(Base64UrlFormat, 0), 0},
+
 	{"Base64d", `@base64d`, decodeOp(Base64Format), 0},
 	{"Base64", `@base64`, encodeWithIndent(Base64Format, 0), 0},
 

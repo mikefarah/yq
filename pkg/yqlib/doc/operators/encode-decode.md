@@ -514,3 +514,33 @@ coolData:
   a: apple
 ```
 
+## Encode a string to base64url
+Given a sample.yml file of:
+```yaml
+coolData: "Works with UTF-16 \U0001F60A"
+```
+then
+```bash
+yq '.coolData | @base64url' sample.yml
+```
+will output
+```yaml
+V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==
+```
+
+## Decode a base64url encoded string
+URL-safe variant uses `-` and `_` in place of `+` and `/` (RFC 4648 §5).
+
+Given a sample.yml file of:
+```yaml
+coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==
+```
+then
+```bash
+yq '.coolData | @base64urld' sample.yml
+```
+will output
+```yaml
+Works with UTF-16 😊
+```
+

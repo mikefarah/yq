@@ -327,6 +327,39 @@ var encoderDecoderOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Encode a string to base64url",
+		document:    "coolData: Works with UTF-16 😊",
+		expression:  ".coolData | @base64url",
+		expected: []string{
+			"D0, P[coolData], (!!str)::V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==\n",
+		},
+	},
+	{
+		description:    "Decode a base64url encoded string",
+		subdescription: "URL-safe variant uses `-` and `_` in place of `+` and `/` (RFC 4648 §5).",
+		document:       "coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==",
+		expression:     ".coolData | @base64urld",
+		expected: []string{
+			"D0, P[coolData], (!!str)::Works with UTF-16 😊\n",
+		},
+	},
+	{
+		description: "base64url round trip preserves bytes with + and /",
+		skipDoc:     true,
+		expression:  `">>>???" | @base64url | @base64urld`,
+		expected: []string{
+			"D0, P[], (!!str)::>>>???\n",
+		},
+	},
+	{
+		description: "base64url missing padding decode",
+		skipDoc:     true,
+		expression:  `"V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig" | @base64urld`,
+		expected: []string{
+			"D0, P[], (!!str)::Works with UTF-16 😊\n",
+		},
+	},
+	{
 		requiresFormat: "xml",
 		description:    "empty xml decode",
 		skipDoc:        true,
