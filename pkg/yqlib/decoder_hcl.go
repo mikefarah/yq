@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/convert"
 )
 
 type hclDecoder struct {
@@ -253,22 +252,6 @@ func addBlockToMapping(parent *CandidateNode, block *hclsyntax.Block, src []byte
 	}
 }
 
-// hclKeyValueAsString converts an evaluated HCL key expression to its string
-// representation. HCL object keys may be non-string literals (e.g. a number
-// like `1`); calling AsString on those panics. Mirroring OpenTofu/Terragrunt,
-// we silently coerce non-string keys to their string form ("1" -> "1",
-// true -> "true") instead of panicking.
-func hclKeyValueAsString(keyVal cty.Value) (string, error) {
-	if keyVal.Type() == cty.String {
-		return keyVal.AsString(), nil
-	}
-	strVal, err := convert.Convert(keyVal, cty.String)
-	if err != nil {
-		return "", err
-	}
-	return strVal.AsString(), nil
-}
-
 func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode {
 	// handle literal values directly
 	switch e := expr.(type) {
@@ -317,8 +300,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			it := v.ElementIterator()
 			for it.Next() {
 				key, val := it.Element()
-				keyStr := key.AsString()
-				keyNode := createStringScalarNode(keyStr)
+				keyNode := convertCtyValueToNode(key)
 				valNode := convertCtyValueToNode(val)
 				m.AddKeyValueChild(keyNode, valNode)
 			}
@@ -355,20 +337,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 				}
 				continue
 			}
-			keyStr, err := hclKeyValueAsString(keyVal)
-			if err != nil {
-				// fallback: try to extract key from source
-				r := item.KeyExpr.Range()
-				start := r.Start.Byte
-				end := r.End.Byte
-				if start >= 0 && end >= start && end <= len(src) {
-					keyNode := createStringScalarNode(strings.TrimSpace(string(src[start:end])))
-					valNode := convertHclExprToNode(item.ValueExpr, src)
-					m.AddKeyValueChild(keyNode, valNode)
-				}
-				continue
-			}
-			keyNode := createStringScalarNode(keyStr)
+			keyNode := convertCtyValueToNode(keyVal)
 			valNode := convertHclExprToNode(item.ValueExpr, src)
 			m.AddKeyValueChild(keyNode, valNode)
 		}
@@ -489,7 +458,7 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 		it := v.ElementIterator()
 		for it.Next() {
 			key, val := it.Element()
-			keyNode := createStringScalarNode(key.AsString())
+			keyNode := convertCtyValueToNode(key)
 			valNode := convertCtyValueToNode(val)
 			m.AddKeyValueChild(keyNode, valNode)
 		}
