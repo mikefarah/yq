@@ -3,7 +3,7 @@ module github.com/mikefarah/yq/v4
 require (
 	github.com/a8m/envsubst v1.4.3
 	github.com/alecthomas/participle/v2 v2.1.4
-	github.com/alecthomas/repr v0.5.2
+	github.com/alecthomas/repr v0.5.4
 	github.com/dimchansky/utfbom v1.1.1
 	github.com/elliotchance/orderedmap v1.8.0
 	github.com/fatih/color v1.19.0
@@ -12,7 +12,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/jinzhu/copier v0.4.0
-	github.com/magiconair/properties v1.8.10
+	github.com/magiconair/properties v1.18.11
 	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e
 	github.com/spf13/cobra v1.10.2

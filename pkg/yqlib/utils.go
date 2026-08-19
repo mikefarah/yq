@@ -49,7 +49,7 @@ func readStream(filename string) (io.Reader, func(), error) {
 }
 
 func writeString(writer io.Writer, txt string) error {
-	_, errorWriting := writer.Write([]byte(txt))
+	_, errorWriting := io.WriteString(writer, txt)
 	return errorWriting
 }
 

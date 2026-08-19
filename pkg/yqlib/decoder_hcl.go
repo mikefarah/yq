@@ -300,8 +300,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 			it := v.ElementIterator()
 			for it.Next() {
 				key, val := it.Element()
-				keyStr := key.AsString()
-				keyNode := createStringScalarNode(keyStr)
+				keyNode := convertCtyValueToNode(key)
 				valNode := convertCtyValueToNode(val)
 				m.AddKeyValueChild(keyNode, valNode)
 			}
@@ -338,8 +337,7 @@ func convertHclExprToNode(expr hclsyntax.Expression, src []byte) *CandidateNode 
 				}
 				continue
 			}
-			keyStr := keyVal.AsString()
-			keyNode := createStringScalarNode(keyStr)
+			keyNode := convertCtyValueToNode(keyVal)
 			valNode := convertHclExprToNode(item.ValueExpr, src)
 			m.AddKeyValueChild(keyNode, valNode)
 		}
@@ -460,7 +458,7 @@ func convertCtyValueToNode(v cty.Value) *CandidateNode {
 		it := v.ElementIterator()
 		for it.Next() {
 			key, val := it.Element()
-			keyNode := createStringScalarNode(key.AsString())
+			keyNode := convertCtyValueToNode(key)
 			valNode := convertCtyValueToNode(val)
 			m.AddKeyValueChild(keyNode, valNode)
 		}
