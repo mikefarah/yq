@@ -1,3 +1,19 @@
+4.53.4:
+- Close input files after processing each one (#2796) (#2808) Thanks @MsfPablo
+- Fixed non string HCL string keys (#2795)
+- Fixed heap allocation bug (#2809) Thanks @MsfPablo
+- Fix deleting commented empty list YAML output (#2765) Thanks @dpersek
+- Fix (has) return false for negative array indices (#2769) Thanks @maximilize
+- Fix (sort): avoid int64 overflow comparing large integers (#2771) Thanks @maximilize
+- Fix: preserve correct parent references in explode merge anchor reconstruction (#2730) Thanks @vomba
+- Improve Guard ExpressionParser initialization with sync.Once (#2789) Thanks @arcaven
+- Fix: reject negative indent instead of panicking (#2746) Thanks @StressTestor
+- Fix: parse signed hex and octal integers (#2749) Thanks @StressTestor
+- Fix: skip UTF-8 BOM when processing front matter (#2751) Thanks @StressTestor
+- Fix !!merge tag regression for yq  (#2705) Thanks @W-Floyd
+- Default to yaml when a file's extension is not a recognised format (#2785) Thanks @devthedevil
+- Bumped dependencies
+
 4.53.3:
   - Add `--ini-preserve-quotes` flag for INI round-trip quote preservation (#2728) Thanks @toller892!
   - Fix: reset INI decoder state on init (#2719) Thanks @xieby1!
