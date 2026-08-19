@@ -83,7 +83,7 @@ var nodeWithFooter = `a: apple
 
 var document = `a: &cat {name: cat}
 b: {name: dog}
-c: 
+c:
   <<: *cat
 `
 
@@ -514,7 +514,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		environmentVariables: map[string]string{"originalPath": ".myArray", "otherPath": ".newArray", "idPath": ".a"},
 		expression:           mergeExpression,
 		expected: []string{
-			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC},\n        {a: dingo, c: dingoC}], something: else}\n",
+			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}, {a: dingo, c: dingoC}], something: else}\n",
 		},
 	},
 	{
