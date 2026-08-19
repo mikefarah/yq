@@ -2,7 +2,7 @@
 
 Use the `alias` and `anchor` operators to read and write yaml aliases and anchors. The `explode` operator normalises a yaml file (dereference (or expands) aliases and remove anchor names).
 
-`yq` supports merge aliases (like `<<: *blah`) however this is no longer in the standard yaml spec (1.2) and so `yq` will automatically add the `!!merge` tag to these nodes as it is effectively a custom tag.
+`yq` supports merge keys (like `<<: *blah`) from YAML 1.1. These are no longer part of the YAML 1.2 standard, but remain common in practice. Plain `<<:` keys are recognised as merge keys and round-trip as `<<:` without an explicit `!!merge` tag. When the source uses an explicit `!!merge` tag, that is preserved on output. Internally, when `yq` synthesises a `<<` map key (for example during merge operations), it tags the key as `!!merge` rather than `!!str`.
 
 
 ## NOTE --yaml-fix-merge-anchor-to-spec flag
@@ -32,7 +32,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<: *CENTRE
+- <<: *CENTRE
   r: 10
 ```
 then
@@ -213,10 +213,10 @@ item_value: &item_value
   value: true
 thingOne:
   name: item_1
-  !!merge <<: *item_value
+  <<: *item_value
 thingTwo:
   name: item_2
-  !!merge <<: *item_value
+  <<: *item_value
 ```
 then
 ```bash
@@ -231,7 +231,7 @@ thingOne:
   value: false
 thingTwo:
   name: item_2
-  !!merge <<: *item_value
+  <<: *item_value
 ```
 
 ## LEGACY: Explode with merge anchors
@@ -249,13 +249,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -298,7 +298,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *CENTRE
     - *BIG
 ```
@@ -328,7 +328,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *BIG
     - *LEFT
     - *SMALL
@@ -361,13 +361,13 @@ bar: &bar
   c: bar_c
 foobarList:
   b: foobarList_b
-  !!merge <<:
+  <<:
     - *foo
     - *bar
   c: foobarList_c
 foobar:
   c: foobar_c
-  !!merge <<: *foo
+  <<: *foo
   thing: foobar_thing
 ```
 then
@@ -411,7 +411,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *CENTRE
     - *BIG
 ```
@@ -442,7 +442,7 @@ Given a sample.yml file of:
   r: 10
 - &SMALL
   r: 1
-- !!merge <<:
+- <<:
     - *BIG
     - *LEFT
     - *SMALL
@@ -467,7 +467,7 @@ Given a sample.yml file of:
 ```yaml
 a:
   b: &b 42
-!!merge <<:
+<<:
   c: *b
 ```
 then

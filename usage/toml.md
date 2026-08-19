@@ -1,6 +1,6 @@
 # TOML
 
-Decode from TOML. Note that `yq` does not yet support outputting in TOML format (and therefore it cannot roundtrip)
+Encode and decode to and from TOML.
 
 
 ## Parse: Simple
