@@ -1,3 +1,6 @@
+4.53.6:
+  - Fixing release build issue
+  
 4.53.5:
   - Fixed line wrapping bug (#2824, #2823) Thanks mxey
   - Bumped dependencies 

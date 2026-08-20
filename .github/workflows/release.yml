@@ -48,7 +48,7 @@ jobs:
       - name: Cross compile
         run: |
           sudo apt-get install rhash -y
-          go install github.com/goreleaser/goreleaser/v2@v2.16.0
+          go install github.com/goreleaser/goreleaser/v2@v2.17.1
           ./scripts/xcompile.sh
 
       - name: Sign checksums
