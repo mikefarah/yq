@@ -1,3 +1,7 @@
+4.53.5:
+  - Fixed line wrapping bug (#2824, #2823) Thanks mxey
+  - Bumped dependencies 
+
 4.53.4:
 - Close input files after processing each one (#2796) (#2808) Thanks @MsfPablo
 - Fixed non string HCL string keys (#2795)
