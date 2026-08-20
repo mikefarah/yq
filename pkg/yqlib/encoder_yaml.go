@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"bytes"
-	"cmp"
 	"fmt"
 	"io"
 	"strings"
@@ -51,26 +50,37 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		destination = tempBuffer
 	}
 
+	indent := ye.prefs.Indent
+	if indent < 2 {
+		indent = 2
+	} else if indent > 9 {
+		indent = 9
+	}
+
 	dumper, err := yaml.NewDumper(destination,
 		yaml.WithV3Defaults(),
-		yaml.WithIndent(cmp.Or(ye.prefs.Indent, 2)),
+		yaml.WithIndent(indent),
 		yaml.WithCompactSeqIndent(ye.prefs.CompactSequenceIndent),
 		yaml.WithLineWidth(-1),
 	)
 	if err != nil {
-		return fmt.Errorf("configure YAML encoding %#v: %v", ye.prefs, err)
+		return fmt.Errorf("configure YAML encoding: %w", err)
 	}
 
 	target, err := node.MarshalYAML()
-
 	if err != nil {
+		_ = dumper.Close()
 		return err
 	}
 
 	trailingContent := target.FootComment
 	target.FootComment = ""
 
-	if err := dumper.Dump(target); err != nil {
+	err = dumper.Dump(target)
+	if closeErr := dumper.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
 		return err
 	}
 
