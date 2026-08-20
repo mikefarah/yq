@@ -106,6 +106,12 @@ var yamlFormatScenarios = []formatScenario{
 		input:       "[1, 2]",
 		expected:    "[1, 2]\n",
 	},
+	{
+		description: "long line",
+		skipDoc:     true,
+		input:       "field: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
+		expected:    "field: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt\n",
+	},
 }
 
 var yamlParseScenarios = []expressionScenario{
