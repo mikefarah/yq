@@ -1,6 +1,12 @@
 package yqlib
 
 import (
+	"errors"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+	"runtime/debug"
 	"testing"
 )
 
@@ -179,4 +185,69 @@ func TestLoadOperatorSecurityDisabledScenarios(t *testing.T) {
 		testScenario(t, &tt)
 	}
 	appendOperatorDocumentScenario(t, "load", loadOperatorSecurityDisabledScenarios)
+}
+
+func TestLoadWithDecoderClosesFiles(t *testing.T) {
+	InitExpressionParser()
+
+	filenames := make([]string, 40)
+	dir := t.TempDir()
+	for i := range filenames {
+		filename := filepath.Join(dir, fmt.Sprintf("input-%d.yml", i))
+		if err := os.WriteFile(filename, []byte("value: test\n"), 0600); err != nil {
+			t.Fatal(err)
+		}
+		filenames[i] = filename
+	}
+
+	previousGCPercent := debug.SetGCPercent(-1)
+	t.Cleanup(func() { debug.SetGCPercent(previousGCPercent) })
+	before := countOpenFileDescriptors()
+	for _, filename := range filenames {
+		node, err := loadWithDecoder(filename, NewYamlDecoder(ConfiguredYamlPreferences))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if node.Kind != MappingNode {
+			t.Fatalf("got node kind %v, want mapping", node.Kind)
+		}
+	}
+	after := countOpenFileDescriptors()
+	if after > before {
+		t.Fatalf("open file descriptors grew from %d to %d", before, after)
+	}
+}
+
+type failingLoadDecoder struct {
+	err error
+}
+
+func (decoder failingLoadDecoder) Init(io.Reader) error {
+	return nil
+}
+
+func (decoder failingLoadDecoder) Decode() (*CandidateNode, error) {
+	return nil, decoder.err
+}
+
+func TestLoadWithDecoderClosesFilesOnDecodeError(t *testing.T) {
+	filename := filepath.Join(t.TempDir(), "input.yml")
+	if err := os.WriteFile(filename, []byte("value: test\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	previousGCPercent := debug.SetGCPercent(-1)
+	t.Cleanup(func() { debug.SetGCPercent(previousGCPercent) })
+	decodeErr := errors.New("decode failed")
+	before := countOpenFileDescriptors()
+	for range 40 {
+		_, err := loadWithDecoder(filename, failingLoadDecoder{err: decodeErr})
+		if !errors.Is(err, decodeErr) {
+			t.Fatalf("loadWithDecoder() error = %v, want %v", err, decodeErr)
+		}
+	}
+	after := countOpenFileDescriptors()
+	if after > before {
+		t.Fatalf("open file descriptors grew from %d to %d", before, after)
+	}
 }
