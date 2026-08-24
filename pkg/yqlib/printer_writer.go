@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -27,11 +28,16 @@ func (sp *singlePrinterWriter) GetWriter(_ *CandidateNode) (*bufio.Writer, error
 	return sp.bufferedWriter, nil
 }
 
+func (sp *singlePrinterWriter) CloseWriter() error {
+	return nil
+}
+
 type multiPrintWriter struct {
 	treeNavigator  DataTreeNavigator
 	nameExpression *ExpressionNode
 	extension      string
 	index          int
+	file           *os.File
 }
 
 func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWriter {
@@ -53,6 +59,13 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWr
 }
 
 func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error) {
+	if node == nil {
+		return nil, errors.New("cannot append content to split output without a result")
+	}
+	if sp.file != nil {
+		return nil, fmt.Errorf("previous split output file is still open")
+	}
+
 	name := ""
 
 	indexVariableNode := CandidateNode{Kind: ScalarNode, Tag: "!!int", Value: fmt.Sprintf("%v", sp.index)}
@@ -75,13 +88,20 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.Create(name)
-
+	sp.file, err = os.Create(name)
 	if err != nil {
 		return nil, err
 	}
-	sp.index = sp.index + 1
+	sp.index++
 
-	return bufio.NewWriter(f), nil
+	return bufio.NewWriter(sp.file), nil
+}
 
+func (sp *multiPrintWriter) CloseWriter() error {
+	if sp.file == nil {
+		return nil
+	}
+	err := sp.file.Close()
+	sp.file = nil
+	return err
 }
