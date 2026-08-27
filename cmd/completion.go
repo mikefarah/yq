@@ -1,10 +1,27 @@
 package cmd
 
 import (
+	"bytes"
+	"errors"
+	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+const unsafeFishCompletionRequest = `    # Disable ActiveHelp which is not supported for fish shell
+    set -l requestComp "YQ_ACTIVE_HELP=0 $args[1] __complete $args[2..-1] $lastArg"
+
+    __yq_debug "Calling $requestComp"
+    set -l results (eval $requestComp 2> /dev/null)`
+
+const safeFishCompletionRequest = `    # Disable ActiveHelp which is not supported for fish shell
+    set -lx YQ_ACTIVE_HELP 0
+    set -l requestComp $args[1] __complete $args[2..-1] $lastArg
+
+    __yq_debug "Calling $requestComp"
+    set -l results ($requestComp 2> /dev/null)`
 
 var completionCmd = &cobra.Command{
 	Use:     "completion [bash|zsh|fish|powershell]",
@@ -52,11 +69,34 @@ $ yq completion fish > ~/.config/fish/completions/yq.fish
 		case "zsh":
 			err = cmd.Root().GenZshCompletion(os.Stdout)
 		case "fish":
-			err = cmd.Root().GenFishCompletion(os.Stdout, true)
+			err = writeFishCompletion(cmd.Root(), os.Stdout)
 		case "powershell":
 			err = cmd.Root().GenPowerShellCompletion(os.Stdout)
 		}
 		return err
 
 	},
+}
+
+func writeFishCompletion(root *cobra.Command, writer io.Writer) error {
+	var script bytes.Buffer
+	if err := root.GenFishCompletion(&script, true); err != nil {
+		return err
+	}
+
+	patchedScript, err := patchFishCompletionRequest(script.String())
+	if err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(writer, patchedScript)
+	return err
+}
+
+func patchFishCompletionRequest(script string) (string, error) {
+	patchedScript := strings.Replace(script, unsafeFishCompletionRequest, safeFishCompletionRequest, 1)
+	if patchedScript == script {
+		return "", errors.New("failed to patch fish completion request")
+	}
+	return patchedScript, nil
 }
