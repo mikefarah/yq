@@ -16,6 +16,12 @@ func NewBase64Encoder() Encoder {
 	return &base64Encoder{encoding: *base64.StdEncoding}
 }
 
+// NewBase64URLEncoder returns an encoder for the URL- and filename-safe
+// Base64 variant (RFC 4648 §5): `-` and `_` replace `+` and `/`.
+func NewBase64URLEncoder() Encoder {
+	return &base64Encoder{encoding: *base64.URLEncoding}
+}
+
 func (e *base64Encoder) CanHandleAliases() bool {
 	return false
 }
