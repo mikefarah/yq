@@ -539,6 +539,15 @@ var addOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::? [{~: ~}]\n: v1\n? [{2: ~}]\n: v2\n",
 		},
 	},
+	{
+		// int64 + int64 that overflows int64. See issue #2820: previously
+		// this silently wrapped (MaxInt64 + 1 -> MinInt64).
+		description:   "Add integers that overflow int64",
+		skipDoc:       true,
+		document:      `a: 9223372036854775807`,
+		expression:    `.a + 1`,
+		expectedError: "9223372036854775807 + 1 overflows int64",
+	},
 }
 
 func TestAddOperatorScenarios(t *testing.T) {

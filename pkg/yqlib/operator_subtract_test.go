@@ -157,6 +157,15 @@ var subtractOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[!goat {a: b}]\n",
 		},
 	},
+	{
+		// int64 - int64 that overflows int64. See issue #2820: previously
+		// this silently wrapped (MinInt64 - 1 -> MaxInt64).
+		description:   "Subtract integers that overflow int64",
+		skipDoc:       true,
+		document:      `a: -9223372036854775808`,
+		expression:    `.a - 1`,
+		expectedError: "-9223372036854775808 - 1 overflows int64",
+	},
 }
 
 func TestSubtractOperatorScenarios(t *testing.T) {
