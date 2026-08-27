@@ -186,7 +186,7 @@ var participleYqRules = []*participleYqRule{
 
 	{"NullValue", `[Nn][Uu][Ll][Ll]|~`, nullValue(), 0},
 
-	{"QuotedStringValue", `"([^"\\]*(\\.[^"\\]*)*)"`, stringValue(), 0},
+	{"QuotedStringValue", `"((\\\([^)]*\)|\\.|[^"\\])*)"`, stringValue(), 0},
 
 	{"StrEnvOp", `strenv\([^\)]+\)`, envOp(true), 0},
 	{"EnvOp", `env\([^\)]+\)`, envOp(false), 0},
