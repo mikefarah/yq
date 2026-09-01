@@ -280,3 +280,32 @@ func TestWriteInPlaceHandlerImpl_Integration(t *testing.T) {
 			string(newContent), string(finalContent))
 	}
 }
+
+// TestWriteInPlaceHandlerImpl_CreateTempFile_SameDirAsTarget guards against the
+// in-place edit dropping the target file's permissions (issue #2845). The temp
+// file must be created in the target file's directory so it inherits that
+// directory's permissions/ACLs; a temp file created in the system temp dir would
+// be renamed over the target and lose its ACLs on Windows.
+func TestWriteInPlaceHandlerImpl_CreateTempFile_SameDirAsTarget(t *testing.T) {
+	tempDir := t.TempDir()
+	inputFile := filepath.Join(tempDir, "input.yaml")
+
+	err := os.WriteFile(inputFile, []byte("test: value\n"), 0600)
+	if err != nil {
+		t.Fatalf("Failed to create input file: %v", err)
+	}
+
+	handler := NewWriteInPlaceHandler(inputFile)
+	tempFile, err := handler.CreateTempFile()
+	if err != nil {
+		t.Fatalf("CreateTempFile failed: %v", err)
+	}
+	defer os.Remove(tempFile.Name())
+	defer tempFile.Close()
+
+	gotDir := filepath.Dir(tempFile.Name())
+	wantDir := filepath.Dir(inputFile)
+	if gotDir != wantDir {
+		t.Errorf("temp file created in %q, want same directory as target %q", gotDir, wantDir)
+	}
+}

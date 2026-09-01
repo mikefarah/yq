@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"os"
+	"path/filepath"
 )
 
 type writeInPlaceHandler interface {
@@ -20,7 +21,10 @@ func NewWriteInPlaceHandler(inputFile string) writeInPlaceHandler {
 }
 
 func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
-	file, err := createTempFile()
+	// Create the temp file alongside the target so it inherits the target
+	// directory's permissions/ACLs (see createTempFile); this keeps the
+	// original file's permissions intact after the rename, notably on Windows.
+	file, err := createTempFile(filepath.Dir(w.inputFilename))
 
 	if err != nil {
 		return nil, err

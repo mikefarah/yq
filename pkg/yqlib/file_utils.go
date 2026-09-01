@@ -72,10 +72,19 @@ func safelyCloseFile(file *os.File) {
 	}
 }
 
-func createTempFile() (*os.File, error) {
-	_, err := os.Stat(os.TempDir())
+// createTempFile creates a temp file in dir. When dir is "" the system temp
+// directory is used. For in-place edits, pass the target file's directory so
+// the temp file inherits that directory's permissions/ACLs (on Windows ACLs are
+// inherited from the parent dir, not copied by Chmod), preserving them across
+// the rename that replaces the original file.
+func createTempFile(dir string) (*os.File, error) {
+	tempDir := dir
+	if tempDir == "" {
+		tempDir = os.TempDir()
+	}
+	_, err := os.Stat(tempDir)
 	if os.IsNotExist(err) {
-		err = os.Mkdir(os.TempDir(), 0700)
+		err = os.Mkdir(tempDir, 0700)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +92,7 @@ func createTempFile() (*os.File, error) {
 		return nil, err
 	}
 
-	file, err := os.CreateTemp("", "temp")
+	file, err := os.CreateTemp(dir, "temp")
 	if err != nil {
 		return nil, err
 	}
