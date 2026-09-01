@@ -68,7 +68,7 @@ func (f *frontMatterHandlerImpl) Split() error {
 	}
 	f.contentReader = reader
 
-	yamlTempFile, err := createTempFile()
+	yamlTempFile, err := createTempFile("")
 	if err != nil {
 		return err
 	}

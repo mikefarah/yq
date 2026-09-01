@@ -9,7 +9,7 @@ import (
 )
 
 func createTestFile(content string) string {
-	tempFile, err := createTempFile()
+	tempFile, err := createTempFile("")
 	if err != nil {
 		panic(err)
 	}
