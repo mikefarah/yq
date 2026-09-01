@@ -30,7 +30,7 @@ func getAssignPreferences(preferences interface{}) assignPreferences {
 }
 
 func assignUpdateOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
