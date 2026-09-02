@@ -19,10 +19,14 @@ func flatten(node *CandidateNode, depth int) {
 	newSeq := make([]*CandidateNode, 0)
 
 	for i := 0; i < len(content); i++ {
-		if content[i].Kind == SequenceNode {
-			flatten(content[i], depth-1)
-			for j := 0; j < len(content[i].Content); j++ {
-				newSeq = append(newSeq, content[i].Content[j])
+		child := content[i]
+		if child.Kind == AliasNode && child.Alias != nil {
+			child = child.Alias.Copy()
+		}
+		if child.Kind == SequenceNode {
+			flatten(child, depth-1)
+			for j := 0; j < len(child.Content); j++ {
+				newSeq = append(newSeq, child.Content[j])
 			}
 		} else {
 			newSeq = append(newSeq, content[i])

@@ -69,3 +69,26 @@ will output
 - foo: baz
 ```
 
+## Flatten aliased array
+Aliases are resolved before flattening.
+
+Given a sample.yml file of:
+```yaml
+base: &base
+  - item1
+  - item2
+list:
+  - *base
+  - item3
+```
+then
+```bash
+yq '.list | flatten' sample.yml
+```
+will output
+```yaml
+- item1
+- item2
+- item3
+```
+
