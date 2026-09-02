@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mattn/go-isatty"
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
 	"github.com/spf13/cobra"
 )
@@ -45,9 +46,10 @@ func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 }
 
 func setupColors() {
-	fileInfo, _ := os.Stdout.Stat()
-
-	if forceColor || (!forceNoColor && (fileInfo.Mode()&os.ModeCharDevice) != 0) {
+	fd := os.Stdout.Fd()
+	// os.Stdout can be a regular file, pipe, or other character device such
+	// as /dev/null - only a real terminal should get colourised output.
+	if forceColor || (!forceNoColor && (isatty.IsTerminal(fd) || isatty.IsCygwinTerminal(fd))) {
 		colorsEnabled = true
 	}
 }
