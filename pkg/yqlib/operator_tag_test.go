@@ -12,7 +12,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:       "a: frog\n",
 		expression:     `.a | key | tag`,
 		expected: []string{
-			"D0, P[a], (!!str)::!!str\n",
+			"D0, P[a], (!!str)::'!!str'\n",
 		},
 	},
 	{
@@ -20,12 +20,12 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
 		expression:  `.. | tag`,
 		expected: []string{
-			"D0, P[], (!!str)::!!map\n",
-			"D0, P[a], (!!str)::!!str\n",
-			"D0, P[b], (!!str)::!!int\n",
-			"D0, P[c], (!!str)::!!float\n",
-			"D0, P[e], (!!str)::!!bool\n",
-			"D0, P[f], (!!str)::!!seq\n",
+			"D0, P[], (!!str)::'!!map'\n",
+			"D0, P[a], (!!str)::'!!str'\n",
+			"D0, P[b], (!!str)::'!!int'\n",
+			"D0, P[c], (!!str)::'!!float'\n",
+			"D0, P[e], (!!str)::'!!bool'\n",
+			"D0, P[f], (!!str)::'!!seq'\n",
 		},
 	},
 	{
@@ -33,12 +33,12 @@ var tagOperatorScenarios = []expressionScenario{
 		document:    `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
 		expression:  `.. | type`,
 		expected: []string{
-			"D0, P[], (!!str)::!!map\n",
-			"D0, P[a], (!!str)::!!str\n",
-			"D0, P[b], (!!str)::!!int\n",
-			"D0, P[c], (!!str)::!!float\n",
-			"D0, P[e], (!!str)::!!bool\n",
-			"D0, P[f], (!!str)::!!seq\n",
+			"D0, P[], (!!str)::'!!map'\n",
+			"D0, P[a], (!!str)::'!!str'\n",
+			"D0, P[b], (!!str)::'!!int'\n",
+			"D0, P[c], (!!str)::'!!float'\n",
+			"D0, P[e], (!!str)::'!!bool'\n",
+			"D0, P[f], (!!str)::'!!seq'\n",
 		},
 	},
 	{
@@ -46,7 +46,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:   `{a: cat, b: 5, c: 3.2, e: true, f: []}`,
 		expression: `tag`,
 		expected: []string{
-			"D0, P[], (!!str)::!!map\n",
+			"D0, P[], (!!str)::'!!map'\n",
 		},
 	},
 	{
@@ -54,7 +54,7 @@ var tagOperatorScenarios = []expressionScenario{
 		document:   `32`,
 		expression: `. tag= "!!str"`,
 		expected: []string{
-			"D0, P[], (!!str)::32\n",
+			"D0, P[], (!!str)::\"32\"\n",
 		},
 	},
 	{

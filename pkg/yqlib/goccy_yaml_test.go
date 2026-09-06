@@ -192,7 +192,7 @@ var goccyYamlFormatScenarios = []formatScenario{
 		skipDoc:     true,
 		input:       "0o30",
 		expression:  "tag",
-		expected:    "!!int\n",
+		expected:    "'!!int'\n",
 	},
 	{
 		description: "basic - [null]",

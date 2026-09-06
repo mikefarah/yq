@@ -40,8 +40,8 @@ yq '.[] | tag' sample.yml
 ```
 will output
 ```yaml
-!!str
-!!str
+'!!str'
+'!!str'
 ```
 
 ## `and` example

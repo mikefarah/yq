@@ -13,6 +13,31 @@ type yamlEncoder struct {
 	prefs YamlPreferences
 }
 
+// scalarWouldNotRoundTrip reports whether the given string scalar would be
+// re-parsed as something other than a string (an int, float, bool, null,
+// timestamp, or a non-scalar node) if emitted without quotes, breaking
+// roundtrip safety of the output document.
+func scalarWouldNotRoundTrip(node *CandidateNode) bool {
+	if node.Tag != "!!str" || node.Value == "" {
+		return false
+	}
+	// Control characters (e.g. NUL) cannot appear in plain scalars; emitting
+	// them quoted would bypass the NUL-separated output safety check, which
+	// relies on the plain write path erroring out.
+	if strings.ContainsFunc(node.Value, func(r rune) bool { return r < 0x20 && r != '\t' }) {
+		return false
+	}
+	decoder := NewYamlDecoder(YamlPreferences{})
+	if err := decoder.Init(bytes.NewReader([]byte(node.Value))); err != nil {
+		return true
+	}
+	reencoded, err := decoder.Decode()
+	if err != nil || reencoded == nil {
+		return true
+	}
+	return reencoded.Tag != "!!str" || reencoded.Kind != ScalarNode || reencoded.Value != node.Value
+}
+
 func NewYamlEncoder(prefs YamlPreferences) Encoder {
 	return &yamlEncoder{prefs}
 }
@@ -36,7 +61,7 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if strings.Contains(node.LeadingContent, "\r\n") {
 		lineEnding = "\r\n"
 	}
-	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
+	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar && !scalarWouldNotRoundTrip(node) {
 		valueToPrint := node.Value
 		if node.LeadingContent == "" || valueToPrint != "" {
 			valueToPrint = valueToPrint + lineEnding

@@ -18,8 +18,8 @@ var booleanOperatorScenarios = []expressionScenario{
 		document:       `[yes, no]`,
 		expression:     `.[] | tag`,
 		expected: []string{
-			"D0, P[0], (!!str)::!!str\n",
-			"D0, P[1], (!!str)::!!str\n",
+			"D0, P[0], (!!str)::'!!str'\n",
+			"D0, P[1], (!!str)::'!!str'\n",
 		},
 	},
 	{

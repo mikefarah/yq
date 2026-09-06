@@ -512,7 +512,7 @@ var xmlScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        "<cat>purrs</cat>\n",
 		expression:   `tag`,
-		expected:     "!!map\n",
+		expected:     "'!!map'\n",
 		scenarioType: "decode",
 	},
 	{
@@ -520,7 +520,7 @@ var xmlScenarios = []formatScenario{
 		skipDoc:      true,
 		input:        "<cat>purrs</cat><cat>purrs</cat>\n",
 		expression:   `.cat | tag`,
-		expected:     "!!seq\n",
+		expected:     "'!!seq'\n",
 		scenarioType: "decode",
 	},
 	{

@@ -17,12 +17,12 @@ yq '.. | tag' sample.yml
 ```
 will output
 ```yaml
-!!map
-!!str
-!!int
-!!float
-!!bool
-!!seq
+'!!map'
+'!!str'
+'!!int'
+'!!float'
+'!!bool'
+'!!seq'
 ```
 
 ## type is an alias for tag
@@ -40,12 +40,12 @@ yq '.. | type' sample.yml
 ```
 will output
 ```yaml
-!!map
-!!str
-!!int
-!!float
-!!bool
-!!seq
+'!!map'
+'!!str'
+'!!int'
+'!!float'
+'!!bool'
+'!!seq'
 ```
 
 ## Set custom tag
