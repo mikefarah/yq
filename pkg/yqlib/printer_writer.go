@@ -32,9 +32,10 @@ type multiPrintWriter struct {
 	nameExpression *ExpressionNode
 	extension      string
 	index          int
+	noClobber      bool
 }
 
-func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWriter {
+func NewMultiPrinterWriter(expression *ExpressionNode, format *Format, noClobber bool) PrinterWriter {
 	extension := "yml"
 
 	switch format {
@@ -49,6 +50,7 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWr
 		extension:      extension,
 		treeNavigator:  NewDataTreeNavigator(),
 		index:          0,
+		noClobber:      noClobber,
 	}
 }
 
@@ -75,9 +77,17 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.Create(name)
+
+	openFlags := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	if sp.noClobber {
+		openFlags = os.O_WRONLY | os.O_CREATE | os.O_EXCL
+	}
+	f, err := os.OpenFile(name, openFlags, 0666)
 
 	if err != nil {
+		if sp.noClobber && os.IsExist(err) {
+			return nil, fmt.Errorf("split file %q already exists", name)
+		}
 		return nil, err
 	}
 	sp.index = sp.index + 1
