@@ -35,7 +35,7 @@ type multiPrintWriter struct {
 	noClobber      bool
 }
 
-func NewMultiPrinterWriter(expression *ExpressionNode, format *Format, noClobber bool) PrinterWriter {
+func NewMultiPrinterWriter(expression *ExpressionNode, format *Format, noClobber ...bool) PrinterWriter {
 	extension := "yml"
 
 	switch format {
@@ -50,7 +50,7 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format *Format, noClobber
 		extension:      extension,
 		treeNavigator:  NewDataTreeNavigator(),
 		index:          0,
-		noClobber:      noClobber,
+		noClobber:      len(noClobber) > 0 && noClobber[0],
 	}
 }
 
@@ -78,7 +78,8 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 		return nil, err
 	}
 
-	openFlags := os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	// matches os.Create's flags to keep default behaviour unchanged
+	openFlags := os.O_RDWR | os.O_CREATE | os.O_TRUNC
 	if sp.noClobber {
 		openFlags = os.O_WRONLY | os.O_CREATE | os.O_EXCL
 	}
