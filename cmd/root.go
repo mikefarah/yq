@@ -206,6 +206,7 @@ yq -P -oy sample.json
 	if err = rootCmd.MarkPersistentFlagFilename("split-exp-file"); err != nil {
 		panic(err)
 	}
+	rootCmd.PersistentFlags().BoolVarP(&forceSplitFileExpNoClobber, "split-exp-no-clobber", "", false, "Error out instead of overwriting existing files when using --split-exp.")
 
 	rootCmd.PersistentFlags().StringVarP(&expressionFile, "from-file", "", "", "Load expression from specified file.")
 	if err = rootCmd.MarkPersistentFlagFilename("from-file"); err != nil {
