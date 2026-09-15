@@ -9,3 +9,11 @@ func NewBase64Decoder() Decoder {
 func NewBase64Encoder() Encoder {
 	return nil
 }
+
+func NewBase64URLDecoder() Decoder {
+	return nil
+}
+
+func NewBase64URLEncoder() Encoder {
+	return nil
+}
