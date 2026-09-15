@@ -21,7 +21,7 @@ require (
 	github.com/yuin/gopher-lua v1.1.2
 	github.com/zclconf/go-cty v1.19.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.6
-	golang.org/x/mod v0.40.0
+	golang.org/x/mod v0.41.0
 	golang.org/x/net v0.58.0
 	golang.org/x/text v0.41.0
 )
@@ -39,4 +39,4 @@ require (
 	golang.org/x/tools v0.49.0 // indirect
 )
 
-go 1.25.0
+go 1.26.0
