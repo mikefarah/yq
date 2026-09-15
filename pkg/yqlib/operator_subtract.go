@@ -104,7 +104,10 @@ func subtractScalars(context Context, target *CandidateNode, lhs *CandidateNode,
 		if err != nil {
 			return err
 		}
-		result := lhsNum - rhsNum
+		result, err := checkedInt64Arithmetic('-', lhsNum, rhsNum)
+		if err != nil {
+			return err
+		}
 		target.Tag = lhs.Tag
 		target.Value = fmt.Sprintf(format, result)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
