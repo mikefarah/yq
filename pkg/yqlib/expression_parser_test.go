@@ -75,6 +75,33 @@ func TestParserNoArgsForOneArgOp(t *testing.T) {
 	test.AssertResultComplex(t, "'explode' expects 1 arg but received none", err.Error())
 }
 
+func TestParserEmptyBracketsForOneArgOp(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression("tz()")
+	test.AssertResultComplex(t, "'tz' expects 1 arg but received none", err.Error())
+}
+
+func TestParserEmptyBracketsForOneArgOpAfterPipe(t *testing.T) {
+	// the op must not take the `now` as its arg and leave the pipe short
+	_, err := getExpressionParser().ParseExpression("now | tz()")
+	test.AssertResultComplex(t, "'tz' expects 1 arg but received none", err.Error())
+}
+
+func TestParserEmptyBracketsForSelectAfterPipe(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression(".a | select()")
+	test.AssertResultComplex(t, "'select' expects 1 arg but received none", err.Error())
+}
+
+func TestParserEmptyBracketsForOptionalArgOpAfterPipe(t *testing.T) {
+	// first can be called without an arg, so this is fine
+	_, err := getExpressionParser().ParseExpression(".a | first()")
+	test.AssertResultComplex(t, nil, err)
+}
+
+func TestParserEmptyBracketsForNoArgOpAfterPipe(t *testing.T) {
+	_, err := getExpressionParser().ParseExpression(".a | length()")
+	test.AssertResultComplex(t, nil, err)
+}
+
 func TestParserOneArgForOneArgOp(t *testing.T) {
 	_, err := getExpressionParser().ParseExpression("explode(.)")
 	test.AssertResultComplex(t, nil, err)
