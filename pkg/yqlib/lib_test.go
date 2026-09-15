@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"sync"
 	"testing"
@@ -170,6 +171,45 @@ func TestParseInt64(t *testing.T) {
 		}
 
 		test.AssertResultComplexWithContext(t, tt.expectedFormatString, fmt.Sprintf(format, actualNumber), fmt.Sprintf("Formatting of: %v", tt.numberString))
+	}
+}
+
+func TestCheckedInt64Arithmetic(t *testing.T) {
+	type checkedInt64ArithmeticScenario struct {
+		description    string
+		op             byte
+		lhs            int64
+		rhs            int64
+		expectedResult int64
+		expectedError  string
+	}
+
+	scenarios := []checkedInt64ArithmeticScenario{
+		{description: "add, no overflow", op: '+', lhs: 3, rhs: 4, expectedResult: 7},
+		{description: "add, overflows MaxInt64", op: '+', lhs: math.MaxInt64, rhs: 1, expectedError: "9223372036854775807 + 1 overflows int64"},
+		{description: "subtract, no overflow", op: '-', lhs: 10, rhs: 3, expectedResult: 7},
+		{description: "subtract, underflows MinInt64", op: '-', lhs: math.MinInt64, rhs: 1, expectedError: "-9223372036854775808 - 1 overflows int64"},
+		{description: "multiply, no overflow", op: '*', lhs: 6, rhs: 7, expectedResult: 42},
+		{description: "multiply, overflows MaxInt64", op: '*', lhs: math.MaxInt64, rhs: 2, expectedError: "9223372036854775807 * 2 overflows int64"},
+		{description: "multiply, MinInt64 by -1 overflows (no positive counterpart exists)", op: '*', lhs: math.MinInt64, rhs: -1, expectedError: "-9223372036854775808 * -1 overflows int64"},
+		{description: "multiply, MinInt64 by 1 does not overflow", op: '*', lhs: math.MinInt64, rhs: 1, expectedResult: math.MinInt64},
+		{description: "unknown operator", op: '/', lhs: 4, rhs: 2, expectedError: "unknown arithmetic operator"},
+	}
+
+	for _, tt := range scenarios {
+		actualResult, err := checkedInt64Arithmetic(tt.op, tt.lhs, tt.rhs)
+		if tt.expectedError != "" {
+			if err == nil {
+				t.Errorf("%v: expected error containing '%s' but got none", tt.description, tt.expectedError)
+			} else if !strings.Contains(err.Error(), tt.expectedError) {
+				t.Errorf("%v: expected error containing '%s', got '%s'", tt.description, tt.expectedError, err.Error())
+			}
+			continue
+		}
+		if err != nil {
+			t.Errorf("%v: unexpected error: %v", tt.description, err)
+		}
+		test.AssertResultComplexWithContext(t, tt.expectedResult, actualResult, tt.description)
 	}
 }
 
