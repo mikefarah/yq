@@ -83,7 +83,7 @@ var nodeWithFooter = `a: apple
 
 var document = `a: &cat {name: cat}
 b: {name: dog}
-c: 
+c:
   <<: *cat
 `
 
@@ -514,7 +514,7 @@ var multiplyOperatorScenarios = []expressionScenario{
 		environmentVariables: map[string]string{"originalPath": ".myArray", "otherPath": ".newArray", "idPath": ".a"},
 		expression:           mergeExpression,
 		expected: []string{
-			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC},\n        {a: dingo, c: dingoC}], something: else}\n",
+			"D0, P[], (!!map)::{myArray: [{a: apple, b: appleB2}, {a: kiwi, b: kiwiB}, {a: banana, b: bananaB, c: bananaC}, {a: dingo, c: dingoC}], something: else}\n",
 		},
 	},
 	{
@@ -715,6 +715,23 @@ var multiplyOperatorScenarios = []expressionScenario{
 		skipDoc:       true,
 		expression:    fmt.Sprintf(`"ab" * %d`, 1<<(bits.UintSize-2)),
 		expectedError: fmt.Sprintf("result of repeating string (2 bytes) by %d would exceed 10485760 bytes", 1<<(bits.UintSize-2)),
+	},
+	{
+		// int64 * int64 that overflows int64. See issue #2820: previously
+		// this silently wrapped to a wrong (negative) value.
+		description:   "Multiply integers that overflow int64",
+		skipDoc:       true,
+		document:      `a: 3000000000`,
+		expression:    `.a * 4000000000`,
+		expectedError: "3000000000 * 4000000000 overflows int64",
+	},
+	{
+		// MaxInt64 * 2 wraps to -2 without the overflow guard.
+		description:   "Multiply max int by 2 overflows int64",
+		skipDoc:       true,
+		document:      `a: 9223372036854775807`,
+		expression:    `.a * 2`,
+		expectedError: "9223372036854775807 * 2 overflows int64",
 	},
 }
 

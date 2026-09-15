@@ -17,7 +17,7 @@ func TestFormatStringFromFilename(t *testing.T) {
 		{"FILE.JSON", "json"},
 		{"file.properties", "properties"},
 		{"file.xml", "xml"},
-		{"file.unknown", "unknown"},
+		{"file.unknown", "yaml"},
 
 		// filenames without extensions
 		{"file", "yaml"},

@@ -133,7 +133,11 @@ func multiplyIntegers(lhs *CandidateNode, rhs *CandidateNode) (*CandidateNode, e
 	if err != nil {
 		return nil, err
 	}
-	target.Value = fmt.Sprintf(format, lhsNum*rhsNum)
+	product, err := checkedInt64Arithmetic('*', lhsNum, rhsNum)
+	if err != nil {
+		return nil, err
+	}
+	target.Value = fmt.Sprintf(format, product)
 	return target, nil
 }
 

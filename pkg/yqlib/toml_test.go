@@ -369,7 +369,7 @@ var tomlScenarios = []formatScenario{
 		skipDoc:       true,
 		description:   "blank",
 		input:         `A = "hello`,
-		expectedError: `bad file 'sample.yml': basic string not terminated by "`,
+		expectedError: `bad file 'sample.yml': unterminated basic string`,
 		scenarioType:  "decode-error",
 	},
 	{

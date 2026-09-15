@@ -136,10 +136,11 @@ Some content
 	test.AssertResult(t, originalFilename, resolved)
 
 	// Read documents using the temp file, verify they get the original filename
-	reader, err := readStream(tempFilename)
+	reader, cleanup, err := readStream(tempFilename)
 	if err != nil {
 		panic(err)
 	}
+	defer cleanup()
 	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
 	docs, err := readDocuments(reader, tempFilename, 0, decoder)
 	if err != nil {

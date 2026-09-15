@@ -177,6 +177,41 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "object with integer keys",
+		skipDoc:      true,
+		input:        `obj = { 1 = "one", 2 = "two" }`,
+		expected:     "obj: {1: \"one\", 2: \"two\"}\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "object with boolean keys",
+		skipDoc:      true,
+		input:        `obj = { (true) = "yes", (false) = "no" }`,
+		expected:     "obj: {true: \"yes\", false: \"no\"}\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "object with float keys",
+		skipDoc:      true,
+		input:        `obj = { (3.14) = "pi" }`,
+		expected:     "obj: {3.14: \"pi\"}\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "object with mixed scalar keys",
+		skipDoc:      true,
+		input:        `obj = { a = 1, 1 = "one", (true) = "yes" }`,
+		expected:     "obj: {a: 1, 1: \"one\", true: \"yes\"}\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "nested object with integer keys",
+		skipDoc:      true,
+		input:        `config = { levels = { 1 = "debug", 2 = "info" } }`,
+		expected:     "config: {levels: {1: \"debug\", 2: \"info\"}}\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "nested block",
 		skipDoc:      true,
 		input:        `server { port = 8080 }`,
@@ -471,6 +506,13 @@ var hclFormatScenarios = []formatScenario{
 		input:        `service { optional_field = null }`,
 		expected:     "service {\n  optional_field = null\n}\n",
 		scenarioType: "roundtrip",
+	},
+	{
+		description:  "object with integer key and empty value",
+		skipDoc:      true,
+		input:        `intdict = { 1 = {} }`,
+		expected:     "intdict: {1: {}}\n",
+		scenarioType: "decode",
 	},
 }
 
