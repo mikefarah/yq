@@ -20,6 +20,13 @@ func NewBase64Decoder() Decoder {
 	return &base64Decoder{finished: false, encoding: *base64.StdEncoding}
 }
 
+// NewBase64URLDecoder returns a decoder for the URL- and filename-safe
+// Base64 variant (RFC 4648 §5): `-` and `_` replace `+` and `/`.
+// The shared padding logic in Init tolerates inputs with or without padding.
+func NewBase64URLDecoder() Decoder {
+	return &base64Decoder{finished: false, encoding: *base64.URLEncoding}
+}
+
 func (dec *base64Decoder) Init(reader io.Reader) error {
 	// Read all data from the reader and strip leading/trailing whitespace
 	// This is necessary because base64 decoding needs to see the complete input

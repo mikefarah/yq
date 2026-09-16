@@ -3,7 +3,10 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
+	"syscall"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/pkg/yqlib"
@@ -959,6 +962,103 @@ func TestSetupColors(t *testing.T) {
 
 			if colorsEnabled != tt.expectColors {
 				t.Errorf("setupColors() colorsEnabled = %v, want %v", colorsEnabled, tt.expectColors)
+			}
+		})
+	}
+}
+
+// terminalCase is a file/device to test setupColors against, paired with
+// whether it should be treated as an interactive terminal - so what does
+// and doesn't get colourised output is visible in a single place.
+type terminalCase struct {
+	open   func(t *testing.T) *os.File
+	isTerm bool
+}
+
+func terminalTestCases() map[string]terminalCase {
+	return map[string]terminalCase{
+		"regular file": {isTerm: false, open: func(t *testing.T) *os.File {
+			f, err := os.CreateTemp(t.TempDir(), "isterminal")
+			if err != nil {
+				t.Fatalf("failed to create temp file: %v", err)
+			}
+			return f
+		}},
+		"/dev/null": {isTerm: false, open: func(t *testing.T) *os.File {
+			f, err := os.OpenFile(os.DevNull, os.O_RDWR, 0644)
+			if err != nil {
+				t.Fatalf("failed to open %s: %v", os.DevNull, err)
+			}
+			return f
+		}},
+		"unnamed pipe, read end": {isTerm: false, open: func(t *testing.T) *os.File {
+			r, w, err := os.Pipe()
+			if err != nil {
+				t.Fatalf("failed to create pipe: %v", err)
+			}
+			w.Close()
+			return r
+		}},
+		"unnamed pipe, write end (e.g. piped to a pager)": {isTerm: false, open: func(t *testing.T) *os.File {
+			r, w, err := os.Pipe()
+			if err != nil {
+				t.Fatalf("failed to create pipe: %v", err)
+			}
+			r.Close()
+			return w
+		}},
+		"named pipe (FIFO)": {isTerm: false, open: func(t *testing.T) *os.File {
+			if runtime.GOOS == "windows" {
+				t.Skip("named pipes not supported by this test on windows")
+			}
+			path := filepath.Join(t.TempDir(), "fifo")
+			if err := syscall.Mkfifo(path, 0600); err != nil {
+				t.Fatalf("failed to create named pipe: %v", err)
+			}
+			// O_RDWR avoids blocking on open: a FIFO opened only for reading
+			// (or only writing) blocks until a peer opens the other end.
+			f, err := os.OpenFile(path, os.O_RDWR, os.ModeNamedPipe)
+			if err != nil {
+				t.Fatalf("failed to open named pipe: %v", err)
+			}
+			return f
+		}},
+		"controlling terminal (/dev/tty)": {isTerm: true, open: func(t *testing.T) *os.File {
+			f, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)
+			if err != nil {
+				t.Skipf("no controlling terminal available in this environment: %v", err)
+			}
+			return f
+		}},
+	}
+}
+
+func TestSetupColorsForFileKind(t *testing.T) {
+	for name, tc := range terminalTestCases() {
+		t.Run(name, func(t *testing.T) {
+			f := tc.open(t)
+			defer f.Close()
+
+			originalStdout := os.Stdout
+			originalForceColor := forceColor
+			originalForceNoColor := forceNoColor
+			originalColorsEnabled := colorsEnabled
+			defer func() {
+				os.Stdout = originalStdout
+				forceColor = originalForceColor
+				forceNoColor = originalForceNoColor
+				colorsEnabled = originalColorsEnabled
+			}()
+
+			os.Stdout = f
+			forceColor = false
+			forceNoColor = false
+			colorsEnabled = false
+
+			setupColors()
+
+			if colorsEnabled != tc.isTerm {
+				t.Errorf("setupColors() colorsEnabled = %v, want %v for %s", colorsEnabled, tc.isTerm, name)
 			}
 		})
 	}

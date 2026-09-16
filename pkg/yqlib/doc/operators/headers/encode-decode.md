@@ -16,6 +16,7 @@ These operators are useful to process yaml documents that have stringified embed
 | TSV | from_tsv/@tsvd | to_tsv/@tsv |
 | XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
+| Base64Url | @base64urld | @base64url |
 | URI | @urid | @uri |
 | Shell |  | @sh |
 
@@ -26,3 +27,5 @@ XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify a
 
 
 Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Encoding and decoding both assume that the content is a utf-8 string and not binary content.
+
+Base64Url is the URL- and filename-safe variant (RFC 4648 §5): `-` and `_` replace `+` and `/`.

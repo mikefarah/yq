@@ -122,7 +122,10 @@ func addScalars(context Context, target *CandidateNode, lhs *CandidateNode, rhs 
 		if err != nil {
 			return err
 		}
-		sum := lhsNum + rhsNum
+		sum, err := checkedInt64Arithmetic('+', lhsNum, rhsNum)
+		if err != nil {
+			return err
+		}
 		target.Tag = lhs.Tag
 		target.Value = fmt.Sprintf(format, sum)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {

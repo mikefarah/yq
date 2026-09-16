@@ -51,7 +51,7 @@ country: Australia
 ```
 then
 ```bash
-yq --security-enable-system-operator '.country = system("/usr/bin/echo"; "test")' sample.yml
+yq --security-enable-system-operator '.country = system("/bin/echo"; "test")' sample.yml
 ```
 will output
 ```yaml
@@ -67,7 +67,7 @@ a: hello
 ```
 then
 ```bash
-yq --security-enable-system-operator '.a = system("/usr/bin/echo")' sample.yml
+yq --security-enable-system-operator '.a = system("/bin/echo")' sample.yml
 ```
 will output
 ```yaml
