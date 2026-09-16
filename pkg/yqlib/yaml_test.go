@@ -32,6 +32,12 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "%YAML 1.1\r\n---\r\ncat\r\n",
 	},
 	{
+		description: "leading comment blank line (CRLF)",
+		skipDoc:     true,
+		input:       "# comment\r\n\r\ncat\r\n",
+		expected:    "# comment\r\n\r\ncat\r\n",
+	},
+	{
 		description: "comment only no trailing newline",
 		skipDoc:     true,
 		input:       "# hello",
