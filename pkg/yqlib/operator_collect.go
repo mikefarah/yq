@@ -15,6 +15,9 @@ func collectTogether(d *dataTreeNavigator, context Context, expressionNode *Expr
 		for result := collectExpResults.MatchingNodes.Front(); result != nil; result = result.Next() {
 			resultC := result.Value.(*CandidateNode)
 			log.Debugf("found this: %v", NodeToString(resultC))
+			// an array element is no longer a stream document, so it must be
+			// evaluated per candidate rather than all together
+			resultC.EvaluateTogether = false
 			collectedNode.AddChild(resultC)
 		}
 	}
