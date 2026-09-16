@@ -9,6 +9,7 @@ type Operation struct {
 	CandidateNode *CandidateNode // used for Value Path elements
 	Preferences   interface{}
 	UpdateAssign  bool // used for assign ops, when true it means we evaluate the rhs given the lhs
+	NoArgs        bool // the op was written with empty brackets, e.g. `tz()`, so it must not take an arg from the expression before it
 }
 
 type operationType struct {

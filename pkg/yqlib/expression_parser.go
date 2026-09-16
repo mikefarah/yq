@@ -53,7 +53,7 @@ func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*
 			numArgs := Operation.OperationType.NumArgs
 			switch numArgs {
 			case 1:
-				if len(stack) < 1 {
+				if len(stack) < 1 || Operation.NoArgs {
 					// Allow certain unary ops to accept zero args by interpreting missing RHS as nil
 					// TODO - make this more general on OperationType
 					if Operation.OperationType == firstOpType {
@@ -67,6 +67,9 @@ func (p *expressionParserImpl) createExpressionTree(postFixPath []*Operation) (*
 				rhs.Parent = &newNode
 				stack = remaining
 			case 2:
+				if Operation.NoArgs {
+					return nil, fmt.Errorf("'%v' expects 2 args but received none", strings.TrimSpace(Operation.StringValue))
+				}
 				if len(stack) < 2 {
 					return nil, fmt.Errorf("'%v' expects 2 args but there is %v", strings.TrimSpace(Operation.StringValue), len(stack))
 				}
