@@ -675,6 +675,27 @@ var traversePathOperatorScenarios = []expressionScenario{
 		expression:    ". = (.x = 1)",
 		expectedError: "alias cycle detected",
 	},
+	{
+		// Regression test for https://github.com/mikefarah/yq/issues/2593
+		// A context-dependent index (here the streamed key) must be applied
+		// per candidate; previously only the first index was used.
+		skipDoc:    true,
+		document:   `["a","b"]`,
+		expression: `. as $o | keys[] | $o[.]`,
+		expected: []string{
+			"D0, P[0], (!!str)::a\n",
+			"D0, P[1], (!!str)::b\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{"x": 1, "y": 2}`,
+		expression: `. as $o | keys[] | $o[.]`,
+		expected: []string{
+			"D0, P[x], (!!int)::1\n",
+			"D0, P[y], (!!int)::2\n",
+		},
+	},
 }
 
 func TestTraversePathOperatorScenarios(t *testing.T) {
