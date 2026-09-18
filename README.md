@@ -271,6 +271,14 @@ nix profile install nixpkgs#yq-go
 See [here](https://search.nixos.org/packages?channel=unstable&show=yq-go&from=0&size=50&sort=relevance&type=packages&query=yq-go)
 
 
+### Spack
+
+```
+spack install yq
+```
+
+See [here](https://packages.spack.io/package.html?name=yq)
+
 ### Webi
 
 ```
