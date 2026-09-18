@@ -559,6 +559,38 @@ var tomlScenarios = []formatScenario{
 	},
 	// Roundtrip scenarios
 	{
+		skipDoc:      true,
+		description:  "Roundtrip: empty root key",
+		input:        "\"\" = \"empty\"\nplain = \"value\"\n",
+		expression:   ".",
+		expected:     "\"\" = \"empty\"\nplain = \"value\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: empty nested table key",
+		input:        "[outer.\"\"]\nvalue = 1\n",
+		expression:   ".",
+		expected:     "[outer.\"\"]\nvalue = 1\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: empty inline table key",
+		input:        "entry = { \"\" = \"value\" }\n",
+		expression:   ".",
+		expected:     "entry = { \"\" = \"value\" }\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: empty array of tables key",
+		input:        "[[\"\"]]\nname = \"value\"\n",
+		expression:   ".",
+		expected:     "[[\"\"]]\nname = \"value\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "Roundtrip: inline table attribute",
 		input:        rtInlineTableAttr,
 		expression:   ".",

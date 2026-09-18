@@ -73,6 +73,9 @@ func (te *tomlEncoder) CanHandleAliases() bool {
 // in a TOML bare key. TOML bare keys may only contain ASCII letters, ASCII
 // digits, underscores, and dashes.
 func tomlKey(key string) string {
+	if key == "" {
+		return `""`
+	}
 	for _, r := range key {
 		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' {
 			return fmt.Sprintf("%q", key)
