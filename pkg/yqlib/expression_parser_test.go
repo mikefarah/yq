@@ -124,3 +124,30 @@ func TestParserInvalidExpressionTree(t *testing.T) {
 	_, err := parser.createExpressionTree(invalidOps)
 	test.AssertResultComplex(t, "bad expression, please check expression syntax", err.Error())
 }
+
+func TestParserIfThenElseErrors(t *testing.T) {
+	var scenarios = []struct {
+		expression    string
+		expectedError string
+	}{
+		{`if . then 1`, "bad expression, could not find matching `end`"},
+		{`if . then 1 )`, "bad expression, could not find matching `end`"},
+		{`[if . then 1]`, "bad expression, could not find matching `end`"},
+		{`(. + 1 end`, "bad expression, got `end` without matching `if`"},
+		{`. then 1`, "bad expression, `then` without matching `if`"},
+		{`if (. then 1) end`, "bad expression, `then` without matching `if`"},
+		{`if . then 1 then 2 end`, "bad expression, `then` must follow `if` or `elif`"},
+		{`if . else 1 end`, "bad expression, `else` must follow `then`"},
+		{`if . then 1 else 2 elif 3 then 4 end`, "bad expression, `elif` must follow `then`"},
+		{`if . end`, "bad expression, `if` must be followed by `then`"},
+		{`if . then 1 elif 2 end`, "bad expression, `elif` must be followed by `then`"},
+	}
+	for _, s := range scenarios {
+		_, err := getExpressionParser().ParseExpression(s.expression)
+		if err == nil {
+			t.Errorf("expected error for %v", s.expression)
+			continue
+		}
+		test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.expression)
+	}
+}
