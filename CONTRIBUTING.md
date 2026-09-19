@@ -116,7 +116,7 @@ The project uses a documentation system that combines static headers with dynami
 
 1. **Static headers** are defined in `pkg/yqlib/doc/operators/headers/*.md`
 2. **Dynamic content** is generated from test scenarios in `*_test.go` files
-3. **Generated docs** are created in `pkg/yqlib/doc/*.md` by concatenating headers with test-generated content
+3. **Generated docs** are created in `pkg/yqlib/doc/operators/*.md` by concatenating headers with test-generated content
 4. **Documentation is synced** to the gitbook branch for the website
 
 ### Updating Operator Documentation
@@ -132,7 +132,7 @@ Most operator documentation is generated from tests. To update:
    cd pkg/yqlib
    go test -run TestAddOperatorScenarios
    ```
-4. **Verify the generated documentation** in `pkg/yqlib/doc/add.md`
+4. **Verify the generated documentation** in `pkg/yqlib/doc/operators/add.md`
 5. **Create a PR** with your changes
 
 #### For Header-Only Documentation
