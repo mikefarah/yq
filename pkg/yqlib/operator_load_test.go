@@ -203,6 +203,9 @@ func TestLoadWithDecoderClosesFiles(t *testing.T) {
 	previousGCPercent := debug.SetGCPercent(-1)
 	t.Cleanup(func() { debug.SetGCPercent(previousGCPercent) })
 	before := countOpenFileDescriptors()
+	if before < 0 {
+		t.Skip("file descriptors are not observable on this platform")
+	}
 	for _, filename := range filenames {
 		node, err := loadWithDecoder(filename, NewYamlDecoder(ConfiguredYamlPreferences))
 		if err != nil {
