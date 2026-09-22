@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"container/list"
+	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -37,6 +38,23 @@ func NewPrinter(encoder Encoder, printerWriter PrinterWriter) Printer {
 		treeNavigator:     NewDataTreeNavigator(),
 		nulSepOutput:      false,
 	}
+}
+
+type printerWriterCloser interface {
+	CloseWriter() error
+}
+
+func usePrinterWriter(printerWriter PrinterWriter, node *CandidateNode, write func(*bufio.Writer) error) error {
+	writer, err := printerWriter.GetWriter(node)
+	if err != nil {
+		return err
+	}
+
+	writeErr := write(writer)
+	if closer, ok := printerWriter.(printerWriterCloser); ok {
+		return errors.Join(writeErr, closer.CloseWriter())
+	}
+	return writeErr
 }
 
 func (p *resultsPrinter) SetNulSepOutput(nulSepOutput bool) {
@@ -95,75 +113,69 @@ func (p *resultsPrinter) PrintResults(matchingNodes *list.List) error {
 	}
 
 	for el := matchingNodes.Front(); el != nil; el = el.Next() {
-
 		mappedDoc := el.Value.(*CandidateNode)
 		log.Debugf("print sep logic: p.firstTimePrinting: %v, previousDocIndex: %v", p.firstTimePrinting, p.previousDocIndex)
 		log.Debugf("%v", NodeToString(mappedDoc))
-		writer, errorWriting := p.printerWriter.GetWriter(mappedDoc)
-		if errorWriting != nil {
-			return errorWriting
-		}
 
-		commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeparator\$`)
-		commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
+		err := usePrinterWriter(p.printerWriter, mappedDoc, func(writer *bufio.Writer) error {
+			commentsStartWithSepExp := regexp.MustCompile(`^\$yqDocSeparator\$`)
+			commentStartsWithSeparator := commentsStartWithSepExp.MatchString(mappedDoc.LeadingContent)
 
-		if (p.previousDocIndex != mappedDoc.GetDocument() || p.previousFileIndex != mappedDoc.GetFileIndex()) && !commentStartsWithSeparator {
-			if err := p.encoder.PrintDocumentSeparator(writer); err != nil {
+			if (p.previousDocIndex != mappedDoc.GetDocument() || p.previousFileIndex != mappedDoc.GetFileIndex()) && !commentStartsWithSeparator {
+				if err := p.encoder.PrintDocumentSeparator(writer); err != nil {
+					return err
+				}
+			}
+
+			var destination io.Writer = writer
+			tempBuffer := bytes.NewBuffer(nil)
+			if p.nulSepOutput {
+				destination = tempBuffer
+			}
+
+			if err := p.encoder.PrintLeadingContent(destination, mappedDoc.LeadingContent); err != nil {
 				return err
 			}
-		}
 
-		var destination io.Writer = writer
-		tempBuffer := bytes.NewBuffer(nil)
-		if p.nulSepOutput {
-			destination = tempBuffer
-		}
-
-		if err := p.encoder.PrintLeadingContent(destination, mappedDoc.LeadingContent); err != nil {
-			return err
-		}
-
-		if err := p.printNode(mappedDoc, destination); err != nil {
-			return err
-		}
-
-		if p.nulSepOutput {
-			removeLastEOL(tempBuffer)
-			tempBufferBytes := tempBuffer.Bytes()
-			if bytes.IndexByte(tempBufferBytes, 0) != -1 {
-				return fmt.Errorf(
-					"can't serialise value because it contains NUL char and you are using NUL separated output",
-				)
-			}
-			if _, err := writer.Write(tempBufferBytes); err != nil {
+			if err := p.printNode(mappedDoc, destination); err != nil {
 				return err
 			}
-			if _, err := writer.Write([]byte{0}); err != nil {
-				return err
-			}
-		}
 
-		p.previousDocIndex = mappedDoc.GetDocument()
-		if err := writer.Flush(); err != nil {
+			if p.nulSepOutput {
+				removeLastEOL(tempBuffer)
+				tempBufferBytes := tempBuffer.Bytes()
+				if bytes.IndexByte(tempBufferBytes, 0) != -1 {
+					return fmt.Errorf(
+						"can't serialise value because it contains NUL char and you are using NUL separated output",
+					)
+				}
+				if _, err := writer.Write(tempBufferBytes); err != nil {
+					return err
+				}
+				if _, err := writer.Write([]byte{0}); err != nil {
+					return err
+				}
+			}
+
+			p.previousDocIndex = mappedDoc.GetDocument()
+			return writer.Flush()
+		})
+		if err != nil {
 			return err
 		}
-		log.Debugf("done printing results")
 	}
 
 	// what happens if I remove output format check?
 	if p.appendixReader != nil {
-		writer, err := p.printerWriter.GetWriter(nil)
+		err := usePrinterWriter(p.printerWriter, nil, func(writer *bufio.Writer) error {
+			log.Debug("Piping appendix reader...")
+			betterReader := bufio.NewReader(p.appendixReader)
+			if _, err := io.Copy(writer, betterReader); err != nil {
+				return err
+			}
+			return writer.Flush()
+		})
 		if err != nil {
-			return err
-		}
-
-		log.Debug("Piping appendix reader...")
-		betterReader := bufio.NewReader(p.appendixReader)
-		_, err = io.Copy(writer, betterReader)
-		if err != nil {
-			return err
-		}
-		if err := writer.Flush(); err != nil {
 			return err
 		}
 	}
