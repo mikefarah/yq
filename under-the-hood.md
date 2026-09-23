@@ -108,8 +108,8 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["'.a.b[] | select(.x > 1)'"] --> B["Tokenise → infix tokens<br/>📄 lexer_participle.go:Tokenise"]
-    B --> C["Shunting-yard → postfix Operations:<br/>a, TRAVERSE, b, TRAVERSE,<br/>[], TRAVERSE_ARRAY,<br/>x, TRAVERSE, 1, GT, SELECT,<br/>PIPE<br/>📄 expression_postfix.go:ConvertToPostfix"]
-    C --> D["Build tree:<br/>PIPE(<br/>  TRAVERSE_ARRAY(TRAVERSE(TRAVERSE(SELF,a),b)),<br/>  SELECT(GT(TRAVERSE(SELF,x),1))<br/>)<br/>📄 expression_parser.go:createExpressionTree"]
+    C --> D["Shunting-yard → postfix Operations:<br/>a, b, EMPTY, COLLECT, TRAVERSE_ARRAY,<br/>SHORT_PIPE, x, 1, COMPARE, SELECT,<br/>PIPE<br/>📄 expression_postfix.go:ConvertToPostfix"]
+    D --> E["Build tree:<br/>PIPE(<br/>  SHORT_PIPE(a, TRAVERSE_ARRAY(b, COLLECT(EMPTY))),<br/>  SELECT(COMPARE(x, 1))<br/>)<br/>📄 expression_parser.go:createExpressionTree"]
     D --> E["Load yaml → root CandidateNode<br/>Context = {root}<br/>📄 decoder_yaml.go:Decode"]
     E --> F["GetMatchingNodes(context, PIPE node)<br/>📄 data_tree_navigator.go:GetMatchingNodes"]
     F --> G["LHS traverses a→b→[]<br/>→ Context of array elements<br/>📄 operator_traverse_path.go:traverseOperator / traverseArrayOperator"]
