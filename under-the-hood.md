@@ -62,7 +62,7 @@ flowchart TD
 
 Key structs:
 - `token` — raw lexed unit (bracket, operator, literal, path segment). Defined in [pkg/yqlib/lexer_participle.go](pkg/yqlib/lexer_participle.go).
-- `Operation` — an `operationType` (e.g. `traverseOpType`, `pipeOpType`, `selectOpType`) plus preferences/value. Defined in [pkg/yqlib/operation.go](pkg/yqlib/operation.go).
+- `Operation` — an `operationType` (e.g. `traversePathOpType`, `traverseArrayOpType`, `pipeOpType`, `selectOpType`) plus preferences/value. Defined in [pkg/yqlib/operation.go](pkg/yqlib/operation.go).
 - `ExpressionNode{Operation, LHS, RHS, Parent}` — the final AST, always binary (unary ops just leave LHS nil). Defined in [pkg/yqlib/expression_parser.go](pkg/yqlib/expression_parser.go).
 
 ## 3. Applying the expression tree to a YAML document
