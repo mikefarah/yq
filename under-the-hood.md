@@ -28,7 +28,7 @@ Implemented in `pkg/yqlib/expression_parser.go`, `pkg/yqlib/lexer_participle.go`
 flowchart TD
     subgraph Tokenise ["1. Tokenise — pkg/yqlib/lexer_participle.go"]
         A1["Raw expression string"] --> A2["participle lexer<br/>matches regex rules:<br/>operators, brackets,<br/>traverse paths, strings, numbers<br/>📄 lexer_participle.go:newParticipleLexer / Tokenise"]
-        A2 --> A3["Infix token stream<br/>[]*token<br/>e.g. TRAVERSE(a) TRAVERSE(b)<br/>PIPE SELECT( TRAVERSE(x) GT 1 )<br/>📄 lexer_participle.go:token struct"]
+        A2 --> A3["Infix token stream<br/>[]*token<br/>e.g. a SHORT_PIPE b TRAVERSE_ARRAY [ EMPTY ]<br/>PIPE SELECT( x COMPARE 1 )<br/>📄 lexer.go:token struct"]
     end
 
     subgraph Postfix ["2. Convert to Postfix / RPN — pkg/yqlib/expression_postfix.go"]
