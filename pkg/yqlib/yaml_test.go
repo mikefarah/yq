@@ -112,6 +112,20 @@ var yamlFormatScenarios = []formatScenario{
 		input:       "field: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt",
 		expected:    "field: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt\n",
 	},
+	{
+		// https://github.com/mikefarah/yq/issues/2409
+		description: "folded scalar does not gain a blank line before a more-indented continuation line",
+		skipDoc:     true,
+		input:       "a: >-\n  foo(\n    bar\n  )\n",
+		expected:    "a: >-\n  foo(\n    bar\n  )\n",
+	},
+	{
+		// https://github.com/mikefarah/yq/issues/2452
+		description: "folded scalar with a trailing comma before a more-indented continuation line",
+		skipDoc:     true,
+		input:       "a: >-\n  foo,\n    bar\n",
+		expected:    "a: >-\n  foo,\n    bar\n",
+	},
 }
 
 var yamlParseScenarios = []expressionScenario{
