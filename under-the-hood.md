@@ -48,7 +48,7 @@ flowchart TD
         C1["Postfix []*Operation"] --> C2["walk operations left→right,<br/>use a node stack<br/>📄 expression_parser.go:createExpressionTree"]
         C2 --> C3{"Operation.NumArgs"}
         C3 -->|"0 (e.g. SELF, value)"| C4["push leaf ExpressionNode"]
-        C3 -->|"1 (e.g. NOT, LENGTH)"| C5["pop 1 node as RHS,<br/>push new node"]
+        C3 -->|"1 (e.g. SELECT, COLLECT)"| C5["pop 1 node as RHS,<br/>push new node"]
         C3 -->|"2 (e.g. PIPE, ADD, EQUALS)"| C6["pop 2 nodes as LHS/RHS,<br/>push new node"]
         C4 --> C7["single remaining stack item"]
         C5 --> C7
