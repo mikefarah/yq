@@ -364,6 +364,15 @@ var stringsOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[\"1\", \"true\", \"null\", \"~\", cat, \"{an: object}\", \"[array, 2]\"]\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Capture ignores unnamed groups",
+		document:    `foobar`,
+		expression:  `capture("(foo)(?P<rest>bar)")`,
+		expected: []string{
+			"D0, P[], (!!map)::rest: bar\n",
+		},
+	},
 }
 
 func TestStringsOperatorScenarios(t *testing.T) {
