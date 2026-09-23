@@ -87,7 +87,7 @@ flowchart TD
     G --> H{"handler type,<br/>e.g. pipeOperator,<br/>traverseOperator,<br/>selectOperator..."}
 
     H -->|"Pipe A | B"| I["recurse: GetMatchingNodes(context, LHS)<br/>→ newContext<br/>then GetMatchingNodes(newContext, RHS)<br/>📄 operator_pipe.go:pipeOperator"]
-    H -->|"Traverse .a"| J["for each CandidateNode in context:<br/>look up child key/index 'a'<br/>collect results into new Context<br/>📄 operator_traverse_path.go:traverseOperator / traverseArrayOperator"]
+    H -->|"Traverse .a"| J["for each CandidateNode in context:<br/>look up child key/index 'a'<br/>collect results into new Context<br/>📄 operator_traverse_path.go:traversePathOperator / traverseArrayOperator"]
     H -->|"Select(expr)"| K["for each node: recurse into RHS<br/>with node as context;<br/>keep node if result truthy<br/>📄 operator_select.go:selectOperator"]
     H -->|"Binary op (==, +, and)"| L["evaluate operands (with short-circuiting where applicable),<br/>cross results where applicable,<br/>compute per pair<br/>📄 operator_equals.go:equalsOperator / operator_add.go:addOperator / operator_booleans.go:andOperator"]
 
