@@ -35,7 +35,6 @@ func TestSystemOperatorDisabledScenarios(t *testing.T) {
 	for _, tt := range systemOperatorDisabledScenarios {
 		testScenario(t, &tt)
 	}
-	documentOperatorScenarios(t, "system-operators", systemOperatorDisabledScenarios)
 }
 
 func TestSystemOperatorEnabledScenarios(t *testing.T) {
@@ -119,5 +118,4 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 	for _, tt := range scenarios {
 		testScenario(t, &tt)
 	}
-	appendOperatorDocumentScenario(t, "system-operators", scenarios)
 }
