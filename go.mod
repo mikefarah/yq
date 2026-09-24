@@ -10,7 +10,7 @@ require (
 	github.com/go-ini/ini v1.67.0
 	github.com/goccy/go-json v0.10.6
 	github.com/goccy/go-yaml v1.19.2
-	github.com/hashicorp/hcl/v2 v2.24.0
+	github.com/hashicorp/hcl/v2 v2.25.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/magiconair/properties v1.18.11
 	github.com/mattn/go-isatty v0.0.24
