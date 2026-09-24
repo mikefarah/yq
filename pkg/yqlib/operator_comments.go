@@ -74,8 +74,8 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 func getCommentsOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	preferences := expressionNode.Operation.Preferences.(commentOpPreferences)
-	var startCommentCharacterRegExp = regexp.MustCompile(`^# `)
-	var subsequentCommentCharacterRegExp = regexp.MustCompile(`\n# `)
+	var startCommentCharacterRegExp = regexp.MustCompile(`^# ?`)
+	var subsequentCommentCharacterRegExp = regexp.MustCompile(`\n# ?`)
 
 	log.Debugf("GetComments operator!")
 	var results = list.New()
