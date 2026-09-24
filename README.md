@@ -433,6 +433,7 @@ Flags:
       --shell-key-separator string      separator for shell variable key paths (default "_")
   -s, --split-exp string                print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter. The necessary directories will be created.
       --split-exp-file string           Use a file to specify the split-exp expression.
+      --split-exp-no-overwrite          When using --split-exp, fail if a target file already exists instead of overwriting it.
       --string-interpolation            Toggles strings interpolation of \(exp) (default true)
       --tsv-auto-parse                  parse TSV YAML/JSON values (default true)
   -r, --unwrapScalar                    unwrap scalar, print the value with no quotes, colors or comments. Defaults to true for yaml (default true)
