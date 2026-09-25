@@ -167,6 +167,15 @@ g:
 			"D0, P[a], (!!str)::\n",
 		},
 	},
+	{
+		description: "Create a nested path when assigning a style in a constructed object",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `.a.b style="double"`,
+		expected: []string{
+			"D0, P[], (!!map)::a:\n    b: \"null\"\n",
+		},
+	},
 }
 
 func TestStyleOperatorScenarios(t *testing.T) {

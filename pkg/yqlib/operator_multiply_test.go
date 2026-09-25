@@ -440,6 +440,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Merge only existing fields into a constructed object",
+		skipDoc:     true,
+		document:    `{a: {b: 1, c: 2}}`,
+		expression:  `({} | .a.b = 3) *? .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 1}}\n",
+		},
+	},
+	{
 		description: "Merge, only new fields",
 		document:    `{a: {thing: one, cat: frog}, b: {missing: two, thing: two}}`,
 		expression:  `.a *n .b`,
