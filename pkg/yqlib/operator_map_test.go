@@ -127,6 +127,47 @@ var mapOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
 		},
 	},
+	{
+		description:    "Map values and remove entries",
+		subdescription: "Entries for which the expression returns nothing are removed, like in jq.",
+		document:       `{a: 1, b: null, c: 3}`,
+		expression:     `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, c: 3}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: null, b: null}`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, null, 2, null, 3]`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, 2, 3, 4]`,
+		expression: `map_values(select(. > 2) | . * 10)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[30, 40]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: {x: 1}, b: {x: 2}}`,
+		expression: `.a | map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[a], (!!map)::{}\n",
+		},
+	},
 }
 
 func TestMapOperatorScenarios(t *testing.T) {
