@@ -449,6 +449,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Compound assign creates the path in a constructed object during read-only merge",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `({} | .a.b += 3) *? .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: 3}}\n",
+		},
+	},
+	{
 		description: "Merge, only new fields",
 		document:    `{a: {thing: one, cat: frog}, b: {missing: two, thing: two}}`,
 		expression:  `.a *n .b`,

@@ -13,7 +13,7 @@ type operatorHandler func(d *dataTreeNavigator, context Context, expressionNode 
 type compoundCalculation func(lhs *ExpressionNode, rhs *ExpressionNode) *ExpressionNode
 
 func compoundAssignFunction(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, calculation compoundCalculation) (Context, error) {
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 	if err != nil {
 		return Context{}, err
 	}
