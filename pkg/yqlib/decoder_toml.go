@@ -157,9 +157,25 @@ func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNod
 	}, nil
 }
 
+// commentIsOnNewLine reports whether comment begins on a line after the end of
+// prev, by scanning the raw input bytes between them for a newline. When the
+// range cannot be determined it returns true, preserving the historic behaviour
+// of treating in-array comments as head comments for the next element.
+func (dec *tomlDecoder) commentIsOnNewLine(prev, comment *toml.Node) bool {
+	prevEnd := prev.Raw.Offset + prev.Raw.Length
+	commentStart := comment.Raw.Offset
+	if commentStart < prevEnd {
+		return true
+	}
+	between := dec.parser.Raw(toml.Range{Offset: prevEnd, Length: commentStart - prevEnd})
+	return bytes.IndexByte(between, '\n') >= 0
+}
+
 func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := make([]*CandidateNode, 0)
 	var pendingArrayComments []string
+	var prevElem *toml.Node
+	var prevYamlNode *CandidateNode
 
 	iterator := tomlNode.Children()
 	for iterator.Next() {
@@ -167,8 +183,19 @@ func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error)
 
 		// Handle comments within arrays
 		if child.Kind == toml.Comment {
-			// Collect comments to attach to the next array element
-			pendingArrayComments = append(pendingArrayComments, string(child.Data))
+			// A comment on the same line as the preceding element is a trailing
+			// (inline) comment on that element; a comment on its own line is a
+			// head comment for the next element.
+			if prevYamlNode != nil && !dec.commentIsOnNewLine(prevElem, child) {
+				if prevYamlNode.LineComment == "" {
+					prevYamlNode.LineComment = string(child.Data)
+				} else {
+					prevYamlNode.LineComment = prevYamlNode.LineComment + "\n" + string(child.Data)
+				}
+			} else {
+				// Collect comments to attach to the next array element
+				pendingArrayComments = append(pendingArrayComments, string(child.Data))
+			}
 			continue
 		}
 
@@ -184,6 +211,8 @@ func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error)
 		}
 
 		content = append(content, yamlNode)
+		prevElem = child
+		prevYamlNode = yamlNode
 	}
 
 	return &CandidateNode{
