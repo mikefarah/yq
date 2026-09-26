@@ -75,16 +75,20 @@ func (dec *tomlDecoder) processKeyValueIntoMap(rootMap *CandidateNode, tomlNode 
 	value := tomlNode.Value()
 	path := dec.getFullPath(value.Next())
 
+	// Take the pending head comments before decoding the value: decoding an
+	// inline table recurses into this function for each of its entries, which
+	// would otherwise claim this key's comments.
+	var headComment string
+	if len(dec.pendingComments) > 0 {
+		headComment = strings.Join(dec.pendingComments, "\n")
+		dec.pendingComments = make([]string, 0)
+	}
+
 	valueNode, err := dec.decodeNode(value)
 	if err != nil {
 		return err
 	}
-
-	// Attach pending head comments
-	if len(dec.pendingComments) > 0 {
-		valueNode.HeadComment = strings.Join(dec.pendingComments, "\n")
-		dec.pendingComments = make([]string, 0)
-	}
+	valueNode.HeadComment = headComment
 
 	// Check for inline comment chained to the KeyValue node
 	nextNode := tomlNode.Next()
