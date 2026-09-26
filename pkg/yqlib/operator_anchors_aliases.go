@@ -22,7 +22,7 @@ func assignAliasOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
@@ -78,7 +78,7 @@ func assignAnchorOperator(d *dataTreeNavigator, context Context, expressionNode 
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err

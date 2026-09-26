@@ -296,6 +296,15 @@ var commentOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!null)::%YAML 1.1\n# hi\n",
 		},
 	},
+	{
+		description: "Create the path when assigning a comment as an operand of a binary operator (read-only context)",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `({} | .a.b comments="hi") * .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: null, # hi\n        # hi\n\n        # hi\n}}\n",
+		},
+	},
 }
 
 func TestCommentOperatorScenarios(t *testing.T) {
