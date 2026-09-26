@@ -222,6 +222,22 @@ var jsonScenarios = []formatScenario{
 		scenarioType: "encode",
 	},
 	{
+		description:  "Encode json: binary int",
+		skipDoc:      true,
+		input:        `0b101`,
+		indent:       0,
+		expected:     "5\n",
+		scenarioType: "encode",
+	},
+	{
+		description:  "Encode json: negative binary int",
+		skipDoc:      true,
+		input:        `-0b101`,
+		indent:       0,
+		expected:     "-5\n",
+		scenarioType: "encode",
+	},
+	{
 		description:  "Encode json: simple - in one line",
 		input:        `cat: meow # this is a comment, and it will be dropped.`,
 		indent:       0,
