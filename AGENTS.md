@@ -71,6 +71,7 @@ export PATH="$HOME/go/bin:$PATH"
 - **`make` without `local`** tries Docker/Podman (`Dockerfile.dev`). In Cloud Agent VMs without Docker, always prefix with `make local`.
 - **Spelling step** uses `typos` (installed by `scripts/devtools.sh`).
 - **`make local test` / `scripts/check.sh`** require `golangci-lint` on PATH (`devtools.sh`).
+- **"inconsistent vendoring" errors** from `go build`/`go test` mean `vendor/modules.txt` is stale relative to `go.mod`. Fix it once with `make local vendor` (runs `go mod vendor`) — don't reflexively add `-mod=mod` to every command as a workaround.
 
 ---
 
@@ -442,6 +443,10 @@ See existing headers in `doc/operators/headers/` for examples.
 - `context.ChildContext(results)` - Create child context with results
 - `context.GetVariable("varName")` - Get variables stored in context
 - `context.SetVariable("varName", value)` - Set variables in context
+- `context.ReadOnlyClone()` / `context.WritableClone()` - Clone a context, forcing `DontAutoCreate` true/false. Binary operators (multiply, add, subtract, equals, booleans, etc.) evaluate their operands via `crossFunction(d, context.ReadOnlyClone(), ...)`, so any nested expression (e.g. `({} | .a.b += 3) *? .`) runs with `DontAutoCreate = true` even though the outer/root context is normally writable.
+- **Explicit-assignment invariant:** any operator that resolves an assignment/style/attribute *target* (its LHS) must call `d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)` for that lookup, not the raw incoming `context`. Otherwise the target path silently fails to autovivify when the operator is used as an operand of a binary op. All of the `assignableOp` pairs (`style=`, `tag=`/`type=`, `anchor=`, `alias=`) plus `assignCommentsOperator` (`line_comment=`, `head_comment=`, `foot_comment=`, `comments=`) share this exact pattern — see `assignUpdateOperator`, `assignAttributesOperator` (`operator_assign.go`), `assignStyleOperator` (`operator_style.go`), `assignTagOperator` (`operator_tag.go`), `assignAnchorOperator`/`assignAliasOperator` (`operator_anchors_aliases.go`), `assignCommentsOperator` (`operator_comments.go`), and `compoundAssignFunction` (`operators.go`). When fixing one, grep for `GetMatchingNodes(context, expressionNode.LHS)` across `pkg/yqlib` to find the rest of the family.
+- **Testing this invariant:** a test at the root/top-level context won't expose a missing `WritableClone()` fix, because the root context is writable by default. Wrap the assignment as an operand of a binary operator instead, e.g. `({} | .a.b style="double") * .`, and verify the test fails with the fix reverted (`git stash` the fix, rerun, `git stash pop`) before trusting it as a regression test.
+- **Merge quirk:** in `CandidateNode.UpdateFrom` (`candidate_node.go`), a target's `Style` is only preserved through a merge if its tag matches the source's tag and its own `Style` was already non-zero. If the tag changes (e.g. merging a `!!null` placeholder into a `!!str` value), the target forcibly adopts the source's `Style`/`Value`, so you can't preserve a real value while only "borrowing" a style from a differently-typed node during a merge.
 
 ### CandidateNode Operations
 - `candidate.CreateReplacement(ScalarNode, "!!str", stringValue)` - Create a replacement node
@@ -462,6 +467,7 @@ See existing headers in `doc/operators/headers/` for examples.
 - Write comprehensive tests covering normal and edge cases
 - Create a documentation header in `doc/operators/headers/`
 - Use `Context.ChildContext()` for proper context threading
+- Use `context.WritableClone()` when looking up an assignment/style/attribute target (LHS), so autovivification still works when nested inside a binary operator's read-only operand
 - Handle all node types gracefully
 - Return meaningful error messages
 

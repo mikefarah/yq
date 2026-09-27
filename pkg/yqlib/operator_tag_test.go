@@ -90,6 +90,15 @@ var tagOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{a: !!frog \"!!frog\", b: !!customTag \"!!customTag\"}\n",
 		},
 	},
+	{
+		description: "Create the path when assigning a tag as an operand of a binary operator (read-only context)",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `({} | .a.b tag="!!str") * .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: \"null\"}}\n",
+		},
+	},
 }
 
 func TestTagOperatorScenarios(t *testing.T) {

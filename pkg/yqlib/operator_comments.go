@@ -17,7 +17,7 @@ func assignCommentsOperator(d *dataTreeNavigator, context Context, expressionNod
 
 	log.Debugf("AssignComments operator!")
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err

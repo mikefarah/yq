@@ -585,6 +585,24 @@ var anchorOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!null)::null\n",
 		},
 	},
+	{
+		description: "Create the path when assigning an anchor as an operand of a binary operator (read-only context)",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `({} | .a.b anchor="foo") * .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: &foo null}}\n",
+		},
+	},
+	{
+		description: "Create the path when assigning an alias as an operand of a binary operator (read-only context)",
+		skipDoc:     true,
+		document:    `{}`,
+		expression:  `({} | .a.b alias="foo") * .`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: {b: *foo}}\n",
+		},
+	},
 }
 
 func TestAnchorAliasOperatorScenarios(t *testing.T) {

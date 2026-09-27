@@ -42,7 +42,7 @@ func assignStyleOperator(d *dataTreeNavigator, context Context, expressionNode *
 		}
 	}
 
-	lhs, err := d.GetMatchingNodes(context, expressionNode.LHS)
+	lhs, err := d.GetMatchingNodes(context.WritableClone(), expressionNode.LHS)
 
 	if err != nil {
 		return Context{}, err
