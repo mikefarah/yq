@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"bytes"
+	"io"
+	"os"
 	"strings"
 	"testing"
 )
@@ -262,4 +265,57 @@ func TestNew_FlagCompletions(t *testing.T) {
 			t.Errorf("Expected flag %q to exist", flagName)
 		}
 	}
+}
+
+func TestFishCompletionDoesNotEvalCompletionRequest(t *testing.T) {
+	output := captureStdout(t, func() {
+		rootCmd := New()
+		rootCmd.SetArgs([]string{"completion", "fish"})
+
+		if err := rootCmd.Execute(); err != nil {
+			t.Fatalf("completion fish failed: %v", err)
+		}
+	})
+
+	if strings.Contains(output, "set -l results (eval $requestComp") {
+		t.Fatal("fish completion script should not eval the completion request")
+	}
+
+	if !strings.Contains(output, "set -l requestComp $args[1] __complete $args[2..-1] $lastArg") {
+		t.Fatal("fish completion script should build the completion request as a fish argument list")
+	}
+
+	if !strings.Contains(output, "set -l results ($requestComp 2> /dev/null)") {
+		t.Fatal("fish completion script should invoke the completion request directly")
+	}
+}
+
+func captureStdout(t *testing.T, run func()) string {
+	t.Helper()
+
+	originalStdout := os.Stdout
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("failed to create stdout pipe: %v", err)
+	}
+	os.Stdout = writer
+	defer func() {
+		os.Stdout = originalStdout
+	}()
+
+	run()
+
+	if err := writer.Close(); err != nil {
+		t.Fatalf("failed to close stdout writer: %v", err)
+	}
+
+	var output bytes.Buffer
+	if _, err := io.Copy(&output, reader); err != nil {
+		t.Fatalf("failed to read stdout pipe: %v", err)
+	}
+	if err := reader.Close(); err != nil {
+		t.Fatalf("failed to close stdout reader: %v", err)
+	}
+
+	return output.String()
 }
