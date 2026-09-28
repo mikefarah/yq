@@ -191,6 +191,7 @@ var recursiveDescentOpType = &operationType{Type: "RECURSIVE_DESCENT", NumArgs: 
 
 var selectOpType = &operationType{Type: "SELECT", NumArgs: 1, Precedence: 52, Handler: selectOperator, CheckForPostTraverse: true}
 var hasOpType = &operationType{Type: "HAS", NumArgs: 1, Precedence: 50, Handler: hasOperator}
+var inOpType = &operationType{Type: "IN", NumArgs: 1, Precedence: 50, Handler: inOperator}
 var uniqueOpType = &operationType{Type: "UNIQUE", NumArgs: 0, Precedence: 52, Handler: unique, CheckForPostTraverse: true}
 var uniqueByOpType = &operationType{Type: "UNIQUE_BY", NumArgs: 1, Precedence: 52, Handler: uniqueBy, CheckForPostTraverse: true}
 var groupByOpType = &operationType{Type: "GROUP_BY", NumArgs: 1, Precedence: 52, Handler: groupBy, CheckForPostTraverse: true}
