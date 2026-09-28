@@ -69,6 +69,48 @@ var ifOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Null values are falsy",
+		subdescription: "An empty value, `~`, `null` and `Null` are all YAML null, so they are falsy.",
+		document:       "a:\nb: ~\nc: null\nd: Null\n",
+		expression:     `.[] |= if . then "truthy" else "falsy" end`,
+		expected: []string{
+			"D0, P[], (!!map)::a: falsy\nb: falsy\nc: falsy\nd: falsy\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "explicitly tagged null is falsy",
+		document:    `a: !!null ""`,
+		expression:  `if .a then "yes" else "no" end`,
+		expected: []string{
+			"D0, P[], (!!str)::no\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "null condition with no else returns the input",
+		document:    `a: ~`,
+		expression:  `if .a then "yes" end`,
+		expected: []string{
+			"D0, P[], (!!map)::a: ~\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "only null and false are falsy",
+		document:    `[false, !!bool no, "false", 0, "", [], {}]`,
+		expression:  `.[] | if . then "truthy" else "falsy" end`,
+		expected: []string{
+			"D0, P[], (!!str)::falsy\n",
+			"D0, P[], (!!str)::falsy\n",
+			"D0, P[], (!!str)::truthy\n",
+			"D0, P[], (!!str)::truthy\n",
+			"D0, P[], (!!str)::truthy\n",
+			"D0, P[], (!!str)::truthy\n",
+			"D0, P[], (!!str)::truthy\n",
+		},
+	},
+	{
 		skipDoc:     true,
 		description: "missing key in condition does not create the key",
 		document:    `{a: 1}`,

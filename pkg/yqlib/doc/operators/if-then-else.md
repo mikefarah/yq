@@ -134,3 +134,25 @@ will output
 no b
 ```
 
+## Null values are falsy
+An empty value, `~`, `null` and `Null` are all YAML null, so they are falsy.
+
+Given a sample.yml file of:
+```yaml
+a:
+b: ~
+c: null
+d: Null
+```
+then
+```bash
+yq '.[] |= if . then "truthy" else "falsy" end' sample.yml
+```
+will output
+```yaml
+a: falsy
+b: falsy
+c: falsy
+d: falsy
+```
+
