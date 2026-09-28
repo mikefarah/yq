@@ -1,0 +1,31 @@
+# yq
+
+> A lightweight, portable command-line processor for YAML, JSON, XML, INI, CSV, TSV, and properties files, using `jq`-like syntax. Written in Go with no runtime dependencies.
+
+yq lets you read, write, and transform structured data files from the shell. It shares its expression syntax with `jq` but works natively across formats — so the same select/update expressions apply whether the input is YAML, JSON, XML, INI, properties, CSV, or TSV.
+
+## Usage
+
+- [Quick Usage Guide](https://github.com/mikefarah/yq#quick-usage-guide): read a value (`yq '.a.b[0].c' file.yaml`), pipe from STDIN, merge files, convert between formats.
+- [Full documentation](https://mikefarah.gitbook.io/yq/): detailed usage, one page per operator.
+- [Convert between formats](https://mikefarah.gitbook.io/yq/usage/convert): JSON, XML, HCL (Terraform), TOML, ndjson.
+- [Update in place](https://mikefarah.gitbook.io/yq/v/v4.x/commands/evaluate#flags): `yq -i` and related evaluate flags.
+- [Select and update matching values](https://mikefarah.gitbook.io/yq/operators/select#select-and-update-matching-values-in-map): the `select()` operator.
+- [Traverse and read deep data structures](https://mikefarah.gitbook.io/yq/operators/traverse-read): navigating nested maps and lists.
+- [Sort keys](https://mikefarah.gitbook.io/yq/operators/sort-keys): normalize key ordering.
+- [Comments, styling, tags, anchors and aliases](https://mikefarah.gitbook.io/yq/operators/comment-operators): preserve and manipulate YAML formatting.
+- [Date/time manipulation and formatting with TZ](https://mikefarah.gitbook.io/yq/operators/datetime): timezone-aware date operators.
+- [YAML front matter blocks](https://mikefarah.gitbook.io/yq/usage/front-matter): e.g. Jekyll/Assemble.
+- [Base64 encode/decode](https://mikefarah.gitbook.io/yq/operators/encode-decode): the `@base64` operator.
+- [Load content from other files](https://mikefarah.gitbook.io/yq/operators/load): the `load()` function.
+
+## Install
+
+- [Latest binary releases](https://github.com/mikefarah/yq/releases/latest): one dependency-free binary per platform.
+- [README Install section](https://github.com/mikefarah/yq#install): Homebrew, Snap, Docker/Podman, `go install`, and other package managers.
+- [GitHub Action](https://github.com/mikefarah/yq#github-action): use yq in CI workflows.
+
+## Optional
+
+- [Community-supported install methods](https://github.com/mikefarah/yq#community-supported-installation-methods): X-CMD, Nix, Webi, Arch Linux, Windows, MacPorts, Alpine Linux, Flox, gah.
+- [License](https://github.com/mikefarah/yq/blob/master/LICENSE): MIT.
