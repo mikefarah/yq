@@ -176,6 +176,15 @@ var firstOperatorScenarios = []expressionScenario{
 		expression:  `first`,
 		expected:    []string{},
 	},
+	{
+		description: "No filter with empty brackets after a pipe",
+		skipDoc:     true,
+		document:    "{a: [cat, dog]}",
+		expression:  `.a | first()`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::cat\n",
+		},
+	},
 }
 
 func TestFirstOperatorScenarios(t *testing.T) {

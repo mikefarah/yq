@@ -42,10 +42,20 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 	var opStack = []*token{{TokenType: openBracket}}
 	var tokens = append(infixTokens, &token{TokenType: closeBracket})
 
+	// the op that an open bracket belongs to, e.g. `tz` in `tz(...)`,
+	// so that empty brackets can be told apart from no brackets at all
+	var callees = make(map[*token]*token)
+	var previousToken *token
+
 	for _, currentToken := range tokens {
 		log.Debugf("postfix processing currentToken %v", currentToken.toString(true))
 		switch currentToken.TokenType {
 		case openBracket, openCollect, openCollectObject:
+			if currentToken.TokenType == openBracket && previousToken != nil &&
+				previousToken.TokenType == operationToken &&
+				previousToken.Operation.OperationType.NumArgs > 0 {
+				callees[currentToken] = previousToken
+			}
 			opStack = append(opStack, currentToken)
 			log.Debugf("put %v onto the opstack", currentToken.toString(true))
 		case closeCollect, closeCollectObject:
@@ -95,6 +105,15 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			}
 
 		case closeBracket:
+			// `tz()` is a call with no argument: without this the op would
+			// take whatever came before it, e.g. `now | tz()` would give tz
+			// the `now`, and then the pipe would be the one short of an arg.
+			if previousToken != nil && previousToken.TokenType == openBracket {
+				if callee, ok := callees[previousToken]; ok {
+					callee.Operation.NoArgs = true
+					log.Debugf("%v was called with no args", callee.toString(true))
+				}
+			}
 			for len(opStack) > 0 && opStack[len(opStack)-1].TokenType != openBracket {
 				missingClosingTokenErr := validateNoOpenTokens(opStack[len(opStack)-1])
 				if missingClosingTokenErr != nil {
@@ -121,6 +140,7 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			opStack = append(opStack, currentToken)
 			log.Debugf("put %v onto the opstack", currentToken.toString(true))
 		}
+		previousToken = currentToken
 	}
 
 	log.Debugf("opstackLen: %v", len(opStack))
