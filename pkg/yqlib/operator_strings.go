@@ -62,8 +62,14 @@ func interpolate(d *dataTreeNavigator, context Context, str string) (string, err
 					i++
 					continue
 				case '\\':
-					// skip the escaped backslash
-					i++
+					// A backslash pair is only an interpolation escape when it
+					// guards an opening paren ("\\(" -> literal "\("). The lexer
+					// (processEscapeCharacters) has already decoded string escapes,
+					// so a standalone pair must pass through unchanged rather than
+					// be halved a second time (#2561).
+					if i+2 < len(runes) && runes[i+2] == '(' {
+						i++ // skip the second backslash; '(' is emitted as literal text next
+					}
 				default:
 					log.Debugf("Ignoring non-escaping backslash @ %v[%d]", str, i)
 				}
