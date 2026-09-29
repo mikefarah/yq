@@ -1,3 +1,13 @@
+4.54.1:
+  - Added jq style `if-then-elif-else-end` conditional operator (#2871) Thanks @anandghegde
+  - Added `@base64url`/`@base64urld` operators (RFC 4648 §5) (#2827) Thanks @MsfPablo
+  - Fixed: preserve explicit assignments in read-only expressions (#2850) Thanks @RRXXZZYY
+  - Fixed: error on int64 overflow in +, -, * instead of silently wrapping (#2826) Thanks @MsfPablo
+  - Fixed(toml): quote empty keys (#2870) Thanks @jakezwang
+  - Fixed: /dev/null was triggering colour output (#2852) Thanks @laraibg786
+  - Fixed dead snapcraft confinement link in README (#2840) Thanks @ShurongCAO
+  - Bumped dependencies
+
 4.53.6:
   - Fixing release build issue
   
