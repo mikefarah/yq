@@ -28,6 +28,7 @@ type token struct {
 	AssignOperation      *Operation // e.g. tag (GetTag) op becomes AssignTag if '=' follows it
 	CheckForPostTraverse bool       // e.g. [1]cat should really be [1].cat
 	Match                string
+	ExpectedCloser       string // e.g. "end" for an `if` open bracket, defaults to ")"
 }
 
 func (t *token) toString(detail bool) string {
