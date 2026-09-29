@@ -38,7 +38,7 @@ This is also included in the full CI pipeline via `make local test`.
 
 ### Prerequisites
 
-- **Go ≥ 1.25** (see `go.mod`)
+- **Go** (see `go.mod`)
 - **Bash** (acceptance tests)
 - **Docker/Podman** is optional; use `make local <target>` to run natively when containers are unavailable
 
