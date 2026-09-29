@@ -168,6 +168,12 @@ var participleYqRules = []*participleYqRule{
 	{"ALL_COMMENTS", `comments\s*=`, assignAllCommentsOp(false), 0},
 	{"ALL_COMMENTS_ASSIGN_RELATIVE", `comments\s*\|=`, assignAllCommentsOp(true), 0},
 
+	{"If", `if`, literalToken(openBracket, false), 0},
+	{"Then", `then`, opToken(ifThenOpType), 0},
+	{"Elif", `elif`, opToken(ifElseOpType), 0},
+	{"Else", `else`, opToken(ifElseOpType), 0},
+	{"End", `end`, literalToken(closeBracket, true), 0},
+
 	{"Block", `;`, opToken(blockOpType), 0},
 	{"Alternative", `\/\/`, opToken(alternativeOpType), 0},
 

@@ -31,7 +31,52 @@ func validateNoOpenTokens(token *token) error {
 	case openCollectObject:
 		return fmt.Errorf(("bad expression, could not find matching `}`"))
 	case openBracket:
+		if token.Match == "if" {
+			return fmt.Errorf(("bad expression, could not find matching `end`"))
+		}
 		return fmt.Errorf(("bad expression, could not find matching `)`"))
+	}
+	return nil
+}
+
+func findEnclosingBracket(opStack []*token) *token {
+	for i := len(opStack) - 1; i >= 0; i-- {
+		if opStack[i].TokenType != operationToken {
+			return opStack[i]
+		}
+	}
+	return nil
+}
+
+// then / elif / else must be directly inside an if block, in that order.
+// lastKeywords tracks the last keyword seen for each open if block.
+func validateIfKeyword(opStack []*token, currentToken *token, lastKeywords map[*token]string) error {
+	keyword := currentToken.Operation.StringValue
+	ifToken := findEnclosingBracket(opStack)
+	if ifToken == nil || ifToken.TokenType != openBracket || ifToken.Match != "if" {
+		return fmt.Errorf("bad expression, `%v` without matching `if`", keyword)
+	}
+	previous := lastKeywords[ifToken]
+	if keyword == "then" && previous != "if" && previous != "elif" {
+		return fmt.Errorf("bad expression, `then` must follow `if` or `elif`")
+	} else if keyword != "then" && previous != "then" {
+		return fmt.Errorf("bad expression, `%v` must follow `then`", keyword)
+	}
+	lastKeywords[ifToken] = keyword
+	return nil
+}
+
+func validateIfEnd(opener *token, closer *token, lastKeywords map[*token]string) error {
+	if opener.Match != "if" && closer.Match != "end" {
+		return nil
+	} else if opener.Match != "if" {
+		return errors.New("bad expression, got `end` without matching `if`")
+	} else if closer.Match != "end" {
+		return errors.New("bad expression, could not find matching `end`")
+	}
+	previous := lastKeywords[opener]
+	if previous != "then" && previous != "else" {
+		return fmt.Errorf("bad expression, `%v` must be followed by `then`", previous)
 	}
 	return nil
 }
@@ -41,11 +86,15 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 	// surround the whole thing with brackets
 	var opStack = []*token{{TokenType: openBracket}}
 	var tokens = append(infixTokens, &token{TokenType: closeBracket})
+	var lastIfKeywords = map[*token]string{}
 
 	for _, currentToken := range tokens {
 		log.Debugf("postfix processing currentToken %v", currentToken.toString(true))
 		switch currentToken.TokenType {
 		case openBracket, openCollect, openCollectObject:
+			if currentToken.Match == "if" {
+				lastIfKeywords[currentToken] = "if"
+			}
 			opStack = append(opStack, currentToken)
 			log.Debugf("put %v onto the opstack", currentToken.toString(true))
 		case closeCollect, closeCollectObject:
@@ -106,10 +155,18 @@ func (p *expressionPostFixerImpl) ConvertToPostfix(infixTokens []*token) ([]*Ope
 			if len(opStack) == 0 {
 				return nil, errors.New("bad expression, got close brackets without matching opening bracket")
 			}
+			if err := validateIfEnd(opStack[len(opStack)-1], currentToken, lastIfKeywords); err != nil {
+				return nil, err
+			}
 			// now we should have ( as the last element on the opStack, get rid of it
 			opStack = opStack[0 : len(opStack)-1]
 
 		default:
+			if tokenIsOpType(currentToken, ifThenOpType) || tokenIsOpType(currentToken, ifElseOpType) {
+				if err := validateIfKeyword(opStack, currentToken, lastIfKeywords); err != nil {
+					return nil, err
+				}
+			}
 			var currentPrecedence = currentToken.Operation.OperationType.Precedence
 			// pop off higher precedent operators onto the result
 			for len(opStack) > 0 &&

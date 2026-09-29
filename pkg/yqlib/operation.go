@@ -40,6 +40,11 @@ var orOpType = &operationType{Type: "OR", NumArgs: 2, Precedence: 20, Handler: o
 var andOpType = &operationType{Type: "AND", NumArgs: 2, Precedence: 20, Handler: andOperator}
 var reduceOpType = &operationType{Type: "REDUCE", NumArgs: 2, Precedence: 35, Handler: reduceOperator}
 
+// if-then-else: lower precedence than everything else, as the keywords separate whole expressions.
+// then binds tighter than elif / else so `if a then b elif c then d else e end` parses as (a then b) elif ((c then d) else e)
+var ifThenOpType = &operationType{Type: "IF_THEN", NumArgs: 2, Precedence: 5, Handler: ifThenOperator}
+var ifElseOpType = &operationType{Type: "IF_ELSE", NumArgs: 2, Precedence: 4, Handler: ifElseOperator}
+
 var blockOpType = &operationType{Type: "BLOCK", Precedence: 10, NumArgs: 2, Handler: emptyOperator}
 
 var unionOpType = &operationType{Type: "UNION", NumArgs: 2, Precedence: 10, Handler: unionOperator}
