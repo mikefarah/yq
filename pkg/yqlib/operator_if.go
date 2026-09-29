@@ -38,10 +38,6 @@ func ifThenElse(d *dataTreeNavigator, context Context, conditionExp *ExpressionN
 			if isTruthyNode(conditionEl.Value.(*CandidateNode)) {
 				branchExp = thenExp
 			}
-			if branchExp == nil {
-				results.PushBack(candidate)
-				continue
-			}
 			branch, err := d.GetMatchingNodes(context.SingleChildContext(candidate), branchExp)
 			if err != nil {
 				return Context{}, err

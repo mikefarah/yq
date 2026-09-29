@@ -168,7 +168,7 @@ var participleYqRules = []*participleYqRule{
 	{"ALL_COMMENTS", `comments\s*=`, assignAllCommentsOp(false), 0},
 	{"ALL_COMMENTS_ASSIGN_RELATIVE", `comments\s*\|=`, assignAllCommentsOp(true), 0},
 
-	{"If", `if`, literalToken(openBracket, false), 0},
+	{"If", `if`, literalTokenWithCloser(openBracket, false, "end"), 0},
 	{"Then", `then`, opToken(ifThenOpType), 0},
 	{"Elif", `elif`, opToken(ifElseOpType), 0},
 	{"Else", `else`, opToken(ifElseOpType), 0},
@@ -577,6 +577,12 @@ func opToken(op *operationType) yqAction {
 func literalToken(tt tokenType, checkForPost bool) yqAction {
 	return func(rawToken lexer.Token) (*token, error) {
 		return &token{TokenType: tt, CheckForPostTraverse: checkForPost, Match: rawToken.Value}, nil
+	}
+}
+
+func literalTokenWithCloser(tt tokenType, checkForPost bool, expectedCloser string) yqAction {
+	return func(rawToken lexer.Token) (*token, error) {
+		return &token{TokenType: tt, CheckForPostTraverse: checkForPost, Match: rawToken.Value, ExpectedCloser: expectedCloser}, nil
 	}
 }
 
