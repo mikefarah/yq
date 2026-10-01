@@ -176,6 +176,15 @@ var firstOperatorScenarios = []expressionScenario{
 		expression:  `first`,
 		expected:    []string{},
 	},
+	{
+		description: "First value with no filter from a map",
+		skipDoc:     true,
+		document:    "{x: {a: banana}, y: {a: cat}}",
+		expression:  `first`,
+		expected: []string{
+			"D0, P[x], (!!map)::{a: banana}\n",
+		},
+	},
 }
 
 func TestFirstOperatorScenarios(t *testing.T) {
