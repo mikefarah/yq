@@ -21,6 +21,32 @@ func reduceOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		return Context{}, fmt.Errorf("reduce must be given a block, got %v instead", expressionNode.RHS.Operation.OperationType.Type)
 	}
 
+	// Same EvaluateTogether split as `as` / collect / crossFunction:
+	// file documents are reduced together (eval-all merge), while
+	// pipeline results such as match(...) are reduced per input, like jq.
+	var evaluateAllTogether = true
+	for matchEl := context.MatchingNodes.Front(); matchEl != nil; matchEl = matchEl.Next() {
+		evaluateAllTogether = evaluateAllTogether && matchEl.Value.(*CandidateNode).EvaluateTogether
+		if !evaluateAllTogether {
+			break
+		}
+	}
+	if evaluateAllTogether {
+		return reduceOperatorSingle(d, context, expressionNode)
+	}
+
+	results := list.New()
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		result, err := reduceOperatorSingle(d, context.SingleChildContext(el.Value.(*CandidateNode)), expressionNode)
+		if err != nil {
+			return Context{}, err
+		}
+		results.PushBackList(result.MatchingNodes)
+	}
+	return context.ChildContext(results), nil
+}
+
+func reduceOperatorSingle(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	arrayExpNode := expressionNode.LHS.LHS
 	array, err := d.GetMatchingNodes(context, arrayExpNode)
 
