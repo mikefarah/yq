@@ -452,6 +452,14 @@ var tomlScenarios = []formatScenario{
 	},
 	{
 		skipDoc:      true,
+		description:  "binary number",
+		input:        `A = 0b1101`,
+		expression:   " .A += 1",
+		expected:     "A: 0b1110\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
 		description:  "float",
 		input:        `A = 6.626e-34`,
 		expected:     "A: 6.626e-34\n",

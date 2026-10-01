@@ -155,6 +155,24 @@ var parseInt64Scenarios = []parseInt64Scenario{
 		expectedParsedNumber: 18,
 		expectedFormatString: "0o22",
 	},
+	{
+		numberString:         "0b101",
+		expectedParsedNumber: 5,
+	},
+	{
+		numberString:         "+0b1_01",
+		expectedParsedNumber: 5,
+		expectedFormatString: "0b101",
+	},
+	{
+		numberString:         "0B101",
+		expectedParsedNumber: 5,
+		expectedFormatString: "0b101",
+	},
+	{
+		numberString:         "0b" + strings.Repeat("1", 63),
+		expectedParsedNumber: math.MaxInt64,
+	},
 }
 
 func TestParseInt64(t *testing.T) {
@@ -396,8 +414,20 @@ func TestParseInt(t *testing.T) {
 			expectedParsedNumber: 8,
 		},
 		{
+			numberString:         "-0b101",
+			expectedParsedNumber: -5,
+		},
+		{
 			numberString:  "invalid",
 			expectedError: "strconv.ParseInt",
+		},
+		{
+			numberString:  "0b",
+			expectedError: "invalid syntax",
+		},
+		{
+			numberString:  "0b1" + strings.Repeat("0", 63),
+			expectedError: "value out of range",
 		},
 	}
 
