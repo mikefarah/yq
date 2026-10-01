@@ -41,7 +41,7 @@ func New() *cobra.Command {
 	var rootCmd = &cobra.Command{
 		Use:   "yq",
 		Short: "yq is a lightweight and portable command-line data file processor.",
-		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/) 
+		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/)
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.`,
 		Example: `
 # yq tries to auto-detect the file format based off the extension, and defaults to YAML if it's unknown (or piping through STDIN)
