@@ -33,6 +33,23 @@ color_theme      = "Default"
 theme_background = "False"
 `
 
+const colonKeyINIInput = `[this:section]
+this:line = should really work
+`
+
+// expectedColonKeyDefaultYaml demonstrates the default "=:" key/value delimiters
+// splitting "this:line" into key "this" with value "line = should really work",
+// since ":" is treated the same as "=" by default.
+const expectedColonKeyDefaultYaml = `this:section:
+  this: line = should really work
+`
+
+// expectedColonKeyEqualsOnlyYaml shows the fix: with --ini-key-value-delimiters
+// set to "=" only, "this:line" is kept intact as the key.
+const expectedColonKeyEqualsOnlyYaml = `this:section:
+  this:line: should really work
+`
+
 var iniScenarios = []formatScenario{
 	{
 		description:  "Parse INI: simple",
@@ -58,6 +75,13 @@ var iniScenarios = []formatScenario{
 		expectedError: `bad file 'sample.yml': failed to parse INI content: unclosed section: [section\nkey = value`,
 		scenarioType:  "decode-error",
 	},
+	{
+		description:    "Parse INI: key with colon",
+		subdescription: fmt.Sprintf("By default, the key/value delimiters are %q, so ':' is treated the same as '=' and the key is split at the first delimiter found. See the next example for how to avoid this using `--ini-key-value-delimiters`.", ConfiguredINIPreferences.KeyValueDelimiters),
+		input:          colonKeyINIInput,
+		expected:       expectedColonKeyDefaultYaml,
+		scenarioType:   "decode",
+	},
 }
 
 // iniPreserveQuotesPrefs returns INIPreferences with PreserveSurroundedQuote enabled.
@@ -73,6 +97,24 @@ var iniPreserveQuotesScenarios = []formatScenario{
 		input:        quotedINIInput,
 		expected:     expectedQuotedINIOutput,
 		scenarioType: "roundtrip",
+	},
+}
+
+// iniEqualsOnlyKeyValueDelimiterPrefs returns INIPreferences with KeyValueDelimiters
+// set to "=" only, so that ":" is not treated as a key/value separator.
+func iniEqualsOnlyKeyValueDelimiterPrefs() INIPreferences {
+	prefs := NewDefaultINIPreferences()
+	prefs.KeyValueDelimiters = "="
+	return prefs
+}
+
+var iniKeyValueDelimitersScenarios = []formatScenario{
+	{
+		description:    "Parse INI: key with colon, using --ini-key-value-delimiters",
+		subdescription: "Keys containing a colon (e.g. Mercurial config files) are parsed correctly when ':' is removed from the key/value delimiters.",
+		input:          colonKeyINIInput,
+		expected:       expectedColonKeyEqualsOnlyYaml,
+		scenarioType:   "decode-key-value-delimiters",
 	},
 }
 
@@ -139,6 +181,8 @@ func testINIScenario(t *testing.T, s formatScenario) {
 		} else {
 			test.AssertResultComplexWithContext(t, s.expectedError, err.Error(), s.description)
 		}
+	case "decode-key-value-delimiters":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewINIDecoder(iniEqualsOnlyKeyValueDelimiterPrefs()), NewYamlEncoder(ConfiguredYamlPreferences)), s.description)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -158,6 +202,8 @@ func documentINIScenario(_ *testing.T, w *bufio.Writer, i interface{}) {
 		documentRoundtripINIScenario(w, s)
 	case "decode-error":
 		documentDecodeErrorINIScenario(w, s)
+	case "decode-key-value-delimiters":
+		documentDecodeKeyValueDelimitersINIScenario(w, s)
 	default:
 		panic(fmt.Sprintf("unhandled scenario type %q", s.scenarioType))
 	}
@@ -202,6 +248,26 @@ func documentDecodeErrorINIScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, fmt.Sprintf("```\n%v\n```\n\n", s.expectedError))
 }
 
+func documentDecodeKeyValueDelimitersINIScenario(w *bufio.Writer, s formatScenario) {
+	writeOrPanic(w, fmt.Sprintf("## %v\n", s.description))
+
+	if s.subdescription != "" {
+		writeOrPanic(w, s.subdescription)
+		writeOrPanic(w, "\n\n")
+	}
+
+	writeOrPanic(w, "Given a sample.ini file of:\n")
+	writeOrPanic(w, fmt.Sprintf("```ini\n%v\n```\n", s.input))
+
+	writeOrPanic(w, "then\n")
+	writeOrPanic(w, "```bash\nyq -p=ini --ini-key-value-delimiters='=' sample.ini\n```\n")
+	writeOrPanic(w, "will output\n")
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewINIDecoder(iniEqualsOnlyKeyValueDelimiterPrefs()), NewYamlEncoder(ConfiguredYamlPreferences))))
+
+	writeOrPanic(w, "instead of\n")
+	writeOrPanic(w, fmt.Sprintf("```yaml\n%v```\n\n", mustProcessFormatScenario(s, NewINIDecoder(NewDefaultINIPreferences()), NewYamlEncoder(ConfiguredYamlPreferences))))
+}
+
 func TestINIDecoderInitResetsFinished(t *testing.T) {
 	decoder := NewINIDecoder(NewDefaultINIPreferences())
 	firstDocuments, err := readDocuments(strings.NewReader("[first]\nkey = value\n"), "first.ini", 0, decoder)
@@ -221,11 +287,17 @@ func TestINIScenarios(t *testing.T) {
 	for _, tt := range iniScenarios {
 		testINIScenario(t, tt)
 	}
-	genericScenarios := make([]interface{}, len(iniScenarios))
-	for i, s := range iniScenarios {
-		genericScenarios[i] = s
+	for _, tt := range iniKeyValueDelimitersScenarios {
+		testINIScenario(t, tt)
 	}
-	documentScenarios(t, "usage", "convert", genericScenarios, documentINIScenario)
+	genericScenarios := make([]interface{}, 0, len(iniScenarios)+len(iniKeyValueDelimitersScenarios))
+	for _, s := range iniScenarios {
+		genericScenarios = append(genericScenarios, s)
+	}
+	for _, s := range iniKeyValueDelimitersScenarios {
+		genericScenarios = append(genericScenarios, s)
+	}
+	documentScenarios(t, "usage", "ini", genericScenarios, documentINIScenario)
 }
 
 func testINIPreserveQuotesScenario(t *testing.T, s formatScenario) {

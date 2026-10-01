@@ -44,6 +44,7 @@ func (dec *iniDecoder) Decode() (*CandidateNode, error) {
 	// Parse the INI content
 	loadOpts := ini.LoadOptions{
 		PreserveSurroundedQuote: dec.prefs.PreserveSurroundedQuote,
+		KeyValueDelimiters:      dec.prefs.KeyValueDelimiters,
 	}
 	cfg, err := ini.LoadSources(loadOpts, content)
 	if err != nil {
