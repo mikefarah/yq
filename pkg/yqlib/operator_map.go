@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"container/list"
+	"fmt"
 )
 
 func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
@@ -35,6 +36,9 @@ func mapOperator(d *dataTreeNavigator, context Context, expressionNode *Expressi
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
+		if candidate.Kind == ScalarNode {
+			return Context{}, fmt.Errorf("cannot map %v, map only works for maps and arrays", candidate.Tag)
+		}
 		//run expression against entries
 		// splat toEntries and pipe it into Rhs
 		splatted, err := splat(context.SingleChildContext(candidate), traversePreferences{})
