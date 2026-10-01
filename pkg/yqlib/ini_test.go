@@ -297,7 +297,7 @@ func TestINIScenarios(t *testing.T) {
 	for _, s := range iniKeyValueDelimitersScenarios {
 		genericScenarios = append(genericScenarios, s)
 	}
-	documentScenarios(t, "usage", "convert", genericScenarios, documentINIScenario)
+	documentScenarios(t, "usage", "ini", genericScenarios, documentINIScenario)
 }
 
 func testINIPreserveQuotesScenario(t *testing.T, s formatScenario) {
