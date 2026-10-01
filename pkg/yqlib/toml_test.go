@@ -209,6 +209,49 @@ address = "12 cat st"
 var rtEmptyArray = `A = []
 `
 
+var rtTableOrder = `[dependencies]
+dirs = "6"
+libc = { version = "0.2" }
+
+[target.unix.dependencies]
+users = { version = "0.12", package = "uzers" }
+
+[target.windows.dependencies]
+windows = "0.61"
+
+[dependencies.clap]
+version = "4.5"
+`
+
+var rtTableOrderWithArrayOfTables = `name = "app"
+
+[[bin]]
+name = "first"
+
+[profile.release]
+lto = true
+
+[[bin]]
+name = "second"
+
+[package]
+version = "1.0"
+`
+
+var expectedTableOrderWithArrayOfTables = `name = "app"
+
+[[bin]]
+name = "first"
+[[bin]]
+name = "second"
+
+[profile.release]
+lto = true
+
+[package]
+version = "1.0"
+`
+
 var rtEmptyArrayInTable = `[features]
 my-feature = []
 `
@@ -637,6 +680,22 @@ var tomlScenarios = []formatScenario{
 		input:        rtEmptyArray,
 		expression:   ".",
 		expected:     rtEmptyArray,
+		scenarioType: "roundtrip",
+	},
+	{
+		description:    "Roundtrip: table order is preserved",
+		subdescription: "Tables are written out in the order they were declared, even when a sub-table is declared after other tables.",
+		input:          rtTableOrder,
+		expression:     ".",
+		expected:       rtTableOrder,
+		scenarioType:   "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: table order is preserved around arrays of tables",
+		input:        rtTableOrderWithArrayOfTables,
+		expression:   ".",
+		expected:     expectedTableOrderWithArrayOfTables,
 		scenarioType: "roundtrip",
 	},
 	{
