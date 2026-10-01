@@ -66,7 +66,7 @@ bad file 'sample.yml': failed to parse INI content: unclosed section: [section\n
 ```
 
 ## Parse INI: key with colon
-Defaults to "=:"
+By default, the key/value delimiters are "=:", so ':' is treated the same as '=' and the key is split at the first delimiter found. See the next example for how to avoid this using `--ini-key-value-delimiters`.
 
 Given a sample.ini file of:
 ```ini

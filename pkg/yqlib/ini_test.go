@@ -77,7 +77,7 @@ var iniScenarios = []formatScenario{
 	},
 	{
 		description:    "Parse INI: key with colon",
-		subdescription: fmt.Sprintf(`Defaults to %q`, ConfiguredINIPreferences.KeyValueDelimiters),
+		subdescription: fmt.Sprintf("By default, the key/value delimiters are %q, so ':' is treated the same as '=' and the key is split at the first delimiter found. See the next example for how to avoid this using `--ini-key-value-delimiters`.", ConfiguredINIPreferences.KeyValueDelimiters),
 		input:          colonKeyINIInput,
 		expected:       expectedColonKeyDefaultYaml,
 		scenarioType:   "decode",
