@@ -343,6 +343,42 @@ var rtSpecialKeyDottedTableSection = `[servers."http://localhost:8080"]
 ip = "127.0.0.1"
 `
 
+var rtCommentBeforeInlineTable = `[a]
+x = 1
+
+[t.d]
+# c1
+# c2
+g = { v = "0.20", o = true }  # trailing
+
+[t.e]
+y = 1
+`
+
+var rtCommentBeforeRootInlineTable = `# top
+k = { a = 1 }
+
+[t]
+n = {  }
+`
+
+var rtCommentBeforeArrayOfInlineTables = `[t]
+# c1
+arr = [{ x = 1 }, { x = "é" }]
+`
+
+var commentBeforeInlineTable = `[t]
+# c1
+g = { v = "a", o = true }
+`
+
+var expectedCommentBeforeInlineTable = `t:
+  g:
+    # c1
+    v: a
+    o: true
+`
+
 var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
@@ -804,6 +840,37 @@ var tomlScenarios = []formatScenario{
 		input:        rtSpecialKeyDottedTableSection,
 		expression:   ".",
 		expected:     rtSpecialKeyDottedTableSection,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2853: comment before inline table is kept on the inline table",
+		input:        commentBeforeInlineTable,
+		expected:     expectedCommentBeforeInlineTable,
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2853: roundtrip comments around inline table in table section",
+		input:        rtCommentBeforeInlineTable,
+		expression:   ".",
+		expected:     rtCommentBeforeInlineTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2853: roundtrip comment before root inline table",
+		input:        rtCommentBeforeRootInlineTable,
+		expression:   ".",
+		expected:     rtCommentBeforeRootInlineTable,
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2853: roundtrip comment before array of inline tables",
+		input:        rtCommentBeforeArrayOfInlineTables,
+		expression:   ".",
+		expected:     rtCommentBeforeArrayOfInlineTables,
 		scenarioType: "roundtrip",
 	},
 }

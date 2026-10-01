@@ -466,7 +466,23 @@ func (te *tomlEncoder) writeInlineTableAttribute(w io.Writer, key string, m *Can
 	if err != nil {
 		return err
 	}
-	_, err = w.Write([]byte(tomlKey(key) + " = " + inline + "\n"))
+
+	te.wroteRootAttr = true
+
+	if err := te.writeComment(w, m.HeadComment); err != nil {
+		return err
+	}
+
+	line := tomlKey(key) + " = " + inline
+	if m.LineComment != "" {
+		lineComment := strings.TrimSpace(m.LineComment)
+		if !strings.HasPrefix(lineComment, "#") {
+			lineComment = "# " + lineComment
+		}
+		line += "  " + lineComment
+	}
+
+	_, err = w.Write([]byte(line + "\n"))
 	return err
 }
 
