@@ -6,6 +6,26 @@ import (
 
 var booleanOperatorScenarios = []expressionScenario{
 	{
+		// https://github.com/mikefarah/yq/issues/2782
+		skipDoc:     true,
+		description: "Or with collected missing key",
+		document:    `{}`,
+		expression:  `false or ([.a] | length == 1)`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
+		// https://github.com/mikefarah/yq/issues/2782
+		skipDoc:     true,
+		description: "And with collected missing key",
+		document:    `{}`,
+		expression:  `true and ([.a] | length == 1)`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+		},
+	},
+	{
 		description: "`or` example",
 		expression:  `true or false`,
 		expected: []string{
