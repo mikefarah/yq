@@ -105,6 +105,7 @@ var participleYqRules = []*participleYqRule{
 
 	simpleOp("select", selectOpType),
 	simpleOp("has", hasOpType),
+	simpleOp("in", inOpType),
 	simpleOp("unique_?by", uniqueByOpType),
 	simpleOp("unique", uniqueOpType),
 
