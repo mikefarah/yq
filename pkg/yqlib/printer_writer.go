@@ -32,9 +32,17 @@ type multiPrintWriter struct {
 	nameExpression *ExpressionNode
 	extension      string
 	index          int
+	noOverwrite    bool
 }
 
 func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWriter {
+	return NewMultiPrinterWriterWithOptions(expression, format, false)
+}
+
+// NewMultiPrinterWriterWithOptions creates a multi-file printer writer.
+// When noOverwrite is true, attempting to write to a file that already
+// exists will fail with an error instead of silently overwriting it.
+func NewMultiPrinterWriterWithOptions(expression *ExpressionNode, format *Format, noOverwrite bool) PrinterWriter {
 	extension := "yml"
 
 	switch format {
@@ -49,6 +57,7 @@ func NewMultiPrinterWriter(expression *ExpressionNode, format *Format) PrinterWr
 		extension:      extension,
 		treeNavigator:  NewDataTreeNavigator(),
 		index:          0,
+		noOverwrite:    noOverwrite,
 	}
 }
 
@@ -75,10 +84,20 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.Create(name)
-
-	if err != nil {
-		return nil, err
+	var f *os.File
+	if sp.noOverwrite {
+		f, err = os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+		if err != nil {
+			if os.IsExist(err) {
+				return nil, fmt.Errorf("refusing to overwrite existing file %q (--no-overwrite is set)", name)
+			}
+			return nil, err
+		}
+	} else {
+		f, err = os.Create(name)
+		if err != nil {
+			return nil, err
+		}
 	}
 	sp.index = sp.index + 1
 
