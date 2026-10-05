@@ -73,4 +73,3 @@ will output
 ```yaml
 a: ""
 ```
-
