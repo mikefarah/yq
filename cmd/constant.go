@@ -31,6 +31,7 @@ var frontMatter = ""
 
 var splitFileExp = ""
 var splitFileExpFile = ""
+var forceSplitFileExpNoClobber = false
 
 var completedSuccessfully = false
 
