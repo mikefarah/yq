@@ -375,6 +375,15 @@ var addOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Add to a binary number, keeps the binary format",
+		document:    `a: 0b101`,
+		expression:  `.a + 1`,
+		expected: []string{
+			"D0, P[a], (!!int)::0b110\n",
+		},
+	},
+	{
 		description:    "Date addition",
 		subdescription: "You can add durations to dates. Assumes RFC3339 date time format, see [date-time operators](https://mikefarah.gitbook.io/yq/operators/date-time-operators) for more information.",
 		document:       `a: 2021-01-01T00:00:00Z`,
