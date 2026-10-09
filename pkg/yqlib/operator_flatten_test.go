@@ -60,6 +60,15 @@ var flattenOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[{foo: bar}, {foo: baz}]\n",
 		},
 	},
+	{
+		description:    "Flatten aliased array",
+		subdescription: "Aliases are resolved before flattening.",
+		document:       "base: &base [item1, item2]\nlist: [*base, item3]\n",
+		expression:     `.list | flatten`,
+		expected: []string{
+			"D0, P[list], (!!seq)::[item1, item2, item3]\n",
+		},
+	},
 }
 
 func TestFlattenOperatorScenarios(t *testing.T) {
