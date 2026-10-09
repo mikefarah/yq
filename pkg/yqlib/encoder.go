@@ -66,7 +66,7 @@ func PrintYAMLLeadingContent(writer io.Writer, content string, PrintDocSeparator
 			}
 
 		} else {
-			if len(readline) > 0 && readline != "\n" && readline[0] != '%' && !commentLineRe.MatchString(readline) {
+			if len(readline) > 0 && strings.TrimRight(readline, "\r\n") != "" && readline[0] != '%' && !commentLineRe.MatchString(readline) {
 				readline = "# " + readline
 			}
 			if ColorsEnabled && strings.TrimSpace(readline) != "" {
