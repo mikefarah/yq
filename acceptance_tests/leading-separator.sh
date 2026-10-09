@@ -417,8 +417,8 @@ a: test
 b: sane
 EOL
 
-  # it will be hard to remove that top level separator
   read -r -d '' expected << EOM
+---
 a: test
 ---
 b: sane

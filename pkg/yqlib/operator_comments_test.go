@@ -150,6 +150,52 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Set head comment after an explicit document separator",
+		document:    "---\na: cat",
+		expression:  `. head_comment="new"`,
+		expected: []string{
+			"D0, P[], (!!map)::---\n# new\na: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Set head comments in a multi-document stream",
+		document:    "---\n# old first\na: cat\n---\na: dog",
+		expression:  `. head_comment="new"`,
+		expected: []string{
+			"D0, P[], (!!map)::---\n# new\na: cat\n",
+			"D1, P[], (!!map)::# new\na: dog\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Set head comment after a YAML directive",
+		document:    "%YAML 1.1\n---\n# old\na: cat",
+		expression:  `. head_comment="new"`,
+		expected: []string{
+			"D0, P[], (!!map)::%YAML 1.1\n---\n# new\na: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Replace an ordinary leading comment",
+		document:    "# old\na: cat",
+		expression:  `. head_comment="new"`,
+		expected: []string{
+			"D0, P[], (!!map)::# new\na: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Remove head comment without removing YAML structure",
+		document:    "%YAML 1.1\n---\n# old\na: cat",
+		expression:  `. head_comment=""`,
+		expected: []string{
+			"D0, P[], (!!map)::%YAML 1.1\n---\na: cat\n",
+		},
+	},
+	{
 		description: "Set head comment of a map entry",
 		document:    "f: foo\na:\n  b: cat",
 		expression:  `(.a | key) head_comment="single"`,
