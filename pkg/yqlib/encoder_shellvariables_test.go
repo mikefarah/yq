@@ -168,3 +168,16 @@ func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
 	assertEncodesToUnwrapped(t, "c: true", "c=true")
 	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
 }
+
+func TestShellVariablesEncoderEscapeSequences(t *testing.T) {
+	assertEncodesTo(t, "a: \"\\e[31mred\\e[0m\"", "a='[31mred[0m'")
+	assertEncodesTo(t, "b: \"bell\\a\"", "b=bell")
+	assertEncodesTo(t, "c: \"\\e]0;title\\x07\"", "c=']0;title'")
+	assertEncodesTo(t, "\"\\e[31mhello\\e[0m\"", "value='[31mhello[0m'")
+}
+
+func TestShellVariablesEncoderEscapeSequencesUnwrapped(t *testing.T) {
+	assertEncodesToUnwrapped(t, "a: \"\\e[31mred\\e[0m\"", "a=[31mred[0m")
+	assertEncodesToUnwrapped(t, "b: \"bell\\a\"", "b=bell")
+}
+
