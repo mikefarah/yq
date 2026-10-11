@@ -180,6 +180,15 @@ var sortByOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[-5000000000000000000, 5000000000000000000]\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Sort binary integers",
+		document:    "[0b11, 2, 0b1]",
+		expression:  `sort`,
+		expected: []string{
+			"D0, P[], (!!seq)::[0b1, 2, 0b11]\n",
+		},
+	},
 }
 
 func TestSortByOperatorScenarios(t *testing.T) {

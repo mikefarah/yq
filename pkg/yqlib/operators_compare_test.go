@@ -53,6 +53,15 @@ var compareOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!bool)::false\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Compare binary numbers",
+		document:    "a: 0b101\nb: 4",
+		expression:  ".a > .b",
+		expected: []string{
+			"D0, P[a], (!!bool)::true\n",
+		},
+	},
 
 	// ints, equal
 	{
