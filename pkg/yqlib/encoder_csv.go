@@ -36,7 +36,7 @@ func (e *csvEncoder) encodeRow(csvWriter *csv.Writer, contents []*CandidateNode)
 		if child.Kind != ScalarNode {
 			return fmt.Errorf("csv encoding only works for arrays of scalars (string/numbers/booleans), child[%v] is a %v", i, child.Tag)
 		}
-		stringValues[i] = child.Value
+		stringValues[i] = sanitizeControlChars(child.Value)
 	}
 	return csvWriter.Write(stringValues)
 }
@@ -104,7 +104,7 @@ func (e *csvEncoder) encodeObjects(csvWriter *csv.Writer, content []*CandidateNo
 
 func (e *csvEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if node.Kind == ScalarNode {
-		return writeString(writer, node.Value+"\n")
+		return writeString(writer, sanitizeControlChars(node.Value)+"\n")
 	}
 
 	csvWriter := csv.NewWriter(writer)
