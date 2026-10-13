@@ -345,6 +345,31 @@ ip = "127.0.0.1"
 
 var tomlScenarios = []formatScenario{
 	{
+		skipDoc:     true,
+		description: "appended table entries retain comments and nested arrays",
+		input: `[[package]]
+name = "first"
+[[package.wheels]]
+url = "first.whl" # first wheel
+[[package.wheels]]
+url = "second.whl" # second wheel
+[[package]]
+name = "second"
+[[package.wheels]]
+url = "third.whl" # third wheel
+`,
+		expected: `package:
+  - name: first
+    wheels:
+      - url: first.whl # first wheel
+      - url: second.whl # second wheel
+  - name: second
+    wheels:
+      - url: third.whl # third wheel
+`,
+		scenarioType: "decode",
+	},
+	{
 		skipDoc:      true,
 		description:  "blank",
 		input:        "",
@@ -1268,4 +1293,27 @@ func TestTomlEncoderPrintLeadingContent(t *testing.T) {
 func TestTomlEncoderCanHandleAliases(t *testing.T) {
 	encoder := NewTomlEncoder()
 	test.AssertResult(t, false, encoder.CanHandleAliases())
+}
+
+func BenchmarkTomlArrayTables(b *testing.B) {
+	for _, count := range []int{100, 1000} {
+		b.Run(fmt.Sprint(count), func(b *testing.B) {
+			var input strings.Builder
+			for i := 0; i < count; i++ {
+				fmt.Fprintf(&input, "[[package]]\nname = \"package-%d\"\nversion = \"1.0.0\"\nwheels = [{ url = \"https://example.com/package.whl\", size = 1234 }]\n", i)
+			}
+			document := input.String()
+			b.ReportAllocs()
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				decoder := NewTomlDecoder()
+				if err := decoder.Init(strings.NewReader(document)); err != nil {
+					b.Fatal(err)
+				}
+				if _, err := decoder.Decode(); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
 }

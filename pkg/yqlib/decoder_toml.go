@@ -404,6 +404,21 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 
 func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode *CandidateNode) error {
 	log.Debugf("arrayAppend to path: %v,%v", path, NodeToString(rhsNode))
+	readOp := createTraversalTree(path, traversePreferences{DontAutoCreate: true}, false)
+	matches, err := dec.d.GetMatchingNodes(context, readOp)
+	if err != nil {
+		return err
+	}
+	if matches.MatchingNodes.Len() == 1 {
+		array := matches.MatchingNodes.Front().Value.(*CandidateNode)
+		if array.Kind == SequenceNode {
+			// The decoder owns this array; avoid copying all preceding tables
+			// through += for every new entry.
+			array.AddChild(rhsNode)
+			return nil
+		}
+	}
+
 	rhsCandidateNode := &CandidateNode{
 		Kind:    SequenceNode,
 		Tag:     "!!seq",
@@ -420,7 +435,7 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 		RHS:       &ExpressionNode{Operation: rhsOp},
 	}
 
-	_, err := dec.d.GetMatchingNodes(context, assignmentOpNode)
+	_, err = dec.d.GetMatchingNodes(context, assignmentOpNode)
 	return err
 }
 
