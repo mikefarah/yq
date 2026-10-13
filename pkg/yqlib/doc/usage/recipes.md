@@ -155,7 +155,7 @@ myArray:
 - So, we use `|=` to update `.myArray`. This is the same as doing `.myArray = (.myArray | sort_by(.numBuckets))`
 
 ## Filter, flatten, sort and unique
-Lets find the unique set of names from the document.
+Let's find the unique set of names from the document.
 
 Given a sample.yml file of:
 ```yaml
@@ -185,14 +185,14 @@ will output
 ### Explanation:
 - `.[] | select(.type == "foo") | .names` will select the array elements of type "foo"
 - Splat `.[]` will unwrap the array and match all the items. We need to do this so we can work on the child items, for instance, filter items out using the `select` operator.
-- But we still want the final results back into an array. So after we're doing working on the children, we wrap everything back into an array using square brackets around the expression. `[.[] | select(.type == "foo") | .names]`
-- Now have have an array of all the 'names' values. Which includes arrays of strings as well as strings on their own.
+- But we still want the final results back into an array. So after we're done working on the children, we wrap everything back into an array using square brackets around the expression. `[.[] | select(.type == "foo") | .names]`
+- Now we have an array of all the 'names' values. Which includes arrays of strings as well as strings on their own.
 - Pipe `|` this array through `flatten`. This will flatten nested arrays. So now we have a flat list of all the name value strings
 - Next we pipe `|` that through `sort` and then `unique` to get a sorted, unique list of the names!
 - See the [flatten](https://mikefarah.gitbook.io/yq/operators/flatten), [sort](https://mikefarah.gitbook.io/yq/operators/sort) and [unique](https://mikefarah.gitbook.io/yq/operators/unique) for more information and examples.
 
 ## Export as environment variables (script), or any custom format
-Given a yaml document, lets output a script that will configure environment variables with that data. This same approach can be used for exporting into custom formats.
+Given a yaml document, let's output a script that will configure environment variables with that data. This same approach can be used for exporting into custom formats.
 
 Given a sample.yml file of:
 ```yaml
