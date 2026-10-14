@@ -14,6 +14,26 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Interpolation after filtering documents",
+		document:    "name: Alice\n---\nname: Bob",
+		expression:  `select(document_index == 0) | "My name is \(.name)"`,
+		expected: []string{
+			"D0, P[], (!!str)::My name is Alice\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `"The answer is \(1 + 1)"`,
+		expected: []string{
+			"D0, P[], (!!str)::The answer is 2\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `select(false) | "\(error(\"should not evaluate\"))"`,
+		expected:   []string{},
+	},
+	{
 		description: "Interpolation - not a string",
 		document:    `value: {an: apple}`,
 		expression:  `.message = "I like \(.value)"`,
