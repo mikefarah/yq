@@ -29,6 +29,59 @@ var unionOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:    true,
+		expression: `(.foo = "bar"), .`,
+		expected: []string{
+			"D0, P[], ()::foo: bar\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `., (.foo = "bar")`,
+		expected: []string{
+			"D0, P[], ()::foo: bar\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a",
+		expression: `., .`,
+		expected: []string{
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!str)::a\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a",
+		expression: `., ., .`,
+		expected: []string{
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!str)::a\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a",
+		expression: `1, ., .`,
+		expected: []string{
+			"D0, P[], (!!int)::1\n",
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!str)::a\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   "a",
+		expression: `., ., 3`,
+		expected: []string{
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!str)::a\n",
+			"D0, P[], (!!int)::3\n",
+		},
+	},
+	{
 		description: "Combine scalars",
 		expression:  `1, true, "cat"`,
 		expected: []string{
