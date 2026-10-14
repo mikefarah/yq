@@ -20,23 +20,22 @@ func unionOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	log.Debugf("unionOperator: lhs: %v", lhs.ToString())
 	log.Debugf("unionOperator: rhs: %v", rhs.ToString())
 
+	// Both sides may modify and return the same context, rather than selecting
+	// separate nodes. Keep its list identity so nested unions also return it once.
+	if rhs.MatchingNodes == lhs.MatchingNodes {
+		return lhs, nil
+	}
+
 	results := lhs.ChildContext(list.New())
 	for el := lhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 		node := el.Value.(*CandidateNode)
 		results.MatchingNodes.PushBack(node)
 	}
 
-	// this can happen when both expressions modify the context
-	// instead of creating their own.
-	/// (.foo = "bar"), (.thing = "cat")
-	if rhs.MatchingNodes != lhs.MatchingNodes {
-
-		for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
-			node := el.Value.(*CandidateNode)
-			log.Debugf("union operator rhs: processing %v", NodeToString(node))
-
-			results.MatchingNodes.PushBack(node)
-		}
+	for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
+		node := el.Value.(*CandidateNode)
+		log.Debugf("union operator rhs: processing %v", NodeToString(node))
+		results.MatchingNodes.PushBack(node)
 	}
 	log.Debugf("union operator: all together: %v", results.ToString())
 	return results, nil
