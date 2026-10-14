@@ -248,6 +248,52 @@ See https://mikefarah.gitbook.io/yq/usage/github-action for more.
 go install github.com/mikefarah/yq/v4@latest
 ```
 
+### Use yq as a Go library
+
+The command above installs the `yq` CLI. To use yq in a Go program instead, add it to your Go module with `go get github.com/mikefarah/yq/v4` and import `github.com/mikefarah/yq/v4/pkg/yqlib`:
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+	"strings"
+
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
+)
+
+func main() {
+	decoder := yqlib.NewYamlDecoder(yqlib.NewDefaultYamlPreferences())
+	if err := decoder.Init(strings.NewReader("a:\n  b: val\n")); err != nil {
+		log.Fatal(err)
+	}
+
+	node, err := decoder.Decode()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	results, err := yqlib.NewAllAtOnceEvaluator().EvaluateNodes(`.a.b = "updated"`, node)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	encoder := yqlib.NewYamlEncoder(yqlib.NewDefaultYamlPreferences())
+	printer := yqlib.NewPrinter(encoder, yqlib.NewSinglePrinterWriter(os.Stdout))
+	if err := printer.PrintResults(results); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+Output:
+
+```yaml
+a:
+  b: updated
+```
+
 ## Community Supported Installation methods
 As these are supported by the community :heart: - however, they may be out of date with the officially supported releases.
 
