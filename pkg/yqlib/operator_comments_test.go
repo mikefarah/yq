@@ -216,6 +216,60 @@ var commentOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Get line comment without a space after #",
+		skipDoc:     true,
+		document:    "a: cat #meow",
+		expression:  `.a | line_comment`,
+		expected: []string{
+			"D0, P[a], (!!str)::meow\n",
+		},
+	},
+	{
+		description: "Get empty line comment",
+		skipDoc:     true,
+		document:    "a: cat #",
+		expression:  `.a | line_comment`,
+		expected: []string{
+			"D0, P[a], (!!str)::\n",
+		},
+	},
+	{
+		description: "Get head comment without a space after #",
+		skipDoc:     true,
+		document:    "#welcome!\n#no really\na: cat",
+		expression:  `. | head_comment`,
+		expected: []string{
+			"D0, P[], (!!str)::welcome!\nno really\n",
+		},
+	},
+	{
+		description: "Get head comment with an empty comment line",
+		skipDoc:     true,
+		document:    "# one\n#\n# two\na: cat",
+		expression:  `. | head_comment`,
+		expected: []string{
+			"D0, P[], (!!str)::one\n\ntwo\n",
+		},
+	},
+	{
+		description: "Get head comment of array element without a space after #",
+		skipDoc:     true,
+		document:    "a:\n  #under\n  - x",
+		expression:  `.a[0] | head_comment`,
+		expected: []string{
+			"D0, P[a 0], (!!str)::under\n",
+		},
+	},
+	{
+		description: "Get foot comment without a space after #",
+		skipDoc:     true,
+		document:    "a: cat\n\n#have a great day\n#no really",
+		expression:  `. | foot_comment`,
+		expected: []string{
+			"D0, P[], (!!str)::have a great day\nno really\n",
+		},
+	},
+	{
 		description:           "Get head comment",
 		dontFormatInputForDoc: true,
 		document:              "# welcome!\n\na: cat # meow\n\n# have a great day",
