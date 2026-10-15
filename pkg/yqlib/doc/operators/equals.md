@@ -21,6 +21,23 @@ The not equals `!=` operator returns `false` if the LHS is equal to the RHS.
 - select operator [here](https://mikefarah.gitbook.io/yq/operators/select)
 
 
+## Compare integers with different representations
+Integer values are compared numerically. YAML 1.2 octal numbers use the `0o` prefix; an unprefixed value such as `0644` is decimal.
+
+Given a sample.yml file of:
+```yaml
+a: 0o644
+b: 420
+```
+then
+```bash
+yq '.a == .b' sample.yml
+```
+will output
+```yaml
+true
+```
+
 ## Match string
 Given a sample.yml file of:
 ```yaml
