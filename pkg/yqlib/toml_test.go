@@ -387,6 +387,20 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		skipDoc:      true,
+		description:  "encode control characters in strings and keys",
+		input:        "a: \"\\u0001 \\a \\v \\u007f \\t \\\" \\\\\"\n\"k\\u0001\": 1\n",
+		expected:     "a = \"\\u0001 \\u0007 \\u000B \\u007F \\t \\\" \\\\\"\n\"k\\u0001\" = 1\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "roundtrip control characters",
+		input:        "a = \"\\u0001 \\u0007\"\n",
+		expected:     "a = \"\\u0001 \\u0007\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		skipDoc:       true,
 		description:   "blank",
 		input:         `A = "hello`,
