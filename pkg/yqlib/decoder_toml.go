@@ -232,6 +232,9 @@ func (dec *tomlDecoder) decodeNode(tomlNode *toml.Node) (*CandidateNode, error) 
 		return dec.createIntegerScalar(tomlNode)
 	case toml.DateTime:
 		return dec.createDateTimeScalar(tomlNode)
+	case toml.LocalDate, toml.LocalTime, toml.LocalDateTime:
+		// no timezone, so keep the original text rather than inventing one
+		return dec.createStringScalar(tomlNode)
 	case toml.Float:
 		return dec.createFloatScalar(tomlNode)
 	case toml.Array:

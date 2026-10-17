@@ -366,6 +366,27 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		skipDoc:      true,
+		description:  "local date",
+		input:        "A = 1979-05-27",
+		expected:     "A: \"1979-05-27\"\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "local time",
+		input:        "A = 07:32:00",
+		expected:     "A: 07:32:00\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "local datetime",
+		input:        "A = 1979-05-27T07:32:00",
+		expected:     "A: 1979-05-27T07:32:00\n",
+		scenarioType: "decode",
+	},
+	{
 		skipDoc:       true,
 		description:   "blank",
 		input:         `A = "hello`,
