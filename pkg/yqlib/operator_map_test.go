@@ -145,6 +145,42 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Map filtering preserves a string key matching an integer key",
+		skipDoc:     true,
+		document:    `{"1": keep, 1: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"1\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves an integer key matching a string key",
+		skipDoc:     true,
+		document:    `{1: keep, "1": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{1: keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a string key matching a boolean key",
+		skipDoc:     true,
+		document:    `{"true": keep, true: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"true\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a boolean key matching a string key",
+		skipDoc:     true,
+		document:    `{true: keep, "true": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{true: keep}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `[1, null, 2, null, 3]`,
 		expression: `map_values(select(. != null))`,

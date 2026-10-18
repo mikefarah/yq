@@ -33,7 +33,13 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 			// like jq, entries that the expression returns nothing for are removed
 			switch candidate.Kind {
 			case MappingNode:
-				deleteFromMap(candidate, child.Key.Value)
+				for index := 1; index < len(candidate.Content); index += 2 {
+					if candidate.Content[index] == child {
+						candidate.Content = append(candidate.Content[:index-1], candidate.Content[index+1:]...)
+						normaliseEmptyCollectionMapKeyComment(candidate)
+						break
+					}
+				}
 			case SequenceNode:
 				deleteFromArray(candidate, child.Key.Value)
 			}
