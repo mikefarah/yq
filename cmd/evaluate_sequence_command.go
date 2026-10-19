@@ -84,8 +84,9 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 		// need to indirectly call the function so  that completedSuccessfully is
 		// passed when we finish execution as opposed to now
 		defer func() {
+			finishError := writeInPlaceHandler.FinishWriteInPlace(cmdError == nil && completedSuccessfully)
 			if cmdError == nil {
-				cmdError = writeInPlaceHandler.FinishWriteInPlace(completedSuccessfully)
+				cmdError = finishError
 			}
 		}()
 	}
