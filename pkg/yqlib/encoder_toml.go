@@ -6,14 +6,27 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/fatih/color"
 )
 
 type tomlEncoder struct {
-	wroteRootAttr bool // Track if we wrote root-level attributes before tables
-	prefs         TomlPreferences
+	wroteRootAttr   bool // Track if we wrote root-level attributes before tables
+	prefs           TomlPreferences
+	tableBuf        *bytes.Buffer
+	sections        []tomlSection
+	arrayTableDepth int
+}
+
+// tomlSection is a table (or a whole array of tables) written to tableBuf.
+// Sections are reordered by the line they were declared on before being output.
+type tomlSection struct {
+	line        int
+	start       int
+	writesBlank bool // the section starts with a blank line when preceded by attributes
+	attrBefore  bool // attributes were written just before this section
 }
 
 func NewTomlEncoder() Encoder {
@@ -145,14 +158,86 @@ func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error
 		}
 	}
 
+	te.tableBuf = &bytes.Buffer{}
+	te.sections = nil
+	te.arrayTableDepth = 0
 	for i := 0; i < len(node.Content); i += 2 {
 		keyNode := node.Content[i]
 		valNode := node.Content[i+1]
 		if !isTomlAttribute(valNode) {
-			if err := te.encodeTopLevelEntry(w, []string{keyNode.Value}, valNode); err != nil {
+			if err := te.encodeTopLevelEntry(te.tableBuf, []string{keyNode.Value}, valNode); err != nil {
 				return err
 			}
 		}
+	}
+	return te.writeSections(w)
+}
+
+// startSection marks the start of a new table section in tableBuf. Tables
+// nested inside an array of tables stay part of that array's section.
+func (te *tomlEncoder) startSection(line int, writesBlank bool) {
+	if te.tableBuf == nil || te.arrayTableDepth > 0 {
+		return
+	}
+	te.sections = append(te.sections, tomlSection{
+		line:        line,
+		start:       te.tableBuf.Len(),
+		writesBlank: writesBlank,
+		attrBefore:  te.wroteRootAttr,
+	})
+}
+
+// writeSections writes the table sections in the order they were declared
+// (by line number), so that decoded TOML keeps its original table order.
+// Sections without a line number stay after the section written before them.
+func (te *tomlEncoder) writeSections(w io.Writer) error {
+	data := te.tableBuf.Bytes()
+	te.tableBuf = nil
+	if len(te.sections) == 0 {
+		_, err := w.Write(data)
+		return err
+	}
+	if _, err := w.Write(data[:te.sections[0].start]); err != nil {
+		return err
+	}
+
+	type orderedSection struct {
+		key         int
+		content     []byte
+		writesBlank bool
+		attrAfter   bool
+	}
+	ordered := make([]orderedSection, len(te.sections))
+	key := 0
+	for i, section := range te.sections {
+		end := len(data)
+		attrAfter := te.wroteRootAttr
+		if i+1 < len(te.sections) {
+			end = te.sections[i+1].start
+			attrAfter = te.sections[i+1].attrBefore
+		}
+		content := data[section.start:end]
+		if section.writesBlank && section.attrBefore {
+			content = bytes.TrimPrefix(content, []byte("\n"))
+		}
+		if section.line > 0 {
+			key = section.line
+		}
+		ordered[i] = orderedSection{key: key, content: content, writesBlank: section.writesBlank, attrAfter: attrAfter}
+	}
+	sort.SliceStable(ordered, func(i, j int) bool { return ordered[i].key < ordered[j].key })
+
+	attrBefore := te.sections[0].attrBefore
+	for _, section := range ordered {
+		if section.writesBlank && attrBefore {
+			if _, err := w.Write([]byte("\n")); err != nil {
+				return err
+			}
+		}
+		if _, err := w.Write(section.content); err != nil {
+			return err
+		}
+		attrBefore = section.attrAfter
 	}
 	return nil
 }
@@ -184,12 +269,15 @@ func (te *tomlEncoder) encodeTopLevelEntry(w io.Writer, path []string, node *Can
 		if allMaps {
 			key := path[len(path)-1]
 			quotedKey := tomlKey(key)
+			te.startSection(node.Content[0].Line, true)
 			if te.wroteRootAttr {
 				if _, err := w.Write([]byte("\n")); err != nil {
 					return err
 				}
 				te.wroteRootAttr = false
 			}
+			te.arrayTableDepth++
+			defer func() { te.arrayTableDepth-- }()
 			for _, it := range node.Content {
 				if _, err := w.Write([]byte("[[" + quotedKey + "]]\n")); err != nil {
 					return err
@@ -466,11 +554,13 @@ func (te *tomlEncoder) writeInlineTableAttribute(w io.Writer, key string, m *Can
 	if err != nil {
 		return err
 	}
+	te.wroteRootAttr = true
 	_, err = w.Write([]byte(tomlKey(key) + " = " + inline + "\n"))
 	return err
 }
 
 func (te *tomlEncoder) writeTableHeader(w io.Writer, path []string, m *CandidateNode) error {
+	te.startSection(m.Line, true)
 	// Add blank line before table header (or before comment if present) if we wrote root attributes
 	needsBlankLine := te.wroteRootAttr
 	if needsBlankLine {
@@ -542,20 +632,25 @@ func (te *tomlEncoder) encodeSeparateMapping(w io.Writer, path []string, m *Cand
 			// If sequence of maps, emit [[path.k]] per element
 			if isTomlArrayOfTables(v) {
 				key := tomlDottedKey(append(append([]string{}, path...), k))
+				te.startSection(v.Content[0].Line, true)
 				if te.wroteRootAttr {
 					if _, err := w.Write([]byte("\n")); err != nil {
 						return err
 					}
 					te.wroteRootAttr = false
 				}
+				te.arrayTableDepth++
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + key + "]]\n")); err != nil {
+						te.arrayTableDepth--
 						return err
 					}
 					if err := te.encodeMappingBodyWithPath(w, append(append([]string{}, path...), k), it); err != nil {
+						te.arrayTableDepth--
 						return err
 					}
 				}
+				te.arrayTableDepth--
 			} else {
 				// Regular array attribute under the current table path
 				if err := te.writeArrayAttribute(w, k, v); err != nil {
@@ -605,14 +700,19 @@ func (te *tomlEncoder) encodeMappingBodyWithPath(w io.Writer, path []string, m *
 		if v.Kind == SequenceNode {
 			if isTomlArrayOfTables(v) {
 				dotted := tomlDottedKey(append(append([]string{}, path...), k))
+				te.startSection(v.Content[0].Line, false)
+				te.arrayTableDepth++
 				for _, it := range v.Content {
 					if _, err := w.Write([]byte("[[" + dotted + "]]\n")); err != nil {
+						te.arrayTableDepth--
 						return err
 					}
 					if err := te.encodeMappingBodyWithPath(w, append(append([]string{}, path...), k), it); err != nil {
+						te.arrayTableDepth--
 						return err
 					}
 				}
+				te.arrayTableDepth--
 			}
 		}
 	}

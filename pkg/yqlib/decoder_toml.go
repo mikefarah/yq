@@ -21,6 +21,9 @@ type tomlDecoder struct {
 	rootMap          *CandidateNode
 	pendingComments  []string // Head comments collected from Comment nodes
 	firstContentSeen bool     // Track if we've processed the first non-comment node
+	input            []byte
+	line             int // line number at lineOffset, used to find where tables are declared
+	lineOffset       int
 }
 
 func NewTomlDecoder() Decoder {
@@ -37,7 +40,10 @@ func (dec *tomlDecoder) Init(reader io.Reader) error {
 	if err != nil {
 		return err
 	}
-	dec.parser.Reset(buf.Bytes())
+	dec.input = buf.Bytes()
+	dec.line = 1
+	dec.lineOffset = 0
+	dec.parser.Reset(dec.input)
 	dec.rootMap = &CandidateNode{
 		Kind: MappingNode,
 		Tag:  "!!map",
@@ -58,6 +64,52 @@ func (dec *tomlDecoder) attachOrphanedCommentsToNode(tableNodeValue *CandidateNo
 		}
 		dec.pendingComments = make([]string, 0)
 	}
+}
+
+// lineOf returns the line a table header was declared on. Tables are
+// processed in document order, so lines are counted on from the last table.
+func (dec *tomlDecoder) lineOf(tomlNode *toml.Node) int {
+	if tomlNode == nil {
+		return 0
+	}
+	offset := int(tomlNode.Raw.Offset)
+	if offset < dec.lineOffset || offset > len(dec.input) {
+		return 0
+	}
+	dec.line += bytes.Count(dec.input[dec.lineOffset:offset], []byte("\n"))
+	dec.lineOffset = offset
+	return dec.line
+}
+
+// setTableLine records the line a table was declared on, so that the encoder
+// can write tables back out in their original order. The line is set after
+// assignment as assigning a table merges it into a newly created node.
+func (dec *tomlDecoder) setTableLine(path []interface{}, line int) {
+	node := dec.rootMap
+	for _, part := range path {
+		var next *CandidateNode
+		switch key := part.(type) {
+		case string:
+			for i := 0; i+1 < len(node.Content); i += 2 {
+				if node.Kind == MappingNode && node.Content[i].Value == key {
+					next = node.Content[i+1]
+					break
+				}
+			}
+		case int:
+			if node.Kind == SequenceNode && key >= 0 && key < len(node.Content) {
+				next = node.Content[key]
+			}
+		}
+		if next == nil {
+			return
+		}
+		node = next
+	}
+	if node.Kind == SequenceNode && len(node.Content) > 0 {
+		node = node.Content[len(node.Content)-1]
+	}
+	node.Line = line
 }
 
 func (dec *tomlDecoder) getFullPath(tomlNode *toml.Node) []interface{} {
@@ -334,6 +386,7 @@ func (dec *tomlDecoder) processTopLevelNode(currentNode *toml.Node) (bool, error
 func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processTable")
 	child := currentNode.Child()
+	line := dec.lineOf(child)
 	fullPath := dec.getFullPath(child)
 	log.Debugf("fullpath: %v", fullPath)
 
@@ -399,6 +452,7 @@ func (dec *tomlDecoder) processTable(currentNode *toml.Node) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	dec.setTableLine(fullPath, line)
 	return runAgainstCurrentExp, nil
 }
 
@@ -427,6 +481,7 @@ func (dec *tomlDecoder) arrayAppend(context Context, path []interface{}, rhsNode
 func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) {
 	log.Debug("Enter processArrayTable")
 	child := currentNode.Child()
+	line := dec.lineOf(child)
 	fullPath := dec.getFullPath(child)
 	log.Debugf("Fullpath: %v", fullPath)
 
@@ -504,8 +559,12 @@ func (dec *tomlDecoder) processArrayTable(currentNode *toml.Node) (bool, error) 
 
 	// += function
 	err = dec.arrayAppend(c, fullPath, tableNodeValue)
+	if err != nil {
+		return false, err
+	}
+	dec.setTableLine(fullPath, line)
 
-	return runAgainstCurrentExp, err
+	return runAgainstCurrentExp, nil
 }
 
 // if fullPath points to an array of maps rather than a map

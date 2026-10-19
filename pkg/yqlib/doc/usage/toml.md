@@ -264,6 +264,45 @@ will output
 A = []
 ```
 
+## Roundtrip: table order is preserved
+Tables are written out in the order they were declared, even when a sub-table is declared after other tables.
+
+Given a sample.toml file of:
+```toml
+[dependencies]
+dirs = "6"
+libc = { version = "0.2" }
+
+[target.unix.dependencies]
+users = { version = "0.12", package = "uzers" }
+
+[target.windows.dependencies]
+windows = "0.61"
+
+[dependencies.clap]
+version = "4.5"
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+[dependencies]
+dirs = "6"
+libc = { version = "0.2" }
+
+[target.unix.dependencies]
+users = { version = "0.12", package = "uzers" }
+
+[target.windows.dependencies]
+windows = "0.61"
+
+[dependencies.clap]
+version = "4.5"
+```
+
 ## Roundtrip: sample table
 Given a sample.toml file of:
 ```toml
