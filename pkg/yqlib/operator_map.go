@@ -15,15 +15,46 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 			return Context{}, err
 		}
 
-		assignUpdateExp := &ExpressionNode{
-			Operation: &Operation{OperationType: assignOpType, UpdateAssign: true},
-			RHS:       expressionNode.RHS,
-		}
-		_, err = assignUpdateOperator(d, splatted, assignUpdateExp)
-		if err != nil {
-			return Context{}, err
+		// evaluate every entry before mutating so the expression always sees the original parent
+		replacements := make(map[*CandidateNode]*CandidateNode)
+		for childEl := splatted.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
+			child := childEl.Value.(*CandidateNode)
+
+			rhs, err := d.GetMatchingNodes(splatted.SingleChildContext(child), expressionNode.RHS)
+			if err != nil {
+				return Context{}, err
+			}
+
+			if first := rhs.MatchingNodes.Front(); first != nil {
+				replacements[child] = first.Value.(*CandidateNode)
+			}
 		}
 
+		// iterate backwards so that array indices stay valid when deleting
+		for childEl := splatted.MatchingNodes.Back(); childEl != nil; childEl = childEl.Prev() {
+			child := childEl.Value.(*CandidateNode)
+
+			// a replacement exists only if the expression returned a result for this entry,
+			// so update it in place; otherwise fall through and filter the entry out
+			if replacement, ok := replacements[child]; ok {
+				child.UpdateFrom(replacement, assignPreferences{})
+				continue
+			}
+
+			// like jq, entries that the expression returns nothing for are removed
+			switch candidate.Kind {
+			case MappingNode:
+				for index := 1; index < len(candidate.Content); index += 2 {
+					if candidate.Content[index] == child {
+						candidate.Content = append(candidate.Content[:index-1], candidate.Content[index+1:]...)
+						normaliseEmptyCollectionMapKeyComment(candidate)
+						break
+					}
+				}
+			case SequenceNode:
+				deleteFromArray(candidate, child.Key.Value)
+			}
+		}
 	}
 
 	return context, nil

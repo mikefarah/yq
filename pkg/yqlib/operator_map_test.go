@@ -127,6 +127,114 @@ var mapOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::{a: 2, b: 3, c: 4}\n",
 		},
 	},
+	{
+		description:    "Map values and remove entries",
+		subdescription: "Entries for which the expression returns nothing are removed, like in jq.",
+		document:       `{a: 1, b: null, c: 3}`,
+		expression:     `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, c: 3}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: null, b: null}`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a string key matching an integer key",
+		skipDoc:     true,
+		document:    `{"1": keep, 1: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"1\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves an integer key matching a string key",
+		skipDoc:     true,
+		document:    `{1: keep, "1": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{1: keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a string key matching a boolean key",
+		skipDoc:     true,
+		document:    `{"true": keep, true: null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{\"true\": keep}\n",
+		},
+	},
+	{
+		description: "Map filtering preserves a boolean key matching a string key",
+		skipDoc:     true,
+		document:    `{true: keep, "true": null}`,
+		expression:  `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!map)::{true: keep}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, null, 2, null, 3]`,
+		expression: `map_values(select(. != null))`,
+		expected: []string{
+			"D0, P[], (!!seq)::[1, 2, 3]\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[1, 2, 3, 4]`,
+		expression: `map_values(select(. > 2) | . * 10)`,
+		expected: []string{
+			"D0, P[], (!!seq)::[30, 40]\n",
+		},
+	},
+	{
+		description: "Map filtering all map entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testMap: # A comment
+  a: 1
+  b: 2`,
+		expression: `.testMap |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testMap: {} # A comment\n",
+		},
+	},
+	{
+		description: "Map filtering all list entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testList: # A comment
+- 1
+- 2`,
+		expression: `.testList |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testList: [] # A comment\n",
+		},
+	},
+	{
+		description: "Map filtering evaluates every entry against the original parent",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2, c: 3}`,
+		expression:  `map_values(select(. < 3 and (parent | length) > 2))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: {x: 1}, b: {x: 2}}`,
+		expression: `.a | map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[a], (!!map)::{}\n",
+		},
+	},
 }
 
 func TestMapOperatorScenarios(t *testing.T) {

@@ -38,3 +38,22 @@ b: 3
 c: 4
 ```
 
+## Map values and remove entries
+Entries for which the expression returns nothing are removed, like in jq.
+
+Given a sample.yml file of:
+```yaml
+a: 1
+b: null
+c: 3
+```
+then
+```bash
+yq 'map_values(select(. != null))' sample.yml
+```
+will output
+```yaml
+a: 1
+c: 3
+```
+
