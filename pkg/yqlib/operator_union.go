@@ -29,7 +29,10 @@ func unionOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	// this can happen when both expressions modify the context
 	// instead of creating their own.
 	/// (.foo = "bar"), (.thing = "cat")
-	if rhs.MatchingNodes != lhs.MatchingNodes {
+	// Two explicit self references still produce two results.
+	bothSelfReferences := expressionNode.LHS.Operation.OperationType == selfReferenceOpType &&
+		expressionNode.RHS.Operation.OperationType == selfReferenceOpType
+	if rhs.MatchingNodes != lhs.MatchingNodes || bothSelfReferences {
 
 		for el := rhs.MatchingNodes.Front(); el != nil; el = el.Next() {
 			node := el.Value.(*CandidateNode)
