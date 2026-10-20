@@ -465,6 +465,18 @@ yq '.a.b[0].c' file.yaml
 yq ".a.b[0].c = \"value\"" file.yaml
 ```
 
+### Logging in scripts
+
+Use `--log-level error` to suppress warnings while retaining error diagnostics:
+
+```sh
+yq --log-level error '.items[]' config.yml
+```
+
+The default is `warn`; `debug` and `info` are also supported. This affects logging
+only, not query output or command failures. `--verbose` remains a shortcut for
+debug logging and cannot be combined with `--log-level`.
+
 ### Getting Help
 
 - **Check existing issues**: [GitHub Issues](https://github.com/mikefarah/yq/issues)

@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"log/slog"
 	"strings"
 	"testing"
+
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 func TestNewRuneVar(t *testing.T) {
@@ -242,6 +245,7 @@ func TestNew_FlagCompletions(t *testing.T) {
 	// without more complex setup
 	flags := []string{
 		"output-format",
+		"log-level",
 		"input-format",
 		"xml-attribute-prefix",
 		"xml-content-name",
@@ -260,6 +264,45 @@ func TestNew_FlagCompletions(t *testing.T) {
 		flag := rootCmd.PersistentFlags().Lookup(flagName)
 		if flag == nil {
 			t.Errorf("Expected flag %q to exist", flagName)
+		}
+	}
+}
+
+func TestLogLevel(t *testing.T) {
+	for _, test := range []struct {
+		name  string
+		args  []string
+		level slog.Level
+	}{
+		{"default", nil, slog.LevelWarn},
+		{"error", []string{"--log-level", "error"}, slog.LevelError},
+		{"info", []string{"--log-level", "info"}, slog.LevelInfo},
+		{"debug", []string{"--log-level", "debug"}, slog.LevelDebug},
+		{"verbose", []string{"--verbose"}, slog.LevelDebug},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			command := New()
+			if err := command.ParseFlags(test.args); err != nil {
+				t.Fatal(err)
+			}
+			if err := command.PersistentPreRunE(command, nil); err != nil {
+				t.Fatal(err)
+			}
+			if got := yqlib.GetLogger().GetLevel(); got != test.level {
+				t.Fatalf("got log level %v, want %v", got, test.level)
+			}
+		})
+	}
+}
+
+func TestInvalidLogLevel(t *testing.T) {
+	for _, args := range [][]string{{"--log-level", "invalid"}, {"--verbose", "--log-level", "error"}} {
+		command := New()
+		command.SetArgs(append(args, "--null-input", "."))
+		command.SilenceErrors = true
+		command.SilenceUsage = true
+		if err := command.Execute(); err == nil {
+			t.Fatalf("expected invalid flags %v to fail", args)
 		}
 	}
 }
