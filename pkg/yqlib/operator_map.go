@@ -15,8 +15,9 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 			return Context{}, err
 		}
 
-		// iterate backwards so that array indices stay valid when deleting
-		for childEl := splatted.MatchingNodes.Back(); childEl != nil; childEl = childEl.Prev() {
+		// evaluate every entry before mutating so the expression always sees the original parent
+		replacements := make(map[*CandidateNode]*CandidateNode)
+		for childEl := splatted.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
 			child := childEl.Value.(*CandidateNode)
 
 			rhs, err := d.GetMatchingNodes(splatted.SingleChildContext(child), expressionNode.RHS)
@@ -24,9 +25,17 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 				return Context{}, err
 			}
 
-			first := rhs.MatchingNodes.Front()
-			if first != nil {
-				child.UpdateFrom(first.Value.(*CandidateNode), assignPreferences{})
+			if first := rhs.MatchingNodes.Front(); first != nil {
+				replacements[child] = first.Value.(*CandidateNode)
+			}
+		}
+
+		// iterate backwards so that array indices stay valid when deleting
+		for childEl := splatted.MatchingNodes.Back(); childEl != nil; childEl = childEl.Prev() {
+			child := childEl.Value.(*CandidateNode)
+
+			if replacement, ok := replacements[child]; ok {
+				child.UpdateFrom(replacement, assignPreferences{})
 				continue
 			}
 

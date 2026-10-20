@@ -197,6 +197,15 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Map filtering evaluates every entry against the original parent",
+		skipDoc:     true,
+		document:    `{a: 1, b: 2, c: 3}`,
+		expression:  `map_values(select(. < 3 and (parent | length) > 2))`,
+		expected: []string{
+			"D0, P[], (!!map)::{a: 1, b: 2}\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: {x: 1}, b: {x: 2}}`,
 		expression: `.a | map_values(select(. > 5))`,
