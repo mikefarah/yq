@@ -1,0 +1,172 @@
+name: Popular PRs
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: Minimum number of distinct users for a PR to be flagged
+        required: false
+        default: '3'
+      dry_run:
+        description: Only log results, do not label or comment
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  popular-prs:
+    name: Flag popular PRs
+    runs-on: ubuntu-latest
+    env:
+      POPULAR_THRESHOLD: ${{ github.event.inputs.threshold || '3' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+      LOOKBACK_DAYS: '30'
+      POPULAR_LABEL: popular
+      MAINTAINER: mikefarah
+    steps:
+      - name: Score open PRs and label popular ones
+        uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
+        with:
+          script: |
+            const threshold = parseInt(process.env.POPULAR_THRESHOLD, 10) || 3;
+            const dryRun = process.env.DRY_RUN === 'true';
+            const lookbackDays = parseInt(process.env.LOOKBACK_DAYS, 10) || 30;
+            const label = process.env.POPULAR_LABEL;
+            const maintainer = process.env.MAINTAINER;
+            const { owner, repo } = context.repo;
+            const since = Date.now() - lookbackDays * 24 * 60 * 60 * 1000;
+
+            const isBot = (u) => !u || u.type === 'Bot' || (u.login || '').endsWith('[bot]');
+            const excluded = (u, exclude) =>
+              isBot(u) || u.login.toLowerCase() === maintainer.toLowerCase() || exclude.has(u.login.toLowerCase());
+
+            const addUser = (set, u, exclude) => {
+              if (!excluded(u, exclude)) set.add(u.login.toLowerCase());
+            };
+
+            // Back off when the primary rate limit is nearly exhausted.
+            const checkRateLimit = async () => {
+              const { data } = await github.rest.rateLimit.get();
+              const core = data.resources.core;
+              if (core.remaining < 100) {
+                const waitMs = Math.max(0, core.reset * 1000 - Date.now()) + 1000;
+                if (waitMs > 15 * 60 * 1000) {
+                  throw new Error(`Rate limit nearly exhausted; resets in ${Math.round(waitMs / 1000)}s`);
+                }
+                console.log(`Rate limit low (${core.remaining}); sleeping ${Math.round(waitMs / 1000)}s`);
+                await new Promise((r) => setTimeout(r, waitMs));
+              }
+            };
+
+            // Collects engagement (commenters and reactors) on an issue or PR conversation.
+            const collectIssueActivity = async (number, set, exclude) => {
+              const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: number, per_page: 100 });
+              comments.forEach((c) => addUser(set, c.user, exclude));
+              const reactions = await github.paginate(github.rest.reactions.listForIssue, { owner, repo, issue_number: number, per_page: 100 });
+              reactions.forEach((r) => addUser(set, r.user, exclude));
+            };
+
+            const findLinkedIssues = async (pr) => {
+              const numbers = new Set();
+              try {
+                const res = await github.graphql(
+                  `query($owner: String!, $repo: String!, $number: Int!) {
+                    repository(owner: $owner, name: $repo) {
+                      pullRequest(number: $number) {
+                        closingIssuesReferences(first: 50) {
+                          nodes { number repository { nameWithOwner } }
+                        }
+                      }
+                    }
+                  }`,
+                  { owner, repo, number: pr.number }
+                );
+                for (const n of res.repository.pullRequest.closingIssuesReferences.nodes) {
+                  if (n.repository.nameWithOwner.toLowerCase() === `${owner}/${repo}`.toLowerCase()) numbers.add(n.number);
+                }
+              } catch (e) {
+                console.log(`PR #${pr.number}: GraphQL lookup failed: ${e.message}`);
+              }
+              for (const m of (pr.body || '').matchAll(/(?<![\w/])#(\d+)\b/g)) {
+                numbers.add(parseInt(m[1], 10));
+              }
+              numbers.delete(pr.number);
+              return [...numbers].sort((a, b) => a - b);
+            };
+
+            const scorePR = async (pr) => {
+              const author = pr.user.login.toLowerCase();
+              const exclude = new Set([author]);
+              const users = new Set();
+
+              await collectIssueActivity(pr.number, users, exclude);
+              const reviewComments = await github.paginate(github.rest.pulls.listReviewComments, { owner, repo, pull_number: pr.number, per_page: 100 });
+              reviewComments.forEach((c) => addUser(users, c.user, exclude));
+              const reviews = await github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: pr.number, per_page: 100 });
+              reviews.forEach((r) => addUser(users, r.user, exclude));
+
+              const linked = [];
+              for (const number of await findLinkedIssues(pr)) {
+                let issue;
+                try {
+                  ({ data: issue } = await github.rest.issues.get({ owner, repo, issue_number: number }));
+                } catch (e) {
+                  console.log(`PR #${pr.number}: cannot read #${number}: ${e.message}`);
+                  continue;
+                }
+                if (issue.pull_request) continue;
+                if (issue.user.login.toLowerCase() === author) continue;
+                linked.push(number);
+                addUser(users, issue.user, exclude);
+                await collectIssueActivity(number, users, exclude);
+              }
+              return { score: users.size, linked };
+            };
+
+            const prs = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 }))
+              .filter((pr) => !pr.draft)
+              .filter((pr) => new Date(pr.created_at).getTime() >= since)
+              .filter((pr) => !pr.labels.some((l) => l.name === label));
+
+            console.log(`Evaluating ${prs.length} PR(s); threshold ${threshold}; dry run: ${dryRun}`);
+
+            let labelChecked = false;
+            const ensureLabel = async () => {
+              if (labelChecked) return;
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label });
+              } catch (e) {
+                if (e.status !== 404) throw e;
+                await github.rest.issues.createLabel({ owner, repo, name: label, color: 'fbca04', description: 'Affects multiple users' });
+              }
+              labelChecked = true;
+            };
+
+            for (const pr of prs) {
+              await checkRateLimit();
+              const { score, linked } = await scorePR(pr);
+              const flagged = score >= threshold;
+              console.log(`PR #${pr.number} "${pr.title}": score ${score}, linked issues [${linked.join(', ')}]${flagged ? ' -> POPULAR' : ''}`);
+              if (!flagged || dryRun) continue;
+
+              await ensureLabel();
+              await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: [label] });
+              const issues = linked.length ? linked.map((n) => `#${n}`).join(', ') : 'none';
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number,
+                body: [
+                  `@${maintainer} this PR looks popular: it has a score of **${score}** (threshold ${threshold}).`,
+                  '',
+                  `- Linked issues: ${issues}`,
+                  `- Distinct users who commented or reacted on the PR and its linked issues: ${score}`,
+                  '',
+                  '_Automated by the Popular PRs workflow (deterministic, no LLM). Excludes the PR author, the maintainer and bots._',
+                ].join('\n'),
+              });
+            }
