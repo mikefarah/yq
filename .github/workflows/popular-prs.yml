@@ -67,7 +67,12 @@ jobs:
             // Collects engagement (commenters and reactors) on an issue or PR conversation.
             const collectIssueActivity = async (number, set, exclude) => {
               const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: number, per_page: 100 });
-              comments.forEach((c) => addUser(set, c.user, exclude));
+            for (const c of comments) {
+              addUser(set, c.user, exclude);
+              if (c.reactions?.total_count === 0) continue;
+              const commentReactions = await github.paginate(github.rest.reactions.listForIssueComment, { owner, repo, comment_id: c.id, per_page: 100 });
+              commentReactions.forEach((r) => addUser(set, r.user, exclude));
+            }
               const reactions = await github.paginate(github.rest.reactions.listForIssue, { owner, repo, issue_number: number, per_page: 100 });
               reactions.forEach((r) => addUser(set, r.user, exclude));
             };
