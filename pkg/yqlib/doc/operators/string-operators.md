@@ -73,6 +73,22 @@ another: stuff
 message: I like things and stuff
 ```
 
+## Interpolation after filtering documents
+Given a sample.yml file of:
+```yaml
+name: Alice
+---
+name: Bob
+```
+then
+```bash
+yq 'select(document_index == 0) | "My name is \(.name)"' sample.yml
+```
+will output
+```yaml
+My name is Alice
+```
+
 ## Interpolation - not a string
 Given a sample.yml file of:
 ```yaml
