@@ -112,7 +112,12 @@ jobs:
 
               await collectIssueActivity(pr.number, users, exclude);
               const reviewComments = await github.paginate(github.rest.pulls.listReviewComments, { owner, repo, pull_number: pr.number, per_page: 100 });
-              reviewComments.forEach((c) => addUser(users, c.user, exclude));
+            for (const c of reviewComments) {
+              addUser(users, c.user, exclude);
+              if (c.reactions?.total_count === 0) continue;
+              const commentReactions = await github.paginate(github.rest.reactions.listForPullRequestReviewComment, { owner, repo, comment_id: c.id, per_page: 100 });
+              commentReactions.forEach((r) => addUser(users, r.user, exclude));
+            }
               const reviews = await github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number: pr.number, per_page: 100 });
               reviews.forEach((r) => addUser(users, r.user, exclude));
 
