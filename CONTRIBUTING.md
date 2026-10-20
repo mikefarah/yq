@@ -11,6 +11,11 @@ The following types of PRs will _not_ be accepted:
 - **Version bumps** are handled by dependabot, the bot will auto-raise PRs and they will be regularly merged in. 
 - **New release platforms** At this stage, yq is not going to maintain any other release platforms other than GitHub and Docker - that said, I'm more than happy to put in other community maintained methods in the README for visibility :heart:
 
+## How PRs are triaged
+Due to the overwhelming number of PRs being opened by AI tools, open PRs are now triaged by impact. A weekly workflow counts the distinct users (excluding the PR author, the maintainer and bots) who have commented on or reacted to a PR, or to the issues it links to. PRs reaching 3 or more users are labelled `popular` and flagged for the maintainer's attention.
+
+To help your PR get noticed, link it to the issue it fixes (e.g. `Fixes #123`) and make sure that issue describes the problem clearly so other users can add their support. PRs affecting only a single user may wait a long time for review, or may not be merged.
+
 
 # Development
 
