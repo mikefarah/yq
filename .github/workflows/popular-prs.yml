@@ -130,6 +130,7 @@ jobs:
             };
 
             const prs = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open', per_page: 100 }))
+              .filter((pr) => !isBot(pr.user))
               .filter((pr) => !pr.draft)
               .filter((pr) => new Date(pr.created_at).getTime() >= since)
               .filter((pr) => !pr.labels.some((l) => l.name === label));
