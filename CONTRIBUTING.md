@@ -16,6 +16,8 @@ Due to the overwhelming number of PRs being opened by AI tools, open PRs are now
 
 To help your PR get noticed, link it to the issue it fixes (e.g. `Fixes #123`) and make sure that issue describes the problem clearly so other users can add their support. PRs affecting only a single user may wait a long time for review, or may not be merged.
 
+Please don't try to game this. Artificially boosting a PR's popularity (e.g. sock-puppet or duplicate accounts, asking others to react or comment, coordinated campaigns, or reaction/comment farming) is against policy, and users who do so will be banned.
+
 
 # Development
 
