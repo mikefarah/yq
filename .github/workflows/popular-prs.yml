@@ -8,6 +8,10 @@ on:
         description: Minimum number of distinct users for a PR to be flagged
         required: false
         default: '3'
+      lookback_days:
+        description: Only consider PRs created within this many days (e.g. 3650 to cover all open PRs)
+        required: false
+        default: '30'
       dry_run:
         description: Only log results, do not label or comment
         type: boolean
@@ -26,7 +30,7 @@ jobs:
     env:
       POPULAR_THRESHOLD: ${{ github.event.inputs.threshold || '3' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-      LOOKBACK_DAYS: '30'
+      LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '30' }}
       POPULAR_LABEL: popular
       MAINTAINER: mikefarah
     steps:
