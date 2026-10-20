@@ -34,6 +34,8 @@ func mapValuesOperator(d *dataTreeNavigator, context Context, expressionNode *Ex
 		for childEl := splatted.MatchingNodes.Back(); childEl != nil; childEl = childEl.Prev() {
 			child := childEl.Value.(*CandidateNode)
 
+			// a replacement exists only if the expression returned a result for this entry,
+			// so update it in place; otherwise fall through and filter the entry out
 			if replacement, ok := replacements[child]; ok {
 				child.UpdateFrom(replacement, assignPreferences{})
 				continue

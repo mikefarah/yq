@@ -197,6 +197,28 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Map filtering all map entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testMap: # A comment
+  a: 1
+  b: 2`,
+		expression: `.testMap |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testMap: {} # A comment\n",
+		},
+	},
+	{
+		description: "Map filtering all list entries keeps the inline key comment",
+		skipDoc:     true,
+		document: `testList: # A comment
+- 1
+- 2`,
+		expression: `.testList |= map_values(select(. > 5))`,
+		expected: []string{
+			"D0, P[], (!!map)::testList: [] # A comment\n",
+		},
+	},
+	{
 		description: "Map filtering evaluates every entry against the original parent",
 		skipDoc:     true,
 		document:    `{a: 1, b: 2, c: 3}`,
