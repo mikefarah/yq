@@ -134,6 +134,15 @@ var collectOperatorScenarios = []expressionScenario{
 			"D0, P[1], (!!seq)::- dog\n",
 		},
 	},
+	{
+		skipDoc:    true,
+		document:   `{a: 1}`,
+		document2:  `{a: 2}`,
+		expression: `[.] | map(. * {"b": 0})`,
+		expected: []string{
+			"D0, P[], (!!seq)::- {a: 1, b: 0}\n- {a: 2, b: 0}\n",
+		},
+	},
 }
 
 func TestCollectOperatorScenarios(t *testing.T) {
