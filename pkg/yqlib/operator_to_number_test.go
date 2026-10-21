@@ -37,6 +37,31 @@ var toNumberScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Leading zero integers are decimal ints, not floats",
+		document:    `[090, 018, -018, +012, 00, 08.5, !!float 090, "090"]`,
+		expression:  `.[] | tag`,
+		expected: []string{
+			"D0, P[0], (!!str)::!!int\n",
+			"D0, P[1], (!!str)::!!int\n",
+			"D0, P[2], (!!str)::!!int\n",
+			"D0, P[3], (!!str)::!!int\n",
+			"D0, P[4], (!!str)::!!int\n",
+			"D0, P[5], (!!str)::!!float\n",
+			"D0, P[6], (!!str)::!!float\n",
+			"D0, P[7], (!!str)::!!str\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Leading zero integers can be used in arithmetic",
+		document:    `a: 090`,
+		expression:  `.a + 1`,
+		expected: []string{
+			"D0, P[a], (!!int)::91\n",
+		},
+	},
+	{
 		description:   "Cannot convert null",
 		expression:    `.a.b | to_number`,
 		expectedError: "cannot convert node value [null] at path a.b of tag !!null to number",
