@@ -58,10 +58,11 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 			nonemptyPath = "value"
 		}
 		var valueString string
+		cleanValue := sanitizeControlChars(node.Value)
 		if pe.prefs.UnwrapScalar {
-			valueString = node.Value
+			valueString = cleanValue
 		} else {
-			valueString = quoteValue(node.Value)
+			valueString = quoteValue(cleanValue)
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+valueString+"\n")
 		return err

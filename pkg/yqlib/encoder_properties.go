@@ -66,7 +66,7 @@ func (pe *propertiesEncoder) PrintLeadingContent(writer io.Writer, content strin
 func (pe *propertiesEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 
 	if node.Kind == ScalarNode {
-		return writeString(writer, node.Value+"\n")
+		return writeString(writer, sanitizeControlChars(node.Value)+"\n")
 	}
 
 	mapKeysToStrings(node)
@@ -95,10 +95,11 @@ func (pe *propertiesEncoder) doEncode(p *properties.Properties, node *CandidateN
 	switch node.Kind {
 	case ScalarNode:
 		var nodeValue string
-		if pe.prefs.UnwrapScalar || !strings.Contains(node.Value, " ") {
-			nodeValue = node.Value
+		cleanValue := sanitizeControlChars(node.Value)
+		if pe.prefs.UnwrapScalar || !strings.Contains(cleanValue, " ") {
+			nodeValue = cleanValue
 		} else {
-			nodeValue = fmt.Sprintf("%q", node.Value)
+			nodeValue = fmt.Sprintf("%q", cleanValue)
 		}
 		_, _, err := p.Set(path, nodeValue)
 		return err
@@ -141,7 +142,7 @@ func (pe *propertiesEncoder) encodeMap(p *properties.Properties, kids []*Candida
 	for index := 0; index < len(kids); index = index + 2 {
 		key := kids[index]
 		value := kids[index+1]
-		err := pe.doEncode(p, value, pe.appendPath(path, key.Value), key)
+		err := pe.doEncode(p, value, pe.appendPath(path, sanitizeControlChars(key.Value)), key)
 		if err != nil {
 			return err
 		}
