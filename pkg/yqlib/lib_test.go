@@ -155,6 +155,25 @@ var parseInt64Scenarios = []parseInt64Scenario{
 		expectedParsedNumber: 18,
 		expectedFormatString: "0o22",
 	},
+	{
+		numberString:         "0b101",
+		expectedParsedNumber: 5,
+	},
+	{
+		numberString:         "0B1101",
+		expectedParsedNumber: 13,
+		expectedFormatString: "0b1101",
+	},
+	{
+		numberString:         "0b1_0000_0000",
+		expectedParsedNumber: 256,
+		expectedFormatString: "0b100000000",
+	},
+	{
+		numberString:         "+0b101",
+		expectedParsedNumber: 5,
+		expectedFormatString: "0b101",
+	},
 }
 
 func TestParseInt64(t *testing.T) {
