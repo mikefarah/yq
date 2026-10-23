@@ -8,6 +8,18 @@ import (
 
 var yamlFormatScenarios = []formatScenario{
 	{
+		description: "inline separator comment retains the following line",
+		skipDoc:     true,
+		input:       "--- # header\nfoo: 42\n",
+		expected:    "---\n# header\nfoo: 42\n",
+	},
+	{
+		description: "inline separator content retains the following line",
+		skipDoc:     true,
+		input:       "--- foo: 42\nbar: 43\n",
+		expected:    "---\nfoo: 42\nbar: 43\n",
+	},
+	{
 		description: "scalar with doc separator",
 		skipDoc:     true,
 		input:       "--- cat",
