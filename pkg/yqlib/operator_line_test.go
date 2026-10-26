@@ -6,6 +6,49 @@ import (
 
 var lineOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:    true,
+		document:   "---\n\nfoo:\n  bar: 42\n",
+		expression: `.foo.bar | line`,
+		expected:   []string{"D0, P[foo bar], (!!int)::4\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "# comment\nfoo:\n  bar: 42\n",
+		expression: `.foo.bar | line`,
+		expected:   []string{"D0, P[foo bar], (!!int)::3\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "%YAML 1.1\r\n---\r\n\r\nfoo: 42\r\n",
+		expression: `.foo | key | line`,
+		expected:   []string{"D0, P[foo], (!!int)::4\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "# header\nfoo: 1\n---\nfoo: 2\n",
+		expression: `.foo | line`,
+		expected:   []string{"D0, P[foo], (!!int)::2\n", "D1, P[foo], (!!int)::4\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "# header\nfoo: 1\n",
+		document2:  "foo: 2\n",
+		expression: `.foo | line`,
+		expected:   []string{"D0, P[foo], (!!int)::2\n", "D0, P[foo], (!!int)::1\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "--- {foo: 42}",
+		expression: `.foo | line`,
+		expected:   []string{"D0, P[foo], (!!int)::1\n"},
+	},
+	{
+		skipDoc:    true,
+		document:   "--- # header\nfoo: 42\n",
+		expression: `.foo | line`,
+		expected:   []string{"D0, P[foo], (!!int)::2\n"},
+	},
+	{
 		description: "Returns line of _value_ node",
 		document:    "a: cat\nb:\n   c: cat",
 		expression:  `.b | line`,
