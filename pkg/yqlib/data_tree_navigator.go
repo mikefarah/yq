@@ -53,6 +53,9 @@ func (d *dataTreeNavigator) GetMatchingNodes(context Context, expressionNode *Ex
 		log.Debugf("getMatchingNodes - nothing to do")
 		return context, nil
 	}
+	if context.splitDocumentIndices == nil {
+		context.splitDocumentIndices = make(map[*ExpressionNode]uint)
+	}
 	log.Debugf("Processing Op: %v", expressionNode.Operation.toString())
 	if log.IsEnabledFor(slog.LevelDebug) {
 		for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
