@@ -17,6 +17,36 @@ func TestGetLogger(t *testing.T) {
 	}
 }
 
+func TestIsDecimalIntWithLeadingZero(t *testing.T) {
+	scenarios := map[string]bool{
+		"090":   true,
+		"018":   true,
+		"-018":  true,
+		"+012":  true,
+		"00":    true,
+		"0":     false,
+		"-0":    false,
+		"":      false,
+		"-":     false,
+		"90":    false,
+		"0.5":   false,
+		"08.5":  false,
+		"0o17":  false,
+		"0x1F":  false,
+		"1e3":   false,
+		"09a":   false,
+		"0_9":   false,
+		".5":    false,
+		"-0.5":  false,
+		"--018": false,
+	}
+	for input, expected := range scenarios {
+		if actual := isDecimalIntWithLeadingZero(input); actual != expected {
+			t.Errorf("isDecimalIntWithLeadingZero(%q) = %v, expected %v", input, actual, expected)
+		}
+	}
+}
+
 type parseSnippetScenario struct {
 	snippet       string
 	expected      *CandidateNode
