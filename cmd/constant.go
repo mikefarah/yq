@@ -31,6 +31,7 @@ var frontMatter = ""
 
 var splitFileExp = ""
 var splitFileExpFile = ""
+var splitFileNoOverwrite = false
 
 var completedSuccessfully = false
 
