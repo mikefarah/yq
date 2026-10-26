@@ -15,7 +15,7 @@ func tryRenameFile(from string, to string) error {
 		}
 		tryRemoveTempFile(from)
 		return nil
-	} else if renameError := os.Rename(from, to); renameError != nil {
+	} else if renameError := renameFile(from, to); renameError != nil {
 		log.Debugf("Error renaming from %v to %v, attempting to copy contents", from, to)
 		log.Debug(renameError.Error())
 		log.Debug("going to try copying instead")
