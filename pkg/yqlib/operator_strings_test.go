@@ -31,6 +31,22 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Interpolation - backslashes are not halved (#2561)",
+		expression:  `"\\\\"`,
+		expected: []string{
+			"D0, P[], (!!str)::\\\\\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Interpolation - odd backslash run preserved (#2561)",
+		expression:  `"\\\\\\"`,
+		expected: []string{
+			"D0, P[], (!!str)::\\\\\\\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Interpolation - nested",
 		document:    `value: things`,
 		expression:  `"Hi \( (.value) )"`,
