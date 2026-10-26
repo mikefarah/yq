@@ -275,3 +275,49 @@ func TestEvaluateSequence_ExitStatus(t *testing.T) {
 		t.Error("Expected error when no matches found and exit status is enabled")
 	}
 }
+
+func TestEvaluateSequence_SplitExpNoClobberCLIFlag(t *testing.T) {
+	tempDir := t.TempDir()
+	yamlFile := filepath.Join(tempDir, "test.yaml")
+	if err := os.WriteFile(yamlFile, []byte("name: test\n"), 0600); err != nil {
+		t.Fatalf("Failed to create test YAML file: %v", err)
+	}
+
+	splitTarget := filepath.Join(tempDir, "split.yml")
+	if err := os.WriteFile(splitTarget, []byte("existing content"), 0600); err != nil {
+		t.Fatalf("Failed to seed existing split target: %v", err)
+	}
+
+	// reset the package-level flag vars the root command binds to, so this test
+	// doesn't leak state into (or pick up state from) other tests in this package
+	originalSplitFileExp := splitFileExp
+	originalNoClobber := forceSplitFileExpNoClobber
+	defer func() {
+		splitFileExp = originalSplitFileExp
+		forceSplitFileExpNoClobber = originalNoClobber
+	}()
+
+	rootCmd := New()
+	var output, stderr bytes.Buffer
+	rootCmd.SetOut(&output)
+	rootCmd.SetErr(&stderr)
+	rootCmd.SetArgs([]string{
+		"--split-exp", "\"" + strings.ReplaceAll(splitTarget, `\`, `\\`) + "\"",
+		"--split-exp-no-clobber",
+		".",
+		yamlFile,
+	})
+
+	err := rootCmd.Execute()
+	if err == nil {
+		t.Fatal("expected the CLI to error because the split target already exists and no-clobber is set")
+	}
+
+	content, readErr := os.ReadFile(splitTarget)
+	if readErr != nil {
+		t.Fatalf("failed to read back split target: %v", readErr)
+	}
+	if string(content) != "existing content" {
+		t.Fatalf("expected existing split target to be left untouched, got: %q", string(content))
+	}
+}
