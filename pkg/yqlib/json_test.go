@@ -585,3 +585,51 @@ func TestJSONScenarios(t *testing.T) {
 	}
 	documentScenarios(t, "usage", "convert", genericScenarios, documentJSONScenario)
 }
+
+func TestJSONAliasCycles(t *testing.T) {
+	for _, scenario := range []formatScenario{
+		{
+			description:   "sequence cycle",
+			input:         "---\n&self\n- *self\n",
+			expectedError: "cannot explode circular alias reference",
+		},
+		{
+			description:   "mapping cycle",
+			input:         "&self {child: *self}",
+			expectedError: "cannot explode circular alias reference",
+		},
+		{
+			description:   "indirect cycle",
+			input:         "&outer {inner: &inner {outer: *outer}}",
+			expectedError: "cannot explode circular alias reference",
+		},
+		{
+			description: "repeated aliases are not cycles",
+			input:       "[&item {value: 1}, *item, *item]",
+			expected:    "[{\"value\":1},{\"value\":1},{\"value\":1}]\n",
+		},
+		{
+			description: "select an acyclic value from a cyclic document",
+			input:       "&self {child: *self, value: 1}",
+			expression:  ".value",
+			expected:    "1\n",
+		},
+	} {
+		t.Run(scenario.description, func(t *testing.T) {
+			prefs := ConfiguredJSONPreferences.Copy()
+			prefs.Indent = 0
+			result, err := processFormatScenario(scenario, nil, NewJSONEncoder(prefs))
+			if scenario.expectedError != "" {
+				if err == nil {
+					t.Fatalf("expected error %q, got output %q", scenario.expectedError, result)
+				}
+				test.AssertResult(t, scenario.expectedError, err.Error())
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				test.AssertResult(t, scenario.expected, result)
+			}
+		})
+	}
+}
