@@ -23,6 +23,9 @@ func envOperator(_ *dataTreeNavigator, context Context, expressionNode *Expressi
 	envName := expressionNode.Operation.CandidateNode.Value
 	log.Debugf("EnvOperator, env name: %v", envName)
 
+	if !ConfiguredSecurityPreferences.IsEnvAllowed(envName) {
+		return Context{}, fmt.Errorf("env variable '%v' is not in the allowed list (see --security-allowed-env)", envName)
+	}
 	rawValue := os.Getenv(envName)
 
 	preferences := expressionNode.Operation.Preferences.(envOpPreferences)
@@ -56,6 +59,28 @@ func envOperator(_ *dataTreeNavigator, context Context, expressionNode *Expressi
 	return context.SingleChildContext(node), nil
 }
 
+// allowedEnviron returns the process environment filtered by the configured
+// env allowlist. With no allowlist configured this is os.Environ() unchanged.
+func allowedEnviron() []string {
+	if len(ConfiguredSecurityPreferences.AllowedEnvVars) == 0 {
+		return os.Environ()
+	}
+	allowed := map[string]struct{}{}
+	for _, name := range ConfiguredSecurityPreferences.AllowedEnvVars {
+		allowed[name] = struct{}{}
+	}
+	env := os.Environ()
+	filtered := make([]string, 0, len(env))
+	for _, kv := range env {
+		if idx := strings.IndexByte(kv, '='); idx >= 0 {
+			if _, ok := allowed[kv[:idx]]; ok {
+				filtered = append(filtered, kv)
+			}
+		}
+	}
+	return filtered
+}
+
 func envsubstOperator(_ *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	if ConfiguredSecurityPreferences.DisableEnvOps {
 		return Context{}, fmt.Errorf("env operations have been disabled")
@@ -66,7 +91,7 @@ func envsubstOperator(_ *dataTreeNavigator, context Context, expressionNode *Exp
 		preferences = expressionNode.Operation.Preferences.(envOpPreferences)
 	}
 
-	parser := parse.New("string", os.Environ(),
+	parser := parse.New("string", allowedEnviron(),
 		&parse.Restrictions{NoUnset: preferences.NoUnset, NoEmpty: preferences.NoEmpty})
 
 	if preferences.FailFast {

@@ -200,6 +200,52 @@ var envOperatorSecurityDisabledScenarios = []expressionScenario{
 	},
 }
 
+var envOperatorAllowlistScenarios = []expressionScenario{
+	{
+		description:          "env() reads a listed variable when an allowlist is configured",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "cat meow", "other": "x"},
+		expression:           `.a = env(myenv)`,
+		expected: []string{
+			"D0, P[], ()::a: cat meow\n",
+		},
+	},
+	{
+		description:          "env() rejects an unlisted variable when an allowlist is configured",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "cat meow", "other": "x"},
+		expression:           `.a = env(other)`,
+		expectedError:        "env variable 'other' is not in the allowed list (see --security-allowed-env)",
+	},
+	{
+		description:          "strenv() rejects an unlisted variable when an allowlist is configured",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "cat meow", "other": "x"},
+		expression:           `.a = strenv(other)`,
+		expectedError:        "env variable 'other' is not in the allowed list (see --security-allowed-env)",
+	},
+	{
+		description:          "envsubst() treats unlisted variables as unset when an allowlist is configured",
+		skipDoc:              true,
+		environmentVariables: map[string]string{"myenv": "cat meow", "other": "x"},
+		expression:           `"value: ${other}" | envsubst(nu)`,
+		expectedError:        "variable ${other} not set",
+	},
+}
+
+func TestEnvOperatorAllowlistScenarios(t *testing.T) {
+	original := ConfiguredSecurityPreferences.AllowedEnvVars
+	defer func() {
+		ConfiguredSecurityPreferences.AllowedEnvVars = original
+	}()
+
+	ConfiguredSecurityPreferences.AllowedEnvVars = []string{"myenv"}
+
+	for _, tt := range envOperatorAllowlistScenarios {
+		testScenario(t, &tt)
+	}
+}
+
 func TestEnvOperatorSecurityDisabledScenarios(t *testing.T) {
 	// Save original security preferences
 	originalDisableEnvOps := ConfiguredSecurityPreferences.DisableEnvOps

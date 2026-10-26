@@ -32,3 +32,12 @@ yq '(.. | select(tag == "!!str")) |= envsubst' file.yaml
 ## Disabling env operators
 If required, you can use the `--security-disable-env-ops` to disable env operations.
 
+## Restricting env operators to an allowlist
+Use `--security-allowed-env` (comma-separated) to restrict `env()`, `strenv()` and `envsubst()`
+to the listed variable names. Anything else errors (or behaves as unset). Empty means no
+restriction, so the default behavior is unchanged:
+
+```bash
+IMAGE_TAG=v1.2.3 SECRET=topsecret yq --security-allowed-env IMAGE_TAG '.image.tag = strenv(IMAGE_TAG)' file.yaml
+```
+
