@@ -537,11 +537,11 @@ var xmlScenarios = []formatScenario{
 		scenarioType:   "encode",
 	},
 	{
-		description:  "double prefix",
-		skipDoc:      true,
-		input:        "cat:\n  +@+@name: tiger\n  meows: true\n",
-		expected:     "<cat +@name=\"tiger\">\n  <meows>true</meows>\n</cat>\n",
-		scenarioType: "encode",
+		description:   "double prefix",
+		skipDoc:       true,
+		input:         "cat:\n  +@+@name: tiger\n  meows: true\n",
+		expectedError: "cannot encode key '+@name' to XML: invalid attribute name",
+		scenarioType:  "encode-error",
 	},
 	{
 		description:   "arrays cannot be encoded",
@@ -626,6 +626,41 @@ var xmlScenarios = []formatScenario{
 		input:          xmlWithProcInstAndDirectives,
 		expected:       expectedXmlWithProcInstAndDirectives,
 		scenarioType:   "roundtrip",
+	},
+	{
+		description:   "Encode: invalid top level element name",
+		skipDoc:       true,
+		input:         `a"b: 1`,
+		expectedError: `cannot encode key 'a"b' to XML: invalid element name`,
+		scenarioType:  "encode-error",
+	},
+	{
+		description:   "Encode: invalid nested element name",
+		skipDoc:       true,
+		input:         "a:\n  1b: 2\n",
+		expectedError: "cannot encode key '1b' to XML: invalid element name",
+		scenarioType:  "encode-error",
+	},
+	{
+		description:   "Encode: invalid attribute name",
+		skipDoc:       true,
+		input:         "a:\n  +@x\"y: 1\n",
+		expectedError: `cannot encode key 'x"y' to XML: invalid attribute name`,
+		scenarioType:  "encode-error",
+	},
+	{
+		description:   "Encode: empty element name",
+		skipDoc:       true,
+		input:         "\"\": 1\n",
+		expectedError: "cannot encode key '' to XML: invalid element name",
+		scenarioType:  "encode-error",
+	},
+	{
+		description:  "Encode: valid element names are still encoded",
+		skipDoc:      true,
+		input:        "a:\n  ns:tag: 1\n  b-c.d: 2\n  _e: 3\n",
+		expected:     "<a>\n  <ns:tag>1</ns:tag>\n  <b-c.d>2</b-c.d>\n  <_e>3</_e>\n</a>\n",
+		scenarioType: "encode",
 	},
 }
 
