@@ -200,7 +200,63 @@ func mergeObjects(d *dataTreeNavigator, context Context, lhs *CandidateNode, rhs
 
 		log.Debugf("applied assignment to LHS: %v", NodeToString(lhs))
 	}
+
+	// A block-style mapping cannot render a line comment inline: the YAML
+	// encoder emits it on the following key instead, shifting the comment
+	// onto the wrong entry (issue #2516). Merged mappings end up
+	// block-style (traverseMap resets the style of an empty map when it
+	// auto-creates children), so move any line comment of such a mapping
+	// to the foot of its last child, which renders inside the mapping and
+	// keeps the comment attached to its own entry.
+	for el := results.Front(); el != nil; el = el.Next() {
+		candidate := el.Value.(*CandidateNode)
+		if candidate.Kind != MappingNode &&
+			!(candidate.Kind == SequenceNode && preferences.DeepMergeArrays) {
+			continue
+		}
+
+		err := moveMappingLineCommentToLastChild(d, context, pathIndexToStartFrom, lhs, candidate, preferences)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return lhs, nil
+}
+
+// finds the counterpart of rhs in lhs and, if it is a block-style
+// collection carrying a line comment, moves that comment to the foot of
+// its last child so it renders against the right entry.
+func moveMappingLineCommentToLastChild(d *dataTreeNavigator, context Context, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
+	lhsPath := rhs.GetPath()[pathIndexToStartFrom:]
+
+	// read-only traversal to locate the counterpart - we must not re-run
+	// the attribute assignment here, as UpdateAttributesFrom would restore
+	// the rhs style on nodes the merge intentionally block-ified.
+	traversePrefs := preferences.TraversePrefs
+	traversePrefs.DontAutoCreate = true
+	traverseNode := createTraversalTree(lhsPath, traversePrefs, rhs.IsMapKey)
+
+	matching, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(lhs), traverseNode)
+	if err != nil {
+		return err
+	}
+
+	for el := matching.MatchingNodes.Front(); el != nil; el = el.Next() {
+		target := el.Value.(*CandidateNode)
+		if target.Style != 0 || target.LineComment == "" || len(target.Content) == 0 {
+			continue
+		}
+
+		lastChild := target.Content[len(target.Content)-1]
+		if lastChild.FootComment == "" {
+			lastChild.FootComment = target.LineComment
+		} else {
+			lastChild.FootComment = lastChild.FootComment + "\n" + target.LineComment
+		}
+		target.LineComment = ""
+	}
+
+	return nil
 }
 
 func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom int, lhs *CandidateNode, rhs *CandidateNode, preferences multiplyPreferences) error {
