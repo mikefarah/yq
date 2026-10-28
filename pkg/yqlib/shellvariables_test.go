@@ -85,15 +85,16 @@ var shellVariablesScenarios = []formatScenario{
 func TestShellVariableScenarios(t *testing.T) {
 	for _, s := range shellVariablesScenarios {
 		//fmt.Printf("\t<%s> <%s>\n", s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()))
-		if s.scenarioType == "shell-separator" {
+		switch s.scenarioType {
+		case "shell-separator":
 			// Save and restore the original separator
 			originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
 			ConfiguredShellVariablesPreferences.KeySeparator = "__"
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
 			ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
-		} else if s.scenarioType == "shell-unwrap" {
+		case "shell-unwrap":
 			test.AssertResultWithContext(t, s.expected, processShellUnwrapScenario(s), s.description)
-		} else {
+		default:
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
 		}
 	}
@@ -134,15 +135,16 @@ func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{})
 	}
 	writeOrPanic(w, "will output\n")
 
-	if s.scenarioType == "shell-unwrap" {
+	switch s.scenarioType {
+	case "shell-unwrap":
 		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", processShellUnwrapScenario(s)))
-	} else if s.scenarioType == "shell-separator" {
+	case "shell-separator":
 		// Save and restore the original separator
 		originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
 		ConfiguredShellVariablesPreferences.KeySeparator = "__"
 		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
 		ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
-	} else {
+	default:
 		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
 	}
 }
