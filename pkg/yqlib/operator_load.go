@@ -39,6 +39,7 @@ func loadWithDecoder(filename string, decoder Decoder) (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer safelyCloseFile(file)
 	reader := bufio.NewReader(file)
 
 	documents, err := readDocuments(reader, filename, 0, decoder)
