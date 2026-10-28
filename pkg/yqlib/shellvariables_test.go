@@ -55,6 +55,19 @@ var shellVariablesScenarios = []formatScenario{
 		expected:       `name='Miles O'"'"'Brien'` + "\n",
 	},
 	{
+		description:    "Encode shell variables: unwrap (-r) still quotes unsafe values",
+		subdescription: "Using --unwrapScalar (-r) skips quoting only for values made of safe characters (letters, digits and _ . - / : @ + , %). Any other value (e.g. containing spaces, ;, &&, |, $, backticks, quotes or newlines) is still quoted, and a warning is logged, so the output is safe to eval.",
+		input: "" +
+			"app: myservice" + "\n" +
+			"cmd: \"safe; id\"" + "\n" +
+			"sub: \"$(touch /tmp/pwned)\"",
+		expected: "" +
+			"app=myservice" + "\n" +
+			"cmd=\u0027safe; id\u0027" + "\n" +
+			"sub=\u0027$(touch /tmp/pwned)\u0027" + "\n",
+		scenarioType: "shell-unwrap",
+	},
+	{
 		description:    "Encode shell variables: custom separator",
 		subdescription: "Use --shell-key-separator to specify a custom separator between keys. This is useful when the original keys contain underscores.",
 		input: "" +
@@ -72,13 +85,16 @@ var shellVariablesScenarios = []formatScenario{
 func TestShellVariableScenarios(t *testing.T) {
 	for _, s := range shellVariablesScenarios {
 		//fmt.Printf("\t<%s> <%s>\n", s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()))
-		if s.scenarioType == "shell-separator" {
+		switch s.scenarioType {
+		case "shell-separator":
 			// Save and restore the original separator
 			originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
 			ConfiguredShellVariablesPreferences.KeySeparator = "__"
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
 			ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
-		} else {
+		case "shell-unwrap":
+			test.AssertResultWithContext(t, s.expected, processShellUnwrapScenario(s), s.description)
+		default:
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
 		}
 	}
@@ -108,7 +124,9 @@ func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{})
 
 	expression := s.expression
 
-	if s.scenarioType == "shell-separator" {
+	if s.scenarioType == "shell-unwrap" {
+		writeOrPanic(w, "```bash\nyq -o=shell -r sample.yml\n```\n")
+	} else if s.scenarioType == "shell-separator" {
 		writeOrPanic(w, "```bash\nyq -o=shell --shell-key-separator=\"__\" sample.yml\n```\n")
 	} else if expression != "" {
 		writeOrPanic(w, fmt.Sprintf("```bash\nyq -o=shell '%v' sample.yml\n```\n", expression))
@@ -117,13 +135,23 @@ func documentShellVariableScenario(_ *testing.T, w *bufio.Writer, i interface{})
 	}
 	writeOrPanic(w, "will output\n")
 
-	if s.scenarioType == "shell-separator" {
+	switch s.scenarioType {
+	case "shell-unwrap":
+		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", processShellUnwrapScenario(s)))
+	case "shell-separator":
 		// Save and restore the original separator
 		originalSeparator := ConfiguredShellVariablesPreferences.KeySeparator
 		ConfiguredShellVariablesPreferences.KeySeparator = "__"
 		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
 		ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
-	} else {
+	default:
 		writeOrPanic(w, fmt.Sprintf("```sh\n%v```\n\n", mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())))
 	}
+}
+
+func processShellUnwrapScenario(s formatScenario) string {
+	original := ConfiguredShellVariablesPreferences.UnwrapScalar
+	defer func() { ConfiguredShellVariablesPreferences.UnwrapScalar = original }()
+	ConfiguredShellVariablesPreferences.UnwrapScalar = true
+	return mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder())
 }
