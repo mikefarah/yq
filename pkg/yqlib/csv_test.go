@@ -2,6 +2,7 @@ package yqlib
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"testing"
 
@@ -395,3 +396,70 @@ func TestCSVScenarios(t *testing.T) {
 	}
 	documentScenarios(t, "usage", "csv-tsv", genericScenarios, documentCSVScenario)
 }
+
+func TestCSVEncoderEscapeSequences(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	encoder := NewCsvEncoder(ConfiguredCsvPreferences)
+
+	node := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			{
+				Kind: SequenceNode,
+				Content: []*CandidateNode{
+					{Kind: ScalarNode, Value: "\x1b[31mred\x1b[0m"},
+					{Kind: ScalarNode, Value: "bell\a"},
+					{Kind: ScalarNode, Value: "normal"},
+				},
+			},
+		},
+	}
+
+	err := encoder.Encode(writer, node)
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, nil, writer.Flush())
+	test.AssertResult(t, "[31mred[0m,bell,normal\n", output.String())
+}
+
+func TestTSVEncoderEscapeSequences(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	encoder := NewCsvEncoder(ConfiguredTsvPreferences)
+
+	node := &CandidateNode{
+		Kind: SequenceNode,
+		Content: []*CandidateNode{
+			{
+				Kind: SequenceNode,
+				Content: []*CandidateNode{
+					{Kind: ScalarNode, Value: "\x1b[31mred\x1b[0m"},
+					{Kind: ScalarNode, Value: "bell\a"},
+					{Kind: ScalarNode, Value: "normal"},
+				},
+			},
+		},
+	}
+
+	err := encoder.Encode(writer, node)
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, nil, writer.Flush())
+	test.AssertResult(t, "[31mred[0m\tbell\tnormal\n", output.String())
+}
+
+func TestCSVEncoderScalarWithEscapeSequences(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	encoder := NewCsvEncoder(ConfiguredCsvPreferences)
+
+	node := &CandidateNode{
+		Kind:  ScalarNode,
+		Value: "\x1b[31mhello\x1b[0m\a",
+	}
+
+	err := encoder.Encode(writer, node)
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, nil, writer.Flush())
+	test.AssertResult(t, "[31mhello[0m\n", output.String())
+}
+

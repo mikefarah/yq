@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 // filenameAliases maps real file paths to display names.
@@ -88,3 +89,19 @@ func readDocuments(reader io.Reader, filename string, fileIndex int, decoder Dec
 		currentIndex = currentIndex + 1
 	}
 }
+
+// sanitizeControlChars removes non-printable ASCII control characters
+// (code points < 32 and 127) except tab, newline, and carriage return
+// to prevent terminal escape sequence injection in direct output encoders.
+func sanitizeControlChars(s string) string {
+	return strings.Map(func(r rune) rune {
+		if r == '\t' || r == '\n' || r == '\r' {
+			return r
+		}
+		if (r >= 0 && r < 32) || r == 127 {
+			return -1
+		}
+		return r
+	}, s)
+}
+
