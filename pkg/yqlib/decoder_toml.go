@@ -220,6 +220,14 @@ func (dec *tomlDecoder) createDateTimeScalar(tomlNode *toml.Node) (*CandidateNod
 	return createScalarNode(val, content), err
 }
 
+// Local dates, times and date-times have no offset, so the original text is
+// kept as-is (rather than being parsed into a time with an assumed timezone)
+// so that it can be written back out unchanged.
+func (dec *tomlDecoder) createLocalDateTimeScalar(tomlNode *toml.Node) (*CandidateNode, error) {
+	content := string(tomlNode.Data)
+	return &CandidateNode{Kind: ScalarNode, Tag: "!!timestamp", Value: content}, nil
+}
+
 func (dec *tomlDecoder) createFloatScalar(tomlNode *toml.Node) (*CandidateNode, error) {
 	content := string(tomlNode.Data)
 	num, err := strconv.ParseFloat(content, 64)
@@ -237,8 +245,7 @@ func (dec *tomlDecoder) decodeNode(tomlNode *toml.Node) (*CandidateNode, error) 
 	case toml.DateTime:
 		return dec.createDateTimeScalar(tomlNode)
 	case toml.LocalDate, toml.LocalTime, toml.LocalDateTime:
-		// no timezone, so keep the original text rather than inventing one
-		return dec.createStringScalar(tomlNode)
+		return dec.createLocalDateTimeScalar(tomlNode)
 	case toml.Float:
 		return dec.createFloatScalar(tomlNode)
 	case toml.Array:

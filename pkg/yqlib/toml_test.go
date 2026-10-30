@@ -182,6 +182,12 @@ var expectedSampleWithHeader = `servers:
 var rtInlineTableAttr = `name = { first = "Tom", last = "Preston-Werner" }
 `
 
+var rtDatesAndTimes = `odt = 1979-05-27T07:32:00-08:00
+ldt = 1979-05-27T07:32:00
+ld = 1979-05-27
+lt = 07:32:00
+`
+
 var rtTableSection = `[owner.contact]
 name = "Tom"
 age = 36
@@ -405,21 +411,36 @@ var tomlScenarios = []formatScenario{
 		skipDoc:      true,
 		description:  "local date",
 		input:        "A = 1979-05-27",
-		expected:     "A: \"1979-05-27\"\n",
+		expected:     "A: 1979-05-27\n",
 		scenarioType: "decode",
 	},
 	{
 		skipDoc:      true,
 		description:  "local time",
 		input:        "A = 07:32:00",
-		expected:     "A: 07:32:00\n",
+		expected:     "A: !!timestamp 07:32:00\n",
 		scenarioType: "decode",
 	},
 	{
 		skipDoc:      true,
 		description:  "local datetime",
 		input:        "A = 1979-05-27T07:32:00",
-		expected:     "A: 1979-05-27T07:32:00\n",
+		expected:     "A: !!timestamp 1979-05-27T07:32:00\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "local datetime with fractional seconds",
+		input:        "A = 1979-05-27T00:32:00.999999",
+		expected:     "A: !!timestamp 1979-05-27T00:32:00.999999\n",
+		scenarioType: "decode",
+	},
+	{
+		skipDoc:      true,
+		description:  "local date and time values are tagged as timestamps",
+		input:        "a = 1979-05-27\nb = 07:32:00\nc = 1979-05-27T07:32:00\n",
+		expression:   "[.a, .b, .c] | map(tag) | join(\",\")",
+		expected:     "!!timestamp,!!timestamp,!!timestamp\n",
 		scenarioType: "decode",
 	},
 	{
@@ -645,6 +666,62 @@ var tomlScenarios = []formatScenario{
 		input:        "[[\"\"]]\nname = \"value\"\n",
 		expression:   ".",
 		expected:     "[[\"\"]]\nname = \"value\"\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: offset datetime",
+		input:        "A = 1979-05-27T07:32:00-08:00\n",
+		expression:   ".",
+		expected:     "A = 1979-05-27T07:32:00-08:00\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: local date",
+		input:        "A = 1979-05-27\n",
+		expression:   ".",
+		expected:     "A = 1979-05-27\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: local time",
+		input:        "A = 07:32:00\n",
+		expression:   ".",
+		expected:     "A = 07:32:00\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: local datetime",
+		input:        "A = 1979-05-27T07:32:00\n",
+		expression:   ".",
+		expected:     "A = 1979-05-27T07:32:00\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: local dates and times in arrays and inline tables",
+		input:        "dates = [1979-05-27, 07:32:00, 1979-05-27T07:32:00]\nwhen = { day = 1979-05-27, at = 07:32:00 }\n",
+		expression:   ".",
+		expected:     "dates = [1979-05-27, 07:32:00, 1979-05-27T07:32:00]\nwhen = { day = 1979-05-27, at = 07:32:00 }\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:    "Roundtrip: dates and times",
+		subdescription: "Local dates, times and date-times have no timezone. They are read as `!!timestamp` values that keep their original text, so they are written back out unchanged.",
+		input:          rtDatesAndTimes,
+		expression:     ".",
+		expected:       rtDatesAndTimes,
+		scenarioType:   "roundtrip",
+	},
+	{
+		skipDoc:      true,
+		description:  "Roundtrip: quoted date-like strings stay strings",
+		input:        "A = \"1979-05-27\"\nB = \"07:32:00\"\n",
+		expression:   ".",
+		expected:     "A = \"1979-05-27\"\nB = \"07:32:00\"\n",
 		scenarioType: "roundtrip",
 	},
 	{

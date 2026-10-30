@@ -141,6 +141,29 @@ will output
 dependencies: {}
 ```
 
+## Roundtrip: dates and times
+Local dates, times and date-times have no timezone. They are read as `!!timestamp` values that keep their original text, so they are written back out unchanged.
+
+Given a sample.toml file of:
+```toml
+odt = 1979-05-27T07:32:00-08:00
+ldt = 1979-05-27T07:32:00
+ld = 1979-05-27
+lt = 07:32:00
+
+```
+then
+```bash
+yq '.' sample.toml
+```
+will output
+```yaml
+odt = 1979-05-27T07:32:00-08:00
+ldt = 1979-05-27T07:32:00
+ld = 1979-05-27
+lt = 07:32:00
+```
+
 ## Roundtrip: inline table attribute
 Given a sample.toml file of:
 ```toml
