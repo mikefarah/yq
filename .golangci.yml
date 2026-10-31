@@ -40,6 +40,9 @@ linters:
       - linters:
           - revive
         text: var-naming
+      - linters:
+          - revive
+        text: unexported-return
     paths:
       - third_party$
       - builtin$
