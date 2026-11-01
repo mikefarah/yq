@@ -1,6 +1,7 @@
 package yqlib
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
@@ -95,6 +96,20 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "a: mike\n---\nb: mike\n",
 	},
 	{
+		description: "multi document anchors can be redefined",
+		skipDoc:     true,
+		input:       "a: &remember first\n---\nb: &remember second\nc: *remember\n---\nd: *remember",
+		expression:  "explode(.)",
+		expected:    "a: first\n---\nb: second\nc: second\n---\nd: second\n",
+	},
+	{
+		description: "multi document anchors retain literal dotted names",
+		skipDoc:     true,
+		input:       "a: &remember.name mike\n---\nb: *remember.name",
+		expression:  "explode(.)",
+		expected:    "a: mike\n---\nb: mike\n",
+	},
+	{
 		description: "basic - [~]",
 		skipDoc:     true,
 		input:       "[~]",
@@ -180,5 +195,24 @@ func TestYamlParseScenarios(t *testing.T) {
 func TestYamlFormatScenarios(t *testing.T) {
 	for _, tt := range yamlFormatScenarios {
 		testYamlScenario(t, tt)
+	}
+}
+
+func TestYamlDecoderInitResetsAnchors(t *testing.T) {
+	decoder := NewYamlDecoder(ConfiguredYamlPreferences)
+	err := decoder.Init(strings.NewReader("a: &remember mike\n---\nb: *remember"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for range 2 {
+		if _, err = decoder.Decode(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err = decoder.Init(strings.NewReader("b: *remember")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = decoder.Decode(); err == nil || !strings.Contains(err.Error(), "unknown anchor") {
+		t.Fatalf("expected unknown anchor in a fresh stream, got %v", err)
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	yaml "go.yaml.in/yaml/v4"
+	"go.yaml.in/yaml/v4/plugin/aliasdata"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 )
 
 type yamlDecoder struct {
-	decoder yaml.Decoder
+	decoder *yaml.Loader
 
 	prefs YamlPreferences
 
@@ -137,7 +138,14 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	}
 	dec.leadingContent = leadingContent
 	dec.readAnything = false
-	dec.decoder = *yaml.NewDecoder(readerToUse)
+	aliasData, err := aliasdata.New(aliasdata.WithStream(true))
+	if err != nil {
+		return err
+	}
+	dec.decoder, err = yaml.NewLoader(readerToUse, yaml.WithPlugin(aliasData))
+	if err != nil {
+		return err
+	}
 	dec.firstFile = false
 	dec.documentIndex = 0
 	dec.anchorMap = make(map[string]*CandidateNode)
@@ -146,7 +154,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 
 func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	var yamlNode yaml.Node
-	err := dec.decoder.Decode(&yamlNode)
+	err := dec.decoder.Load(&yamlNode)
 
 	if errors.Is(err, io.EOF) && dec.leadingContent != "" && !dec.readAnything {
 		// force returning an empty node with a comment.
