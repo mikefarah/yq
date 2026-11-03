@@ -57,11 +57,15 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 			// let's just pick a fallback key to use if we are encoding a single scalar
 			nonemptyPath = "value"
 		}
+		value := node.Value
+		if node.Tag == "!!int" || node.Tag == "!!float" {
+			value = strings.ReplaceAll(value, "_", "")
+		}
 		var valueString string
 		if pe.prefs.UnwrapScalar {
-			valueString = node.Value
+			valueString = value
 		} else {
-			valueString = quoteValue(node.Value)
+			valueString = quoteValue(value)
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+valueString+"\n")
 		return err
