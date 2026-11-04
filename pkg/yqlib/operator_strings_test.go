@@ -40,6 +40,15 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Interpolation - quoted key with special characters",
+		document:    "value: things\nFirst name: Bill",
+		expression:  `"Test: \( .["First name"])"`,
+		expected: []string{
+			"D0, P[], (!!str)::Test: Bill\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Interpolation - don't",
 		document:    `value: things`,
 		expression:  `"Hi (.value)"`,
