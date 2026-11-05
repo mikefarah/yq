@@ -167,6 +167,8 @@ yq -P -oy sample.json
 		panic(err)
 	}
 
+	rootCmd.PersistentFlags().BoolVar(&yqlib.ConfiguredShellVariablesPreferences.SecurityForceNeverEscape, "security-force-never-escape-shell-output", yqlib.ConfiguredShellVariablesPreferences.SecurityForceNeverEscape, "UNSAFE: with -o=shell -r, never quote or escape values (may allow command injection when eval'd)")
+
 	rootCmd.PersistentFlags().BoolVar(&yqlib.StringInterpolationEnabled, "string-interpolation", yqlib.StringInterpolationEnabled, "Toggles strings interpolation of \\(exp)")
 
 	rootCmd.PersistentFlags().BoolVarP(&nullInput, "null-input", "n", false, "Don't read input, simply evaluate the expression given. Useful for creating docs from scratch.")

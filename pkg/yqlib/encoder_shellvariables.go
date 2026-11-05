@@ -59,7 +59,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 		}
 		var valueString string
 		if pe.prefs.UnwrapScalar {
-			if isSafeUnquotedShellValue(node.Value) {
+			if pe.prefs.SecurityForceNeverEscape || isSafeUnquotedShellValue(node.Value) {
 				valueString = node.Value
 			} else {
 				GetLogger().Warningf("value for '%v' contains characters that are unsafe in a shell, ignoring unwrap (-r) and quoting it", nonemptyPath)

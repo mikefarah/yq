@@ -68,6 +68,13 @@ var shellVariablesScenarios = []formatScenario{
 		scenarioType: "shell-unwrap",
 	},
 	{
+		description:  "Encode shell variables: unwrap with security override leaves values unescaped",
+		skipDoc:      true,
+		input:        "cmd: \"safe; id\"",
+		expected:     "cmd=safe; id\n",
+		scenarioType: "shell-unwrap-never-escape",
+	},
+	{
 		description:    "Encode shell variables: custom separator",
 		subdescription: "Use --shell-key-separator to specify a custom separator between keys. This is useful when the original keys contain underscores.",
 		input: "" +
@@ -94,6 +101,11 @@ func TestShellVariableScenarios(t *testing.T) {
 			ConfiguredShellVariablesPreferences.KeySeparator = originalSeparator
 		case "shell-unwrap":
 			test.AssertResultWithContext(t, s.expected, processShellUnwrapScenario(s), s.description)
+		case "shell-unwrap-never-escape":
+			original := ConfiguredShellVariablesPreferences.SecurityForceNeverEscape
+			ConfiguredShellVariablesPreferences.SecurityForceNeverEscape = true
+			test.AssertResultWithContext(t, s.expected, processShellUnwrapScenario(s), s.description)
+			ConfiguredShellVariablesPreferences.SecurityForceNeverEscape = original
 		default:
 			test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewShellVariablesEncoder()), s.description)
 		}
