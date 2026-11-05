@@ -7,7 +7,7 @@ on:
       threshold:
         description: Minimum number of distinct users for a PR to be flagged
         required: false
-        default: '3'
+        default: '4'
       lookback_days:
         description: Only consider PRs created within this many days (e.g. 3650 to cover all open PRs)
         required: false
@@ -28,7 +28,7 @@ jobs:
     name: Flag popular PRs
     runs-on: ubuntu-latest
     env:
-      POPULAR_THRESHOLD: ${{ github.event.inputs.threshold || '3' }}
+      POPULAR_THRESHOLD: ${{ github.event.inputs.threshold || '4' }}
       DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
       LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || '30' }}
       POPULAR_LABEL: popular
@@ -38,7 +38,7 @@ jobs:
         uses: actions/github-script@d746ffe35508b1917358783b479e04febd2b8f71 # v9.0.0
         with:
           script: |
-            const threshold = parseInt(process.env.POPULAR_THRESHOLD, 10) || 3;
+            const threshold = parseInt(process.env.POPULAR_THRESHOLD, 10) || 4;
             const dryRun = process.env.DRY_RUN === 'true';
             const lookbackDays = parseInt(process.env.LOOKBACK_DAYS, 10) || 30;
             const label = process.env.POPULAR_LABEL;
