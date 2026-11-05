@@ -168,3 +168,30 @@ func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
 	assertEncodesToUnwrapped(t, "c: true", "c=true")
 	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
 }
+func TestShellVariablesEncoderNumericUnderscores(t *testing.T) {
+	assertEncodesTo(t, "a: 20_000", "a=20000")
+}
+
+func TestShellVariablesEncoderNumericHex(t *testing.T) {
+	assertEncodesTo(t, "a: 0x10", "a=16")
+}
+
+func TestShellVariablesEncoderNumericOctal(t *testing.T) {
+	assertEncodesTo(t, "a: 0o10", "a=8")
+}
+
+func TestShellVariablesEncoderNumericNegative(t *testing.T) {
+	assertEncodesTo(t, "a: -1_000", "a='-1000'")
+}
+
+func TestShellVariablesEncoderNumericFloat(t *testing.T) {
+	assertEncodesTo(t, "a: 1_000.5", "a='1000.5'")
+}
+
+func TestShellVariablesEncoderNumericPlainUnaffected(t *testing.T) {
+	assertEncodesTo(t, "a: 20000", "a=20000")
+}
+
+func TestShellVariablesEncoderNumericBinary(t *testing.T) {
+	assertEncodesTo(t, "a: 0b101", "a=5")
+}

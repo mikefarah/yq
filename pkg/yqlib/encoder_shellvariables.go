@@ -5,6 +5,7 @@ package yqlib
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -57,11 +58,12 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 			// let's just pick a fallback key to use if we are encoding a single scalar
 			nonemptyPath = "value"
 		}
+		value := shellScalarValue(node)
 		var valueString string
 		if pe.prefs.UnwrapScalar {
-			valueString = node.Value
+			valueString = value
 		} else {
-			valueString = quoteValue(node.Value)
+			valueString = quoteValue(value)
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+valueString+"\n")
 		return err
@@ -136,6 +138,23 @@ func (pe *shellVariablesEncoder) appendPath(cookedPath string, rawKey interface{
 		return key
 	}
 	return cookedPath + pe.prefs.KeySeparator + key
+}
+
+// shellScalarValue renders a scalar for assignment to a shell variable. YAML
+// numbers may be written with underscores (20_000) or in hex or octal, none of
+// which a shell can use as a number, so they are rendered as their value.
+func shellScalarValue(node *CandidateNode) string {
+	switch node.guessTagFromCustomType() {
+	case "!!int":
+		if _, value, err := parseInt64(node.Value); err == nil {
+			return strconv.FormatInt(value, 10)
+		}
+	case "!!float":
+		if value, err := strconv.ParseFloat(node.Value, 64); err == nil {
+			return strconv.FormatFloat(value, 'f', -1, 64)
+		}
+	}
+	return node.Value
 }
 
 func quoteValue(value string) string {

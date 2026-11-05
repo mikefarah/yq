@@ -188,6 +188,10 @@ func parseInt64(numberString string) (string, int64, error) {
 	} else if strings.HasPrefix(digits, "0o") {
 		num, err := strconv.ParseInt(sign+digits[2:], 8, 64)
 		return "0o%o", num, err
+	} else if strings.HasPrefix(digits, "0b") ||
+		strings.HasPrefix(digits, "0B") {
+		num, err := strconv.ParseInt(sign+digits[2:], 2, 64)
+		return "0b%b", num, err
 	}
 	num, err := strconv.ParseInt(numberString, 10, 64)
 	return "%v", num, err
