@@ -19,6 +19,10 @@ For every PR, check whether existing behaviour changes. Treat the following as p
 2. **Coverage gaps.** If behaviour changes but no existing test covers the old behaviour, say so and suggest adding characterisation tests that pin the old behaviour (and the new opt-in behaviour) before the change.
 3. Bug fixes must include a new test that exposes the bug, alongside the fix itself.
 
+## Intentional behaviour changes
+
+If the PR description states the behaviour change is the purpose (for example fixing formatting), do not object to the change itself. Instead check that: the old behaviour is pinned by a characterisation test; changed expectations match only the stated intent, with no unrelated drift; the change is opt-in, or the description explains user impact and a migration path; and a verdict is still given (usually Medium or High).
+
 ## Required verdict
 
 End the review with:
