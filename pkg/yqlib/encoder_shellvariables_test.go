@@ -163,8 +163,23 @@ func assertEncodesToUnwrapped(t *testing.T, yaml string, shellvars string) {
 }
 
 func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
-	assertEncodesToUnwrapped(t, "a: Lewis Carroll", "a=Lewis Carroll")
+	assertEncodesToUnwrapped(t, "a: Lewis Carroll", "a='Lewis Carroll'")
 	assertEncodesToUnwrapped(t, "b: 123", "b=123")
 	assertEncodesToUnwrapped(t, "c: true", "c=true")
-	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
+	assertEncodesToUnwrapped(t, "d: value with spaces", "d='value with spaces'")
+	assertEncodesToUnwrapped(t, "e: path/to-file_1.txt", "e=path/to-file_1.txt")
+}
+
+func TestShellVariablesEncoderUnwrapScalarQuotesUnsafeValues(t *testing.T) {
+	assertEncodesToUnwrapped(t, `cmd: "safe; id"`, "cmd='safe; id'")
+	assertEncodesToUnwrapped(t, `cmd: "$(id)"`, "cmd='$(id)'")
+	assertEncodesToUnwrapped(t, "cmd: \"`id`\"", "cmd='`id`'")
+	assertEncodesToUnwrapped(t, `cmd: "a && b"`, "cmd='a && b'")
+	assertEncodesToUnwrapped(t, `cmd: "a | b"`, "cmd='a | b'")
+	assertEncodesToUnwrapped(t, `cmd: "$HOME"`, "cmd='$HOME'")
+	assertEncodesToUnwrapped(t, `cmd: "~root"`, "cmd='~root'")
+	assertEncodesToUnwrapped(t, `cmd: "it's"`, `cmd='it'"'"'s'`)
+	assertEncodesToUnwrapped(t, `cmd: "a\nid"`, "cmd='a\nid'")
+	assertEncodesToUnwrapped(t, `cmd: "a#b"`, "cmd='a#b'")
+	assertEncodesToUnwrapped(t, `cmd: "*"`, "cmd='*'")
 }

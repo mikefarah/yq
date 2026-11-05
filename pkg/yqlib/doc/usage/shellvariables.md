@@ -84,6 +84,26 @@ will output
 name='Miles O'"'"'Brien'
 ```
 
+## Encode shell variables: unwrap (-r) still quotes unsafe values
+Using --unwrapScalar (-r) skips quoting only for values made of safe characters (letters, digits and _ . - / : @ + , %). Any other value (e.g. containing spaces, ;, &&, |, $, backticks, quotes or newlines) is still quoted, and a warning is logged, so the output is safe to eval.
+
+Given a sample.yml file of:
+```yaml
+app: myservice
+cmd: "safe; id"
+sub: "$(touch /tmp/pwned)"
+```
+then
+```bash
+yq -o=shell -r sample.yml
+```
+will output
+```sh
+app=myservice
+cmd='safe; id'
+sub='$(touch /tmp/pwned)'
+```
+
 ## Encode shell variables: custom separator
 Use --shell-key-separator to specify a custom separator between keys. This is useful when the original keys contain underscores.
 
