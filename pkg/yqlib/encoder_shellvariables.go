@@ -62,7 +62,7 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 			if pe.prefs.SecurityForceNeverEscape || isSafeUnquotedShellValue(node.Value) {
 				valueString = node.Value
 			} else {
-				GetLogger().Warningf("value for '%v' contains characters that are unsafe in a shell, ignoring unwrap (-r) and quoting it", nonemptyPath)
+				GetLogger().Warningf("value for '%v' contains characters that are unsafe in a shell, ignoring unwrap (-r) and quoting it; to disable escaping (UNSAFE) use --security-force-never-escape-shell-output", nonemptyPath)
 				valueString = quoteValue(node.Value)
 			}
 		} else {
