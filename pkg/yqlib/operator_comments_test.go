@@ -160,6 +160,15 @@ var commentOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Set head comment before and after an explicit document separator",
+		document:    "# before\n---\n# after\na: cat",
+		expression:  `. head_comment="new"`,
+		expected: []string{
+			"D0, P[], (!!map)::---\n# new\na: cat\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Set head comments in a multi-document stream",
 		document:    "---\n# old first\na: cat\n---\na: dog",
 		expression:  `. head_comment="new"`,
