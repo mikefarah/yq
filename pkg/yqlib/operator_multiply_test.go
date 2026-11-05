@@ -98,6 +98,27 @@ var mergeWithGlobB = `
 
 var multiplyOperatorScenarios = []expressionScenario{
 	{
+		description: "Comments around merge keys are preserved through ireduce",
+		skipDoc:     true,
+		document: `values: &values
+  value: 1
+v1: { <<: *values } # COMMENT
+v2:
+  # COMMENT
+  <<: *values
+  # COMMENT
+v3:
+  a: 1
+  # COMMENT
+  <<: *values
+  v: # COMMENT
+`,
+		expression: `. as $item ireduce ({}; . * $item)`,
+		expected: []string{
+			"D0, P[], (!!map)::values: &values\n    value: 1\nv1:\n    <<: *values\n    # COMMENT\nv2:\n    # COMMENT\n    <<: *values\n    # COMMENT\nv3:\n    a: 1\n    # COMMENT\n    <<: *values\n    v: # COMMENT\n",
+		},
+	},
+	{
 		description: "multiple should be readonly",
 		skipDoc:     true,
 		document:    "",
