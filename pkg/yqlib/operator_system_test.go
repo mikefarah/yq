@@ -1,9 +1,12 @@
 package yqlib
 
 import (
+	"os"
 	"os/exec"
 	"testing"
 )
+
+const updateSystemOperatorDocsEnv = "YQ_UPDATE_SYSTEM_OPERATOR_DOCS"
 
 func findExec(t *testing.T, name string) string {
 	t.Helper()
@@ -35,7 +38,7 @@ func TestSystemOperatorDisabledScenarios(t *testing.T) {
 	for _, tt := range systemOperatorDisabledScenarios {
 		testScenario(t, &tt)
 	}
-	documentOperatorScenarios(t, "system-operators", systemOperatorDisabledScenarios)
+	documentSystemOperatorScenarios(t, "system-operators", systemOperatorDisabledScenarios)
 }
 
 func TestSystemOperatorEnabledScenarios(t *testing.T) {
@@ -119,5 +122,21 @@ func TestSystemOperatorEnabledScenarios(t *testing.T) {
 	for _, tt := range scenarios {
 		testScenario(t, &tt)
 	}
-	appendOperatorDocumentScenario(t, "system-operators", scenarios)
+	appendSystemOperatorDocumentScenario(t, "system-operators", scenarios)
+}
+
+func documentSystemOperatorScenarios(t *testing.T, title string, scenarios []expressionScenario) {
+	t.Helper()
+	if os.Getenv(updateSystemOperatorDocsEnv) == "" {
+		return
+	}
+	documentOperatorScenarios(t, title, scenarios)
+}
+
+func appendSystemOperatorDocumentScenario(t *testing.T, title string, scenarios []expressionScenario) {
+	t.Helper()
+	if os.Getenv(updateSystemOperatorDocsEnv) == "" {
+		return
+	}
+	appendOperatorDocumentScenario(t, title, scenarios)
 }
