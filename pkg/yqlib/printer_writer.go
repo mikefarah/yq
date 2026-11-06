@@ -2,6 +2,8 @@ package yqlib
 
 import (
 	"bufio"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -93,6 +95,20 @@ func (sp *multiPrintWriter) GetWriter(node *CandidateNode) (*bufio.Writer, error
 }
 
 func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	if filepath.IsAbs(name) {
+		absoluteName, err := filepath.Abs(name)
+		if err != nil {
+			return nil, err
+		}
+		name, err = filepath.Rel(workingDirectory, absoluteName)
+		if err != nil {
+			return nil, sp.rejectPath(name, err)
+		}
+	}
 	name = filepath.Clean(name)
 	if !filepath.IsLocal(name) {
 		return nil, sp.rejectPath(name, fmt.Errorf("path must stay within the current directory"))
@@ -116,18 +132,46 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 		return nil, sp.rejectPath(name, err)
 	}
 
-	// Replace a final symlink itself instead of following it and truncating its target.
+	// Preserve permissions on regular outputs when replacing their inode.
 	info, err := root.Lstat(name)
-	if err == nil && info.Mode()&os.ModeSymlink != 0 {
-		if err := root.Remove(name); err != nil {
-			return nil, err
-		}
-		return root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0666)
+	mode := os.FileMode(0666)
+	preservePermissions := err == nil && info.Mode().IsRegular()
+	if preservePermissions {
+		mode = info.Mode().Perm()
 	}
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
-	return root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+
+	// Atomically replace the destination with a new inode instead of following symlinks or truncating hard links.
+	for range 10 {
+		randomName := make([]byte, 16)
+		if _, err := rand.Read(randomName); err != nil {
+			return nil, err
+		}
+		temporaryName := filepath.Join(filepath.Dir(name), ".yq-split-"+hex.EncodeToString(randomName))
+		file, err := root.OpenFile(temporaryName, os.O_WRONLY|os.O_CREATE|os.O_EXCL, mode)
+		if os.IsExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		if preservePermissions {
+			if err := root.Chmod(temporaryName, mode); err != nil {
+				_ = file.Close()
+				_ = root.Remove(temporaryName)
+				return nil, err
+			}
+		}
+		if err := root.Rename(temporaryName, name); err != nil {
+			_ = file.Close()
+			_ = root.Remove(temporaryName)
+			return nil, err
+		}
+		return file, nil
+	}
+	return nil, fmt.Errorf("could not create a temporary split-exp output file")
 }
 
 func rejectSymlinkDirectories(root *os.Root, dir string) error {

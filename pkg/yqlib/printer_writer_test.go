@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func setupSplitWriterTest(t *testing.T) (string, string) {
+func setupSplitWriterTest(t *testing.T) string {
 	t.Helper()
 
 	tempDir := t.TempDir()
@@ -37,7 +37,7 @@ func setupSplitWriterTest(t *testing.T) (string, string) {
 		ConfiguredSecurityPreferences.AllowWriteAnyPath = originalAllowWriteAnyPath
 	})
 
-	return tempDir, workDir
+	return tempDir
 }
 
 func getTestSplitWriter(t *testing.T, name string) (*bufio.Writer, error) {
@@ -52,7 +52,7 @@ func getTestSplitWriter(t *testing.T, name string) (*bufio.Writer, error) {
 }
 
 func TestMultiPrinterWriterRejectsPathsOutsideWorkingDirectory(t *testing.T) {
-	tempDir, _ := setupSplitWriterTest(t)
+	tempDir := setupSplitWriterTest(t)
 
 	logger := GetLogger()
 	originalLogger := logger.slogger
@@ -62,8 +62,8 @@ func TestMultiPrinterWriterRejectsPathsOutsideWorkingDirectory(t *testing.T) {
 		logger.SetSlogger(originalLogger)
 	})
 
-	absolutePath := filepath.Join(tempDir, "absolute.txt")
-	for _, path := range []string{"../parent.txt", absolutePath} {
+	outsidePath := filepath.Join(tempDir, "absolute.txt")
+	for _, path := range []string{"../parent.txt", outsidePath} {
 		_, err := getTestSplitWriter(t, path)
 		if err == nil {
 			t.Fatalf("expected path %q to be rejected", path)
@@ -76,7 +76,7 @@ func TestMultiPrinterWriterRejectsPathsOutsideWorkingDirectory(t *testing.T) {
 	if !strings.Contains(logged.String(), "--security-allow-write-any-path") {
 		t.Errorf("warning does not explain the override flag: %q", logged.String())
 	}
-	if _, err := os.Stat(absolutePath); !os.IsNotExist(err) {
+	if _, err := os.Stat(outsidePath); !os.IsNotExist(err) {
 		t.Errorf("rejected destination was created: %v", err)
 	}
 }
@@ -103,8 +103,34 @@ func TestMultiPrinterWriterAllowsRelativePaths(t *testing.T) {
 	}
 }
 
+func TestMultiPrinterWriterAllowsAbsolutePathsWithinWorkingDirectory(t *testing.T) {
+	setupSplitWriterTest(t)
+	workDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(workDir, "absolute.txt")
+	writer, err := getTestSplitWriter(t, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := writer.Write([]byte("output")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Flush(); err != nil {
+		t.Fatal(err)
+	}
+	output, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(output) != "output" {
+		t.Errorf("unexpected output: %q", output)
+	}
+}
+
 func TestMultiPrinterWriterRejectsSymlinkDirectories(t *testing.T) {
-	tempDir, _ := setupSplitWriterTest(t)
+	tempDir := setupSplitWriterTest(t)
 	targetDir := filepath.Join(tempDir, "target")
 	if err := os.Mkdir(targetDir, 0750); err != nil {
 		t.Fatal(err)
@@ -123,7 +149,7 @@ func TestMultiPrinterWriterRejectsSymlinkDirectories(t *testing.T) {
 }
 
 func TestMultiPrinterWriterReplacesFinalSymlink(t *testing.T) {
-	tempDir, _ := setupSplitWriterTest(t)
+	tempDir := setupSplitWriterTest(t)
 	targetPath := filepath.Join(tempDir, "target.txt")
 	if err := os.WriteFile(targetPath, []byte("target"), 0600); err != nil {
 		t.Fatal(err)
@@ -159,8 +185,45 @@ func TestMultiPrinterWriterReplacesFinalSymlink(t *testing.T) {
 	}
 }
 
+func TestMultiPrinterWriterDoesNotTruncateHardLinkTarget(t *testing.T) {
+	tempDir := setupSplitWriterTest(t)
+	targetPath := filepath.Join(tempDir, "target.txt")
+	if err := os.WriteFile(targetPath, []byte("target"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Link(targetPath, "output.txt"); err != nil {
+		t.Skipf("cannot create hard link: %v", err)
+	}
+
+	writer, err := getTestSplitWriter(t, "output.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := writer.Write([]byte("output")); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Flush(); err != nil {
+		t.Fatal(err)
+	}
+
+	target, err := os.ReadFile(targetPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(target) != "target" {
+		t.Errorf("hard-link target was modified: %q", target)
+	}
+	output, err := os.ReadFile("output.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(output) != "output" {
+		t.Errorf("unexpected output: %q", output)
+	}
+}
+
 func TestMultiPrinterWriterAllowsAnyPathWithOverride(t *testing.T) {
-	tempDir, _ := setupSplitWriterTest(t)
+	tempDir := setupSplitWriterTest(t)
 	ConfiguredSecurityPreferences.AllowWriteAnyPath = true
 	path := filepath.Join(tempDir, "outside.txt")
 
