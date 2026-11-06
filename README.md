@@ -434,10 +434,11 @@ Flags:
   -P, --prettyPrint                     pretty print, shorthand for '... style = ""'
       --properties-array-brackets       use [x] in array paths (e.g. for SpringBoot)
       --properties-separator string     separator to use between keys and values (default " = ")
+      --security-allow-write-any-path   Allow split-exp to write to paths outside the current directory.
       --security-disable-env-ops        Disable env related operations.
       --security-disable-file-ops       Disable file related operations (e.g. load)
       --shell-key-separator string      separator for shell variable key paths (default "_")
-  -s, --split-exp string                print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter. The necessary directories will be created.
+  -s, --split-exp string                print each result (or doc) into a file named (exp). [exp] argument must return a string. You can use $index in the expression as the result counter. The necessary directories will be created. Paths must stay within the current directory unless --security-allow-write-any-path is set.
       --split-exp-file string           Use a file to specify the split-exp expression.
       --string-interpolation            Toggles strings interpolation of \(exp) (default true)
       --tsv-auto-parse                  parse TSV YAML/JSON values (default true)
