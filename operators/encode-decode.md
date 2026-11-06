@@ -16,6 +16,7 @@ These operators are useful to process yaml documents that have stringified embed
 | TSV | from_tsv/@tsvd | to_tsv/@tsv |
 | XML | from_xml/@xmld | to_xml(i)/@xml |
 | Base64 | @base64d | @base64 |
+| Base64Url | @base64urld | @base64url |
 | URI | @urid | @uri |
 | Shell |  | @sh |
 
@@ -26,6 +27,8 @@ XML uses the `--xml-attribute-prefix` and `xml-content-name` flags to identify a
 
 
 Base64 assumes [rfc4648](https://rfc-editor.org/rfc/rfc4648.html) encoding. Encoding and decoding both assume that the content is a utf-8 string and not binary content.
+
+Base64Url is the URL- and filename-safe variant (RFC 4648 §5): `-` and `_` replace `+` and `/`.
 
 ## Encode value as json string
 Given a sample.yml file of:
@@ -512,5 +515,35 @@ will output
 ```yaml
 coolData:
   a: apple
+```
+
+## Encode a string to base64url
+Given a sample.yml file of:
+```yaml
+coolData: "Works with UTF-16 \U0001F60A"
+```
+then
+```bash
+yq '.coolData | @base64url' sample.yml
+```
+will output
+```yaml
+V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==
+```
+
+## Decode a base64url encoded string
+URL-safe variant uses `-` and `_` in place of `+` and `/` (RFC 4648 §5).
+
+Given a sample.yml file of:
+```yaml
+coolData: V29ya3Mgd2l0aCBVVEYtMTYg8J-Yig==
+```
+then
+```bash
+yq '.coolData | @base64urld' sample.yml
+```
+will output
+```yaml
+Works with UTF-16 😊
 ```
 
