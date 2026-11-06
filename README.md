@@ -459,6 +459,8 @@ Flags:
 Use "yq [command] --help" for more information about a command.
 ```
 
+By default, `--split-exp` rejects existing special-file destinations, including FIFOs and sockets, rather than replacing them. To retain legacy behaviour, including writing to a FIFO, use `--security-allow-write-any-path` only with trusted input.
+
 ## Troubleshooting
 
 ### Common Issues

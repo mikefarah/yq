@@ -132,12 +132,13 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 		return nil, sp.rejectPath(name, err)
 	}
 
-	// Preserve permissions on regular outputs when replacing their inode.
 	info, err := root.Lstat(name)
 	mode := os.FileMode(0666)
 	preservePermissions := err == nil && info.Mode().IsRegular()
 	if preservePermissions {
 		mode = info.Mode().Perm()
+	} else if err == nil && info.Mode()&os.ModeSymlink == 0 {
+		return nil, sp.rejectPath(name, fmt.Errorf("destination is not a regular file or symbolic link"))
 	}
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -157,14 +158,7 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 		if err != nil {
 			return nil, err
 		}
-		if preservePermissions {
-			if err := root.Chmod(temporaryName, mode); err != nil {
-				_ = file.Close()
-				_ = root.Remove(temporaryName)
-				return nil, err
-			}
-		}
-		if err := root.Rename(temporaryName, name); err != nil {
+		if err := replaceSplitFile(root, file, temporaryName, name, mode, preservePermissions); err != nil {
 			_ = file.Close()
 			_ = root.Remove(temporaryName)
 			return nil, err
@@ -172,6 +166,16 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 		return file, nil
 	}
 	return nil, fmt.Errorf("could not create a temporary split-exp output file")
+}
+
+func replaceSplitFile(root *os.Root, file *os.File, temporaryName, name string, mode os.FileMode, preservePermissions bool) error {
+	if preservePermissions {
+		// The open file handle remains bound to the new inode even if its path is replaced.
+		if err := file.Chmod(mode); err != nil {
+			return err
+		}
+	}
+	return root.Rename(temporaryName, name)
 }
 
 func rejectSymlinkDirectories(root *os.Root, dir string) error {
