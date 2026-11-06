@@ -63,7 +63,12 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 		}
 		var valueString string
 		if pe.prefs.UnwrapScalar {
-			valueString = value
+			if pe.prefs.SecurityForceNeverEscape || isSafeUnquotedShellValue(value) {
+				valueString = value
+			} else {
+				GetLogger().Warningf("value for '%v' contains characters that are unsafe in a shell, ignoring unwrap (-r) and quoting it; to disable escaping (UNSAFE) use --security-force-never-escape-shell-output", nonemptyPath)
+				valueString = quoteValue(value)
+			}
 		} else {
 			valueString = quoteValue(value)
 		}
@@ -154,6 +159,22 @@ func quoteValue(value string) string {
 		return "'" + strings.ReplaceAll(value, "'", "'\"'\"'") + "'"
 	}
 	return value
+}
+
+// isSafeUnquotedShellValue reports whether value can be emitted without quotes
+// and still be treated as a single literal word by a shell.
+func isSafeUnquotedShellValue(value string) bool {
+	for _, r := range value {
+		if isAlphaNumericOrUnderscore(r) {
+			continue
+		}
+		switch r {
+		case '.', '-', '/', ':', '@', '+', ',', '%':
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 func isAlphaOrUnderscore(r rune) bool {

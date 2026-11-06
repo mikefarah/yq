@@ -4,11 +4,11 @@ require (
 	github.com/a8m/envsubst v1.4.3
 	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/alecthomas/repr v0.5.4
-	github.com/dimchansky/utfbom v1.1.1
+	github.com/dimchansky/utfbom v1.2.0
 	github.com/elliotchance/orderedmap v1.8.0
 	github.com/fatih/color v1.19.0
 	github.com/go-ini/ini v1.67.0
-	github.com/goccy/go-json v0.11.2
+	github.com/goccy/go-json v0.12.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/hashicorp/hcl/v2 v2.25.0
 	github.com/jinzhu/copier v0.4.0
@@ -20,9 +20,9 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/yuin/gopher-lua v1.1.2
 	github.com/zclconf/go-cty v1.19.0
-	go.yaml.in/yaml/v4 v4.0.0-rc.6
+	go.yaml.in/yaml/v4 v4.0.0-rc.7
 	golang.org/x/mod v0.42.0
-	golang.org/x/net v0.61.0
+	golang.org/x/net v0.62.0
 	golang.org/x/text v0.43.0
 )
 

@@ -1,3 +1,15 @@
+4.54.2:
+  - Fixed command injection risk in shell output with `-o=shell -r`: unsafe values are now quoted and a warning is logged. Use `--security-force-never-escape-shell-output` to restore the previous unsafe behaviour (GHSA-h2cv-65fq-jgrp)
+  - Fixed YAML structure being changed when assigning head comments (#2847) Thanks @rootsec1
+  - Fixed `ireduce` to run per pipeline input, matching jq's `reduce` behaviour (#2869) Thanks @00200200
+  - Fixed `map_values` to remove entries when the expression returns nothing (#2862) Thanks @yuefdev
+  - Fixed preservation of comments on TOML inline table values (#2879) Thanks @iamhuman-cheolheelee
+  - Fixed INI keys containing colons (#2886)
+  - Fixed YAML line numbers after header preprocessing (#2939) Thanks @imharjot
+  - Fixed an extra leading comment blank line with CRLF input (#2856) Thanks @cestercian
+  - Cleaned up failed in-place edits (#2920) Thanks @Boulea7
+  - Bumped dependencies
+
 4.54.1:
   - Added jq style `if-then-elif-else-end` conditional operator (#2871) Thanks @anandghegde
   - Added `@base64url`/`@base64urld` operators (RFC 4648 §5) (#2827) Thanks @MsfPablo

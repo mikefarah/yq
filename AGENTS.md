@@ -75,6 +75,19 @@ export PATH="$HOME/go/bin:$PATH"
 
 ---
 
+# Backward compatibility (applies to all agents and reviewers)
+
+yq has millions of users, many running it unattended in CI/CD. Do not change existing behaviour disruptively.
+
+- Treat as breaking: changed output (formatting, whitespace, comments, quoting, ordering, null/empty handling), exit codes, stdout/stderr split, error messages, CLI flags/defaults, env vars, operator semantics, encoder/decoder behaviour.
+- Never update, loosen, skip or delete an existing test expectation (`pkg/yqlib/*_test.go`, `cmd/*_test.go`, `acceptance_tests/*.sh`, doc-driven scenarios that generate `pkg/yqlib/doc/**`) without explicit justification; call it out as a potential breaking change.
+- If changing behaviour that existing tests do not cover, first add characterisation tests pinning the old behaviour.
+- Prefer opt-in flags/preferences over changing defaults, and a deprecation path (keep working, warn on stderr, document) over removal.
+- If the PR states a behaviour change is intentional, do not object to the change itself; check the old behaviour is pinned by a characterisation test, changed expectations match only the stated intent, the change is opt-in or its impact and migration path are explained, and a verdict is still given.
+- In reviews, finish with **Compatibility risk: None / Low / Medium / High** and reasoning.
+
+Copilot code review reads the equivalent rules in `.github/copilot-instructions.md` and `.github/instructions/`; keep them in sync with this section.
+
 # General rules
 ✅ **DO:**
 - You can use ./yq with the `--debug-node-info` flag to get a deeper understanding of the ast.

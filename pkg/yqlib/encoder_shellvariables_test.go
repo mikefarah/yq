@@ -163,10 +163,25 @@ func assertEncodesToUnwrapped(t *testing.T, yaml string, shellvars string) {
 }
 
 func TestShellVariablesEncoderUnwrapScalar(t *testing.T) {
-	assertEncodesToUnwrapped(t, "a: Lewis Carroll", "a=Lewis Carroll")
+	assertEncodesToUnwrapped(t, "a: Lewis Carroll", "a='Lewis Carroll'")
 	assertEncodesToUnwrapped(t, "b: 123", "b=123")
 	assertEncodesToUnwrapped(t, "c: true", "c=true")
-	assertEncodesToUnwrapped(t, "d: value with spaces", "d=value with spaces")
+	assertEncodesToUnwrapped(t, "d: value with spaces", "d='value with spaces'")
+	assertEncodesToUnwrapped(t, "e: path/to-file_1.txt", "e=path/to-file_1.txt")
+}
+
+func TestShellVariablesEncoderUnwrapScalarQuotesUnsafeValues(t *testing.T) {
+	assertEncodesToUnwrapped(t, `cmd: "safe; id"`, "cmd='safe; id'")
+	assertEncodesToUnwrapped(t, `cmd: "$(id)"`, "cmd='$(id)'")
+	assertEncodesToUnwrapped(t, "cmd: \"`id`\"", "cmd='`id`'")
+	assertEncodesToUnwrapped(t, `cmd: "a && b"`, "cmd='a && b'")
+	assertEncodesToUnwrapped(t, `cmd: "a | b"`, "cmd='a | b'")
+	assertEncodesToUnwrapped(t, `cmd: "$HOME"`, "cmd='$HOME'")
+	assertEncodesToUnwrapped(t, `cmd: "~root"`, "cmd='~root'")
+	assertEncodesToUnwrapped(t, `cmd: "it's"`, `cmd='it'"'"'s'`)
+	assertEncodesToUnwrapped(t, `cmd: "a\nid"`, "cmd='a\nid'")
+	assertEncodesToUnwrapped(t, `cmd: "a#b"`, "cmd='a#b'")
+	assertEncodesToUnwrapped(t, `cmd: "*"`, "cmd='*'")
 }
 
 func TestShellVariablesEncoderNumericSeparators(t *testing.T) {
@@ -265,4 +280,59 @@ func TestShellVariablesEncoderRetainsNumericSourceValue(t *testing.T) {
 	test.AssertResult(t, "number=20000\n", output.String())
 	test.AssertResult(t, "20_000", value.Value)
 	test.AssertResult(t, "!!int", value.Tag)
+}
+
+func TestShellVariablesEncoderNumericSeparatorsSecurityModes(t *testing.T) {
+	cases := []struct {
+		name      string
+		yaml      string
+		quoted    string
+		unwrapped string
+		forced    string
+	}{
+		{"integer", "value: 20_000", "20000", "20000", "20000"},
+		{"signed integer", "value: -20_000", "'-20000'", "-20000", "-20000"},
+		{"float", "value: 1_000.5_0", "'1000.50'", "1000.50", "1000.50"},
+		{"safe string", "value: 'path_to/1_000.txt'", "'path_to/1_000.txt'", "path_to/1_000.txt", "path_to/1_000.txt"},
+		{"unsafe string", "value: '20_000; do_not_execute'", "'20_000; do_not_execute'", "'20_000; do_not_execute'", "20_000; do_not_execute"},
+		{"quoted string", "value: \"it's_20_000\"", `'it'"'"'s_20_000'`, `'it'"'"'s_20_000'`, "it's_20_000"},
+	}
+	modes := []struct {
+		name   string
+		unwrap bool
+		force  bool
+	}{
+		{"quoted", false, false},
+		{"safe unwrap", true, false},
+		{"forced unwrap", true, true},
+		{"force without unwrap", false, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, mode := range modes {
+				t.Run(mode.name, func(t *testing.T) {
+					inputs, err := readDocuments(strings.NewReader(tc.yaml), "test.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
+					if err != nil {
+						t.Fatal(err)
+					}
+					prefs := NewDefaultShellVariablesPreferences()
+					prefs.UnwrapScalar = mode.unwrap
+					prefs.SecurityForceNeverEscape = mode.force
+					encoder := &shellVariablesEncoder{prefs: prefs}
+					var output bytes.Buffer
+					if err := encoder.Encode(&output, inputs.Front().Value.(*CandidateNode)); err != nil {
+						t.Fatal(err)
+					}
+					want := tc.quoted
+					if mode.unwrap {
+						want = tc.unwrapped
+						if mode.force {
+							want = tc.forced
+						}
+					}
+					test.AssertResult(t, "value="+want+"\n", output.String())
+				})
+			}
+		})
+	}
 }
