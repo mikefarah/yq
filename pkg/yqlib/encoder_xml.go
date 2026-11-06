@@ -145,6 +145,9 @@ func (e *xmlEncoder) encodeTopLevelMap(encoder *xml.Encoder, node *CandidateNode
 
 			log.Debugf("recursing")
 
+			if err := validateXMLName(key.Value, "element"); err != nil {
+				return err
+			}
 			err = e.doEncode(encoder, value, start)
 			if err != nil {
 				return err
@@ -253,6 +256,59 @@ func (e *xmlEncoder) encodeArray(encoder *xml.Encoder, node *CandidateNode, star
 	return e.encodeComment(encoder, footComment(node))
 }
 
+// isValidXMLName reports whether name matches the XML 1.0 Name production.
+// The Go XML encoder writes element and attribute names verbatim, so a name
+// that is not valid XML produces output that yq (and any other XML parser)
+// cannot read back.
+func isValidXMLName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for index, r := range name {
+		if index == 0 {
+			if !isXMLNameStartChar(r) {
+				return false
+			}
+		} else if !isXMLNameChar(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func isXMLNameStartChar(r rune) bool {
+	return r == ':' || r == '_' ||
+		(r >= 'A' && r <= 'Z') ||
+		(r >= 'a' && r <= 'z') ||
+		(r >= 0xC0 && r <= 0xD6) ||
+		(r >= 0xD8 && r <= 0xF6) ||
+		(r >= 0xF8 && r <= 0x2FF) ||
+		(r >= 0x370 && r <= 0x37D) ||
+		(r >= 0x37F && r <= 0x1FFF) ||
+		(r >= 0x200C && r <= 0x200D) ||
+		(r >= 0x2070 && r <= 0x218F) ||
+		(r >= 0x2C00 && r <= 0x2FEF) ||
+		(r >= 0x3001 && r <= 0xD7FF) ||
+		(r >= 0xF900 && r <= 0xFDCF) ||
+		(r >= 0xFDF0 && r <= 0xFFFD) ||
+		(r >= 0x10000 && r <= 0xEFFFF)
+}
+
+func isXMLNameChar(r rune) bool {
+	return isXMLNameStartChar(r) ||
+		r == '-' || r == '.' || r == 0xB7 ||
+		(r >= '0' && r <= '9') ||
+		(r >= 0x300 && r <= 0x36F) ||
+		(r >= 0x203F && r <= 0x2040)
+}
+
+func validateXMLName(name string, nameType string) error {
+	if !isValidXMLName(name) {
+		return fmt.Errorf("cannot encode key '%v' to XML: invalid %v name", name, nameType)
+	}
+	return nil
+}
+
 func (e *xmlEncoder) isAttribute(name string) bool {
 	return strings.HasPrefix(name, e.prefs.AttributePrefix) &&
 		name != e.prefs.ContentName &&
@@ -271,6 +327,9 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *CandidateNode, start 
 		if e.isAttribute(key.Value) {
 			if value.Kind == ScalarNode {
 				attributeName := strings.Replace(key.Value, e.prefs.AttributePrefix, "", 1)
+				if err := validateXMLName(attributeName, "attribute"); err != nil {
+					return err
+				}
 				start.Attr = append(start.Attr, xml.Attr{Name: xml.Name{Local: attributeName}, Value: value.Value})
 			} else {
 				return fmt.Errorf("cannot use %v as attribute, only scalars are supported", value.Tag)
@@ -319,6 +378,9 @@ func (e *xmlEncoder) encodeMap(encoder *xml.Encoder, node *CandidateNode, start 
 				return err
 			}
 		} else if !e.isAttribute(key.Value) {
+			if err := validateXMLName(key.Value, "element"); err != nil {
+				return err
+			}
 			start := xml.StartElement{Name: xml.Name{Local: key.Value}}
 			err := e.doEncode(encoder, value, start)
 			if err != nil {
