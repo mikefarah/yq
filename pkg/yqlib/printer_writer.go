@@ -111,10 +111,12 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 	if err := root.MkdirAll(dir, 0750); err != nil {
 		return nil, err
 	}
+	// Recheck after creating directories in case a path component resolved through a symlink.
 	if err := rejectSymlinkDirectories(root, dir); err != nil {
 		return nil, sp.rejectPath(name, err)
 	}
 
+	// Replace a final symlink itself instead of following it and truncating its target.
 	info, err := root.Lstat(name)
 	if err == nil && info.Mode()&os.ModeSymlink != 0 {
 		if err := root.Remove(name); err != nil {
