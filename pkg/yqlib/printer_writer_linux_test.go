@@ -249,12 +249,15 @@ func TestMultiPrinterWriterRespectsNonRootWritePermissions(t *testing.T) {
 	if err := os.Mkdir(workDir, 0700); err != nil {
 		t.Fatal(err)
 	}
-	testBinary, err := os.ReadFile(os.Args[0])
+	testBinary, err := os.ReadFile("/proc/self/exe")
 	if err != nil {
 		t.Fatal(err)
 	}
 	testBinaryPath := filepath.Join(workDir, "yq-test")
-	if err := os.WriteFile(testBinaryPath, testBinary, 0700); err != nil {
+	if err := os.WriteFile(testBinaryPath, testBinary, 0600); err != nil { // #nosec G703 -- path is inside the private test directory
+		t.Fatal(err)
+	}
+	if err := os.Chmod(testBinaryPath, 0700); err != nil {
 		t.Fatal(err)
 	}
 
@@ -323,6 +326,16 @@ func TestMultiPrinterWriterRespectsNonRootWritePermissions(t *testing.T) {
 				t.Fatalf("permission subprocess failed: %v\n%s", err, output)
 			}
 
+			info, err := os.Stat(outputPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if info.Mode().Perm() != testCase.mode {
+				t.Errorf("file mode changed: got %o, want %o", info.Mode().Perm(), testCase.mode)
+			}
+			if err := os.Chmod(outputPath, testCase.mode|0400); err != nil {
+				t.Fatal(err)
+			}
 			content, err := os.ReadFile(outputPath)
 			if err != nil {
 				t.Fatal(err)
