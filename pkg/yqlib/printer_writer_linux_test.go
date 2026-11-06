@@ -5,9 +5,13 @@ package yqlib
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"net"
 	"os"
+	"os/exec"
+	"os/user"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"testing"
@@ -165,7 +169,7 @@ func TestMultiPrinterWriterOverrideDoesNotReplaceSocket(t *testing.T) {
 
 func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 	setupSplitWriterTest(t)
-	if err := os.WriteFile("output.txt", []byte("before"), 0640); err != nil {
+	if err := os.WriteFile("output.txt", []byte("before"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	file, err := os.OpenFile("output.txt", os.O_RDONLY, 0)
@@ -178,7 +182,7 @@ func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 		t.Fatal(closeErr)
 	}
 	if err != nil {
-		if err == unix.ENOTSUP || err == unix.EOPNOTSUPP || err == unix.EPERM {
+		if errors.Is(err, unix.ENOTSUP) || errors.Is(err, unix.EOPNOTSUPP) || errors.Is(err, unix.EPERM) {
 			t.Skipf("access ACLs are unavailable: %v", err)
 		}
 		t.Fatal(err)
@@ -214,6 +218,122 @@ func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 	}
 	if info.Mode().Perm() != 0640 {
 		t.Errorf("file mode changed: got %o, want 640", info.Mode().Perm())
+	}
+}
+
+func TestMultiPrinterWriterPermissionHelper(t *testing.T) {
+	if os.Getenv("YQ_SPLIT_PERMISSION_HELPER") != "1" {
+		return
+	}
+	writer, err := getTestSplitWriter(t, "output.txt")
+	expectWrite := os.Getenv("YQ_SPLIT_EXPECT_WRITE") == "true"
+	if expectWrite && err != nil {
+		t.Fatalf("expected write-only destination to be accepted: %v", err)
+	}
+	if !expectWrite && err == nil {
+		t.Fatal("expected read-only destination to be rejected")
+	}
+	if err == nil {
+		if _, err := writer.WriteString("updated"); err != nil {
+			t.Fatal(err)
+		}
+		if err := writer.Flush(); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestMultiPrinterWriterRespectsNonRootWritePermissions(t *testing.T) {
+	tempDir := t.TempDir()
+	workDir := filepath.Join(tempDir, "work")
+	if err := os.Mkdir(workDir, 0700); err != nil {
+		t.Fatal(err)
+	}
+	testBinary, err := os.ReadFile(os.Args[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	testBinaryPath := filepath.Join(workDir, "yq-test")
+	if err := os.WriteFile(testBinaryPath, testBinary, 0700); err != nil {
+		t.Fatal(err)
+	}
+
+	var credential *syscall.Credential
+	if os.Geteuid() == 0 {
+		nobody, err := user.LookupId("65534")
+		if err != nil {
+			t.Fatalf("could not find unprivileged user: %v", err)
+		}
+		uid, err := strconv.ParseUint(nobody.Uid, 10, 32)
+		if err != nil {
+			t.Fatal(err)
+		}
+		gid, err := strconv.ParseUint(nobody.Gid, 10, 32)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chown(tempDir, int(uid), int(gid)); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chmod(filepath.Dir(tempDir), 0711); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chown(workDir, int(uid), int(gid)); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chown(testBinaryPath, int(uid), int(gid)); err != nil {
+			t.Fatal(err)
+		}
+		credential = &syscall.Credential{Uid: uint32(uid), Gid: uint32(gid)}
+	}
+
+	for _, testCase := range []struct {
+		name        string
+		mode        os.FileMode
+		expectWrite bool
+	}{
+		{name: "write-only", mode: 0200, expectWrite: true},
+		{name: "read-only", mode: 0400, expectWrite: false},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			outputPath := filepath.Join(workDir, "output.txt")
+			if err := os.WriteFile(outputPath, []byte("original"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if credential != nil {
+				if err := os.Chown(outputPath, int(credential.Uid), int(credential.Gid)); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := os.Chmod(outputPath, testCase.mode); err != nil {
+				t.Fatal(err)
+			}
+
+			command := exec.Command(testBinaryPath, "-test.run=^TestMultiPrinterWriterPermissionHelper$")
+			command.Dir = workDir
+			command.Env = append(os.Environ(),
+				"YQ_SPLIT_PERMISSION_HELPER=1",
+				"YQ_SPLIT_EXPECT_WRITE="+strconv.FormatBool(testCase.expectWrite),
+			)
+			if credential != nil {
+				command.SysProcAttr = &syscall.SysProcAttr{Credential: credential}
+			}
+			output, err := command.CombinedOutput()
+			if err != nil {
+				t.Fatalf("permission subprocess failed: %v\n%s", err, output)
+			}
+
+			content, err := os.ReadFile(outputPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if testCase.expectWrite && string(content) != "updated" {
+				t.Errorf("writable destination was not updated: %q", content)
+			}
+			if !testCase.expectWrite && string(content) != "original" {
+				t.Errorf("read-only destination was changed: %q", content)
+			}
+		})
 	}
 }
 
