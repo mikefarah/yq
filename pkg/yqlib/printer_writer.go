@@ -143,6 +143,22 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
+	var source *os.File
+	if preservePermissions {
+		source, err = openSplitSource(root, name)
+		if err != nil {
+			return nil, sp.rejectPath(name, fmt.Errorf("could not preserve destination access-control metadata: %w", err))
+		}
+		defer source.Close()
+		sourceInfo, err := source.Stat()
+		if err != nil {
+			return nil, sp.rejectPath(name, fmt.Errorf("could not preserve destination access-control metadata: %w", err))
+		}
+		if !sourceInfo.Mode().IsRegular() || !os.SameFile(info, sourceInfo) {
+			return nil, sp.rejectPath(name, fmt.Errorf("destination changed while preserving access-control metadata"))
+		}
+		mode = sourceInfo.Mode().Perm()
+	}
 
 	// Atomically replace the destination with a new inode instead of following symlinks or truncating hard links.
 	for range 10 {
@@ -157,6 +173,13 @@ func (sp *multiPrintWriter) createLocalFile(name string) (*os.File, error) {
 		}
 		if err != nil {
 			return nil, err
+		}
+		if source != nil {
+			if err := copySplitAccessControl(source, file); err != nil {
+				_ = file.Close()
+				_ = root.Remove(temporaryName)
+				return nil, sp.rejectPath(name, fmt.Errorf("could not preserve destination access-control metadata: %w", err))
+			}
 		}
 		if err := replaceSplitFile(root, file, temporaryName, name, mode, preservePermissions); err != nil {
 			_ = file.Close()

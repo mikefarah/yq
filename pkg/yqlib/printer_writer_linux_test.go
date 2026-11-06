@@ -3,12 +3,16 @@
 package yqlib
 
 import (
+	"bytes"
+	"encoding/binary"
 	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"syscall"
 	"testing"
+
+	"golang.org/x/sys/unix"
 )
 
 func TestReplaceSplitFileUsesOpenHandleForPermissions(t *testing.T) {
@@ -157,4 +161,82 @@ func TestMultiPrinterWriterOverrideDoesNotReplaceSocket(t *testing.T) {
 	if !os.SameFile(before, after) {
 		t.Error("socket was replaced")
 	}
+}
+
+func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
+	setupSplitWriterTest(t)
+	if err := os.WriteFile("output.txt", []byte("before"), 0640); err != nil {
+		t.Fatal(err)
+	}
+	file, err := os.OpenFile("output.txt", os.O_RDONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	acl := restrictiveAccessACL()
+	err = unix.Fsetxattr(int(file.Fd()), "system.posix_acl_access", acl, 0)
+	if closeErr := file.Close(); closeErr != nil {
+		t.Fatal(closeErr)
+	}
+	if err != nil {
+		if err == unix.ENOTSUP || err == unix.EOPNOTSUPP || err == unix.EPERM {
+			t.Skipf("access ACLs are unavailable: %v", err)
+		}
+		t.Fatal(err)
+	}
+
+	writer, err := getTestSplitWriter(t, "output.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := writer.WriteString("after"); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Flush(); err != nil {
+		t.Fatal(err)
+	}
+
+	output, err := os.Open("output.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer output.Close()
+	actualACL := make([]byte, len(acl))
+	n, err := unix.Fgetxattr(int(output.Fd()), "system.posix_acl_access", actualACL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(acl, actualACL[:n]) {
+		t.Errorf("access ACL changed: got %v, want %v", actualACL[:n], acl)
+	}
+	info, err := output.Stat()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info.Mode().Perm() != 0640 {
+		t.Errorf("file mode changed: got %o, want 640", info.Mode().Perm())
+	}
+}
+
+func restrictiveAccessACL() []byte {
+	acl := make([]byte, 4+5*8)
+	binary.LittleEndian.PutUint32(acl, 2)
+	// The group entry denies access while the mask keeps the mode at 0640.
+	entries := []struct {
+		tag  uint16
+		perm uint16
+		id   uint32
+	}{
+		{tag: 0x01, perm: 0x06, id: ^uint32(0)},
+		{tag: 0x02, perm: 0x00, id: 424242},
+		{tag: 0x04, perm: 0x00, id: ^uint32(0)},
+		{tag: 0x10, perm: 0x04, id: ^uint32(0)},
+		{tag: 0x20, perm: 0x00, id: ^uint32(0)},
+	}
+	for i, entry := range entries {
+		offset := 4 + i*8
+		binary.LittleEndian.PutUint16(acl[offset:], entry.tag)
+		binary.LittleEndian.PutUint16(acl[offset+2:], entry.perm)
+		binary.LittleEndian.PutUint32(acl[offset+4:], entry.id)
+	}
+	return acl
 }
