@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -640,15 +641,13 @@ func nodeToCtyValue(node *CandidateNode) (cty.Value, error) {
 		case "!!bool":
 			return cty.BoolVal(node.Value == "true"), nil
 		case "!!int":
-			var i int64
-			_, err := fmt.Sscanf(node.Value, "%d", &i)
+			_, i, err := parseInt64(node.Value)
 			if err != nil {
 				return cty.NilVal, err
 			}
 			return cty.NumberIntVal(i), nil
 		case "!!float":
-			var f float64
-			_, err := fmt.Sscanf(node.Value, "%f", &f)
+			f, err := strconv.ParseFloat(strings.ReplaceAll(node.Value, "_", ""), 64)
 			if err != nil {
 				return cty.NilVal, err
 			}
