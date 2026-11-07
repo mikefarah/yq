@@ -385,6 +385,22 @@ var jsonScenarios = []formatScenario{
 		expected:     "- true\n- false\n",
 		scenarioType: "decode-ndjson",
 	},
+	{
+		description:  "Encode json: mapping and sequence keys are preserved",
+		skipDoc:      true,
+		input:        "{}:\n{x}:\n[x]:",
+		indent:       0,
+		expected:     "{\"{}\":null,\"{x}\":null,\"[x]\":null}\n",
+		scenarioType: "encode",
+	},
+	{
+		description:  "Encode json: mixed scalar and complex keys",
+		skipDoc:      true,
+		input:        "{a: 1, [1,2]: 2}",
+		indent:       0,
+		expected:     "{\"a\":1,\"[1, 2]\":2}\n",
+		scenarioType: "encode",
+	},
 }
 
 func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent int) {
