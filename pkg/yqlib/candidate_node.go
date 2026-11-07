@@ -461,7 +461,7 @@ func (n *CandidateNode) UpdateFrom(other *CandidateNode, prefs assignPreferences
 	n.Value = other.Value
 
 	n.UpdateAttributesFrom(other, prefs)
-
+	normaliseEmptyCollectionMapKeyComment(n)
 }
 
 func (n *CandidateNode) UpdateAttributesFrom(other *CandidateNode, prefs assignPreferences) {
