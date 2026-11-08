@@ -59,6 +59,15 @@ var uniqueOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Unique array of objects with a comment between equal items",
+		skipDoc:     true,
+		document:    "- id: 1001\n# Comment\n- id: 1001\n",
+		expression:  `unique`,
+		expected: []string{
+			"D0, P[], (!!seq)::- id: 1001\n",
+		},
+	},
+	{
 		description: "Unique array of arrays",
 		document:    `[[cat,dog], [cat, sheep], [cat,dog]]`,
 		expression:  `unique`,
