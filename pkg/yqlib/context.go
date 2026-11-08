@@ -12,6 +12,8 @@ type Context struct {
 	Variables      map[string]*list.List
 	DontAutoCreate bool
 	datetimeLayout string
+	// Shared by child contexts so variable loops keep counting for each split_doc expression.
+	splitDocumentIndices map[*ExpressionNode]uint
 }
 
 func (n *Context) SingleReadonlyChildContext(candidate *CandidateNode) Context {
@@ -55,6 +57,7 @@ func (n *Context) SetVariable(name string, value *list.List) {
 
 func (n *Context) ChildContext(results *list.List) Context {
 	clone := Context{DontAutoCreate: n.DontAutoCreate, datetimeLayout: n.datetimeLayout}
+	clone.splitDocumentIndices = n.splitDocumentIndices
 	clone.Variables = make(map[string]*list.List)
 	for variableKey, originalValueList := range n.Variables {
 
