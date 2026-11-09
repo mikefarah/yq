@@ -206,3 +206,39 @@ func TestPropertiesEncoderArray_Wrapped(t *testing.T) {
 		false, true,
 	)
 }
+
+func TestPropertiesEncoderEscapeSequences(t *testing.T) {
+	var sampleYaml = "a: \"\\e[31mbob\\e[0m\"\nb: \"bell\\a\"\n"
+
+	doTest(
+		t, sampleYaml,
+		testProperties{
+			pairs: []keyValuePair{
+				{
+					key:   "a",
+					value: "[31mbob[0m",
+				},
+				{
+					key:   "b",
+					value: "bell",
+				},
+			},
+		},
+		true, false,
+	)
+}
+
+func TestPropertiesEncoderScalarWithEscapeSequences(t *testing.T) {
+	var output bytes.Buffer
+	writer := bufio.NewWriter(&output)
+	encoder := NewPropertiesEncoder(PropertiesPreferences{KeyValueSeparator: " = ", UnwrapScalar: true})
+	node := &CandidateNode{
+		Kind:  ScalarNode,
+		Value: "\x1b[31mhello\x1b[0m\a",
+	}
+	err := encoder.Encode(writer, node)
+	test.AssertResult(t, nil, err)
+	test.AssertResult(t, nil, writer.Flush())
+	test.AssertResult(t, "[31mhello[0m\n", output.String())
+}
+

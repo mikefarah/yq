@@ -58,15 +58,16 @@ func (pe *shellVariablesEncoder) doEncode(w *io.Writer, node *CandidateNode, pat
 			nonemptyPath = "value"
 		}
 		var valueString string
+		cleanValue := sanitizeControlChars(node.Value)
 		if pe.prefs.UnwrapScalar {
-			if pe.prefs.SecurityForceNeverEscape || isSafeUnquotedShellValue(node.Value) {
-				valueString = node.Value
+			if pe.prefs.SecurityForceNeverEscape || isSafeUnquotedShellValue(cleanValue) {
+				valueString = cleanValue
 			} else {
 				GetLogger().Warningf("value for '%v' contains characters that are unsafe in a shell, ignoring unwrap (-r) and quoting it; to disable escaping (UNSAFE) use --security-force-never-escape-shell-output", nonemptyPath)
-				valueString = quoteValue(node.Value)
+				valueString = quoteValue(cleanValue)
 			}
 		} else {
-			valueString = quoteValue(node.Value)
+			valueString = quoteValue(cleanValue)
 		}
 		_, err := io.WriteString(*w, nonemptyPath+"="+valueString+"\n")
 		return err
