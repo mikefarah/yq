@@ -254,6 +254,7 @@ func TestNew_FlagCompletions(t *testing.T) {
 		"front-matter",
 		"expression",
 		"split-exp",
+		"security-allow-write-any-path",
 	}
 
 	for _, flagName := range flags {
