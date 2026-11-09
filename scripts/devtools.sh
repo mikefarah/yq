@@ -1,8 +1,8 @@
 #!/bin/sh
 set -ex
-go mod download golang.org/x/tools@v0.44.0
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/27774aaf853a4fd21f1dd5e69439459dc1b26e68/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
-curl -sSfL https://raw.githubusercontent.com/securego/gosec/deb54465fea23d19a77f037e11e6589021f8501d/install.sh | sh -s v2.29.0
+go mod download golang.org/x/tools@v0.51.0
+curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/27774aaf853a4fd21f1dd5e69439459dc1b26e68/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.14.0
+curl -sSfL https://raw.githubusercontent.com/securego/gosec/deb54465fea23d19a77f037e11e6589021f8501d/install.sh | sh -s v2.30.0
 
 TYPOS_VERSION=v1.47.2
 TYPOS_OS=$(uname -s | tr '[:upper:]' '[:lower:]')
