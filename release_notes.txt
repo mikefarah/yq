@@ -1,3 +1,8 @@
+4.54.3:
+  - Fixed preservation of YAML aliases across documents within the same input stream, without leaking anchors between files (#2956) Thanks @ingydotnet
+  - Restricted `--split-exp` output paths to the current directory by default. Use `--security-allow-write-any-path` with trusted input to restore the previous behaviour (#2965)
+  - Fixed `--inplace` to reject direct updates to read-only files and replace symbolic links instead of modifying their targets. A link to a read-only target can still be replaced, preserving the target's permissions (#2973)
+
 4.54.2:
   - Fixed command injection risk in shell output with `-o=shell -r`: unsafe values are now quoted and a warning is logged. Use `--security-force-never-escape-shell-output` to restore the previous unsafe behaviour (GHSA-h2cv-65fq-jgrp)
   - Fixed YAML structure being changed when assigning head comments (#2847) Thanks @rootsec1
