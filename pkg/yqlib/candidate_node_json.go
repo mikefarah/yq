@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/goccy/go-json"
+	yaml "go.yaml.in/yaml/v4"
 )
 
 func (o *CandidateNode) setScalarFromJson(value interface{}) error {
@@ -159,7 +160,15 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 		log.Debugf("MarshalJSON MappingNode")
 		buf.WriteByte('{')
 		for i := 0; i < len(o.Content); i += 2 {
-			if err := enc.Encode(o.Content[i].Value); err != nil {
+			key := o.Content[i].Value
+			if o.Content[i].Kind != ScalarNode {
+				var err error
+				key, err = o.Content[i].marshalJSONKey()
+				if err != nil {
+					return nil, err
+				}
+			}
+			if err := enc.Encode(key); err != nil {
 				return nil, err
 			}
 			buf.WriteByte(':')
@@ -185,6 +194,60 @@ func (o *CandidateNode) MarshalJSON() ([]byte, error) {
 		err := enc.Encode(nil)
 		return buf.Bytes(), err
 	}
+}
+
+// marshalJSONKey renders a mapping key node as a string for JSON output.
+// Mapping and sequence keys (legal in YAML) are rendered in flow style so the
+// key content is preserved instead of collapsing to an empty string.
+func (o *CandidateNode) marshalJSONKey() (string, error) {
+	switch o.Kind {
+	case ScalarNode:
+		if o.Tag == "!!null" && o.Value == "" {
+			return "", nil
+		}
+		yamlNode, err := o.MarshalYAML()
+		if err != nil {
+			return "", err
+		}
+		keyBytes, err := yaml.Marshal(yamlNode)
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(keyBytes)), nil
+	case SequenceNode:
+		parts := make([]string, len(o.Content))
+		for i, child := range o.Content {
+			part, err := child.marshalJSONKey()
+			if err != nil {
+				return "", err
+			}
+			parts[i] = part
+		}
+		return "[" + strings.Join(parts, ", ") + "]", nil
+	case MappingNode:
+		parts := make([]string, 0, len(o.Content)/2)
+		for i := 0; i+1 < len(o.Content); i += 2 {
+			keyString, err := o.Content[i].marshalJSONKey()
+			if err != nil {
+				return "", err
+			}
+			valueString, err := o.Content[i+1].marshalJSONKey()
+			if err != nil {
+				return "", err
+			}
+			if valueString == "" {
+				parts = append(parts, keyString)
+			} else {
+				parts = append(parts, keyString+": "+valueString)
+			}
+		}
+		return "{" + strings.Join(parts, ", ") + "}", nil
+	case AliasNode:
+		if o.Alias != nil {
+			return o.Alias.marshalJSONKey()
+		}
+	}
+	return o.Value, nil
 }
 
 // jsonFloatLiteral returns a JSON-shaped representation of a YAML !!float scalar
