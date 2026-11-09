@@ -22,11 +22,15 @@ func NewWriteInPlaceHandler(inputFile string) writeInPlaceHandler {
 }
 
 func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
+	entryInfo, err := os.Lstat(w.inputFilename)
+	if err != nil {
+		return nil, err
+	}
 	info, err := os.Stat(w.inputFilename)
 	if err != nil {
 		return nil, err
 	}
-	if info.Mode().Perm()&0o222 == 0 {
+	if entryInfo.Mode()&os.ModeSymlink == 0 && info.Mode().Perm()&0o222 == 0 {
 		return nil, fmt.Errorf("cannot write in place to read-only file %q", w.inputFilename)
 	}
 

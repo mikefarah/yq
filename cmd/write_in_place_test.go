@@ -141,3 +141,66 @@ func TestEvaluateWriteInPlace(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluateWriteInPlaceSymlinkToReadOnlyTarget(t *testing.T) {
+	originalWriteInplace := writeInplace
+	originalExitStatus := exitStatus
+	originalCompletedSuccessfully := completedSuccessfully
+	t.Cleanup(func() {
+		writeInplace = originalWriteInplace
+		exitStatus = originalExitStatus
+		completedSuccessfully = originalCompletedSuccessfully
+	})
+
+	for _, command := range []string{"eval", "eval-all"} {
+		t.Run(command, func(t *testing.T) {
+			dir := t.TempDir()
+			target := filepath.Join(dir, "target.yaml")
+			link := filepath.Join(dir, "link.yaml")
+			if err := os.WriteFile(target, []byte("name: original\n"), 0600); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Chmod(target, 0444); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.Symlink("target.yaml", link); err != nil {
+				t.Fatal(err)
+			}
+
+			cmd := New()
+			cmd.SetArgs([]string{command, "-i", `.name = "updated"`, link})
+			if err := cmd.Execute(); err != nil {
+				t.Fatalf("in-place update failed: %v", err)
+			}
+
+			info, err := os.Lstat(link)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !info.Mode().IsRegular() || info.Mode().Perm() != 0444 {
+				t.Errorf("replacement mode = %v, want regular file with mode 0444", info.Mode())
+			}
+			content, err := os.ReadFile(link)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(content) != "name: updated\n" {
+				t.Errorf("replacement content = %q", content)
+			}
+			content, err = os.ReadFile(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(content) != "name: original\n" {
+				t.Errorf("target content changed: %q", content)
+			}
+			info, err = os.Stat(target)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if info.Mode().Perm() != 0444 {
+				t.Errorf("target permissions changed: %v", info.Mode().Perm())
+			}
+		})
+	}
+}
