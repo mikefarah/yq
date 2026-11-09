@@ -25,6 +25,7 @@ yq '.a.b[0].c' < file.yaml
 ```bash
 yq -i '.a.b[0].c = "cool"' file.yaml
 ```
+If the input is a symbolic link, yq _replaces_ the link and leaves its target unchanged.
 
 **Update using environment variables:**
 ```bash
