@@ -308,6 +308,54 @@ thing:
   - 4
 ```
 
+## Merge, only new fields, keeping the comments of new keys
+A field that is copied over carries its head comment and the line comment on its key.
+
+Given a sample.yml file of:
+```yaml
+a:
+  empty: true
+b:
+  # foo head comment
+  foo: 1 # foo line comment
+  # bar head comment
+  bar: # bar line comment
+    baz: 2
+```
+then
+```bash
+yq '.a *n .b' sample.yml
+```
+will output
+```yaml
+empty: true
+# foo head comment
+foo: 1 # foo line comment
+# bar head comment
+bar: # bar line comment
+  baz: 2
+```
+
+## Merge, only new fields, leaving existing fields alone
+Fields that already exist are not overwritten, and do not adopt the comments of the other document.
+
+Given a sample.yml file of:
+```yaml
+a:
+  foo: 1 # original
+b:
+  # incoming head comment
+  foo: 2 # incoming
+```
+then
+```bash
+yq '.a *n .b' sample.yml
+```
+will output
+```yaml
+foo: 1 # original
+```
+
 ## Merge, deeply merging arrays
 Merging arrays deeply means arrays are merged like objects, with indices as their key. In this case, we merge the first item in the array and do nothing with the second.
 
