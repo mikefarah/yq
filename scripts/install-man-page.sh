@@ -9,6 +9,8 @@ if [ -z "$my_path" ]; then
 fi
 
 # ex: ~/.local/bin/yq => ~/.local/
-my_prefix="$(dirname "$(dirname "$(command -v yq)")")"
+# Resolve the directory physically so that /bin, which is often a symlink to
+# /usr/bin, gives /usr rather than / as the install prefix.
+my_prefix="$(dirname "$(CDPATH= cd "$(dirname "$my_path")" && pwd -P)")"
 mkdir -p "$my_prefix/share/man/man1/"
 cp yq.1 "$my_prefix/share/man/man1/"
