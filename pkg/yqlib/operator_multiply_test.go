@@ -506,6 +506,24 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Merge, only new fields, keeping the comments of new keys",
+		subdescription: "A field that is copied over carries its head comment and the line comment on its key.",
+		document:       "a:\n  empty: true\nb:\n  # foo head comment\n  foo: 1 # foo line comment\n  # bar head comment\n  bar: # bar line comment\n    baz: 2\n",
+		expression:     `.a *n .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::empty: true\n# foo head comment\nfoo: 1 # foo line comment\n# bar head comment\nbar: # bar line comment\n    baz: 2\n",
+		},
+	},
+	{
+		description:    "Merge, only new fields, leaving existing fields alone",
+		subdescription: "Fields that already exist are not overwritten, and do not adopt the comments of the other document.",
+		document:       "a:\n  foo: 1 # original\nb:\n  # incoming head comment\n  foo: 2 # incoming\n",
+		expression:     `.a *n .b`,
+		expected: []string{
+			"D0, P[a], (!!map)::foo: 1 # original\n",
+		},
+	},
+	{
 		description:    "Merge, only new fields, appending arrays",
 		subdescription: "Append (+) with (n) has no effect.",
 		skipDoc:        true,
