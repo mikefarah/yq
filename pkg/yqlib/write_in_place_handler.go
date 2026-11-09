@@ -1,7 +1,9 @@
 package yqlib
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type writeInPlaceHandler interface {
@@ -20,8 +22,7 @@ func NewWriteInPlaceHandler(inputFile string) writeInPlaceHandler {
 }
 
 func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
-	file, err := createTempFile()
-
+	entryInfo, err := os.Lstat(w.inputFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -29,13 +30,25 @@ func (w *writeInPlaceHandlerImpl) CreateTempFile() (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	if entryInfo.Mode()&os.ModeSymlink == 0 && info.Mode().Perm()&0o222 == 0 {
+		return nil, fmt.Errorf("cannot write in place to read-only file %q", w.inputFilename)
+	}
+
+	file, err := os.CreateTemp(filepath.Dir(w.inputFilename), ".yq-inplace-")
+	if err != nil {
+		return nil, err
+	}
 	err = os.Chmod(file.Name(), info.Mode())
 
 	if err != nil {
+		_ = file.Close()
+		_ = os.Remove(file.Name())
 		return nil, err
 	}
 
 	if err = changeOwner(info, file); err != nil {
+		_ = file.Close()
+		_ = os.Remove(file.Name())
 		return nil, err
 	}
 	log.Debugf("WriteInPlaceHandler: writing to tempfile: %v", file.Name())
@@ -48,7 +61,11 @@ func (w *writeInPlaceHandlerImpl) FinishWriteInPlace(evaluatedSuccessfully bool)
 	safelyCloseFile(w.tempFile)
 	if evaluatedSuccessfully {
 		log.Debug("Moving temp file to target")
-		return tryRenameFile(w.tempFile.Name(), w.inputFilename)
+		if err := tryRenameFile(w.tempFile.Name(), w.inputFilename); err != nil {
+			tryRemoveTempFile(w.tempFile.Name())
+			return err
+		}
+		return nil
 	}
 	tryRemoveTempFile(w.tempFile.Name())
 

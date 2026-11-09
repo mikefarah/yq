@@ -107,11 +107,10 @@ func TestMultiPrinterWriterOverrideStreamsToFIFO(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fd, err := syscall.Open("pipe.txt", syscall.O_RDONLY|syscall.O_NONBLOCK, 0)
+	reader, err := os.OpenFile("pipe.txt", os.O_RDONLY|syscall.O_NONBLOCK, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	reader := os.NewFile(uintptr(fd), "pipe.txt")
 	defer reader.Close()
 
 	ConfiguredSecurityPreferences.AllowWriteAnyPath = true
@@ -177,7 +176,11 @@ func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 		t.Fatal(err)
 	}
 	acl := restrictiveAccessACL()
-	err = unix.Fsetxattr(int(file.Fd()), "system.posix_acl_access", acl, 0)
+	fd, err := splitFileDescriptor(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = unix.Fsetxattr(fd, "system.posix_acl_access", acl, 0)
 	if closeErr := file.Close(); closeErr != nil {
 		t.Fatal(closeErr)
 	}
@@ -205,7 +208,11 @@ func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 	}
 	defer output.Close()
 	actualACL := make([]byte, len(acl))
-	n, err := unix.Fgetxattr(int(output.Fd()), "system.posix_acl_access", actualACL)
+	fd, err = splitFileDescriptor(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	n, err := unix.Fgetxattr(fd, "system.posix_acl_access", actualACL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,6 +225,19 @@ func TestMultiPrinterWriterPreservesRestrictiveAccessACL(t *testing.T) {
 	}
 	if info.Mode().Perm() != 0640 {
 		t.Errorf("file mode changed: got %o, want 640", info.Mode().Perm())
+	}
+}
+
+func TestSplitFileDescriptorRejectsClosedFile(t *testing.T) {
+	file, err := os.CreateTemp(t.TempDir(), "closed")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := splitFileDescriptor(file); !errors.Is(err, os.ErrInvalid) {
+		t.Fatalf("expected invalid file descriptor error, got %v", err)
 	}
 }
 

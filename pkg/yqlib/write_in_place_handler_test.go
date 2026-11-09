@@ -49,6 +49,26 @@ func TestWriteInPlaceHandlerImpl_CreateTempFile_NonExistentInput(t *testing.T) {
 	}
 }
 
+func TestWriteInPlaceHandlerImpl_CreateTempFile_ReadOnlyInput(t *testing.T) {
+	inputFile := filepath.Join(t.TempDir(), "input.yaml")
+	// Create with restrictive permissions to satisfy gosec, then make the file read-only for the test.
+	if err := os.WriteFile(inputFile, []byte("test: value\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(inputFile, 0444); err != nil {
+		t.Fatal(err)
+	}
+
+	handler := NewWriteInPlaceHandler(inputFile)
+	tempFile, err := handler.CreateTempFile()
+	if err == nil {
+		t.Fatal("Expected an error for a read-only input file")
+	}
+	if tempFile != nil {
+		t.Fatal("Expected no temporary file for a read-only input")
+	}
+}
+
 func TestWriteInPlaceHandlerImpl_FinishWriteInPlace_Success(t *testing.T) {
 	// Create a temporary directory and file for testing
 	tempDir := t.TempDir()
@@ -178,23 +198,29 @@ func TestWriteInPlaceHandlerImpl_FinishWriteInPlace_Symlink_Success(t *testing.T
 		t.Fatalf("FinishWriteInPlace failed: %v", err)
 	}
 
-	// Verify that the symlink is still present
+	// Verify that the symlink was replaced
 	info, err := os.Lstat(symlinkFile)
 	if err != nil {
 		t.Fatalf("Failed to lstat input file: %v", err)
 	}
-	if info.Mode()&os.ModeSymlink == 0 {
-		t.Errorf("Input file symlink is no longer present")
+	if info.Mode()&os.ModeSymlink != 0 {
+		t.Errorf("Input file symlink was not replaced")
 	}
 
-	// Verify the original file was updated
-	updatedContent, err := os.ReadFile(inputFile)
+	// Verify that the target file was not updated
+	targetContent, err := os.ReadFile(inputFile)
 	if err != nil {
-		t.Fatalf("Failed to read updated file: %v", err)
+		t.Fatalf("Failed to read target file: %v", err)
 	}
-
+	if string(targetContent) != string(content) {
+		t.Errorf("Target file content changed. Expected %q, got %q", string(content), string(targetContent))
+	}
+	updatedContent, err := os.ReadFile(symlinkFile)
+	if err != nil {
+		t.Fatalf("Failed to read replaced symlink: %v", err)
+	}
 	if string(updatedContent) != string(tempContent) {
-		t.Errorf("File content not updated correctly. Expected %q, got %q",
+		t.Errorf("Replaced file content not correct. Expected %q, got %q",
 			string(tempContent), string(updatedContent))
 	}
 }
