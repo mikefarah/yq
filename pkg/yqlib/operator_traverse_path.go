@@ -63,8 +63,13 @@ func traverse(context Context, matchingNode *CandidateNode, operation *Operation
 		return nil, err
 	}
 
-	if matchingNode.Tag == "!!null" && operation.Value != "[]" && !context.DontAutoCreate {
+	if matchingNode.Tag == "!!null" && operation.Value != "[]" && (!context.DontAutoCreate || context.AutoCreateOnMissing) {
 		log.Debugf("Guessing kind")
+		if context.DontAutoCreate {
+			// collecting from a read-only context: guess the kind on a
+			// detached copy so the original null is not mutated in place.
+			matchingNode = matchingNode.Copy()
+		}
 		// we must have added this automatically, lets guess what it should be now
 		switch operation.Value.(type) {
 		case int, int64:
@@ -260,25 +265,31 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 		return nil, err
 	}
 
-	if !splat && !prefs.DontAutoCreate && !context.DontAutoCreate && newMatches.Len() == 0 {
+	if !splat && !prefs.DontAutoCreate && (!context.DontAutoCreate || context.AutoCreateOnMissing) && newMatches.Len() == 0 {
 		log.Debugf("no matches, creating one for %v", NodeToString(keyNode))
-		//no matches, create one automagically
 		valueNode := matchingNode.CreateChild()
 		valueNode.Kind = ScalarNode
 		valueNode.Tag = "!!null"
 		valueNode.Value = "null"
 
-		if len(matchingNode.Content) == 0 {
-			matchingNode.Style = 0
-		}
-
-		keyNode, valueNode = matchingNode.AddKeyValueChild(keyNode, valueNode)
-
-		if prefs.IncludeMapKeys {
-			newMatches.Set(keyNode.GetKey(), keyNode)
-		}
-		if !prefs.DontIncludeMapValues {
+		if context.DontAutoCreate {
+			// A collect expression needs a concrete null for a missing key, but
+			// must not add that key to the read-only node being collected from.
 			newMatches.Set(valueNode.GetKey(), valueNode)
+		} else {
+			if len(matchingNode.Content) == 0 {
+				// default to nice yaml formatting
+				matchingNode.Style = 0
+			}
+
+			keyNode, valueNode = matchingNode.AddKeyValueChild(keyNode, valueNode)
+
+			if prefs.IncludeMapKeys {
+				newMatches.Set(keyNode.GetKey(), keyNode)
+			}
+			if !prefs.DontIncludeMapValues {
+				newMatches.Set(valueNode.GetKey(), valueNode)
+			}
 		}
 	}
 
