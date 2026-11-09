@@ -11,6 +11,26 @@ b:
 
 var assignOperatorScenarios = []expressionScenario{
 	{
+		skipDoc:     true,
+		description: "Assign empty list to key with inline comment",
+		document: `testList: # A comment
+- name: test1`,
+		expression: `.testList = []`,
+		expected: []string{
+			"D0, P[], (!!map)::testList: [] # A comment\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Update map to empty with inline key comment",
+		document: `testMap: # A comment
+  name: test1`,
+		expression: `.testMap |= with_entries(select(.key == "x"))`,
+		expected: []string{
+			"D0, P[], (!!map)::testMap: {} # A comment\n",
+		},
+	},
+	{
 		description: "Create yaml file",
 		expression:  `.a.b = "cat" | .x = "frog"`,
 		expected: []string{
