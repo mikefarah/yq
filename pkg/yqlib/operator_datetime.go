@@ -53,8 +53,12 @@ func parseDateTime(layout string, datestring string) (time.Time, error) {
 
 	parsedTime, err := time.Parse(layout, datestring)
 	if err != nil && layout == time.RFC3339 {
-		// try parsing the date time with only the date
-		return time.Parse("2006-01-02", datestring)
+		// RFC 3339, YAML and TOML allow a space in place of T.
+		parsedTime, err = time.Parse("2006-01-02 15:04:05Z07:00", datestring)
+		if err != nil {
+			// try parsing the date time with only the date
+			return time.Parse("2006-01-02", datestring)
+		}
 	}
 	return parsedTime, err
 

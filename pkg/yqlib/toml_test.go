@@ -402,6 +402,13 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		skipDoc:      true,
+		description:  "datetime with space instead of T",
+		input:        "A = 2026-09-05 10:42:37.923487+00:00",
+		expected:     "A: 2026-09-05 10:42:37.923487+00:00\n",
+		scenarioType: "decode",
+	},
+	{
 		skipDoc:       true,
 		description:   "blank",
 		input:         `A = "hello`,
