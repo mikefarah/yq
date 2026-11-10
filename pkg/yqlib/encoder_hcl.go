@@ -359,11 +359,12 @@ func (he *hclEncoder) encodeAttribute(body *hclwrite.Body, key string, valueNode
 		// Handle unquoted expressions (as-is, without quotes)
 		if valueNode.Style == 0 {
 			tokens, err := tokensForRawHCLExpr(valueNode.Value)
-			if err != nil {
-				return err
+			if err == nil {
+				body.SetAttributeRaw(key, tokens)
+				return nil
 			}
-			body.SetAttributeRaw(key, tokens)
-			return nil
+			// A JSON decoder does not retain the HCL quote style. Strings such
+			// as module["OLD"].foo are not raw expressions; quote them instead.
 		}
 		if valueNode.Style&LiteralStyle != 0 {
 			tokens, err := tokensForRawHCLExpr(valueNode.Value)
@@ -465,14 +466,17 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 			if handled, err := he.encodeMappingChildrenAsBlocks(block.Body(), nestedType, bodyNode); err == nil && handled {
 				return true
 			}
+			block.Body().Clear()
 			if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
 				return true
 			}
+			body.RemoveBlock(block)
 		}
 		block := body.AppendNewBlock(key, labels)
 		if err := he.encodeNodeAttributes(block.Body(), bodyNode); err == nil {
 			return true
 		}
+		body.RemoveBlock(block)
 	}
 
 	// If all child values are mappings, treat each child key as a labelled instance of this block type
@@ -485,6 +489,7 @@ func (he *hclEncoder) encodeBlockIfMapping(body *hclwrite.Body, key string, valu
 	if err := he.encodeNodeAttributes(block.Body(), valueNode); err == nil {
 		return true
 	}
+	body.RemoveBlock(block)
 
 	return false
 }
