@@ -116,6 +116,18 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "[~]\n",
 	},
 	{
+		description: "flow map key with no value stays null",
+		skipDoc:     true,
+		input:       "{x}",
+		expected:    "{x: null}\n",
+	},
+	{
+		description: "flow map empty value stays null",
+		skipDoc:     true,
+		input:       "a: {x: , y: 1}",
+		expected:    "a: {x: null, y: 1}\n",
+	},
+	{
 		description: "basic - null map value",
 		skipDoc:     true,
 		input:       "a: null",
