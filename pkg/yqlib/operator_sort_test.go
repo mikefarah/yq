@@ -4,6 +4,62 @@ import "testing"
 
 var sortByOperatorScenarios = []expressionScenario{
 	{
+		description:   "Reject maps in sort",
+		skipDoc:       true,
+		document:      `[{a: 1}, {a: 0}]`,
+		expression:    `sort`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		description:   "Reject arrays in sort",
+		skipDoc:       true,
+		document:      `[[1], [0]]`,
+		expression:    `sort`,
+		expectedError: "arrays not yet supported for comparison",
+	},
+	{
+		description:   "Reject map sort keys",
+		skipDoc:       true,
+		document:      `[{a: {b: 1}}, {a: {b: 0}}]`,
+		expression:    `sort_by(.a)`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		description:   "Reject array sort keys",
+		skipDoc:       true,
+		document:      `[{a: [1]}, {a: [0]}]`,
+		expression:    `sort_by(.a)`,
+		expectedError: "arrays not yet supported for comparison",
+	},
+	{
+		description:   "Reject a non-scalar later sort key",
+		skipDoc:       true,
+		document:      `[{a: 1, b: [2]}, {a: 0, b: [1]}]`,
+		expression:    `sort_by(.a, .b)`,
+		expectedError: "arrays not yet supported for comparison",
+	},
+	{
+		description:   "Reject custom tagged maps",
+		skipDoc:       true,
+		document:      `[!thing {a: 1}, !thing {a: 0}]`,
+		expression:    `sort`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		description:   "Reject map keys when sorting map values",
+		skipDoc:       true,
+		document:      `{a: {key: [1]}, b: {key: [0]}}`,
+		expression:    `sort_by(.key)`,
+		expectedError: "arrays not yet supported for comparison",
+	},
+	{
+		description:   "Reject a single unsupported sort key",
+		skipDoc:       true,
+		document:      `[{a: 1}]`,
+		expression:    `sort`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
 		description: "Sort by string field",
 		document:    "[{a: banana},{a: cat},{a: apple}]",
 		expression:  `sort_by(.a)`,
