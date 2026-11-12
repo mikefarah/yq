@@ -23,7 +23,7 @@ require (
 	go.yaml.in/yaml/v4 v4.0.0-rc.7
 	golang.org/x/mod v0.42.0
 	golang.org/x/net v0.62.0
-	golang.org/x/sys v0.49.0
+	golang.org/x/sys v0.50.0
 	golang.org/x/text v0.43.0
 )
 
