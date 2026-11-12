@@ -136,8 +136,7 @@ func (le *luaEncoder) encodeArray(writer io.Writer, node *CandidateNode) error {
 			return err
 		}
 		if child.LineComment != "" {
-			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
-			err = writeString(writer, " --"+sansPrefix)
+			err = writeString(writer, " "+luaLineComment(child.LineComment))
 			if err != nil {
 				return err
 			}
@@ -238,8 +237,7 @@ func (le *luaEncoder) encodeMap(writer io.Writer, node *CandidateNode, global bo
 			}
 		}
 		if child.LineComment != "" {
-			sansPrefix, _ := strings.CutPrefix(child.LineComment, "#")
-			err := writeString(writer, strings.Repeat(" ", i%2)+"--"+sansPrefix)
+			err := writeString(writer, strings.Repeat(" ", i%2)+luaLineComment(child.LineComment))
 			if err != nil {
 				return err
 			}
@@ -331,4 +329,13 @@ func (le *luaEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return le.encodeMap(writer, node, true)
 	}
 	return le.encodeTopLevel(writer, node)
+}
+
+// A space after "--" stops a comment starting with a long bracket ([[, [=[, ...) opening a block comment.
+func luaLineComment(yamlComment string) string {
+	text, _ := strings.CutPrefix(yamlComment, "#")
+	if rest, ok := strings.CutPrefix(text, "["); ok && strings.HasPrefix(strings.TrimLeft(rest, "="), "[") {
+		return "-- " + text
+	}
+	return "--" + text
 }
