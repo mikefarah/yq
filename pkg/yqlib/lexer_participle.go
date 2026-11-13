@@ -120,6 +120,8 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("match", matchOpType),
 	simpleOp("capture", captureOpType),
 	simpleOp("test", testOpType),
+	simpleOp("startswith", startsWithOpType),
+	simpleOp("endswith", endsWithOpType),
 
 	simpleOp("sort_?by", sortByOpType),
 	simpleOp("sort", sortOpType),
