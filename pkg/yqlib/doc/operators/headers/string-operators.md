@@ -17,6 +17,9 @@ Returns true if the string matches the RegEx, false otherwise.
 ## sub(regEx, replacement)
 Substitutes matched substrings. The first parameter is the regEx to match substrings within the original string. The second parameter specifies what to replace those matches with. This can refer to capture groups from the first RegEx.
 
+## startswith(str), endswith(str)
+Returns true if the string starts (or ends) with the given string, false otherwise. Unlike `test`, the argument is a plain string, not a RegEx.
+
 ## String blocks, bash and newlines
 Bash is notorious for chomping on precious trailing newline characters, making it tricky to set strings with newlines properly. In particular, the `$( exp )` _will trim trailing newlines_.
 
