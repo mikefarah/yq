@@ -140,6 +140,33 @@ var pathOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description: "Delete multiple array paths",
+		skipDoc:     true,
+		document:    `[a, b, c, d]`,
+		expression:  `delpaths([[0], [2]])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[b, d]\n",
+		},
+	},
+	{
+		description: "Delete multiple array paths from path operator",
+		skipDoc:     true,
+		document:    `[keep1, drop1, keep2, drop2, keep3]`,
+		expression:  `delpaths([.[] | select(. == "drop*") | path])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[keep1, keep2, keep3]\n",
+		},
+	},
+	{
+		description: "Delete multiple array paths in reverse order",
+		skipDoc:     true,
+		document:    `[a, b, c, d]`,
+		expression:  `delpaths([[2], [0]])`,
+		expected: []string{
+			"D0, P[], (!!seq)::[b, d]\n",
+		},
+	},
+	{
 		description: "Delete splat",
 		skipDoc:     true,
 		document:    `a: [cat, frog]`,
