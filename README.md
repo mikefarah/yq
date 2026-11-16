@@ -65,7 +65,7 @@ Take a look at the discussions for [common questions](https://github.com/mikefar
 See the [github page](https://github.com/mikefarah/yq/#install) for the various ways you can install and use `yq`
 
 ## Known Issues / Missing Features
-- `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see https://github.com/go-yaml/yaml/tree/v3 for details)
+- `yq` attempts to preserve comment positions and whitespace as much as possible, but it does not handle all scenarios (see the [Go YAML v4 project](https://github.com/yaml/go-yaml) for details)
 - Powershell has its own...[opinions on quoting yq](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks#quotes-in-windows-powershell)
 
 See [tips and tricks](https://mikefarah.gitbook.io/yq/usage/tips-and-tricks) for more common problems and solutions.

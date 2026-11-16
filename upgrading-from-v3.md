@@ -38,7 +38,7 @@ v3:
 yq r sample.yaml --defaultValue frog path.not.there
 ```
 
-v4: (use the [alternative](broken-reference) operator)
+v4: (use the [alternative](operators/alternative-default-value.md) operator)
 
 ```
 yq '.path.not.there // "frog"' sample.yaml
@@ -130,7 +130,7 @@ See the [multiply documentation](https://mikefarah.gitbook.io/yq/operators/multi
 
 ### Prefix yaml
 
-Use the [Create / Collect Into Object ](broken-reference)operator to create a new object with the desired prefix.
+Use the [Create / Collect Into Object](operators/create-collect-into-object.md) operator to create a new object with the desired prefix.
 
 v3:
 
@@ -221,13 +221,13 @@ yq '
 
 ### Some new things you can do in v4:
 
-Construct dynamic yaml [maps ](broken-reference)and [arrays ](broken-reference)based on input yaml
+Construct dynamic YAML [maps](operators/create-collect-into-object.md) and [arrays](operators/collect-into-array.md) based on input YAML
 
-Using the [union ](broken-reference)operator, you can run multiple updates in one go and read multiple paths in one go
+Using the [union](operators/union.md) operator, you can run multiple updates in one go and read multiple paths in one go
 
-Fine grain merging of maps using the [multiply](broken-reference) operator
+Fine grain merging of maps using the [multiply](operators/multiply-merge.md) operator
 
-Read and and control yaml metadata better (e.g. [tags](broken-reference), [paths](broken-reference), [document indexes](broken-reference), [anchors and aliases](broken-reference), [comments](broken-reference)).
+Read and control YAML metadata (e.g. [tags](operators/tag.md), [paths](operators/path.md), [document indexes](operators/document-index.md), [anchors and aliases](operators/anchor-and-alias-operators.md), [comments](operators/comment-operators.md)).
 
 Work with multiple files (not just for merge)
 

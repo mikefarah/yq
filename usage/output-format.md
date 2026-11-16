@@ -22,15 +22,15 @@ To print out idiomatic `yaml` use the `--prettyPrint/-P` flag. Note that this is
 
 Use the indent flag `--indent/-I` to control the number of spaces used for indentation. This also works for JSON output. The default value is 2.
 
-Note that lists are indented at the same level as the map key at indent level 2, but are more deeply indented at indent level 4 and greater. This is (currently) a quirk of the underlying [yaml parser](https://github.com/go-yaml/yaml/tree/v3).
+YAML sequences under a mapping key are indented by default. Use `--yaml-compact-seq-indent/-c` to count the `- ` marker toward the indentation. With compact indentation, a sequence starts at the same indentation as its key at indent level 2. This option maps to [Go YAML v4’s compact sequence indentation](https://pkg.go.dev/go.yaml.in/yaml/v4#WithCompactSeqIndent).
 
 Given:
 
 ```
 apples:
   collection:
-  - name: Green
-  - name: Blue
+    - name: Green
+    - name: Blue
   favourite: Pink Lady
 ```
 
@@ -45,8 +45,8 @@ Will print out:
 ```yaml
 apples:
     collection:
-      - name: Green
-      - name: Blue
+        - name: Green
+        - name: Blue
     favourite: Pink Lady
 ```
 
