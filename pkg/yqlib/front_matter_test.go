@@ -108,6 +108,40 @@ yaml: doc
 	fmHandler.CleanUp()
 }
 
+func TestFrontMatterSplitWithNoFrontMatter(t *testing.T) {
+	// Regression test for https://github.com/mikefarah/yq/issues/2997
+	// A file without any front matter separator has no front matter, so the
+	// yaml part is empty and the whole file is kept as content.
+	file := createTestFile(`# Lorem Ipsum
+
+lorem ipsum
+`)
+
+	expectedContent := `# Lorem Ipsum
+
+lorem ipsum
+`
+
+	fmHandler := NewFrontMatterHandler(file)
+	err := fmHandler.Split()
+	if err != nil {
+		panic(err)
+	}
+
+	yamlFm := readFile(fmHandler.GetYamlFrontMatterFilename())
+
+	test.AssertResult(t, "", yamlFm)
+
+	contentBytes, err := io.ReadAll(fmHandler.GetContentReader())
+	if err != nil {
+		panic(err)
+	}
+	test.AssertResult(t, expectedContent, string(contentBytes))
+
+	tryRemoveTempFile(file)
+	fmHandler.CleanUp()
+}
+
 func TestFrontMatterFilenamePreserved(t *testing.T) {
 	// Regression test for https://github.com/mikefarah/yq/issues/2538
 	// When using --front-matter, the filename operator should return
