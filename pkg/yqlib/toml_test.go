@@ -876,8 +876,8 @@ var tomlScenarios = []formatScenario{
 	{
 		skipDoc:      true,
 		description:  "Issue #2995: YAML-only number and bool spellings are normalised for TOML",
-		input:        "a: .inf\nb: -.Inf\nc: .nan\nd: .5\ne: 1.\nf: True\ng: FALSE\nh: !!float 1\ni: -1.e2\nj: 01.5\nk: 0_1.5\nl: !!float 0x10\nm: !!bool Y\nn: !!bool N\no: !!float 077\n",
-		expected:     "a = inf\nb = -inf\nc = nan\nd = 0.5\ne = 1.0\nf = true\ng = false\nh = 1.0\ni = -1.0e2\nj = 1.5\nk = 1.5\nl = 16.0\nm = true\nn = false\no = 63.0\n",
+		input:        "a: .inf\nb: -.Inf\nc: .nan\nd: .5\ne: 1.\nf: True\ng: FALSE\nh: !!float 1\ni: -1.e2\nj: 01.5\nk: 0_1.5\nl: !!float 0x10\nm: !!bool Y\nn: !!bool N\no: !!float 077\np: 1_000.5\nq: !!float 0x1p2\n",
+		expected:     "a = inf\nb = -inf\nc = nan\nd = 0.5\ne = 1.0\nf = true\ng = false\nh = 1.0\ni = -1.0e2\nj = 1.5\nk = 1.5\nl = 16.0\nm = true\nn = false\no = 77.0\np = 1_000.5\nq = 4.0\n",
 		scenarioType: "encode",
 	},
 }

@@ -160,12 +160,16 @@ func formatTomlFloat(value string) string {
 	}
 
 	normalised := strings.ReplaceAll(unsigned, "_", "")
-	if !strings.ContainsAny(normalised, ".eE") && len(normalised) > 1 && normalised[0] == '0' {
-		if parsed, err := strconv.ParseUint(normalised, 8, 64); err == nil {
-			return sign + strconv.FormatUint(parsed, 10) + ".0"
-		}
-	}
 	if len(normalised) > 2 && normalised[0] == '0' {
+		if strings.ContainsAny(normalised, "pP") {
+			if parsed, err := strconv.ParseFloat(normalised, 64); err == nil {
+				formatted := strconv.FormatFloat(parsed, 'f', -1, 64)
+				if !strings.Contains(formatted, ".") {
+					formatted += ".0"
+				}
+				return sign + formatted
+			}
+		}
 		base := 0
 		switch normalised[1] {
 		case 'x', 'X':
@@ -181,7 +185,6 @@ func formatTomlFloat(value string) string {
 			}
 		}
 	}
-	unsigned = normalised
 
 	mantissa := unsigned
 	if !strings.ContainsAny(mantissa, "0123456789") {
@@ -199,9 +202,13 @@ func formatTomlFloat(value string) string {
 	if hasDecimalPoint {
 		integerPart, fractionalPart, _ = strings.Cut(mantissa, ".")
 	}
-	integerPart = strings.TrimLeft(strings.ReplaceAll(integerPart, "_", ""), "0")
 	if integerPart == "" {
 		integerPart = "0"
+	} else if strings.HasPrefix(integerPart, "0") {
+		integerPart = strings.TrimLeft(strings.ReplaceAll(integerPart, "_", ""), "0")
+		if integerPart == "" {
+			integerPart = "0"
+		}
 	}
 	if hasDecimalPoint {
 		if fractionalPart == "" {
