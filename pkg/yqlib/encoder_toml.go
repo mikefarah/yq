@@ -124,9 +124,9 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 			return "false"
 		}
 		switch strings.ToLower(node.Value) {
-		case "yes", "on":
+		case "y", "yes", "on":
 			return "true"
-		case "no", "off":
+		case "n", "no", "off":
 			return "false"
 		}
 		return node.Value
@@ -159,6 +159,25 @@ func formatTomlFloat(value string) string {
 		unsigned = unsigned[1:]
 	}
 
+	normalized := strings.ReplaceAll(unsigned, "_", "")
+	if len(normalized) > 2 && normalized[0] == '0' {
+		base := 0
+		switch normalized[1] {
+		case 'x', 'X':
+			base = 16
+		case 'o', 'O':
+			base = 8
+		case 'b', 'B':
+			base = 2
+		}
+		if base != 0 {
+			if parsed, err := strconv.ParseUint(normalized[2:], base, 64); err == nil {
+				return sign + strconv.FormatUint(parsed, 10) + ".0"
+			}
+		}
+	}
+	unsigned = normalized
+
 	mantissa := unsigned
 	exponent := ""
 	if index := strings.IndexAny(unsigned, "eE"); index >= 0 {
@@ -172,7 +191,7 @@ func formatTomlFloat(value string) string {
 	if hasDecimalPoint {
 		integerPart, fractionalPart, _ = strings.Cut(mantissa, ".")
 	}
-	integerPart = strings.TrimLeft(integerPart, "0")
+	integerPart = strings.TrimLeft(strings.ReplaceAll(integerPart, "_", ""), "0")
 	if integerPart == "" {
 		integerPart = "0"
 	}
