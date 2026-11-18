@@ -111,10 +111,10 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 		return Context{}, err
 	}
 
-	// rhs is a collect expression that will yield indices to retrieve of the arrays
-
+	// rhs is a collect expression that yields the indices to retrieve. It is
+	// evaluated over the whole context, producing one index set per incoming
+	// candidate.
 	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
-
 	if err != nil {
 		return Context{}, err
 	}
@@ -123,16 +123,37 @@ func traverseArrayOperator(d *dataTreeNavigator, context Context, expressionNode
 	if expressionNode.Operation.Preferences != nil {
 		prefs = expressionNode.Operation.Preferences.(traversePreferences)
 	}
-	var indicesToTraverse = rhs.MatchingNodes.Front().Value.(*CandidateNode).Content
 
-	log.Debugf("indicesToTraverse %v", len(indicesToTraverse))
-
-	//now we traverse the result of the lhs against the indices we found
-	result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, prefs)
-	if err != nil {
-		return Context{}, err
+	results := list.New()
+	if lhs.MatchingNodes.Len() == rhs.MatchingNodes.Len() {
+		// One index set per LHS node (both derive from the same context):
+		// traverse each LHS node with its own index set. Previously only the
+		// first index set was used, so a context-dependent index like `$o[.]`
+		// over a `keys[]` stream dropped every match but the first (#2593).
+		rhsEl := rhs.MatchingNodes.Front()
+		for lhsEl := lhs.MatchingNodes.Front(); lhsEl != nil; lhsEl = lhsEl.Next() {
+			indicesToTraverse := rhsEl.Value.(*CandidateNode).Content
+			result, err := traverseNodesWithArrayIndices(context.SingleChildContext(lhsEl.Value.(*CandidateNode)), indicesToTraverse, prefs)
+			if err != nil {
+				return Context{}, err
+			}
+			results.PushBackList(result.MatchingNodes)
+			rhsEl = rhsEl.Next()
+		}
+	} else {
+		// LHS collapsed to a single node (e.g. a variable) while the index
+		// varies per candidate: traverse the LHS against every index set.
+		for rhsEl := rhs.MatchingNodes.Front(); rhsEl != nil; rhsEl = rhsEl.Next() {
+			indicesToTraverse := rhsEl.Value.(*CandidateNode).Content
+			result, err := traverseNodesWithArrayIndices(lhs, indicesToTraverse, prefs)
+			if err != nil {
+				return Context{}, err
+			}
+			results.PushBackList(result.MatchingNodes)
+		}
 	}
-	return context.ChildContext(result.MatchingNodes), nil
+
+	return context.ChildContext(results), nil
 }
 
 func traverseNodesWithArrayIndices(context Context, indicesToTraverse []*CandidateNode, prefs traversePreferences) (Context, error) {
