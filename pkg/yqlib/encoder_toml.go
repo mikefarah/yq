@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -115,14 +116,55 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	case "!!str":
 		// Quote strings per TOML spec
 		return fmt.Sprintf("%q", node.Value)
-	case "!!bool", "!!int", "!!float":
+	case "!!bool":
+		if parsed, err := strconv.ParseBool(node.Value); err == nil {
+			if parsed {
+				return "true"
+			}
+			return "false"
+		}
+		switch strings.ToLower(node.Value) {
+		case "yes", "on":
+			return "true"
+		case "no", "off":
+			return "false"
+		}
 		return node.Value
+	case "!!int":
+		return node.Value
+	case "!!float":
+		return formatTomlFloat(node.Value)
 	case "!!null":
 		// TOML does not have null; encode as empty string
 		return `""`
 	default:
 		return node.Value
 	}
+}
+
+func formatTomlFloat(value string) string {
+	switch strings.ToLower(value) {
+	case ".inf", "+.inf", "inf", "+inf":
+		return "inf"
+	case "-.inf", "-inf":
+		return "-inf"
+	case ".nan", "+.nan", "-.nan", "nan", "+nan", "-nan":
+		return "nan"
+	}
+
+	sign := ""
+	unsigned := value
+	if strings.HasPrefix(unsigned, "+") || strings.HasPrefix(unsigned, "-") {
+		sign = unsigned[:1]
+		unsigned = unsigned[1:]
+	}
+	if strings.HasPrefix(unsigned, ".") {
+		unsigned = "0" + unsigned
+	}
+	if strings.HasSuffix(unsigned, ".") {
+		unsigned += "0"
+	}
+	return sign + unsigned
 }
 
 func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error {

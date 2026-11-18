@@ -873,6 +873,13 @@ var tomlScenarios = []formatScenario{
 		expected:     rtCommentBeforeArrayOfInlineTables,
 		scenarioType: "roundtrip",
 	},
+	{
+		skipDoc:      true,
+		description:  "Issue #2995: YAML-only number and bool spellings are normalised for TOML",
+		input:        "a: .inf\nb: -.Inf\nc: .nan\nd: .5\ne: 1.\nf: True\ng: FALSE\n",
+		expected:     "a = inf\nb = -inf\nc = nan\nd = 0.5\ne = 1.0\nf = true\ng = false\n",
+		scenarioType: "encode",
+	},
 }
 
 func testTomlScenario(t *testing.T, s formatScenario) {
