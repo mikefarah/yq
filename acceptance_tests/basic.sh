@@ -12,6 +12,15 @@ testBasicEvalRoundTrip() {
   assertEquals 123 "$X"
 }
 
+testSplitDocumentsAfterVariableAssignment() {
+  printf '[1, 2]\n' > test-split-input.yml
+  expected=$(printf '1\n---\n2')
+  for command in eval eval-all; do
+    actual=$(./yq "$command" '.[] | . as $_ | split_doc' test-split-input.yml)
+    assertEquals "$expected" "$actual"
+  done
+}
+
 testBasicTrailingContent() {
   cat >test-trailing.yml <<EOL
 test:
