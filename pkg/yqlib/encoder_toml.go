@@ -158,13 +158,34 @@ func formatTomlFloat(value string) string {
 		sign = unsigned[:1]
 		unsigned = unsigned[1:]
 	}
-	if strings.HasPrefix(unsigned, ".") {
-		unsigned = "0" + unsigned
+
+	mantissa := unsigned
+	exponent := ""
+	if index := strings.IndexAny(unsigned, "eE"); index >= 0 {
+		mantissa = unsigned[:index]
+		exponent = unsigned[index:]
 	}
-	if strings.HasSuffix(unsigned, ".") {
-		unsigned += "0"
+
+	integerPart := mantissa
+	fractionalPart := ""
+	hasDecimalPoint := strings.Contains(mantissa, ".")
+	if hasDecimalPoint {
+		integerPart, fractionalPart, _ = strings.Cut(mantissa, ".")
 	}
-	return sign + unsigned
+	integerPart = strings.TrimLeft(integerPart, "0")
+	if integerPart == "" {
+		integerPart = "0"
+	}
+	if hasDecimalPoint {
+		if fractionalPart == "" {
+			fractionalPart = "0"
+		}
+		return sign + integerPart + "." + fractionalPart + exponent
+	}
+	if exponent != "" {
+		return sign + integerPart + exponent
+	}
+	return sign + integerPart + ".0"
 }
 
 func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error {
