@@ -3,6 +3,7 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
+	"unicode/utf8"
 )
 
 func lengthOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (Context, error) {
@@ -17,7 +18,7 @@ func lengthOperator(_ *dataTreeNavigator, context Context, _ *ExpressionNode) (C
 			if candidate.Tag == "!!null" {
 				length = 0
 			} else {
-				length = len(candidate.Value)
+				length = utf8.RuneCountInString(candidate.Value)
 			}
 		case MappingNode:
 			length = len(candidate.Content) / 2

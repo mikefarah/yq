@@ -185,6 +185,33 @@ var stringsOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Match offset and length count characters, not bytes",
+		document:    `héllo, wörllo`,
+		expression:  `[match("(l+)o"; "g")]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- string: llo\n  offset: 2\n  length: 3\n  captures:\n    - string: ll\n      offset: 2\n      length: 2\n- string: llo\n  offset: 10\n  length: 3\n  captures:\n    - string: ll\n      offset: 10\n      length: 2\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Match on a multibyte character",
+		document:    `héllo`,
+		expression:  `match("é")`,
+		expected: []string{
+			"D0, P[], (!!map)::string: é\noffset: 1\nlength: 1\ncaptures: []\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Match offset agrees with string slicing",
+		document:    `héllo`,
+		expression:  `match("l").offset as $o | .[$o:]`,
+		expected: []string{
+			"D0, P[], (!!str)::llo\n",
+		},
+	},
+	{
 		description: "Capture named groups into a map",
 		document:    `xyzzy-14`,
 		expression:  `capture("(?P<a>[a-z]+)-(?P<n>[0-9]+)")`,
