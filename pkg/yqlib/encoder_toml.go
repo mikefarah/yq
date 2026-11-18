@@ -159,10 +159,15 @@ func formatTomlFloat(value string) string {
 		unsigned = unsigned[1:]
 	}
 
-	normalized := strings.ReplaceAll(unsigned, "_", "")
-	if len(normalized) > 2 && normalized[0] == '0' {
+	normalised := strings.ReplaceAll(unsigned, "_", "")
+	if !strings.ContainsAny(normalised, ".eE") && len(normalised) > 1 && normalised[0] == '0' {
+		if parsed, err := strconv.ParseUint(normalised, 8, 64); err == nil {
+			return sign + strconv.FormatUint(parsed, 10) + ".0"
+		}
+	}
+	if len(normalised) > 2 && normalised[0] == '0' {
 		base := 0
-		switch normalized[1] {
+		switch normalised[1] {
 		case 'x', 'X':
 			base = 16
 		case 'o', 'O':
@@ -171,14 +176,17 @@ func formatTomlFloat(value string) string {
 			base = 2
 		}
 		if base != 0 {
-			if parsed, err := strconv.ParseUint(normalized[2:], base, 64); err == nil {
+			if parsed, err := strconv.ParseUint(normalised[2:], base, 64); err == nil {
 				return sign + strconv.FormatUint(parsed, 10) + ".0"
 			}
 		}
 	}
-	unsigned = normalized
+	unsigned = normalised
 
 	mantissa := unsigned
+	if !strings.ContainsAny(mantissa, "0123456789") {
+		return value
+	}
 	exponent := ""
 	if index := strings.IndexAny(unsigned, "eE"); index >= 0 {
 		mantissa = unsigned[:index]
