@@ -120,6 +120,24 @@ var mapOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:   "Map on a scalar errors",
+		skipDoc:       true,
+		document:      `"cat"`,
+		expression:    `map(.)`,
+		expectedError: "cannot map !!str, map only works for maps and arrays",
+	},
+	{
+		skipDoc:       true,
+		expression:    `"" | map(.)`,
+		expectedError: "cannot map !!str, map only works for maps and arrays",
+	},
+	{
+		skipDoc:       true,
+		document:      `3`,
+		expression:    `map(. + 1)`,
+		expectedError: "cannot map !!int, map only works for maps and arrays",
+	},
+	{
 		description: "Map object values",
 		document:    `{a: 1, b: 2, c: 3}`,
 		expression:  `map_values(. + 1)`,
