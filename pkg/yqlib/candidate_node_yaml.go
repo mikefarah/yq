@@ -114,6 +114,16 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 		log.Debugf("UnmarshalYAML -  a scalar")
 		o.Kind = ScalarNode
 		o.copyFromYamlNode(node, anchorMap)
+		// the yaml parser resolves integers with leading zeros that are not
+		// valid octal (e.g. "090", "018") as floats; they are decimal ints
+		if o.Tag == "!!float" && o.Style&TaggedStyle == 0 && isDecimalIntWithLeadingZero(o.Value) {
+			// literals that do not fit int64 keep the float behavior,
+			// so retagging cannot turn wrong-but-rendering output into
+			// a hard encode error
+			if _, _, err := parseInt64(o.Value); err == nil {
+				o.Tag = "!!int"
+			}
+		}
 		return nil
 	case yaml.MappingNode:
 		log.Debugf("UnmarshalYAML -  a mapping node")
