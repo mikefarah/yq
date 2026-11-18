@@ -21,10 +21,10 @@ func createEvaluateSequenceCommand() *cobra.Command {
 		},
 		Example: `
 # Reads field under the given path for each file
-yq e '.a.b' f1.yml f2.yml 
+yq e '.a.b' f1.yml f2.yml
 
 # Prints out the file
-yq e sample.yaml 
+yq e sample.yaml
 
 # Pipe from STDIN
 ## use '-' as a filename to pipe from STDIN
@@ -32,16 +32,16 @@ cat file2.yml | yq e '.a.b' file1.yml - file3.yml
 
 # Creates a new yaml document
 ## Note that editing an empty file does not work.
-yq e -n '.a.b.c = "cat"' 
+yq e -n '.a.b.c = "cat"'
 
 # Update a file in place
-yq e '.a.b = "cool"' -i file.yaml 
+yq e '.a.b = "cool"' -i file.yaml
 `,
-		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/) 
+		Long: `yq is a portable command-line data file processor (https://github.com/mikefarah/yq/)
 See https://mikefarah.gitbook.io/yq/ for detailed documentation and examples.
 
 ## Evaluate Sequence ##
-This command iterates over each yaml document from each given file, applies the 
+This command iterates over each yaml document from each given file, applies the
 expression and prints the result in sequence.`,
 		RunE: evaluateSequence,
 	}
