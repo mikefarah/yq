@@ -142,6 +142,17 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	}
 }
 
+func removeInvalidUnderscores(value string) string {
+	var b strings.Builder
+	b.Grow(len(value))
+	for i := 0; i < len(value); i++ {
+		if value[i] != '_' || i > 0 && i+1 < len(value) && value[i-1] >= '0' && value[i-1] <= '9' && value[i+1] >= '0' && value[i+1] <= '9' {
+			b.WriteByte(value[i])
+		}
+	}
+	return b.String()
+}
+
 func formatTomlFloat(value string) string {
 	switch strings.ToLower(value) {
 	case ".inf", "+.inf", "inf", "+inf":
@@ -161,15 +172,6 @@ func formatTomlFloat(value string) string {
 
 	normalised := strings.ReplaceAll(unsigned, "_", "")
 	if len(normalised) > 2 && normalised[0] == '0' {
-		if strings.ContainsAny(normalised, "pP") {
-			if parsed, err := strconv.ParseFloat(normalised, 64); err == nil {
-				formatted := strconv.FormatFloat(parsed, 'f', -1, 64)
-				if !strings.Contains(formatted, ".") {
-					formatted += ".0"
-				}
-				return sign + formatted
-			}
-		}
 		base := 0
 		switch normalised[1] {
 		case 'x', 'X':
@@ -179,12 +181,30 @@ func formatTomlFloat(value string) string {
 		case 'b', 'B':
 			base = 2
 		}
-		if base != 0 {
-			if parsed, err := strconv.ParseUint(normalised[2:], base, 64); err == nil {
-				return sign + strconv.FormatUint(parsed, 10) + ".0"
+		if base == 16 {
+			parsed, err := strconv.ParseFloat(normalised, 64)
+			if err != nil {
+				parsed, err = strconv.ParseFloat(normalised+"p0", 64)
 			}
+			if err != nil {
+				return value
+			}
+			formatted := strconv.FormatFloat(parsed, 'f', -1, 64)
+			if !strings.Contains(formatted, ".") {
+				formatted += ".0"
+			}
+			return sign + formatted
+		}
+		if base != 0 {
+			parsed, err := strconv.ParseUint(normalised[2:], base, 64)
+			if err != nil {
+				return value
+			}
+			return sign + strconv.FormatUint(parsed, 10) + ".0"
 		}
 	}
+
+	unsigned = removeInvalidUnderscores(unsigned)
 
 	mantissa := unsigned
 	if !strings.ContainsAny(mantissa, "0123456789") {
