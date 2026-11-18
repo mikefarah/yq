@@ -53,6 +53,9 @@ jobs:
             dep ensure
         fi
 
+    - name: Compile cmd tests for Windows
+      run: GOOS=windows GOARCH=amd64 go test -c -o "$RUNNER_TEMP/cmd.test.exe" ./cmd
+
     - name: Check the build
       shell: bash -l {0}
       run: |
