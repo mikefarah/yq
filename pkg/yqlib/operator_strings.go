@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 var StringInterpolationEnabled = true
@@ -287,11 +288,13 @@ func addMatch(original []*CandidateNode, match string, offset int, name string) 
 		)
 	}
 
+	length := utf8.RuneCountInString(match)
+
 	newContent = append(newContent,
 		createScalarNode("offset", "offset"),
 		createScalarNode(offset, fmt.Sprintf("%v", offset)),
 		createScalarNode("length", "length"),
-		createScalarNode(len(match), fmt.Sprintf("%v", len(match))))
+		createScalarNode(length, fmt.Sprintf("%v", length)))
 
 	if name != "" {
 		newContent = append(newContent,
@@ -332,17 +335,27 @@ func match(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candida
 		return
 	}
 
+	// regex indices are byte offsets; convert them to rune offsets incrementally
+	byteOffset, runeOffset := 0, 0
 	for i, matches := range allMatches {
+		matchStart := allIndices[i][0]
+		runeOffset += utf8.RuneCountInString(value[byteOffset:matchStart])
+		byteOffset = matchStart
+
 		capturesListNode := &CandidateNode{Kind: SequenceNode}
 		match, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
+			offset := allIndices[i][2+j*2]
+			if offset >= 0 {
+				offset = runeOffset + utf8.RuneCountInString(value[matchStart:offset])
+			}
 			captureNode := &CandidateNode{Kind: MappingNode}
-			captureNode.AddChildren(addMatch(captureNode.Content, submatch, allIndices[i][2+j*2], subNames[j+1]))
+			captureNode.AddChildren(addMatch(captureNode.Content, submatch, offset, subNames[j+1]))
 			capturesListNode.AddChild(captureNode)
 		}
 
 		node := candidate.CreateReplacement(MappingNode, "!!map", "")
-		node.AddChildren(addMatch(node.Content, match, allIndices[i][0], ""))
+		node.AddChildren(addMatch(node.Content, match, runeOffset, ""))
 		node.AddKeyValueChild(createScalarNode("captures", "captures"), capturesListNode)
 		results.PushBack(node)
 
