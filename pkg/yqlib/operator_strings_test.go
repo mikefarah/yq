@@ -204,6 +204,15 @@ var stringsOperatorScenarios = []expressionScenario{
 	},
 	{
 		skipDoc:     true,
+		description: "Capture offsets count characters when the capture starts after multibyte text in the match",
+		document:    `文héllö ü文héllö`,
+		expression:  `[match("é(x)?(llö)"; "g")]`,
+		expected: []string{
+			"D0, P[], (!!seq)::- string: éllö\n  offset: 2\n  length: 4\n  captures:\n    - string: null\n      offset: -1\n      length: 0\n    - string: llö\n      offset: 3\n      length: 3\n- string: éllö\n  offset: 10\n  length: 4\n  captures:\n    - string: null\n      offset: -1\n      length: 0\n    - string: llö\n      offset: 11\n      length: 3\n",
+		},
+	},
+	{
+		skipDoc:     true,
 		description: "Match offset agrees with string slicing",
 		document:    `héllo`,
 		expression:  `match("l").offset as $o | .[$o:]`,
