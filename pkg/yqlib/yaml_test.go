@@ -9,6 +9,36 @@ import (
 
 var yamlFormatScenarios = []formatScenario{
 	{
+		description: "CRLF leading comments and mapping",
+		skipDoc:     true,
+		input:       "# c1\r\n# c2\r\na: cat\r\nb: dog\r\n",
+		expected:    "# c1\r\n# c2\r\na: cat\r\nb: dog\r\n",
+	},
+	{
+		description: "CRLF leading and trailing comments around mapping",
+		skipDoc:     true,
+		input:       "# c1\r\nx: 1\r\n# foot\r\n",
+		expected:    "# c1\r\nx: 1\r\n# foot\r\n",
+	},
+	{
+		description: "CRLF leading comment and block scalar mapping value",
+		skipDoc:     true,
+		input:       "# c1\r\nx: |\r\n  alpha\r\n  beta\r\n",
+		expected:    "# c1\r\nx: |\r\n  alpha\r\n  beta\r\n",
+	},
+	{
+		description: "CRLF footer after the explicit document end",
+		skipDoc:     true,
+		input:       "# c1\r\nx: 1\r\n...\r\n# foot",
+		expected:    "# c1\r\nx: 1\r\n# foot\r\n",
+	},
+	{
+		description: "LF leading and trailing comments around mapping",
+		skipDoc:     true,
+		input:       "# c1\nx: 1\n# foot\n",
+		expected:    "# c1\nx: 1\n# foot\n",
+	},
+	{
 		description: "inline separator comment retains the following line",
 		skipDoc:     true,
 		input:       "--- # header\nfoo: 42\n",

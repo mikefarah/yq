@@ -33,8 +33,10 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	log.Debugf("encoderYaml - going to print %v", NodeToString(node))
 	// Detect line ending style from LeadingContent
 	lineEnding := "\n"
+	lineBreak := yaml.LineBreakLN
 	if strings.Contains(node.LeadingContent, "\r\n") {
 		lineEnding = "\r\n"
+		lineBreak = yaml.LineBreakCRLN
 	}
 	if node.Kind == ScalarNode && ye.prefs.UnwrapScalar {
 		valueToPrint := node.Value
@@ -62,6 +64,7 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		yaml.WithIndent(indent),
 		yaml.WithCompactSeqIndent(ye.prefs.CompactSequenceIndent),
 		yaml.WithLineWidth(-1),
+		yaml.WithLineBreak(lineBreak),
 	)
 	if err != nil {
 		return fmt.Errorf("configure YAML encoding: %w", err)
@@ -84,6 +87,13 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return err
 	}
 
+	// Parsed trailing comments use LF. Match the document style when printing.
+	if lineBreak == yaml.LineBreakCRLN && trailingContent != "" {
+		trailingContent = strings.ReplaceAll(strings.ReplaceAll(trailingContent, "\r\n", "\n"), "\n", lineEnding)
+		if !strings.HasSuffix(trailingContent, lineEnding) {
+			trailingContent += lineEnding
+		}
+	}
 	if err := ye.PrintLeadingContent(destination, trailingContent); err != nil {
 		return err
 	}
