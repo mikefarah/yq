@@ -1,8 +1,37 @@
 package yqlib
 
 import (
+	"bytes"
+	"os"
+	"path/filepath"
 	"testing"
 )
+
+func TestLoadCRLFComments(t *testing.T) {
+	filename := filepath.Join(t.TempDir(), "source.yml")
+	if err := os.WriteFile(filename, []byte("# c1\r\n# c2\r\nx: 1\r\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	loaded, err := loadWithDecoder(filename, NewYamlDecoder(LoadYamlPreferences))
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := &CandidateNode{
+		Kind:    MappingNode,
+		Tag:     "!!map",
+		Content: []*CandidateNode{createStringScalarNode("o"), loaded},
+	}
+
+	var output bytes.Buffer
+	if err := NewYamlEncoder(ConfiguredYamlPreferences).Encode(&output, root); err != nil {
+		t.Fatal(err)
+	}
+	expected := "o:\n  # c1\n  # c2\n  x: 1\n"
+	if output.String() != expected {
+		t.Fatalf("unexpected output:\nwant %q\n got %q", expected, output.String())
+	}
+}
 
 var loadScenarios = []expressionScenario{
 	{

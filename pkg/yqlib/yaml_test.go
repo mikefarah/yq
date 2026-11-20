@@ -51,6 +51,12 @@ var yamlFormatScenarios = []formatScenario{
 		expected:    "# comment\r\n\r\ncat\r\n",
 	},
 	{
+		description: "CRLF comments and mapping body use consistent line endings",
+		skipDoc:     true,
+		input:       "# c1\r\n# c2\r\na: cat\r\nb: dog\r\n",
+		expected:    "# c1\r\n# c2\r\na: cat\r\nb: dog\r\n",
+	},
+	{
 		description: "comment only no trailing newline",
 		skipDoc:     true,
 		input:       "# hello",

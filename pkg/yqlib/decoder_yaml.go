@@ -37,6 +37,31 @@ type yamlDecoder struct {
 	documentIndex uint
 }
 
+type yamlLineEndingReader struct {
+	reader  *bufio.Reader
+	pending []byte
+	err     error
+}
+
+func (r *yamlLineEndingReader) Read(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+	for len(r.pending) == 0 && r.err == nil {
+		var line string
+		line, r.err = r.reader.ReadString('\n')
+		r.pending = []byte(strings.ReplaceAll(line, "\r\n", "\n"))
+	}
+	n := copy(p, r.pending)
+	r.pending = r.pending[n:]
+	if n > 0 {
+		return n, nil
+	}
+	err := r.err
+	r.err = nil
+	return 0, err
+}
+
 func NewYamlDecoder(prefs YamlPreferences) Decoder {
 	return &yamlDecoder{prefs: prefs, firstFile: true}
 }
@@ -134,7 +159,7 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 		// keep a copy of what we've read. This is incase its a
 		// doc with only comments - the decoder will return nothing
 		// then we can read the comments from bufferRead
-		readerToUse = io.TeeReader(reader, &dec.bufferRead)
+		readerToUse = io.TeeReader(&yamlLineEndingReader{reader: bufio.NewReader(reader)}, &dec.bufferRead)
 	}
 	dec.leadingContent = leadingContent
 	dec.readAnything = false

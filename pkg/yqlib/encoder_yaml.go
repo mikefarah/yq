@@ -44,11 +44,8 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return writeString(writer, valueToPrint)
 	}
 
-	destination := writer
 	tempBuffer := bytes.NewBuffer(nil)
-	if ye.prefs.ColorsEnabled {
-		destination = tempBuffer
-	}
+	destination := tempBuffer
 
 	indent := ye.prefs.Indent
 	if indent < 2 {
@@ -83,6 +80,13 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if err != nil {
 		return err
 	}
+	if lineEnding == "\r\n" {
+		body := bytes.ReplaceAll(tempBuffer.Bytes(), []byte("\n"), []byte("\r\n"))
+		tempBuffer.Reset()
+		if _, err := tempBuffer.Write(body); err != nil {
+			return err
+		}
+	}
 
 	if err := ye.PrintLeadingContent(destination, trailingContent); err != nil {
 		return err
@@ -91,5 +95,6 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	if ye.prefs.ColorsEnabled {
 		return colorizeAndPrint(tempBuffer.Bytes(), writer)
 	}
-	return nil
+	_, err = writer.Write(tempBuffer.Bytes())
+	return err
 }
