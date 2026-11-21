@@ -16,6 +16,22 @@ func isAutomaticOutputFormat() bool {
 	return outputFormat == "" || outputFormat == "auto" || outputFormat == "a"
 }
 
+// configurePreserveFormatting enables preservation of the original document
+// layout (blank lines, indentation, comments and comment spacing of untouched
+// nodes) when writing a file in place with -i. See
+// https://github.com/mikefarah/yq/issues/465.
+// An explicitly provided --indent flag always wins over the detected one.
+func configurePreserveFormatting(cmd *cobra.Command, writeInplace bool) {
+	indentFlag := cmd.Flags().Lookup("indent")
+	explicitIndent := indentFlag != nil && indentFlag.Changed
+	yqlib.ConfiguredYamlPreferences.PreserveFormatting = writeInplace && !explicitIndent
+	if yqlib.ConfiguredYamlPreferences.PreserveFormatting {
+		// header preprocessing keeps parser line numbers aligned with the
+		// original file, which the preservation logic relies on
+		yqlib.ConfiguredYamlPreferences.LeadingContentPreProcessing = true
+	}
+}
+
 func initCommand(cmd *cobra.Command, args []string) (string, []string, error) {
 	cmd.SilenceUsage = true
 

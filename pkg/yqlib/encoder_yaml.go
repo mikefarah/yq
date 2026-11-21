@@ -44,9 +44,18 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		return writeString(writer, valueToPrint)
 	}
 
+	// When preserving the original formatting (e.g. yq -i), the output is
+	// buffered so it can be reconciled with the original source layout
+	// (blank lines, indentation, spacing before inline comments) afterwards.
+	preserve := ye.prefs.PreserveFormatting
+	var sourceLines []string
+	if preserve {
+		sourceLines = node.GetSourceLines()
+	}
+
 	destination := writer
 	tempBuffer := bytes.NewBuffer(nil)
-	if ye.prefs.ColorsEnabled {
+	if ye.prefs.ColorsEnabled || preserve {
 		destination = tempBuffer
 	}
 
@@ -57,6 +66,20 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 		indent = 9
 	}
 
+	target, err := node.MarshalYAML()
+	if err != nil {
+		return err
+	}
+
+	if preserve {
+		// reuse the indentation of the original document when detectable
+		if detected, ok := detectOriginalIndent(target); ok {
+			indent = detected
+		}
+		// re-insert the blank lines that existed between nodes originally
+		restoreBlankLines(target, sourceLines)
+	}
+
 	dumper, err := yaml.NewDumper(destination,
 		yaml.WithV3Defaults(),
 		yaml.WithIndent(indent),
@@ -65,12 +88,6 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	)
 	if err != nil {
 		return fmt.Errorf("configure YAML encoding: %w", err)
-	}
-
-	target, err := node.MarshalYAML()
-	if err != nil {
-		_ = dumper.Close()
-		return err
 	}
 
 	trailingContent := target.FootComment
@@ -85,6 +102,15 @@ func (ye *yamlEncoder) Encode(writer io.Writer, node *CandidateNode) error {
 	}
 
 	if err := ye.PrintLeadingContent(destination, trailingContent); err != nil {
+		return err
+	}
+
+	if preserve {
+		processed := postProcessPreservedYAML(tempBuffer.Bytes(), sourceLines, target)
+		if ye.prefs.ColorsEnabled {
+			return colorizeAndPrint(processed, writer)
+		}
+		_, err := writer.Write(processed)
 		return err
 	}
 

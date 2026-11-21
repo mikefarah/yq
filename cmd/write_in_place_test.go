@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/mikefarah/yq/v4/pkg/yqlib"
 )
 
 func TestEvaluateWriteInPlace(t *testing.T) {
@@ -202,5 +204,227 @@ func TestEvaluateWriteInPlaceSymlinkToReadOnlyTarget(t *testing.T) {
 				t.Errorf("target permissions changed: %v", info.Mode().Perm())
 			}
 		})
+	}
+}
+
+// TestEvaluateWriteInPlacePreservesFormatting is a regression test for
+// https://github.com/mikefarah/yq/issues/465 - writing a file in place must
+// preserve the comments, blank lines, indentation and comment spacing of the
+// untouched parts of the document.
+func TestEvaluateWriteInPlacePreservesFormatting(t *testing.T) {
+	originalWriteInplace := writeInplace
+	originalPrefs := yqlib.ConfiguredYamlPreferences
+	t.Cleanup(func() {
+		writeInplace = originalWriteInplace
+		yqlib.ConfiguredYamlPreferences = originalPrefs
+	})
+
+	tests := []struct {
+		name            string
+		expression      string
+		originalContent string
+		expectedContent string
+	}{
+		{
+			// the exact example from issue #465
+			name:       "comments, blank lines and inline comment spacing preserved",
+			expression: `.logLevel = 4`,
+			originalContent: `# Log level for operator
+logLevel: 3
+
+# Annotations applied to operator deployment
+annotations: {}
+
+# Annotations passed to operator pod(s).
+podAnnotations: {}
+
+# Node labels for pod assignment
+nodeSelector:  # +doc-gen:break
+  beta.kubernetes.io/os: linux
+  beta.kubernetes.io/arch: amd64
+`,
+			expectedContent: `# Log level for operator
+logLevel: 4
+
+# Annotations applied to operator deployment
+annotations: {}
+
+# Annotations passed to operator pod(s).
+podAnnotations: {}
+
+# Node labels for pod assignment
+nodeSelector:  # +doc-gen:break
+  beta.kubernetes.io/os: linux
+  beta.kubernetes.io/arch: amd64
+`,
+		},
+		{
+			name:       "custom indentation and quotes preserved",
+			expression: `.parent.child1 = "changed"`,
+			originalContent: `# top comment
+
+parent:
+    # nested comment
+    child1: 'single quoted'
+
+    child2: "double quoted"
+
+    list:
+        - one
+
+        - two
+`,
+			expectedContent: `# top comment
+
+parent:
+    # nested comment
+    child1: 'changed'
+
+    child2: "double quoted"
+
+    list:
+        - one
+
+        - two
+`,
+		},
+		{
+			name:       "blank lines around literal blocks and foot comments preserved",
+			expression: `.after = false`,
+			originalContent: `literal: |
+  line1
+  line2
+
+after: true
+
+foot: 1
+# foot comment of foot
+
+last: 2
+`,
+			expectedContent: `literal: |
+  line1
+  line2
+
+after: false
+
+foot: 1
+# foot comment of foot
+
+last: 2
+`,
+		},
+		{
+			name:       "blank lines between sequence entries preserved",
+			expression: `.seq[1] = "B"`,
+			originalContent: `seq:
+  - a
+
+  - b
+  - c
+last: 1
+`,
+			expectedContent: `seq:
+  - a
+
+  - B
+  - c
+last: 1
+`,
+		},
+		{
+			name:       "deleting a node removes its comment but keeps surrounding blank lines",
+			expression: `del(.gone)`,
+			originalContent: `keep: 1
+
+# comment on gone
+gone: 2
+
+after: 3
+`,
+			expectedContent: `keep: 1
+
+
+after: 3
+`,
+		},
+		{
+			name:            "crlf line endings preserved",
+			expression:      `.a = 10`,
+			originalContent: "a: 1\r\n\r\n# comment\r\nb: 2\r\n",
+			expectedContent: "a: 10\r\n\r\n# comment\r\nb: 2\r\n",
+		},
+	}
+
+	for _, command := range []string{"eval", "eval-all"} {
+		t.Run(command, func(t *testing.T) {
+			for _, tt := range tests {
+				t.Run(tt.name, func(t *testing.T) {
+					inputDir := t.TempDir()
+					tempDir := t.TempDir()
+					filename := filepath.Join(inputDir, "input.yaml")
+					if err := os.WriteFile(filename, []byte(tt.originalContent), 0600); err != nil {
+						t.Fatal(err)
+					}
+					for _, key := range []string{"TMPDIR", "TMP", "TEMP"} {
+						t.Setenv(key, tempDir)
+					}
+
+					cmd := New()
+					var output bytes.Buffer
+					cmd.SetOut(&output)
+					cmd.SetErr(&output)
+					cmd.SetArgs([]string{command, "-i", tt.expression, filename})
+					if err := cmd.Execute(); err != nil {
+						t.Fatalf("unexpected error: %v (output: %s)", err, output.String())
+					}
+
+					content, err := os.ReadFile(filename)
+					if err != nil {
+						t.Fatal(err)
+					}
+					if string(content) != tt.expectedContent {
+						t.Errorf("Expected file contents:\n%q\ngot:\n%q", tt.expectedContent, content)
+					}
+				})
+			}
+		})
+	}
+}
+
+// TestEvaluateWriteInPlaceExplicitIndentWins checks that an explicit --indent
+// flag is respected and disables the automatic indentation detection that
+// in-place formatting preservation otherwise performs.
+func TestEvaluateWriteInPlaceExplicitIndentWins(t *testing.T) {
+	originalWriteInplace := writeInplace
+	originalPrefs := yqlib.ConfiguredYamlPreferences
+	t.Cleanup(func() {
+		writeInplace = originalWriteInplace
+		yqlib.ConfiguredYamlPreferences = originalPrefs
+	})
+
+	dir := t.TempDir()
+	filename := filepath.Join(dir, "input.yaml")
+	original := "parent:\n    child: 1\n"
+	if err := os.WriteFile(filename, []byte(original), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := New()
+	var output bytes.Buffer
+	cmd.SetOut(&output)
+	cmd.SetErr(&output)
+	cmd.SetArgs([]string{"eval", "-i", "-I", "8", `.parent.child = 2`, filename})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error: %v (output: %s)", err, output.String())
+	}
+
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := "parent:\n        child: 2\n"
+	if string(content) != expected {
+		t.Errorf("Expected file contents %q, got %q", expected, content)
 	}
 }
