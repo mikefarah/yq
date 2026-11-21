@@ -106,6 +106,12 @@ type CandidateNode struct {
 
 	LeadingContent string
 
+	// sourceLines holds the raw lines of the file this node was decoded from.
+	// It is only populated when preserving the original formatting (e.g. yq -i)
+	// and is used to restore details the yaml node tree cannot represent,
+	// like the spacing before an inline comment. Only set on the document root.
+	sourceLines []string
+
 	document uint // the document index of this node
 	filename string
 
@@ -138,6 +144,16 @@ func (n *CandidateNode) GetDocument() uint {
 		return n.Parent.GetDocument()
 	}
 	return n.document
+}
+
+// GetSourceLines returns the raw lines of the file this node was decoded from.
+// It is only populated on document roots when formatting preservation is
+// enabled (e.g. yq -i); it returns nil otherwise.
+func (n *CandidateNode) GetSourceLines() []string {
+	if n.Parent != nil {
+		return n.Parent.GetSourceLines()
+	}
+	return n.sourceLines
 }
 
 func (n *CandidateNode) SetFilename(name string) {
@@ -420,6 +436,7 @@ func (n *CandidateNode) doCopy(cloneContent bool) *CandidateNode {
 		Key:    copyKey,
 
 		LeadingContent: n.LeadingContent,
+		sourceLines:    n.sourceLines,
 
 		document:  n.document,
 		filename:  n.filename,

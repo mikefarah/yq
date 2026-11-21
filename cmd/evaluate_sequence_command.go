@@ -73,6 +73,8 @@ func evaluateSequence(cmd *cobra.Command, args []string) (cmdError error) {
 		return err
 	}
 
+	configurePreserveFormatting(cmd, writeInplace)
+
 	if writeInplace {
 		// only use colours if its forced
 		colorsEnabled = forceColor

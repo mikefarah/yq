@@ -32,6 +32,12 @@ type yamlDecoder struct {
 	// anchor map persists over multiple documents for convenience.
 	anchorMap map[string]*CandidateNode
 
+	// sourceLines holds the raw lines of the input currently being decoded.
+	// Only populated when prefs.PreserveFormatting is enabled, so that the
+	// encoder can restore layout details (e.g. spacing before inline comments)
+	// that the yaml node tree cannot represent.
+	sourceLines []string
+
 	readAnything  bool
 	firstFile     bool
 	documentIndex uint
@@ -118,7 +124,21 @@ func (dec *yamlDecoder) Init(reader io.Reader) error {
 	leadingContent := ""
 	dec.leadingLines = 0
 	dec.bufferRead = bytes.Buffer{}
+	dec.sourceLines = nil
 	var err error
+	// When preserving the original formatting (e.g. yq -i), slurp the input so
+	// we can later map node line numbers back to the original source lines.
+	// The leading-content preprocessing below pads the stream with the same
+	// number of newlines, so parser line numbers keep matching the source.
+	if dec.prefs.PreserveFormatting {
+		data, readErr := io.ReadAll(reader)
+		if readErr != nil {
+			return readErr
+		}
+		dec.sourceLines = splitSourceLines(string(data))
+		reader = bytes.NewReader(data)
+		readerToUse = reader
+	}
 	// if we 'evaluating together' - we only process the leading content
 	// of the first file - this ensures comments from subsequent files are
 	// merged together correctly.
@@ -181,6 +201,7 @@ func (dec *yamlDecoder) Decode() (*CandidateNode, error) {
 	if err != nil {
 		return nil, err
 	}
+	candidateNode.sourceLines = dec.sourceLines
 
 	candidateNode.HeadComment = yamlNode.HeadComment + candidateNode.HeadComment
 	candidateNode.FootComment = yamlNode.FootComment + candidateNode.FootComment

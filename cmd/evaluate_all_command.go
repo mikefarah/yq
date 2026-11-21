@@ -59,6 +59,8 @@ func evaluateAll(cmd *cobra.Command, args []string) (cmdError error) {
 
 	out := cmd.OutOrStdout()
 
+	configurePreserveFormatting(cmd, writeInplace)
+
 	if writeInplace {
 		// only use colours if its forced
 		colorsEnabled = forceColor
