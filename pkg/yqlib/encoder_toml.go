@@ -233,6 +233,9 @@ func isTomlAttribute(node *CandidateNode) bool {
 	if node.Kind == ScalarNode {
 		return true
 	}
+	if node.Kind == MappingNode && node.EncodeHint == EncodeHintInline {
+		return true
+	}
 	return node.Kind == SequenceNode && !isTomlArrayOfTables(node)
 }
 
