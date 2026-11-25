@@ -33,6 +33,15 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 				if err != nil {
 					return err
 				}
+				for keyEl := compareContext.MatchingNodes.Front(); keyEl != nil; keyEl = keyEl.Next() {
+					keyNode := keyEl.Value.(*CandidateNode)
+					switch keyNode.Kind {
+					case MappingNode:
+						return fmt.Errorf("maps not yet supported for comparison")
+					case SequenceNode:
+						return fmt.Errorf("arrays not yet supported for comparison")
+					}
+				}
 				sortableNode := sortableNode{Node: valueNode, CompareContext: compareContext, dateTimeLayout: context.GetDateTimeLayout()}
 				sortableArray = append(sortableArray, sortableNode)
 				return nil
