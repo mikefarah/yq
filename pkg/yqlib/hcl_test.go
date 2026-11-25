@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/mikefarah/yq/v4/test"
+	"github.com/zclconf/go-cty/cty"
 )
 
 var nestedExample = `service "http" "web_proxy" {
@@ -584,6 +585,27 @@ func documentHclRoundTripScenario(w *bufio.Writer, s formatScenario) {
 	writeOrPanic(w, "will output\n")
 
 	writeOrPanic(w, fmt.Sprintf("```hcl\n%v```\n\n", mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder(ConfiguredHclPreferences))))
+}
+
+func TestHclEncoderBooleanCasing(t *testing.T) {
+	for _, value := range []string{"true", "True", "TRUE", "yes", "on"} {
+		got, err := nodeToCtyValue(&CandidateNode{Kind: ScalarNode, Tag: "!!bool", Value: value})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !got.RawEquals(cty.True) {
+			t.Errorf("YAML %s became HCL %s; want true", value, got.GoString())
+		}
+	}
+	for _, value := range []string{"false", "False", "FALSE", "no", "off"} {
+		got, err := nodeToCtyValue(&CandidateNode{Kind: ScalarNode, Tag: "!!bool", Value: value})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !got.RawEquals(cty.False) {
+			t.Errorf("YAML %s became HCL %s; want false", value, got.GoString())
+		}
+	}
 }
 
 func TestHclEncoderPrintDocumentSeparator(t *testing.T) {

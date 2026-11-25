@@ -638,7 +638,7 @@ func nodeToCtyValue(node *CandidateNode) (cty.Value, error) {
 		// Parse scalar value based on its tag
 		switch node.Tag {
 		case "!!bool":
-			return cty.BoolVal(node.Value == "true"), nil
+			return cty.BoolVal(isTruthyNode(node)), nil
 		case "!!int":
 			var i int64
 			_, err := fmt.Sscanf(node.Value, "%d", &i)
