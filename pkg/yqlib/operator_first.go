@@ -8,9 +8,20 @@ func firstOperator(d *dataTreeNavigator, context Context, expressionNode *Expres
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		// If no RHS expression is provided, simply return the first entry in candidate.Content
+		// If no RHS expression is provided, simply return the first entry
 		if expressionNode == nil || expressionNode.RHS == nil {
-			if len(candidate.Content) > 0 {
+			if candidate.Kind == MappingNode {
+				// candidate.Content is [key0, value0, ...]; the first entry of a
+				// map is its first VALUE, not the key (first.md: "first matching
+				// value in a map"). Splat to get map values with correct paths.
+				splatted, err := splat(context.SingleChildContext(candidate), traversePreferences{})
+				if err != nil {
+					return Context{}, err
+				}
+				if splatted.MatchingNodes.Front() != nil {
+					results.PushBack(splatted.MatchingNodes.Front().Value.(*CandidateNode))
+				}
+			} else if len(candidate.Content) > 0 {
 				results.PushBack(candidate.Content[0])
 			}
 			continue
