@@ -15,6 +15,40 @@ var lengthOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Unicode string length",
+		subdescription: "counts characters (Unicode code points), not bytes",
+		document:       `{a: héllo}`,
+		expression:     `.a | length`,
+		expected: []string{
+			"D0, P[a], (!!int)::5\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: "日本語"}`,
+		expression: `.a | length`,
+		expected: []string{
+			"D0, P[a], (!!int)::3\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "length agrees with string slicing",
+		document:    `{a: héllo}`,
+		expression:  `.a | length as $n | .[$n - 1:]`,
+		expected: []string{
+			"D0, P[a], (!!str)::o\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{a: 1234}`,
+		expression: `.a | length`,
+		expected: []string{
+			"D0, P[a], (!!int)::4\n",
+		},
+	},
+	{
 		description: "null length",
 		document:    `{a: null}`,
 		expression:  `.a | length`,

@@ -18,6 +18,22 @@ will output
 3
 ```
 
+## Unicode string length
+counts characters (Unicode code points), not bytes
+
+Given a sample.yml file of:
+```yaml
+a: héllo
+```
+then
+```bash
+yq '.a | length' sample.yml
+```
+will output
+```yaml
+5
+```
+
 ## null length
 Given a sample.yml file of:
 ```yaml
