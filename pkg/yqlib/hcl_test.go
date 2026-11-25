@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/hcl/v2/hclwrite"
 	"github.com/mikefarah/yq/v4/test"
 )
 
@@ -508,6 +509,20 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "roundtrip",
 	},
 	{
+		description:  "roundtrip block with quoted terraform module path",
+		skipDoc:      true,
+		input:        "moved {\n  from = \"module[\\\"OLD\\\"].foo\"\n  to = \"module[\\\"NEW\\\"].foo\"\n}",
+		expected:     "moved {\n  from = \"module[\\\"OLD\\\"].foo\"\n  to = \"module[\\\"NEW\\\"].foo\"\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
+		description:  "roundtrip unlabelled block with distinct nested block types",
+		skipDoc:      true,
+		input:        "outer {\n  first { x = 1 }\n  second { y = 2 }\n}",
+		expected:     "outer {\n  first {\n    x = 1\n  }\n  second {\n    y = 2\n  }\n}\n",
+		scenarioType: "roundtrip",
+	},
+	{
 		description:  "object with integer key and empty value",
 		skipDoc:      true,
 		input:        `intdict = { 1 = {} }`,
@@ -624,4 +639,23 @@ func TestHclFormatScenarios(t *testing.T) {
 		genericScenarios[i] = s
 	}
 	documentScenarios(t, "usage", "hcl", genericScenarios, documentHclScenario)
+}
+
+func TestHclJSONRoundTripQuotedModulePaths(t *testing.T) {
+	input := "moved {\n  from = \"module[\\\"OLD\\\"].foo\"\n  to = \"module[\\\"NEW\\\"].foo\"\n}"
+	jsonData := mustProcessFormatScenario(formatScenario{input: input}, NewHclDecoder(), NewJSONEncoder(ConfiguredJSONPreferences))
+	hclData := mustProcessFormatScenario(formatScenario{input: jsonData}, NewJSONDecoder(), NewHclEncoder(ConfiguredHclPreferences))
+	test.AssertResult(t, input+"\n", hclData)
+}
+
+func TestHclEncoderDoesNotLeaveFailedBlock(t *testing.T) {
+	node := &CandidateNode{Kind: MappingNode}
+	node.AddKeyValueChild(createStringScalarNode("from"), &CandidateNode{
+		Kind: ScalarNode, Tag: "!!int", Value: "invalid-number",
+	})
+	body := hclwrite.NewEmptyFile().Body()
+	encoder := NewHclEncoder(ConfiguredHclPreferences).(*hclEncoder)
+
+	test.AssertResult(t, false, encoder.encodeBlockIfMapping(body, "moved", node))
+	test.AssertResult(t, 0, len(body.Blocks()))
 }
