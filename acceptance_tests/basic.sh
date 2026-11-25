@@ -370,4 +370,20 @@ EOL
   assertEquals "1" "$X"
 }
 
+testLogLevelSuppressesWarnings() {
+  X=$(./yq -n '"\("' 2> test-warning.yml)
+  assertEquals '\(' "$X"
+  assertContains "$(cat test-warning.yml)" 'unclosed interpolation'
+
+  X=$(./yq --log-level error -n '"\("' 2> test-warning.yml)
+  assertEquals '\(' "$X"
+  assertEquals '' "$(cat test-warning.yml)"
+}
+
+testLogLevelPreservesCommandErrors() {
+  ./yq --log-level error -n 'bad expression' > test-output.yml 2> test-error.yml
+  assertNotEquals 0 "$?"
+  assertContains "$(cat test-error.yml)" 'Error:'
+}
+
 source ./scripts/shunit2

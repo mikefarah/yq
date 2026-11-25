@@ -38,6 +38,7 @@ func (r *runeValue) Type() string {
 }
 
 func New() *cobra.Command {
+	var logLevel string
 	var rootCmd = &cobra.Command{
 		Use:   "yq",
 		Short: "yq is a lightweight and portable command-line data file processor.",
@@ -73,13 +74,25 @@ yq -P -oy sample.json
 			// refer to no-color.org
 			forceNoColor = forceNoColor || os.Getenv("NO_COLOR") != ""
 
-			level := slog.LevelWarn
+			var level slog.Level
+			switch strings.ToLower(logLevel) {
+			case "debug":
+				level = slog.LevelDebug
+			case "info":
+				level = slog.LevelInfo
+			case "warn":
+				level = slog.LevelWarn
+			case "error":
+				level = slog.LevelError
+			default:
+				return fmt.Errorf("invalid log level %q: expected debug, info, warn or error", logLevel)
+			}
 			if verbose {
 				level = slog.LevelDebug
 			}
 
 			yqlib.GetLogger().SetLevel(level)
-			opts := &slog.HandlerOptions{Level: level, AddSource: verbose}
+			opts := &slog.HandlerOptions{Level: level, AddSource: level == slog.LevelDebug}
 			handler := slog.NewTextHandler(os.Stderr, opts)
 			yqlib.GetLogger().SetSlogger(slog.New(handler))
 
@@ -90,6 +103,12 @@ yq -P -oy sample.json
 	}
 
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose mode")
+	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "warn", "minimum log level: debug, info, warn or error")
+	rootCmd.MarkFlagsMutuallyExclusive("verbose", "log-level")
+	if err := rootCmd.RegisterFlagCompletionFunc("log-level", cobra.FixedCompletions(
+		[]string{"debug", "info", "warn", "error"}, cobra.ShellCompDirectiveNoFileComp)); err != nil {
+		panic(err)
+	}
 	rootCmd.PersistentFlags().BoolVarP(&printNodeInfo, "debug-node-info", "", false, "debug node info")
 
 	rootCmd.PersistentFlags().BoolVarP(&outputToJSON, "tojson", "j", false, "(deprecated) output as json. Set indent to 0 to print json in one line.")
