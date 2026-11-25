@@ -244,17 +244,25 @@ func traverseArrayWithIndices(node *CandidateNode, indices []*CandidateNode, pre
 	return newMatches, nil
 }
 
-func keyMatches(key *CandidateNode, wantedKey string, exactKeyMatch bool) bool {
+func keyMatches(key *CandidateNode, wantedKey *CandidateNode, exactKeyMatch bool) bool {
+	if wantedKey.Kind == MappingNode || wantedKey.Kind == SequenceNode {
+		return recursiveNodeEqual(key, wantedKey)
+	}
+	// Structured keys have an empty Value. Preserve wildcard matching, but keep
+	// an explicit empty string lookup distinct from those keys.
+	if wantedKey.Value == "" && (key.Kind == MappingNode || key.Kind == SequenceNode) {
+		return false
+	}
 	if exactKeyMatch {
 		// this is used for merge
-		return key.Value == wantedKey
+		return key.Value == wantedKey.Value
 	}
-	return matchKey(key.Value, wantedKey)
+	return matchKey(key.Value, wantedKey.Value)
 }
 
 func traverseMap(context Context, matchingNode *CandidateNode, keyNode *CandidateNode, prefs traversePreferences, splat bool) (*list.List, error) {
 	var newMatches = orderedmap.NewOrderedMap()
-	err := doTraverseMap(newMatches, matchingNode, keyNode.Value, prefs, splat)
+	err := doTraverseMap(newMatches, matchingNode, keyNode, prefs, splat)
 
 	if err != nil {
 		return nil, err
@@ -291,7 +299,7 @@ func traverseMap(context Context, matchingNode *CandidateNode, keyNode *Candidat
 	return results, nil
 }
 
-func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wantedKey *CandidateNode, prefs traversePreferences, splat bool) error {
 	// value.Content is a concatenated array of key, value,
 	// so keys are in the even indices, values in odd.
 	// merge aliases are defined first, but we only want to traverse them
@@ -323,7 +331,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 		value := contents[index+1]
 
 		//skip the 'merge' tag, find a direct match first
-		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey != key.Value {
+		if key.Tag == "!!merge" && !prefs.DontFollowAlias && wantedKey.Value != key.Value {
 			if !ConfiguredYamlPreferences.FixMergeAnchorToSpec {
 				log.Debug("Merge anchor")
 				if showMergeAnchorToSpecWarning {
@@ -357,7 +365,7 @@ func doTraverseMap(newMatches *orderedmap.OrderedMap, node *CandidateNode, wante
 	return nil
 }
 
-func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode, wantedKey string, prefs traversePreferences, splat bool) error {
+func traverseMergeAnchor(newMatches *orderedmap.OrderedMap, merge *CandidateNode, wantedKey *CandidateNode, prefs traversePreferences, splat bool) error {
 	if merge.Kind == AliasNode {
 		merge = merge.Alias
 	}

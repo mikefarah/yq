@@ -75,6 +75,46 @@ will output
 frog
 ```
 
+## Traversing a mapping key
+Match a mapping key by its entries, regardless of their order.
+
+Given a sample.yml file of:
+```yaml
+? {a: one, b: two}
+: wanted
+? {a: one, b: three}
+: other
+? [one]
+: sequence
+```
+then
+```bash
+yq '.[{"b": "two", "a": "one"}]' sample.yml
+```
+will output
+```yaml
+wanted
+```
+
+## Traversing a sequence key
+Match a sequence key by its items in order.
+
+Given a sample.yml file of:
+```yaml
+? [one, two]
+: wanted
+? [two, one]
+: other
+```
+then
+```bash
+yq '.[["one", "two"]]' sample.yml
+```
+will output
+```yaml
+wanted
+```
+
 ## Nested special characters
 Given a sample.yml file of:
 ```yaml
