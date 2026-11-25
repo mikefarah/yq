@@ -8,7 +8,7 @@ func collectTogether(d *dataTreeNavigator, context Context, expressionNode *Expr
 	collectedNode := &CandidateNode{Kind: SequenceNode, Tag: "!!seq"}
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
-		collectExpResults, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(candidate), expressionNode)
+		collectExpResults, err := d.GetMatchingNodes(context.CollectingReadonlyChildContext(candidate), expressionNode)
 		if err != nil {
 			return nil, err
 		}
@@ -56,7 +56,7 @@ func collectOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 
 		log.Debugf("collect rhs: %v", expressionNode.RHS.Operation.toString())
 
-		collectExpResults, err := d.GetMatchingNodes(context.SingleChildContext(candidate), expressionNode.RHS)
+		collectExpResults, err := d.GetMatchingNodes(context.CollectingChildContext(candidate), expressionNode.RHS)
 		if err != nil {
 			return Context{}, err
 		}
