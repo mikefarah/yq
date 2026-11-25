@@ -109,20 +109,14 @@ func interpolate(d *dataTreeNavigator, context Context, str string) (string, err
 }
 
 func stringInterpolationOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	if context.MatchingNodes.Len() == 0 {
+		return context, nil
+	}
 	if !StringInterpolationEnabled {
 		return context.SingleChildContext(
 			createScalarNode(expressionNode.Operation.StringValue, expressionNode.Operation.StringValue),
 		), nil
 	}
-	if context.MatchingNodes.Len() == 0 {
-		value, err := interpolate(d, context, expressionNode.Operation.StringValue)
-		if err != nil {
-			return Context{}, err
-		}
-		node := createScalarNode(value, value)
-		return context.SingleChildContext(node), nil
-	}
-
 	var results = list.New()
 
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {

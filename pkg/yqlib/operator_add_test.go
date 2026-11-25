@@ -25,9 +25,7 @@ var addOperatorScenarios = []expressionScenario{
 	{
 		skipDoc:    true,
 		expression: `select(.) | "foo" + "bar"`,
-		expected: []string{
-			"D0, P[], (!!str)::foobar\n", // jq does not do this :/ - but yq has for quite some time.
-		},
+		expected:   []string{},
 	},
 	{
 		skipDoc:    true,
