@@ -209,7 +209,17 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 	lhsPath := rhs.GetPath()[pathIndexToStartFrom:]
 	log.Debugf("merge - lhsPath %v", lhsPath)
 
-	assignmentOp := &Operation{OperationType: assignAttributesOpType, Preferences: preferences.AssignPrefs}
+	assignPrefs := preferences.AssignPrefs
+	traversalTree := createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey)
+	if assignPrefs.OnlyWriteNull && rhs.IsMapKey && !fieldExists(d, context, lhs, lhsPath, preferences.TraversePrefs) {
+		// A new field's value is written because its autovivified node is null.
+		// The key node is never null, so the same check would skip copying the
+		// key's comments and the new field would lose them.
+		log.Debugf("merge - %v is a new field, so copy its key comments too", lhsPath)
+		assignPrefs.OnlyWriteNull = false
+	}
+
+	assignmentOp := &Operation{OperationType: assignAttributesOpType, Preferences: assignPrefs}
 	if shouldAppendArrays && rhs.Kind == SequenceNode {
 		assignmentOp.OperationType = addAssignOpType
 		log.Debugf("merge - assignmentOp.OperationType = addAssignOpType")
@@ -228,11 +238,20 @@ func applyAssignment(d *dataTreeNavigator, context Context, pathIndexToStartFrom
 
 	assignmentOpNode := &ExpressionNode{
 		Operation: assignmentOp,
-		LHS:       createTraversalTree(lhsPath, preferences.TraversePrefs, rhs.IsMapKey),
+		LHS:       traversalTree,
 		RHS:       &ExpressionNode{Operation: rhsOp},
 	}
 
 	_, err := d.GetMatchingNodes(context.SingleChildContext(lhs), assignmentOpNode)
 
 	return err
+}
+
+func fieldExists(d *dataTreeNavigator, context Context, lhs *CandidateNode, lhsPath []interface{}, prefs traversePreferences) bool {
+	probe := createTraversalTree(lhsPath, prefs, false)
+	matched, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(lhs), probe)
+	if err != nil {
+		return false
+	}
+	return matched.MatchingNodes.Len() > 0
 }
