@@ -92,6 +92,11 @@ func TestShellVariablesEncoderScalarNode(t *testing.T) {
 	assertEncodesTo(t, "some string", "value='some string'")
 }
 
+func TestShellVariablesEncoderUnderscoredNumbers(t *testing.T) {
+	assertEncodesTo(t, "integer: 20_000\nfloat: 1_234.5", "integer=20000\nfloat='1234.5'")
+	assertEncodesTo(t, `string: "20_000"`, "string=20_000")
+}
+
 func assertEncodesToWithSeparator(t *testing.T, yaml string, shellvars string, separator string) {
 	var output bytes.Buffer
 	writer := bufio.NewWriter(&output)
