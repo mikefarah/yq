@@ -129,7 +129,11 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 			return Context{}, err
 		}
 		for childEl := rhs.MatchingNodes.Front(); childEl != nil; childEl = childEl.Next() {
-			err = explodeNode(childEl.Value.(*CandidateNode), context)
+			node := childEl.Value.(*CandidateNode)
+			if err := checkForAliasCycles(node, make(map[*CandidateNode]bool)); err != nil {
+				return Context{}, err
+			}
+			err = explodeNode(node, context)
 			if err != nil {
 				return Context{}, err
 			}
@@ -138,6 +142,32 @@ func explodeOperator(d *dataTreeNavigator, context Context, expressionNode *Expr
 	}
 
 	return context, nil
+}
+
+// Check before expanding aliases, which mutates nodes and can hide a cycle.
+func checkForAliasCycles(node *CandidateNode, visited map[*CandidateNode]bool) error {
+	if node == nil {
+		return nil
+	}
+	if complete, seen := visited[node]; seen {
+		if !complete {
+			return fmt.Errorf("cannot explode circular alias reference")
+		}
+		return nil
+	}
+	visited[node] = false
+	if node.Kind == AliasNode {
+		if err := checkForAliasCycles(node.Alias, visited); err != nil {
+			return err
+		}
+	}
+	for _, child := range node.Content {
+		if err := checkForAliasCycles(child, visited); err != nil {
+			return err
+		}
+	}
+	visited[node] = true
+	return nil
 }
 
 func fixedReconstructAliasedMap(node *CandidateNode) error {

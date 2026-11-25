@@ -343,6 +343,27 @@ somethingElse:
 
 var anchorOperatorScenarios = []expressionScenario{
 	{
+		description:   "Explode rejects circular aliases",
+		skipDoc:       true,
+		document:      "&self [*self]",
+		expression:    "explode(.)",
+		expectedError: "cannot explode circular alias reference",
+	},
+	{
+		description:   "Explode rejects circular merge aliases",
+		skipDoc:       true,
+		document:      "&self {<<: *self, value: 1}",
+		expression:    "explode(.)",
+		expectedError: "cannot explode circular alias reference",
+	},
+	{
+		description: "YAML output preserves circular aliases",
+		skipDoc:     true,
+		document:    "&self [*self]",
+		expression:  ".",
+		expected:    []string{"D0, P[], (!!seq)::&self [*self]\n"},
+	},
+	{
 		// mergeObjects previously skipped all !!merge-tagged nodes. Since !!merge only appears on
 		// << map keys, this meant applyAssignment was never called for the << key. It was later
 		// autocreated by createStringScalarNode("<<") with tag !!str, silently dropping !!merge.
