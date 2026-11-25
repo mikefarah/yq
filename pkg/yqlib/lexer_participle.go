@@ -52,6 +52,7 @@ var participleYqRules = []*participleYqRule{
 	simpleOp("to_?unix", toUnixOpType),
 	simpleOp("with_dtf", withDtFormatOpType),
 	simpleOp("error", errorOpType),
+	{"Empty", `empty`, opToken(emptyOpType), 0},
 	simpleOp("shuffle", shuffleOpType),
 	simpleOp("sortKeys", sortKeysOpType),
 	simpleOp("sort_?keys", sortKeysOpType),

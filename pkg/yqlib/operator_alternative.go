@@ -23,10 +23,9 @@ func alternativeFunc(_ *dataTreeNavigator, _ Context, lhs *CandidateNode, rhs *C
 	if lhs == nil {
 		return rhs, nil
 	}
-	if rhs == nil {
-		return lhs, nil
-	}
 
+	// a nil rhs means the RHS produced no results, so neither does the
+	// alternative - matching jq, where 'false // empty' returns nothing.
 	isTrue := isTruthyNode(lhs)
 	if isTrue {
 		return lhs, nil
