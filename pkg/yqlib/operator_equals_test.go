@@ -6,6 +6,161 @@ import (
 
 var equalsOperatorScenarios = []expressionScenario{
 	{
+		description:    "Compare integers with different representations",
+		subdescription: "Integer values are compared numerically. YAML 1.2 octal numbers use the `0o` prefix; an unprefixed value such as `0644` is decimal.",
+		document: `a: 0o644
+b: 420`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0o644
+b: 420`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0x1a4
+b: 420`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0x1a4
+b: 420`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: -0o644
+b: -420`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: -0o644
+b: -420`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: +0x1a4
+b: +420`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: +0x1a4
+b: +420`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 4_200
+b: 4200`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 4_200
+b: 4200`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0644
+b: 644`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0644
+b: 644`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0644
+b: 420`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0644
+b: 420`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0o644
+b: 421`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0o644
+b: 421`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0xFFFFFFFFFFFFFFFF
+b: 18446744073709551615`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 0xFFFFFFFFFFFFFFFF
+b: 18446744073709551615`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 9007199254740992
+b: 9007199254740993`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: 9007199254740992
+b: 9007199254740993`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: "0o644"
+b: "420"`,
+		expression: `.a == .b`,
+		expected:   []string{"D0, P[a], (!!bool)::false\n"},
+	},
+	{
+		skipDoc: true,
+		document: `a: "0o644"
+b: "420"`,
+		expression: `.a != .b`,
+		expected:   []string{"D0, P[a], (!!bool)::true\n"},
+	},
+	{
 		skipDoc:    true,
 		expression: ".a == .b",
 		expected: []string{
