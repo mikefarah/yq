@@ -142,6 +142,40 @@ Now that entire LHS expression is passed to the 'assign' (`=`) operator, and the
 
 ```
 
+## Grouping chained arithmetic
+
+Arithmetic operators with the same precedence group from right to left. For example,
+`6 - 5 - 4` means `6 - (5 - 4)`, which returns `5`. To subtract each number in turn,
+use parentheses:
+
+```sh
+yq -n '(6 - 5) - 4'
+# -3
+```
+
+Grouping also matters when adding objects to arrays. The expression
+`[] + {"a": 1} + {"b": 2}` first adds the two objects together, then appends the
+resulting object to the array:
+
+```yaml
+- a: 1
+  b: 2
+```
+
+To append each object as a separate array item, group the first addition explicitly:
+
+```sh
+yq -n '([] + {"a": 1}) + {"b": 2}'
+```
+
+```yaml
+- a: 1
+- b: 2
+```
+
+Alternatively, wrap the objects in arrays: `[] + [{"a": 1}] + [{"b": 2}]`.
+This concatenates arrays and produces the same two separate items.
+
 ## Relative update (e.g. `|=`)
 There is another form of the `=` operator which we call the relative form. It's very similar to `=` but with one key difference when evaluating the RHS expression.
 
