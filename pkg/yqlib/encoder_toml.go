@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
@@ -115,14 +116,130 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	case "!!str":
 		// Quote strings per TOML spec
 		return fmt.Sprintf("%q", node.Value)
-	case "!!bool", "!!int", "!!float":
+	case "!!bool":
+		if parsed, err := strconv.ParseBool(node.Value); err == nil {
+			if parsed {
+				return "true"
+			}
+			return "false"
+		}
+		switch strings.ToLower(node.Value) {
+		case "y", "yes", "on":
+			return "true"
+		case "n", "no", "off":
+			return "false"
+		}
 		return node.Value
+	case "!!int":
+		return node.Value
+	case "!!float":
+		return formatTomlFloat(node.Value)
 	case "!!null":
 		// TOML does not have null; encode as empty string
 		return `""`
 	default:
 		return node.Value
 	}
+}
+
+func removeInvalidUnderscores(value string) string {
+	var b strings.Builder
+	b.Grow(len(value))
+	for i := 0; i < len(value); i++ {
+		if value[i] != '_' || i > 0 && i+1 < len(value) && value[i-1] >= '0' && value[i-1] <= '9' && value[i+1] >= '0' && value[i+1] <= '9' {
+			b.WriteByte(value[i])
+		}
+	}
+	return b.String()
+}
+
+func formatTomlFloat(value string) string {
+	switch strings.ToLower(value) {
+	case ".inf", "+.inf", "inf", "+inf":
+		return "inf"
+	case "-.inf", "-inf":
+		return "-inf"
+	case ".nan", "+.nan", "-.nan", "nan", "+nan", "-nan":
+		return "nan"
+	}
+
+	sign := ""
+	unsigned := value
+	if strings.HasPrefix(unsigned, "+") || strings.HasPrefix(unsigned, "-") {
+		sign = unsigned[:1]
+		unsigned = unsigned[1:]
+	}
+
+	normalised := strings.ReplaceAll(unsigned, "_", "")
+	if len(normalised) > 2 && normalised[0] == '0' {
+		base := 0
+		switch normalised[1] {
+		case 'x', 'X':
+			base = 16
+		case 'o', 'O':
+			base = 8
+		case 'b', 'B':
+			base = 2
+		}
+		if base == 16 {
+			parsed, err := strconv.ParseFloat(normalised, 64)
+			if err != nil {
+				parsed, err = strconv.ParseFloat(normalised+"p0", 64)
+			}
+			if err != nil {
+				return value
+			}
+			formatted := strconv.FormatFloat(parsed, 'f', -1, 64)
+			if !strings.Contains(formatted, ".") {
+				formatted += ".0"
+			}
+			return sign + formatted
+		}
+		if base != 0 {
+			parsed, err := strconv.ParseUint(normalised[2:], base, 64)
+			if err != nil {
+				return value
+			}
+			return sign + strconv.FormatUint(parsed, 10) + ".0"
+		}
+	}
+
+	unsigned = removeInvalidUnderscores(unsigned)
+
+	mantissa := unsigned
+	if !strings.ContainsAny(mantissa, "0123456789") {
+		return value
+	}
+	exponent := ""
+	if index := strings.IndexAny(unsigned, "eE"); index >= 0 {
+		mantissa = unsigned[:index]
+		exponent = unsigned[index:]
+	}
+
+	integerPart := mantissa
+	fractionalPart := ""
+	hasDecimalPoint := strings.Contains(mantissa, ".")
+	if hasDecimalPoint {
+		integerPart, fractionalPart, _ = strings.Cut(mantissa, ".")
+	}
+	if integerPart == "" {
+		integerPart = "0"
+	} else if strings.HasPrefix(integerPart, "0") {
+		integerPart = strings.TrimLeft(strings.ReplaceAll(integerPart, "_", ""), "0")
+		if integerPart == "" {
+			integerPart = "0"
+		}
+	}
+	if hasDecimalPoint {
+		if fractionalPart == "" {
+			fractionalPart = "0"
+		}
+		return sign + integerPart + "." + fractionalPart + exponent
+	}
+	if exponent != "" {
+		return sign + integerPart + exponent
+	}
+	return sign + integerPart + ".0"
 }
 
 func (te *tomlEncoder) encodeRootMapping(w io.Writer, node *CandidateNode) error {
