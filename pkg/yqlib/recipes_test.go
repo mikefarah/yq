@@ -75,7 +75,7 @@ var recipes = []expressionScenario{
 		document:       `myArray: [{name: Foo, type: cat}, {name: Bar, type: dog}]`,
 		expression:     `with(.myArray[]; .name = .name + " - " + .type)`,
 		explanation: []string{
-			"The with operator will effectively loop through each given item in the first given expression, and run the second expression against it.",
+			"The `with` operator will effectively loop through each given item in the first given expression, and run the second expression against it.",
 			"`.myArray[]` splats the array in `myArray`. So `with` will run against each item in that array",
 			"`.name = .name + \" - \" + .type` this expression is run against every item, updating the name to be a concatenation of the original name as well as the type.",
 			"See the [with](https://mikefarah.gitbook.io/yq/operators/with) operator for more information and examples.",

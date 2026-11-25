@@ -85,7 +85,8 @@ yq -o=base64url '.' sample.yml
 ```
 will output
 ```
-YSBzcGVjaWFsIHN0cmluZw==```
+YSBzcGVjaWFsIHN0cmluZw==
+```
 
 ## Encode base64url: string from document
 Extract a string field and encode it to base64url.
@@ -100,5 +101,6 @@ yq -o=base64url '.coolData' sample.yml
 ```
 will output
 ```
-YSBzcGVjaWFsIHN0cmluZw==```
+YSBzcGVjaWFsIHN0cmluZw==
+```
 
