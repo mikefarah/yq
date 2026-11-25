@@ -365,8 +365,14 @@ func capture(matchPrefs matchPreferences, regEx *regexp.Regexp, candidate *Candi
 
 		_, submatches := matches[0], matches[1:]
 		for j, submatch := range submatches {
-
-			keyNode := createScalarNode(subNames[j+1], subNames[j+1])
+			name := subNames[j+1]
+			// jq only returns named capture groups; unnamed groups (whose
+			// SubexpNames entry is "") must be skipped so they don't become
+			// map entries with an empty-string key.
+			if name == "" {
+				continue
+			}
+			keyNode := createScalarNode(name, name)
 			var valueNode *CandidateNode
 
 			offset := allIndices[i][2+j*2]
