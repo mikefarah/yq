@@ -24,17 +24,16 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
 		candidate := el.Value.(*CandidateNode)
 
-		var sortableArray sortableNodeArray
+		sortableArray := &sortableNodeArray{}
 
 		if candidate.CanVisitValues() {
-			sortableArray = make(sortableNodeArray, 0)
 			visitor := func(valueNode *CandidateNode) error {
 				compareContext, err := d.GetMatchingNodes(context.SingleReadonlyChildContext(valueNode), expressionNode.RHS)
 				if err != nil {
 					return err
 				}
 				sortableNode := sortableNode{Node: valueNode, CompareContext: compareContext, dateTimeLayout: context.GetDateTimeLayout()}
-				sortableArray = append(sortableArray, sortableNode)
+				sortableArray.nodes = append(sortableArray.nodes, sortableNode)
 				return nil
 			}
 			if err := candidate.VisitValues(visitor); err != nil {
@@ -45,15 +44,18 @@ func sortByOperator(d *dataTreeNavigator, context Context, expressionNode *Expre
 		}
 
 		sort.Stable(sortableArray)
+		if sortableArray.err != nil {
+			return context, sortableArray.err
+		}
 
 		sortedList := candidate.CopyWithoutContent()
 		switch candidate.Kind {
 		case MappingNode:
-			for _, sortedNode := range sortableArray {
+			for _, sortedNode := range sortableArray.nodes {
 				sortedList.AddKeyValueChild(sortedNode.Node.Key, sortedNode.Node)
 			}
 		case SequenceNode:
-			for _, sortedNode := range sortableArray {
+			for _, sortedNode := range sortableArray.nodes {
 				sortedList.AddChild(sortedNode.Node)
 			}
 		}
@@ -70,14 +72,17 @@ type sortableNode struct {
 	dateTimeLayout string
 }
 
-type sortableNodeArray []sortableNode
+type sortableNodeArray struct {
+	nodes []sortableNode
+	err   error
+}
 
-func (a sortableNodeArray) Len() int      { return len(a) }
-func (a sortableNodeArray) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a *sortableNodeArray) Len() int      { return len(a.nodes) }
+func (a *sortableNodeArray) Swap(i, j int) { a.nodes[i], a.nodes[j] = a.nodes[j], a.nodes[i] }
 
-func (a sortableNodeArray) Less(i, j int) bool {
-	lhsContext := a[i].CompareContext
-	rhsContext := a[j].CompareContext
+func (a *sortableNodeArray) Less(i, j int) bool {
+	lhsContext := a.nodes[i].CompareContext
+	rhsContext := a.nodes[j].CompareContext
 
 	rhsEl := rhsContext.MatchingNodes.Front()
 
@@ -85,7 +90,7 @@ func (a sortableNodeArray) Less(i, j int) bool {
 		lhs := lhsEl.Value.(*CandidateNode)
 		rhs := rhsEl.Value.(*CandidateNode)
 
-		result := a.compare(lhs, rhs, a[i].dateTimeLayout)
+		result := a.compare(lhs, rhs, a.nodes[i].dateTimeLayout)
 
 		if result < 0 {
 			return true
@@ -98,7 +103,20 @@ func (a sortableNodeArray) Less(i, j int) bool {
 	return lhsContext.MatchingNodes.Len() < rhsContext.MatchingNodes.Len()
 }
 
-func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateTimeLayout string) int {
+func (a *sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateTimeLayout string) int {
+	if a.err != nil {
+		return 0
+	}
+
+	if lhs.Kind == MappingNode || rhs.Kind == MappingNode {
+		a.err = fmt.Errorf("maps not yet supported for comparison")
+		return 0
+	}
+	if lhs.Kind == SequenceNode || rhs.Kind == SequenceNode {
+		a.err = fmt.Errorf("arrays not yet supported for comparison")
+		return 0
+	}
+
 	lhsTag := lhs.Tag
 	rhsTag := rhs.Tag
 

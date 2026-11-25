@@ -180,6 +180,41 @@ var sortByOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[-5000000000000000000, 5000000000000000000]\n",
 		},
 	},
+	{
+		skipDoc:       true,
+		description:   "Sort array of maps errors, maps have no defined ordering",
+		document:      `[{"a":1},{"a":0}]`,
+		expression:    `sort`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		skipDoc:       true,
+		description:   "Sort array of arrays errors, arrays have no defined ordering",
+		document:      `[[1],[0]]`,
+		expression:    `sort`,
+		expectedError: "arrays not yet supported for comparison",
+	},
+	{
+		skipDoc:       true,
+		description:   "Sort mixed array of scalars and maps errors",
+		document:      `[1,{"a":0}]`,
+		expression:    `sort`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		skipDoc:       true,
+		description:   "sort_by errors when the key expression evaluates to a map",
+		document:      `[{"a":{"b":1}},{"a":{"b":0}}]`,
+		expression:    `sort_by(.a)`,
+		expectedError: "maps not yet supported for comparison",
+	},
+	{
+		skipDoc:       true,
+		description:   "sort_by errors when the key expression evaluates to an array",
+		document:      `[{"a":1},{"a":0}]`,
+		expression:    `sort_by([.a])`,
+		expectedError: "arrays not yet supported for comparison",
+	},
 }
 
 func TestSortByOperatorScenarios(t *testing.T) {
