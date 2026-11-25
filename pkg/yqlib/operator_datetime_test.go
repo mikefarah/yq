@@ -15,6 +15,23 @@ var dateTimeOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		description:    "Format: RFC3339 with a space instead of T",
+		subdescription: "RFC 3339, YAML and TOML allow a space between the date and the time.",
+		document:       `a: 2026-09-05 10:42:37.923487+00:00`,
+		expression:     `.a | format_datetime("Monday")`,
+		expected: []string{
+			"D0, P[a], (!!str)::Saturday\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `a: 2026-09-05 10:42:37Z`,
+		expression: `.a | format_datetime("Monday")`,
+		expected: []string{
+			"D0, P[a], (!!str)::Saturday\n",
+		},
+	},
+	{
 		description:    "Format: from custom date time",
 		subdescription: "Use with_dtf to set a custom datetime format for parsing.",
 		document:       `a: Saturday, 15-Dec-01 at 2:59AM`,
