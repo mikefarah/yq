@@ -176,6 +176,12 @@ func (o *CandidateNode) UnmarshalYAML(node *yaml.Node, anchorMap map[string]*Can
 }
 
 func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
+	return o.marshalYAML(false)
+}
+
+// inFlow is true when an ancestor is printed in flow style ({} or []), where an
+// empty null scalar cannot be left blank - the emitter would quote it as an empty string.
+func (o *CandidateNode) marshalYAML(inFlow bool) (*yaml.Node, error) {
 	log.Debugf("MarshalYAML to yaml: %v", o.Tag)
 	switch o.Kind {
 	case AliasNode:
@@ -187,6 +193,9 @@ func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 		log.Debugf("MarshalYAML - scalar: %v", o.Value)
 		target := &yaml.Node{Kind: yaml.ScalarNode}
 		o.copyToYamlNode(target)
+		if inFlow && target.Tag == "!!null" && target.Value == "" {
+			target.Value = "null"
+		}
 		return target, nil
 	case MappingNode, SequenceNode:
 		targetKind := yaml.MappingNode
@@ -200,7 +209,7 @@ func (o *CandidateNode) MarshalYAML() (*yaml.Node, error) {
 		target.Content = make([]*yaml.Node, len(o.Content))
 		for i := 0; i < len(o.Content); i++ {
 
-			child, err := o.Content[i].MarshalYAML()
+			child, err := o.Content[i].marshalYAML(inFlow || o.Style&FlowStyle != 0)
 
 			if err != nil {
 				return nil, err
