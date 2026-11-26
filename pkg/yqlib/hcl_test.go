@@ -93,6 +93,13 @@ var hclFormatScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "Encode hex, octal and underscored integers",
+		skipDoc:      true,
+		input:        "a: 0x1F\nb: 0o17\nc: 1_000\nd: -0x10\ne: 1_0.5\n",
+		expected:     "a = 31\nb = 15\nc = 1000\nd = -16\ne = 10.5\n",
+		scenarioType: "encode",
+	},
+	{
 		description:  "Simple decode, no quotes",
 		skipDoc:      true,
 		input:        `io_mode = async`,
@@ -523,6 +530,8 @@ func testHclScenario(t *testing.T, s formatScenario) {
 		test.AssertResultWithContext(t, s.expected, result, s.description)
 	case "roundtrip":
 		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewHclDecoder(), NewHclEncoder(ConfiguredHclPreferences)), s.description)
+	case "encode":
+		test.AssertResultWithContext(t, s.expected, mustProcessFormatScenario(s, NewYamlDecoder(ConfiguredYamlPreferences), NewHclEncoder(ConfiguredHclPreferences)), s.description)
 	}
 }
 
