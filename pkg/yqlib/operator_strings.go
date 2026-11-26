@@ -489,6 +489,40 @@ func testOperator(d *dataTreeNavigator, context Context, expressionNode *Express
 	return context.ChildContext(results), nil
 }
 
+func startsWithOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	return affixOperator(d, context, expressionNode, "startswith", strings.HasPrefix)
+}
+
+func endsWithOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
+	return affixOperator(d, context, expressionNode, "endswith", strings.HasSuffix)
+}
+
+func affixOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode, name string, hasAffix func(s, affix string) bool) (Context, error) {
+	rhs, err := d.GetMatchingNodes(context.ReadOnlyClone(), expressionNode.RHS)
+	if err != nil {
+		return Context{}, err
+	}
+	if rhs.MatchingNodes.Front() == nil {
+		return Context{}, fmt.Errorf("%v requires a string argument", name)
+	}
+	affix := rhs.MatchingNodes.Front().Value.(*CandidateNode)
+	if affix.guessTagFromCustomType() != "!!str" {
+		return Context{}, fmt.Errorf("%v requires a string argument, received %v", name, affix.Tag)
+	}
+
+	var results = list.New()
+
+	for el := context.MatchingNodes.Front(); el != nil; el = el.Next() {
+		node := el.Value.(*CandidateNode)
+		if node.guessTagFromCustomType() != "!!str" {
+			return Context{}, fmt.Errorf("cannot use %v on %v, can only operate on strings", name, node.Tag)
+		}
+		results.PushBack(createBooleanCandidate(node, hasAffix(node.Value, affix.Value)))
+	}
+
+	return context.ChildContext(results), nil
+}
+
 func joinStringOperator(d *dataTreeNavigator, context Context, expressionNode *ExpressionNode) (Context, error) {
 	log.Debugf("joinStringOperator")
 	joinStr := ""

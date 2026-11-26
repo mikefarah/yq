@@ -253,6 +253,75 @@ var stringsOperatorScenarios = []expressionScenario{
 		expected:    []string{},
 	},
 	{
+		description:    "Starts with",
+		subdescription: "Like jq's equivalent, returns true if the string starts with the given string.",
+		document:       `["cat", "dog", "caterpillar"]`,
+		expression:     `.[] | startswith("cat")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::false\n",
+			"D0, P[2], (!!bool)::true\n",
+		},
+	},
+	{
+		description:    "Ends with",
+		subdescription: "Like jq's equivalent, returns true if the string ends with the given string.",
+		document:       `[{name: bob}, {name: deb}, {name: alice}]`,
+		expression:     `.[] | select(.name | endswith("b"))`,
+		expected: []string{
+			"D0, P[0], (!!map)::{name: bob}\n",
+			"D0, P[1], (!!map)::{name: deb}\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `[!horse "cat", !cat "dog"]`,
+		expression: `.[] | startswith("ca")`,
+		expected: []string{
+			"D0, P[0], (!!bool)::true\n",
+			"D0, P[1], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		expression: `"cat" | (startswith(""), endswith(""), startswith("cat"), endswith("cat"), startswith("cats"))`,
+		expected: []string{
+			"D0, P[], (!!bool)::true\n",
+			"D0, P[], (!!bool)::true\n",
+			"D0, P[], (!!bool)::true\n",
+			"D0, P[], (!!bool)::true\n",
+			"D0, P[], (!!bool)::false\n",
+		},
+	},
+	{
+		skipDoc:    true,
+		document:   `{value: cat}`,
+		expression: `.value | (startswith("ca") and endswith("t"))`,
+		expected: []string{
+			"D0, P[value], (!!bool)::true\n",
+		},
+	},
+	{
+		skipDoc:       true,
+		expression:    `1 | startswith("a")`,
+		expectedError: "cannot use startswith on !!int, can only operate on strings",
+	},
+	{
+		skipDoc:       true,
+		expression:    `null | endswith("a")`,
+		expectedError: "cannot use endswith on !!null, can only operate on strings",
+	},
+	{
+		skipDoc:       true,
+		expression:    `"cat" | startswith(1)`,
+		expectedError: "startswith requires a string argument, received !!int",
+	},
+	{
+		skipDoc:       true,
+		expression:    `"cat" | endswith(.missing)`,
+		expectedError: "endswith requires a string argument",
+	},
+	{
 		description:    "Test using regex",
 		subdescription: "Like jq's equivalent, this works like match but only returns true/false instead of full match details",
 		document:       `["cat", "dog"]`,
