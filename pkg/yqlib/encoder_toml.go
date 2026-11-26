@@ -115,7 +115,7 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	case "!!str":
 		// Quote strings per TOML spec
 		return fmt.Sprintf("%q", node.Value)
-	case "!!bool", "!!int", "!!float":
+	case "!!bool", "!!int", "!!float", "!!timestamp":
 		return node.Value
 	case "!!null":
 		// TOML does not have null; encode as empty string
