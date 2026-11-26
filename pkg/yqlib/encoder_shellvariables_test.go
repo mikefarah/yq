@@ -183,3 +183,156 @@ func TestShellVariablesEncoderUnwrapScalarQuotesUnsafeValues(t *testing.T) {
 	assertEncodesToUnwrapped(t, `cmd: "a#b"`, "cmd='a#b'")
 	assertEncodesToUnwrapped(t, `cmd: "*"`, "cmd='*'")
 }
+
+func TestShellVariablesEncoderNumericSeparators(t *testing.T) {
+	cases := []struct {
+		name      string
+		yaml      string
+		quoted    string
+		unwrapped string
+	}{
+		{
+			name:      "nested integer",
+			yaml:      "app:\n  server:\n    host: localhost\n    port: 8080\n    buffer_size: 20_000",
+			quoted:    "app_server_host=localhost\napp_server_port=8080\napp_server_buffer_size=20000",
+			unwrapped: "app_server_host=localhost\napp_server_port=8080\napp_server_buffer_size=20000",
+		},
+		{
+			name:      "signed integers",
+			yaml:      "negative: -20_000\npositive: +20_000",
+			quoted:    "negative='-20000'\npositive='+20000'",
+			unwrapped: "negative=-20000\npositive=+20000",
+		},
+		{
+			name:      "numeric bases",
+			yaml:      "hex: 0xA_B\noctal: 0o1_7\nbinary: 0b1_0",
+			quoted:    "hex=0xAB\noctal=0o17\nbinary=0b10",
+			unwrapped: "hex=0xAB\noctal=0o17\nbinary=0b10",
+		},
+		{
+			name:      "float and exponent",
+			yaml:      "float: 1_000.5_0\nexponent: 1_0.5e+1_0",
+			quoted:    "float='1000.50'\nexponent='10.5e+10'",
+			unwrapped: "float=1000.50\nexponent=10.5e+10",
+		},
+		{
+			name:      "large integer",
+			yaml:      "value: 18_446_744_073_709_551_615",
+			quoted:    "value=18446744073709551615",
+			unwrapped: "value=18446744073709551615",
+		},
+		{
+			name:      "quoted strings",
+			yaml:      "single: '20_000'\ndouble: \"20_000\"\nplain: text_with_underscores",
+			quoted:    "single=20_000\ndouble=20_000\nplain=text_with_underscores",
+			unwrapped: "single=20_000\ndouble=20_000\nplain=text_with_underscores",
+		},
+		{
+			name:      "custom tag",
+			yaml:      "custom: !amount 20_000",
+			quoted:    "custom=20_000",
+			unwrapped: "custom=20_000",
+		},
+		{
+			name:      "key underscores",
+			yaml:      "key_1_000: 2_000\n1_000: 3_000",
+			quoted:    "key_1_000=2000\n_1_000=3000",
+			unwrapped: "key_1_000=2000\n_1_000=3000",
+		},
+		{
+			name:      "sequence",
+			yaml:      "values: [1_000, '2_000', 3_000.0]",
+			quoted:    "values_0=1000\nvalues_1=2_000\nvalues_2='3000.0'",
+			unwrapped: "values_0=1000\nvalues_1=2_000\nvalues_2=3000.0",
+		},
+		{
+			name:      "root scalar",
+			yaml:      "20_000",
+			quoted:    "value=20000",
+			unwrapped: "value=20000",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Run("quoted", func(t *testing.T) {
+				assertEncodesTo(t, tc.yaml, tc.quoted)
+			})
+			t.Run("unwrapped", func(t *testing.T) {
+				assertEncodesToUnwrapped(t, tc.yaml, tc.unwrapped)
+			})
+		})
+	}
+}
+
+func TestShellVariablesEncoderRetainsNumericSourceValue(t *testing.T) {
+	inputs, err := readDocuments(strings.NewReader("number: 20_000"), "test.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
+	if err != nil {
+		t.Fatal(err)
+	}
+	node := inputs.Front().Value.(*CandidateNode)
+	value := node.Content[1]
+	var output bytes.Buffer
+
+	if err := NewShellVariablesEncoder().Encode(&output, node); err != nil {
+		t.Fatal(err)
+	}
+
+	test.AssertResult(t, "number=20000\n", output.String())
+	test.AssertResult(t, "20_000", value.Value)
+	test.AssertResult(t, "!!int", value.Tag)
+}
+
+func TestShellVariablesEncoderNumericSeparatorsSecurityModes(t *testing.T) {
+	cases := []struct {
+		name      string
+		yaml      string
+		quoted    string
+		unwrapped string
+		forced    string
+	}{
+		{"integer", "value: 20_000", "20000", "20000", "20000"},
+		{"signed integer", "value: -20_000", "'-20000'", "-20000", "-20000"},
+		{"float", "value: 1_000.5_0", "'1000.50'", "1000.50", "1000.50"},
+		{"safe string", "value: 'path_to/1_000.txt'", "'path_to/1_000.txt'", "path_to/1_000.txt", "path_to/1_000.txt"},
+		{"unsafe string", "value: '20_000; do_not_execute'", "'20_000; do_not_execute'", "'20_000; do_not_execute'", "20_000; do_not_execute"},
+		{"quoted string", "value: \"it's_20_000\"", `'it'"'"'s_20_000'`, `'it'"'"'s_20_000'`, "it's_20_000"},
+	}
+	modes := []struct {
+		name   string
+		unwrap bool
+		force  bool
+	}{
+		{"quoted", false, false},
+		{"safe unwrap", true, false},
+		{"forced unwrap", true, true},
+		{"force without unwrap", false, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, mode := range modes {
+				t.Run(mode.name, func(t *testing.T) {
+					inputs, err := readDocuments(strings.NewReader(tc.yaml), "test.yml", 0, NewYamlDecoder(ConfiguredYamlPreferences))
+					if err != nil {
+						t.Fatal(err)
+					}
+					prefs := NewDefaultShellVariablesPreferences()
+					prefs.UnwrapScalar = mode.unwrap
+					prefs.SecurityForceNeverEscape = mode.force
+					encoder := &shellVariablesEncoder{prefs: prefs}
+					var output bytes.Buffer
+					if err := encoder.Encode(&output, inputs.Front().Value.(*CandidateNode)); err != nil {
+						t.Fatal(err)
+					}
+					want := tc.quoted
+					if mode.unwrap {
+						want = tc.unwrapped
+						if mode.force {
+							want = tc.forced
+						}
+					}
+					test.AssertResult(t, "value="+want+"\n", output.String())
+				})
+			}
+		})
+	}
+}
