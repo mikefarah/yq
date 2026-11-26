@@ -103,6 +103,26 @@ var alternativeOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!map)::b: camel\na: 1\n",
 		},
 	},
+	{
+		skipDoc:    true,
+		expression: `.a // (.list[])`,
+		document:   `{a: false, list: []}`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		expression: `.a // empty`,
+		document:   `{a: false}`,
+		expected:   []string{},
+	},
+	{
+		skipDoc:    true,
+		expression: `.a // (.list[])`,
+		document:   `{a: cat, list: []}`,
+		expected: []string{
+			"D0, P[a], (!!str)::cat\n",
+		},
+	},
 }
 
 func TestAlternativeOperatorScenarios(t *testing.T) {
