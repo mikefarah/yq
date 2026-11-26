@@ -248,6 +248,20 @@ numbers:
 		expected:     "return {\n\t1.0,\n\t3.14,\n\t1e100,\n\t(1/0),\n\t(0/0),\n};\n",
 		scenarioType: "encode",
 	},
+	{
+		skipDoc:      true,
+		description:  "Line comments starting with a long bracket",
+		input:        "a: 1 #[[ note\nb: 2\nc: #[=[ key\n  - x #[==[ item\n  - y\nd: 3 #]]\n",
+		expected:     "return {\n\t[\"a\"] = 1; -- [[ note\n\t[\"b\"] = 2;\n\t[\"c\"] = -- [=[ key\n\t{\n\t\t\"x\", -- [==[ item\n\t\t\"y\",\n\t};\n\t[\"d\"] = 3; --]]\n};\n",
+		scenarioType: "encode",
+	},
+	{
+		skipDoc:      true,
+		description:  "Line comments not starting with a long bracket",
+		input:        "a: 1 #[note\nb: 2 #this\nc: 3 #[=x\n",
+		expected:     "return {\n\t[\"a\"] = 1; --[note\n\t[\"b\"] = 2; --this\n\t[\"c\"] = 3; --[=x\n};\n",
+		scenarioType: "encode",
+	},
 }
 
 func testLuaScenario(t *testing.T, s formatScenario) {
