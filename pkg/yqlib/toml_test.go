@@ -991,6 +991,64 @@ func TestTomlScenarios(t *testing.T) {
 	documentScenarios(t, "usage", "toml", genericScenarios, documentTomlScenario)
 }
 
+func TestTomlRootInlineTableScope(t *testing.T) {
+	scenarios := []formatScenario{
+		{
+			description:  "sorted root inline table stays outside a table section",
+			input:        "z = { enabled = true }\n\n[a]\nname = \"first\"\n",
+			expression:   "sort_keys(.)",
+			expected:     "z = { enabled = true }\n\n[a]\nname = \"first\"\n",
+			scenarioType: "roundtrip",
+		},
+		{
+			description:  "sorted root inline table stays outside an array of tables",
+			input:        "z = { enabled = true }\n\n[[a]]\nname = \"first\"\n",
+			expression:   "sort_keys(.)",
+			expected:     "z = { enabled = true }\n\n[[a]]\nname = \"first\"\n",
+			scenarioType: "roundtrip",
+		},
+		{
+			description:  "sorted empty root inline table stays at the root",
+			input:        "z = {}\n\n[a]\nname = \"first\"\n",
+			expression:   "sort_keys(.)",
+			expected:     "z = {  }\n\n[a]\nname = \"first\"\n",
+			scenarioType: "roundtrip",
+		},
+		{
+			description:  "sorted root inline table retains quoted keys and comments",
+			input:        "# root settings\n\"z.key\" = { enabled = true } # keep here\n\n[a]\nname = \"first\"\n",
+			expression:   "sort_keys(.)",
+			expected:     "# root settings\n\"z.key\" = { enabled = true }  # keep here\n\n[a]\nname = \"first\"\n",
+			scenarioType: "roundtrip",
+		},
+		{
+			description:  "root inline table already before table sections is unchanged",
+			input:        "z = { enabled = true }\n\n[a]\nname = \"first\"\n",
+			expected:     "z = { enabled = true }\n\n[a]\nname = \"first\"\n",
+			scenarioType: "roundtrip",
+		},
+		{
+			description:  "nested inline table remains in its enclosing table",
+			input:        "[a]\nz = { enabled = true }\n\n[b]\nname = \"second\"\n",
+			expression:   "sort_keys(.)",
+			expected:     "[a]\nz = { enabled = true }\n\n[b]\nname = \"second\"\n",
+			scenarioType: "roundtrip",
+		},
+	}
+	for _, scenario := range scenarios {
+		t.Run(scenario.description, func(t *testing.T) {
+			testTomlScenario(t, scenario)
+			encoded := mustProcessFormatScenario(scenario, NewTomlDecoder(), NewTomlEncoder())
+			original := formatScenario{input: scenario.input, expression: "sort_keys(..)"}
+			roundtripped := formatScenario{input: encoded, expression: "sort_keys(..)"}
+			yamlEncoder := NewYamlEncoder(ConfiguredYamlPreferences)
+			test.AssertResult(t,
+				mustProcessFormatScenario(original, NewTomlDecoder(), yamlEncoder),
+				mustProcessFormatScenario(roundtripped, NewTomlDecoder(), yamlEncoder))
+		})
+	}
+}
+
 func TestTomlEncodeJsonKeepsRootArrayBeforeTables(t *testing.T) {
 	scenario := formatScenario{
 		description: "Encode: JSON root array stays outside later tables",
