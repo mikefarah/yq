@@ -10,8 +10,9 @@ import (
 
 var shellVariablesScenarios = []formatScenario{
 	{
-		description:    "Encode shell variables",
-		subdescription: "Note that comments are dropped and values will be enclosed in single quotes as needed.",
+		description: "Encode shell variables",
+		subdescription: "`-o=shell` is available in yq v4.34.1 and later.\n\n" +
+			"Note that comments are dropped and values will be enclosed in single quotes as needed.",
 		input: "" +
 			"# comment" + "\n" +
 			"name: Mike Wazowski" + "\n" +

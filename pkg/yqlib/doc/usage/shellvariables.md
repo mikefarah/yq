@@ -1,5 +1,7 @@
 
 ## Encode shell variables
+`-o=shell` is available in yq v4.34.1 and later.
+
 Note that comments are dropped and values will be enclosed in single quotes as needed.
 
 Given a sample.yml file of:
