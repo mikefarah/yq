@@ -117,3 +117,55 @@ func TestWriteStringDoesNotAllocate(t *testing.T) {
 	})
 	test.AssertResult(t, 0.0, allocations)
 }
+
+func TestSanitizeControlChars(t *testing.T) {
+	testCases := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "plain string without control characters",
+			input:    "hello world",
+			expected: "hello world",
+		},
+		{
+			name:     "ansi escape sequence",
+			input:    "\x1b[31mred text\x1b[0m",
+			expected: "[31mred text[0m",
+		},
+		{
+			name:     "osc escape sequence with bell",
+			input:    "\x1b]0;terminal title\a",
+			expected: "]0;terminal title",
+		},
+		{
+			name:     "control characters stripped",
+			input:    "null\x00bell\a\bbackspace\x1b\x7fdel",
+			expected: "nullbellbackspacedel",
+		},
+		{
+			name:     "tab newline carriage return preserved",
+			input:    "tab:\tnewline:\ncr:\r",
+			expected: "tab:\tnewline:\ncr:\r",
+		},
+		{
+			name:     "utf8 text preserved",
+			input:    "\x1b[1mこんにちは 世界\x1b[0m",
+			expected: "[1mこんにちは 世界[0m",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := sanitizeControlChars(tc.input)
+			test.AssertResult(t, tc.expected, actual)
+		})
+	}
+}
+
