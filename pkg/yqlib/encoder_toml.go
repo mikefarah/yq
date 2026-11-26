@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/fatih/color"
 )
@@ -78,10 +80,45 @@ func tomlKey(key string) string {
 	}
 	for _, r := range key {
 		if (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' && r != '-' {
-			return fmt.Sprintf("%q", key)
+			return tomlQuote(key)
 		}
 	}
 	return key
+}
+
+// tomlQuote returns s as a TOML basic string. Go's %q is not used because it
+// emits escapes TOML does not define (\a, \v, \x01...).
+func tomlQuote(s string) string {
+	var sb strings.Builder
+	sb.WriteByte('"')
+	for _, r := range s {
+		switch {
+		case r == '"':
+			sb.WriteString(`\"`)
+		case r == '\\':
+			sb.WriteString(`\\`)
+		case r == '\b':
+			sb.WriteString(`\b`)
+		case r == '\t':
+			sb.WriteString(`\t`)
+		case r == '\n':
+			sb.WriteString(`\n`)
+		case r == '\f':
+			sb.WriteString(`\f`)
+		case r == '\r':
+			sb.WriteString(`\r`)
+		case r == utf8.RuneError || !unicode.IsPrint(r):
+			if r > 0xFFFF {
+				fmt.Fprintf(&sb, `\U%08X`, r)
+			} else {
+				fmt.Fprintf(&sb, `\u%04X`, r)
+			}
+		default:
+			sb.WriteRune(r)
+		}
+	}
+	sb.WriteByte('"')
+	return sb.String()
 }
 
 // tomlDottedKey joins path components, quoting any that require it.
@@ -114,7 +151,7 @@ func (te *tomlEncoder) formatScalar(node *CandidateNode) string {
 	switch node.Tag {
 	case "!!str":
 		// Quote strings per TOML spec
-		return fmt.Sprintf("%q", node.Value)
+		return tomlQuote(node.Value)
 	case "!!bool", "!!int", "!!float":
 		return node.Value
 	case "!!null":
