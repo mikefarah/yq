@@ -54,6 +54,41 @@ will output
 hello
 ```
 
+## Parse: dotted keys in an inline table
+Given a sample.toml file of:
+```toml
+opts = { a.b = 1, a.c = 2 }
+```
+then
+```bash
+yq -oy '.' sample.toml
+```
+will output
+```yaml
+opts:
+  a:
+    b: 1
+    c: 2
+```
+
+## Parse: nested inline table
+Given a sample.toml file of:
+```toml
+opts = { nested = { a.b = 1, a.c = 2 } }
+```
+then
+```bash
+yq -oy '.' sample.toml
+```
+will output
+```yaml
+opts:
+  nested:
+    a:
+      b: 1
+      c: 2
+```
+
 ## Parse: inline table
 Given a sample.toml file of:
 ```toml

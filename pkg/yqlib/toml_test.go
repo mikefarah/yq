@@ -508,6 +508,18 @@ var tomlScenarios = []formatScenario{
 		scenarioType: "decode",
 	},
 	{
+		description:  "Parse: dotted keys in an inline table",
+		input:        `opts = { a.b = 1, a.c = 2 }`,
+		expected:     "opts:\n  a:\n    b: 1\n    c: 2\n",
+		scenarioType: "decode",
+	},
+	{
+		description:  "Parse: nested inline table",
+		input:        `opts = { nested = { a.b = 1, a.c = 2 } }`,
+		expected:     "opts:\n  nested:\n    a:\n      b: 1\n      c: 2\n",
+		scenarioType: "decode",
+	},
+	{
 		description:  "Parse: inline table",
 		input:        `name = { first = "Tom", last = "Preston-Werner" }`,
 		expected:     "name:\n  first: Tom\n  last: Preston-Werner\n",
