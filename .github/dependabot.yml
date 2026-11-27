@@ -15,6 +15,10 @@ updates:
     schedule:
       day: thursday
       interval: weekly
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action/*"
   - package-ecosystem: gomod
     directory: /
     schedule:
