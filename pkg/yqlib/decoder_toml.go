@@ -131,8 +131,16 @@ func (dec *tomlDecoder) decodeKeyValuesIntoMap(rootMap *CandidateNode, tomlNode 
 }
 
 func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNode, error) {
-	content := make([]*CandidateNode, 0)
 	log.Debug("createInlineTableMap")
+
+	// One map for the whole inline table: entries that share a dotted prefix
+	// (`{a.b = 1, a.c = 2}`) have to be assigned into the same subtree, not
+	// appended as separate `a` keys.
+	table := &CandidateNode{
+		Kind:       MappingNode,
+		Tag:        "!!map",
+		EncodeHint: EncodeHintInline,
+	}
 
 	iterator := tomlNode.Children()
 	for iterator.Next() {
@@ -141,24 +149,12 @@ func (dec *tomlDecoder) createInlineTableMap(tomlNode *toml.Node) (*CandidateNod
 			return nil, fmt.Errorf("only keyvalue pairs are supported in inlinetables, got %v instead", child.Kind)
 		}
 
-		keyValues := &CandidateNode{
-			Kind: MappingNode,
-			Tag:  "!!map",
-		}
-
-		if err := dec.processKeyValueIntoMap(keyValues, child); err != nil {
+		if err := dec.processKeyValueIntoMap(table, child); err != nil {
 			return nil, err
 		}
-
-		content = append(content, keyValues.Content...)
 	}
 
-	return &CandidateNode{
-		Kind:       MappingNode,
-		Tag:        "!!map",
-		EncodeHint: EncodeHintInline,
-		Content:    content,
-	}, nil
+	return table, nil
 }
 
 func (dec *tomlDecoder) createArray(tomlNode *toml.Node) (*CandidateNode, error) {
