@@ -41,6 +41,15 @@ var moduloOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Number modulo - hex int and float",
+		document:    `{a: 0x10, b: 1.5}`,
+		expression:  `.a % .b`,
+		expected: []string{
+			"D0, P[a], (!!float)::1\n",
+		},
+	},
+	{
 		description:    "Number modulo - int by zero",
 		subdescription: "If the lhs is an int and rhs is a 0 the result is an error.",
 		document:       `{a: 1, b: 0}`,

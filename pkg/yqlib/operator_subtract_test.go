@@ -76,6 +76,15 @@ var subtractOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Number subtraction - hex int and float",
+		document:    `{a: 0x10, b: 0.5}`,
+		expression:  `.a - .b`,
+		expected: []string{
+			"D0, P[a], (!!float)::15.5\n",
+		},
+	},
+	{
 		description:    "Number subtraction - int",
 		subdescription: "If both the lhs and rhs are ints then the expression will be calculated with ints.",
 		document:       `{a: 3, b: 4}`,

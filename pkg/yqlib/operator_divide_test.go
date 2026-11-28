@@ -40,6 +40,24 @@ var divideOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Number division - hex ints",
+		document:    `{a: 0x1F, b: 0x2}`,
+		expression:  `.a / .b`,
+		expected: []string{
+			"D0, P[a], (!!float)::15.5\n",
+		},
+	},
+	{
+		skipDoc:     true,
+		description: "Number division - octal int",
+		document:    `{a: 0o17, b: 2}`,
+		expression:  `.a / .b`,
+		expected: []string{
+			"D0, P[a], (!!float)::7.5\n",
+		},
+	},
+	{
 		description:    "Number division by zero",
 		subdescription: "Dividing by zero results in +Inf or -Inf",
 		document:       `{a: 1, b: -1}`,
