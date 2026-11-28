@@ -115,7 +115,10 @@ func delPathsOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 		return Context{}, fmt.Errorf("DELPATHS: expected a sequence of sequences, but found %v", pathArraysNode.Tag)
 	}
 
-	updatedContext := context
+	// Combine all the paths into a single union expression, so that every
+	// node to delete is resolved before any deletion happens. Deleting one path
+	// at a time would shift array indices and remove the wrong elements.
+	var pathsExp *ExpressionNode
 
 	for i, child := range pathArraysNode.Content {
 
@@ -129,22 +132,27 @@ func delPathsOperator(d *dataTreeNavigator, context Context, expressionNode *Exp
 		}
 
 		childTraversalExp := createTraversalTree(childPath, traversePreferences{}, false)
-		deleteChildOp := &Operation{OperationType: deleteChildOpType}
-
-		deleteChildOpNode := &ExpressionNode{
-			Operation: deleteChildOp,
-			RHS:       childTraversalExp,
+		if pathsExp == nil {
+			pathsExp = childTraversalExp
+		} else {
+			pathsExp = &ExpressionNode{
+				Operation: &Operation{OperationType: unionOpType},
+				LHS:       pathsExp,
+				RHS:       childTraversalExp,
+			}
 		}
-
-		updatedContext, err = d.GetMatchingNodes(updatedContext, deleteChildOpNode)
-
-		if err != nil {
-			return Context{}, err
-		}
-
 	}
 
-	return updatedContext, nil
+	if pathsExp == nil {
+		return context, nil
+	}
+
+	deleteChildOpNode := &ExpressionNode{
+		Operation: &Operation{OperationType: deleteChildOpType},
+		RHS:       pathsExp,
+	}
+
+	return d.GetMatchingNodes(context, deleteChildOpNode)
 
 }
 
