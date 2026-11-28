@@ -385,6 +385,13 @@ var jsonScenarios = []formatScenario{
 		expected:     "- true\n- false\n",
 		scenarioType: "decode-ndjson",
 	},
+	{
+		description:  "integers wider than 2^53 keep their digits",
+		skipDoc:      true,
+		input:        `{"id":1234567890123456789,"nanos":1700000000123456789,"negative":-1234567890123456789}`,
+		expected:     "{\"id\":1234567890123456789,\"nanos\":1700000000123456789,\"negative\":-1234567890123456789}\n",
+		scenarioType: "roundtrip-ndjson",
+	},
 }
 
 func documentRoundtripNdJsonScenario(w *bufio.Writer, s formatScenario, indent int) {
