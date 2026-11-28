@@ -102,6 +102,11 @@ var INIFormat = &Format{"ini", []string{"i"},
 	func() Decoder { return NewINIDecoder(ConfiguredINIPreferences) },
 }
 
+var DotenvFormat = &Format{"dotenv", []string{"env"},
+	func() Encoder { return NewDotenvEncoder() },
+	func() Decoder { return NewDotenvDecoder() },
+}
+
 var Formats = []*Format{
 	YamlFormat,
 	KYamlFormat,
@@ -119,6 +124,7 @@ var Formats = []*Format{
 	ShellVariablesFormat,
 	LuaFormat,
 	INIFormat,
+	DotenvFormat,
 }
 
 func (f *Format) MatchesName(name string) bool {
