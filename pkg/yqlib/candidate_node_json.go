@@ -117,6 +117,15 @@ func (o *CandidateNode) UnmarshalJSON(data []byte) error {
 	}
 	log.Debug("UnmarshalJSON -  its a scalar!")
 	// otherwise, must be a scalar
+	if isJSONIntegerLiteral(data) {
+		// Decoding through float64 rounds integers wider than 2^53
+		// (1234567890123456789 became 1234567890123456768), so keep the
+		// literal as written. See #2795.
+		o.Kind = ScalarNode
+		o.Tag = "!!int"
+		o.Value = string(data)
+		return nil
+	}
 	var scalar interface{}
 	err := json.Unmarshal(data, &scalar)
 
@@ -267,4 +276,26 @@ func isJSONNumberLiteral(s string) bool {
 		return false
 	}
 	return hasFraction || hasExponent
+}
+
+// isJSONIntegerLiteral reports whether data is a plain JSON integer literal
+// (an optional minus followed by digits), i.e. a number whose digits must not
+// be rounded through a float64.
+func isJSONIntegerLiteral(data []byte) bool {
+	if len(data) == 0 {
+		return false
+	}
+	i := 0
+	if data[0] == '-' {
+		i = 1
+		if len(data) == 1 {
+			return false
+		}
+	}
+	for ; i < len(data); i++ {
+		if data[i] < '0' || data[i] > '9' {
+			return false
+		}
+	}
+	return true
 }
