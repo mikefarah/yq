@@ -193,6 +193,19 @@ func parseInt64(numberString string) (string, int64, error) {
 	return "%v", num, err
 }
 
+// parseFloat64 reads a numeric scalar as a float64 for float maths.
+// strconv.ParseFloat does not understand yaml integers like 0x10 or 0o17,
+// so integers it rejects are parsed with parseInt64 instead.
+func parseFloat64(node *CandidateNode) (float64, error) {
+	num, err := strconv.ParseFloat(node.Value, 64)
+	if err != nil && node.guessTagFromCustomType() == "!!int" {
+		if _, intNum, intErr := parseInt64(node.Value); intErr == nil {
+			return float64(intNum), nil
+		}
+	}
+	return num, err
+}
+
 func parseInt(numberString string) (int, error) {
 	_, parsed, err := parseInt64(numberString)
 

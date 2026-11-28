@@ -3,7 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -107,11 +106,11 @@ func multiplyFloats(lhs *CandidateNode, rhs *CandidateNode, lhsIsCustom bool) (*
 		target.Tag = "!!float"
 	}
 
-	lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+	lhsNum, err := parseFloat64(lhs)
 	if err != nil {
 		return nil, err
 	}
-	rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+	rhsNum, err := parseFloat64(rhs)
 	if err != nil {
 		return nil, err
 	}

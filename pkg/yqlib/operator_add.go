@@ -2,7 +2,6 @@ package yqlib
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -129,11 +128,11 @@ func addScalars(context Context, target *CandidateNode, lhs *CandidateNode, rhs 
 		target.Tag = lhs.Tag
 		target.Value = fmt.Sprintf(format, sum)
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
-		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+		lhsNum, err := parseFloat64(lhs)
 		if err != nil {
 			return err
 		}
-		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+		rhsNum, err := parseFloat64(rhs)
 		if err != nil {
 			return err
 		}

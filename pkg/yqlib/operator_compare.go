@@ -3,7 +3,6 @@ package yqlib
 import (
 	"container/list"
 	"fmt"
-	"strconv"
 )
 
 type compareTypePref struct {
@@ -99,11 +98,11 @@ func compareScalars(context Context, prefs compareTypePref, lhs *CandidateNode, 
 		}
 		return lhsNum < rhsNum, nil
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
-		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+		lhsNum, err := parseFloat64(lhs)
 		if err != nil {
 			return false, err
 		}
-		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+		rhsNum, err := parseFloat64(rhs)
 		if err != nil {
 			return false, err
 		}
