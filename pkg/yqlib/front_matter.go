@@ -76,6 +76,9 @@ func (f *frontMatterHandlerImpl) Split() error {
 	log.Debugf("yamlTempFile: %v", yamlTempFile.Name())
 
 	lineCount := 0
+	foundSeparator := false
+	startsWithSeparator := false
+	var readLines bytes.Buffer
 
 	for {
 		peekBytes, err := reader.Peek(3)
@@ -87,19 +90,32 @@ func (f *frontMatterHandlerImpl) Split() error {
 		}
 		if lineCount > 0 && string(peekBytes) == "---" {
 			// we've finished reading the yaml content..
+			foundSeparator = true
 			break
+		}
+		if lineCount == 0 && string(peekBytes) == "---" {
+			startsWithSeparator = true
 		}
 		line, errReading := reader.ReadString('\n')
 		lineCount = lineCount + 1
 		if errReading != nil && !errors.Is(errReading, io.EOF) {
 			return errReading
 		}
+		readLines.WriteString(line)
 
 		_, errWriting := yamlTempFile.WriteString(line)
 
 		if errWriting != nil {
 			return errWriting
 		}
+	}
+
+	if !startsWithSeparator && !foundSeparator {
+		// no front matter: leave the yaml empty and keep the whole input as content
+		if err := yamlTempFile.Truncate(0); err != nil {
+			return err
+		}
+		f.contentReader = io.MultiReader(&readLines, reader)
 	}
 
 	safelyCloseFile(yamlTempFile)
