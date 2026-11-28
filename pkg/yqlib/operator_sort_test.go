@@ -180,6 +180,15 @@ var sortByOperatorScenarios = []expressionScenario{
 			"D0, P[], (!!seq)::[-5000000000000000000, 5000000000000000000]\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "Sort hex and octal ints with floats",
+		document:    "[0x10, 9.5, 0o7]",
+		expression:  `sort`,
+		expected: []string{
+			"D0, P[], (!!seq)::[0o7, 9.5, 0x10]\n",
+		},
+	},
 }
 
 func TestSortByOperatorScenarios(t *testing.T) {

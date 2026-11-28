@@ -291,6 +291,15 @@ var multiplyOperatorScenarios = []expressionScenario{
 		},
 	},
 	{
+		skipDoc:     true,
+		description: "Multiply hex int and float",
+		document:    `{a: 0x10, b: 1.5}`,
+		expression:  `.a * .b`,
+		expected: []string{
+			"D0, P[a], (!!float)::24\n",
+		},
+	},
+	{
 		skipDoc:    true,
 		document:   `{a: {also: [1]}, b: {also: me}}`,
 		expression: `. * {"a" : .b}`,

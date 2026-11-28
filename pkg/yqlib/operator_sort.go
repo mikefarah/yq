@@ -4,7 +4,6 @@ import (
 	"container/list"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -173,11 +172,11 @@ func (a sortableNodeArray) compare(lhs *CandidateNode, rhs *CandidateNode, dateT
 		}
 		return 0
 	} else if (lhsTag == "!!int" || lhsTag == "!!float") && (rhsTag == "!!int" || rhsTag == "!!float") {
-		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+		lhsNum, err := parseFloat64(lhs)
 		if err != nil {
 			panic(err)
 		}
-		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+		rhsNum, err := parseFloat64(rhs)
 		if err != nil {
 			panic(err)
 		}

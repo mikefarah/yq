@@ -122,6 +122,15 @@ var compareOperatorScenarios = []expressionScenario{
 			"D0, P[a], (!!bool)::false\n",
 		},
 	},
+	{
+		skipDoc:     true,
+		description: "hex int and float",
+		document:    "a: 0x10\nb: 9.5",
+		expression:  ".a > .b",
+		expected: []string{
+			"D0, P[a], (!!bool)::true\n",
+		},
+	},
 
 	// floats, equal
 	{

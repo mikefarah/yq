@@ -3,7 +3,6 @@ package yqlib
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"strings"
 )
 
@@ -64,11 +63,11 @@ func moduloScalars(target *CandidateNode, lhs *CandidateNode, rhs *CandidateNode
 		target.Kind = ScalarNode
 		target.Style = lhs.Style
 
-		lhsNum, err := strconv.ParseFloat(lhs.Value, 64)
+		lhsNum, err := parseFloat64(lhs)
 		if err != nil {
 			return err
 		}
-		rhsNum, err := strconv.ParseFloat(rhs.Value, 64)
+		rhsNum, err := parseFloat64(rhs)
 		if err != nil {
 			return err
 		}
